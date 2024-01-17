@@ -43,7 +43,11 @@ export const LoginComponent = () => {
 
   return (
     <Card
-      sx={{ justifyContent: "center", display: "flex", bgcolor: "#F5F5F5" }}
+      sx={{
+        justifyContent: "center",
+        display: "flex",
+        bgcolor: "#F5F5F5",
+      }}
     >
       <Stack sx={{ flexDirection: "row" }}>
         <Box

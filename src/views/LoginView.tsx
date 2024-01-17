@@ -1,11 +1,9 @@
-import { Container } from "@mui/material";
+import { Box } from "@mui/material";
 import { LoginComponent } from "../components/LoginComponent";
 
 export const LoginView = () => {
   return (
-    <Container
-      maxWidth={"xl"}
-      component="main"
+    <Box
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -13,6 +11,6 @@ export const LoginView = () => {
       }}
     >
       <LoginComponent />
-    </Container>
+    </Box>
   );
 };
