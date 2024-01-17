@@ -16,12 +16,15 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { loginSchema } from "../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
+import logoHSB from "../assets/logoHSB.png"
+import { useIsAuthStore } from "../store/authentication";
 interface ILogin {
   email: string;
   password: string;
 }
 
 export const LoginComponent = () => {
+  const setIsAuth = useIsAuthStore((state) => state.setIsAuth)
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const {
@@ -38,7 +41,8 @@ export const LoginComponent = () => {
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<ILogin> = (data) => {
     console.log(data);
-    navigate("/dashboard");
+    setIsAuth(true)
+    navigate("/");
   };
 
   return (
@@ -46,22 +50,29 @@ export const LoginComponent = () => {
       sx={{
         justifyContent: "center",
         display: "flex",
-        bgcolor: "#F5F5F5",
+        bgcolor: "white",
+        borderRadius:5,
+        boxShadow:10
       }}
     >
-      <Stack sx={{ flexDirection: "row" }}>
+      <Stack sx={{ flexDirection: {xs:"stack", sm:"row"},display:"flex", alignItems:{xs:"center", sm:"normal"} }}>
         <Box
           component="img"
           sx={{
-            height: "auto",
-            width: "auto",
+            height: { xs: "auto",},
+            width: { sm: "auto", xs:"150px"},
+            display:"flex",
+            flex:1,
+            borderRadius:{xs: 5, sm:0},
+            mt:{xs:4, sm:0},
           }}
-          src="https://play-lh.googleusercontent.com/xdTPpFriwvjDc1H8Ak45CJHoz_h0rm3OcrqBiQoa4gFBI1T4rGPLwy8fc3mpdSoXBepL"
+          src={logoHSB}
         />
 
+        <Box sx={{display:"flex", flex:1}}> 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <Stack sx={{ p: 2 }}>
-            <Typography fontWeight={700} fontSize={28} sx={{ my: 8, mx: 4 }}>
+            <Typography fontWeight={700} fontSize={28} sx={{ my: 6, mx: 4 }}>
               Inicia sesion en tu cuenta
             </Typography>
             <TextField
@@ -124,6 +135,7 @@ export const LoginComponent = () => {
             </Button>
           </Stack>
         </form>
+        </Box>
       </Stack>
     </Card>
   );

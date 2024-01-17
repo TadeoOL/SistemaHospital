@@ -74,20 +74,20 @@ export const SidebarNav = () => {
   const [openSubMenu, setOpenSubMenu] = useState(false);
   const isOpen = useAppNavStore((state) => state.dopen);
   const updateOpen = useAppNavStore((state) => state.updateOpen);
-  console.log({ open });
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-
+      <Box sx={{height:30}}/>
       <Drawer variant="permanent" open={isOpen}>
         <DrawerHeader>
-          <IconButton onClick={() => updateOpen(!isOpen)}>
+          {/* <IconButton onClick={() => updateOpen(!isOpen)}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
               <ChevronLeftIcon />
             )}
-          </IconButton>
+          </IconButton> */}
         </DrawerHeader>
         <Divider />
         <List>

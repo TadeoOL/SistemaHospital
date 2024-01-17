@@ -7,7 +7,7 @@ export const LoginView = () => {
       sx={{
         display: "flex",
         justifyContent: "center",
-        py: { lg: 10, xl: 25 },
+        py: { lg: 10, xl: 25, sm: 15, xs:10 },
       }}
     >
       <LoginComponent />

@@ -6,6 +6,7 @@ export const DashboardView = () => {
   return (
     <>
       <HeaderNavbar />
+      <Box sx={{height:40}}/>
       <Box sx={{ display: "flex" }}>
         <SidebarNav />
         <h1>Dashboard</h1>
