@@ -1,16 +1,13 @@
 import { Box } from "@mui/material";
-import { SidebarNav } from "../components/SidebarNav";
-import { HeaderNavbar } from "../components/HeaderNavbar";
+import React from "react";
+import { Layout } from "../components/Layout";
 
-export const DashboardView = () => {
+export const DashboardView: React.FC = () => {
   return (
-    <>
-      <HeaderNavbar />
-      <Box sx={{height:40}}/>
-      <Box sx={{ display: "flex" }}>
-        <SidebarNav />
+    <Layout>
+      <Box sx={{ display: "flex", bgcolor: "lightgreen" }}>
         <h1>Dashboard</h1>
       </Box>
-    </>
+    </Layout>
   );
 };

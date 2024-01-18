@@ -5,9 +5,9 @@ import MuiDrawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+// import IconButton from "@mui/material/IconButton";
+// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+// import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -15,7 +15,7 @@ import ListItemText from "@mui/material/ListItemText";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { Collapse } from "@mui/material";
+import { Collapse, useMediaQuery } from "@mui/material";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import { useAppNavStore } from "../store/appNav";
 
@@ -68,18 +68,23 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-export const SidebarNav = () => {
+export const SideNav = () => {
   const theme = useTheme();
   // const [open, setOpen] = useState(false);
   const [openSubMenu, setOpenSubMenu] = useState(false);
   const isOpen = useAppNavStore((state) => state.dopen);
-  const updateOpen = useAppNavStore((state) => state.updateOpen);
+  // const updateOpen = useAppNavStore((state) => state.updateOpen);
+  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <Box sx={{height:30}}/>
-      <Drawer variant="permanent" open={isOpen}>
+      <Box sx={{ height: 30 }} />
+      <Drawer
+        variant="permanent"
+        open={lgUp ? true : isOpen}
+        sx={{ display: lgUp ? null : "none" }}
+      >
         <DrawerHeader>
           {/* <IconButton onClick={() => updateOpen(!isOpen)}>
             {theme.direction === "rtl" ? (

@@ -7,7 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<ProtectedRoute />}>
-        <Route path="/"element={<DashboardView />}  />
+          <Route path="/" element={<DashboardView />} />
         </Route>
         <Route path="/login" element={<LoginView />} />
       </Routes>

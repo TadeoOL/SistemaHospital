@@ -11,7 +11,7 @@ import { useState } from "react";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import { useAppNavStore } from "../store/appNav";
 import { useIsAuthStore } from "../store/authentication";
-import MoreIcon from '@mui/icons-material/MoreVert';
+import MoreIcon from "@mui/icons-material/MoreVert";
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -23,14 +23,14 @@ const AppBar = styled(MuiAppBar, {
   zIndex: theme.zIndex.drawer + 1,
 }));
 
-export const HeaderNavbar = () => {
+export const TopNav = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
   const isOpen = useAppNavStore((state) => state.dopen);
   const updateOpen = useAppNavStore((state) => state.updateOpen);
-  const setIsAuth = useIsAuthStore((state) => state.setIsAuth)
+  const setIsAuth = useIsAuthStore((state) => state.setIsAuth);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -66,23 +66,23 @@ export const HeaderNavbar = () => {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-      <MenuItem onClick={()=>setIsAuth(false)}>Cerrar sesion</MenuItem>
+      <MenuItem onClick={() => setIsAuth(false)}>Cerrar sesion</MenuItem>
     </Menu>
   );
 
-  const mobileMenuId = 'primary-search-account-menu-mobile';
+  const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
       anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: "top",
+        horizontal: "right",
       }}
       id={mobileMenuId}
       keepMounted
       transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: "top",
+        horizontal: "right",
       }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
@@ -105,7 +105,7 @@ export const HeaderNavbar = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="fixed">
-        <Toolbar sx={{bgcolor:"#280274"}}>
+        <Toolbar sx={{ bgcolor: "#280274" }}>
           <IconButton
             size="large"
             edge="start"
@@ -141,7 +141,7 @@ export const HeaderNavbar = () => {
               <AccountCircle />
             </IconButton>
           </Box>
-          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="show more"
