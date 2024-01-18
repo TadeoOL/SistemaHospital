@@ -15,32 +15,22 @@ import ListItemText from "@mui/material/ListItemText";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { Collapse, useMediaQuery } from "@mui/material";
+import {
+  Collapse,
+  useMediaQuery,
+  Typography,
+  colors,
+  Drawer,
+  Stack,
+  SvgIcon,
+  IconButton,
+} from "@mui/material";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import { useAppNavStore } from "../store/appNav";
-
-const drawerWidth = 240;
-
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
+import { ModuleItems } from "../utils/ModuleItems";
+import { useLocation, useNavigate } from "react-router-dom";
+import { SideNavItems } from "./SideNavItems";
+import homeLogo from "../assets/homeLogoHSB.svg";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -51,89 +41,92 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
-
 export const SideNav = () => {
   const theme = useTheme();
   // const [open, setOpen] = useState(false);
   const [openSubMenu, setOpenSubMenu] = useState(false);
   const isOpen = useAppNavStore((state) => state.dopen);
-  // const updateOpen = useAppNavStore((state) => state.updateOpen);
+  const setIsOpen = useAppNavStore((state) => state.updateOpen);
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <Box sx={{ height: 30 }} />
-      <Drawer
-        variant="permanent"
-        open={lgUp ? true : isOpen}
-        sx={{ display: lgUp ? null : "none" }}
+    <Drawer
+      variant={lgUp ? "permanent" : "temporary"}
+      anchor="left"
+      onClose={() => {
+        setIsOpen(false);
+      }}
+      open={lgUp ? true : isOpen}
+      PaperProps={{
+        sx: {
+          backgroundColor: "neutral.800",
+          color: "common.white",
+          width: 280,
+        },
+      }}
+    >
+      <DrawerHeader
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: "column",
+        }}
       >
-        <DrawerHeader>
-          {/* <IconButton onClick={() => updateOpen(!isOpen)}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton> */}
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: isOpen ? "initial" : "center",
-                px: 2.5,
-              }}
-              onClick={() => setOpenSubMenu(!openSubMenu)}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: isOpen ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                <VaccinesIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={"Farmacia"}
-                sx={{ opacity: isOpen ? 1 : 0 }}
+        <Box
+          component="img"
+          sx={{
+            p: 2,
+            maxWidth: 180,
+            transition:
+              "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.04)",
+              borderRadius: 1,
+              cursor: "pointer",
+              transition:
+                "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
+            },
+          }}
+          src={homeLogo}
+          onClick={() => navigate("/")}
+        />
+      </DrawerHeader>
+      <Divider sx={{ borderColor: "neutral.700" }} />
+      <Box
+        component="nav"
+        sx={{
+          flexGrow: 1,
+          px: 2,
+          py: 3,
+        }}
+      >
+        <Stack
+          component="ul"
+          spacing={0.5}
+          sx={{
+            listStyle: "none",
+            p: 0,
+            m: 0,
+          }}
+        >
+          {ModuleItems.map((item, i) => {
+            const isActive = item.path === location.pathname ? true : false;
+            return (
+              <SideNavItems
+                active={isActive}
+                childrenItems={item.childrenItems}
+                disabled={false}
+                icon={item.icon}
+                path={item.path}
+                title={item.title}
+                key={i}
               />
-              {openSubMenu ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }}>
-                  <ListItemIcon>
-                    <MedicalServicesIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Almacen" />
-                </ListItemButton>
-              </List>
-            </Collapse>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}></Box>
-    </Box>
+            );
+          })}
+        </Stack>
+      </Box>
+    </Drawer>
   );
 };

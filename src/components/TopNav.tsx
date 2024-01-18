@@ -1,17 +1,19 @@
-import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import { useState } from "react";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import {
+  Avatar,
+  Badge,
+  Stack,
+  SvgIcon,
+  Tooltip,
+  useMediaQuery,
+} from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import { alpha, styled, useTheme } from "@mui/material/styles";
+import { useState } from "react";
 import { useAppNavStore } from "../store/appNav";
-import { useIsAuthStore } from "../store/authentication";
-import MoreIcon from "@mui/icons-material/MoreVert";
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -25,138 +27,96 @@ const AppBar = styled(MuiAppBar, {
 
 export const TopNav = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    useState<null | HTMLElement>(null);
-  const isMenuOpen = Boolean(anchorEl);
+  const theme = useTheme();
+  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const setIsOpen = useAppNavStore((state) => state.updateOpen);
   const isOpen = useAppNavStore((state) => state.dopen);
-  const updateOpen = useAppNavStore((state) => state.updateOpen);
-  const setIsAuth = useIsAuthStore((state) => state.setIsAuth);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  const menuId = "primary-search-account-menu";
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-      <MenuItem onClick={() => setIsAuth(false)}>Cerrar sesion</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-    </Menu>
-  );
+  const SIDE_NAV_WIDTH = 280;
+  const TOP_NAV_HEIGHT = 64;
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed">
-        <Toolbar sx={{ bgcolor: "#280274" }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-            onClick={() => {
-              updateOpen(!isOpen);
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
-            Prueba
-          </Typography>
-
-          <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
+    <>
+      <Box
+        component="header"
+        sx={{
+          backdropFilter: "blur(6px)",
+          backgroundColor: (theme) =>
+            alpha(theme.palette.background.default, 0.8),
+          position: "sticky",
+          left: {
+            lg: `${SIDE_NAV_WIDTH}px`,
+          },
+          top: 0,
+          width: {
+            lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
+          },
+          zIndex: (theme) => theme.zIndex.appBar,
+        }}
+      >
+        <Stack
+          alignItems="center"
+          direction="row"
+          justifyContent="space-between"
+          spacing={2}
+          sx={{
+            minHeight: TOP_NAV_HEIGHT,
+            px: 2,
+          }}
+        >
+          <Stack alignItems="center" direction="row" spacing={2}>
+            {!lgUp && (
+              <IconButton
+                onClick={() => {
+                  setIsOpen(!isOpen);
+                }}
+              >
+                <SvgIcon fontSize="small">
+                  <MenuIcon />
+                </SvgIcon>
+              </IconButton>
+            )}
+            {/* <Tooltip title="Search">
+            <IconButton>
+              <SvgIcon fontSize="small">
+                <MagnifyingGlassIcon />
+              </SvgIcon>
             </IconButton>
-          </Box>
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
-    </Box>
+          </Tooltip> */}
+          </Stack>
+          <Stack alignItems="center" direction="row" spacing={2}>
+            <Tooltip title="Contacts">
+              <IconButton>
+                <SvgIcon fontSize="small">{/* <UsersIcon /> */}</SvgIcon>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Notifications">
+              <IconButton>
+                <Badge badgeContent={4} color="success" variant="dot">
+                  <SvgIcon fontSize="small">
+                    <NotificationsActiveIcon />
+                  </SvgIcon>
+                </Badge>
+              </IconButton>
+            </Tooltip>
+            <Avatar
+              // onClick={accountPopover.handleOpen}
+              // ref={accountPopover.anchorRef}
+              sx={{
+                cursor: "pointer",
+                height: 40,
+                width: 40,
+              }}
+              // src="/assets/avatars/avatar-anika-visser.png"
+            />
+          </Stack>
+        </Stack>
+      </Box>
+      {/* <AccountPopover
+      anchorEl={accountPopover.anchorRef.current}
+      open={accountPopover.open}
+      onClose={accountPopover.handleClose}
+    /> */}
+    </>
   );
 };
