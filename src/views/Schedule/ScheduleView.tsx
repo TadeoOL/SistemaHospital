@@ -1,9 +1,5 @@
-import { Layout } from "../../components/Layout";
+import { Layout } from "../../components/Layout/Layout";
 
 export const ScheduleView = () => {
-  return (
-    <Layout>
-      <div>ScheduleView</div>
-    </Layout>
-  );
+  return <div>ScheduleView</div>;
 };

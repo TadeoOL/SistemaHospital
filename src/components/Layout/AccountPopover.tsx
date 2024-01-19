@@ -23,6 +23,11 @@ export const AccountPopover = (props: IAccountPopover) => {
     navigate("/login");
   }, [onClose, navigate]);
 
+  const handleConfiguration = useCallback(() => {
+    onClose?.();
+    navigate("/configuracion");
+  }, [onClose, navigate]);
+
   return (
     <Popover
       anchorEl={anchorEl}
@@ -56,7 +61,8 @@ export const AccountPopover = (props: IAccountPopover) => {
           },
         }}
       >
-        <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+        <MenuItem onClick={handleConfiguration}>Configuracion</MenuItem>
+        <MenuItem onClick={handleSignOut}>Cerrar sesion</MenuItem>
       </MenuList>
     </Popover>
   );

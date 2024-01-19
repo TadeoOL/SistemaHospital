@@ -13,21 +13,14 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import { alpha, styled, useTheme } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
-import { useAppNavStore } from "../store/appNav";
+import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-}));
-
 export const TopNav = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
   const setIsOpen = useAppNavStore((state) => state.updateOpen);
@@ -41,10 +34,6 @@ export const TopNav = () => {
 
   const handleClose = useCallback(() => {
     setOpen(false);
-  }, []);
-
-  const handleToggle = useCallback(() => {
-    setOpen((prevState) => !prevState);
   }, []);
 
   const SIDE_NAV_WIDTH = 280;
@@ -122,7 +111,7 @@ export const TopNav = () => {
                 height: 40,
                 width: 40,
               }}
-              src="https://scontent.fhmo6-1.fna.fbcdn.net/v/t39.30808-6/357450228_3523544011215527_1530865870225418180_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=efb6e6&_nc_eui2=AeG8YpH1idFJH9LefjczwJoqamPmEpT-c8VqY-YSlP5zxZ5x1STkcRlTusAmbvOn_Dg&_nc_ohc=eyOFIVGqebkAX-1blHh&_nc_ht=scontent.fhmo6-1.fna&oh=00_AfAIAuJvdGayqm-EjzGFr9WZPxxTOTsjyF_BENr4ISo90A&oe=65AF2FF7"
+              src=""
             />
           </Stack>
         </Stack>

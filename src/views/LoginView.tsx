@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { LoginComponent } from "../components/LoginComponent";
+import { LoginComponent } from "../components/Login/LoginComponent";
 import logo from "../assets/login-illustration.svg";
 
 export const LoginView = () => {

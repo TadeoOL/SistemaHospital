@@ -1,6 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { TopNav } from "./TopNav";
 import { SideNav } from "./SideNav";
+import { Outlet } from "react-router-dom";
 
 const SIDE_NAV_WIDTH = 280;
 
@@ -20,17 +21,13 @@ const LayoutContainer = styled("div")({
   width: "100%",
 });
 
-export interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC = () => {
   return (
     <>
       <TopNav />
       <SideNav />
       <LayoutRoot>
-        <LayoutContainer>{children}</LayoutContainer>
+        <LayoutContainer>{<Outlet />}</LayoutContainer>
       </LayoutRoot>
     </>
   );

@@ -1,7 +1,6 @@
 import { Box, ButtonBase, Collapse, Stack } from "@mui/material";
-import { IModuleItems } from "../types/types";
+import { IModuleItems } from "../../types/types";
 import { useNavigate } from "react-router-dom";
-import { useChildrenNavItems } from "../store/childrenNavItems";
 import { useState } from "react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";

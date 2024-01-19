@@ -14,11 +14,11 @@ import { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { loginSchema } from "../schema/schemas";
+import { loginSchema } from "../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
 // import logoHSB from "../assets/logoHSB.png";
-import { useIsAuthStore } from "../store/authentication";
+import { useIsAuthStore } from "../../store/authentication";
 interface ILogin {
   email: string;
   password: string;

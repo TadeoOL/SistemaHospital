@@ -1,50 +1,23 @@
-import { useState } from "react";
-import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
-// import IconButton from "@mui/material/IconButton";
-// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-// import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import VaccinesIcon from "@mui/icons-material/Vaccines";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import {
-  Collapse,
-  useMediaQuery,
-  Typography,
-  colors,
-  Drawer,
-  Stack,
-  SvgIcon,
-  IconButton,
-} from "@mui/material";
-import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
-import { useAppNavStore } from "../store/appNav";
-import { ModuleItems } from "../utils/ModuleItems";
+import { styled, useTheme } from "@mui/material/styles";
+import { Drawer, Stack, useMediaQuery } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
+import homeLogo from "../../assets/homeLogoHSB.svg";
+import { useAppNavStore } from "../../store/appNav";
+import { ModuleItems } from "../../utils/ModuleItems";
 import { SideNavItems } from "./SideNavItems";
-import homeLogo from "../assets/homeLogoHSB.svg";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
 export const SideNav = () => {
   const theme = useTheme();
-  // const [open, setOpen] = useState(false);
-  const [openSubMenu, setOpenSubMenu] = useState(false);
   const isOpen = useAppNavStore((state) => state.dopen);
   const setIsOpen = useAppNavStore((state) => state.updateOpen);
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
@@ -61,7 +34,7 @@ export const SideNav = () => {
       open={lgUp ? true : isOpen}
       PaperProps={{
         sx: {
-          backgroundColor: "neutral.800",
+          backgroundColor: "info.darkest",
           color: "common.white",
           width: 280,
         },

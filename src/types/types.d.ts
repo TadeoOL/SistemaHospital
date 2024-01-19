@@ -10,3 +10,20 @@ export interface IModuleItems {
   childrenItems: IChildrenItems[] | [];
   icon: React.ReactElement;
 }
+
+export interface IUser {
+  id: string;
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  telefono: string;
+  email: string;
+  imagenURL: string;
+  nombreUsuario: string;
+  roles: IRol[];
+}
+
+export interface IRol {
+  id: string;
+  name: string;
+}
