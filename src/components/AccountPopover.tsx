@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 interface IAccountPopover {
   open: boolean;
   onClose: () => void;
-  anchorEl: HTMLElement;
+  anchorEl: HTMLElement | null;
 }
 export const AccountPopover = (props: IAccountPopover) => {
   const { anchorEl, onClose, open } = props;
@@ -41,9 +41,9 @@ export const AccountPopover = (props: IAccountPopover) => {
         }}
       >
         <Typography variant="overline">Account</Typography>
-        <Typography color="text.secondary" variant="body2">
+        {/* <Typography color="text.secondary" variant="body2">
           Anika Visser
-        </Typography>
+        </Typography> */}
       </Box>
       <Divider />
       <MenuList
