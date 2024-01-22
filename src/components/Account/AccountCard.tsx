@@ -10,30 +10,23 @@ import { useForm } from "react-hook-form";
 import { IUserSettings } from "../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSettingsSchema } from "../../schema/schemas";
-import { indigo } from "../../theme/colors";
 import { useUserInfoStore } from "../../store/user";
 
 export const AccountCard = () => {
-  const nombre = useUserInfoStore((state) => state.nombre);
-  const apellidoPaterno = useUserInfoStore((state) => state.apellidoPaterno);
-  const apellidoMaterno = useUserInfoStore((state) => state.apellidoMaterno);
-  const imagenURL = useUserInfoStore((state) => state.imagenURL);
-  const email = useUserInfoStore((state) => state.email);
-  const telefono = useUserInfoStore((state) => state.telefono);
+  const user = useUserInfoStore((state) => state.user);
 
-  console.log(nombre, apellidoPaterno, apellidoMaterno, email, telefono);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IUserSettings>({
     defaultValues: {
-      nombre: nombre,
-      apellidoPaterno: apellidoPaterno,
-      apellidoMaterno: apellidoMaterno,
-      imagenURL: "",
-      email: email,
-      telefono: telefono,
+      nombre: user?.nombre,
+      apellidoPaterno: user?.apellidoPaterno,
+      apellidoMaterno: user?.apellidoMaterno,
+      imagenURL: user?.imagenURL,
+      email: user?.email,
+      telefono: user?.telefono,
     },
     resolver: zodResolver(userSettingsSchema),
   });
@@ -94,27 +87,14 @@ export const AccountCard = () => {
               }}
             >
               <Avatar
+                src={user?.imagenURL}
                 sx={{
                   height: { xs: "154px", md: "220px" },
                   width: { xs: "154px", md: "220px" },
                 }}
               />
-              <Button
-                type="submit"
-                onClick={() => {}}
-                sx={{
-                  bgcolor: "neutral.700",
-                  "&:hover": { backgroundColor: "neutral.900" },
-                }}
-              >
-                <Typography
-                  color="white"
-                  fontWeight={500}
-                  fontSize={14}
-                  sx={{ p: 1 }}
-                >
-                  Cambiar foto de perfil
-                </Typography>
+              <Button variant="outlined" onClick={() => {}}>
+                Cambiar foto de perfil
               </Button>
             </Stack>
             <Stack
@@ -164,19 +144,8 @@ export const AccountCard = () => {
             </Stack>
           </Stack>
           <Box>
-            <Button
-              onClick={() => {}}
-              type="submit"
-              size="small"
-              sx={{
-                bgcolor: indigo.dark,
-                borderRadius: 0.5,
-                "&:hover": { backgroundColor: indigo.darkest },
-              }}
-            >
-              <Typography color="white" fontWeight={400} fontSize={12}>
-                Guardar cambios
-              </Typography>
+            <Button variant="contained" onClick={() => {}} size="small">
+              Guardar cambios
             </Button>
           </Box>
         </form>

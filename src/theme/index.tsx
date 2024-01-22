@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { createTheme as createMuiTheme } from "@mui/material";
 import { createPalette } from "./create-palette";
 import { createShadows } from "./create-shadows";

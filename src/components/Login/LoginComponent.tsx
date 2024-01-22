@@ -8,7 +8,6 @@ import {
   Box,
   Tabs,
   Tab,
-  // FormHelperText,
 } from "@mui/material";
 import { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -17,7 +16,6 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { loginSchema } from "../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
-// import logoHSB from "../assets/logoHSB.png";
 import { useIsAuthStore } from "../../store/authentication";
 import { login } from "../../api/api.routes";
 import { useUserInfoStore } from "../../store/user";
@@ -29,27 +27,16 @@ interface ILogin {
 
 export const LoginComponent = () => {
   const setIsAuth = useIsAuthStore((state) => state.setIsAuth);
-  const {
-    setNombre,
-    setApellidoPaterno,
-    setApellidoMaterno,
-    setTelefono,
-    setEmail,
-    setImagenURL,
-  } = useUserInfoStore((state) => ({
-    setNombre: state.setNombre,
-    setApellidoPaterno: state.setApellidoPaterno,
-    setApellidoMaterno: state.setApellidoMaterno,
-    setTelefono: state.setTelefono,
-    setEmail: state.setEmail,
-    setImagenURL: state.setImagenURL,
+  const { setUser } = useUserInfoStore((state) => ({
+    setUser: state.setUser,
   }));
-
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<ILogin>({
     defaultValues: {
@@ -59,24 +46,21 @@ export const LoginComponent = () => {
     resolver: zodResolver(loginSchema),
   });
   const navigate = useNavigate();
+
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
+    const formData = getValues(); // Obtén los valores del formulario
+    console.log("Form Data (before handleSubmit):", formData);
     const user: IUser = await login(data.userName, data.password);
     if (!user) return;
     console.log({ user });
-    console.log("Setting nombre:", user.nombre);
-    console.log("Setting apellidoPaterno:", user.apellidoPaterno);
-    console.log("Setting apellidoMaterno:", user.apellidoMaterno);
-    console.log("Setting telefono:", user.telefono);
-    console.log("Setting email:", user.email);
-    console.log("Setting imagenURL:", user.imagenURL);
-    setNombre(user.nombre);
-    setApellidoPaterno(user.apellidoPaterno);
-    setApellidoMaterno(user.apellidoMaterno);
-    setTelefono(user.telefono);
-    setEmail(user.email);
-    setImagenURL(user.imagenURL);
+    setUser(user);
     setIsAuth(true);
     navigate("/");
+  };
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const passwordValue = e.target.value;
+    setValue("password", passwordValue);
+    setText(passwordValue);
   };
 
   return (
@@ -127,9 +111,7 @@ export const LoginComponent = () => {
                 label="Contraseña"
                 size="small"
                 type={showPassword ? "text" : "password"}
-                onChange={(e) => {
-                  setText(e.currentTarget.value);
-                }}
+                onChange={handlePasswordChange}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">

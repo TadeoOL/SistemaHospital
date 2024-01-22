@@ -20,15 +20,9 @@ export interface IUser {
   email: string;
   imagenURL: string;
   nombreUsuario: string;
-  roles: IRol[];
+  roles: string[];
   token: string;
 }
-
-export interface IRol {
-  id: string;
-  name: string;
-}
-
 export interface IUserSettings {
   imagenURL: string;
   nombre: string;
