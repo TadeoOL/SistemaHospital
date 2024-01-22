@@ -102,11 +102,11 @@ export const SideNavItems = (props: ISideNavItems) => {
         </ButtonBase>
         {props.childrenItems.length === 0 ? null : (
           <Collapse in={isOpen}>
-            {props.childrenItems.map((childItem) => {
+            {props.childrenItems.map((childItem, i) => {
               const isActive =
                 childItem.path === location.pathname ? true : false;
               return (
-                <Stack>
+                <Stack key={i}>
                   <ButtonBase
                     onClick={() => navigate(childItem.path)}
                     sx={{

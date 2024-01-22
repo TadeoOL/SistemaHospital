@@ -19,30 +19,62 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
 // import logoHSB from "../assets/logoHSB.png";
 import { useIsAuthStore } from "../../store/authentication";
+import { login } from "../../api/api.routes";
+import { useUserInfoStore } from "../../store/user";
+import { IUser } from "../../types/types";
 interface ILogin {
-  email: string;
+  userName: string;
   password: string;
 }
 
 export const LoginComponent = () => {
   const setIsAuth = useIsAuthStore((state) => state.setIsAuth);
+  const {
+    setNombre,
+    setApellidoPaterno,
+    setApellidoMaterno,
+    setTelefono,
+    setEmail,
+    setImagenURL,
+  } = useUserInfoStore((state) => ({
+    setNombre: state.setNombre,
+    setApellidoPaterno: state.setApellidoPaterno,
+    setApellidoMaterno: state.setApellidoMaterno,
+    setTelefono: state.setTelefono,
+    setEmail: state.setEmail,
+    setImagenURL: state.setImagenURL,
+  }));
+
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const method = "email";
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ILogin>({
     defaultValues: {
-      email: "",
+      userName: "",
       password: "",
     },
     resolver: zodResolver(loginSchema),
   });
   const navigate = useNavigate();
-  const onSubmit: SubmitHandler<ILogin> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<ILogin> = async (data) => {
+    const user: IUser = await login(data.userName, data.password);
+    if (!user) return;
+    console.log({ user });
+    console.log("Setting nombre:", user.nombre);
+    console.log("Setting apellidoPaterno:", user.apellidoPaterno);
+    console.log("Setting apellidoMaterno:", user.apellidoMaterno);
+    console.log("Setting telefono:", user.telefono);
+    console.log("Setting email:", user.email);
+    console.log("Setting imagenURL:", user.imagenURL);
+    setNombre(user.nombre);
+    setApellidoPaterno(user.apellidoPaterno);
+    setApellidoMaterno(user.apellidoMaterno);
+    setTelefono(user.telefono);
+    setEmail(user.email);
+    setImagenURL(user.imagenURL);
     setIsAuth(true);
     navigate("/");
   };
@@ -78,15 +110,15 @@ export const LoginComponent = () => {
               }}
               spacing={2}
             >
-              <Tabs onChange={() => {}} sx={{ mb: 3 }} value={method}>
-                <Tab label="Email" value="email" />
+              <Tabs sx={{ mb: 3 }} value={"email"}>
+                <Tab label="Nombre de usuario" value="email" />
               </Tabs>
               <TextField
-                error={!!errors.email}
-                helperText={errors?.email?.message}
-                {...register("email")}
+                error={!!errors.userName}
+                helperText={errors?.userName?.message}
+                {...register("userName")}
                 size="small"
-                label="Correo electronico"
+                label="Nombre de usuario"
               />
               <TextField
                 error={!!errors.password}

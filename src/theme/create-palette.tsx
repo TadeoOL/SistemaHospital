@@ -5,9 +5,7 @@ import { PaletteOptions } from "@mui/material/styles/createPalette";
 
 interface CustomPaletteOptions extends PaletteOptions {
   neutral: {
-    // Asegúrate de que 'neutral' esté definido en el tipo
     [key: number]: string;
-    // Otras propiedades de 'neutral' si las tienes
   };
 }
 

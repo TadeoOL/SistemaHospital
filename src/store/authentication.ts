@@ -2,15 +2,11 @@ import { create } from "zustand";
 
 interface IAuthentication {
   isAuth: boolean;
+  setIsAuth: (isAuth: boolean) => void;
 }
-
-interface Action {
-  setIsAuth: (isAuth: IAuthentication["isAuth"]) => void;
-}
-
-export const useIsAuthStore = create<IAuthentication & Action>((set) => {
+export const useIsAuthStore = create<IAuthentication>((set) => {
   return {
     isAuth: false,
-    setIsAuth: (isAuth) => set(() => ({ isAuth: isAuth })),
+    setIsAuth: (state: boolean) => set(() => ({ isAuth: state })),
   };
 });

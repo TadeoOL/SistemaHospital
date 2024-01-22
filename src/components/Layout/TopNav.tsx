@@ -8,34 +8,26 @@ import {
   Tooltip,
   useMediaQuery,
 } from "@mui/material";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import { alpha, styled, useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
 
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
 export const TopNav = () => {
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
-  const setIsOpen = useAppNavStore((state) => state.updateOpen);
-  const isOpen = useAppNavStore((state) => state.dopen);
+  const setIsOpen = useAppNavStore((state) => state.setOpen);
+  const isOpen = useAppNavStore((state) => state.open);
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
-
   const handleOpen = useCallback(() => {
     setOpen(true);
   }, []);
-
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
-
   const SIDE_NAV_WIDTH = 280;
   const TOP_NAV_HEIGHT = 64;
 

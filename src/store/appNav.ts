@@ -1,15 +1,13 @@
 import { create } from "zustand";
 
 interface IAppNav {
-  dopen: boolean;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
-interface Action {
-  updateOpen: (dopen: IAppNav["dopen"]) => void;
-}
-export const useAppNavStore = create<IAppNav & Action>((set) => {
+export const useAppNavStore = create<IAppNav>((set) => {
   return {
-    dopen: false,
-    updateOpen: (dopen) => set(() => ({ dopen: dopen })),
+    open: false,
+    setOpen: (state: boolean) => set(() => ({ open: state })),
   };
 });

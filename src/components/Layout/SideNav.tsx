@@ -18,8 +18,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export const SideNav = () => {
   const theme = useTheme();
-  const isOpen = useAppNavStore((state) => state.dopen);
-  const setIsOpen = useAppNavStore((state) => state.updateOpen);
+  const isOpen = useAppNavStore((state) => state.open);
+  const setIsOpen = useAppNavStore((state) => state.setOpen);
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const location = useLocation();
