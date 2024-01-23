@@ -1,5 +1,6 @@
 import {
   Card,
+  Checkbox,
   IconButton,
   Modal,
   Stack,
@@ -8,6 +9,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
 } from "@mui/material";
 import { RolesChip } from "./RolesChip";
 import EditIcon from "@mui/icons-material/Edit";
@@ -15,7 +17,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { DeleteModal } from "../Modals/DeleteModal";
 import { ModifyUserModal } from "../Modals/ModifyUserModal";
-import { IUser, IUserSettings } from "../../../types/types";
 
 const users = [
   {
@@ -42,12 +43,15 @@ export const UsersTable = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+  let usersChecked = [];
+
   return (
     <>
       <Card sx={{ display: "flex" }}>
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>Nombre</TableCell>
               <TableCell>Apellidos</TableCell>
               <TableCell>Correo Electronico</TableCell>
@@ -59,7 +63,10 @@ export const UsersTable = () => {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell>{user.apellidoMaterno}</TableCell>
+                <TableCell>
+                  <Checkbox />
+                </TableCell>
+                <TableCell>{user.nombre}</TableCell>
                 <TableCell>
                   {user.apellidoPaterno + " " + user.apellidoMaterno}
                 </TableCell>
@@ -70,21 +77,25 @@ export const UsersTable = () => {
                 <TableCell>{user.telefono}</TableCell>
                 <TableCell>
                   <Stack sx={{ display: "flex", flexDirection: "row" }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setUserData(user);
-                        setOpenEditModal(true);
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => setOpenDeleteModal(true)}
-                    >
-                      <DeleteIcon sx={{ color: "red" }} />
-                    </IconButton>
+                    <Tooltip title="Editar">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setUserData(user);
+                          setOpenEditModal(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Eliminar">
+                      <IconButton
+                        size="small"
+                        onClick={() => setOpenDeleteModal(true)}
+                      >
+                        <DeleteIcon sx={{ color: "red" }} />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 </TableCell>
               </TableRow>
@@ -94,11 +105,15 @@ export const UsersTable = () => {
       </Card>
 
       <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-        <DeleteModal setOpen={setOpenDeleteModal} />
+        <div>
+          <DeleteModal setOpen={setOpenDeleteModal} />
+        </div>
       </Modal>
 
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
-        <ModifyUserModal user={userData} setOpen={setOpenEditModal} />
+        <div>
+          <ModifyUserModal user={userData} setOpen={setOpenEditModal} />
+        </div>
       </Modal>
     </>
   );

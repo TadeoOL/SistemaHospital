@@ -27,6 +27,7 @@ interface ILogin {
 
 export const LoginComponent = () => {
   const setIsAuth = useIsAuthStore((state) => state.setIsAuth);
+  const isAuth = useIsAuthStore((state) => state.isAuth);
   const { setUser } = useUserInfoStore((state) => ({
     setUser: state.setUser,
   }));
@@ -62,6 +63,8 @@ export const LoginComponent = () => {
     setValue("password", passwordValue);
     setText(passwordValue);
   };
+
+  console.log({ isAuth });
 
   return (
     <Box

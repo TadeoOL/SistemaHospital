@@ -25,6 +25,7 @@ export const RolesChip = (props: IRolesChip) => {
       {user.roles.length <= 2 ? (
         user.roles.map((role, index) => (
           <Chip
+            key={index}
             label={
               <Typography key={index} fontSize={13}>
                 {index < user.roles.length - 1 ? role + ", " : role}
@@ -36,9 +37,10 @@ export const RolesChip = (props: IRolesChip) => {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {user.roles.slice(0, 2).map((role, i) => (
             <Chip
+              key={i}
               label={
                 <Typography key={i} fontSize={13}>
-                  {i < 1 ? role + ", " : role}
+                  {role}
                 </Typography>
               }
             />

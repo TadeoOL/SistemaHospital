@@ -7,6 +7,8 @@ import { WarehouseView } from "./views/Pharmacy/WarehouseView";
 import { ScheduleView } from "./views/Schedule/ScheduleView";
 import { Layout } from "./components/Layout/Layout";
 import { AccountView } from "./views/AccountView";
+import { NotFoundPage } from "./views/404Page";
+
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +26,7 @@ function App() {
           </Route>
         </Route>
         <Route path="/login" element={<LoginView />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
