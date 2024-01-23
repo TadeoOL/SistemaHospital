@@ -30,4 +30,10 @@ export interface IUserSettings {
   apellidoMaterno: string;
   telefono: string;
   email: string;
+  roles: string[];
+}
+
+export interface IAddUser extends IUser {
+  contraseña: string;
+  nombreUsuario: string;
 }

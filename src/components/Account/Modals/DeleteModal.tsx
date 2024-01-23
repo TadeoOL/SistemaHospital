@@ -37,7 +37,7 @@ export const DeleteModal = (props: IDeleteModal) => {
           sx={{
             alignItems: "center",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             columnGap: 2,
             display: "flex",
             flex: 1,

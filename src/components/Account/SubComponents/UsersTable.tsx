@@ -26,7 +26,7 @@ const users = [
     apellidoMaterno: "Juarez",
     telefono: "6623231234",
     email: "juan.perez@gmail.com",
-    roles: ["farmacia", "programacion", "farmacia", "farmacia", "farmacia"],
+    roles: ["farmacia", "programacion", "usuario"],
   },
   {
     id: "2",
@@ -43,7 +43,6 @@ export const UsersTable = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [userData, setUserData] = useState<any>(null);
-  let usersChecked = [];
 
   return (
     <>

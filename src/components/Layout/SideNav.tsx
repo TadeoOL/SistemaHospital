@@ -34,7 +34,7 @@ export const SideNav = () => {
       open={lgUp ? true : isOpen}
       PaperProps={{
         sx: {
-          backgroundColor: "info.darkest",
+          backgroundColor: "neutral.700",
           color: "common.white",
           width: 280,
         },

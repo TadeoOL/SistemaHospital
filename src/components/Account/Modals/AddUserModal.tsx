@@ -1,15 +1,10 @@
 import { Box, Button, Grid, MenuItem, TextField } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { IUserSettings } from "../../../types/types";
+import { HeaderModal } from "./SubComponents/HeaderModal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSettingsSchema } from "../../../schema/schemas";
-import { HeaderModal } from "./SubComponents/HeaderModal";
-import { useState } from "react";
-
-interface IModifyUserModal {
-  setOpen: Function;
-  user: any;
-}
+import { useForm } from "react-hook-form";
+import { IAddUser } from "../../../types/types";
+import { useCallback, useState } from "react";
 
 const style = {
   position: "absolute",
@@ -19,15 +14,11 @@ const style = {
   width: { xs: 400, lg: 600 },
   bgcolor: "background.paper",
   borderRadius: 2,
-  /* borderTopRightRadius: { lg: 24, xs: 0 },
-  borderBottomRightRadius: { lg: 24, xs: 0 },
-  borderBottomLeftRadius: 24,
-  borderTopLeftRadius: 24, */
   boxShadow: 24,
   display: "flex",
   flexDirection: "column",
-  maxHeight: 600,
   overflowY: "auto",
+  maxHeight: { xs: 600 },
   "&::-webkit-scrollbar": {
     width: "0.4em",
   },
@@ -41,12 +32,29 @@ const style = {
   },
 };
 
-const roles = ["admin", "usuario", "farmacia", "programacion"];
+const scrollbarStyle = {
+  "&::-webkit-scrollbar": {
+    width: "0.4em",
+  },
+  "&::-webkit-scrollbar-track": {
+    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "rgba(0,0,0,.1)",
+    outline: "1px solid slategrey",
+  },
+};
 
-export const ModifyUserModal = (props: IModifyUserModal) => {
-  const { user, setOpen } = props;
-  console.log("roles", user.roles);
-  const [values, setValues] = useState<string[]>(user?.roles);
+interface IAddUserModal {
+  setOpen: Function;
+}
+
+const roles = ["ADMIN", "USUARIO", "FARMACIA", "PROGRAMACION"];
+
+export const AddUserModal = (props: IAddUserModal) => {
+  const { setOpen } = props;
+  const [values, setValues] = useState([]);
 
   const handleChange = (event: any) => {
     const {
@@ -59,22 +67,25 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IUserSettings>({
+  } = useForm<IAddUser>({
     defaultValues: {
-      nombre: user?.nombre,
-      apellidoPaterno: user?.apellidoPaterno,
-      apellidoMaterno: user?.apellidoMaterno,
-      email: user?.email,
-      telefono: user?.telefono,
-      roles: user?.roles,
+      nombre: "",
+      apellidoPaterno: "",
+      apellidoMaterno: "",
+      email: "",
+      telefono: "",
+      contraseña: "",
+      nombreUsuario: "",
+      roles: [],
     },
     resolver: zodResolver(userSettingsSchema),
   });
+
   return (
     <>
       <Box sx={style}>
-        <HeaderModal setOpen={setOpen} title="Modificacion de usuario" />
-        <Grid container spacing={3} sx={{ p: 4 }}>
+        <HeaderModal setOpen={setOpen} title="Agregar nuevo usuario" />
+        <Grid container spacing={3} sx={{ p: 6 }}>
           <Grid item xs={12} lg={6}>
             <TextField
               fullWidth
@@ -125,7 +136,6 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
               label="Telefono"
             />
           </Grid>
-
           <Grid item xs={12} lg={6}>
             <TextField
               fullWidth
@@ -145,6 +155,26 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 </MenuItem>
               ))}
             </TextField>
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <TextField
+              fullWidth
+              error={!!errors.nombreUsuario}
+              helperText={errors?.nombreUsuario?.message}
+              {...register("nombreUsuario")}
+              size="medium"
+              label="Nombre de usuario"
+            />
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <TextField
+              fullWidth
+              error={!!errors.contraseña}
+              helperText={errors?.contraseña?.message}
+              {...register("contraseña")}
+              size="medium"
+              label="Contraseña"
+            />
           </Grid>
         </Grid>
         <Box
