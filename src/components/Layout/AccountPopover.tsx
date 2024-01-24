@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/auth";
 
 interface IAccountPopover {
   open: boolean;
@@ -17,9 +18,11 @@ interface IAccountPopover {
 export const AccountPopover = (props: IAccountPopover) => {
   const { anchorEl, onClose, open } = props;
   const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
 
   const handleSignOut = useCallback(() => {
     onClose?.();
+    logout();
     navigate("/login");
   }, [onClose, navigate]);
 

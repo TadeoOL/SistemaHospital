@@ -10,10 +10,10 @@ import { useForm } from "react-hook-form";
 import { IUserSettings } from "../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSettingsSchema } from "../../schema/schemas";
-import { useUserInfoStore } from "../../store/user";
+import { useAuthStore } from "../../store/auth";
 
 export const AccountCard = () => {
-  const user = useUserInfoStore((state) => state.user);
+  const user = useAuthStore((state) => state.profile);
 
   const {
     register,

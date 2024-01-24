@@ -8,6 +8,7 @@ import { ScheduleView } from "./views/Schedule/ScheduleView";
 import { Layout } from "./components/Layout/Layout";
 import { AccountView } from "./views/AccountView";
 import { NotFoundPage } from "./views/404Page";
+import { LoginRoute } from "./utils/LoginRoute";
 
 function App() {
   return (
@@ -25,7 +26,9 @@ function App() {
             />
           </Route>
         </Route>
-        <Route path="/login" element={<LoginView />} />
+        <Route element={<LoginRoute />}>
+          <Route path="/login" element={<LoginView />} />
+        </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

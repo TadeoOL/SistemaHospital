@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
 import { AccountCard } from "../components/Account/AccountCard";
 import { AccountAdminUsers } from "../components/Account/AccountAdminUsers";
-import { useUserInfoStore } from "../store/user";
+import { useAuthStore } from "../store/auth";
 
 export const AccountView = () => {
-  const user = useUserInfoStore((state) => state.user);
+  const user = useAuthStore((state) => state.profile);
   console.log({ user });
   const isAdmin = user?.roles.find((role) => role === "ADMIN");
   return (

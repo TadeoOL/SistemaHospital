@@ -48,7 +48,7 @@ export const NotFoundPage = () => {
               Whichever it is, try using the navigation
             </Typography>
             <Button
-              onClick={() => navigate("/configuracion")}
+              onClick={() => navigate("/")}
               startIcon={
                 <SvgIcon fontSize="small">
                   <ArrowBackIcon />

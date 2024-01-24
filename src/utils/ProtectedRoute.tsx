@@ -1,18 +1,48 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useIsAuthStore } from "../store/authentication";
+import React, { useCallback, useEffect } from "react";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/auth";
+import { jwtDecode } from "jwt-decode";
 
 interface IProtectedRoute {
-  redirecTo?: string;
+  redirectTo?: string;
+  children?: React.ReactNode;
 }
 
-export const ProtectedRoute: React.FC<IProtectedRoute> = ({
-  redirecTo = "/login",
-}) => {
-  const isAuth = useIsAuthStore((state) => state.isAuth);
-
-  if (isAuth) {
-    return <Outlet />;
-  } else {
-    return <Navigate to={redirecTo} />;
+const isTokenExpired = (token: any) => {
+  if (!token || !token.exp) {
+    return true;
   }
+
+  const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+  return token.exp < currentTimeInSeconds;
+};
+
+export const ProtectedRoute: React.FC<IProtectedRoute> = ({
+  redirectTo = "/login",
+  children,
+}) => {
+  const isAuth = useAuthStore((state) => state.isAuth);
+  const token = useAuthStore((state) => state.token);
+  const logout = useAuthStore((state) => state.logout);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tokenInfo = useCallback(() => {
+    jwtDecode(token);
+  }, [token]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (token) {
+        if (isTokenExpired(tokenInfo)) {
+          logout();
+          navigate(redirectTo);
+        }
+      }
+    }, 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, [token, location]);
+
+  if (!isAuth) return <Navigate to={redirectTo} />;
+
+  return children ? <>{children}</> : <Outlet />;
 };

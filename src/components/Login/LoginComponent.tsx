@@ -16,23 +16,22 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { loginSchema } from "../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
-import { useIsAuthStore } from "../../store/authentication";
 import { login } from "../../api/api.routes";
-import { useUserInfoStore } from "../../store/user";
 import { IUser } from "../../types/types";
+import { useAuthStore } from "../../store/auth";
 interface ILogin {
   userName: string;
   password: string;
 }
 
 export const LoginComponent = () => {
-  const setIsAuth = useIsAuthStore((state) => state.setIsAuth);
-  const isAuth = useIsAuthStore((state) => state.isAuth);
-  const { setUser } = useUserInfoStore((state) => ({
-    setUser: state.setUser,
-  }));
+  const setToken = useAuthStore((state) => state.setToken);
+  const setProfile = useAuthStore((state) => state.setProfile);
+
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -46,25 +45,22 @@ export const LoginComponent = () => {
     },
     resolver: zodResolver(loginSchema),
   });
-  const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
     const formData = getValues(); // Obtén los valores del formulario
     console.log("Form Data (before handleSubmit):", formData);
     const user: IUser = await login(data.userName, data.password);
     if (!user) return;
-    console.log({ user });
-    setUser(user);
-    setIsAuth(true);
+    setToken(user.token);
+    setProfile(user);
     navigate("/");
   };
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passwordValue = e.target.value;
     setValue("password", passwordValue);
     setText(passwordValue);
   };
-
-  console.log({ isAuth });
 
   return (
     <Box
