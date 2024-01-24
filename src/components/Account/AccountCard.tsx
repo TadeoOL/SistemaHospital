@@ -11,6 +11,7 @@ import { IUserSettings } from "../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSettingsSchema } from "../../schema/schemas";
 import { useAuthStore } from "../../store/auth";
+import { toast } from "react-toastify";
 
 export const AccountCard = () => {
   const user = useAuthStore((state) => state.profile);
@@ -49,6 +50,7 @@ export const AccountCard = () => {
         ml: { lg: 10, xs: 2 },
         mr: { xs: 2, md: 0 },
         mt: 4,
+        minWidth: { xs: 0, md: 950 },
       }}
     >
       <Stack sx={{ p: 2, display: "flex", flex: 1 }}>
@@ -144,9 +146,14 @@ export const AccountCard = () => {
             </Stack>
           </Stack>
           <Box>
-            <Button variant="contained" onClick={() => {}} size="small">
+            <Button
+              variant="contained"
+              onClick={() => toast("wwwoooooww")}
+              size="small"
+            >
               Guardar cambios
             </Button>
+            {/* <ToastContainer /> */}
           </Box>
         </form>
       </Stack>

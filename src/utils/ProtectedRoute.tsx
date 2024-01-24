@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import { jwtDecode } from "jwt-decode";
@@ -26,9 +26,7 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({
   const logout = useAuthStore((state) => state.logout);
   const location = useLocation();
   const navigate = useNavigate();
-  const tokenInfo = useCallback(() => {
-    jwtDecode(token);
-  }, [token]);
+  const tokenInfo = jwtDecode(token);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
