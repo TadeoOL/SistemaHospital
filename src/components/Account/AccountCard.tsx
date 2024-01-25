@@ -35,25 +35,25 @@ export const AccountCard = () => {
   return (
     <Box
       sx={{
-        width: {
-          lg: `calc(100% - 180px)`,
-          md: `calc(100% - 140px)`,
-          sm: `calc(100% - 100px)`,
-          xs: `calc(100% -140px)`,
-        },
-        height: 1,
+        // width: {
+        //   lg: `calc(100% - 180px)`,
+        //   md: `calc(100% - 140px)`,
+        //   sm: `calc(100% - 100px)`,
+        //   xs: `calc(100% -140px)`,
+        // },
+        // height: 1,
         boxShadow: 10,
         borderRadius: 2,
-        display: "flex",
-        flex: 1,
-        p: 1,
-        ml: { lg: 10, xs: 2 },
-        mr: { xs: 2, md: 0 },
-        mt: 4,
-        minWidth: { xs: 0, md: 950 },
+        // display: "flex",
+        // flex: 1,
+        // p: 1,
+        // ml: { lg: 10, xs: 2 },
+        // mr: { xs: 2, md: 0 },
+        // mt: 4,
+        // minWidth: { xs: 0, md: 950 },
       }}
     >
-      <Stack sx={{ p: 2, display: "flex", flex: 1 }}>
+      <Stack sx={{ p: 2 /*  display: "flex", flex: 1 */ }}>
         <form onSubmit={() => {}} noValidate>
           <Stack>
             <Typography fontSize={24} fontWeight={700}>

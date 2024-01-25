@@ -8,45 +8,85 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TablePagination,
   TableRow,
   Tooltip,
+  Typography,
 } from "@mui/material";
-import { RolesChip } from "./RolesChip";
+// import { RolesChip } from "./RolesChip";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useState } from "react";
-import { DeleteModal } from "../Modals/DeleteModal";
+import { useCallback, useEffect, useState } from "react";
 import { ModifyUserModal } from "../Modals/ModifyUserModal";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useUserPaginationStore } from "../../../store/userPagination";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
-const users = [
-  {
-    id: "1",
-    nombre: "Fernando",
-    apellidoPaterno: "Perez",
-    apellidoMaterno: "Juarez",
-    telefono: "6623231234",
-    email: "juan.perez@gmail.com",
-    roles: ["farmacia", "programacion", "usuario"],
-  },
-  {
-    id: "2",
-    nombre: "Gerardo",
-    apellidoPaterno: "Luna",
-    apellidoMaterno: "Suarez",
-    telefono: "6623231234",
-    email: "gerardo.luna@gmail.com",
-    roles: ["farmacia"],
-  },
-];
+// interface IUsersData {
+//   id: string;
+//   nombre: string;
+//   apellidoPaterno: string;
+//   apellidoMaterno: string;
+//   telefono: string;
+//   email: string;
+//   roles: string[];
+// }
+
+const deleteModal = () => {
+  withReactContent(Swal)
+    .fire({
+      title: "Estas seguro?",
+      text: "Estas a punto de deshabilitar un usuario",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, deshabilitalo!",
+      confirmButtonColor: "red",
+      cancelButtonText: "No, cancel!",
+      reverseButtons: true,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        withReactContent(Swal).fire({
+          title: "Deshabilitado!",
+          text: "El usuario se ha deshabilitado",
+          icon: "success",
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        withReactContent(Swal).fire({
+          title: "Cancelado",
+          icon: "error",
+        });
+      }
+    });
+};
 
 export const UsersTable = () => {
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+  const fetchData = useUserPaginationStore((state) => state.fetchData);
+  const data = useUserPaginationStore((state) => state.data);
+  const pageSize = useUserPaginationStore((state) => state.pageSize);
+  const enabled = useUserPaginationStore((state) => state.enabled);
+  const search = useUserPaginationStore((state) => state.search);
+  const setPageIndex = useUserPaginationStore((state) => state.setPageIndex);
+  const pageIndex = useUserPaginationStore((state) => state.pageIndex);
+  const count = useUserPaginationStore((state) => state.count);
+  const setResultByPage = useUserPaginationStore(
+    (state) => state.setResultByPage
+  );
+
+  const handlePageChange = useCallback((event: any, value: any) => {
+    setPageIndex(value);
+  }, []);
+
+  useEffect(() => {
+    fetchData(pageSize, search, enabled, pageIndex);
+  }, [pageSize, enabled, search, pageIndex]);
 
   return (
     <>
-      <Card sx={{ display: "flex" }}>
+      <Card>
         <Table>
           <TableHead>
             <TableRow>
@@ -60,55 +100,82 @@ export const UsersTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>
-                  <Checkbox />
-                </TableCell>
-                <TableCell>{user.nombre}</TableCell>
-                <TableCell>
-                  {user.apellidoPaterno + " " + user.apellidoMaterno}
-                </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <RolesChip user={user} />
-                </TableCell>
-                <TableCell>{user.telefono}</TableCell>
-                <TableCell>
-                  <Stack sx={{ display: "flex", flexDirection: "row" }}>
-                    <Tooltip title="Editar">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setUserData(user);
-                          setOpenEditModal(true);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Eliminar">
-                      <IconButton
-                        size="small"
-                        onClick={() => setOpenDeleteModal(true)}
-                      >
-                        <DeleteIcon sx={{ color: "red" }} />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
+            {data.length === 0
+              ? null
+              : data.map((user) => (
+                  <TableRow key={user?.id}>
+                    <TableCell>
+                      <Checkbox />
+                    </TableCell>
+                    <TableCell>{user?.nombre}</TableCell>
+                    <TableCell>
+                      {user?.apellidoPaterno + " " + user?.apellidoMaterno}
+                    </TableCell>
+                    <TableCell>{user?.email}</TableCell>
+                    <TableCell>{/* <RolesChip user={user} /> */}</TableCell>
+                    <TableCell>{user?.phoneNumber}</TableCell>
+                    <TableCell>
+                      <Stack sx={{ display: "flex", flexDirection: "row" }}>
+                        <Tooltip title="Editar">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setUserData(user);
+                              setOpenEditModal(true);
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Eliminar">
+                          <IconButton
+                            size="small"
+                            onClick={() => deleteModal()}
+                          >
+                            <DeleteIcon sx={{ color: "red" }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
+        {data.length === 0 && (
+          <Card
+            sx={{
+              display: "flex",
+              flexGrow: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              p: 2,
+              columnGap: 1,
+            }}
+          >
+            <ErrorOutlineIcon
+              sx={{ color: "neutral.400", width: "40px", height: "40px" }}
+            />
+            <Typography
+              sx={{ color: "neutral.400" }}
+              fontSize={24}
+              fontWeight={500}
+            >
+              No existen registros
+            </Typography>
+          </Card>
+        )}
+        <TablePagination
+          component="div"
+          count={count}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={(e: any) => {
+            setResultByPage(e.target.value);
+          }}
+          page={pageIndex}
+          rowsPerPage={pageSize}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </Card>
-
-      <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-        <div>
-          <DeleteModal setOpen={setOpenDeleteModal} />
-        </div>
-      </Modal>
-
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <div>
           <ModifyUserModal user={userData} setOpen={setOpenEditModal} />

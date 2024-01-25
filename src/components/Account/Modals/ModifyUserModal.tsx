@@ -45,8 +45,8 @@ const roles = ["admin", "usuario", "farmacia", "programacion"];
 
 export const ModifyUserModal = (props: IModifyUserModal) => {
   const { user, setOpen } = props;
-  console.log("roles", user.roles);
-  const [values, setValues] = useState<string[]>(user?.roles);
+  console.log("roles", user?.roles);
+  const [values, setValues] = useState<string[]>([]);
 
   const handleChange = (event: any) => {
     const {
@@ -65,7 +65,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
       apellidoPaterno: user?.apellidoPaterno,
       apellidoMaterno: user?.apellidoMaterno,
       email: user?.email,
-      telefono: user?.telefono,
+      telefono: user?.phoneNumber,
       roles: user?.roles,
     },
     resolver: zodResolver(userSettingsSchema),

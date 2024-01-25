@@ -23,3 +23,13 @@ export const updateUserData = async (userName: string, password: string) => {
     console.log({ error });
   }
 };
+
+export const getUsers = async (paramUrl: string) => {
+  console.log("Entraa");
+  try {
+    const res = await axios.get(`/api/Usuario/paginationUser?${paramUrl}`);
+    return res.data;
+  } catch (error) {
+    console.log({ error });
+  }
+};

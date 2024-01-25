@@ -19,6 +19,7 @@ import { useNavigate } from "react-router";
 import { login } from "../../api/api.routes";
 import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
+import { toast } from "react-toastify";
 interface ILogin {
   userName: string;
   password: string;
@@ -36,7 +37,6 @@ export const LoginComponent = () => {
     register,
     handleSubmit,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<ILogin>({
     defaultValues: {
@@ -47,13 +47,15 @@ export const LoginComponent = () => {
   });
 
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
-    const formData = getValues(); // Obtén los valores del formulario
-    console.log("Form Data (before handleSubmit):", formData);
-    const user: IUser = await login(data.userName, data.password);
-    if (!user) return;
-    setToken(user.token);
-    setProfile(user);
-    navigate("/");
+    try {
+      const user: IUser = await login(data.userName, data.password);
+      setToken(user.token);
+      setProfile(user);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al iniciar sesion");
+    }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {

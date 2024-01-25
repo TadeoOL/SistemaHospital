@@ -1,8 +1,9 @@
-import { Box, Button, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { UsersTable } from "./SubComponents/UsersTable";
 import { useState } from "react";
 import { AddUserModal } from "./Modals/AddUserModal";
+import { SearchBar } from "../Inputs/SearchBar";
 
 export const AccountAdminUsers = () => {
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -10,22 +11,9 @@ export const AccountAdminUsers = () => {
     <>
       <Box
         sx={{
-          width: {
-            lg: `calc(100% - 180px)`,
-            md: `calc(100% - 140px)`,
-            sm: `calc(100% - 100px)`,
-            xs: `calc(100% -140px)`,
-          },
-          height: 1,
           boxShadow: 10,
           borderRadius: 2,
-          display: "flex",
-          flex: 1,
-          p: 1,
-          ml: { lg: 10, xs: 2 },
-          mr: { xs: 2, md: 0 },
           mt: 4,
-          mb: 4,
           minWidth: { xs: 950, xl: 0 },
         }}
       >
@@ -50,6 +38,8 @@ export const AccountAdminUsers = () => {
               Agregar
             </Button>
           </Stack>
+          <SearchBar />
+          <Divider sx={{ my: 2 }} />
           <UsersTable />
         </Stack>
       </Box>
