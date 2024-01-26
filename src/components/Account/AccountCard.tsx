@@ -6,55 +6,66 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { IUserSettings } from "../../types/types";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { IUser, IUserSettings } from "../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSettingsSchema } from "../../schema/schemas";
 import { useAuthStore } from "../../store/auth";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { useState } from "react";
+import { updateBasicUserInformation } from "../../api/api.routes";
+// import { updateUserData } from "../../api/api.routes";
+
+interface IUpdateUserData extends IUserSettings {
+  id: string;
+}
 
 export const AccountCard = () => {
   const user = useAuthStore((state) => state.profile);
+  const [disabledEdit, setDisabledEdit] = useState(true);
+  const setProfile = useAuthStore((state) => state.setProfile);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IUserSettings>({
+  } = useForm<IUpdateUserData>({
     defaultValues: {
       nombre: user?.nombre,
       apellidoPaterno: user?.apellidoPaterno,
       apellidoMaterno: user?.apellidoMaterno,
-      imagenURL: user?.imagenURL,
       email: user?.email,
       telefono: user?.telefono,
     },
     resolver: zodResolver(userSettingsSchema),
   });
 
+  const onSubmit: SubmitHandler<IUpdateUserData> = async (data) => {
+    try {
+      const user: IUser = await updateBasicUserInformation(
+        data.nombre,
+        data.apellidoPaterno,
+        data.apellidoMaterno,
+        data.telefono,
+        data.email
+      );
+      toast.success("Datos actualizados correctamente!");
+      setProfile(user);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al modificar los datos");
+    }
+  };
+
   return (
     <Box
       sx={{
-        // width: {
-        //   lg: `calc(100% - 180px)`,
-        //   md: `calc(100% - 140px)`,
-        //   sm: `calc(100% - 100px)`,
-        //   xs: `calc(100% -140px)`,
-        // },
-        // height: 1,
         boxShadow: 10,
         borderRadius: 2,
-        // display: "flex",
-        // flex: 1,
-        // p: 1,
-        // ml: { lg: 10, xs: 2 },
-        // mr: { xs: 2, md: 0 },
-        // mt: 4,
-        // minWidth: { xs: 0, md: 950 },
       }}
     >
-      <Stack sx={{ p: 2 /*  display: "flex", flex: 1 */ }}>
-        <form onSubmit={() => {}} noValidate>
+      <Stack sx={{ p: 2 }}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <Stack>
             <Typography fontSize={24} fontWeight={700}>
               Informacion del perfil
@@ -137,6 +148,7 @@ export const AccountCard = () => {
                 label="Correo electrónico"
               />
               <TextField
+                //
                 error={!!errors.telefono}
                 helperText={errors?.telefono?.message}
                 {...register("telefono")}
@@ -146,14 +158,9 @@ export const AccountCard = () => {
             </Stack>
           </Stack>
           <Box>
-            <Button
-              variant="contained"
-              onClick={() => toast("wwwoooooww")}
-              size="small"
-            >
+            <Button variant="contained" type="submit" size="small">
               Guardar cambios
             </Button>
-            {/* <ToastContainer /> */}
           </Box>
         </form>
       </Stack>

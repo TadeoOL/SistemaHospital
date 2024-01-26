@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-// import { RolesChip } from "./RolesChip";
+import { RolesChip } from "./RolesChip";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useCallback, useEffect, useState } from "react";
@@ -22,6 +22,8 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useUserPaginationStore } from "../../../store/userPagination";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { disableUser } from "../../../api/api.routes";
+import { useAuthStore } from "../../../store/auth";
 
 // interface IUsersData {
 //   id: string;
@@ -33,37 +35,10 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 //   roles: string[];
 // }
 
-const deleteModal = () => {
-  withReactContent(Swal)
-    .fire({
-      title: "Estas seguro?",
-      text: "Estas a punto de deshabilitar un usuario",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Si, deshabilitalo!",
-      confirmButtonColor: "red",
-      cancelButtonText: "No, cancel!",
-      reverseButtons: true,
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        withReactContent(Swal).fire({
-          title: "Deshabilitado!",
-          text: "El usuario se ha deshabilitado",
-          icon: "success",
-        });
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        withReactContent(Swal).fire({
-          title: "Cancelado",
-          icon: "error",
-        });
-      }
-    });
-};
-
 export const UsersTable = () => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+  const profile = useAuthStore((state) => state.profile);
   const fetchData = useUserPaginationStore((state) => state.fetchData);
   const data = useUserPaginationStore((state) => state.data);
   const pageSize = useUserPaginationStore((state) => state.pageSize);
@@ -75,6 +50,12 @@ export const UsersTable = () => {
   const setResultByPage = useUserPaginationStore(
     (state) => state.setResultByPage
   );
+  const setUserDisabled = useUserPaginationStore(
+    (state) => state.setUserDisabled
+  );
+  const newUser = useUserPaginationStore((state) => state.newUser);
+
+  const userDisabled = useUserPaginationStore((state) => state.userDisabled);
 
   const handlePageChange = useCallback((event: any, value: any) => {
     setPageIndex(value);
@@ -82,7 +63,46 @@ export const UsersTable = () => {
 
   useEffect(() => {
     fetchData(pageSize, search, enabled, pageIndex);
-  }, [pageSize, enabled, search, pageIndex]);
+  }, [pageSize, enabled, search, pageIndex, userDisabled, profile, newUser]);
+
+  const deleteModal = (userId: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: "Estas seguro?",
+        text: "Estas a punto de deshabilitar un usuario",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Si, deshabilitalo!",
+        confirmButtonColor: "red",
+        cancelButtonText: "No, cancel!",
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await disableUser(userId);
+            setUserDisabled(userId);
+            withReactContent(Swal).fire({
+              title: "Deshabilitado!",
+              text: "El usuario se ha deshabilitado",
+              icon: "success",
+            });
+          } catch (error) {
+            console.log(error);
+            withReactContent(Swal).fire({
+              title: "Error!",
+              text: "No se pudo deshabilitar el usuario",
+              icon: "error",
+            });
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          withReactContent(Swal).fire({
+            title: "Cancelado",
+            icon: "error",
+          });
+        }
+      });
+  };
 
   return (
     <>
@@ -112,8 +132,10 @@ export const UsersTable = () => {
                       {user?.apellidoPaterno + " " + user?.apellidoMaterno}
                     </TableCell>
                     <TableCell>{user?.email}</TableCell>
-                    <TableCell>{/* <RolesChip user={user} /> */}</TableCell>
-                    <TableCell>{user?.phoneNumber}</TableCell>
+                    <TableCell>
+                      <RolesChip user={user} />
+                    </TableCell>
+                    <TableCell>{user?.telefono}</TableCell>
                     <TableCell>
                       <Stack sx={{ display: "flex", flexDirection: "row" }}>
                         <Tooltip title="Editar">
@@ -130,7 +152,9 @@ export const UsersTable = () => {
                         <Tooltip title="Eliminar">
                           <IconButton
                             size="small"
-                            onClick={() => deleteModal()}
+                            onClick={() => {
+                              deleteModal(user.id);
+                            }}
                           >
                             <DeleteIcon sx={{ color: "red" }} />
                           </IconButton>

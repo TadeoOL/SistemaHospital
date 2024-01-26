@@ -14,11 +14,13 @@ import { alpha, useTheme } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
+import { useAuthStore } from "../../store/auth";
 
 export const TopNav = () => {
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
   const setIsOpen = useAppNavStore((state) => state.setOpen);
+  const profile = useAuthStore((state) => state.profile);
   const isOpen = useAppNavStore((state) => state.open);
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -103,7 +105,7 @@ export const TopNav = () => {
                 height: 40,
                 width: 40,
               }}
-              src=""
+              src={profile?.imagenURL}
             />
           </Stack>
         </Stack>

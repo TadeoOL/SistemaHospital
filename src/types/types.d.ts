@@ -33,7 +33,25 @@ export interface IUserSettings {
   roles: string[];
 }
 
-export interface IAddUser extends IUser {
-  contraseña: string;
+export interface IAddUser {
+  contrasena: string;
   nombreUsuario: string;
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  telefono: string;
+  email: string;
+  imagenURL: string;
+  roles: string[];
+}
+
+export interface IUpdateUsers {
+  id: string;
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  telefono: string;
+  email: string;
+  nombreUsuario: string;
+  roles: string[];
 }

@@ -4,9 +4,13 @@ import { UsersTable } from "./SubComponents/UsersTable";
 import { useState } from "react";
 import { AddUserModal } from "./Modals/AddUserModal";
 import { SearchBar } from "../Inputs/SearchBar";
+import { useUserPaginationStore } from "../../store/userPagination";
 
 export const AccountAdminUsers = () => {
   const [openAddModal, setOpenAddModal] = useState(false);
+  const enabled = useUserPaginationStore((state) => state.enabled);
+  const setEnabled = useUserPaginationStore((state) => state.setEnabled);
+
   return (
     <>
       <Box
@@ -30,13 +34,24 @@ export const AccountAdminUsers = () => {
             <Typography fontWeight={700} fontSize={24}>
               Usuarios
             </Typography>
-            <Button
-              onClick={() => setOpenAddModal(true)}
-              variant="contained"
-              startIcon={<AddIcon />}
-            >
-              Agregar
-            </Button>
+            <Stack sx={{ flexDirection: "row", display: "flex", columnGap: 2 }}>
+              <Button
+                onClick={() => {
+                  setEnabled(!enabled);
+                }}
+              >
+                {enabled
+                  ? "Mostrar usuarios deshabilitados"
+                  : "Mostrar usuarios habilitados"}
+              </Button>
+              <Button
+                onClick={() => setOpenAddModal(true)}
+                variant="contained"
+                startIcon={<AddIcon />}
+              >
+                Agregar
+              </Button>
+            </Stack>
           </Stack>
           <SearchBar />
           <Divider sx={{ my: 2 }} />

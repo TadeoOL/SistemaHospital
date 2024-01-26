@@ -1,10 +1,21 @@
-import { Box, Button, Grid, MenuItem, TextField } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { IUserSettings } from "../../../types/types";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { IUpdateUsers, IUserSettings } from "../../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSettingsSchema } from "../../../schema/schemas";
 import { HeaderModal } from "./SubComponents/HeaderModal";
 import { useState } from "react";
+import { useUserPaginationStore } from "../../../store/userPagination";
+import { updateUserData } from "../../../api/api.routes";
+import { toast } from "react-toastify";
 
 interface IModifyUserModal {
   setOpen: Function;
@@ -41,12 +52,12 @@ const style = {
   },
 };
 
-const roles = ["admin", "usuario", "farmacia", "programacion"];
+const roles = ["ADMIN", "USER", "FARMACIA", "PROGRAMACION"];
 
 export const ModifyUserModal = (props: IModifyUserModal) => {
   const { user, setOpen } = props;
-  console.log("roles", user?.roles);
-  const [values, setValues] = useState<string[]>([]);
+  const [values, setValues] = useState<string[]>(user?.roles);
+  const setNewUser = useUserPaginationStore((state) => state.setNewUser);
 
   const handleChange = (event: any) => {
     const {
@@ -57,110 +68,159 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
 
   const {
     register,
+    getValues,
     handleSubmit,
     formState: { errors },
-  } = useForm<IUserSettings>({
+  } = useForm<IUpdateUsers>({
     defaultValues: {
       nombre: user?.nombre,
       apellidoPaterno: user?.apellidoPaterno,
       apellidoMaterno: user?.apellidoMaterno,
       email: user?.email,
-      telefono: user?.phoneNumber,
+      telefono: user?.telefono,
       roles: user?.roles,
+      nombreUsuario: user?.nombreUsuario,
     },
     resolver: zodResolver(userSettingsSchema),
   });
+  console.log({ user });
+  const onSubmit: SubmitHandler<IUpdateUsers> = async (data) => {
+    const nombreUsuario = getValues("nombreUsuario");
+    try {
+      const userData = {
+        ...data,
+        id: user?.id,
+        roles: values,
+        nombreUsuario,
+      };
+      const userRes: any = await updateUserData(userData);
+      setNewUser(userRes);
+      toast.success("Usuario modificado correctamente!");
+      setValues([]);
+      setOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al modificar al usuario!");
+    }
+  };
+
   return (
     <>
-      <Box sx={style}>
-        <HeaderModal setOpen={setOpen} title="Modificacion de usuario" />
-        <Grid container spacing={3} sx={{ p: 4 }}>
-          <Grid item xs={12} lg={6}>
-            <TextField
-              fullWidth
-              error={!!errors.nombre}
-              helperText={errors?.nombre?.message}
-              {...register("nombre")}
-              size="medium"
-              label="Nombre"
-            />
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Box sx={style}>
+          <HeaderModal setOpen={setOpen} title="Modificacion de usuario" />
+          <Grid container spacing={3} sx={{ p: 4 }}>
+            <Grid item xs={12}>
+              <Typography fontWeight={700} fontSize={24}>
+                Informacion basica
+              </Typography>
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.nombre}
+                helperText={errors?.nombre?.message}
+                {...register("nombre")}
+                size="medium"
+                label="Nombre"
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.apellidoPaterno}
+                helperText={errors?.apellidoPaterno?.message}
+                {...register("apellidoPaterno")}
+                size="medium"
+                label="Apellido paterno"
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.apellidoMaterno}
+                helperText={errors?.apellidoMaterno?.message}
+                {...register("apellidoMaterno")}
+                size="medium"
+                label="Apellido materno"
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.email}
+                helperText={errors?.email?.message}
+                {...register("email")}
+                size="medium"
+                label="Correo electrónico"
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.telefono}
+                helperText={errors?.telefono?.message}
+                {...register("telefono")}
+                size="medium"
+                label="Telefono"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography fontSize={24} fontWeight={700}>
+                Informacion del sistema
+              </Typography>
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.nombreUsuario}
+                helperText={errors?.nombreUsuario?.message}
+                {...register("nombreUsuario")}
+                size="medium"
+                label="Nombre de usuario"
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                label="Selecciona el rol"
+                name="Rol"
+                onChange={handleChange}
+                SelectProps={{
+                  multiple: true,
+                }}
+                required
+                select
+                value={values}
+              >
+                {roles.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
           </Grid>
-          <Grid item xs={12} lg={6}>
-            <TextField
-              fullWidth
-              error={!!errors.apellidoPaterno}
-              helperText={errors?.apellidoPaterno?.message}
-              {...register("apellidoPaterno")}
-              size="medium"
-              label="Apellido paterno"
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <TextField
-              fullWidth
-              error={!!errors.apellidoMaterno}
-              helperText={errors?.apellidoMaterno?.message}
-              {...register("apellidoMaterno")}
-              size="medium"
-              label="Apellido materno"
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <TextField
-              fullWidth
-              error={!!errors.email}
-              helperText={errors?.email?.message}
-              {...register("email")}
-              size="medium"
-              label="Correo electrónico"
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <TextField
-              fullWidth
-              error={!!errors.telefono}
-              helperText={errors?.telefono?.message}
-              {...register("telefono")}
-              size="medium"
-              label="Telefono"
-            />
-          </Grid>
-
-          <Grid item xs={12} lg={6}>
-            <TextField
-              fullWidth
-              label="Selecciona el rol"
-              name="Rol"
-              onChange={handleChange}
-              SelectProps={{
-                multiple: true,
-              }}
-              required
-              select
-              value={values}
-            >
-              {roles.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-        </Grid>
-        <Box
-          sx={{
-            justifyContent: "space-between",
-            display: "flex",
-            flex: 1,
-            p: 2,
-          }}
-        >
-          <Button variant="outlined" onClick={() => setOpen(false)}>
-            Cancelar
-          </Button>
-          <Button variant="contained">Guardar</Button>
+          <Box
+            sx={{
+              justifyContent: "space-between",
+              display: "flex",
+              flex: 1,
+              p: 2,
+            }}
+          >
+            <Button variant="outlined" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="contained" type="submit">
+              Guardar
+            </Button>
+          </Box>
         </Box>
-      </Box>
+      </form>
     </>
   );
 };

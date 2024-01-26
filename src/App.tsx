@@ -9,6 +9,7 @@ import { Layout } from "./components/Layout/Layout";
 import { AccountView } from "./views/AccountView";
 import { NotFoundPage } from "./views/404Page";
 import { LoginRoute } from "./utils/LoginRoute";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -31,6 +32,18 @@ function App() {
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover={false}
+        theme="colored"
+      />
     </BrowserRouter>
   );
 }

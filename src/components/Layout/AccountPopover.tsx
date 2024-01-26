@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/auth";
+import { toast } from "react-toastify";
 
 interface IAccountPopover {
   open: boolean;
@@ -22,6 +23,7 @@ export const AccountPopover = (props: IAccountPopover) => {
 
   const handleSignOut = useCallback(() => {
     onClose?.();
+    toast.success("Saliste de la sesion exitosamente!");
     logout();
     navigate("/login");
   }, [onClose, navigate]);

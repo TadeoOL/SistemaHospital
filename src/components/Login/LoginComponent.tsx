@@ -51,10 +51,11 @@ export const LoginComponent = () => {
       const user: IUser = await login(data.userName, data.password);
       setToken(user.token);
       setProfile(user);
+      toast.done("Inicio de sesion correcto!");
       navigate("/");
     } catch (error) {
       console.log(error);
-      toast.error("Error al iniciar sesion");
+      toast.error("Error al iniciar sesion!");
     }
   };
 
