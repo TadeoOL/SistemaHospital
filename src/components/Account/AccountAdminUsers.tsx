@@ -32,7 +32,7 @@ export const AccountAdminUsers = () => {
             }}
           >
             <Typography fontWeight={700} fontSize={24}>
-              Usuarios
+              {enabled ? "Usuarios" : "Usuarios deshabilitados"}
             </Typography>
             <Stack sx={{ flexDirection: "row", display: "flex", columnGap: 2 }}>
               <Button

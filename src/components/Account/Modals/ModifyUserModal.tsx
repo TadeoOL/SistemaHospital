@@ -57,6 +57,7 @@ const roles = ["ADMIN", "USER", "FARMACIA", "PROGRAMACION"];
 export const ModifyUserModal = (props: IModifyUserModal) => {
   const { user, setOpen } = props;
   const [values, setValues] = useState<string[]>(user?.roles);
+  const [isLoading, setIsLoading] = useState(false);
   const setNewUser = useUserPaginationStore((state) => state.setNewUser);
 
   const handleChange = (event: any) => {
@@ -87,6 +88,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
   const onSubmit: SubmitHandler<IUpdateUsers> = async (data) => {
     const nombreUsuario = getValues("nombreUsuario");
     try {
+      setIsLoading(true);
       const userData = {
         ...data,
         id: user?.id,
@@ -98,8 +100,10 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
       toast.success("Usuario modificado correctamente!");
       setValues([]);
       setOpen(false);
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
       toast.error("Error al modificar al usuario!");
     }
   };
@@ -212,10 +216,14 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
               p: 2,
             }}
           >
-            <Button variant="outlined" onClick={() => setOpen(false)}>
+            <Button
+              variant="outlined"
+              onClick={() => setOpen(false)}
+              disabled={isLoading}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" disabled={isLoading}>
               Guardar
             </Button>
           </Box>

@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import create from "zustand";
 import { getUsers } from "../api/api.routes";
 import { IUser } from "../types/types";
 
@@ -17,7 +17,7 @@ interface State {
   loading: boolean;
   search: string;
   enabled: boolean;
-  userDisabled: string | null;
+  userDisabled: boolean;
   newUser: IUser | null;
 }
 
@@ -26,7 +26,7 @@ interface Action {
   setEnabled: (enabled: boolean) => void;
   searchPagination: (search: string) => void;
   setPageIndex: (pageIndex: number) => void;
-  setUserDisabled: (userDisabled: string) => void;
+  setUserDisabled: (userDisabled: boolean) => void;
   setResultByPage: (setResultByPage: number) => void;
   fetchData: (
     pageSize: number,
@@ -51,7 +51,7 @@ export const useUserPaginationStore = create<State & Action>((set) => ({
   email: "",
   search: "",
   enabled: true,
-  userDisabled: null,
+  userDisabled: false,
   newUser: null,
   setEnabled: (state: boolean) => set(() => ({ enabled: state })),
   setNewUser: (state: IUser) => set(() => ({ newUser: state })),
@@ -59,7 +59,7 @@ export const useUserPaginationStore = create<State & Action>((set) => ({
     set(() => ({ search: state, pageIndex: 0 })),
   setPageIndex: (state: number) => set(() => ({ pageIndex: state })),
   setResultByPage: (state: number) => set(() => ({ pageSize: state })),
-  setUserDisabled: (state: string) => set(() => ({ userDisabled: state })),
+  setUserDisabled: (state: boolean) => set(() => ({ userDisabled: state })),
   fetchData: async (
     pageSize: number,
     search: string,

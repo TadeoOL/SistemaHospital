@@ -22,7 +22,7 @@ interface IUpdateUserData extends IUserSettings {
 
 export const AccountCard = () => {
   const user = useAuthStore((state) => state.profile);
-  const [disabledEdit, setDisabledEdit] = useState(true);
+  // const [disabledEdit, setDisabledEdit] = useState(true);
   const setProfile = useAuthStore((state) => state.setProfile);
 
   const {

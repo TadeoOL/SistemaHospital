@@ -1,13 +1,27 @@
-import { Box, Button, Grid, MenuItem, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { HeaderModal } from "./SubComponents/HeaderModal";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { userSettingsSchema } from "../../../schema/schemas";
+import { addNewUserSchema, userSettingsSchema } from "../../../schema/schemas";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IAddUser } from "../../../types/types";
 import { useState } from "react";
 import { registerNewUser } from "../../../api/api.routes";
 import { toast } from "react-toastify";
 import { useUserPaginationStore } from "../../../store/userPagination";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import HelpOutlinedIcon from "@mui/icons-material/HelpOutlined";
 
 const style = {
   position: "absolute",
@@ -59,6 +73,9 @@ export const AddUserModal = (props: IAddUserModal) => {
   const { setOpen } = props;
   const [values, setValues] = useState<string[]>([]);
   const setNewUser = useUserPaginationStore((state) => state.setNewUser);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [text, setText] = useState<string>("");
 
   const handleChange = (event: any) => {
     const {
@@ -79,35 +96,41 @@ export const AddUserModal = (props: IAddUserModal) => {
       apellidoMaterno: "",
       email: "",
       telefono: "",
-      contrasena: "",
-      nombreUsuario: "",
       imagenURL:
         "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png",
+      nombreUsuario: "",
+      contrasena: "",
+      confirmarContrasena: "",
       roles: [],
     },
-    resolver: zodResolver(userSettingsSchema),
+    resolver: zodResolver(addNewUserSchema),
   });
 
   const onSubmit: SubmitHandler<IAddUser> = async (data) => {
     try {
-      const contrasena = getValues("contrasena");
-      const nombreUsuario = getValues("nombreUsuario");
-
+      const imagenURL = getValues("imagenURL");
       const userData = {
         ...data,
-        contrasena,
-        nombreUsuario,
-        roles: values,
+        imagenURL,
       };
-      const user: any = await registerNewUser(userData);
+      console.log(userData);
+      setIsLoading(true);
+      const user = await registerNewUser(userData);
       setNewUser(user);
       toast.success("Usuario agregado correctamente!");
       setValues([]);
       setOpen(false);
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
       toast.error("Error al agregar nuevo usuario!");
     }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const passwordValue = e.target.value;
+    setText(passwordValue);
   };
 
   return (
@@ -116,6 +139,11 @@ export const AddUserModal = (props: IAddUserModal) => {
         <HeaderModal setOpen={setOpen} title="Agregar nuevo usuario" />
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3} sx={{ p: 6 }}>
+            <Grid item xs={12}>
+              <Typography fontWeight={700} fontSize={24}>
+                Informacion basica
+              </Typography>
+            </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
                 fullWidth
@@ -166,6 +194,14 @@ export const AddUserModal = (props: IAddUserModal) => {
                 label="Telefono"
               />
             </Grid>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography fontWeight={700} fontSize={24}>
+                Informacion de sesion
+              </Typography>
+            </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
                 fullWidth
@@ -178,19 +214,77 @@ export const AddUserModal = (props: IAddUserModal) => {
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
+                type={showPassword ? "text" : "password"}
                 fullWidth
                 error={!!errors.contrasena}
                 helperText={errors?.contrasena?.message}
                 {...register("contrasena")}
                 size="medium"
                 label="Contraseña"
+                onChange={handlePasswordChange}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {text.trim() === "" ? null : (
+                        <IconButton
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      )}
+                      <Tooltip title="La contraseña debe contener al menos una letra mayúsculay un número">
+                        <HelpOutlinedIcon />
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                type={showPassword ? "text" : "password"}
+                fullWidth
+                error={!!errors.confirmarContrasena}
+                helperText={errors?.confirmarContrasena?.message}
+                {...register("confirmarContrasena")}
+                size="medium"
+                label="Confirmar Contraseña"
+                onChange={handlePasswordChange}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {text.trim() === "" ? null : (
+                        <IconButton
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
                 fullWidth
+                error={!!errors.roles}
+                helperText={errors?.roles?.message}
                 label="Selecciona el rol"
-                name="Rol"
+                {...register("roles")}
+                name="roles"
                 onChange={handleChange}
                 SelectProps={{
                   multiple: true,
@@ -215,10 +309,14 @@ export const AddUserModal = (props: IAddUserModal) => {
               p: 2,
             }}
           >
-            <Button variant="outlined" onClick={() => setOpen(false)}>
+            <Button
+              variant="outlined"
+              onClick={() => setOpen(false)}
+              disabled={isLoading}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" disabled={isLoading}>
               Guardar
             </Button>
           </Box>

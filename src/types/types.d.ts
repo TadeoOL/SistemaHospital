@@ -35,6 +35,7 @@ export interface IUserSettings {
 
 export interface IAddUser {
   contrasena: string;
+  confirmarContrasena: string;
   nombreUsuario: string;
   nombre: string;
   apellidoPaterno: string;

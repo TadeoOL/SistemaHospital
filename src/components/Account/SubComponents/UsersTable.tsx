@@ -1,6 +1,7 @@
 import {
   Card,
   Checkbox,
+  CircularProgress,
   IconButton,
   Modal,
   Stack,
@@ -15,64 +16,39 @@ import {
 } from "@mui/material";
 import { RolesChip } from "./RolesChip";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { useCallback, useEffect, useState } from "react";
 import { ModifyUserModal } from "../Modals/ModifyUserModal";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { useUserPaginationStore } from "../../../store/userPagination";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { disableUser } from "../../../api/api.routes";
 import { useAuthStore } from "../../../store/auth";
+import CheckIcon from "@mui/icons-material/Check";
+import { shallow } from "zustand/shallow";
+import { useUserPaginationStore } from "../../../store/userPagination";
 
-// interface IUsersData {
-//   id: string;
-//   nombre: string;
-//   apellidoPaterno: string;
-//   apellidoMaterno: string;
-//   telefono: string;
-//   email: string;
-//   roles: string[];
-// }
-
-export const UsersTable = () => {
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
-  const profile = useAuthStore((state) => state.profile);
-  const fetchData = useUserPaginationStore((state) => state.fetchData);
-  const data = useUserPaginationStore((state) => state.data);
-  const pageSize = useUserPaginationStore((state) => state.pageSize);
-  const enabled = useUserPaginationStore((state) => state.enabled);
-  const search = useUserPaginationStore((state) => state.search);
-  const setPageIndex = useUserPaginationStore((state) => state.setPageIndex);
-  const pageIndex = useUserPaginationStore((state) => state.pageIndex);
-  const count = useUserPaginationStore((state) => state.count);
-  const setResultByPage = useUserPaginationStore(
-    (state) => state.setResultByPage
-  );
+const useDisableUserModal = () => {
   const setUserDisabled = useUserPaginationStore(
     (state) => state.setUserDisabled
   );
-  const newUser = useUserPaginationStore((state) => state.newUser);
 
-  const userDisabled = useUserPaginationStore((state) => state.userDisabled);
-
-  const handlePageChange = useCallback((event: any, value: any) => {
-    setPageIndex(value);
-  }, []);
-
-  useEffect(() => {
-    fetchData(pageSize, search, enabled, pageIndex);
-  }, [pageSize, enabled, search, pageIndex, userDisabled, profile, newUser]);
-
-  const deleteModal = (userId: string) => {
+  const disableUserModal = (
+    userId: string,
+    stateEnabled: boolean,
+    userDisabled: boolean
+  ) => {
     withReactContent(Swal)
       .fire({
         title: "Estas seguro?",
-        text: "Estas a punto de deshabilitar un usuario",
+        text: `Estas a punto de ${
+          stateEnabled ? "deshabilitar" : "habilitar"
+        } un usuario`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Si, deshabilitalo!",
+        confirmButtonText: `Si, ${
+          stateEnabled ? "deshabilitalo!" : "habilitalo!"
+        }`,
         confirmButtonColor: "red",
         cancelButtonText: "No, cancel!",
         reverseButtons: true,
@@ -81,17 +57,21 @@ export const UsersTable = () => {
         if (result.isConfirmed) {
           try {
             await disableUser(userId);
-            setUserDisabled(userId);
+            setUserDisabled(!userDisabled);
             withReactContent(Swal).fire({
-              title: "Deshabilitado!",
-              text: "El usuario se ha deshabilitado",
+              title: `${stateEnabled ? "Deshabilitado!" : "Habilitado!"}`,
+              text: `El usuario se ha ${
+                stateEnabled ? "deshabilitado" : "habilitado"
+              }`,
               icon: "success",
             });
           } catch (error) {
             console.log(error);
             withReactContent(Swal).fire({
               title: "Error!",
-              text: "No se pudo deshabilitar el usuario",
+              text: `No se pudo ${
+                stateEnabled ? "deshabilitar" : "habilitar"
+              } el usuario`,
               icon: "error",
             });
           }
@@ -103,6 +83,52 @@ export const UsersTable = () => {
         }
       });
   };
+
+  return disableUserModal;
+};
+
+export const UsersTable = () => {
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const profile = useAuthStore((state) => state.profile);
+  const handlePageChange = useCallback((event: any, value: any) => {
+    setPageIndex(value);
+  }, []);
+  const disableUserModal = useDisableUserModal();
+  const {
+    fetchData,
+    setPageIndex,
+    isLoading,
+    data,
+    pageSize,
+    enabled,
+    search,
+    pageIndex,
+    count,
+    setResultByPage,
+    newUser,
+    userDisabled,
+  } = useUserPaginationStore(
+    (state) => ({
+      fetchData: state.fetchData,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.loading,
+      data: state.data,
+      pageSize: state.pageSize,
+      enabled: state.enabled,
+      search: state.search,
+      pageIndex: state.pageIndex,
+      count: state.count,
+      setResultByPage: state.setResultByPage,
+      newUser: state.newUser,
+      userDisabled: state.userDisabled,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    fetchData(pageSize, search, enabled, pageIndex);
+  }, [pageSize, enabled, search, pageIndex, userDisabled, profile, newUser]);
 
   return (
     <>
@@ -120,49 +146,56 @@ export const UsersTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.length === 0
-              ? null
-              : data.map((user) => (
-                  <TableRow key={user?.id}>
-                    <TableCell>
-                      <Checkbox />
-                    </TableCell>
-                    <TableCell>{user?.nombre}</TableCell>
-                    <TableCell>
-                      {user?.apellidoPaterno + " " + user?.apellidoMaterno}
-                    </TableCell>
-                    <TableCell>{user?.email}</TableCell>
-                    <TableCell>
-                      <RolesChip user={user} />
-                    </TableCell>
-                    <TableCell>{user?.telefono}</TableCell>
-                    <TableCell>
-                      <Stack sx={{ display: "flex", flexDirection: "row" }}>
-                        <Tooltip title="Editar">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setUserData(user);
-                              setOpenEditModal(true);
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Eliminar">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              deleteModal(user.id);
-                            }}
-                          >
-                            <DeleteIcon sx={{ color: "red" }} />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
+            {data.length === 0 ? null : isLoading ? (
+              <CircularProgress />
+            ) : (
+              data.map((user) => (
+                <TableRow key={user?.id}>
+                  <TableCell>
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>{user?.nombre}</TableCell>
+                  <TableCell>
+                    {user?.apellidoPaterno + " " + user?.apellidoMaterno}
+                  </TableCell>
+                  <TableCell>{user?.email}</TableCell>
+                  <TableCell>
+                    <RolesChip user={user} />
+                  </TableCell>
+                  <TableCell>{user?.telefono}</TableCell>
+                  <TableCell>
+                    <Stack sx={{ display: "flex", flexDirection: "row" }}>
+                      <Tooltip title="Editar">
+                        <IconButton
+                          size="small"
+                          sx={{ color: "neutral.700" }}
+                          onClick={() => {
+                            setUserData(user);
+                            setOpenEditModal(true);
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title={enabled ? "Deshabilitar" : "Habilitar"}>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            disableUserModal(user.id, enabled, userDisabled);
+                          }}
+                        >
+                          {enabled ? (
+                            <RemoveCircleIcon sx={{ color: "red" }} />
+                          ) : (
+                            <CheckIcon sx={{ color: "green" }} />
+                          )}
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         {data.length === 0 && (

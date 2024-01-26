@@ -85,6 +85,7 @@ export const registerNewUser = async (user: IAddUser) => {
     roles,
     telefono,
     nombreUsuario,
+    confirmarContrasena,
   } = user;
   const res = await axios.post(`/api/Usuario/register`, {
     apellidoMaterno,
@@ -96,6 +97,7 @@ export const registerNewUser = async (user: IAddUser) => {
     roles,
     telefono,
     nombreUsuario,
+    confirmarContrasena,
   });
   return res.data;
 };
