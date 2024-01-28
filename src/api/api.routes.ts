@@ -101,3 +101,27 @@ export const registerNewUser = async (user: IAddUser) => {
   });
   return res.data;
 };
+
+export const changeUserPassword = async (
+  password: string,
+  confirmPassword: string
+) => {
+  const res = await axios.put(`/api/Usuario/changePassword`, {
+    contrasena: password,
+    confirmarContrasena: confirmPassword,
+  });
+  return res.data;
+};
+
+export const AdminChangeUsersPassword = async (
+  id: string,
+  password: string,
+  confirmPassword: string
+) => {
+  const res = await axios.put(`/api/Usuario/ChangeAdminPassword`, {
+    id: id,
+    contrasena: password,
+    confirmarContrasena: confirmPassword,
+  });
+  return res.data;
+};

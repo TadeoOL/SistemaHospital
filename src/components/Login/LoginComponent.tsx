@@ -55,7 +55,7 @@ export const LoginComponent = () => {
       navigate("/");
     } catch (error) {
       console.log(error);
-      toast.error("Error al iniciar sesion!");
+      toast.error("Credenciales incorrectas!");
     }
   };
 

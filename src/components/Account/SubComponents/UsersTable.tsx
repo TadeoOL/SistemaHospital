@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   Checkbox,
   CircularProgress,
@@ -88,13 +89,11 @@ const useDisableUserModal = () => {
 };
 
 export const UsersTable = () => {
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const profile = useAuthStore((state) => state.profile);
-  const handlePageChange = useCallback((event: any, value: any) => {
-    setPageIndex(value);
-  }, []);
+  const [userData, setUserData] = useState<any>(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const disableUserModal = useDisableUserModal();
+
   const {
     fetchData,
     setPageIndex,
@@ -108,6 +107,8 @@ export const UsersTable = () => {
     setResultByPage,
     newUser,
     userDisabled,
+    isChecked,
+    setIsChecked,
   } = useUserPaginationStore(
     (state) => ({
       fetchData: state.fetchData,
@@ -122,6 +123,8 @@ export const UsersTable = () => {
       setResultByPage: state.setResultByPage,
       newUser: state.newUser,
       userDisabled: state.userDisabled,
+      isChecked: state.isChecked,
+      setIsChecked: state.setIsChecked,
     }),
     shallow
   );
@@ -130,6 +133,30 @@ export const UsersTable = () => {
     fetchData(pageSize, search, enabled, pageIndex);
   }, [pageSize, enabled, search, pageIndex, userDisabled, profile, newUser]);
 
+  const handlePageChange = useCallback((event: any, value: any) => {
+    setPageIndex(value);
+  }, []);
+
+  const handleUserChecked = (e: any) => {
+    const { value, checked } = e.target;
+
+    if (checked) {
+      setIsChecked([...isChecked, value]);
+    } else {
+      setIsChecked(isChecked.filter((item) => item !== value));
+    }
+  };
+
+  const handleIsUserChecked = (userId: string) => {
+    if (isChecked.some((user) => user === userId)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  console.log("Checkbox en usersTable", isChecked);
+
   return (
     <>
       <Card>
@@ -137,68 +164,83 @@ export const UsersTable = () => {
           <TableHead>
             <TableRow>
               <TableCell />
-              <TableCell>Nombre</TableCell>
-              <TableCell>Apellidos</TableCell>
-              <TableCell>Correo Electronico</TableCell>
+              <TableCell>Nombre de usuario</TableCell>
+              <TableCell>Nombre completo</TableCell>
+              <TableCell>Correo electrónico</TableCell>
               <TableCell>Roles</TableCell>
-              <TableCell>Telefono</TableCell>
-              <TableCell>Modificacion</TableCell>
+              <TableCell>Teléfono</TableCell>
+              <TableCell>Modificación</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.length === 0 ? null : isLoading ? (
-              <CircularProgress />
-            ) : (
-              data.map((user) => (
-                <TableRow key={user?.id}>
-                  <TableCell>
-                    <Checkbox />
-                  </TableCell>
-                  <TableCell>{user?.nombre}</TableCell>
-                  <TableCell>
-                    {user?.apellidoPaterno + " " + user?.apellidoMaterno}
-                  </TableCell>
-                  <TableCell>{user?.email}</TableCell>
-                  <TableCell>
-                    <RolesChip user={user} />
-                  </TableCell>
-                  <TableCell>{user?.telefono}</TableCell>
-                  <TableCell>
-                    <Stack sx={{ display: "flex", flexDirection: "row" }}>
-                      <Tooltip title="Editar">
-                        <IconButton
-                          size="small"
-                          sx={{ color: "neutral.700" }}
-                          onClick={() => {
-                            setUserData(user);
-                            setOpenEditModal(true);
-                          }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title={enabled ? "Deshabilitar" : "Habilitar"}>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            disableUserModal(user.id, enabled, userDisabled);
-                          }}
-                        >
-                          {enabled ? (
-                            <RemoveCircleIcon sx={{ color: "red" }} />
-                          ) : (
-                            <CheckIcon sx={{ color: "green" }} />
-                          )}
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+            {data.length === 0
+              ? null
+              : isLoading
+              ? null
+              : data.map((user) => (
+                  <TableRow key={user?.id}>
+                    <TableCell>
+                      <Checkbox
+                        value={user?.id}
+                        checked={handleIsUserChecked(user?.id)}
+                        onChange={(e) => handleUserChecked(e)}
+                      />
+                    </TableCell>
+                    <TableCell>{user?.nombreUsuario}</TableCell>
+                    <TableCell>
+                      {user?.nombre +
+                        " " +
+                        user?.apellidoPaterno +
+                        " " +
+                        user?.apellidoMaterno}
+                    </TableCell>
+                    <TableCell>{user?.email}</TableCell>
+                    <TableCell>
+                      <RolesChip user={user} />
+                    </TableCell>
+                    <TableCell>{user?.telefono}</TableCell>
+                    <TableCell>
+                      <Stack sx={{ display: "flex", flexDirection: "row" }}>
+                        <Tooltip title="Editar">
+                          <IconButton
+                            size="small"
+                            sx={{ color: "neutral.700" }}
+                            onClick={() => {
+                              setUserData(user);
+                              setOpenEditModal(true);
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={enabled ? "Deshabilitar" : "Habilitar"}>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              disableUserModal(user.id, enabled, userDisabled);
+                            }}
+                          >
+                            {enabled ? (
+                              <RemoveCircleIcon sx={{ color: "red" }} />
+                            ) : (
+                              <CheckIcon sx={{ color: "green" }} />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
-        {data.length === 0 && (
+        {isLoading && (
+          <Box
+            sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+        {data.length === 0 && !isLoading && (
           <Card
             sx={{
               display: "flex",
