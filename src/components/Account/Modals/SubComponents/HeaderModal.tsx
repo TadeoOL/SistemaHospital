@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography, styled } from "@mui/material";
+import { IconButton, Typography, styled } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface IHeaderModal {
@@ -13,11 +13,9 @@ const Header = styled("div")(() => ({
   justifyContent: "space-between",
   alignItems: "baseline",
   position: "sticky",
-  top: 0, // Sticky at the top
-  zIndex: 100, // Ensuring it's on top
-  background: "rgba(255, 255, 255, 0.9)", // Background color
-  borderBottom: "1px solid #ccc", // Border for separation
-  backdropFilter: "blur(10px)", // Adding a blur effect for transparency
+  top: 0,
+  zIndex: 100,
+  background: "rgba(255, 255, 255, 0.9)",
 }));
 
 export const HeaderModal = (props: IHeaderModal) => {

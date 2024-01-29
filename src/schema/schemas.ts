@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
+);
+
 export const loginSchema = z.object({
   userName: z.string().min(3, "Escribe un nombre de usuario valido"),
   password: z
@@ -13,10 +17,7 @@ export const userSettingsSchema = z.object({
   apellidoPaterno: z.string().min(1, "Escribe un apellido paterno"),
   apellidoMaterno: z.string().min(1, "Escribe un apellido paterno"),
   email: z.string().email("Escribe un correo electronico valido"),
-  telefono: z
-    .string()
-    .min(10, "Escribe un numero de telefono")
-    .max(10, "Escribe un numero de telefono"),
+  telefono: z.string().regex(phoneRegex, "Numero invalido!"),
   imagenURL: z.string().optional(),
 });
 
@@ -57,3 +58,16 @@ export const addNewUserSchema = z
     message: "Las contraseñas no coinciden",
     path: ["confirmarContrasena"],
   });
+
+export const addNewProviderSchema = z.object({
+  nombreCompania: z.string().min(3, "Agrega una compañia"),
+  nombreContacto: z.string().min(3, "Agrega una contacto"),
+  puesto: z.string().min(3, "Agrega una puesto"),
+  direccion: z.string().min(3, "Agrega una direccion"),
+  telefono: z
+    .string()
+    .regex(phoneRegex, "Escribe un numero valido")
+    .min(10, "El numero debe contener 10 caracteres")
+    .max(10, "El numero debe contener 10 caracteres"),
+  email: z.string().email("Escribe una direccion de correo valida"),
+});

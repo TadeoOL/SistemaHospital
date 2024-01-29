@@ -150,7 +150,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.nombre}
                 helperText={errors?.nombre?.message}
                 {...register("nombre")}
-                size="medium"
+                size="small"
                 label="Nombre"
               />
             </Grid>
@@ -160,7 +160,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.apellidoPaterno}
                 helperText={errors?.apellidoPaterno?.message}
                 {...register("apellidoPaterno")}
-                size="medium"
+                size="small"
                 label="Apellido paterno"
               />
             </Grid>
@@ -170,7 +170,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.apellidoMaterno}
                 helperText={errors?.apellidoMaterno?.message}
                 {...register("apellidoMaterno")}
-                size="medium"
+                size="small"
                 label="Apellido materno"
               />
             </Grid>
@@ -180,7 +180,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.email}
                 helperText={errors?.email?.message}
                 {...register("email")}
-                size="medium"
+                size="small"
                 label="Correo electrónico"
               />
             </Grid>
@@ -190,7 +190,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.telefono}
                 helperText={errors?.telefono?.message}
                 {...register("telefono")}
-                size="medium"
+                size="small"
                 label="Telefono"
               />
             </Grid>
@@ -208,9 +208,33 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.nombreUsuario}
                 helperText={errors?.nombreUsuario?.message}
                 {...register("nombreUsuario")}
-                size="medium"
+                size="small"
                 label="Nombre de usuario"
               />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TextField
+                fullWidth
+                error={!!errors.roles}
+                helperText={errors?.roles?.message}
+                label="Selecciona el rol"
+                {...register("roles")}
+                name="roles"
+                size="small"
+                onChange={handleChange}
+                SelectProps={{
+                  multiple: true,
+                }}
+                required
+                select
+                value={values}
+              >
+                {roles.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
@@ -219,7 +243,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.contrasena}
                 helperText={errors?.contrasena?.message}
                 {...register("contrasena")}
-                size="medium"
+                size="small"
                 label="Contraseña"
                 onChange={handlePasswordChange}
                 InputProps={{
@@ -253,7 +277,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 error={!!errors.confirmarContrasena}
                 helperText={errors?.confirmarContrasena?.message}
                 {...register("confirmarContrasena")}
-                size="medium"
+                size="small"
                 label="Confirmar Contraseña"
                 onChange={handlePasswordChange}
                 InputProps={{
@@ -276,29 +300,6 @@ export const AddUserModal = (props: IAddUserModal) => {
                   ),
                 }}
               />
-            </Grid>
-            <Grid item xs={12} lg={6}>
-              <TextField
-                fullWidth
-                error={!!errors.roles}
-                helperText={errors?.roles?.message}
-                label="Selecciona el rol"
-                {...register("roles")}
-                name="roles"
-                onChange={handleChange}
-                SelectProps={{
-                  multiple: true,
-                }}
-                required
-                select
-                value={values}
-              >
-                {roles.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
             </Grid>
           </Grid>
           <Box

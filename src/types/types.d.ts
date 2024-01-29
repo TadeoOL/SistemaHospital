@@ -56,3 +56,13 @@ export interface IUpdateUsers {
   nombreUsuario: string;
   roles: string[];
 }
+
+export interface IProvider {
+  id: string;
+  nombreCompania: string;
+  nombreContacto: string;
+  puesto: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+}

@@ -155,8 +155,6 @@ export const UsersTable = () => {
     }
   };
 
-  console.log("Checkbox en usersTable", isChecked);
-
   return (
     <>
       <Card>

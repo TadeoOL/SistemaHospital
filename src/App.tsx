@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LoginView } from "./views/LoginView";
 import { DashboardView } from "./views/Layout/DashboardView";
 import { ProtectedRoute } from "./utils/ProtectedRoute";
-import { PharmacyView } from "./views/Pharmacy/PharmacyView";
 import { WarehouseView } from "./views/Pharmacy/WarehouseView";
 import { ScheduleView } from "./views/Schedule/ScheduleView";
 import { Layout } from "./components/Layout/Layout";
@@ -10,6 +9,7 @@ import { AccountView } from "./views/AccountView";
 import { NotFoundPage } from "./views/404Page";
 import { LoginRoute } from "./utils/LoginRoute";
 import { ToastContainer } from "react-toastify";
+import { ProvidersView } from "./views/Purchease/ProvidersView";
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardView />} />
-            <Route path="/farmacia" element={<PharmacyView />} />
+            <Route path="/compras/proveedores" element={<ProvidersView />} />
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />
             <Route

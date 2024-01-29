@@ -1,21 +1,21 @@
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import { IModuleItems } from "../types/types";
-import WarehouseIcon from "@mui/icons-material/Warehouse";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import StoreIcon from "@mui/icons-material/Store";
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 
 export const ModuleItems: IModuleItems[] = [
   {
-    title: "Farmacia",
-    path: "/farmacia",
+    title: "Compras",
+    path: "/compras",
     childrenItems: [
       {
-        title: "Almacen",
-        path: "/farmacia/almacen",
-        icon: <WarehouseIcon />,
+        title: "Proveedores",
+        path: "/compras/proveedores",
+        icon: <PermContactCalendarIcon />,
       },
     ],
-    icon: <LocalHospitalIcon />,
+    icon: <StoreIcon />,
   },
   {
     title: "Programacion",

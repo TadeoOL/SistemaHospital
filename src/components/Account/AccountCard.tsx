@@ -150,6 +150,7 @@ export const AccountCard = () => {
       sx={{
         boxShadow: 10,
         borderRadius: 2,
+        bgcolor: "white",
       }}
     >
       <Stack sx={{ p: 2 }}>

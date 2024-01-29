@@ -7,7 +7,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import { UsersTable } from "./SubComponents/UsersTable";
 import { useState } from "react";
 import { AddUserModal } from "./Modals/AddUserModal";
@@ -17,6 +16,7 @@ import { disableUser } from "../../api/api.routes";
 import { shallow } from "zustand/shallow";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
 const useDisableManyUsersModal = () => {
   const { setUserDisabled, setIsChecked } = useUserPaginationStore(
@@ -86,6 +86,7 @@ const useDisableManyUsersModal = () => {
 
 export const AccountAdminUsers = () => {
   const disableManyUsersModal = useDisableManyUsersModal();
+  const search = useUserPaginationStore((state) => state.searchPagination);
   const [openAddModal, setOpenAddModal] = useState(false);
   const { enabled, setEnabled, userDisabled, isChecked } =
     useUserPaginationStore(
@@ -105,10 +106,11 @@ export const AccountAdminUsers = () => {
           boxShadow: 10,
           borderRadius: 2,
           mt: 4,
-          minWidth: { xs: 950, xl: 0 },
+          bgcolor: "white",
+          overflowX: "auto",
         }}
       >
-        <Stack sx={{ display: "flex", flex: 1 }}>
+        <Stack sx={{ display: "flex", flex: 1, minWidth: { xs: 950, xl: 0 } }}>
           <Stack
             sx={{
               p: 2,
@@ -134,13 +136,13 @@ export const AccountAdminUsers = () => {
               <Button
                 onClick={() => setOpenAddModal(true)}
                 variant="contained"
-                startIcon={<AddIcon />}
+                startIcon={<AddCircleOutlinedIcon />}
               >
                 Agregar
               </Button>
             </Stack>
           </Stack>
-          <SearchBar />
+          <SearchBar title="Busca al usuario..." searchState={search} />
           <Collapse in={isChecked.length !== 0}>
             <Box sx={{ pr: 2, pt: 2 }}>
               {enabled ? (
