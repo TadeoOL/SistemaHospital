@@ -20,7 +20,7 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { useState } from "react";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
-import { IProvider } from "../../types/types";
+import { IProvider } from "../../../types/types";
 import { ModifyProviderModal } from "./Modal/ModifyProviderModal";
 
 const data: IProvider[] = [

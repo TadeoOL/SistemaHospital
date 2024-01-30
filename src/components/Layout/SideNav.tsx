@@ -85,7 +85,8 @@ export const SideNav = () => {
           }}
         >
           {ModuleItems.map((item, i) => {
-            const isActive = item.path === location.pathname ? true : false;
+            const pathSplit = location.pathname.split("/");
+            const isActive = pathSplit.includes(item.path);
             return (
               <SideNavItems
                 active={isActive}

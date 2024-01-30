@@ -66,3 +66,8 @@ export interface IProvider {
   telefono: string;
   email: string;
 }
+
+export interface IRequestPurchaseDrug {
+  id: string;
+  nombre: string;
+}

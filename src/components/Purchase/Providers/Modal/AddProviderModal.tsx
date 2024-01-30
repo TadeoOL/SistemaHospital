@@ -1,8 +1,8 @@
 import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
-import { IProvider } from "../../../types/types";
-import { HeaderModal } from "../../Account/Modals/SubComponents/HeaderModal";
+import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { addNewProviderSchema } from "../../../schema/schemas";
+import { IProvider } from "../../../../types/types";
+import { addNewProviderSchema } from "../../../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 
@@ -32,33 +32,19 @@ const style = {
   },
 };
 
-interface IModifyProviderModal {
-  provider: IProvider | null;
-}
-
-export const ModifyProviderModal = (props: IModifyProviderModal) => {
-  const {
-    direccion,
-    email,
-    id,
-    nombreCompania,
-    nombreContacto,
-    puesto,
-    telefono,
-  } = props.provider ?? {};
-
+export const AddProviderModal = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IProvider>({
     defaultValues: {
-      nombreCompania: nombreCompania,
-      nombreContacto: nombreContacto,
-      puesto: puesto,
-      direccion: direccion,
-      telefono: telefono,
-      email: email,
+      nombreCompania: "",
+      nombreContacto: "",
+      puesto: "",
+      direccion: "",
+      telefono: "",
+      email: "",
     },
     resolver: zodResolver(addNewProviderSchema),
   });
@@ -66,31 +52,34 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   const onSubmit: SubmitHandler<IProvider> = async (data) => {
     try {
       console.log(data);
-      // api para modificar proveedor
-      toast.success("Proveedor modificado correctamente!");
+      // api para registrar proveedor
+      toast.success("Usuario agregado correctamente!");
     } catch (error) {
       console.log(error);
-      toast.error("Error al modificar proveedor!");
+      toast.error("Error al agregar nuevo usuario!");
     }
   };
 
   return (
-    <Box sx={style}>
-      <HeaderModal setOpen={() => {}} title="Modificar proveedor" />
-      <Box>
-        <form noValidate onSubmit={handleSubmit(onSubmit)}>
-          <Stack sx={{ p: 4, rowGap: 4 }}>
-            <Typography fontWeight={700} fontSize={18}>
-              Información del proveedor
-            </Typography>
+    <Box sx={{ ...style }}>
+      <HeaderModal title="Agregar proveedor" setOpen={() => {}} />
+      <form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <Stack sx={{ p: 2, px: 4 }}>
+          <Stack spacing={2} sx={{ pr: 2 }}>
             <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography fontWeight={700} fontSize={18}>
+                  Informacion del proveedor
+                </Typography>
+              </Grid>
               <Grid item xs={12} lg={6}>
                 <TextField
                   fullWidth
                   error={!!errors.nombreCompania}
                   helperText={errors?.nombreCompania?.message}
+                  size="small"
                   {...register("nombreCompania")}
-                  label="Nombre compañía"
+                  label="Nombre compañia"
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
@@ -98,6 +87,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                   fullWidth
                   error={!!errors.nombreContacto}
                   helperText={errors?.nombreContacto?.message}
+                  size="small"
                   {...register("nombreContacto")}
                   label="Nombre contacto"
                 />
@@ -107,6 +97,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                   fullWidth
                   error={!!errors.puesto}
                   helperText={errors?.puesto?.message}
+                  size="small"
                   {...register("puesto")}
                   label="Puesto"
                 />
@@ -116,8 +107,9 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                   fullWidth
                   error={!!errors.direccion}
                   helperText={errors?.direccion?.message}
+                  size="small"
                   {...register("direccion")}
-                  label="Dirección"
+                  label="Direccion"
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
@@ -125,8 +117,9 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                   fullWidth
                   error={!!errors.telefono}
                   helperText={errors?.telefono?.message}
+                  size="small"
                   {...register("telefono")}
-                  label="Teléfono"
+                  label="Telefono"
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
@@ -134,27 +127,30 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                   fullWidth
                   error={!!errors.email}
                   helperText={errors?.email?.message}
+                  size="small"
                   {...register("email")}
-                  label="Correo electrónico"
+                  label="Correo electronico"
                 />
               </Grid>
             </Grid>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                display: "flex",
-                flex: 1,
-                justifyContent: "space-between",
-              }}
-            >
-              <Button variant="outlined">Cancelar</Button>
-              <Button variant="contained" type="submit">
-                Guardar
-              </Button>
-            </Stack>
           </Stack>
-        </form>
-      </Box>
+          <Stack
+            sx={{
+              flexDirection: "row",
+              display: "flex",
+              flexGrow: 1,
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 4,
+            }}
+          >
+            <Button variant="outlined">Cancelar</Button>
+            <Button variant="contained" type="submit">
+              Guardar
+            </Button>
+          </Stack>
+        </Stack>
+      </form>
     </Box>
   );
 };

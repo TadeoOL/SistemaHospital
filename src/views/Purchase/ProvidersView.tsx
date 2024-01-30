@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/material";
-import { ProvidersCard } from "../../components/Purchease/ProvidersCard";
+import { ProvidersCard } from "../../components/Purchase/Providers/ProvidersCard";
 
 export const ProvidersView = () => {
   return (

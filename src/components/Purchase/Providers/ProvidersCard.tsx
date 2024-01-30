@@ -1,9 +1,9 @@
 import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
-import { ProvidersTable } from "./ProvidersTable";
 import { AddProviderModal } from "./Modal/AddProviderModal";
 import { useState } from "react";
-import { SearchBar } from "../Inputs/SearchBar";
+import { SearchBar } from "../../Inputs/SearchBar";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
+import { ProvidersTable } from "./ProvidersTable";
 
 export const ProvidersCard = () => {
   const [open, setOpen] = useState(false);

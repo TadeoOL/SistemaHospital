@@ -103,8 +103,9 @@ export const SideNavItems = (props: ISideNavItems) => {
         {props.childrenItems.length === 0 ? null : (
           <Collapse in={isOpen}>
             {props.childrenItems.map((childItem, i) => {
-              const isActive =
-                childItem.path === location.pathname ? true : false;
+              const pathSplit = location.pathname.split("/");
+              const childSplit = childItem.path.split("/");
+              const isActive = pathSplit.includes(childSplit[2]);
               return (
                 <Stack key={i}>
                   <ButtonBase

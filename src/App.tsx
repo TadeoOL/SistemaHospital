@@ -9,7 +9,11 @@ import { AccountView } from "./views/AccountView";
 import { NotFoundPage } from "./views/404Page";
 import { LoginRoute } from "./utils/LoginRoute";
 import { ToastContainer } from "react-toastify";
-import { ProvidersView } from "./views/Purchease/ProvidersView";
+import { ProvidersView } from "./views/Purchase/ProvidersView";
+import { PurchaseRequestView } from "./views/Purchase/PurchaseRequestView";
+import { RequestedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/RequestedMedicineTable";
+import { ToQuoteMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/ToQuoteMedicineTable";
+import { PurchasedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/PurchasedMedicineTable";
 
 function App() {
   return (
@@ -19,6 +23,23 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardView />} />
             <Route path="/compras/proveedores" element={<ProvidersView />} />
+            <Route
+              path="/compras/solicitud-compras"
+              element={<PurchaseRequestView />}
+            >
+              <Route
+                path="productos-solicitados"
+                element={<RequestedMedicineTable />}
+              />
+              <Route
+                path="productos-cotizados"
+                element={<ToQuoteMedicineTable />}
+              />
+              <Route
+                path="productos-comprados"
+                element={<PurchasedMedicineTable />}
+              />
+            </Route>
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />
             <Route
