@@ -65,6 +65,14 @@ export interface IProvider {
   direccion: string;
   telefono: string;
   email: string;
+  rfc: string;
+  direccionFiscal: string;
+  giroEmpresa: string;
+  tipoContribuyente: string;
+  numIdentificacionFiscal: string;
+  certificacionBP: string;
+  certificacionISO: string;
+  certificacionCR: string;
 }
 
 export interface IRequestPurchaseDrug {

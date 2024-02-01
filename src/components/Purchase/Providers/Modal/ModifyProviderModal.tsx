@@ -1,10 +1,26 @@
-import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { IProvider } from "../../../../types/types";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { addNewProviderSchema } from "../../../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
+import { BasicInfoForm } from "./Forms/BasicInfoForm";
+import { useState } from "react";
+import { FiscalForm } from "./Forms/FiscalForm";
+import { CertificateForm } from "./Forms/CertificateForm";
 
 const style = {
   position: "absolute",
@@ -32,20 +48,52 @@ const style = {
   },
 };
 
+const stepsForm = [
+  "Información general",
+  "Información fiscal",
+  "Certificaciones",
+];
+
+const renderStepForm = (step: number, errors: any, register: any) => {
+  switch (step) {
+    case 0:
+      return <BasicInfoForm errors={errors} register={register} />;
+    case 1:
+      return <FiscalForm errors={errors} register={register} />;
+    case 2:
+      return <CertificateForm errors={errors} register={register} />;
+    default:
+      break;
+  }
+};
+
 interface IModifyProviderModal {
   provider: IProvider | null;
+  setOpen: Function;
 }
 
 export const ModifyProviderModal = (props: IModifyProviderModal) => {
   const {
+    id,
     direccion,
     email,
-    id,
     nombreCompania,
     nombreContacto,
     puesto,
     telefono,
+    certificacionBP,
+    certificacionCR,
+    certificacionISO,
+    rfc,
+    numIdentificacionFiscal,
+    tipoContribuyente,
+    direccionFiscal,
+    giroEmpresa,
   } = props.provider ?? {};
+
+  const [step, setStep] = useState(0);
+  const theme = useTheme();
+  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   const {
     register,
@@ -59,18 +107,30 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       direccion: direccion,
       telefono: telefono,
       email: email,
+      giroEmpresa: giroEmpresa,
+      rfc: rfc,
+      numIdentificacionFiscal: numIdentificacionFiscal,
+      tipoContribuyente: tipoContribuyente,
+      direccionFiscal: direccionFiscal,
+      certificacionBP: certificacionBP,
+      certificacionCR: certificacionCR,
+      certificacionISO: certificacionISO,
     },
     resolver: zodResolver(addNewProviderSchema),
   });
 
-  const onSubmit: SubmitHandler<IProvider> = async (data) => {
-    try {
-      console.log(data);
-      // api para modificar proveedor
-      toast.success("Proveedor modificado correctamente!");
-    } catch (error) {
-      console.log(error);
-      toast.error("Error al modificar proveedor!");
+  const onSubmit = async (data: any) => {
+    if (step === stepsForm.length - 1) {
+      try {
+        console.log(data);
+        // api para modificar proveedor
+        toast.success("Proveedor modificado correctamente!");
+      } catch (error) {
+        console.log(error);
+        toast.error("Error al modificar proveedor!");
+      }
+    } else {
+      setStep((prevStep) => prevStep + 1);
     }
   };
 
@@ -80,76 +140,41 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       <Box>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ p: 4, rowGap: 4 }}>
-            <Typography fontWeight={700} fontSize={18}>
-              Información del proveedor
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.nombreCompania}
-                  helperText={errors?.nombreCompania?.message}
-                  {...register("nombreCompania")}
-                  label="Nombre compañía"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.nombreContacto}
-                  helperText={errors?.nombreContacto?.message}
-                  {...register("nombreContacto")}
-                  label="Nombre contacto"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.puesto}
-                  helperText={errors?.puesto?.message}
-                  {...register("puesto")}
-                  label="Puesto"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.direccion}
-                  helperText={errors?.direccion?.message}
-                  {...register("direccion")}
-                  label="Dirección"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.telefono}
-                  helperText={errors?.telefono?.message}
-                  {...register("telefono")}
-                  label="Teléfono"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.email}
-                  helperText={errors?.email?.message}
-                  {...register("email")}
-                  label="Correo electrónico"
-                />
-              </Grid>
-            </Grid>
+            <Stepper activeStep={step}>
+              {stepsForm.map((label, index) => (
+                <Step key={label}>
+                  <StepLabel>
+                    {
+                      <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
+                        {label}
+                      </Typography>
+                    }
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            {renderStepForm(step, errors, register)}
             <Stack
               sx={{
                 flexDirection: "row",
                 display: "flex",
                 flex: 1,
                 justifyContent: "space-between",
+                position: "sticky",
               }}
             >
-              <Button variant="outlined">Cancelar</Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  step === 0
+                    ? props.setOpen(false)
+                    : setStep((prevStep) => prevStep - 1);
+                }}
+              >
+                {step === 0 ? "Cancelar" : "Anterior"}
+              </Button>
               <Button variant="contained" type="submit">
-                Guardar
+                {step === stepsForm.length - 1 ? "Guardar" : "Siguiente"}
               </Button>
             </Stack>
           </Stack>

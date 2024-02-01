@@ -70,4 +70,14 @@ export const addNewProviderSchema = z.object({
     .min(10, "El numero debe contener 10 caracteres")
     .max(10, "El numero debe contener 10 caracteres"),
   email: z.string().email("Escribe una direccion de correo valida"),
+  giroEmpresa: z.string().min(4, "Agrega un giro de la empresa"),
+  rfc: z.string(),
+  numIdentificacionFiscal: z
+    .string()
+    .min(4, "Escribe una identificación fiscal"),
+  certificacionBP: z.string().optional(),
+  certificacionISO: z.string().optional(),
+  certificacionCR: z.string().optional(),
+  tipoContribuyente: z.string().min(4, "Ingrese tipo de contribuyente"),
+  direccionFiscal: z.string().min(4, "Ingresa una dirección fiscal"),
 });

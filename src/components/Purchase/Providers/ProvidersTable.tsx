@@ -22,6 +22,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import { IProvider } from "../../../types/types";
 import { ModifyProviderModal } from "./Modal/ModifyProviderModal";
+import { useNavigate } from "react-router-dom";
 
 const data: IProvider[] = [
   {
@@ -32,6 +33,14 @@ const data: IProvider[] = [
     direccion: "Garcia Morales #34",
     telefono: "662452363",
     email: "Bimbo@gmail.com",
+    rfc: "1234567890123456789012345",
+    giroEmpresa: "arrozera",
+    tipoContribuyente: "Fisica",
+    numIdentificacionFiscal: "123",
+    certificacionBP: "33123",
+    certificacionCR: "33123",
+    certificacionISO: "strs",
+    direccionFiscal: "matamoros",
   },
 ];
 
@@ -41,6 +50,7 @@ const isLoading = false;
 export const ProvidersTable = () => {
   const [providerData, setProviderData] = useState<IProvider | null>(null);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const navigate = useNavigate();
 
   // const handlePageChange = useCallback((event: any, value: any) => {
   //   setPageIndex(value);
@@ -96,7 +106,15 @@ export const ProvidersTable = () => {
                     telefono,
                   } = provider;
                   return (
-                    <TableRow key={id}>
+                    <TableRow
+                      key={id}
+                      onClick={() => {
+                        navigate("/");
+                      }}
+                      sx={{
+                        "&:hover": { cursor: "pointer", bgcolor: "whitesmoke" },
+                      }}
+                    >
                       <TableCell>
                         <Checkbox value={id} onChange={() => {}} />
                       </TableCell>
@@ -112,7 +130,8 @@ export const ProvidersTable = () => {
                             <IconButton
                               size="small"
                               sx={{ color: "neutral.700" }}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setProviderData(provider);
                                 setOpenEditModal(true);
                               }}
@@ -123,7 +142,12 @@ export const ProvidersTable = () => {
                           <Tooltip
                             title={enabled ? "Deshabilitar" : "Habilitar"}
                           >
-                            <IconButton size="small" onClick={() => {}}>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                            >
                               {enabled ? (
                                 <RemoveCircleIcon sx={{ color: "red" }} />
                               ) : (
@@ -182,7 +206,10 @@ export const ProvidersTable = () => {
       </Card>
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <div>
-          <ModifyProviderModal provider={providerData} />
+          <ModifyProviderModal
+            provider={providerData}
+            setOpen={setOpenEditModal}
+          />
         </div>
       </Modal>
     </>
