@@ -34,7 +34,7 @@ export const addNewUserSchema = z
       }
     ),
     confirmarContrasena: z.string(),
-    email: z.string().email("Escribe un correo electronico valido"),
+    email: z.string().email("Escribe un correo electrónico valido"),
     nombre: z
       .string()
       .min(3, "Escribe un nombre de usuario valido mayor a 3 caracteres"),
@@ -42,17 +42,17 @@ export const addNewUserSchema = z
     apellidoMaterno: z.string().min(1, "Escribe un apellido paterno"),
     telefono: z
       .string()
-      .min(10, "Escribe un numero de telefono valido")
-      .max(10, "Escribe un numero de telefono valido"),
+      .min(10, "Escribe un numero de teléfono valido")
+      .max(10, "Escribe un numero de teléfono valido"),
     roles: z
       .string()
       .array()
       .refine((data) => data.length !== 0, {
-        message: "Debe seleccionar almenos un rol.",
+        message: "Debe seleccionar al menos un rol.",
       }),
     nombreUsuario: z
       .string()
-      .min(4, "Escribe un nombre de usuario valido de almenos 4 caracteres"),
+      .min(4, "Escribe un nombre de usuario valido de al menos 4 caracteres"),
   })
   .refine((data) => data.contrasena === data.confirmarContrasena, {
     message: "Las contraseñas no coinciden",
@@ -60,24 +60,24 @@ export const addNewUserSchema = z
   });
 
 export const addNewProviderSchema = z.object({
-  nombreCompania: z.string().min(3, "Agrega una compañia"),
+  nombreCompania: z.string().min(3, "Agrega una compañía"),
   nombreContacto: z.string().min(3, "Agrega una contacto"),
   puesto: z.string().min(3, "Agrega una puesto"),
-  direccion: z.string().min(3, "Agrega una direccion"),
+  direccion: z.string().min(3, "Agrega una dirección"),
   telefono: z
     .string()
     .regex(phoneRegex, "Escribe un numero valido")
     .min(10, "El numero debe contener 10 caracteres")
     .max(10, "El numero debe contener 10 caracteres"),
-  email: z.string().email("Escribe una direccion de correo valida"),
+  email: z.string().email("Escribe una dirección de correo valida"),
   giroEmpresa: z.string().min(4, "Agrega un giro de la empresa"),
-  rfc: z.string(),
+  rfc: z.string().min(10, "Agrega un rfc"),
   numIdentificacionFiscal: z
     .string()
     .min(4, "Escribe una identificación fiscal"),
+  tipoContribuyente: z.number().min(1, "Ingrese tipo de contribuyente"),
+  direccionFiscal: z.string().min(4, "Ingresa una dirección fiscal"),
   certificacionBP: z.string().optional(),
   certificacionISO: z.string().optional(),
   certificacionCR: z.string().optional(),
-  tipoContribuyente: z.string().min(4, "Ingrese tipo de contribuyente"),
-  direccionFiscal: z.string().min(4, "Ingresa una dirección fiscal"),
 });

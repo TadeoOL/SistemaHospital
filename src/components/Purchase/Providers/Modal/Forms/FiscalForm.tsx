@@ -1,4 +1,4 @@
-import { Box, Grid, TextField, Typography } from "@mui/material";
+import { Box, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IProvider } from "../../../../../types/types";
 
@@ -6,6 +6,11 @@ interface IFiscalForm {
   errors: FieldErrors<IProvider>;
   register: UseFormRegister<IProvider>;
 }
+
+const personType = [
+  { value: 1, label: "Física" },
+  { value: 2, label: "Moral" },
+];
 
 export const FiscalForm = (props: IFiscalForm) => {
   const { errors, register } = props;
@@ -58,7 +63,14 @@ export const FiscalForm = (props: IFiscalForm) => {
             helperText={errors?.tipoContribuyente?.message}
             {...register("tipoContribuyente")}
             label="Tipo de contribuyente"
-          />
+            select
+          >
+            {personType.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
       </Grid>
     </Box>

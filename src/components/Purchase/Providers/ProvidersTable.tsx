@@ -18,11 +18,10 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { useState } from "react";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import { IProvider } from "../../../types/types";
 import { ModifyProviderModal } from "./Modal/ModifyProviderModal";
-import { useNavigate } from "react-router-dom";
+import { ProvidersInfoModal } from "./ProvidersInfoModal";
 
 const data: IProvider[] = [
   {
@@ -31,16 +30,16 @@ const data: IProvider[] = [
     nombreContacto: "Juan Perez",
     puesto: "Encargado de ventas",
     direccion: "Garcia Morales #34",
-    telefono: "662452363",
+    telefono: "6624523632",
     email: "Bimbo@gmail.com",
-    rfc: "1234567890123456789012345",
-    giroEmpresa: "arrozera",
-    tipoContribuyente: "Fisica",
-    numIdentificacionFiscal: "123",
-    certificacionBP: "33123",
-    certificacionCR: "33123",
-    certificacionISO: "strs",
-    direccionFiscal: "matamoros",
+    rfc: "",
+    giroEmpresa: "",
+    tipoContribuyente: 1,
+    numIdentificacionFiscal: "",
+    direccionFiscal: "",
+    certificacionBP: "",
+    certificacionCR: "",
+    certificacionISO: "",
   },
 ];
 
@@ -50,7 +49,7 @@ const isLoading = false;
 export const ProvidersTable = () => {
   const [providerData, setProviderData] = useState<IProvider | null>(null);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const navigate = useNavigate();
+  const [openInfoModal, setOpenInfoModal] = useState(false);
 
   // const handlePageChange = useCallback((event: any, value: any) => {
   //   setPageIndex(value);
@@ -81,12 +80,12 @@ export const ProvidersTable = () => {
           <TableHead>
             <TableRow>
               <TableCell />
-              <TableCell>Nombre compañia</TableCell>
+              <TableCell>Nombre compañía</TableCell>
               <TableCell>Nombre contacto</TableCell>
               <TableCell>Puesto</TableCell>
-              <TableCell>Direccion</TableCell>
+              <TableCell>Dirección</TableCell>
               <TableCell>Teléfono</TableCell>
-              <TableCell>Correo electronico</TableCell>
+              <TableCell>Correo electrónico</TableCell>
               <TableCell>Modificación</TableCell>
             </TableRow>
           </TableHead>
@@ -109,7 +108,7 @@ export const ProvidersTable = () => {
                     <TableRow
                       key={id}
                       onClick={() => {
-                        navigate("/");
+                        setOpenInfoModal(true);
                       }}
                       sx={{
                         "&:hover": { cursor: "pointer", bgcolor: "whitesmoke" },
@@ -210,6 +209,11 @@ export const ProvidersTable = () => {
             provider={providerData}
             setOpen={setOpenEditModal}
           />
+        </div>
+      </Modal>
+      <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
+        <div>
+          <ProvidersInfoModal setOpen={setOpenInfoModal} />
         </div>
       </Modal>
     </>

@@ -14,7 +14,7 @@ const Header = styled("div")(() => ({
   alignItems: "baseline",
   position: "sticky",
   top: 0,
-  zIndex: 100,
+  zIndex: 2,
   background: "rgba(255, 255, 255, 0.9)",
 }));
 

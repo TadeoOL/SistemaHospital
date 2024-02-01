@@ -13,7 +13,12 @@ import {
 } from "@mui/material";
 import { IProvider } from "../../../../types/types";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import { SubmitHandler, useForm } from "react-hook-form";
+import {
+  FieldErrors,
+  SubmitHandler,
+  UseFormRegister,
+  useForm,
+} from "react-hook-form";
 import { addNewProviderSchema } from "../../../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
@@ -21,6 +26,8 @@ import { BasicInfoForm } from "./Forms/BasicInfoForm";
 import { useState } from "react";
 import { FiscalForm } from "./Forms/FiscalForm";
 import { CertificateForm } from "./Forms/CertificateForm";
+import { SuccessForm } from "./Forms/SuccessForm";
+import Swal from "sweetalert2";
 
 const style = {
   position: "absolute",
@@ -49,12 +56,27 @@ const style = {
 };
 
 const stepsForm = [
-  "Información general",
-  "Información fiscal",
-  "Certificaciones",
+  {
+    id: "step 1",
+    title: "Información general",
+    fields: [
+      "nombreCompania",
+      "nombreContacto",
+      "puesto",
+      "direccion",
+      "telefono",
+      "email",
+    ],
+  },
+  { id: "step 2", title: "Información fiscal" },
+  { id: "step 3", title: "Certificaciones" },
 ];
 
-const renderStepForm = (step: number, errors: any, register: any) => {
+const renderStepForm = (
+  step: number,
+  errors: FieldErrors<IProvider>,
+  register: UseFormRegister<IProvider>
+) => {
   switch (step) {
     case 0:
       return <BasicInfoForm errors={errors} register={register} />;
@@ -62,6 +84,8 @@ const renderStepForm = (step: number, errors: any, register: any) => {
       return <FiscalForm errors={errors} register={register} />;
     case 2:
       return <CertificateForm errors={errors} register={register} />;
+    case 3:
+      return <SuccessForm />;
     default:
       break;
   }
@@ -92,12 +116,14 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   } = props.provider ?? {};
 
   const [step, setStep] = useState(0);
+  const [disabledButtons, setDisabledButtons] = useState(false);
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors },
   } = useForm<IProvider>({
     defaultValues: {
@@ -119,34 +145,56 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
     resolver: zodResolver(addNewProviderSchema),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit: SubmitHandler<IProvider> = async (data: IProvider) => {
+    try {
+      console.log(data);
+      // api para modificar proveedor
+      setDisabledButtons(true);
+      toast.success("Proveedor modificado correctamente!");
+      props.setOpen(false);
+      Swal.fire({
+        title: "Proveedor modificado!",
+        text: "El proveedor ha sido modificado correctamente!",
+        icon: "success",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al modificar proveedor!");
+    }
+  };
+
+  type ProviderFields = keyof IProvider;
+  const nextStep = async () => {
+    const fields = stepsForm[step].fields;
+    const outputs = await trigger(fields as ProviderFields[], {
+      shouldFocus: true,
+    });
+
+    if (!outputs) return;
     if (step === stepsForm.length - 1) {
-      try {
-        console.log(data);
-        // api para modificar proveedor
-        toast.success("Proveedor modificado correctamente!");
-      } catch (error) {
-        console.log(error);
-        toast.error("Error al modificar proveedor!");
-      }
+      handleSubmit(onSubmit)();
     } else {
       setStep((prevStep) => prevStep + 1);
     }
+  };
+
+  const handleError = (err: any) => {
+    console.log({ err });
   };
 
   return (
     <Box sx={style}>
       <HeaderModal setOpen={() => {}} title="Modificar proveedor" />
       <Box>
-        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
           <Stack sx={{ p: 4, rowGap: 4 }}>
             <Stepper activeStep={step}>
-              {stepsForm.map((label, index) => (
-                <Step key={label}>
+              {stepsForm.map((step, index) => (
+                <Step key={step.id}>
                   <StepLabel>
                     {
                       <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
-                        {label}
+                        {step.title}
                       </Typography>
                     }
                   </StepLabel>
@@ -165,6 +213,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
             >
               <Button
                 variant="outlined"
+                disabled={disabledButtons}
                 onClick={() => {
                   step === 0
                     ? props.setOpen(false)
@@ -173,7 +222,11 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
               >
                 {step === 0 ? "Cancelar" : "Anterior"}
               </Button>
-              <Button variant="contained" type="submit">
+              <Button
+                variant="contained"
+                onClick={nextStep}
+                disabled={disabledButtons}
+              >
                 {step === stepsForm.length - 1 ? "Guardar" : "Siguiente"}
               </Button>
             </Stack>

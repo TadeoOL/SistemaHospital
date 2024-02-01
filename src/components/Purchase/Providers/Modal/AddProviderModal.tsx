@@ -1,10 +1,31 @@
-import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import { SubmitHandler, useForm } from "react-hook-form";
+import {
+  FieldErrors,
+  SubmitHandler,
+  UseFormRegister,
+  useForm,
+} from "react-hook-form";
 import { IProvider } from "../../../../types/types";
-import { addNewProviderSchema } from "../../../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
+import { addNewProviderSchema } from "../../../../schema/schemas";
+import { BasicInfoForm } from "./Forms/BasicInfoForm";
+import { FiscalForm } from "./Forms/FiscalForm";
+import { CertificateForm } from "./Forms/CertificateForm";
+import { useState } from "react";
 
 const style = {
   position: "absolute",
@@ -32,10 +53,53 @@ const style = {
   },
 };
 
-export const AddProviderModal = () => {
+const stepsForm = [
+  {
+    id: "step 1",
+    title: "Información general",
+    fields: [
+      "nombreCompania",
+      "nombreContacto",
+      "puesto",
+      "direccion",
+      "telefono",
+      "email",
+    ],
+  },
+  { id: "step 2", title: "Información fiscal" },
+  { id: "step 3", title: "Certificaciones" },
+];
+
+const renderStepForm = (
+  step: number,
+  errors: FieldErrors<IProvider>,
+  register: UseFormRegister<IProvider>
+) => {
+  switch (step) {
+    case 0:
+      return <BasicInfoForm errors={errors} register={register} />;
+    case 1:
+      return <FiscalForm errors={errors} register={register} />;
+    case 2:
+      return <CertificateForm errors={errors} register={register} />;
+    default:
+      break;
+  }
+};
+
+interface IAddProviderModal {
+  setOpen: Function;
+}
+
+export const AddProviderModal = (props: IAddProviderModal) => {
+  const [step, setStep] = useState(0);
+  const theme = useTheme();
+  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors },
   } = useForm<IProvider>({
     defaultValues: {
@@ -45,6 +109,14 @@ export const AddProviderModal = () => {
       direccion: "",
       telefono: "",
       email: "",
+      giroEmpresa: "",
+      rfc: "",
+      numIdentificacionFiscal: "",
+      tipoContribuyente: 1,
+      direccionFiscal: "",
+      certificacionBP: "",
+      certificacionCR: "",
+      certificacionISO: "",
     },
     resolver: zodResolver(addNewProviderSchema),
   });
@@ -60,79 +132,53 @@ export const AddProviderModal = () => {
     }
   };
 
+  type ProviderFields = keyof IProvider;
+  const nextStep = async () => {
+    const fields = stepsForm[step].fields;
+    const outputs = await trigger(fields as ProviderFields[], {
+      shouldFocus: true,
+    });
+
+    if (!outputs) return;
+    if (step === stepsForm.length - 1) {
+      handleSubmit(onSubmit)();
+    } else {
+      setStep((prevStep) => prevStep + 1);
+    }
+  };
+
+  const prev = () => {
+    if (step === 0) {
+      props.setOpen(false);
+    } else {
+      setStep((prevStep) => prevStep - 1);
+    }
+  };
+
+  const handleError = (err: any) => {
+    console.log({ err });
+  };
+
   return (
     <Box sx={{ ...style }}>
       <HeaderModal title="Agregar proveedor" setOpen={() => {}} />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack sx={{ p: 2, px: 4 }}>
           <Stack spacing={2} sx={{ pr: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography fontWeight={700} fontSize={18}>
-                  Informacion del proveedor
-                </Typography>
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.nombreCompania}
-                  helperText={errors?.nombreCompania?.message}
-                  size="small"
-                  {...register("nombreCompania")}
-                  label="Nombre compañia"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.nombreContacto}
-                  helperText={errors?.nombreContacto?.message}
-                  size="small"
-                  {...register("nombreContacto")}
-                  label="Nombre contacto"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.puesto}
-                  helperText={errors?.puesto?.message}
-                  size="small"
-                  {...register("puesto")}
-                  label="Puesto"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.direccion}
-                  helperText={errors?.direccion?.message}
-                  size="small"
-                  {...register("direccion")}
-                  label="Direccion"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.telefono}
-                  helperText={errors?.telefono?.message}
-                  size="small"
-                  {...register("telefono")}
-                  label="Telefono"
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  fullWidth
-                  error={!!errors.email}
-                  helperText={errors?.email?.message}
-                  size="small"
-                  {...register("email")}
-                  label="Correo electronico"
-                />
-              </Grid>
-            </Grid>
+            <Stepper activeStep={step}>
+              {stepsForm.map((step, index) => (
+                <Step key={step.id}>
+                  <StepLabel>
+                    {
+                      <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
+                        {step.title}
+                      </Typography>
+                    }
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            {renderStepForm(step, errors, register)}
           </Stack>
           <Stack
             sx={{
@@ -144,9 +190,11 @@ export const AddProviderModal = () => {
               mt: 4,
             }}
           >
-            <Button variant="outlined">Cancelar</Button>
-            <Button variant="contained" type="submit">
-              Guardar
+            <Button variant="outlined" onClick={prev}>
+              {step === 0 ? "Cancelar" : "Anterior"}
+            </Button>
+            <Button variant="contained" onClick={nextStep}>
+              {step === stepsForm.length - 1 ? "Guardar" : "Siguiente"}
             </Button>
           </Stack>
         </Stack>

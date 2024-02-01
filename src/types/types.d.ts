@@ -68,7 +68,7 @@ export interface IProvider {
   rfc: string;
   direccionFiscal: string;
   giroEmpresa: string;
-  tipoContribuyente: string;
+  tipoContribuyente: number;
   numIdentificacionFiscal: string;
   certificacionBP: string;
   certificacionISO: string;
