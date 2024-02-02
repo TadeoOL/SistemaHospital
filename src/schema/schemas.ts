@@ -69,15 +69,13 @@ export const addNewProviderSchema = z.object({
     .regex(phoneRegex, "Escribe un numero valido")
     .min(10, "El numero debe contener 10 caracteres")
     .max(10, "El numero debe contener 10 caracteres"),
-  email: z.string().email("Escribe una dirección de correo valida"),
+  correoElectronico: z.string().email("Escribe una dirección de correo valida"),
   giroEmpresa: z.string().min(4, "Agrega un giro de la empresa"),
   rfc: z.string().min(10, "Agrega un rfc"),
-  numIdentificacionFiscal: z
-    .string()
-    .min(4, "Escribe una identificación fiscal"),
+  nif: z.string().min(4, "Escribe una identificación fiscal"),
   tipoContribuyente: z.number().min(1, "Ingrese tipo de contribuyente"),
   direccionFiscal: z.string().min(4, "Ingresa una dirección fiscal"),
-  certificacionBP: z.string().optional(),
-  certificacionISO: z.string().optional(),
-  certificacionCR: z.string().optional(),
+  urlCertificadoBP: z.string().nullable().optional(),
+  urlCeritificadoCR: z.string().nullable().optional(),
+  urlCertificadoISO9001: z.string().nullable().optional(),
 });

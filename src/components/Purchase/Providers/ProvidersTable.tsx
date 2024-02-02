@@ -17,39 +17,46 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
-import { IProvider } from "../../../types/types";
 import { ModifyProviderModal } from "./Modal/ModifyProviderModal";
 import { ProvidersInfoModal } from "./ProvidersInfoModal";
-
-const data: IProvider[] = [
-  {
-    id: "1",
-    nombreCompania: "Bimbo",
-    nombreContacto: "Juan Perez",
-    puesto: "Encargado de ventas",
-    direccion: "Garcia Morales #34",
-    telefono: "6624523632",
-    email: "Bimbo@gmail.com",
-    rfc: "",
-    giroEmpresa: "",
-    tipoContribuyente: 1,
-    numIdentificacionFiscal: "",
-    direccionFiscal: "",
-    certificacionBP: "",
-    certificacionCR: "",
-    certificacionISO: "",
-  },
-];
-
-const enabled = true;
-const isLoading = false;
+import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
+import { shallow } from "zustand/shallow";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 export const ProvidersTable = () => {
-  const [providerData, setProviderData] = useState<IProvider | null>(null);
+  const [providerId, setProviderId] = useState<string>("");
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openInfoModal, setOpenInfoModal] = useState(false);
+  const {
+    pageIndex,
+    pageSize,
+    count,
+    fetchProviders,
+    search,
+    enabled,
+    data,
+    setPageSize,
+    setPageIndex,
+    isLoading,
+    updatedProvider,
+  } = useProviderPagination(
+    (state) => ({
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+      fetchProviders: state.fetchProviders,
+      search: state.search,
+      enabled: state.enabled,
+      data: state.data,
+      setPageSize: state.setPageSize,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.isLoading,
+      updatedProvider: state.updatedProvider,
+    }),
+    shallow
+  );
 
   // const handlePageChange = useCallback((event: any, value: any) => {
   //   setPageIndex(value);
@@ -73,6 +80,14 @@ export const ProvidersTable = () => {
   //   }
   // };
 
+  const handlePageChange = useCallback((event: any, value: any) => {
+    setPageIndex(value);
+  }, []);
+
+  useEffect(() => {
+    fetchProviders(pageIndex, pageSize, search, enabled);
+  }, [pageIndex, pageSize, search, enabled, updatedProvider]);
+
   return (
     <>
       <Card>
@@ -82,11 +97,9 @@ export const ProvidersTable = () => {
               <TableCell />
               <TableCell>Nombre compañía</TableCell>
               <TableCell>Nombre contacto</TableCell>
-              <TableCell>Puesto</TableCell>
-              <TableCell>Dirección</TableCell>
               <TableCell>Teléfono</TableCell>
               <TableCell>Correo electrónico</TableCell>
-              <TableCell>Modificación</TableCell>
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
@@ -99,9 +112,7 @@ export const ProvidersTable = () => {
                     id,
                     nombreCompania,
                     nombreContacto,
-                    puesto,
-                    direccion,
-                    email,
+                    correoElectronico,
                     telefono,
                   } = provider;
                   return (
@@ -115,14 +126,18 @@ export const ProvidersTable = () => {
                       }}
                     >
                       <TableCell>
-                        <Checkbox value={id} onChange={() => {}} />
+                        <Checkbox
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          value={id}
+                          onChange={() => {}}
+                        />
                       </TableCell>
                       <TableCell>{nombreCompania}</TableCell>
                       <TableCell>{nombreContacto}</TableCell>
-                      <TableCell>{puesto}</TableCell>
                       <TableCell>{telefono}</TableCell>
-                      <TableCell>{direccion}</TableCell>
-                      <TableCell>{email}</TableCell>
+                      <TableCell>{correoElectronico}</TableCell>
                       <TableCell>
                         <Stack sx={{ display: "flex", flexDirection: "row" }}>
                           <Tooltip title="Editar">
@@ -131,7 +146,7 @@ export const ProvidersTable = () => {
                               sx={{ color: "neutral.700" }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setProviderData(provider);
+                                setProviderId(provider.id);
                                 setOpenEditModal(true);
                               }}
                             >
@@ -161,14 +176,14 @@ export const ProvidersTable = () => {
                 })}
           </TableBody>
         </Table>
-        {/* {isLoading && (
+        {isLoading && (
           <Box
             sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}
           >
             <CircularProgress />
           </Box>
-        )} */}
-        {/* {data.length === 0 && !isLoading && (
+        )}
+        {data.length === 0 && !isLoading && (
           <Card
             sx={{
               display: "flex",
@@ -190,30 +205,37 @@ export const ProvidersTable = () => {
               No existen registros
             </Typography>
           </Card>
-        )} */}
-        {/* <TablePagination
-          component="div"
-          count={count}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={(e: any) => {
-            setResultByPage(e.target.value);
-          }}
-          page={pageIndex}
-          rowsPerPage={pageSize}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-        /> */}
+        )}
+        {
+          <TablePagination
+            component="div"
+            count={count}
+            onPageChange={() => {
+              handlePageChange;
+            }}
+            onRowsPerPageChange={(e: any) => {
+              setPageSize(e.target.value);
+            }}
+            page={pageIndex}
+            rowsPerPage={pageSize}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          />
+        }
       </Card>
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <div>
           <ModifyProviderModal
-            provider={providerData}
+            providerId={providerId}
             setOpen={setOpenEditModal}
           />
         </div>
       </Modal>
       <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
         <div>
-          <ProvidersInfoModal setOpen={setOpenInfoModal} />
+          <ProvidersInfoModal
+            setOpen={setOpenInfoModal}
+            providerId={providerId}
+          />
         </div>
       </Modal>
     </>

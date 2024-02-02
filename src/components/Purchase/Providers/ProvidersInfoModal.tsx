@@ -7,9 +7,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { IProvider } from "../../../types/types";
 import { HeaderModal } from "../../Account/Modals/SubComponents/HeaderModal";
+import { useGetProvider } from "../../../hooks/useGetProvider";
 
 const style = {
   position: "absolute",
@@ -40,74 +39,33 @@ const style = {
   },
 };
 
-const data: IProvider = {
-  id: "1",
-  nombreCompania: "Bimbo",
-  nombreContacto: "Juan Perez",
-  puesto: "Encargado de ventas",
-  direccion: "Garcia Morales #34",
-  telefono: "6624523632",
-  email: "Bimbo@gmail.com",
-  rfc: "JIQA650427GH2",
-  giroEmpresa: "Comercial",
-  tipoContribuyente: 1,
-  numIdentificacionFiscal: "1231231233123",
-  direccionFiscal: "Villa hermosa, villa colonial #10",
-  certificacionBP: "",
-  certificacionCR: "",
-  certificacionISO: "",
+const processType = (number: number) => {
+  if (number === 1) {
+    return "Física";
+  } else {
+    return "Moral";
+  }
 };
 
-const fetchMuckData = async () => {
-  return new Promise<IProvider>((resolve, reject) => {
-    setTimeout(() => {
-      if (data) {
-        resolve(data);
-      } else {
-        reject(new Error("No se pudo cargar la información del proveedor"));
-      }
-    }, 2000);
-  });
-};
-
-const useFetchProvider = (id: string) => {
-  const [providerData, setProviderData] = useState<IProvider | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchMuckData();
-        // Puedes realizar más operaciones con los datos si es necesario
-        setProviderData(data); // Tomando el primer elemento de mockData
-      } catch (error) {
-        console.error("Error al cargar el proveedor:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-  return { providerData, isLoading };
-};
 interface IProviderInfoModal {
+  providerId: string;
   setOpen: Function;
 }
 export const ProvidersInfoModal = (props: IProviderInfoModal) => {
-  const { providerData, isLoading } = useFetchProvider("1");
+  const { isLoading, providerData } = useGetProvider(props.providerId);
+
   const {
     nombreCompania,
     nombreContacto,
     puesto,
     direccion,
-    email,
+    correoElectronico,
     telefono,
     rfc,
     tipoContribuyente,
     direccionFiscal,
     giroEmpresa,
-    numIdentificacionFiscal,
+    nif,
   } = providerData ?? {};
 
   if (isLoading)
@@ -180,7 +138,7 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
                 <Typography fontWeight={500} fontSize={16}>
                   Correo electrónico:
                 </Typography>
-                <Typography>{email}</Typography>
+                <Typography>{correoElectronico}</Typography>
               </Stack>
             </Grid>
           </Grid>
@@ -213,7 +171,7 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
                 <Typography fontWeight={500} fontSize={16}>
                   Numero de identificación fiscal:
                 </Typography>
-                <Typography>{numIdentificacionFiscal}</Typography>
+                <Typography>{nif}</Typography>
               </Stack>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
@@ -229,7 +187,7 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
                 <Typography fontWeight={500} fontSize={16}>
                   Tipo de contribuyente:
                 </Typography>
-                <Typography>{tipoContribuyente}</Typography>
+                <Typography>{processType(tipoContribuyente ?? 0)}</Typography>
               </Stack>
             </Grid>
           </Grid>

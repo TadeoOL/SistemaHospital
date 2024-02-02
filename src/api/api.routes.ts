@@ -1,5 +1,5 @@
 import axios from "../libs/axios";
-import { IAddUser, IUpdateUsers } from "../types/types";
+import { IAddUser, IProvider, IUpdateUsers } from "../types/types";
 
 export const login = async (userName: string, password: string) => {
   try {
@@ -122,6 +122,55 @@ export const AdminChangeUsersPassword = async (
     id: id,
     contrasena: password,
     confirmarContrasena: confirmPassword,
+  });
+  return res.data;
+};
+
+export const getProviders = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Proveedor/paginationProveedor?${paramUrl}`);
+  return res.data;
+};
+
+export const getProviderById = async (id: string | null) => {
+  const res = await axios.get(`/api/Proveedor/${id}`);
+  return res.data;
+};
+
+export const modifyProvider = async (provider: IProvider) => {
+  const {
+    id,
+    nombreCompania,
+    nombreContacto,
+    correoElectronico,
+    direccion,
+    direccionFiscal,
+    giroEmpresa,
+    nif,
+    puesto,
+    rfc,
+    telefono,
+    tipoContribuyente,
+    urlCertificadoBP,
+    urlCertificadoCR,
+    urlCertificadoISO9001,
+  } = provider;
+
+  const res = await axios.put(`/api/Proveedor/ActualizarProveedor`, {
+    id,
+    nombreCompania,
+    nombreContacto,
+    correoElectronico,
+    direccion,
+    direccionFiscal,
+    giroEmpresa,
+    nif,
+    puesto,
+    rfc,
+    telefono,
+    tipoContribuyente,
+    urlCertificadoBP,
+    urlCertificadoCR,
+    urlCertificadoISO9001,
   });
   return res.data;
 };

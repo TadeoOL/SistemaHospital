@@ -1,6 +1,8 @@
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   Grid,
   Stack,
   Step,
@@ -23,11 +25,14 @@ import { addNewProviderSchema } from "../../../../schema/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { BasicInfoForm } from "./Forms/BasicInfoForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiscalForm } from "./Forms/FiscalForm";
 import { CertificateForm } from "./Forms/CertificateForm";
 import { SuccessForm } from "./Forms/SuccessForm";
 import Swal from "sweetalert2";
+import { modifyProvider } from "../../../../api/api.routes";
+import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
+import { useGetProvider } from "../../../../hooks/useGetProvider";
 
 const style = {
   position: "absolute",
@@ -75,13 +80,20 @@ const stepsForm = [
 const renderStepForm = (
   step: number,
   errors: FieldErrors<IProvider>,
-  register: UseFormRegister<IProvider>
+  register: UseFormRegister<IProvider>,
+  tipoContribuyente: number
 ) => {
   switch (step) {
     case 0:
       return <BasicInfoForm errors={errors} register={register} />;
     case 1:
-      return <FiscalForm errors={errors} register={register} />;
+      return (
+        <FiscalForm
+          errors={errors}
+          register={register}
+          tipoContribuyente={tipoContribuyente}
+        />
+      );
     case 2:
       return <CertificateForm errors={errors} register={register} />;
     case 3:
@@ -92,64 +104,66 @@ const renderStepForm = (
 };
 
 interface IModifyProviderModal {
-  provider: IProvider | null;
+  providerId: string;
   setOpen: Function;
 }
 
 export const ModifyProviderModal = (props: IModifyProviderModal) => {
-  const {
-    id,
-    direccion,
-    email,
-    nombreCompania,
-    nombreContacto,
-    puesto,
-    telefono,
-    certificacionBP,
-    certificacionCR,
-    certificacionISO,
-    rfc,
-    numIdentificacionFiscal,
-    tipoContribuyente,
-    direccionFiscal,
-    giroEmpresa,
-  } = props.provider ?? {};
-
+  const { isLoading, providerData } = useGetProvider(props.providerId);
   const [step, setStep] = useState(0);
   const [disabledButtons, setDisabledButtons] = useState(false);
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const { updatedProvider, setUpdatedProvider } = useProviderPagination(
+    (state) => ({
+      updatedProvider: state.updatedProvider,
+      setUpdatedProvider: state.setUpdatedProvider,
+    })
+  );
 
   const {
     register,
     handleSubmit,
     trigger,
     formState: { errors },
+    setValue,
   } = useForm<IProvider>({
     defaultValues: {
-      nombreCompania: nombreCompania,
-      nombreContacto: nombreContacto,
-      puesto: puesto,
-      direccion: direccion,
-      telefono: telefono,
-      email: email,
-      giroEmpresa: giroEmpresa,
-      rfc: rfc,
-      numIdentificacionFiscal: numIdentificacionFiscal,
-      tipoContribuyente: tipoContribuyente,
-      direccionFiscal: direccionFiscal,
-      certificacionBP: certificacionBP,
-      certificacionCR: certificacionCR,
-      certificacionISO: certificacionISO,
+      nombreCompania: providerData?.nombreCompania,
+      nombreContacto: providerData?.nombreContacto,
+      puesto: providerData?.puesto,
+      direccion: providerData?.direccion,
+      telefono: providerData?.telefono,
+      correoElectronico: providerData?.correoElectronico,
+      giroEmpresa: providerData?.giroEmpresa,
+      rfc: providerData?.rfc,
+      nif: providerData?.nif,
+      tipoContribuyente: providerData?.tipoContribuyente,
+      direccionFiscal: providerData?.direccionFiscal,
+      urlCertificadoBP: providerData?.urlCertificadoBP,
+      urlCertificadoCR: providerData?.urlCertificadoCR,
+      urlCertificadoISO9001: providerData?.urlCertificadoISO9001,
     },
     resolver: zodResolver(addNewProviderSchema),
   });
 
+  useEffect(() => {
+    if (providerData) {
+      Object.entries(providerData).forEach(([key, value]) => {
+        setValue(key as keyof IProvider, value);
+      });
+    }
+  }, [providerData, setValue]);
+
   const onSubmit: SubmitHandler<IProvider> = async (data: IProvider) => {
     try {
-      console.log(data);
-      // api para modificar proveedor
+      console.log({ data });
+      await modifyProvider({
+        ...data,
+        id: providerData ? providerData.id : "",
+      });
       setDisabledButtons(true);
+      setUpdatedProvider(!updatedProvider);
       toast.success("Proveedor modificado correctamente!");
       props.setOpen(false);
       Swal.fire({
@@ -169,7 +183,6 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
     const outputs = await trigger(fields as ProviderFields[], {
       shouldFocus: true,
     });
-
     if (!outputs) return;
     if (step === stepsForm.length - 1) {
       handleSubmit(onSubmit)();
@@ -181,27 +194,45 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   const handleError = (err: any) => {
     console.log({ err });
   };
+  console.log({ providerData });
+
+  if (isLoading || !providerData)
+    return (
+      <Backdrop
+        open
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <CircularProgress />
+      </Backdrop>
+    );
 
   return (
     <Box sx={style}>
       <HeaderModal setOpen={() => {}} title="Modificar proveedor" />
       <Box>
         <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
-          <Stack sx={{ p: 4, rowGap: 4 }}>
-            <Stepper activeStep={step}>
-              {stepsForm.map((step, index) => (
-                <Step key={step.id}>
-                  <StepLabel>
-                    {
-                      <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
-                        {step.title}
-                      </Typography>
-                    }
-                  </StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-            {renderStepForm(step, errors, register)}
+          <Stack sx={{ p: 2, px: 4, rowGap: 4 }}>
+            <Stack spacing={2} sx={{ pr: 2 }}>
+              <Stepper activeStep={step}>
+                {stepsForm.map((step) => (
+                  <Step key={step.id}>
+                    <StepLabel>
+                      {
+                        <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
+                          {step.title}
+                        </Typography>
+                      }
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+              {renderStepForm(
+                step,
+                errors,
+                register,
+                providerData.tipoContribuyente
+              )}
+            </Stack>
             <Stack
               sx={{
                 flexDirection: "row",

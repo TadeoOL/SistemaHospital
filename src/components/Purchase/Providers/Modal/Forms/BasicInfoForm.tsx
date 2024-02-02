@@ -11,9 +11,6 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
   const { errors, register } = props;
   return (
     <Box sx={{ rowGap: 2, display: "flex", flexDirection: "column" }}>
-      <Typography fontWeight={700} fontSize={18}>
-        Información general
-      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
           <TextField
@@ -63,9 +60,9 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
         <Grid item xs={12} lg={6}>
           <TextField
             fullWidth
-            error={!!errors.email}
-            helperText={errors?.email?.message}
-            {...register("email")}
+            error={!!errors.correoElectronico}
+            helperText={errors?.correoElectronico?.message}
+            {...register("correoElectronico")}
             label="Correo electrónico"
           />
         </Grid>

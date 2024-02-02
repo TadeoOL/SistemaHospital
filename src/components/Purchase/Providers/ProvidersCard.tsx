@@ -4,9 +4,11 @@ import { useState } from "react";
 import { SearchBar } from "../../Inputs/SearchBar";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import { ProvidersTable } from "./ProvidersTable";
+import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
 
 export const ProvidersCard = () => {
   const [open, setOpen] = useState(false);
+  const setSearch = useProviderPagination((state) => state.setSearch);
   return (
     <>
       <Box
@@ -46,14 +48,14 @@ export const ProvidersCard = () => {
               </Button>
             </Box>
           </Stack>
-          <SearchBar title="Busca el proveedor..." searchState={() => {}} />
+          <SearchBar title="Busca el proveedor..." searchState={setSearch} />
           <Divider sx={{ my: 1 }} />
           <ProvidersTable />
         </Box>
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
         <div>
-          <AddProviderModal />
+          <AddProviderModal setOpen={() => {}} />
         </div>
       </Modal>
     </>
