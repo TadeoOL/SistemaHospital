@@ -1,6 +1,7 @@
 import axios from "../libs/axios";
 import {
   IAddUser,
+  IArticle,
   ICategory,
   IProvider,
   ISubCategory,
@@ -293,5 +294,73 @@ export const modifySubCategory = async (subCategory: ISubCategory) => {
     Descripcion: descripcion,
     id_categoria: categoryId,
   });
+  return res.data;
+};
+
+export const getArticles = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Articulo/paginacion-articulo?${paramUrl}`);
+  return res.data;
+};
+
+export const modifyArticle = async (article: IArticle) => {
+  const {
+    id,
+    nombre,
+    descripcion,
+    codigoBarras,
+    id_subcategoria,
+    stockAlerta,
+    stockMinimo,
+    unidadMedida,
+  } = article;
+
+  const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
+    id,
+    nombre,
+    descripcion,
+    codigoBarras,
+    stockAlerta,
+    stockMinimo,
+    id_subcategoria,
+    unidadMedida,
+  });
+  return res.data;
+};
+
+export const addNewArticle = async (article: IArticle) => {
+  const {
+    nombre,
+    descripcion,
+    codigoBarras,
+    id_subcategoria,
+    stockAlerta,
+    stockMinimo,
+    unidadMedida,
+  } = article;
+
+  const res = await axios.post(`/api/Articulo/registrar-articulo`, {
+    nombre,
+    descripcion,
+    codigoBarras,
+    stockAlerta,
+    stockMinimo,
+    id_subcategoria,
+    unidadMedida,
+  });
+  return res.data;
+};
+
+export const getAllSubCategories = async () => {
+  const res = await axios.get(`/api/SubCategoria/obtener-subcategorias`);
+  return res.data;
+};
+
+export const disableArticle = async (id: string) => {
+  const res = await axios.put(`/api/Articulo/estatus-articulo`, { id });
+  return res.data;
+};
+
+export const getArticleById = async (articleId: string) => {
+  const res = await axios.get(`/api/Articulo/${articleId}`);
   return res.data;
 };

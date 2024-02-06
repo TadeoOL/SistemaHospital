@@ -90,3 +90,31 @@ export const addCategory = z.object({
   nombre: z.string().min(1, "Escribe un nombre"),
   descripcion: z.string().min(1, "Escribe una descripción"),
 });
+
+export const addArticle = z.object({
+  nombre: z.string().min(1, "Escribe un nombre"),
+  codigoBarras: z.string().min(1, "Escribe un código de barras"),
+  descripcion: z.string().min(1, "Escribe una descripción"),
+  stockMinimo: z
+    .string()
+    .min(1, "Escribe un stock mínimo")
+    .refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue);
+      },
+      { message: "Solo se aceptan números para el stock mínimo" }
+    ),
+  stockAlerta: z
+    .string()
+    .min(1, "Escribe un stock de alerta")
+    .refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue);
+      },
+      { message: "Solo se aceptan números para el stock de alerta" }
+    ),
+  unidadMedida: z.string().min(1, "Selecciona una unidad de medida"),
+  id_subcategoria: z.string().min(1, "Selecciona una sub categoría"),
+});

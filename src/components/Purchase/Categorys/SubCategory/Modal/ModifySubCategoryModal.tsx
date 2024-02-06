@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { addSubCategory } from "../../../../../schema/schemas";
 import { ICategory, ISubCategory } from "../../../../../types/types";
 import { useState } from "react";
-import { useGetCategories } from "../../../../../hooks/useGetCategorys";
+import { useGetCategories } from "../../../../../hooks/useGetCategories";
 import { toast } from "react-toastify";
 import { modifySubCategory } from "../../../../../api/api.routes";
 import { useSubCategoryPagination } from "../../../../../store/purchaseStore/subCategoryPagination";

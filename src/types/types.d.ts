@@ -91,3 +91,26 @@ export interface ISubCategory {
   descripcion: string;
   categoryId: string;
 }
+
+export interface IArticle {
+  id: string;
+  nombre: string;
+  codigoBarras: string;
+  descripcion: string;
+  stockMinimo: number;
+  stockAlerta: number;
+  unidadMedida: string;
+  id_subcategoria: string;
+  subCategoria: ISubCategory;
+}
+
+export interface IExistingArticle {
+  id: string;
+  nombre: string;
+}
+
+export interface IAlmacen {
+  id: string;
+  nombre: string;
+  descripcion: string;
+}

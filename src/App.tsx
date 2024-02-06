@@ -17,6 +17,8 @@ import { PurchasedMedicineTable } from "./components/Purchase/PurchaseRequest/Su
 import { CategoryView } from "./views/Purchase/CategoryView";
 import { Category } from "./components/Purchase/Categorys/Category/Category";
 import { SubCategory } from "./components/Purchase/Categorys/SubCategory/SubCategory";
+import { ArticleView } from "./views/Purchase/ArticleView";
+import { Article } from "./components/Purchase/Articles/Article/Article";
 
 function App() {
   return (
@@ -46,6 +48,10 @@ function App() {
             <Route path="/compras/categorias" element={<CategoryView />}>
               <Route path="categoria" element={<Category />} />
               <Route path="subcategoria" element={<SubCategory />} />
+            </Route>
+            <Route path="/compras/articulos" element={<ArticleView />}>
+              <Route path="articulo" element={<Article />} />
+              <Route path="articulo-existente" element={<SubCategory />} />
             </Route>
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />

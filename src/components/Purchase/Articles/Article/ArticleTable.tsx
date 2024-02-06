@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { shallow } from "zustand/shallow";
-import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
-import { ModifySubCategoryModal } from "./Modal/ModifyCategoryModal";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { disableCategory } from "../../../../api/api.routes";
+import { disableArticle } from "../../../../api/api.routes";
 import { TableComponent } from "../../../TableComponent";
+import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
+import { ModifyArticleModal } from "./Modal/ModifyArticleModal";
 
 const useGetAllData = () => {
   const {
@@ -13,33 +13,33 @@ const useGetAllData = () => {
     count,
     data,
     enabled,
-    fetchCategories,
+    fetchArticles,
     pageIndex,
     pageSize,
     search,
     setPageIndex,
     setPageSize,
-    handleChangeCategory,
-  } = useCategoryPagination(
+    handleChangeArticle,
+  } = useArticlePagination(
     (state) => ({
       pageIndex: state.pageIndex,
       pageSize: state.pageSize,
       count: state.count,
-      fetchCategories: state.fetchCategories,
+      fetchArticles: state.fetchArticles,
       search: state.search,
       enabled: state.enabled,
       data: state.data,
       setPageSize: state.setPageSize,
       setPageIndex: state.setPageIndex,
       isLoading: state.isLoading,
-      handleChangeCategory: state.handleChangeCategory,
+      handleChangeArticle: state.handleChangeArticle,
     }),
     shallow
   );
 
   useEffect(() => {
-    fetchCategories(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeCategory]);
+    fetchArticles(pageIndex, pageSize, search, enabled);
+  }, [pageIndex, pageSize, search, enabled, handleChangeArticle]);
 
   return {
     isLoading,
@@ -53,27 +53,27 @@ const useGetAllData = () => {
   };
 };
 
-const useDisableCategory = () => {
-  const { setHandleChangeCategory, enabled, handleChangeCategory } =
-    useCategoryPagination(
+const useDisableArticle = () => {
+  const { setHandleChangeArticle, enabled, handleChangeArticle } =
+    useArticlePagination(
       (state) => ({
-        setHandleChangeCategory: state.setHandleChangeCategory,
+        setHandleChangeArticle: state.setHandleChangeArticle,
         enabled: state.enabled,
-        handleChangeCategory: state.handleChangeCategory,
+        handleChangeArticle: state.handleChangeArticle,
       }),
       shallow
     );
 
-  const disableProviderModal = (categoryId: string) => {
+  const disableProviderModal = (articleId: string) => {
     withReactContent(Swal)
       .fire({
         title: "Estas seguro?",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
-        } una categoría`,
+        } un articulo`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
+        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
         confirmButtonColor: "red",
         cancelButtonText: "No, cancel!",
         reverseButtons: true,
@@ -81,11 +81,11 @@ const useDisableCategory = () => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disableCategory(categoryId);
-            setHandleChangeCategory(!handleChangeCategory);
+            await disableArticle(articleId);
+            setHandleChangeArticle(!handleChangeArticle);
             withReactContent(Swal).fire({
               title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `La categoría se ha ${
+              text: `El articulo se ha ${
                 enabled ? "deshabilitado" : "habilitado"
               }`,
               icon: "success",
@@ -96,7 +96,7 @@ const useDisableCategory = () => {
               title: "Error!",
               text: `No se pudo ${
                 enabled ? "deshabilitar" : "habilitar"
-              } la categoría`,
+              } El articulo`,
               icon: "error",
             });
           }
@@ -112,8 +112,8 @@ const useDisableCategory = () => {
   return disableProviderModal;
 };
 
-export const CategoryTable = () => {
-  const disableCategory = useDisableCategory();
+export const ArticleTable = () => {
+  const disableArticle = useDisableArticle();
 
   // const handleUserChecked = (e: any) => {
   //   const { value, checked } = e.target;
@@ -136,10 +136,10 @@ export const CategoryTable = () => {
   return (
     <>
       <TableComponent
-        disableHook={disableCategory}
+        disableHook={disableArticle}
         fetchDataHook={useGetAllData}
         modifyModalComponent={(props) => (
-          <ModifySubCategoryModal data={props.data} open={props.open} />
+          <ModifyArticleModal articleId={props.data} open={props.open} />
         )}
       />
     </>

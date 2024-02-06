@@ -12,7 +12,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addSubCategory } from "../../../../../schema/schemas";
 import { ISubCategory } from "../../../../../types/types";
-import { useGetCategories } from "../../../../../hooks/useGetCategorys";
+import { useGetCategories } from "../../../../../hooks/useGetCategories";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { addNewSubCategory } from "../../../../../api/api.routes";

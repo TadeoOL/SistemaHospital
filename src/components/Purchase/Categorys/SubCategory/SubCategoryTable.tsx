@@ -175,7 +175,7 @@ export const SubCategoryTable = () => {
   return (
     <>
       <Card sx={{ m: 2 }}>
-        <Table stickyHeader>
+        <Table stickyHeader sx={{ position: "static" }}>
           <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
@@ -201,7 +201,9 @@ export const SubCategoryTable = () => {
                       }}
                     >
                       <TableCell>{nombre}</TableCell>
-                      <TableCell>{descripcion}</TableCell>
+                      <TableCell sx={{ maxWidth: 400 }}>
+                        {descripcion}
+                      </TableCell>
                       <TableCell>{categoria.nombre}</TableCell>
                       <TableCell>
                         <Tooltip title="Editar">
