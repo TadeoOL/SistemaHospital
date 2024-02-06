@@ -5,7 +5,6 @@ import { getProviderById } from "../api/api.routes";
 export const useGetProvider = (id: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [providerData, setProviderData] = useState<IProvider>();
-
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);

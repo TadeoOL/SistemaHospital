@@ -79,3 +79,15 @@ export interface IRequestPurchaseDrug {
   id: string;
   nombre: string;
 }
+
+export interface ICategory {
+  id: string;
+  nombre: string;
+  descripcion: string;
+}
+export interface ISubCategory {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  categoryId: string;
+}

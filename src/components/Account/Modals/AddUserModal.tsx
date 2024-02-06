@@ -113,7 +113,6 @@ export const AddUserModal = (props: IAddUserModal) => {
         ...data,
         imagenURL,
       };
-      console.log(userData);
       setIsLoading(true);
       const user = await registerNewUser(userData);
       setNewUser(user);

@@ -17,36 +17,81 @@ import EditIcon from "@mui/icons-material/Edit";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { useCallback, useEffect, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
-import { ModifyProviderModal } from "./Modal/ModifyProviderModal";
-import { ProvidersInfoModal } from "./Modal/ProvidersInfoModal";
-import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
 import { shallow } from "zustand/shallow";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
+import { ModifySubCategoryModal } from "./Modal/ModifyCategoryModal";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { disableProvider } from "../../../api/api.routes";
+import { disableCategory } from "../../../../api/api.routes";
 
-const useDisableProvider = () => {
-  const { setHandleChangeProvider, enabled, handleChangeProvider } =
-    useProviderPagination(
+const useGetAllData = () => {
+  const {
+    isLoading,
+    count,
+    data,
+    enabled,
+    fetchCategories,
+    pageIndex,
+    pageSize,
+    search,
+    setPageIndex,
+    setPageSize,
+    handleChangeCategory,
+  } = useCategoryPagination(
+    (state) => ({
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+      fetchCategories: state.fetchCategories,
+      search: state.search,
+      enabled: state.enabled,
+      data: state.data,
+      setPageSize: state.setPageSize,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.isLoading,
+      handleChangeCategory: state.handleChangeCategory,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    fetchCategories(pageIndex, pageSize, search, enabled);
+  }, [pageIndex, pageSize, search, enabled, handleChangeCategory]);
+
+  return {
+    isLoading,
+    data,
+    enabled,
+    count,
+    pageIndex,
+    pageSize,
+    setPageIndex,
+    setPageSize,
+  };
+};
+
+const useDisableCategory = () => {
+  const { setHandleChangeCategory, enabled, handleChangeCategory } =
+    useCategoryPagination(
       (state) => ({
-        setHandleChangeProvider: state.setHandleChangeProvider,
+        setHandleChangeCategory: state.setHandleChangeCategory,
         enabled: state.enabled,
-        handleChangeProvider: state.handleChangeProvider,
+        handleChangeCategory: state.handleChangeCategory,
       }),
       shallow
     );
 
-  const disableProviderModal = (userId: string) => {
+  const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
         title: "Estas seguro?",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
-        } un proveedor`,
+        } una categoría`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
+        confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
         confirmButtonColor: "red",
         cancelButtonText: "No, cancel!",
         reverseButtons: true,
@@ -54,11 +99,11 @@ const useDisableProvider = () => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disableProvider(userId);
-            setHandleChangeProvider(!handleChangeProvider);
+            await disableCategory(categoryId);
+            setHandleChangeCategory(!handleChangeCategory);
             withReactContent(Swal).fire({
               title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `El proveedor se ha ${
+              text: `La categoría se ha ${
                 enabled ? "deshabilitado" : "habilitado"
               }`,
               icon: "success",
@@ -69,7 +114,7 @@ const useDisableProvider = () => {
               title: "Error!",
               text: `No se pudo ${
                 enabled ? "deshabilitar" : "habilitar"
-              } al proveedor`,
+              } la categoría`,
               icon: "error",
             });
           }
@@ -85,43 +130,24 @@ const useDisableProvider = () => {
   return disableProviderModal;
 };
 
-export const ProvidersTable = () => {
-  const disableProviderModal = useDisableProvider();
-  const [providerId, setProviderId] = useState<string>("");
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [openInfoModal, setOpenInfoModal] = useState(false);
+export const CategoryTable = () => {
   const {
+    data,
+    enabled,
+    isLoading,
+    count,
     pageIndex,
     pageSize,
-    count,
-    fetchProviders,
-    search,
-    enabled,
-    data,
-    setPageSize,
     setPageIndex,
-    isLoading,
-    handleChangeProvider,
-  } = useProviderPagination(
-    (state) => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-      fetchProviders: state.fetchProviders,
-      search: state.search,
-      enabled: state.enabled,
-      data: state.data,
-      setPageSize: state.setPageSize,
-      setPageIndex: state.setPageIndex,
-      isLoading: state.isLoading,
-      handleChangeProvider: state.handleChangeProvider,
-    }),
-    shallow
-  );
+    setPageSize,
+  } = useGetAllData();
+  const disableCategory = useDisableCategory();
+  const [category, setCategory] = useState(null);
+  const [open, setOpen] = useState(false);
 
-  // const handlePageChange = useCallback((event: any, value: any) => {
-  //   setPageIndex(value);
-  // }, []);
+  const handlePageChange = useCallback((event: any, value: any) => {
+    setPageIndex(value);
+  }, []);
 
   // const handleUserChecked = (e: any) => {
   //   const { value, checked } = e.target;
@@ -141,26 +167,15 @@ export const ProvidersTable = () => {
   //   }
   // };
 
-  const handlePageChange = useCallback((event: any, value: any) => {
-    setPageIndex(value);
-  }, []);
-
-  useEffect(() => {
-    fetchProviders(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeProvider]);
-
   return (
     <>
       <Card sx={{ m: 2 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Nombre compañía</TableCell>
-              <TableCell>Nombre contacto</TableCell>
-              <TableCell>Teléfono</TableCell>
-              <TableCell>Correo electrónico</TableCell>
-              <TableCell>modifica</TableCell>
-              {/* <TableCell /> */}
+              <TableCell>Nombre</TableCell>
+              <TableCell>Descripción</TableCell>
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
@@ -168,38 +183,27 @@ export const ProvidersTable = () => {
               ? null
               : isLoading
               ? null
-              : data.map((provider) => {
-                  const {
-                    id,
-                    nombreCompania,
-                    nombreContacto,
-                    correoElectronico,
-                    telefono,
-                  } = provider;
+              : data.map((category) => {
+                  const { id, nombre, descripcion } = category;
 
                   return (
                     <TableRow
                       key={id}
-                      onClick={() => {
-                        setOpenInfoModal(true);
-                        setProviderId(provider.id);
-                      }}
+                      onClick={() => {}}
                       sx={{
                         "&:hover": { cursor: "pointer", bgcolor: "whitesmoke" },
                       }}
                     >
-                      <TableCell>{nombreCompania}</TableCell>
-                      <TableCell>{nombreContacto}</TableCell>
-                      <TableCell>{telefono}</TableCell>
-                      <TableCell>{correoElectronico}</TableCell>
+                      <TableCell>{nombre}</TableCell>
+                      <TableCell>{descripcion}</TableCell>
                       <TableCell>
                         <Tooltip title="Editar">
                           <IconButton
                             size="small"
                             sx={{ color: "neutral.700" }}
                             onClick={(e) => {
-                              setProviderId(provider.id);
-                              setOpenEditModal(true);
+                              setCategory(category);
+                              setOpen(true);
                               e.stopPropagation();
                             }}
                           >
@@ -210,7 +214,7 @@ export const ProvidersTable = () => {
                           <IconButton
                             size="small"
                             onClick={(e) => {
-                              disableProviderModal(provider.id);
+                              disableCategory(id);
                               e.stopPropagation();
                             }}
                           >
@@ -261,9 +265,7 @@ export const ProvidersTable = () => {
           <TablePagination
             component="div"
             count={count}
-            onPageChange={() => {
-              handlePageChange;
-            }}
+            onPageChange={handlePageChange}
             onRowsPerPageChange={(e: any) => {
               setPageSize(e.target.value);
             }}
@@ -273,20 +275,9 @@ export const ProvidersTable = () => {
           />
         }
       </Card>
-      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+      <Modal open={open} onClose={() => setOpen(false)}>
         <div>
-          <ModifyProviderModal
-            providerId={providerId}
-            setOpen={setOpenEditModal}
-          />
-        </div>
-      </Modal>
-      <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
-        <div>
-          <ProvidersInfoModal
-            setOpen={setOpenInfoModal}
-            providerId={providerId}
-          />
+          <ModifySubCategoryModal data={category} open={setOpen} />
         </div>
       </Modal>
     </>

@@ -1,50 +1,55 @@
 import { createWithEqualityFn } from "zustand/traditional";
-import { getProviders } from "../../api/api.routes";
+import { getCategories } from "../../api/api.routes";
 
 interface State {
-  pageSize: number;
+  count: number;
+  pageCount: number;
   pageIndex: number;
+  pageSize: number;
+  data: any[];
+  isLoading: boolean;
   search: string;
   enabled: boolean;
-  count: number;
-  data: any[];
-  pageCount: number;
-  isLoading: boolean;
-  handleChangeProvider: boolean;
+  handleChangeCategory: boolean;
 }
 
 interface Action {
-  setPageSize: (pageSize: number) => void;
+  setCount: (count: number) => void;
+  setPageCount: (pageCount: number) => void;
   setPageIndex: (pageIndex: number) => void;
+  setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
-  fetchProviders: (
+  setHandleChangeCategory: (handleChangeCategory: boolean) => void;
+  fetchCategories: (
     pageIndex: number,
     pageSize: number,
     search: string,
     enabled: boolean
   ) => Promise<void>;
-  setHandleChangeProvider: (handleChangeProvider: boolean) => void;
 }
 
-export const useProviderPagination = createWithEqualityFn<State & Action>(
+export const useCategoryPagination = createWithEqualityFn<State & Action>(
   (set) => ({
     count: 0,
+    pageCount: 0,
+    resultByPage: 0,
     pageIndex: 0,
     pageSize: 5,
-    enabled: true,
-    search: "",
     data: [],
-    pageCount: 0,
     isLoading: true,
-    handleChangeProvider: false,
-    setPageIndex: (state: number) => set(() => ({ pageIndex: state })),
-    setPageSize: (state: number) => set(() => ({ pageSize: state })),
-    setEnabled: (state: boolean) => set(() => ({ enabled: state })),
-    setSearch: (state: string) => set(() => ({ search: state, pageIndex: 0 })),
-    setHandleChangeProvider: (state: boolean) =>
-      set(() => ({ handleChangeProvider: state })),
-    fetchProviders: async (
+    search: "",
+    enabled: true,
+    handleChangeCategory: false,
+    setHandleChangeCategory: (handleChangeCategory: boolean) =>
+      set({ handleChangeCategory }),
+    setCount: (count: number) => set({ count }),
+    setPageCount: (pageCount: number) => set({ pageCount }),
+    setPageIndex: (pageIndex: number) => set({ pageIndex }),
+    setPageSize: (pageSize: number) => set({ pageSize }),
+    setSearch: (search: string) => set({ search, pageIndex: 0 }),
+    setEnabled: (enabled: boolean) => set({ enabled }),
+    fetchCategories: async (
       pageIndex: number,
       pageSize: number,
       search: string,
@@ -53,7 +58,7 @@ export const useProviderPagination = createWithEqualityFn<State & Action>(
       set(() => ({ isLoading: true }));
       const page = pageIndex + 1;
       try {
-        const res = await getProviders(
+        const res = await getCategories(
           `${page === 0 ? "" : "pageIndex=" + page}&${
             pageSize === 0 ? "" : "pageSize=" + pageSize
           }&search=${search}&habilitado=${enabled}`

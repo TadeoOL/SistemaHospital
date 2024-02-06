@@ -17,36 +17,82 @@ import EditIcon from "@mui/icons-material/Edit";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { useCallback, useEffect, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
-import { ModifyProviderModal } from "./Modal/ModifyProviderModal";
-import { ProvidersInfoModal } from "./Modal/ProvidersInfoModal";
-import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
 import { shallow } from "zustand/shallow";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { useSubCategoryPagination } from "../../../../store/purchaseStore/subCategoryPagination";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { disableProvider } from "../../../api/api.routes";
+import { disableSubCategory } from "../../../../api/api.routes";
+import { ModifySubCategoryModal } from "./Modal/ModifySubCategoryModal";
+import { ISubCategory } from "../../../../types/types";
 
-const useDisableProvider = () => {
-  const { setHandleChangeProvider, enabled, handleChangeProvider } =
-    useProviderPagination(
+const useGetAllData = () => {
+  const {
+    isLoading,
+    count,
+    data,
+    enabled,
+    fetchCategories,
+    pageIndex,
+    pageSize,
+    search,
+    setPageIndex,
+    setPageSize,
+    handleChangeSubCategory,
+  } = useSubCategoryPagination(
+    (state) => ({
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+      fetchCategories: state.fetchCategories,
+      search: state.search,
+      enabled: state.enabled,
+      data: state.data,
+      setPageSize: state.setPageSize,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.isLoading,
+      handleChangeSubCategory: state.handleChangeSubCategory,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    fetchCategories(pageIndex, pageSize, search, enabled);
+  }, [pageIndex, pageSize, search, enabled, handleChangeSubCategory]);
+
+  return {
+    isLoading,
+    data,
+    enabled,
+    count,
+    pageIndex,
+    pageSize,
+    setPageIndex,
+    setPageSize,
+  };
+};
+
+const useDisableSubCategory = () => {
+  const { setHandleChangeSubCategory, enabled, handleChangeSubCategory } =
+    useSubCategoryPagination(
       (state) => ({
-        setHandleChangeProvider: state.setHandleChangeProvider,
+        setHandleChangeSubCategory: state.setHandleChangeSubCategory,
         enabled: state.enabled,
-        handleChangeProvider: state.handleChangeProvider,
+        handleChangeSubCategory: state.handleChangeSubCategory,
       }),
       shallow
     );
 
-  const disableProviderModal = (userId: string) => {
+  const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
         title: "Estas seguro?",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
-        } un proveedor`,
+        } una sub categoría`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
+        confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
         confirmButtonColor: "red",
         cancelButtonText: "No, cancel!",
         reverseButtons: true,
@@ -54,11 +100,11 @@ const useDisableProvider = () => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disableProvider(userId);
-            setHandleChangeProvider(!handleChangeProvider);
+            await disableSubCategory(categoryId);
+            setHandleChangeSubCategory(!handleChangeSubCategory);
             withReactContent(Swal).fire({
               title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `El proveedor se ha ${
+              text: `La sub categoría se ha ${
                 enabled ? "deshabilitado" : "habilitado"
               }`,
               icon: "success",
@@ -69,7 +115,7 @@ const useDisableProvider = () => {
               title: "Error!",
               text: `No se pudo ${
                 enabled ? "deshabilitar" : "habilitar"
-              } al proveedor`,
+              } la sub categoría`,
               icon: "error",
             });
           }
@@ -85,39 +131,20 @@ const useDisableProvider = () => {
   return disableProviderModal;
 };
 
-export const ProvidersTable = () => {
-  const disableProviderModal = useDisableProvider();
-  const [providerId, setProviderId] = useState<string>("");
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [openInfoModal, setOpenInfoModal] = useState(false);
+export const SubCategoryTable = () => {
   const {
+    data,
+    enabled,
+    isLoading,
+    count,
     pageIndex,
     pageSize,
-    count,
-    fetchProviders,
-    search,
-    enabled,
-    data,
-    setPageSize,
     setPageIndex,
-    isLoading,
-    handleChangeProvider,
-  } = useProviderPagination(
-    (state) => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-      fetchProviders: state.fetchProviders,
-      search: state.search,
-      enabled: state.enabled,
-      data: state.data,
-      setPageSize: state.setPageSize,
-      setPageIndex: state.setPageIndex,
-      isLoading: state.isLoading,
-      handleChangeProvider: state.handleChangeProvider,
-    }),
-    shallow
-  );
+    setPageSize,
+  } = useGetAllData();
+  const disableSubCategory = useDisableSubCategory();
+  const [subCategory, setSubCategory] = useState<ISubCategory | null>(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
 
   // const handlePageChange = useCallback((event: any, value: any) => {
   //   setPageIndex(value);
@@ -145,22 +172,16 @@ export const ProvidersTable = () => {
     setPageIndex(value);
   }, []);
 
-  useEffect(() => {
-    fetchProviders(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeProvider]);
-
   return (
     <>
       <Card sx={{ m: 2 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Nombre compañía</TableCell>
-              <TableCell>Nombre contacto</TableCell>
-              <TableCell>Teléfono</TableCell>
-              <TableCell>Correo electrónico</TableCell>
-              <TableCell>modifica</TableCell>
-              {/* <TableCell /> */}
+              <TableCell>Nombre</TableCell>
+              <TableCell>Descripción</TableCell>
+              <TableCell>Categoría</TableCell>
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
@@ -168,37 +189,27 @@ export const ProvidersTable = () => {
               ? null
               : isLoading
               ? null
-              : data.map((provider) => {
-                  const {
-                    id,
-                    nombreCompania,
-                    nombreContacto,
-                    correoElectronico,
-                    telefono,
-                  } = provider;
+              : data.map((subCategory) => {
+                  const { id, nombre, categoria, descripcion } = subCategory;
 
                   return (
                     <TableRow
                       key={id}
-                      onClick={() => {
-                        setOpenInfoModal(true);
-                        setProviderId(provider.id);
-                      }}
+                      onClick={() => {}}
                       sx={{
                         "&:hover": { cursor: "pointer", bgcolor: "whitesmoke" },
                       }}
                     >
-                      <TableCell>{nombreCompania}</TableCell>
-                      <TableCell>{nombreContacto}</TableCell>
-                      <TableCell>{telefono}</TableCell>
-                      <TableCell>{correoElectronico}</TableCell>
+                      <TableCell>{nombre}</TableCell>
+                      <TableCell>{descripcion}</TableCell>
+                      <TableCell>{categoria.nombre}</TableCell>
                       <TableCell>
                         <Tooltip title="Editar">
                           <IconButton
                             size="small"
                             sx={{ color: "neutral.700" }}
                             onClick={(e) => {
-                              setProviderId(provider.id);
+                              setSubCategory(subCategory);
                               setOpenEditModal(true);
                               e.stopPropagation();
                             }}
@@ -210,7 +221,7 @@ export const ProvidersTable = () => {
                           <IconButton
                             size="small"
                             onClick={(e) => {
-                              disableProviderModal(provider.id);
+                              disableSubCategory(id);
                               e.stopPropagation();
                             }}
                           >
@@ -261,9 +272,7 @@ export const ProvidersTable = () => {
           <TablePagination
             component="div"
             count={count}
-            onPageChange={() => {
-              handlePageChange;
-            }}
+            onPageChange={handlePageChange}
             onRowsPerPageChange={(e: any) => {
               setPageSize(e.target.value);
             }}
@@ -275,18 +284,7 @@ export const ProvidersTable = () => {
       </Card>
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <div>
-          <ModifyProviderModal
-            providerId={providerId}
-            setOpen={setOpenEditModal}
-          />
-        </div>
-      </Modal>
-      <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
-        <div>
-          <ProvidersInfoModal
-            setOpen={setOpenInfoModal}
-            providerId={providerId}
-          />
+          <ModifySubCategoryModal data={subCategory} open={setOpenEditModal} />
         </div>
       </Modal>
     </>

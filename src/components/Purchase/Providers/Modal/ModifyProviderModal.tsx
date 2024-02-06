@@ -3,12 +3,10 @@ import {
   Box,
   Button,
   CircularProgress,
-  Grid,
   Stack,
   Step,
   StepLabel,
   Stepper,
-  TextField,
   Typography,
   useMediaQuery,
   useTheme,
@@ -28,11 +26,11 @@ import { BasicInfoForm } from "./Forms/BasicInfoForm";
 import { useEffect, useState } from "react";
 import { FiscalForm } from "./Forms/FiscalForm";
 import { CertificateForm } from "./Forms/CertificateForm";
-import { SuccessForm } from "./Forms/SuccessForm";
 import Swal from "sweetalert2";
 import { modifyProvider } from "../../../../api/api.routes";
 import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
 import { useGetProvider } from "../../../../hooks/useGetProvider";
+import { shallow } from "zustand/shallow";
 
 const style = {
   position: "absolute",
@@ -70,11 +68,25 @@ const stepsForm = [
       "puesto",
       "direccion",
       "telefono",
-      "email",
+      "correoElectronico",
     ],
   },
-  { id: "step 2", title: "Información fiscal" },
-  { id: "step 3", title: "Certificaciones" },
+  {
+    id: "step 2",
+    title: "Información fiscal",
+    fields: [
+      "rfc",
+      "nif",
+      "giroEmpresa",
+      "direccionFiscal",
+      "tipoContribuyente",
+    ],
+  },
+  {
+    id: "step 3",
+    title: "Certificaciones",
+    fields: ["urlCertificadoBP", "urlCertificadoCR", "urlCertificadoISO9001"],
+  },
 ];
 
 const renderStepForm = (
@@ -96,8 +108,6 @@ const renderStepForm = (
       );
     case 2:
       return <CertificateForm errors={errors} register={register} />;
-    case 3:
-      return <SuccessForm />;
     default:
       break;
   }
@@ -114,12 +124,14 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   const [disabledButtons, setDisabledButtons] = useState(false);
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
-  const { updatedProvider, setUpdatedProvider } = useProviderPagination(
-    (state) => ({
-      updatedProvider: state.updatedProvider,
-      setUpdatedProvider: state.setUpdatedProvider,
-    })
-  );
+  const { handleChangeProvider, setHandleChangeProvider } =
+    useProviderPagination(
+      (state) => ({
+        handleChangeProvider: state.handleChangeProvider,
+        setHandleChangeProvider: state.setHandleChangeProvider,
+      }),
+      shallow
+    );
 
   const {
     register,
@@ -157,13 +169,12 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
 
   const onSubmit: SubmitHandler<IProvider> = async (data: IProvider) => {
     try {
-      console.log({ data });
       await modifyProvider({
         ...data,
         id: providerData ? providerData.id : "",
       });
       setDisabledButtons(true);
-      setUpdatedProvider(!updatedProvider);
+      setHandleChangeProvider(!handleChangeProvider);
       toast.success("Proveedor modificado correctamente!");
       props.setOpen(false);
       Swal.fire({
@@ -194,7 +205,6 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   const handleError = (err: any) => {
     console.log({ err });
   };
-  console.log({ providerData });
 
   if (isLoading || !providerData)
     return (

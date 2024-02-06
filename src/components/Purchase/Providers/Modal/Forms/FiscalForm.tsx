@@ -6,16 +6,17 @@ import { useState } from "react";
 interface IFiscalForm {
   errors: FieldErrors<IProvider>;
   register: UseFormRegister<IProvider>;
-  tipoContribuyente: number;
+  tipoContribuyente?: number;
 }
 
 const personType = [
+  { value: 0, label: "Seleccionar" },
   { value: 1, label: "Física" },
   { value: 2, label: "Moral" },
 ];
 
 export const FiscalForm = (props: IFiscalForm) => {
-  const [contri, setContri] = useState(props.tipoContribuyente);
+  const [contri, setContri] = useState(props.tipoContribuyente || 0);
   const { errors, register } = props;
 
   return (
@@ -66,7 +67,6 @@ export const FiscalForm = (props: IFiscalForm) => {
             label="Tipo de contribuyente"
             select
             onChange={(e: any) => {
-              console.log({ e });
               setContri(e.target.value);
             }}
             value={contri}

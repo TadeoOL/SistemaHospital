@@ -120,7 +120,6 @@ const handleChangePassword = (userId: string) => {
             password,
             confirmPassword
           );
-          console.log([{ res }]);
           withReactContent(Swal).fire({
             title: `Cambio realizado`,
             text: res,

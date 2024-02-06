@@ -83,7 +83,6 @@ const handleChangePassword = () => {
       if (password === confirmPassword) {
         try {
           const res = await changeUserPassword(password, confirmPassword);
-          console.log([{ res }]);
           withReactContent(Swal).fire({
             title: `Cambio realizado`,
             text: res,

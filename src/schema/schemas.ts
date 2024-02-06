@@ -73,9 +73,20 @@ export const addNewProviderSchema = z.object({
   giroEmpresa: z.string().min(4, "Agrega un giro de la empresa"),
   rfc: z.string().min(10, "Agrega un rfc"),
   nif: z.string().min(4, "Escribe una identificación fiscal"),
-  tipoContribuyente: z.number().min(1, "Ingrese tipo de contribuyente"),
+  tipoContribuyente: z.number().min(1, "Selecciona un tipo de contribuyente"),
   direccionFiscal: z.string().min(4, "Ingresa una dirección fiscal"),
   urlCertificadoBP: z.string().nullable().optional(),
   urlCeritificadoCR: z.string().nullable().optional(),
   urlCertificadoISO9001: z.string().nullable().optional(),
+});
+
+export const addSubCategory = z.object({
+  nombre: z.string().min(1, "Escribe un nombre"),
+  descripcion: z.string().min(1, "Escribe una descripción"),
+  categoryId: z.string().min(1, "Selecciona una categoría"),
+});
+
+export const addCategory = z.object({
+  nombre: z.string().min(1, "Escribe un nombre"),
+  descripcion: z.string().min(1, "Escribe una descripción"),
 });

@@ -1,12 +1,10 @@
 import {
   Box,
   Button,
-  Grid,
   Stack,
   Step,
   StepLabel,
   Stepper,
-  TextField,
   Typography,
   useMediaQuery,
   useTheme,
@@ -23,9 +21,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { addNewProviderSchema } from "../../../../schema/schemas";
 import { BasicInfoForm } from "./Forms/BasicInfoForm";
-import { FiscalForm } from "./Forms/FiscalForm";
 import { CertificateForm } from "./Forms/CertificateForm";
 import { useState } from "react";
+import { FiscalForm } from "./Forms/FiscalForm";
+import { addNewProvider } from "../../../../api/api.routes";
+import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
+import Swal from "sweetalert2";
+import { shallow } from "zustand/shallow";
 
 const style = {
   position: "absolute",
@@ -63,11 +65,25 @@ const stepsForm = [
       "puesto",
       "direccion",
       "telefono",
-      "email",
+      "correoElectronico",
     ],
   },
-  { id: "step 2", title: "Información fiscal" },
-  { id: "step 3", title: "Certificaciones" },
+  {
+    id: "step 2",
+    title: "Información fiscal",
+    fields: [
+      "rfc",
+      "nif",
+      "giroEmpresa",
+      "direccionFiscal",
+      "tipoContribuyente",
+    ],
+  },
+  {
+    id: "step 3",
+    title: "Certificaciones",
+    fields: ["urlCertificadoBP", "urlCertificadoCR", "urlCertificadoISO9001"],
+  },
 ];
 
 const renderStepForm = (
@@ -95,6 +111,14 @@ export const AddProviderModal = (props: IAddProviderModal) => {
   const [step, setStep] = useState(0);
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const { handleChangeProvider, setHandleChangeProvider } =
+    useProviderPagination(
+      (state) => ({
+        handleChangeProvider: state.handleChangeProvider,
+        setHandleChangeProvider: state.setHandleChangeProvider,
+      }),
+      shallow
+    );
 
   const {
     register,
@@ -108,23 +132,29 @@ export const AddProviderModal = (props: IAddProviderModal) => {
       puesto: "",
       direccion: "",
       telefono: "",
-      email: "",
+      correoElectronico: "",
       giroEmpresa: "",
       rfc: "",
-      numIdentificacionFiscal: "",
-      tipoContribuyente: 1,
+      nif: "",
+      tipoContribuyente: 0,
       direccionFiscal: "",
-      certificacionBP: "",
-      certificacionCR: "",
-      certificacionISO: "",
+      urlCertificadoBP: "",
+      urlCertificadoCR: "",
+      urlCertificadoISO9001: "",
     },
     resolver: zodResolver(addNewProviderSchema),
   });
 
   const onSubmit: SubmitHandler<IProvider> = async (data) => {
     try {
-      console.log(data);
-      // api para registrar proveedor
+      await addNewProvider(data);
+      setHandleChangeProvider(!handleChangeProvider);
+      props.setOpen(false);
+      Swal.fire({
+        title: "Proveedor modificado!",
+        text: "El proveedor ha sido modificado correctamente!",
+        icon: "success",
+      });
       toast.success("Usuario agregado correctamente!");
     } catch (error) {
       console.log(error);
@@ -155,10 +185,6 @@ export const AddProviderModal = (props: IAddProviderModal) => {
     }
   };
 
-  const handleError = (err: any) => {
-    console.log({ err });
-  };
-
   return (
     <Box sx={{ ...style }}>
       <HeaderModal title="Agregar proveedor" setOpen={() => {}} />
@@ -166,7 +192,7 @@ export const AddProviderModal = (props: IAddProviderModal) => {
         <Stack sx={{ p: 2, px: 4 }}>
           <Stack spacing={2} sx={{ pr: 2 }}>
             <Stepper activeStep={step}>
-              {stepsForm.map((step, index) => (
+              {stepsForm.map((step) => (
                 <Step key={step.id}>
                   <StepLabel>
                     {

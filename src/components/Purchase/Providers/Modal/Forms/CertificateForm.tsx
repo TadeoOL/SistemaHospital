@@ -1,4 +1,4 @@
-import { Box, Grid, TextField, Typography } from "@mui/material";
+import { Box, Grid, TextField } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IProvider } from "../../../../../types/types";
 
@@ -24,9 +24,9 @@ export const CertificateForm = (props: ICertificateForm) => {
         <Grid item xs={12} lg={6}>
           <TextField
             fullWidth
-            error={!!errors.urlCeritificadoCR}
-            helperText={errors?.urlCeritificadoCR?.message}
-            {...register("urlCeritificadoCR")}
+            error={!!errors.urlCertificadoCR}
+            helperText={errors?.urlCertificadoCR?.message}
+            {...register("urlCertificadoCR")}
             label="Certificado de cumplimiento regulatorio"
           />
         </Grid>

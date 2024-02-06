@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 interface IProtectedRoute {
   redirectTo?: string;
@@ -29,10 +30,21 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({
   const tokenInfo = jwtDecode(token);
 
   useEffect(() => {
+    if (token) {
+      if (isTokenExpired(tokenInfo)) {
+        logout();
+        toast.error("Tiempo de sesión expirado");
+        navigate(redirectTo);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const intervalId = setInterval(() => {
       if (token) {
         if (isTokenExpired(tokenInfo)) {
           logout();
+          toast.error("Tiempo de sesión expirado");
           navigate(redirectTo);
         }
       }

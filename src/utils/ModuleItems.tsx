@@ -4,6 +4,7 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import StoreIcon from "@mui/icons-material/Store";
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 
 export const ModuleItems: IModuleItems[] = [
   {
@@ -19,6 +20,11 @@ export const ModuleItems: IModuleItems[] = [
         title: "Solicitud de compras",
         path: "/compras/solicitud-compras",
         icon: <AddShoppingCartIcon />,
+      },
+      {
+        title: "Categorías",
+        path: "/compras/categorias",
+        icon: <FormatListBulletedIcon />,
       },
     ],
     icon: <StoreIcon />,

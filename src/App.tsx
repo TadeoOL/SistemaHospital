@@ -14,6 +14,9 @@ import { PurchaseRequestView } from "./views/Purchase/PurchaseRequestView";
 import { RequestedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/RequestedMedicineTable";
 import { ToQuoteMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/ToQuoteMedicineTable";
 import { PurchasedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/PurchasedMedicineTable";
+import { CategoryView } from "./views/Purchase/CategoryView";
+import { Category } from "./components/Purchase/Categorys/Category/Category";
+import { SubCategory } from "./components/Purchase/Categorys/SubCategory/SubCategory";
 
 function App() {
   return (
@@ -39,6 +42,10 @@ function App() {
                 path="productos-comprados"
                 element={<PurchasedMedicineTable />}
               />
+            </Route>
+            <Route path="/compras/categorias" element={<CategoryView />}>
+              <Route path="categoria" element={<Category />} />
+              <Route path="subcategoria" element={<SubCategory />} />
             </Route>
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />

@@ -1,5 +1,11 @@
 import axios from "../libs/axios";
-import { IAddUser, IProvider, IUpdateUsers } from "../types/types";
+import {
+  IAddUser,
+  ICategory,
+  IProvider,
+  ISubCategory,
+  IUpdateUsers,
+} from "../types/types";
 
 export const login = async (userName: string, password: string) => {
   try {
@@ -39,7 +45,7 @@ export const updateUserData = async (user: IUpdateUsers) => {
 
 export const getUsers = async (paramUrl: string) => {
   try {
-    const res = await axios.get(`/api/Usuario/paginationUser?${paramUrl}`);
+    const res = await axios.get(`/api/Usuario/paginacion-usuario?${paramUrl}`);
     return res.data;
   } catch (error) {
     console.log({ error });
@@ -127,11 +133,13 @@ export const AdminChangeUsersPassword = async (
 };
 
 export const getProviders = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Proveedor/paginationProveedor?${paramUrl}`);
+  const res = await axios.get(
+    `/api/Proveedor/paginacion-proveedor?${paramUrl}`
+  );
   return res.data;
 };
 
-export const getProviderById = async (id: string | null) => {
+export const getProviderById = async (id: string) => {
   const res = await axios.get(`/api/Proveedor/${id}`);
   return res.data;
 };
@@ -171,6 +179,119 @@ export const modifyProvider = async (provider: IProvider) => {
     urlCertificadoBP,
     urlCertificadoCR,
     urlCertificadoISO9001,
+  });
+  return res.data;
+};
+
+export const addNewProvider = async (provider: IProvider) => {
+  const {
+    nombreCompania,
+    nombreContacto,
+    correoElectronico,
+    direccion,
+    direccionFiscal,
+    giroEmpresa,
+    nif,
+    puesto,
+    rfc,
+    telefono,
+    tipoContribuyente,
+    urlCertificadoBP,
+    urlCertificadoCR,
+    urlCertificadoISO9001,
+  } = provider;
+
+  const res = await axios.post(`/api/Proveedor/RegistrarProveedor`, {
+    nombreCompania,
+    nombreContacto,
+    correoElectronico,
+    direccion,
+    direccionFiscal,
+    giroEmpresa,
+    nif,
+    puesto,
+    rfc,
+    telefono,
+    tipoContribuyente,
+    urlCertificadoBP,
+    urlCertificadoCR,
+    urlCertificadoISO9001,
+  });
+  return res.data;
+};
+
+export const disableProvider = async (id: string) => {
+  const res = await axios.put(`/api/Proveedor/EstatusProveedor`, { id });
+  return res.data;
+};
+
+export const addNewCategory = async (data: ICategory) => {
+  const { nombre, descripcion } = data;
+  const res = await axios.post(`/api/Categoria/registrar-categoria`, {
+    Nombre: nombre,
+    Descripcion: descripcion,
+  });
+  return res.data;
+};
+
+export const getCategories = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Categoria/paginacion-categoria?${paramUrl}`
+  );
+  return res.data;
+};
+
+export const modifyCategory = async (category: ICategory) => {
+  const { id, nombre, descripcion } = category;
+
+  const res = await axios.put(`/api/Categoria/actualizar-categoria`, {
+    id: id,
+    Nombre: nombre,
+    Descripcion: descripcion,
+  });
+  return res.data;
+};
+
+export const disableCategory = async (id: string) => {
+  const res = await axios.put(`/api/Categoria/estatus-categoria`, { id });
+  return res.data;
+};
+
+export const getAllCategories = async () => {
+  const res = await axios.get(`/api/Categoria/obtener-categorias`);
+  return res.data;
+};
+
+export const addNewSubCategory = async (data: ISubCategory) => {
+  const { nombre, descripcion, categoryId } = data;
+  const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
+    nombre,
+    descripcion,
+    id_categoria: categoryId,
+  });
+  return res.data;
+};
+
+export const getSubCategories = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/SubCategoria/paginacion-subcategoria?${paramUrl}`
+  );
+  return res.data;
+};
+
+export const disableSubCategory = async (id: string) => {
+  const res = await axios.put(`/api/SubCategoria/estatus-subcategoria`, { id });
+  return res.data;
+};
+
+export const modifySubCategory = async (subCategory: ISubCategory) => {
+  const { id, nombre, descripcion, categoryId } = subCategory;
+
+  const res = await axios.put(`/api/SubCategoria/actualizar-subcategoria`, {
+    id: id,
+    Nombre: nombre,
+    Descripcion: descripcion,
+    id_categoria: categoryId,
   });
   return res.data;
 };

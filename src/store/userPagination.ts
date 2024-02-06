@@ -18,7 +18,6 @@ interface State {
   enabled: boolean;
   userDisabled: boolean;
   newUser: IUser | null;
-  isChecked: string[];
 }
 
 interface Action {
@@ -34,7 +33,6 @@ interface Action {
     enabled: boolean,
     pageIndex: number
   ) => Promise<void>;
-  setIsChecked: (isChecked: any[]) => void;
 }
 
 export const useUserPaginationStore = createWithEqualityFn<State & Action>(
@@ -55,8 +53,6 @@ export const useUserPaginationStore = createWithEqualityFn<State & Action>(
     enabled: true,
     userDisabled: false,
     newUser: null,
-    isChecked: [],
-    setIsChecked: (state: string[]) => set(() => ({ isChecked: state })),
     setEnabled: (state: boolean) =>
       set(() => ({ enabled: state, pageIndex: 0, isChecked: [] })),
     setNewUser: (state: IUser) => set(() => ({ newUser: state })),

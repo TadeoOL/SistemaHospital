@@ -1,25 +1,25 @@
 import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
-import { AddProviderModal } from "./Modal/AddProviderModal";
+import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
-import { SearchBar } from "../../Inputs/SearchBar";
-import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
-import { ProvidersTable } from "./ProvidersTable";
-import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
+import { CategoryTable } from "./CategoryTable";
+import { AddCategoryModal } from "./Modal/AddCategoryModal";
+import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
 
-export const ProvidersCard = () => {
+export const Category = () => {
   const [open, setOpen] = useState(false);
-  const { setSearch, enabled, setEnabled } = useProviderPagination((state) => ({
-    setSearch: state.setSearch,
-    setEnabled: state.setEnabled,
+  const { enabled, setEnabled, setSearch } = useCategoryPagination((state) => ({
     enabled: state.enabled,
+    setEnabled: state.setEnabled,
+    setSearch: state.setSearch,
   }));
+
   return (
     <>
       <Box
         sx={{
           boxShadow: 10,
-          borderRadius: 2,
-          mt: 4,
+          borderBottomLeftRadius: 10,
+          borderBottomRightRadius: 10,
           overflowX: "auto",
           bgcolor: "white",
         }}
@@ -40,7 +40,7 @@ export const ProvidersCard = () => {
             }}
           >
             <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Proveedores" : "Proveedores deshabilitados"}
+              {enabled ? "Categorías" : "Categorías deshabilitadas"}
             </Typography>
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
@@ -49,26 +49,22 @@ export const ProvidersCard = () => {
                 }}
               >
                 {enabled
-                  ? "Mostrar proveedores deshabilitados"
-                  : "Mostrar proveedores habilitados"}
+                  ? "Mostrar categorías deshabilitadas"
+                  : "Mostrar categorías habilitados"}
               </Button>
-              <Button
-                variant="contained"
-                onClick={() => setOpen(!open)}
-                startIcon={<AddCircleOutlinedIcon />}
-              >
+              <Button variant="contained" onClick={() => setOpen(!open)}>
                 Agregar
               </Button>
             </Stack>
           </Stack>
-          <SearchBar title="Busca el proveedor..." searchState={setSearch} />
+          <SearchBar title="Busca la categoría..." searchState={setSearch} />
           <Divider sx={{ my: 1 }} />
-          <ProvidersTable />
+          <CategoryTable />
         </Box>
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
         <div>
-          <AddProviderModal setOpen={setOpen} />
+          <AddCategoryModal open={setOpen} />
         </div>
       </Modal>
     </>

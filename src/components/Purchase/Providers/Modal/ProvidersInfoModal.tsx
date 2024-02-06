@@ -7,8 +7,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { HeaderModal } from "../../Account/Modals/SubComponents/HeaderModal";
-import { useGetProvider } from "../../../hooks/useGetProvider";
+import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
+import { useGetProvider } from "../../../../hooks/useGetProvider";
 
 const style = {
   position: "absolute",

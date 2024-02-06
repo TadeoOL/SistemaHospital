@@ -1,7 +1,6 @@
 import {
   Box,
   Card,
-  Checkbox,
   CircularProgress,
   IconButton,
   Modal,
@@ -107,8 +106,6 @@ export const UsersTable = () => {
     setResultByPage,
     newUser,
     userDisabled,
-    isChecked,
-    setIsChecked,
   } = useUserPaginationStore(
     (state) => ({
       fetchData: state.fetchData,
@@ -123,8 +120,6 @@ export const UsersTable = () => {
       setResultByPage: state.setResultByPage,
       newUser: state.newUser,
       userDisabled: state.userDisabled,
-      isChecked: state.isChecked,
-      setIsChecked: state.setIsChecked,
     }),
     shallow
   );
@@ -137,31 +132,12 @@ export const UsersTable = () => {
     setPageIndex(value);
   }, []);
 
-  const handleUserChecked = (e: any) => {
-    const { value, checked } = e.target;
-
-    if (checked) {
-      setIsChecked([...isChecked, value]);
-    } else {
-      setIsChecked(isChecked.filter((item) => item !== value));
-    }
-  };
-
-  const handleIsUserChecked = (userId: string) => {
-    if (isChecked.some((user) => user === userId)) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   return (
     <>
-      <Card>
-        <Table>
+      <Card sx={{ m: 2 }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell />
               <TableCell>Nombre de usuario</TableCell>
               <TableCell>Nombre completo</TableCell>
               <TableCell>Correo electrónico</TableCell>
@@ -177,13 +153,6 @@ export const UsersTable = () => {
               ? null
               : data.map((user) => (
                   <TableRow key={user?.id}>
-                    <TableCell>
-                      <Checkbox
-                        value={user?.id}
-                        checked={handleIsUserChecked(user?.id)}
-                        onChange={(e) => handleUserChecked(e)}
-                      />
-                    </TableCell>
                     <TableCell>{user?.nombreUsuario}</TableCell>
                     <TableCell>
                       {user?.nombre +
