@@ -17,11 +17,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useGetSubCategories } from "../../../../../hooks/useGetSubCategories";
 import { useArticlePagination } from "../../../../../store/purchaseStore/articlePagination";
-import {
-  addNewArticle,
-  getArticleById,
-  modifyArticle,
-} from "../../../../../api/api.routes";
+import { getArticleById, modifyArticle } from "../../../../../api/api.routes";
 
 const style = {
   position: "absolute",
@@ -171,7 +167,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={() => {}} title="Agregar articulo" />
+      <HeaderModal setOpen={open} title="Agregar articulo" />
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
@@ -283,7 +279,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined">Cancelar</Button>
+            <Button variant="outlined" onClick={() => open(false)}>
+              Cancelar
+            </Button>
             <Button variant="contained" type="submit">
               Guardar
             </Button>

@@ -6,6 +6,7 @@ import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ArticleIcon from "@mui/icons-material/Article";
+import WarehouseIcon from "@mui/icons-material/Warehouse";
 
 export const ModuleItems: IModuleItems[] = [
   {
@@ -31,6 +32,11 @@ export const ModuleItems: IModuleItems[] = [
         title: "Artículos",
         path: "/compras/articulos",
         icon: <ArticleIcon />,
+      },
+      {
+        title: "Almacén",
+        path: "/compras/almacen",
+        icon: <WarehouseIcon />,
       },
     ],
     icon: <StoreIcon />,

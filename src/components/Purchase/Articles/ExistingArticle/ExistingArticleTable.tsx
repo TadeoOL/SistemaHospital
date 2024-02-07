@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { shallow } from "zustand/shallow";
-import { useSubCategoryPagination } from "../../../../store/purchaseStore/subCategoryPagination";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { disableSubCategory } from "../../../../api/api.routes";
-import { ModifySubCategoryModal } from "./Modal/ModifySubCategoryModal";
+import { disableExistingArticle } from "../../../../api/api.routes";
 import { TableComponent } from "../../../TableComponent";
+import { useExistingArticlePagination } from "../../../../store/purchaseStore/existingArticlePagination";
+import { ModifyExistingArticleModal } from "./Modal/ModifyExistingArticleModal";
 
 const useGetAllData = () => {
   const {
@@ -13,33 +13,33 @@ const useGetAllData = () => {
     count,
     data,
     enabled,
-    fetchCategories,
+    fetchExistingArticles,
     pageIndex,
     pageSize,
     search,
     setPageIndex,
     setPageSize,
-    handleChangeSubCategory,
-  } = useSubCategoryPagination(
+    handleChangeExistingArticle,
+  } = useExistingArticlePagination(
     (state) => ({
       pageIndex: state.pageIndex,
       pageSize: state.pageSize,
       count: state.count,
-      fetchCategories: state.fetchCategories,
+      fetchExistingArticles: state.fetchExistingArticles,
       search: state.search,
       enabled: state.enabled,
       data: state.data,
       setPageSize: state.setPageSize,
       setPageIndex: state.setPageIndex,
       isLoading: state.isLoading,
-      handleChangeSubCategory: state.handleChangeSubCategory,
+      handleChangeExistingArticle: state.handleChangeExistingArticle,
     }),
     shallow
   );
 
   useEffect(() => {
-    fetchCategories(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeSubCategory]);
+    fetchExistingArticles(pageIndex, pageSize, search, enabled);
+  }, [pageIndex, pageSize, search, enabled, handleChangeExistingArticle]);
 
   return {
     isLoading,
@@ -53,27 +53,30 @@ const useGetAllData = () => {
   };
 };
 
-const useDisableSubCategory = () => {
-  const { setHandleChangeSubCategory, enabled, handleChangeSubCategory } =
-    useSubCategoryPagination(
-      (state) => ({
-        setHandleChangeSubCategory: state.setHandleChangeSubCategory,
-        enabled: state.enabled,
-        handleChangeSubCategory: state.handleChangeSubCategory,
-      }),
-      shallow
-    );
+const useDisableExistingArticle = () => {
+  const {
+    setHandleChangeExistingArticle,
+    enabled,
+    handleChangeExistingArticle,
+  } = useExistingArticlePagination(
+    (state) => ({
+      setHandleChangeExistingArticle: state.setHandleChangeExistingArticle,
+      enabled: state.enabled,
+      handleChangeExistingArticle: state.handleChangeExistingArticle,
+    }),
+    shallow
+  );
 
-  const disableProviderModal = (categoryId: string) => {
+  const disableProviderModal = (articleId: string) => {
     withReactContent(Swal)
       .fire({
         title: "Estas seguro?",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
-        } una sub categoría`,
+        } un articulo existente`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
+        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
         confirmButtonColor: "red",
         cancelButtonText: "No, cancel!",
         reverseButtons: true,
@@ -81,11 +84,11 @@ const useDisableSubCategory = () => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disableSubCategory(categoryId);
-            setHandleChangeSubCategory(!handleChangeSubCategory);
+            await disableExistingArticle(articleId);
+            setHandleChangeExistingArticle(!handleChangeExistingArticle);
             withReactContent(Swal).fire({
               title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `La sub categoría se ha ${
+              text: `El articulo existente se ha ${
                 enabled ? "deshabilitado" : "habilitado"
               }`,
               icon: "success",
@@ -96,7 +99,7 @@ const useDisableSubCategory = () => {
               title: "Error!",
               text: `No se pudo ${
                 enabled ? "deshabilitar" : "habilitar"
-              } la sub categoría`,
+              } El articulo existente`,
               icon: "error",
             });
           }
@@ -112,12 +115,8 @@ const useDisableSubCategory = () => {
   return disableProviderModal;
 };
 
-export const SubCategoryTable = () => {
-  const disableSubCategory = useDisableSubCategory();
-
-  // const handlePageChange = useCallback((event: any, value: any) => {
-  //   setPageIndex(value);
-  // }, []);
+export const ExistingArticleTable = () => {
+  const disableArticle = useDisableExistingArticle();
 
   // const handleUserChecked = (e: any) => {
   //   const { value, checked } = e.target;
@@ -138,12 +137,17 @@ export const SubCategoryTable = () => {
   // };
 
   return (
-    <TableComponent
-      disableHook={disableSubCategory}
-      fetchDataHook={useGetAllData}
-      modifyModalComponent={(props) => (
-        <ModifySubCategoryModal data={props.data} open={props.open} />
-      )}
-    />
+    <>
+      <TableComponent
+        disableHook={disableArticle}
+        fetchDataHook={useGetAllData}
+        modifyModalComponent={(props) => (
+          <ModifyExistingArticleModal
+            existingArticleId={props.data}
+            open={props.open}
+          />
+        )}
+      />
+    </>
   );
 };

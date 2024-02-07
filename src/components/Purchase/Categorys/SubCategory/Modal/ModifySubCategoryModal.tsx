@@ -11,11 +11,14 @@ import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModa
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addSubCategory } from "../../../../../schema/schemas";
-import { ICategory, ISubCategory } from "../../../../../types/types";
-import { useState } from "react";
+import { ISubCategory } from "../../../../../types/types";
+import { useEffect, useState } from "react";
 import { useGetCategories } from "../../../../../hooks/useGetCategories";
 import { toast } from "react-toastify";
-import { modifySubCategory } from "../../../../../api/api.routes";
+import {
+  getSubCategoryById,
+  modifySubCategory,
+} from "../../../../../api/api.routes";
 import { useSubCategoryPagination } from "../../../../../store/purchaseStore/subCategoryPagination";
 
 const style = {
@@ -45,14 +48,36 @@ const style = {
 };
 
 interface IModifySubCategoryModal {
-  data: any;
+  data: string;
   open: Function;
 }
 
+const useFetchSubCategory = (categoryId: string) => {
+  const [isLoadingSubCategory, setIsLoadingSubCategory] = useState(true);
+  const [subCategory, setSubCategory] = useState<ISubCategory | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingSubCategory(true);
+      try {
+        const data = await getSubCategoryById(categoryId);
+        setSubCategory(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingSubCategory(false);
+      }
+    };
+    fetchData();
+  }, [categoryId]);
+  return { isLoadingSubCategory, subCategory };
+};
+
 export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
-  const { id, nombre, descripcion, categoria } = props.data ?? {};
-  const [value, setValue] = useState(descripcion);
-  const [category, setCategory] = useState(categoria.id);
+  const { data, open } = props;
+  const { isLoadingSubCategory, subCategory } = useFetchSubCategory(data);
+  const [textValue, setTextValue] = useState("");
+  const [category, setCategory] = useState("");
   const { categories, isLoading } = useGetCategories();
   const { handleChangeSubCategory, setHandleChangeSubCategory } =
     useSubCategoryPagination((state) => ({
@@ -60,17 +85,18 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
       setHandleChangeSubCategory: state.setHandleChangeSubCategory,
     }));
 
+  console.log({ subCategory });
   const {
     register,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<ISubCategory>({
     defaultValues: {
-      id: id,
-      nombre: nombre,
-      descripcion: descripcion,
-      categoryId: category,
+      id: subCategory?.id,
+      nombre: subCategory?.nombre,
+      descripcion: subCategory?.descripcion,
     },
     resolver: zodResolver(addSubCategory),
   });
@@ -88,8 +114,19 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
     }
   };
 
+  useEffect(() => {
+    if (subCategory) {
+      if (!category) setCategory(subCategory.categoria.id);
+      if (!textValue) setTextValue(subCategory.descripcion);
+      setValue("id_categoria", subCategory.categoria.id);
+      Object.entries(subCategory).forEach(([key, value]) => {
+        setValue(key as keyof ISubCategory, String(value));
+      });
+    }
+  }, [subCategory, setValue]);
+
   const handleChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.currentTarget.value);
+    setTextValue(event.currentTarget.value);
   };
 
   const handleChange = (event: any) => {
@@ -99,7 +136,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
     setCategory(value);
   };
 
-  if (isLoading)
+  if (isLoading || isLoadingSubCategory)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -108,7 +145,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.open} title="Agregar sub categoría" />
+      <HeaderModal setOpen={open} title="Agregar sub categoría" />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Stack spacing={2}>
@@ -140,7 +177,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
                         : null
                       : null}
                   </Box>
-                  <Box>{`${value?.length}/${200}`}</Box>
+                  <Box>{`${textValue?.length}/${200}`}</Box>
                 </Box>
               }
               maxRows={5}
@@ -152,9 +189,9 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               size="small"
               select
               label="Categoría"
-              error={!!errors.categoryId}
-              helperText={errors?.categoryId?.message}
-              {...register("categoryId")}
+              error={!!errors.id_categoria}
+              helperText={errors?.id_categoria?.message}
+              {...register("id_categoria")}
               value={category}
               onChange={handleChange}
             >
@@ -172,7 +209,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => props.open(false)}>
+            <Button variant="outlined" onClick={() => open(false)}>
               Cancelar
             </Button>
             <Button variant="contained" type="submit">

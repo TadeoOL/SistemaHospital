@@ -3,9 +3,11 @@ import {
   IAddUser,
   IArticle,
   ICategory,
+  IExistingArticle,
   IProvider,
   ISubCategory,
   IUpdateUsers,
+  IWarehouse,
 } from "../types/types";
 
 export const login = async (userName: string, password: string) => {
@@ -264,11 +266,11 @@ export const getAllCategories = async () => {
 };
 
 export const addNewSubCategory = async (data: ISubCategory) => {
-  const { nombre, descripcion, categoryId } = data;
+  const { nombre, descripcion, id_categoria } = data;
   const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
     nombre,
     descripcion,
-    id_categoria: categoryId,
+    id_categoria,
   });
   return res.data;
 };
@@ -286,13 +288,13 @@ export const disableSubCategory = async (id: string) => {
 };
 
 export const modifySubCategory = async (subCategory: ISubCategory) => {
-  const { id, nombre, descripcion, categoryId } = subCategory;
+  const { id, nombre, descripcion, id_categoria } = subCategory;
 
   const res = await axios.put(`/api/SubCategoria/actualizar-subcategoria`, {
-    id: id,
-    Nombre: nombre,
-    Descripcion: descripcion,
-    id_categoria: categoryId,
+    id,
+    nombre,
+    descripcion,
+    id_categoria,
   });
   return res.data;
 };
@@ -362,5 +364,114 @@ export const disableArticle = async (id: string) => {
 
 export const getArticleById = async (articleId: string) => {
   const res = await axios.get(`/api/Articulo/${articleId}`);
+  return res.data;
+};
+
+export const getExistingArticles = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`
+  );
+  return res.data;
+};
+
+export const getExistingArticleById = async (existingArticleId: string) => {
+  const res = await axios.get(`/api/ArticuloExistente/${existingArticleId}`);
+  return res.data;
+};
+
+export const modifyExistingArticle = async (
+  existingArticle: IExistingArticle
+) => {
+  const {
+    id,
+    nombre,
+    id_almacen,
+    id_articulo,
+    factor,
+    fechaCaducidad,
+    fechaCompra,
+    precioCompra,
+    precioVenta,
+    cantidad,
+  } = existingArticle;
+
+  const res = await axios.put(
+    `/api/ArticuloExistente/actualizar-articulo-existente`,
+    {
+      id,
+      nombre,
+      id_almacen,
+      id_articulo,
+      factor,
+      fechaCaducidad,
+      fechaCompra,
+      precioCompra,
+      precioVenta,
+      cantidad,
+    }
+  );
+  return res.data;
+};
+
+export const getAllArticles = async () => {
+  const res = await axios.get(`/api/Articulo/obtener-articulos`);
+  return res.data;
+};
+
+export const getAllAlmacenes = async () => {
+  const res = await axios.get(`/api/Almacen/obtener-almacenes`);
+  return res.data;
+};
+
+export const disableExistingArticle = async (id: string) => {
+  const res = await axios.put(
+    `/api/ArticuloExistente/estatus-articulo-existente`,
+    { id }
+  );
+  return res.data;
+};
+
+export const getPurchaseWarehouse = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-almacen?${paramUrl}`);
+  return res.data;
+};
+
+export const disablePurchaseWarehouse = async (id: string) => {
+  const res = await axios.put(`/api/Almacen/estatus-almacen`, { id });
+  return res.data;
+};
+
+export const getPurchaseWarehouseById = async (warehouseId: string) => {
+  const res = await axios.get(`/api/Almacen/${warehouseId}`);
+  return res.data;
+};
+
+export const modifyPurchaseWarehouse = async (warehouse: IWarehouse) => {
+  const { id, nombre, descripcion } = warehouse;
+
+  const res = await axios.put(`/api/Almacen/actualizar-almacen`, {
+    id,
+    nombre,
+    descripcion,
+  });
+  return res.data;
+};
+
+export const addNewPurchaseWarehouse = async (data: IWarehouse) => {
+  const { nombre, descripcion } = data;
+  const res = await axios.post(`/api/Almacen/registrar-almacen`, {
+    nombre,
+    descripcion,
+  });
+  return res.data;
+};
+
+export const getCategoryById = async (categoryId: string) => {
+  const res = await axios.get(`/api/Categoria/${categoryId}`);
+  return res.data;
+};
+
+export const getSubCategoryById = async (subCategoryId: string) => {
+  const res = await axios.get(`/api/SubCategoria/${subCategoryId}`);
   return res.data;
 };

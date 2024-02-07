@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { shallow } from "zustand/shallow";
 import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
-import { ModifySubCategoryModal } from "./Modal/ModifyCategoryModal";
+import { ModifyCategoryModal } from "./Modal/ModifyCategoryModal";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { disableCategory } from "../../../../api/api.routes";
@@ -139,7 +139,7 @@ export const CategoryTable = () => {
         disableHook={disableCategory}
         fetchDataHook={useGetAllData}
         modifyModalComponent={(props) => (
-          <ModifySubCategoryModal data={props.data} open={props.open} />
+          <ModifyCategoryModal data={props.data} open={props.open} />
         )}
       />
     </>

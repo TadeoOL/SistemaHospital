@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LoginView } from "./views/LoginView";
 import { DashboardView } from "./views/Layout/DashboardView";
 import { ProtectedRoute } from "./utils/ProtectedRoute";
-import { WarehouseView } from "./views/Pharmacy/WarehouseView";
 import { ScheduleView } from "./views/Schedule/ScheduleView";
 import { Layout } from "./components/Layout/Layout";
 import { AccountView } from "./views/AccountView";
@@ -19,6 +18,8 @@ import { Category } from "./components/Purchase/Categorys/Category/Category";
 import { SubCategory } from "./components/Purchase/Categorys/SubCategory/SubCategory";
 import { ArticleView } from "./views/Purchase/ArticleView";
 import { Article } from "./components/Purchase/Articles/Article/Article";
+import { ExistingArticle } from "./components/Purchase/Articles/ExistingArticle/ExistingArticle";
+import { WarehouseView } from "./views/Purchase/WarehouseView";
 
 function App() {
   return (
@@ -51,8 +52,9 @@ function App() {
             </Route>
             <Route path="/compras/articulos" element={<ArticleView />}>
               <Route path="articulo" element={<Article />} />
-              <Route path="articulo-existente" element={<SubCategory />} />
+              <Route path="articulo-existente" element={<ExistingArticle />} />
             </Route>
+            <Route path="/compras/almacen" element={<WarehouseView />} />
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />
             <Route

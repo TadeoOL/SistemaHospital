@@ -83,7 +83,7 @@ export const addNewProviderSchema = z.object({
 export const addSubCategory = z.object({
   nombre: z.string().min(1, "Escribe un nombre"),
   descripcion: z.string().min(1, "Escribe una descripción"),
-  categoryId: z.string().min(1, "Selecciona una categoría"),
+  id_categoria: z.string().min(1, "Selecciona una categoría"),
 });
 
 export const addCategory = z.object({
@@ -117,4 +117,68 @@ export const addArticle = z.object({
     ),
   unidadMedida: z.string().min(1, "Selecciona una unidad de medida"),
   id_subcategoria: z.string().min(1, "Selecciona una sub categoría"),
+});
+
+export const addExistingArticle = z
+  .object({
+    id_articulo: z.string().min(1, "Selecciona un articulo"),
+    id_almacen: z.string().min(1, "Selecciona un almacén"),
+    cantidad: z
+      .string()
+      .min(1, "Escribe una cantidad")
+      .refine(
+        (value) => {
+          const parsedValue = parseFloat(value);
+          return !isNaN(parsedValue);
+        },
+        { message: "Solo se aceptan números para la cantidad" }
+      ),
+    precioCompra: z
+      .string()
+      .min(1, "Escribe un precio de compra")
+      .refine(
+        (value) => {
+          const parsedValue = parseFloat(value);
+          return !isNaN(parsedValue);
+        },
+        { message: "Solo se aceptan números para el precio de compra" }
+      ),
+    precioVenta: z
+      .string()
+      .min(1, "Escribe un precio de venta")
+      .refine(
+        (value) => {
+          const parsedValue = parseFloat(value);
+          return !isNaN(parsedValue);
+        },
+        { message: "Solo se aceptan números para el precio de venta" }
+      ),
+    fechaCompra: z.string().min(1, "Selecciona una fecha de compra"),
+    fechaCaducidad: z.string().min(1, "Selecciona una fecha de caducidad"),
+    factor: z
+      .string()
+      .min(1, "Escribe un factor")
+      .refine(
+        (value) => {
+          const parsedValue = parseFloat(value);
+          return !isNaN(parsedValue);
+        },
+        { message: "Solo se aceptan números para el factor" }
+      ),
+  })
+  .refine(
+    (data) => {
+      const fechaCompra = new Date(data.fechaCompra);
+      const fechaCaducidad = new Date(data.fechaCaducidad);
+      return fechaCompra <= fechaCaducidad;
+    },
+    {
+      message: "La fecha de compra debe ser menor a la fecha de caducidad",
+      path: ["fechaCompra"],
+    }
+  );
+
+export const addWarehouse = z.object({
+  nombre: z.string().min(1, "Escribe un nombre"),
+  descripcion: z.string().min(1, "Escribe una descripción"),
 });

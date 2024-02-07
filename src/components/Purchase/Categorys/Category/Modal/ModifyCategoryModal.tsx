@@ -1,12 +1,19 @@
-import { Box, Button, Stack, TextField } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addCategory } from "../../../../../schema/schemas";
 import { ICategory } from "../../../../../types/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { modifyCategory } from "../../../../../api/api.routes";
+import { getCategoryById, modifyCategory } from "../../../../../api/api.routes";
 import { useCategoryPagination } from "../../../../../store/purchaseStore/categoryPagination";
 
 const style = {
@@ -36,13 +43,35 @@ const style = {
 };
 
 interface IModifyCategoryModal {
-  data: ICategory | null;
+  data: string;
   open: Function;
 }
 
-export const ModifySubCategoryModal = (props: IModifyCategoryModal) => {
-  const { nombre, descripcion, id } = props.data ?? {};
-  const [value, setValue] = useState(descripcion);
+const useFetchCategory = (categoryId: string) => {
+  const [isLoadingCategory, setIsLoadingCategory] = useState(true);
+  const [category, setCategory] = useState<ICategory | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingCategory(true);
+      try {
+        const data = await getCategoryById(categoryId);
+        setCategory(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingCategory(false);
+      }
+    };
+    fetchData();
+  }, [categoryId]);
+  return { isLoadingCategory, category };
+};
+
+export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
+  const { open, data } = props;
+  const { isLoadingCategory, category } = useFetchCategory(data);
+  const [textValue, setTextValue] = useState("");
   const { handleChangeCategory, setHandleChangeCategory } =
     useCategoryPagination((state) => ({
       handleChangeCategory: state.handleChangeCategory,
@@ -53,12 +82,13 @@ export const ModifySubCategoryModal = (props: IModifyCategoryModal) => {
     register,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<ICategory>({
     defaultValues: {
-      id: id,
-      nombre: nombre,
-      descripcion: descripcion,
+      id: category?.id,
+      nombre: category?.nombre,
+      descripcion: category?.descripcion,
     },
     resolver: zodResolver(addCategory),
   });
@@ -75,13 +105,29 @@ export const ModifySubCategoryModal = (props: IModifyCategoryModal) => {
     }
   };
 
+  useEffect(() => {
+    if (category) {
+      if (!textValue) setTextValue(category.descripcion);
+      Object.entries(category).forEach(([key, value]) => {
+        setValue(key as keyof ICategory, String(value));
+      });
+    }
+  }, [category, setValue]);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.currentTarget.value);
+    setTextValue(event.currentTarget.value);
   };
+
+  if (isLoadingCategory)
+    return (
+      <Backdrop open>
+        <CircularProgress />
+      </Backdrop>
+    );
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.open} title="Modificar categoría" />
+      <HeaderModal setOpen={open} title="Modificar categoría" />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Stack spacing={2}>
@@ -114,7 +160,7 @@ export const ModifySubCategoryModal = (props: IModifyCategoryModal) => {
                         : null
                       : null}
                   </Box>
-                  <Box>{`${value?.length}/${200}`}</Box>
+                  <Box>{`${textValue?.length}/${200}`}</Box>
                 </Box>
               }
               maxRows={5}
@@ -129,7 +175,7 @@ export const ModifySubCategoryModal = (props: IModifyCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => props.open(false)}>
+            <Button variant="outlined" onClick={() => open(false)}>
               Cancelar
             </Button>
             <Button variant="contained" type="submit">

@@ -1,25 +1,27 @@
 import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
-import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
-import { ArticleTable } from "./ArticleTable";
-import { AddArticleModal } from "./Modal/AddArticleModal";
-import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
+import { SearchBar } from "../../Inputs/SearchBar";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
+import { PurchaseWarehouseTable } from "./WarehouseTable";
+import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
+import { AddPurchaseWarehouseModal } from "./Modal/AddWarehouseModal";
 
-export const Article = () => {
+export const Warehouse = () => {
   const [open, setOpen] = useState(false);
-  const { enabled, setEnabled, setSearch } = useArticlePagination((state) => ({
-    enabled: state.enabled,
-    setEnabled: state.setEnabled,
-    setSearch: state.setSearch,
-  }));
-
+  const { setSearch, enabled, setEnabled } = useWarehousePagination(
+    (state) => ({
+      setSearch: state.setSearch,
+      setEnabled: state.setEnabled,
+      enabled: state.enabled,
+    })
+  );
   return (
     <>
       <Box
         sx={{
           boxShadow: 10,
-          borderBottomLeftRadius: 10,
-          borderBottomRightRadius: 10,
+          borderRadius: 2,
+          mt: 4,
           overflowX: "auto",
           bgcolor: "white",
         }}
@@ -40,7 +42,7 @@ export const Article = () => {
             }}
           >
             <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Artículos" : "Artículos deshabilitados"}
+              {enabled ? "Almacenes" : "Almacenes deshabilitados"}
             </Typography>
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
@@ -49,23 +51,27 @@ export const Article = () => {
                 }}
               >
                 {enabled
-                  ? "Mostrar artículos deshabilitados"
-                  : "Mostrar artículos habilitados"}
+                  ? "Mostrar almacenes deshabilitados"
+                  : "Mostrar almacenes habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                onClick={() => setOpen(!open)}
+                startIcon={<AddCircleOutlinedIcon />}
+              >
                 Agregar
               </Button>
             </Stack>
           </Stack>
-          <SearchBar title="Busca el articulo..." searchState={setSearch} />
+          <SearchBar title="Buscar el almacén..." searchState={setSearch} />
           <Divider sx={{ my: 1 }} />
-          <ArticleTable />
+          <PurchaseWarehouseTable />
         </Box>
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-          <AddArticleModal open={setOpen} />
-        </>
+        <div>
+          <AddPurchaseWarehouseModal open={setOpen} />
+        </div>
       </Modal>
     </>
   );

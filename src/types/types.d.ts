@@ -89,7 +89,8 @@ export interface ISubCategory {
   id: string;
   nombre: string;
   descripcion: string;
-  categoryId: string;
+  id_categoria: string;
+  categoria: ICategory;
 }
 
 export interface IArticle {
@@ -107,9 +108,19 @@ export interface IArticle {
 export interface IExistingArticle {
   id: string;
   nombre: string;
+  precioCompra: number;
+  precioVenta: number;
+  fechaCompra: number;
+  fechaCaducidad: number;
+  factor: number;
+  id_articulo: string;
+  id_almacen: string;
+  almacen: IWarehouse;
+  cantidad: number;
+  articulo: IArticle;
 }
 
-export interface IAlmacen {
+export interface IWarehouse {
   id: string;
   nombre: string;
   descripcion: string;
