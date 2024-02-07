@@ -107,7 +107,6 @@ export interface IArticle {
 
 export interface IExistingArticle {
   id: string;
-  nombre: string;
   precioCompra: number;
   precioVenta: number;
   fechaCompra: number;

@@ -45,11 +45,11 @@ const style = {
   },
 };
 
-interface IAddCategoryModal {
+interface IAddArticleModal {
   open: Function;
 }
 
-export const AddArticleModal = (props: IAddCategoryModal) => {
+export const AddArticleModal = (props: IAddArticleModal) => {
   const { open } = props;
   const { subCategories, isLoading } = useGetSubCategories();
   const [value, setValue] = useState("");
@@ -203,7 +203,7 @@ export const AddArticleModal = (props: IAddCategoryModal) => {
                 fullWidth
                 size="small"
                 select
-                label="Categoría"
+                label="Sub categoria"
                 error={!!errors.id_subcategoria}
                 helperText={errors?.id_subcategoria?.message}
                 {...register("id_subcategoria")}

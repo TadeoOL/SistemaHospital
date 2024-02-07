@@ -159,7 +159,7 @@ export const ProvidersTable = () => {
               <TableCell>Nombre contacto</TableCell>
               <TableCell>Teléfono</TableCell>
               <TableCell>Correo electrónico</TableCell>
-              <TableCell>modifica</TableCell>
+              <TableCell></TableCell>
               {/* <TableCell /> */}
             </TableRow>
           </TableHead>

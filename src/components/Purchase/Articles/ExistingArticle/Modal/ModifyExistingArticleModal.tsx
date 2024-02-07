@@ -15,13 +15,13 @@ import { addExistingArticle } from "../../../../../schema/schemas";
 import { IExistingArticle } from "../../../../../types/types";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useArticlePagination } from "../../../../../store/purchaseStore/articlePagination";
 import {
   getExistingArticleById,
   modifyExistingArticle,
 } from "../../../../../api/api.routes";
 import { useGetArticles } from "../../../../../hooks/useGetArticles";
 import { useGetAlmacenes } from "../../../../../hooks/useGetAlmacenes";
+import { useExistingArticlePagination } from "../../../../../store/purchaseStore/existingArticlePagination";
 
 const style = {
   position: "absolute",
@@ -82,7 +82,6 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
     useFetchExistingArticle(existingArticleId);
   const {
     id,
-    nombre,
     almacen,
     factor,
     fechaCaducidad,
@@ -96,12 +95,11 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
   const { articles, isLoadingArticles } = useGetArticles();
   const { isLoadingAlmacenes, almacenes } = useGetAlmacenes();
 
-  const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination(
-    (state) => ({
-      setHandleChangeArticle: state.setHandleChangeArticle,
-      handleChangeArticle: state.handleChangeArticle,
-    })
-  );
+  const { handleChangeExistingArticle, setHandleChangeExistingArticle } =
+    useExistingArticlePagination((state) => ({
+      setHandleChangeExistingArticle: state.setHandleChangeExistingArticle,
+      handleChangeExistingArticle: state.handleChangeExistingArticle,
+    }));
 
   const {
     register,
@@ -112,7 +110,6 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
   } = useForm<IExistingArticle>({
     defaultValues: {
       id: id,
-      nombre: nombre,
       fechaCaducidad: fechaCaducidad,
       fechaCompra: fechaCompra,
       factor: factor,
@@ -144,7 +141,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
     try {
       const idForm = getValues("id");
       await modifyExistingArticle({ ...data, id: idForm });
-      setHandleChangeArticle(!handleChangeArticle);
+      setHandleChangeExistingArticle(!handleChangeExistingArticle);
       toast.success("Articulo existente modificado con éxito!");
       open(false);
     } catch (error) {

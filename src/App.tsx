@@ -34,7 +34,7 @@ function App() {
               element={<PurchaseRequestView />}
             >
               <Route
-                path="productos-solicitados"
+                path="productos-stock-bajo"
                 element={<RequestedMedicineTable />}
               />
               <Route

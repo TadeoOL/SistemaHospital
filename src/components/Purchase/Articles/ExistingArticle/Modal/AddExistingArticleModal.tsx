@@ -15,9 +15,10 @@ import { addExistingArticle } from "../../../../../schema/schemas";
 import { IExistingArticle } from "../../../../../types/types";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useArticlePagination } from "../../../../../store/purchaseStore/articlePagination";
 import { useGetArticles } from "../../../../../hooks/useGetArticles";
 import { useGetAlmacenes } from "../../../../../hooks/useGetAlmacenes";
+import { addNewExistingArticle } from "../../../../../api/api.routes";
+import { useExistingArticlePagination } from "../../../../../store/purchaseStore/existingArticlePagination";
 
 const style = {
   position: "absolute",
@@ -56,12 +57,11 @@ export const AddExistingArticleModal = (props: IModifyCategoryModal) => {
   const { articles, isLoadingArticles } = useGetArticles();
   const { isLoadingAlmacenes, almacenes } = useGetAlmacenes();
 
-  const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination(
-    (state) => ({
-      setHandleChangeArticle: state.setHandleChangeArticle,
-      handleChangeArticle: state.handleChangeArticle,
-    })
-  );
+  const { handleChangeExistingArticle, setHandleChangeExistingArticle } =
+    useExistingArticlePagination((state) => ({
+      setHandleChangeExistingArticle: state.setHandleChangeExistingArticle,
+      handleChangeExistingArticle: state.handleChangeExistingArticle,
+    }));
 
   const {
     register,
@@ -77,8 +77,8 @@ export const AddExistingArticleModal = (props: IModifyCategoryModal) => {
   const onSubmit: SubmitHandler<IExistingArticle> = async (data) => {
     console.log({ data });
     try {
-      //   await modifyExistingArticle(data);
-      setHandleChangeArticle(!handleChangeArticle);
+      await addNewExistingArticle(data);
+      setHandleChangeExistingArticle(!handleChangeExistingArticle);
       toast.success("Articulo existente agregado con éxito!");
       open(false);
     } catch (error) {
@@ -192,7 +192,7 @@ export const AddExistingArticleModal = (props: IModifyCategoryModal) => {
                 fullWidth
                 size="small"
                 select
-                label="Categoría"
+                label="Almacén"
                 error={!!errors.id_almacen}
                 helperText={errors?.id_almacen?.message}
                 {...register("id_almacen")}

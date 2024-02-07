@@ -109,7 +109,7 @@ export const SideNavItems = (props: ISideNavItems) => {
               return (
                 <Stack key={i}>
                   <ButtonBase
-                    onClick={() => navigate(childItem.path)}
+                    onClick={() => (isActive ? null : navigate(childItem.path))}
                     sx={{
                       ...(isActive && {
                         backgroundColor: "rgba(255, 255, 255, 0.04)",

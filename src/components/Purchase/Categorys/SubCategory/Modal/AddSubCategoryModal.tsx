@@ -58,7 +58,7 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
       setHandleChangeSubCategory: state.setHandleChangeSubCategory,
       handleChangeSubCategory: state.handleChangeSubCategory,
     }));
-  console.log({ category });
+
   const {
     register,
     handleSubmit,
@@ -67,7 +67,7 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
     defaultValues: {
       nombre: "",
       descripcion: "",
-      categoryId: "",
+      id_categoria: "",
     },
     resolver: zodResolver(addSubCategory),
   });
@@ -149,9 +149,9 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
               size="small"
               select
               label="Categoría"
-              error={!!errors.categoryId}
-              helperText={errors?.categoryId?.message}
-              {...register("categoryId")}
+              error={!!errors.id_categoria}
+              helperText={errors?.id_categoria?.message}
+              {...register("id_categoria")}
               value={category}
               onChange={handleChange}
             >

@@ -143,7 +143,7 @@ export const UsersTable = () => {
               <TableCell>Correo electrónico</TableCell>
               <TableCell>Roles</TableCell>
               <TableCell>Teléfono</TableCell>
-              <TableCell>Modificación</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

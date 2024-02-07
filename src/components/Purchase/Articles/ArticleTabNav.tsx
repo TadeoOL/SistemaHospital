@@ -24,7 +24,6 @@ export const ArticleTabNav = () => {
 
   const handleChange = useCallback(
     (event: React.SyntheticEvent, newValue: number) => {
-      console.log({ newValue });
       setTabValue(newValue);
     },
     []

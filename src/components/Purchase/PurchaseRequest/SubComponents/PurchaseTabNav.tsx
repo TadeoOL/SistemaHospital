@@ -21,12 +21,10 @@ export const PurchaseTabNav = () => {
   useEffect(() => {
     switch (tabValue) {
       case 0:
-        return navigate("productos-solicitados");
+        return navigate("productos-stock-bajo");
       case 1:
         return navigate("productos-cotizados");
       case 2:
-        return navigate("productos-comprados");
-      case 3:
         return navigate("productos-comprados");
       default:
         break;

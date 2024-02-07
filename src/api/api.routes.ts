@@ -56,7 +56,7 @@ export const getUsers = async (paramUrl: string) => {
 };
 
 export const disableUser = async (userId: string) => {
-  const res = await axios.put(`/api/Usuario/UpdateAdminStatusUser`, {
+  const res = await axios.put(`/api/Usuario/estatus-usuario`, {
     id: userId,
   });
   return res.data;
@@ -70,7 +70,7 @@ export const updateBasicUserInformation = async (
   email: string
 ) => {
   try {
-    const res = await axios.put(`/api/Usuario/UpdateUser`, {
+    const res = await axios.put(`/api/Usuario/actualizar-usuario`, {
       Nombre: nombre,
       ApellidoPaterno: apellidoPaterno,
       ApellidoMaterno: apellidoMaterno,
@@ -96,7 +96,7 @@ export const registerNewUser = async (user: IAddUser) => {
     nombreUsuario,
     confirmarContrasena,
   } = user;
-  const res = await axios.post(`/api/Usuario/register`, {
+  const res = await axios.post(`/api/Usuario/registrar-usuario`, {
     apellidoMaterno,
     apellidoPaterno,
     email,
@@ -115,7 +115,7 @@ export const changeUserPassword = async (
   password: string,
   confirmPassword: string
 ) => {
-  const res = await axios.put(`/api/Usuario/changePassword`, {
+  const res = await axios.put(`/api/Usuario/cambiar-contrasena`, {
     contrasena: password,
     confirmarContrasena: confirmPassword,
   });
@@ -127,7 +127,7 @@ export const AdminChangeUsersPassword = async (
   password: string,
   confirmPassword: string
 ) => {
-  const res = await axios.put(`/api/Usuario/ChangeAdminPassword`, {
+  const res = await axios.put(`/api/Usuario/cambiar-contrasena-administrador`, {
     id: id,
     contrasena: password,
     confirmarContrasena: confirmPassword,
@@ -166,7 +166,7 @@ export const modifyProvider = async (provider: IProvider) => {
     urlCertificadoISO9001,
   } = provider;
 
-  const res = await axios.put(`/api/Proveedor/ActualizarProveedor`, {
+  const res = await axios.put(`/api/Proveedor/actualizar-proveedor`, {
     id,
     nombreCompania,
     nombreContacto,
@@ -204,7 +204,7 @@ export const addNewProvider = async (provider: IProvider) => {
     urlCertificadoISO9001,
   } = provider;
 
-  const res = await axios.post(`/api/Proveedor/RegistrarProveedor`, {
+  const res = await axios.post(`/api/Proveedor/registrar-proveedor`, {
     nombreCompania,
     nombreContacto,
     correoElectronico,
@@ -224,7 +224,7 @@ export const addNewProvider = async (provider: IProvider) => {
 };
 
 export const disableProvider = async (id: string) => {
-  const res = await axios.put(`/api/Proveedor/EstatusProveedor`, { id });
+  const res = await axios.put(`/api/Proveedor/estatus-proveedor`, { id });
   return res.data;
 };
 
@@ -384,7 +384,6 @@ export const modifyExistingArticle = async (
 ) => {
   const {
     id,
-    nombre,
     id_almacen,
     id_articulo,
     factor,
@@ -399,7 +398,6 @@ export const modifyExistingArticle = async (
     `/api/ArticuloExistente/actualizar-articulo-existente`,
     {
       id,
-      nombre,
       id_almacen,
       id_articulo,
       factor,
@@ -473,5 +471,35 @@ export const getCategoryById = async (categoryId: string) => {
 
 export const getSubCategoryById = async (subCategoryId: string) => {
   const res = await axios.get(`/api/SubCategoria/${subCategoryId}`);
+  return res.data;
+};
+
+export const addNewExistingArticle = async (
+  existingArticle: IExistingArticle
+) => {
+  const {
+    id_almacen,
+    id_articulo,
+    factor,
+    fechaCaducidad,
+    fechaCompra,
+    precioCompra,
+    precioVenta,
+    cantidad,
+  } = existingArticle;
+
+  const res = await axios.post(
+    `/api/ArticuloExistente/registrar-articulo-existente`,
+    {
+      id_almacen,
+      id_articulo,
+      factor,
+      fechaCaducidad,
+      fechaCompra,
+      precioCompra,
+      precioVenta,
+      cantidad,
+    }
+  );
   return res.data;
 };
