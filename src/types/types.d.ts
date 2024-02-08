@@ -124,3 +124,15 @@ export interface IWarehouse {
   nombre: string;
   descripcion: string;
 }
+
+export enum Status {
+  cancelado = 0,
+  pedido = 1,
+  entregado = 2,
+}
+export interface IPurchase {
+  id_articulo: string;
+  articulo: IArticle;
+  estatus: Status;
+  cantidad: number;
+}

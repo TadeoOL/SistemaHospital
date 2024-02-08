@@ -2,56 +2,10 @@ import { useEffect } from "react";
 import { shallow } from "zustand/shallow";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { disableArticle } from "../../../../api/api.routes";
-import { TableComponent } from "../../../TableComponent";
-import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
-import { ModifyArticleModal } from "./Modal/ModifyArticleModal";
-
-const useGetAllData = () => {
-  const {
-    isLoading,
-    count,
-    data,
-    enabled,
-    fetchArticles,
-    pageIndex,
-    pageSize,
-    search,
-    setPageIndex,
-    setPageSize,
-    handleChangeArticle,
-  } = useArticlePagination(
-    (state) => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-      fetchArticles: state.fetchArticles,
-      search: state.search,
-      enabled: state.enabled,
-      data: state.data,
-      setPageSize: state.setPageSize,
-      setPageIndex: state.setPageIndex,
-      isLoading: state.isLoading,
-      handleChangeArticle: state.handleChangeArticle,
-    }),
-    shallow
-  );
-
-  useEffect(() => {
-    fetchArticles(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeArticle]);
-
-  return {
-    isLoading,
-    data,
-    enabled,
-    count,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-  };
-};
+import { useArticleProviderPagination } from "../../../../../store/purchaseStore/articleProviderPagination";
+import { TableComponent } from "../../../../TableComponent";
+import { useGetArticlesProviders } from "../../../../../hooks/useGetArticleProviders";
+import { useArticlePagination } from "../../../../../store/purchaseStore/articlePagination";
 
 const useDisableArticle = () => {
   const { setHandleChangeArticle, enabled, handleChangeArticle } =
@@ -81,7 +35,7 @@ const useDisableArticle = () => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disableArticle(articleId);
+            // await disableArticle(articleId);
             setHandleChangeArticle(!handleChangeArticle);
             withReactContent(Swal).fire({
               title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
@@ -112,7 +66,7 @@ const useDisableArticle = () => {
   return disableProviderModal;
 };
 
-export const ArticleTable = () => {
+export const ArticleProvidersTable = () => {
   const disableArticle = useDisableArticle();
 
   // const handleUserChecked = (e: any) => {
@@ -137,11 +91,12 @@ export const ArticleTable = () => {
     <>
       <TableComponent
         disableHook={disableArticle}
-        fetchDataHook={useGetAllData}
+        fetchDataHook={useGetArticlesProviders}
         modifyModalComponent={(props) => (
-          <ModifyArticleModal articleId={props.data} open={props.open} />
+          //   <ModifyArticleModal articleId={props.data} open={props.open} />
+          <></>
         )}
-        isArticle={true}
+        isArticleProvider={true}
       />
     </>
   );

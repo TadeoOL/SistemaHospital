@@ -503,3 +503,10 @@ export const addNewExistingArticle = async (
   );
   return res.data;
 };
+
+export const getAllArticleProviders = async () => {
+  const res = await axios.get(
+    `/api/ArticuloProveedor/obtener-articulos-proveedores`
+  );
+  return res.data;
+};

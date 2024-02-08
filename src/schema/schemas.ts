@@ -95,26 +95,20 @@ export const addArticle = z.object({
   nombre: z.string().min(1, "Escribe un nombre"),
   codigoBarras: z.string().min(1, "Escribe un código de barras"),
   descripcion: z.string().min(1, "Escribe una descripción"),
-  stockMinimo: z
-    .string()
-    .min(1, "Escribe un stock mínimo")
-    .refine(
-      (value) => {
-        const parsedValue = parseFloat(value);
-        return !isNaN(parsedValue);
-      },
-      { message: "Solo se aceptan números para el stock mínimo" }
-    ),
-  stockAlerta: z
-    .string()
-    .min(1, "Escribe un stock de alerta")
-    .refine(
-      (value) => {
-        const parsedValue = parseFloat(value);
-        return !isNaN(parsedValue);
-      },
-      { message: "Solo se aceptan números para el stock de alerta" }
-    ),
+  stockMinimo: z.string().refine(
+    (value) => {
+      const parsedValue = parseFloat(value);
+      return !isNaN(parsedValue) && parsedValue > 0;
+    },
+    { message: "Escribe una cantidad válida y mayor que cero" }
+  ),
+  stockAlerta: z.string().refine(
+    (value) => {
+      const parsedValue = parseFloat(value);
+      return !isNaN(parsedValue) && parsedValue > 0;
+    },
+    { message: "Escribe una cantidad válida y mayor que cero" }
+  ),
   unidadMedida: z.string().min(1, "Selecciona una unidad de medida"),
   id_subcategoria: z.string().min(1, "Selecciona una sub categoría"),
 });
@@ -123,48 +117,36 @@ export const addExistingArticle = z
   .object({
     id_articulo: z.string().min(1, "Selecciona un articulo"),
     id_almacen: z.string().min(1, "Selecciona un almacén"),
-    cantidad: z
-      .string()
-      .min(1, "Escribe una cantidad")
-      .refine(
-        (value) => {
-          const parsedValue = parseFloat(value);
-          return !isNaN(parsedValue);
-        },
-        { message: "Solo se aceptan números para la cantidad" }
-      ),
-    precioCompra: z
-      .string()
-      .min(1, "Escribe un precio de compra")
-      .refine(
-        (value) => {
-          const parsedValue = parseFloat(value);
-          return !isNaN(parsedValue);
-        },
-        { message: "Solo se aceptan números para el precio de compra" }
-      ),
-    precioVenta: z
-      .string()
-      .min(1, "Escribe un precio de venta")
-      .refine(
-        (value) => {
-          const parsedValue = parseFloat(value);
-          return !isNaN(parsedValue);
-        },
-        { message: "Solo se aceptan números para el precio de venta" }
-      ),
+    cantidad: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida y mayor que cero" }
+    ),
+    precioCompra: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida y mayor que cero" }
+    ),
+    precioVenta: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida y mayor que cero" }
+    ),
     fechaCompra: z.string().min(1, "Selecciona una fecha de compra"),
     fechaCaducidad: z.string().min(1, "Selecciona una fecha de caducidad"),
-    factor: z
-      .string()
-      .min(1, "Escribe un factor")
-      .refine(
-        (value) => {
-          const parsedValue = parseFloat(value);
-          return !isNaN(parsedValue);
-        },
-        { message: "Solo se aceptan números para el factor" }
-      ),
+    factor: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida y mayor que cero" }
+    ),
   })
   .refine(
     (data) => {
@@ -181,4 +163,15 @@ export const addExistingArticle = z
 export const addWarehouse = z.object({
   nombre: z.string().min(1, "Escribe un nombre"),
   descripcion: z.string().min(1, "Escribe una descripción"),
+});
+
+export const addPurchase = z.object({
+  id_articulo: z.string().min(1, "Selecciona un articulo"),
+  cantidad: z.string().refine(
+    (value) => {
+      const parsedValue = parseFloat(value);
+      return !isNaN(parsedValue) && parsedValue > 0;
+    },
+    { message: "Escribe una cantidad válida y mayor que cero" }
+  ),
 });

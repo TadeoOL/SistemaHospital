@@ -1,24 +1,20 @@
-import { useEffect, useState } from "react";
-import { IAlmacen } from "../types/types";
 import { getAllAlmacenes } from "../api/api.routes";
+import { IWarehouse } from "../types/types";
+import { useQuery } from "@tanstack/react-query";
 
 export const useGetAlmacenes = () => {
-  const [isLoadingAlmacenes, setIsLoadingAlmacenes] = useState(true);
-  const [almacenes, setAlmacenes] = useState<IAlmacen[]>([]);
+  const {
+    data = [],
+    isError,
+    isLoading,
+  } = useQuery({
+    queryKey: ["almacen"],
+    queryFn: async () => getAllAlmacenes(),
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoadingAlmacenes(true);
-      try {
-        const res = await getAllAlmacenes();
-        setAlmacenes(res);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoadingAlmacenes(false);
-      }
-    };
-    fetchData();
-  }, []);
-  return { isLoadingAlmacenes, almacenes };
+  return {
+    isLoadingAlmacenes: isLoading,
+    almacenes: data as IWarehouse,
+    isError,
+  };
 };

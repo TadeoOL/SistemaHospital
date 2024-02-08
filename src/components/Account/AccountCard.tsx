@@ -18,6 +18,7 @@ import {
 } from "../../api/api.routes";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { useState } from "react";
 // import { updateUserData } from "../../api/api.routes";
 
 interface IUpdateUserData extends IUserSettings {
@@ -111,6 +112,16 @@ export const AccountCard = () => {
   const user = useAuthStore((state) => state.profile);
   // const [disabledEdit, setDisabledEdit] = useState(true);
   const setProfile = useAuthStore((state) => state.setProfile);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log({ file });
+    if (file) {
+      setSelectedImage(file);
+      event.target.value = ""; // Limpiar el valor del input
+    }
+  };
 
   const {
     register,
@@ -194,7 +205,13 @@ export const AccountCard = () => {
                   width: { xs: "154px", md: "220px" },
                 }}
               />
-              <Button variant="outlined" onClick={() => {}}>
+              <Button component="label" variant="outlined">
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleImageChange}
+                  accept="image/png, image/jpg"
+                />
                 Cambiar foto de perfil
               </Button>
             </Stack>
