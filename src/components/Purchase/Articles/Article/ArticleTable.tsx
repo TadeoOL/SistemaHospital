@@ -1,11 +1,29 @@
-import { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { shallow } from "zustand/shallow";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { disableArticle } from "../../../../api/api.routes";
-import { TableComponent } from "../../../TableComponent";
 import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
 import { ModifyArticleModal } from "./Modal/ModifyArticleModal";
+import EditIcon from "@mui/icons-material/Edit";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import CheckIcon from "@mui/icons-material/Check";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import {
+  Box,
+  Card,
+  CircularProgress,
+  IconButton,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
 const useGetAllData = () => {
   const {
@@ -114,6 +132,18 @@ const useDisableArticle = () => {
 
 export const ArticleTable = () => {
   const disableArticle = useDisableArticle();
+  const {
+    data,
+    isLoading,
+    enabled,
+    count,
+    pageIndex,
+    pageSize,
+    setPageIndex,
+    setPageSize,
+  } = useGetAllData();
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [articleId, setArticleId] = useState("");
 
   // const handleUserChecked = (e: any) => {
   //   const { value, checked } = e.target;
@@ -133,16 +163,120 @@ export const ArticleTable = () => {
   //   }
   // };
 
+  const handlePageChange = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
+      setPageIndex(value);
+    },
+    []
+  );
+
   return (
     <>
-      <TableComponent
-        disableHook={disableArticle}
-        fetchDataHook={useGetAllData}
-        modifyModalComponent={(props) => (
-          <ModifyArticleModal articleId={props.data} open={props.open} />
+      <Card sx={{ m: 2 }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>Código barras</TableCell>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Stock mínimo</TableCell>
+              <TableCell>Stock alerta</TableCell>
+              <TableCell>Unidad de medida</TableCell>
+              <TableCell>Sub categoría</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.length === 0
+              ? null
+              : isLoading
+              ? null
+              : data.map((article) => (
+                  <React.Fragment key={article.id}>
+                    <TableRow>
+                      <TableCell>{article.codigoBarras}</TableCell>
+                      <TableCell>{article.nombre}</TableCell>
+                      <TableCell>{article.stockAlerta}</TableCell>
+                      <TableCell>{article.stockMinimo}</TableCell>
+                      <TableCell>{article.unidadMedida}</TableCell>
+                      <TableCell>{article.subCategoria as string}</TableCell>
+                      <TableCell>
+                        <Tooltip title="Editar">
+                          <IconButton
+                            size="small"
+                            sx={{ color: "neutral.700" }}
+                            onClick={() => {
+                              setArticleId(article.id);
+                              setOpenEditModal(true);
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={enabled ? "Deshabilitar" : "Habilitar"}>
+                          <IconButton
+                            size="small"
+                            onClick={() => disableArticle(article.id)}
+                          >
+                            {enabled ? (
+                              <RemoveCircleIcon sx={{ color: "red" }} />
+                            ) : (
+                              <CheckIcon sx={{ color: "green" }} />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))}
+          </TableBody>
+        </Table>
+        {isLoading && (
+          <Box
+            sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}
+          >
+            <CircularProgress />
+          </Box>
         )}
-        isArticle={true}
-      />
+        {data.length === 0 && !isLoading && (
+          <Card
+            sx={{
+              display: "flex",
+              flexGrow: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              p: 2,
+              columnGap: 1,
+            }}
+          >
+            <ErrorOutlineIcon
+              sx={{ color: "neutral.400", width: "40px", height: "40px" }}
+            />
+            <Typography
+              sx={{ color: "neutral.400" }}
+              fontSize={24}
+              fontWeight={500}
+            >
+              No existen registros
+            </Typography>
+          </Card>
+        )}
+        <TablePagination
+          component="div"
+          count={count}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={(e: any) => {
+            setPageSize(e.target.value);
+          }}
+          page={pageIndex}
+          rowsPerPage={pageSize}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
+      </Card>
+      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+        <div>
+          <ModifyArticleModal articleId={articleId} open={setOpenEditModal} />
+        </div>
+      </Modal>
     </>
   );
 };

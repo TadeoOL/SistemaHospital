@@ -102,7 +102,7 @@ export interface IArticle {
   stockAlerta: number;
   unidadMedida: string;
   id_subcategoria: string;
-  subCategoria: ISubCategory;
+  subCategoria: ISubCategory | string;
 }
 
 export interface IExistingArticle {

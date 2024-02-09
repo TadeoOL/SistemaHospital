@@ -12,7 +12,7 @@ import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModa
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addArticle } from "../../../../../schema/schemas";
-import { IArticle } from "../../../../../types/types";
+import { IArticle, ISubCategory } from "../../../../../types/types";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useGetSubCategories } from "../../../../../hooks/useGetSubCategories";
@@ -117,9 +117,10 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
 
   useEffect(() => {
     if (article) {
+      const subCate = article.subCategoria as ISubCategory;
       if (textValue.trim() === "") setTextValue(article.descripcion);
-      if (!subCategory) setSubCategory(article.subCategoria.id);
-      setValue("id_subcategoria", article.subCategoria.id);
+      if (!subCategory) setSubCategory(subCate.id);
+      setValue("id_subcategoria", subCate.id);
       Object.entries(article).forEach(([key, value]) => {
         if (key === "stockMinimo" || key === "stockAlerta") {
           setValue(key as keyof IArticle, String(value));

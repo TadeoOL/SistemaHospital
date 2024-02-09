@@ -2,7 +2,6 @@ import {
   Box,
   Card,
   CircularProgress,
-  Collapse,
   IconButton,
   Modal,
   Table,
@@ -19,45 +18,43 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import React, { useCallback, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { ArticleProvidersTable } from "./Purchase/Articles/Article/SubComponent/ArticleProviderPriceTable";
 
 interface ITableComponentProps {
-  fetchDataHook: (isArticleProvider: boolean) => {
-    data?: any[];
-    count?: number;
-    pageSize?: number;
-    pageIndex?: number;
-    isLoading?: boolean;
-    enabled?: boolean;
-    setPageIndex?: (index: number) => void;
-    setPageSize?: (size: number) => void;
+  fetchDataHook: () => {
+    data: any[];
+    count: number;
+    pageSize: number;
+    pageIndex: number;
+    isLoading: boolean;
+    enabled: boolean;
+    setPageIndex: (index: number) => void;
+    setPageSize: (size: number) => void;
   };
   disableHook: (id: string) => void;
   modifyModalComponent: (props: {
     data: string;
     open: (isOpen: boolean) => void;
   }) => React.ReactElement;
-  isArticle?: boolean;
-  isArticleProvider?: boolean;
-  addProvider?: () => void;
 }
 
 export const TableComponent: React.FC<ITableComponentProps> = ({
   fetchDataHook,
   disableHook,
   modifyModalComponent,
-  isArticle = false,
-  isArticleProvider = false,
-  addProvider,
 }) => {
   const [dataId, setDataId] = useState("");
   const [open, setOpen] = useState(false);
-  const [openArticle, setOpenArticle] = useState(false);
-  const [collapseOpen, setCollapseOpen] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+
+  const {
+    count,
+    data,
+    enabled,
+    isLoading,
+    pageIndex,
+    pageSize,
+    setPageIndex,
+    setPageSize,
+  } = fetchDataHook();
 
   const handlePageChange = useCallback(
     (event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
@@ -65,33 +62,6 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
     },
     []
   );
-
-  const handleCollapseToggle = (itemId: string) => {
-    setCollapseOpen((prevState) => ({
-      ...prevState,
-      [itemId]: !prevState[itemId],
-    }));
-  };
-
-  let fetchHookDataParams: boolean = false;
-  let fetchDataHookResult: any = {};
-  if (isArticleProvider) {
-    fetchHookDataParams = true;
-    fetchDataHookResult = fetchDataHook(fetchHookDataParams);
-  } else {
-    fetchDataHookResult = fetchDataHook(false);
-  }
-
-  const {
-    data = [],
-    count = 0,
-    pageIndex = 0,
-    pageSize = 0,
-    isLoading = false,
-    enabled = false,
-    setPageIndex = () => {},
-    setPageSize = () => {},
-  } = fetchDataHookResult;
 
   return (
     <>
@@ -106,7 +76,6 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
                     <TableCell key={index}>{key}</TableCell>
                   ))}
               <TableCell />
-              {isArticle && <TableCell />}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -158,33 +127,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
                           </IconButton>
                         </Tooltip>
                       </TableCell>
-                      {isArticle && (
-                        <TableCell>
-                          <Tooltip title="Proveedores">
-                            <IconButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                handleCollapseToggle(item.id);
-                              }}
-                            >
-                              {!collapseOpen[item.id] ? (
-                                <KeyboardArrowDownIcon />
-                              ) : (
-                                <KeyboardArrowUpIcon />
-                              )}
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      )}
                     </TableRow>
-                    {isArticle && (
-                      <TableRow>
-                        <Collapse in={collapseOpen[item.id]} unmountOnExit>
-                          <ArticleProvidersTable />
-                        </Collapse>
-                      </TableRow>
-                    )}
                   </React.Fragment>
                 ))}
           </TableBody>
@@ -197,7 +140,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
           </Box>
         )}
         {data.length === 0 && !isLoading && (
-          <Card
+          <Box
             sx={{
               display: "flex",
               flexGrow: 1,
@@ -217,30 +160,23 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
             >
               No existen registros
             </Typography>
-          </Card>
+          </Box>
         )}
-        {!isArticleProvider && (
-          <TablePagination
-            component="div"
-            count={count}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={(e: any) => {
-              setPageSize(e.target.value);
-            }}
-            page={pageIndex}
-            rowsPerPage={pageSize}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-          />
-        )}
+        <TablePagination
+          component="div"
+          count={count}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={(e: any) => {
+            setPageSize(e.target.value);
+          }}
+          page={pageIndex}
+          rowsPerPage={pageSize}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>
         <div>{modifyModalComponent({ data: dataId, open: setOpen })}</div>
       </Modal>
-      {isArticle && (
-        <Modal open={openArticle} onClose={() => setOpenArticle(false)}>
-          <div></div>
-        </Modal>
-      )}
     </>
   );
 };
