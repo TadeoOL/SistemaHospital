@@ -199,9 +199,9 @@ export const AddExistingArticleModal = (props: IModifyCategoryModal) => {
                 value={almacenState}
                 onChange={handleChange}
               >
-                {almacenes.map((data) => (
-                  <MenuItem value={data.id} key={data.id}>
-                    {data.nombre}
+                {almacenes.map((almacen) => (
+                  <MenuItem value={almacen.id} key={almacen.id}>
+                    {almacen.nombre}
                   </MenuItem>
                 ))}
               </TextField>

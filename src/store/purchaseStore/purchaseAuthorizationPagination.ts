@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from "zustand/traditional";
-import { getExistingArticles } from "../../api/api.routes";
+import { getArticles } from "../../api/api.routes";
 
 interface State {
   count: number;
@@ -10,7 +10,7 @@ interface State {
   isLoading: boolean;
   search: string;
   enabled: boolean;
-  handleChangeExistingArticle: boolean;
+  handleChangePurchaseAuthorization: boolean;
 }
 
 interface Action {
@@ -20,13 +20,13 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
-  setHandleChangeExistingArticle: (
-    handleChangeExistingArticle: boolean
+  setHandleChangePurchaseAuthorization: (
+    handleChangePurchaseAuthorization: boolean
   ) => void;
-  fetchExistingArticles: () => Promise<void>;
+  fetchPurchaseAuthorization: () => Promise<void>;
 }
 
-export const useExistingArticlePagination = createWithEqualityFn<
+export const usePurchaseAuthorizationPagination = createWithEqualityFn<
   State & Action
 >((set, get) => ({
   count: 0,
@@ -38,21 +38,22 @@ export const useExistingArticlePagination = createWithEqualityFn<
   isLoading: true,
   search: "",
   enabled: true,
-  handleChangeExistingArticle: false,
-  setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) =>
-    set({ handleChangeExistingArticle }),
+  handleChangePurchaseAuthorization: false,
+  setHandleChangePurchaseAuthorization: (
+    handleChangePurchaseAuthorization: boolean
+  ) => set({ handleChangePurchaseAuthorization }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchExistingArticles: async () => {
+  fetchPurchaseAuthorization: async () => {
+    const { pageIndex, enabled, pageSize, search } = get();
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled } = get();
     const page = pageIndex + 1;
     try {
-      const res = await getExistingArticles(
+      const res = await getArticles(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
         }&search=${search}&habilitado=${enabled}`

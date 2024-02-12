@@ -169,7 +169,9 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined">Cancelar</Button>
+            <Button variant="outlined" onClick={() => open(false)}>
+              Cancelar
+            </Button>
             <Button variant="contained" type="submit">
               Guardar
             </Button>

@@ -14,7 +14,7 @@ export const useGetAlmacenes = () => {
 
   return {
     isLoadingAlmacenes: isLoading,
-    almacenes: data as IWarehouse,
+    almacenes: data as IWarehouse[],
     isError,
   };
 };

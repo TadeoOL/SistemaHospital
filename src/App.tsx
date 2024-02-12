@@ -11,7 +11,6 @@ import { ToastContainer } from "react-toastify";
 import { ProvidersView } from "./views/Purchase/ProvidersView";
 import { PurchaseRequestView } from "./views/Purchase/PurchaseRequestView";
 import { RequestedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/RequestedMedicineTable";
-import { ToQuoteMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/ToQuoteMedicineTable";
 import { PurchasedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/PurchasedMedicineTable";
 import { CategoryView } from "./views/Purchase/CategoryView";
 import { Category } from "./components/Purchase/Categorys/Category/Category";
@@ -20,6 +19,9 @@ import { ArticleView } from "./views/Purchase/ArticleView";
 import { Article } from "./components/Purchase/Articles/Article/Article";
 import { ExistingArticle } from "./components/Purchase/Articles/ExistingArticle/ExistingArticle";
 import { WarehouseView } from "./views/Purchase/WarehouseView";
+import { PurchaseAuthorizationView } from "./views/Purchase/PurchaseAuthorizationView";
+import { PurchaseRequestCard } from "./components/Purchase/PurchaseRequest/PurchaseRequestCard";
+import { AlertArticlesTable } from "./components/Purchase/PurchaseRequest/SubComponents/AlertArticlesTable";
 
 function App() {
   return (
@@ -35,11 +37,11 @@ function App() {
             >
               <Route
                 path="productos-stock-bajo"
-                element={<RequestedMedicineTable />}
+                element={<PurchaseRequestCard />}
               />
               <Route
                 path="productos-cotizados"
-                element={<ToQuoteMedicineTable />}
+                element={<AlertArticlesTable />}
               />
               <Route
                 path="productos-comprados"
@@ -55,6 +57,10 @@ function App() {
               <Route path="articulo-existente" element={<ExistingArticle />} />
             </Route>
             <Route path="/compras/almacen" element={<WarehouseView />} />
+            <Route
+              path="/compras/autorizacion-compras"
+              element={<PurchaseAuthorizationView />}
+            />
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />
             <Route

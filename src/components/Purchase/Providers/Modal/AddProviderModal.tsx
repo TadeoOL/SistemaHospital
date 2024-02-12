@@ -187,7 +187,7 @@ export const AddProviderModal = (props: IAddProviderModal) => {
 
   return (
     <Box sx={{ ...style }}>
-      <HeaderModal title="Agregar proveedor" setOpen={() => {}} />
+      <HeaderModal title="Agregar proveedor" setOpen={props.setOpen} />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack sx={{ p: 2, px: 4 }}>
           <Stack spacing={2} sx={{ pr: 2 }}>

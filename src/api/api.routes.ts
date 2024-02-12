@@ -33,7 +33,7 @@ export const updateUserData = async (user: IUpdateUsers) => {
     roles,
     telefono,
   } = user;
-  const res = await axios.put(`/api/Usuario/UpdateAdminUser`, {
+  const res = await axios.put(`/api/Usuario/actualizar-usuario-administrador`, {
     id: id,
     nombre,
     apellidoPaterno,

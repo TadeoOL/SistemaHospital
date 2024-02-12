@@ -44,9 +44,10 @@ export const PurchaseTabNav = () => {
           textColor="inherit"
           variant="fullWidth"
         >
-          <Tab label="Productos solicitados" />
-          <Tab label="Productos cotizados" />
-          <Tab label="Productos comprados" />
+          <Tab label="Alerta de productos" />
+          <Tab label="Solicitud a proveedores" />
+          <Tab label="Espera de autorización" />
+          <Tab label="Orden de compra" />
         </Tabs>
       </AppBar>
     </Box>

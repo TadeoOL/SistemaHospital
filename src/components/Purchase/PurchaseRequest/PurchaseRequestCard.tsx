@@ -1,8 +1,7 @@
-import { Box, Button, Modal, Stack, Typography } from "@mui/material";
-import { Outlet } from "react-router-dom";
-import { PurchaseTabNav } from "./SubComponents/PurchaseTabNav";
+import { Box, Button, Modal, Stack } from "@mui/material";
 import { useState } from "react";
-import { DirectlyPurchasedModal } from "./Modal/DirectlyPurchasedModal";
+import { AlertArticlesTable } from "./SubComponents/AlertArticlesTable";
+import { RequestPurchasedOrderModal } from "./Modal/RequestPurchasedOrderModal";
 
 export const PurchaseRequestCard = () => {
   const [openDirectlyPurchase, setOpenDirectlyPurchase] = useState(false);
@@ -11,8 +10,8 @@ export const PurchaseRequestCard = () => {
       <Box
         sx={{
           boxShadow: 10,
-          borderRadius: 2,
-          mt: 4,
+          borderBottomLeftRadius: 12,
+          borderBottomRightRadius: 12,
           overflowX: "auto",
           bgcolor: "white",
         }}
@@ -24,26 +23,19 @@ export const PurchaseRequestCard = () => {
                 flexDirection: "row",
                 display: "flex",
                 flexGrow: 1,
-                justifyContent: "space-between",
+                justifyContent: "flex-end",
                 alignItems: "center",
               }}
             >
-              <Typography fontWeight={700} fontSize={18}>
-                Compra de medicamentos
-              </Typography>
-              <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => setOpenDirectlyPurchase(true)}
-                >
-                  Compra directa
-                </Button>
-                <Button variant="contained">Solicitud de compra</Button>
-              </Stack>
+              <Button
+                variant="contained"
+                onClick={() => setOpenDirectlyPurchase(true)}
+              >
+                Solicitar orden de compra
+              </Button>
             </Stack>
             <Stack>
-              <PurchaseTabNav />
-              {<Outlet />}
+              <AlertArticlesTable />
             </Stack>
           </Stack>
         </Box>
@@ -53,7 +45,7 @@ export const PurchaseRequestCard = () => {
         onClose={() => setOpenDirectlyPurchase(false)}
       >
         <>
-          <DirectlyPurchasedModal />
+          <RequestPurchasedOrderModal open={setOpenDirectlyPurchase} />
         </>
       </Modal>
     </>

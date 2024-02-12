@@ -38,7 +38,7 @@ const useGetAllData = () => {
   );
 
   useEffect(() => {
-    fetchExistingArticles(pageIndex, pageSize, search, enabled);
+    fetchExistingArticles();
   }, [pageIndex, pageSize, search, enabled, handleChangeExistingArticle]);
 
   return {

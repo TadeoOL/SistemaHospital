@@ -76,7 +76,7 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={() => {}} title="Agregar categoría" />
+      <HeaderModal setOpen={props.open} title="Agregar categoría" />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Stack spacing={2}>
@@ -125,7 +125,9 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined">Cancelar</Button>
+            <Button variant="outlined" onClick={() => props.open(false)}>
+              Cancelar
+            </Button>
             <Button variant="contained" type="submit">
               Guardar
             </Button>

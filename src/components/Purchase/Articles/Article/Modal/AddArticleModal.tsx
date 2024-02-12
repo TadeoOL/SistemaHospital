@@ -113,7 +113,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={() => {}} title="Agregar articulo" />
+      <HeaderModal setOpen={open} title="Agregar articulo" />
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
@@ -225,7 +225,9 @@ export const AddArticleModal = (props: IAddArticleModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined">Cancelar</Button>
+            <Button variant="outlined" onClick={() => open(false)}>
+              Cancelar
+            </Button>
             <Button variant="contained" type="submit">
               Guardar
             </Button>

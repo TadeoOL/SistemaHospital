@@ -28,7 +28,7 @@ export const RolesChip = (props: IRolesChip) => {
             key={index}
             label={
               <Typography key={index} fontSize={13}>
-                {index < user.roles.length - 1 ? role + ", " : role}
+                {index < user.roles.length - 1 ? role + " " : role}
               </Typography>
             }
           />

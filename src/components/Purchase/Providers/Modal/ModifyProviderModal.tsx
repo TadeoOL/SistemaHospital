@@ -218,7 +218,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={() => {}} title="Modificar proveedor" />
+      <HeaderModal setOpen={props.setOpen} title="Modificar proveedor" />
       <Box>
         <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
           <Stack sx={{ p: 2, px: 4, rowGap: 4 }}>

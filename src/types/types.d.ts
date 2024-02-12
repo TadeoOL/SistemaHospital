@@ -136,3 +136,9 @@ export interface IPurchase {
   estatus: Status;
   cantidad: number;
 }
+
+export interface IPurchaseAuthorization {
+  ordenCompra: string;
+  fechaSolicitud: string;
+  creadoPor: string;
+}

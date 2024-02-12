@@ -13,35 +13,46 @@ import {
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import CheckIcon from "@mui/icons-material/Check";
 
+const enabled = true;
+const isLoading = false;
 const data = [
   {
     id: "1",
-    nombreCompania: "2",
-    nombreContacto: "3",
-    puesto: "4",
-    direccion: "5",
-    email: "6",
-    telefono: "7",
+    articulo: "Ibuprofeno",
+    cantidadComprar: "12",
+    cantidadStock: "14",
+    almacen: "Farmacia",
   },
 ];
-const enabled = true;
-const isLoading = false;
 
-export const ToQuoteMedicineTable = () => {
+export const AlertArticlesTable = () => {
   return (
     <Card>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell />
-            <TableCell>Nombre</TableCell>
-            <TableCell>Compañía</TableCell>
-            <TableCell>Nombre genérico</TableCell>
-            <TableCell>Stock</TableCell>
-            <TableCell>Estado</TableCell>
+            <TableCell>
+              <Checkbox />
+            </TableCell>
+            <TableCell>Articulo</TableCell>
+            <TableCell>Cantidad a comprar</TableCell>
+            <TableCell>Cantidad de stock</TableCell>
+            <TableCell>Almacén</TableCell>
           </TableRow>
         </TableHead>
-        <TableBody></TableBody>
+        <TableBody>
+          {data.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>
+                <Checkbox />
+              </TableCell>
+              <TableCell>{item.articulo}</TableCell>
+              <TableCell>{item.cantidadComprar}</TableCell>
+              <TableCell>{item.cantidadStock}</TableCell>
+              <TableCell>{item.almacen}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
       {/* {isLoading && (
               <Box

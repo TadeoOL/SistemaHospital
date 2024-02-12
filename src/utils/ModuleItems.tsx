@@ -7,6 +7,7 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ArticleIcon from "@mui/icons-material/Article";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
+import RuleIcon from "@mui/icons-material/Rule";
 
 export const ModuleItems: IModuleItems[] = [
   {
@@ -37,6 +38,11 @@ export const ModuleItems: IModuleItems[] = [
         title: "Almacén",
         path: "/compras/almacen",
         icon: <WarehouseIcon />,
+      },
+      {
+        title: "Autorización de compras",
+        path: "/compras/autorizacion-compras",
+        icon: <RuleIcon />,
       },
     ],
     icon: <StoreIcon />,
