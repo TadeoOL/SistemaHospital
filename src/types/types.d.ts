@@ -55,6 +55,7 @@ export interface IUpdateUsers {
   email: string;
   nombreUsuario: string;
   roles: string[];
+  imagen?: string;
 }
 
 export interface IProvider {
@@ -101,6 +102,7 @@ export interface IArticle {
   stockMinimo: number;
   stockAlerta: number;
   unidadMedida: string;
+  precioEstimado: string;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
 }
@@ -141,4 +143,13 @@ export interface IPurchaseAuthorization {
   ordenCompra: string;
   fechaSolicitud: string;
   creadoPor: string;
+}
+
+export interface IArticlesAlert {
+  id: string;
+  nombreArticulo: string;
+  id_Articulo: string;
+  departamentoProveniente: string;
+  cantidadComprar: number;
+  cantidadStock: number;
 }

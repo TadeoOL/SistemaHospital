@@ -21,17 +21,24 @@ import {
   useTheme,
   useMediaQuery,
   Checkbox,
+  Paper,
 } from "@mui/material";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { IPurchase } from "../../../../types/types";
+import { IArticle, IPurchase } from "../../../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addPurchase } from "../../../../schema/schemas";
-import { useGetArticles } from "../../../../hooks/useGetArticles";
-import { useState } from "react";
 import { toast } from "react-toastify";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
+import { SearchBar } from "../../../Inputs/SearchBar";
+import { shallow } from "zustand/shallow";
+import { useExistingArticlePagination } from "../../../../store/purchaseStore/existingArticlePagination";
+import { useEffect, useState } from "react";
+import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
+import { useGetArticlesByIds } from "../../../../hooks/useGetArticlesByIds";
+import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 const style = {
   position: "absolute",
@@ -59,6 +66,58 @@ const style = {
   },
 };
 
+const useGetAllArticles = () => {
+  const {
+    isLoading,
+    count,
+    data,
+    enabled,
+    fetchArticles,
+    pageIndex,
+    pageSize,
+    search,
+    setPageIndex,
+    setPageSize,
+    handleChangeArticle,
+    setSearch,
+    cleanArticles,
+  } = useArticlePagination(
+    (state) => ({
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+      fetchArticles: state.fetchArticles,
+      search: state.search,
+      enabled: state.enabled,
+      data: state.data,
+      setPageSize: state.setPageSize,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.isLoading,
+      handleChangeArticle: state.handleChangeArticle,
+      setSearch: state.setSearch,
+      cleanArticles: state.cleanArticles,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    fetchArticles();
+  }, [pageIndex, pageSize, search, enabled, handleChangeArticle]);
+
+  return {
+    isLoading,
+    data: data as IArticle[],
+    enabled,
+    count,
+    pageIndex,
+    pageSize,
+    setPageIndex,
+    setPageSize,
+    setSearch,
+    cleanArticles,
+  };
+};
+
 const Alert = () => {
   Swal.fire({
     title: "Do you want to save the changes?",
@@ -66,6 +125,9 @@ const Alert = () => {
     showCancelButton: true,
     confirmButtonText: "Save",
     denyButtonText: `Don't save`,
+    customClass: {
+      container: "swal-container",
+    },
   }).then((result) => {
     /* Read more about isConfirmed, isDenied below */
     if (result.isConfirmed) {
@@ -75,16 +137,6 @@ const Alert = () => {
     }
   });
 };
-
-let data = [{ id: "1", nombre: "Ibuprofeno", cantidad: "100" }];
-const data2 = [
-  { id: "2", nombre: "Carbafen", cantidad: "100" },
-  { id: "3", nombre: "Omepraxol", cantidad: "100" },
-  { id: "4", nombre: "Paracetamol", cantidad: "100" },
-  { id: "5", nombre: "Paracetamol", cantidad: "100" },
-  { id: "6", nombre: "Paracetamol", cantidad: "100" },
-  { id: "7", nombre: "Paracetamol", cantidad: "100" },
-];
 
 const stepsForm = [
   {
@@ -117,12 +169,12 @@ interface RequestPurchasedOrderModalProps {
 export const RequestPurchasedOrderModal = ({
   open,
 }: RequestPurchasedOrderModalProps) => {
+  const { cleanArticles } = useArticlePagination();
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
   const [selectedArticle, setSelectedArticle] = useState("");
   const [step, setStep] = useState(0);
   const [isAddingMoreArticles, setIsAddingMoreArticles] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -149,12 +201,11 @@ export const RequestPurchasedOrderModal = ({
     setSelectedArticle(articleId);
   };
 
-  // if (isLoadingArticles)
-  //   return (
-  //     <Backdrop open>
-  //       <CircularProgress />
-  //     </Backdrop>
-  //   );
+  useEffect(() => {
+    return () => {
+      cleanArticles();
+    };
+  }, []);
 
   return (
     <Box sx={style}>
@@ -189,7 +240,9 @@ export const RequestPurchasedOrderModal = ({
           }}
         >
           <Typography fontSize={20} fontWeight={700}>
-            Productos
+            {!isAddingMoreArticles
+              ? "Productos seleccionados"
+              : "Todos los productos"}
           </Typography>
           <Button
             disabled={isAddingMoreArticles}
@@ -199,14 +252,20 @@ export const RequestPurchasedOrderModal = ({
             Agregar mas productos
           </Button>
         </Stack>
-        {!isAddingMoreArticles ? <TableComponent /> : <AddMoreArticlesTable />}
+        <Box>
+          {!isAddingMoreArticles ? (
+            <TableComponent />
+          ) : (
+            <AddMoreArticlesTable />
+          )}
+        </Box>
         <Stack
           sx={{
             flexDirection: "row",
             justifyContent: "space-between",
             position: "sticky",
             bottom: 0,
-            zIndex: 1, // Ensures it stays above other content
+            zIndex: 1,
             backgroundColor: "white",
             pb: 1,
           }}
@@ -225,7 +284,6 @@ export const RequestPurchasedOrderModal = ({
             variant="contained"
             onClick={() => {
               if (!isAddingMoreArticles && step === 0) {
-                open(false);
                 Alert();
               } else if (isAddingMoreArticles && step === 0) {
                 setTimeout(() => {
@@ -249,6 +307,10 @@ export const RequestPurchasedOrderModal = ({
 };
 
 const TableComponent = () => {
+  const checkedArticles = useArticlesAlertPagination(
+    (state) => state.checkedArticles
+  );
+  const { articles, isLoadingArticles } = useGetArticlesByIds(checkedArticles);
   return (
     <Card>
       <Table>
@@ -256,62 +318,109 @@ const TableComponent = () => {
           <TableRow>
             <TableCell>Nombre</TableCell>
             <TableCell>Cantidad</TableCell>
+            <TableCell>Precio estimado</TableCell>
             <TableCell />
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.nombre}</TableCell>
-              <TableCell>{item.cantidad}</TableCell>
-              <TableCell>
-                <Tooltip title="Eliminar">
-                  <IconButton>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            </TableRow>
-          ))}
+          {!isLoadingArticles && articles.length > 0 ? (
+            articles.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.nombre}</TableCell>
+                <TableCell>{item.stockMinimo}</TableCell>
+                <TableCell>{item.precioEstimado}</TableCell>
+                <TableCell>
+                  <Tooltip title="Eliminar">
+                    <IconButton>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : isLoadingArticles && articles.length === 0 ? (
+            <CircularProgress />
+          ) : null}
         </TableBody>
       </Table>
+      {articles.length === 0 && !isLoadingArticles && (
+        <Paper
+          sx={{
+            columnGap: 2,
+            p: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flexGrow: 1,
+            display: "flex",
+          }}
+        >
+          <ErrorOutlineIcon
+            sx={{ color: "neutral.400", width: 35, height: 35 }}
+          />
+          <Typography
+            sx={{ color: "neutral.400", fontWeight: 500, fontSize: 20 }}
+          >
+            No hay articulos agregados
+          </Typography>
+        </Paper>
+      )}
     </Card>
   );
 };
 
 const AddMoreArticlesTable = () => {
+  const { isLoading, data, setSearch } = useGetAllArticles();
   return (
-    <Card>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>
-              <Checkbox />
-            </TableCell>
-            <TableCell>Nombre</TableCell>
-            <TableCell>Cantidad</TableCell>
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data2.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
-                <Checkbox />
-              </TableCell>
-              <TableCell>{item.nombre}</TableCell>
-              <TableCell>{item.cantidad}</TableCell>
-              <TableCell>
-                <Tooltip title="Eliminar">
-                  <IconButton>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
+    <Stack
+      spacing={2}
+      sx={{
+        alignItems: "start",
+        justifyContent: "flex-start",
+        overflowX: "auto",
+        bgcolor: "white",
+      }}
+    >
+      <SearchBar
+        size="small"
+        searchState={setSearch}
+        title="Buscar articulo..."
+      />
+      <Card>
+        <Table sx={{ minWidth: "700px" }}>
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Nombre</TableCell>
+              <TableCell>Cantidad</TableCell>
+              <TableCell>Precio estimado</TableCell>
+              <TableCell />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Card>
+          </TableHead>
+          <TableBody>
+            {!isLoading ? (
+              data.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>{item.nombre}</TableCell>
+                  <TableCell>{item.stockMinimo}</TableCell>
+                  <TableCell>{item.precioEstimado}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Eliminar">
+                      <IconButton>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <CircularProgress />
+            )}
+          </TableBody>
+        </Table>
+      </Card>
+    </Stack>
   );
 };

@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from "zustand/traditional";
-import { getArticles } from "../../api/api.routes";
+import { getArticlesAlert } from "../../api/api.routes";
 
 interface State {
   count: number;
@@ -10,7 +10,8 @@ interface State {
   isLoading: boolean;
   search: string;
   enabled: boolean;
-  handleChangeArticle: boolean;
+  handleChangeArticlesAlert: boolean;
+  checkedArticles: string[];
 }
 
 interface Action {
@@ -20,12 +21,13 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
-  setHandleChangeArticle: (handleChangeArticle: boolean) => void;
-  fetchArticles: () => Promise<void>;
-  cleanArticles: () => void;
+  setHandleChangeArticlesAlert: (handleChangeArticlesAlert: boolean) => void;
+  fetchArticlesAlert: () => Promise<void>;
+  cleanArticlesAlert: () => void;
+  setCheckedArticles: (checkedArticles: string[]) => void;
 }
 
-export const useArticlePagination = createWithEqualityFn<State & Action>(
+export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
   (set, get) => ({
     count: 0,
     pageCount: 0,
@@ -36,21 +38,23 @@ export const useArticlePagination = createWithEqualityFn<State & Action>(
     isLoading: true,
     search: "",
     enabled: true,
-    handleChangeArticle: false,
-    setHandleChangeArticle: (handleChangeArticle: boolean) =>
-      set({ handleChangeArticle }),
+    handleChangeArticlesAlert: false,
+    checkedArticles: [],
+    setCheckedArticles: (checkedArticles: string[]) => set({ checkedArticles }),
+    setHandleChangeArticlesAlert: (handleChangeArticlesAlert: boolean) =>
+      set({ handleChangeArticlesAlert }),
     setCount: (count: number) => set({ count }),
     setPageCount: (pageCount: number) => set({ pageCount }),
     setPageIndex: (pageIndex: number) => set({ pageIndex }),
     setPageSize: (pageSize: number) => set({ pageSize }),
     setSearch: (search: string) => set({ search, pageIndex: 0 }),
     setEnabled: (enabled: boolean) => set({ enabled }),
-    fetchArticles: async () => {
+    fetchArticlesAlert: async () => {
       const { pageIndex, pageSize, enabled, search } = get();
       set(() => ({ isLoading: true }));
       const page = pageIndex + 1;
       try {
-        const res = await getArticles(
+        const res = await getArticlesAlert(
           `${page === 0 ? "" : "pageIndex=" + page}&${
             pageSize === 0 ? "" : "pageSize=" + pageSize
           }&search=${search}&habilitado=${enabled}`
@@ -67,7 +71,7 @@ export const useArticlePagination = createWithEqualityFn<State & Action>(
         set(() => ({ isLoading: false }));
       }
     },
-    cleanArticles: () => {
+    cleanArticlesAlert: () => {
       set(() => ({ pageIndex: 0, pageSize: 5, enabled: true, search: "" }));
     },
   })

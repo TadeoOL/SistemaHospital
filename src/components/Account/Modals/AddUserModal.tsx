@@ -108,11 +108,10 @@ export const AddUserModal = (props: IAddUserModal) => {
 
   const onSubmit: SubmitHandler<IAddUser> = async (data) => {
     try {
-      const imagenURL = getValues("imagenURL");
       const userData = {
         ...data,
-        imagenURL,
       };
+      console.log({ userData });
       setIsLoading(true);
       const user = await registerNewUser(userData);
       setNewUser(user);

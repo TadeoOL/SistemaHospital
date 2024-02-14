@@ -83,6 +83,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     stockAlerta,
     stockMinimo,
     unidadMedida,
+    precioEstimado,
   } = article ?? {};
   const { subCategories, isLoading } = useGetSubCategories();
   const [textValue, setTextValue] = useState("");
@@ -111,6 +112,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       stockAlerta: stockAlerta,
       stockMinimo: stockMinimo,
       unidadMedida: unidadMedida,
+      precioEstimado: precioEstimado,
     },
     resolver: zodResolver(addArticle),
   });
@@ -241,6 +243,16 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 size="small"
                 label="Stock alerta"
                 {...register("stockAlerta")}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                error={!!errors.precioEstimado}
+                helperText={errors?.precioEstimado?.message}
+                size="small"
+                label="Precio estimado"
+                {...register("precioEstimado")}
               />
             </Grid>
             <Grid item xs={12} md={6}>

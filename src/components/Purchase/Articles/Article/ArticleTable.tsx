@@ -24,6 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { IArticle } from "../../../../types/types";
 
 const useGetAllData = () => {
   const {
@@ -38,6 +39,7 @@ const useGetAllData = () => {
     setPageIndex,
     setPageSize,
     handleChangeArticle,
+    cleanArticles,
   } = useArticlePagination(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -51,23 +53,25 @@ const useGetAllData = () => {
       setPageIndex: state.setPageIndex,
       isLoading: state.isLoading,
       handleChangeArticle: state.handleChangeArticle,
+      cleanArticles: state.cleanArticles,
     }),
     shallow
   );
 
   useEffect(() => {
-    fetchArticles(pageIndex, pageSize, search, enabled);
+    fetchArticles();
   }, [pageIndex, pageSize, search, enabled, handleChangeArticle]);
 
   return {
     isLoading,
-    data,
+    data: data as IArticle[],
     enabled,
     count,
     pageIndex,
     pageSize,
     setPageIndex,
     setPageSize,
+    cleanArticles,
   };
 };
 
@@ -141,9 +145,16 @@ export const ArticleTable = () => {
     pageSize,
     setPageIndex,
     setPageSize,
+    cleanArticles,
   } = useGetAllData();
   const [openEditModal, setOpenEditModal] = useState(false);
   const [articleId, setArticleId] = useState("");
+
+  useEffect(() => {
+    return () => {
+      cleanArticles();
+    };
+  }, []);
 
   // const handleUserChecked = (e: any) => {
   //   const { value, checked } = e.target;
@@ -180,6 +191,7 @@ export const ArticleTable = () => {
               <TableCell>Nombre</TableCell>
               <TableCell>Stock mínimo</TableCell>
               <TableCell>Stock alerta</TableCell>
+              <TableCell>Precio estimado</TableCell>
               <TableCell>Unidad de medida</TableCell>
               <TableCell>Sub categoría</TableCell>
               <TableCell />
@@ -197,6 +209,7 @@ export const ArticleTable = () => {
                       <TableCell>{article.nombre}</TableCell>
                       <TableCell>{article.stockAlerta}</TableCell>
                       <TableCell>{article.stockMinimo}</TableCell>
+                      <TableCell>{article.precioEstimado}</TableCell>
                       <TableCell>{article.unidadMedida}</TableCell>
                       <TableCell>{article.subCategoria as string}</TableCell>
                       <TableCell>

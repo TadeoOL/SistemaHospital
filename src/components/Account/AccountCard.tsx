@@ -23,6 +23,7 @@ import { useState } from "react";
 
 interface IUpdateUserData extends IUserSettings {
   id: string;
+  imagen?: string;
 }
 
 const handleChangePassword = () => {
@@ -108,18 +109,36 @@ const handleChangePassword = () => {
   });
 };
 
+const convertBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+
+    fileReader.onload = () => {
+      resolve(fileReader.result as string);
+    };
+
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
 export const AccountCard = () => {
   const user = useAuthStore((state) => state.profile);
   // const [disabledEdit, setDisabledEdit] = useState(true);
   const setProfile = useAuthStore((state) => state.setProfile);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedImage, setSelectedImage] = useState(user?.imagenURL);
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     console.log({ file });
     if (file) {
-      setSelectedImage(file);
-      event.target.value = ""; // Limpiar el valor del input
+      const base64 = await convertBase64(file);
+      setSelectedImage(base64);
+      event.target.value = "";
     }
   };
 
@@ -134,27 +153,27 @@ export const AccountCard = () => {
       apellidoMaterno: user?.apellidoMaterno,
       email: user?.email,
       telefono: user?.telefono,
+      imagen: selectedImage,
     },
     resolver: zodResolver(userSettingsSchema),
   });
 
   const onSubmit: SubmitHandler<IUpdateUserData> = async (data) => {
     try {
-      const user: IUser = await updateBasicUserInformation(
-        data.nombre,
-        data.apellidoPaterno,
-        data.apellidoMaterno,
-        data.telefono,
-        data.email
-      );
+      const formattedData = { ...data, imagenURL: selectedImage };
+      const user: IUser = await updateBasicUserInformation(formattedData);
       toast.success("Datos actualizados correctamente!");
+      console.log({ user });
       setProfile(user);
     } catch (error) {
       console.log(error);
       toast.error("Error al modificar los datos");
     }
   };
-
+  const handleError = (error: any) => {
+    console.log({ error });
+  };
+  console.log({ user });
   return (
     <Box
       sx={{
@@ -164,7 +183,7 @@ export const AccountCard = () => {
       }}
     >
       <Stack sx={{ p: 2 }}>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit, handleError)} noValidate>
           <Stack>
             <Typography fontSize={24} fontWeight={700}>
               Informacion del perfil
@@ -199,7 +218,7 @@ export const AccountCard = () => {
               }}
             >
               <Avatar
-                src={user?.imagenURL}
+                src={selectedImage}
                 sx={{
                   height: { xs: "154px", md: "220px" },
                   width: { xs: "154px", md: "220px" },

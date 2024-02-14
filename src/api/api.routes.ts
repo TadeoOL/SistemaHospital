@@ -62,25 +62,40 @@ export const disableUser = async (userId: string) => {
   return res.data;
 };
 
-export const updateBasicUserInformation = async (
-  nombre: string,
-  apellidoPaterno: string,
-  apellidoMaterno: string,
-  telefono: string,
-  email: string
-) => {
-  try {
-    const res = await axios.put(`/api/Usuario/actualizar-usuario`, {
-      Nombre: nombre,
-      ApellidoPaterno: apellidoPaterno,
-      ApellidoMaterno: apellidoMaterno,
-      Telefono: telefono,
-      Email: email,
-    });
-    return res.data;
-  } catch (error) {
-    console.log({ error });
+export const updateBasicUserInformation = async (data: {
+  apellidoMaterno: string;
+  apellidoPaterno: string;
+  email: string;
+  telefono: string;
+  nombre: string;
+  imagenURL?: string;
+}) => {
+  const {
+    apellidoMaterno,
+    apellidoPaterno,
+    email,
+    telefono,
+    nombre,
+    imagenURL,
+  } = data;
+  console.log({ imagenURL });
+  const formData = new FormData();
+  formData.append("Nombre", nombre);
+  formData.append("ApellidoPaterno", apellidoPaterno);
+  formData.append("ApellidoMaterno", apellidoMaterno);
+  formData.append("Telefono", telefono);
+  formData.append("Email", email);
+  if (imagenURL) {
+    formData.append("Imagen", imagenURL);
   }
+
+  const res = await axios.put(`/api/Usuario/actualizar-usuario`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data;
 };
 
 export const registerNewUser = async (user: IAddUser) => {
@@ -96,7 +111,7 @@ export const registerNewUser = async (user: IAddUser) => {
     nombreUsuario,
     confirmarContrasena,
   } = user;
-  const res = await axios.post(`/api/Usuario/registrar-usuario`, {
+  const res = await axios.post(`/api/Usuario/registro-usuario`, {
     apellidoMaterno,
     apellidoPaterno,
     email,
@@ -500,6 +515,20 @@ export const addNewExistingArticle = async (
       precioVenta,
       cantidad,
     }
+  );
+  return res.data;
+};
+
+export const getArticlesByIds = async (Ids: string[]) => {
+  const res = await axios.post("/api/Articulo/obtener-articulos-id", {
+    id_articulo: Ids,
+  });
+  return res.data;
+};
+
+export const getArticlesAlert = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-alerta-articulo?${paramUrl}`
   );
   return res.data;
 };

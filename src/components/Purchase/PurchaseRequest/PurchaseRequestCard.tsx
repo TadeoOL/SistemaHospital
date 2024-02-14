@@ -2,9 +2,12 @@ import { Box, Button, Modal, Stack } from "@mui/material";
 import { useState } from "react";
 import { AlertArticlesTable } from "./SubComponents/AlertArticlesTable";
 import { RequestPurchasedOrderModal } from "./Modal/RequestPurchasedOrderModal";
+import { SearchBar } from "../../Inputs/SearchBar";
+import { useArticlesAlertPagination } from "../../../store/purchaseStore/articlesAlertPagination";
 
 export const PurchaseRequestCard = () => {
   const [openDirectlyPurchase, setOpenDirectlyPurchase] = useState(false);
+  const setSearch = useArticlesAlertPagination((state) => state.setSearch);
   return (
     <>
       <Box
@@ -34,6 +37,7 @@ export const PurchaseRequestCard = () => {
                 Solicitar orden de compra
               </Button>
             </Stack>
+            <SearchBar title="Buscar el articulo..." searchState={setSearch} />
             <Stack>
               <AlertArticlesTable />
             </Stack>
