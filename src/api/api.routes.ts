@@ -128,11 +128,13 @@ export const registerNewUser = async (user: IAddUser) => {
 
 export const changeUserPassword = async (
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
+  actualPassword: string
 ) => {
   const res = await axios.put(`/api/Usuario/cambiar-contrasena`, {
     contrasena: password,
     confirmarContrasena: confirmPassword,
+    contrasenaActual: actualPassword
   });
   return res.data;
 };

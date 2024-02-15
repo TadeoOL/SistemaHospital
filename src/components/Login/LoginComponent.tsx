@@ -8,7 +8,9 @@ import {
   Box,
   Tabs,
   Tab,
+  CircularProgress,
 } from "@mui/material";
+import { LoadingButton } from '@mui/lab';
 import { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -32,7 +34,7 @@ export const LoginComponent = () => {
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
-
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -48,6 +50,7 @@ export const LoginComponent = () => {
 
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
     try {
+      setIsLoading(true);
       const user: IUser = await login(data.userName, data.password);
       setToken(user.token);
       setProfile(user);
@@ -57,7 +60,12 @@ export const LoginComponent = () => {
       console.log(error);
       toast.error("Credenciales incorrectas!");
     }
+    finally {
+      setIsLoading(false);
+    }
   };
+
+
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passwordValue = e.target.value;
@@ -66,94 +74,76 @@ export const LoginComponent = () => {
   };
 
   return (
-    <Box
-      sx={{
-        justifyContent: "center",
-        display: "flex",
-        flexDirection: "column",
-        width: "50%",
-        height: 1,
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          height: 1,
-          flexDirection: "column",
-          p: { lg: 20, sm: 10, xl: 30 },
-        }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Stack sx={{ display: "flex" }} spacing={4}>
-            <Typography fontWeight={700} fontSize={28}>
-              Iniciar sesion
-            </Typography>
-            <Stack
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                width: 1,
+    <Box>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Stack sx={{  }} spacing={3}>
+          <Typography fontWeight={700} fontSize={24}>
+            Iniciar sesión
+          </Typography>
+          <Stack
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+            spacing={2}
+          >
+            <Tabs sx={{ mb: 3 }} value={"email"}>
+              <Tab label="Inicio de Sesión" value="email" />
+              <Tab label="Recuperar Usuario" value="" />
+            </Tabs>
+            <TextField
+              error={!!errors.userName}
+              helperText={errors?.userName?.message}
+              {...register("userName")}
+              label="Nombre de usuario"
+            />
+            <TextField
+              error={!!errors.password}
+              helperText={errors?.password?.message}
+              {...register("password")}
+              label="Contraseña"
+              type={showPassword ? "text" : "password"}
+              onChange={handlePasswordChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {text.trim() === "" ? null : (
+                      <IconButton
+                        onClick={() => {
+                          setShowPassword(!showPassword);
+                        }}
+                      >
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    )}
+                  </InputAdornment>
+                ),
               }}
-              spacing={2}
-            >
-              <Tabs sx={{ mb: 3 }} value={"email"}>
-                <Tab label="Nombre de usuario" value="email" />
-              </Tabs>
-              <TextField
-                error={!!errors.userName}
-                helperText={errors?.userName?.message}
-                {...register("userName")}
-                size="small"
-                label="Nombre de usuario"
-              />
-              <TextField
-                error={!!errors.password}
-                helperText={errors?.password?.message}
-                {...register("password")}
-                label="Contraseña"
-                size="small"
-                type={showPassword ? "text" : "password"}
-                onChange={handlePasswordChange}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {text.trim() === "" ? null : (
-                        <IconButton
-                          onClick={() => {
-                            setShowPassword(!showPassword);
-                          }}
-                        >
-                          {showPassword ? (
-                            <VisibilityOffIcon />
-                          ) : (
-                            <VisibilityIcon />
-                          )}
-                        </IconButton>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Stack>
-            <Button
-              type="submit"
-              sx={{
-                bgcolor: "#023e8a",
-                "&:hover": { backgroundColor: "#03045e" },
-              }}
-            >
-              <Typography
-                color="white"
-                fontWeight={500}
-                fontSize={14}
-                sx={{ p: 1 }}
-              >
-                Iniciar sesion
-              </Typography>
-            </Button>
+            />
           </Stack>
-        </form>
-      </Box>
+          <Button
+          fullWidth
+            type="submit"
+            sx={{
+              bgcolor: "#023e8a",
+              "&:hover": { backgroundColor: "#03045e" },
+            }}
+          >
+            {!isLoading?<Typography
+              color="white"
+              fontWeight={500}
+              fontSize={14}
+              sx={{ mt: "2%", mb: "2%" }}
+            >
+              Iniciar sesion
+            </Typography>:<CircularProgress />}
+          </Button>
+        </Stack>
+      </form>
     </Box>
   );
 };

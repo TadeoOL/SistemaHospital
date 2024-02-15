@@ -5,6 +5,7 @@ import {
   Stack,
   TextField,
   Typography,
+  Checkbox,
 } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IUser, IUserSettings } from "../../types/types";
@@ -30,23 +31,64 @@ const handleChangePassword = () => {
   let passwordInput: HTMLInputElement;
   let confirmPasswordInput: HTMLInputElement;
   let showPasswordCheckbox: HTMLInputElement;
+  let actualPasswordInput: HTMLInputElement;
+
+  const CambioContrasena = (
+    <div>
+      <Box
+        sx={{
+          boxShadow: 10,
+          borderRadius: 2,
+          bgcolor: "white",
+        }}
+      >
+        <Stack>
+          <TextField
+            id="actualPassword"
+            type="password"
+            label="Contraseña Actual"
+            margin="normal"
+            size="small"
+            required
+          />
+          <TextField
+            id="password"
+            type="password"
+            label="Contraseña Nueva"
+            margin="normal"
+            size="small"
+            required
+          />
+
+          <TextField
+            id="confirmPassword"
+            type="password"
+            label="Confirmar contraseña"
+            margin="normal"
+            size="small"
+            required
+          />
+          <Typography>
+            <label htmlFor="showPassword">Mostrar contraseña</label>
+            <Checkbox id="showPassword" />
+          </Typography>
+        </Stack>
+      </Box>
+    </div>
+  );
 
   withReactContent(Swal).fire({
-    icon: "warning",
     title: "Cambiar contraseña",
-    html: `
-    <input type="password" id="password" class="swal2-input" placeholder="Contraseña">
-    <input type="password" id="confirmPassword" class="swal2-input" placeholder="Confirmar contraseña">
-    <div class="show-password-container">
-      <input type="checkbox" id="showPassword">
-      <label for="showPassword">Mostrar contraseña</label>
-    </div>
-`,
+    html: CambioContrasena,
+    cancelButtonText: "Cancelar",
     confirmButtonText: "Cambiar",
     focusConfirm: false,
+    showCancelButton: true,
+    reverseButtons: true,
     didOpen: () => {
       const popup = withReactContent(Swal).getPopup()!;
       passwordInput = popup.querySelector("#password") as HTMLInputElement;
+      actualPasswordInput = popup.querySelector("#actualPassword") as HTMLInputElement;
       confirmPasswordInput = popup.querySelector(
         "#confirmPassword"
       ) as HTMLInputElement;
@@ -59,16 +101,20 @@ const handleChangePassword = () => {
         const type = showPasswordCheckbox.checked ? "text" : "password";
         passwordInput.type = type;
         confirmPasswordInput.type = type;
+        actualPasswordInput.type = type;
       });
 
       passwordInput.onkeyup = (event) =>
         event.key === "Enter" && withReactContent(Swal).clickConfirm();
       confirmPasswordInput.onkeyup = (event) =>
         event.key === "Enter" && withReactContent(Swal).clickConfirm();
+      actualPasswordInput.onkeyup = (event) =>
+        event.key === "Enter" && withReactContent(Swal).clickConfirm();
     },
     preConfirm: async () => {
       const password = passwordInput.value;
       const confirmPassword = confirmPasswordInput.value;
+      const actualPassword = actualPasswordInput.value;
 
       if (!password || !confirmPassword) {
         withReactContent(Swal).showValidationMessage(
@@ -84,7 +130,7 @@ const handleChangePassword = () => {
 
       if (password === confirmPassword) {
         try {
-          const res = await changeUserPassword(password, confirmPassword);
+          const res = await changeUserPassword(password, confirmPassword, actualPassword);
           withReactContent(Swal).fire({
             title: `Cambio realizado`,
             text: res,
@@ -94,7 +140,7 @@ const handleChangePassword = () => {
           console.log(error.response);
           if (error.response.status === 400) {
             return withReactContent(Swal).showValidationMessage(
-              `La contraseña debe de tener al menos una Mayúscula y un Número`
+              error.response.data.message
             );
           } else {
             withReactContent(Swal).fire({
@@ -291,7 +337,7 @@ export const AccountCard = () => {
               </Box>
             </Stack>
           </Stack>
-          <Box>
+          <Box style={{ textAlign: "right" }}>
             <Button variant="contained" type="submit" size="small">
               Guardar cambios
             </Button>
