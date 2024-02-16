@@ -485,7 +485,7 @@ const AddMoreArticlesTable = () => {
       (id) => !quantityArticles[id]?.cantidadComprar
     );
     console.log(missingQuantity);
-    if (!missingQuantity) return setShowError(true);
+    // if (!missingQuantity) return setShowError(true);
     const articlesPurchasedArray = Object.values(quantityArticles).map(
       (item) => ({
         id_articulo: item.id_articulo,
