@@ -209,7 +209,7 @@ export const ArticleTable = () => {
                       <TableCell>{article.nombre}</TableCell>
                       <TableCell>{article.stockAlerta}</TableCell>
                       <TableCell>{article.stockMinimo}</TableCell>
-                      <TableCell>{article.precioEstimado}</TableCell>
+                      <TableCell>{article.precioInventario}</TableCell>
                       <TableCell>{article.unidadMedida}</TableCell>
                       <TableCell>{article.subCategoria as string}</TableCell>
                       <TableCell>

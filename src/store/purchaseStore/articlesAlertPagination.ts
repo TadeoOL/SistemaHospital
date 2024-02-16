@@ -1,6 +1,11 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { getArticlesAlert } from "../../api/api.routes";
 
+interface ArticleObject {
+  id_articulo: string;
+  cantidadComprar: number;
+  precioInventario: number;
+}
 interface State {
   count: number;
   pageCount: number;
@@ -12,6 +17,12 @@ interface State {
   enabled: boolean;
   handleChangeArticlesAlert: boolean;
   checkedArticles: string[];
+  step: number;
+  isAddingMoreArticles: boolean;
+  handleOpen: boolean;
+  isManyProviders: boolean;
+  alertArticlesChecked: string[];
+  articlesPurchased: ArticleObject[];
 }
 
 interface Action {
@@ -25,6 +36,12 @@ interface Action {
   fetchArticlesAlert: () => Promise<void>;
   cleanArticlesAlert: () => void;
   setCheckedArticles: (checkedArticles: string[]) => void;
+  setStep: (step: number) => void;
+  setIsAddingMoreArticles: (isAddingMoreArticles: boolean) => void;
+  setHandleOpen: (handleOpen: boolean) => void;
+  setIsManyProviders: (isManyProviders: boolean) => void;
+  setAlertArticlesChecked: (alertArticlesChecked: string[]) => void;
+  setArticlesPurchased: (articlesPurchased: ArticleObject[]) => void;
 }
 
 export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
@@ -40,6 +57,21 @@ export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
     enabled: true,
     handleChangeArticlesAlert: false,
     checkedArticles: [],
+    step: 0,
+    isAddingMoreArticles: false,
+    handleOpen: false,
+    isManyProviders: false,
+    alertArticlesChecked: [],
+    articlesPurchased: [],
+    setArticlesPurchased: (articlesPurchased: ArticleObject[]) =>
+      set({ articlesPurchased }),
+    setAlertArticlesChecked: (alertArticlesChecked: string[]) =>
+      set({ alertArticlesChecked }),
+    setIsManyProviders: (isManyProviders: boolean) => set({ isManyProviders }),
+    setHandleOpen: (handleOpen: boolean) => set({ handleOpen }),
+    setIsAddingMoreArticles: (isAddingMoreArticles: boolean) =>
+      set({ isAddingMoreArticles }),
+    setStep: (step: number) => set({ step }),
     setCheckedArticles: (checkedArticles: string[]) => set({ checkedArticles }),
     setHandleChangeArticlesAlert: (handleChangeArticlesAlert: boolean) =>
       set({ handleChangeArticlesAlert }),

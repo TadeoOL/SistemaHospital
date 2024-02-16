@@ -8,7 +8,7 @@ export const useGetArticlesByIds = (Ids: string[]) => {
     isError,
     isLoading = true,
   } = useQuery({
-    queryKey: ["ArticlesByIds"],
+    queryKey: ["ArticlesByIds", Ids],
     queryFn: async () => getArticlesByIds(Ids),
   });
 

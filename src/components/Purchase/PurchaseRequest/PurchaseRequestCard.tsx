@@ -1,12 +1,14 @@
 import { Box, Button, Modal, Stack } from "@mui/material";
-import { useState } from "react";
 import { AlertArticlesTable } from "./SubComponents/AlertArticlesTable";
 import { RequestPurchasedOrderModal } from "./Modal/RequestPurchasedOrderModal";
 import { SearchBar } from "../../Inputs/SearchBar";
 import { useArticlesAlertPagination } from "../../../store/purchaseStore/articlesAlertPagination";
 
 export const PurchaseRequestCard = () => {
-  const [openDirectlyPurchase, setOpenDirectlyPurchase] = useState(false);
+  const { handleOpen, setHandleOpen } = useArticlesAlertPagination((state) => ({
+    handleOpen: state.handleOpen,
+    setHandleOpen: state.setHandleOpen,
+  }));
   const setSearch = useArticlesAlertPagination((state) => state.setSearch);
   return (
     <>
@@ -30,10 +32,7 @@ export const PurchaseRequestCard = () => {
                 alignItems: "center",
               }}
             >
-              <Button
-                variant="contained"
-                onClick={() => setOpenDirectlyPurchase(true)}
-              >
+              <Button variant="contained" onClick={() => setHandleOpen(true)}>
                 Solicitar orden de compra
               </Button>
             </Stack>
@@ -44,12 +43,9 @@ export const PurchaseRequestCard = () => {
           </Stack>
         </Box>
       </Box>
-      <Modal
-        open={openDirectlyPurchase}
-        onClose={() => setOpenDirectlyPurchase(false)}
-      >
+      <Modal open={handleOpen} onClose={() => setHandleOpen(false)}>
         <>
-          <RequestPurchasedOrderModal open={setOpenDirectlyPurchase} />
+          <RequestPurchasedOrderModal open={setHandleOpen} />
         </>
       </Modal>
     </>

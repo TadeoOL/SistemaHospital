@@ -102,7 +102,7 @@ export interface IArticle {
   stockMinimo: number;
   stockAlerta: number;
   unidadMedida: string;
-  precioEstimado: string;
+  precioInventario: number;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
 }
@@ -152,4 +152,16 @@ export interface IArticlesAlert {
   departamentoProveniente: string;
   cantidadComprar: number;
   cantidadStock: number;
+  precioInventario: number;
+}
+
+export interface IPurchaseConfig {
+  cantidadOrdenDirecta: number;
+  factor: IFactor[];
+}
+
+export interface IFactor {
+  cantidadMinima: number;
+  cantidadMaxima: number;
+  factor: number;
 }

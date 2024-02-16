@@ -73,7 +73,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       stockAlerta: 0,
       stockMinimo: 0,
       unidadMedida: "",
-      precioEstimado: "",
+      precioInventario: 0,
     },
     resolver: zodResolver(addArticle),
   });
@@ -192,11 +192,11 @@ export const AddArticleModal = (props: IAddArticleModal) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                error={!!errors.precioEstimado}
-                helperText={errors?.precioEstimado?.message}
+                error={!!errors.precioInventario}
+                helperText={errors?.precioInventario?.message}
                 size="small"
-                label="Unidad de medida"
-                {...register("precioEstimado")}
+                label="Precio estimado"
+                {...register("precioInventario")}
               />
             </Grid>
             <Grid item xs={12} md={6}>

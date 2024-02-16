@@ -5,6 +5,7 @@ import {
   ICategory,
   IExistingArticle,
   IProvider,
+  IPurchaseConfig,
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
@@ -134,7 +135,7 @@ export const changeUserPassword = async (
   const res = await axios.put(`/api/Usuario/cambiar-contrasena`, {
     contrasena: password,
     confirmarContrasena: confirmPassword,
-    contrasenaActual: actualPassword
+    contrasenaActual: actualPassword,
   });
   return res.data;
 };
@@ -355,6 +356,7 @@ export const addNewArticle = async (article: IArticle) => {
     stockAlerta,
     stockMinimo,
     unidadMedida,
+    precioInventario,
   } = article;
 
   const res = await axios.post(`/api/Articulo/registrar-articulo`, {
@@ -365,6 +367,7 @@ export const addNewArticle = async (article: IArticle) => {
     stockMinimo,
     id_subcategoria,
     unidadMedida,
+    precioInventario,
   });
   return res.data;
 };
@@ -525,7 +528,7 @@ export const getArticlesByIds = async (Ids: string[]) => {
   const res = await axios.post("/api/Articulo/obtener-articulos-id", {
     id_articulo: Ids,
   });
-  return res.data;
+  return res.data as IArticle[];
 };
 
 export const getArticlesAlert = async (paramUrl: string) => {
@@ -533,4 +536,29 @@ export const getArticlesAlert = async (paramUrl: string) => {
     `/api/Compras/paginacion-alerta-articulo?${paramUrl}`
   );
   return res.data;
+};
+
+export const getAllProviders = async () => {
+  const res = await axios.get(`/api/Proveedor/obtener-proveedores`);
+  return res.data;
+};
+
+export const getPurchaseConfig = async () => {
+  const res = await axios.get("/api/Compras/obtener-configuracion-compras");
+  return res.data as IPurchaseConfig;
+};
+
+export const addPurchaseOrder = async (
+  providersId: string[],
+  articles: any[],
+  state: 1,
+  alertArticlesId: string[]
+) => {
+  const res = await axios.post("/api/Compras/registrar-orden-compra", {
+    proveedores: providersId,
+    articulos: articles,
+    estado: state,
+    alertaArticulos: alertArticlesId,
+  });
+  return res.data as IArticle[];
 };

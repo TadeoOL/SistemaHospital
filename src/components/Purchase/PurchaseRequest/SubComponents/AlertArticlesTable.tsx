@@ -32,6 +32,11 @@ const useGetAllData = () => {
     handleChangeArticlesAlert,
     checkedArticles,
     setCheckedArticles,
+    alertArticlesChecked,
+    setAlertArticlesChecked,
+    setStep,
+    articlesPurchased,
+    setArticlesPurchased,
   } = useArticlesAlertPagination(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -47,6 +52,11 @@ const useGetAllData = () => {
       handleChangeArticlesAlert: state.handleChangeArticlesAlert,
       checkedArticles: state.checkedArticles,
       setCheckedArticles: state.setCheckedArticles,
+      setAlertArticlesChecked: state.setAlertArticlesChecked,
+      alertArticlesChecked: state.alertArticlesChecked,
+      setStep: state.setStep,
+      articlesPurchased: state.articlesPurchased,
+      setArticlesPurchased: state.setArticlesPurchased,
     }),
     shallow
   );
@@ -66,6 +76,11 @@ const useGetAllData = () => {
     setPageSize,
     checkedArticles,
     setCheckedArticles,
+    alertArticlesChecked,
+    setAlertArticlesChecked,
+    setStep,
+    articlesPurchased,
+    setArticlesPurchased,
   };
 };
 
@@ -80,33 +95,62 @@ export const AlertArticlesTable = () => {
     setPageSize,
     checkedArticles,
     setCheckedArticles,
+    setAlertArticlesChecked,
+    alertArticlesChecked,
+    setStep,
+    articlesPurchased,
+    setArticlesPurchased,
   } = useGetAllData();
 
   const handlePageChange = useCallback((event: any, value: any) => {
     setPageIndex(value);
   }, []);
 
-  const handleUserChecked = (e: any) => {
-    const { value, checked } = e.target;
+  const handleUserChecked = (
+    idArticulo: string,
+    idAlerta: string,
+    cantidadComprar: number,
+    precioInventario: number,
+    checked: boolean
+  ) => {
+    const objectArticle = {
+      id_articulo: idArticulo,
+      cantidadComprar: cantidadComprar,
+      precioInventario: precioInventario,
+    };
     if (checked) {
-      setCheckedArticles([...checkedArticles, value]);
+      setCheckedArticles([...checkedArticles, idArticulo]);
+      setAlertArticlesChecked([...alertArticlesChecked, idAlerta]);
+      setArticlesPurchased([...articlesPurchased, objectArticle]);
     } else {
-      setCheckedArticles(checkedArticles.filter((item) => item !== value));
+      setCheckedArticles(checkedArticles.filter((item) => item !== idArticulo));
+      setAlertArticlesChecked(
+        alertArticlesChecked.filter((item) => item !== idAlerta)
+      );
+      setArticlesPurchased(
+        articlesPurchased.filter((item) => item.id_articulo !== idArticulo)
+      );
     }
   };
-  console.log({ checkedArticles });
+  console.log({ articlesPurchased });
 
-  const handleIsUserChecked = (userId: string) => {
-    if (checkedArticles.some((user) => user === userId)) {
-      return true;
-    } else {
-      return false;
-    }
-  };
+  const handleIsArticleChecked = useCallback(
+    (articleId: string) => {
+      if (checkedArticles.some((user) => user === articleId)) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    [checkedArticles]
+  );
 
   useEffect(() => {
     return () => {
       setCheckedArticles([]);
+      setAlertArticlesChecked([]);
+      setArticlesPurchased([]);
+      setStep(0);
     };
   }, []);
 
@@ -129,8 +173,16 @@ export const AlertArticlesTable = () => {
             <TableRow key={item.id}>
               <TableCell>
                 <Checkbox
-                  onChange={handleUserChecked}
-                  value={item.id_Articulo}
+                  onChange={(event) =>
+                    handleUserChecked(
+                      item.id_Articulo,
+                      item.id,
+                      item.cantidadComprar,
+                      item.precioInventario,
+                      event.target.checked
+                    )
+                  }
+                  checked={handleIsArticleChecked(item.id_Articulo)}
                 />
               </TableCell>
               <TableCell>{item.nombreArticulo}</TableCell>

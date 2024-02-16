@@ -110,7 +110,13 @@ export const addArticle = z.object({
     { message: "Escribe una cantidad válida y mayor que cero" }
   ),
   unidadMedida: z.string().min(1, "Selecciona una unidad de medida"),
-  precioEstimado: z.string().min(1, "Escribe un precio estimado"),
+  precioInventario: z.string().refine(
+    (value) => {
+      const parsedValue = parseFloat(value);
+      return !isNaN(parsedValue) && parsedValue > 0;
+    },
+    { message: "Escribe una cantidad válida y mayor que cero" }
+  ),
   id_subcategoria: z.string().min(1, "Selecciona una sub categoría"),
 });
 
