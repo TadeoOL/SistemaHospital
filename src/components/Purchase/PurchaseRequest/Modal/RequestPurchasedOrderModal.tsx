@@ -272,10 +272,12 @@ const TableComponent = () => {
     }),
     shallow
   );
-  const { articles, isLoadingArticles } = useGetArticlesByIds(checkedArticles);
+  const { articles, isLoadingArticles } = useGetArticlesByIds(
+    checkedArticles.flatMap((article) => article.idArticulo)
+  );
   const handleDeleteArticle = (id: string) => () => {
     const articlesFiltered = checkedArticles.filter(
-      (article) => article !== id
+      (article) => article.idArticulo !== id
     );
     setCheckedArticles(articlesFiltered);
   };
@@ -293,7 +295,9 @@ const TableComponent = () => {
     try {
       setIsLoading(true);
       const { cantidadOrdenDirecta } = await getPurchaseConfig();
-      const articleData = await getArticlesByIds(checkedArticles);
+      const articleData = await getArticlesByIds(
+        checkedArticles.flatMap((article) => article.idArticulo)
+      );
       const sumaPrecios = addArticlesPrice(articleData);
       await simulateAsyncCall();
       console.log({ cantidadOrdenDirecta });
@@ -450,13 +454,13 @@ const AddMoreArticlesTable = () => {
   }, []);
 
   const handleArticlesSelected = (id: string) => {
-    return articlesAlreadyChecked.some((article) => article === id);
+    return articlesAlreadyChecked.some((article) => article.idArticulo === id);
   };
 
   const handleIsArticleChecked = useCallback(
     (articleId: string) => {
       if (
-        checkedArticles.some((article) => article === articleId) ||
+        checkedArticles.some((article) => article.idArticulo === articleId) ||
         articlesId.some((article) => article === articleId)
       ) {
         return true;
@@ -474,18 +478,27 @@ const AddMoreArticlesTable = () => {
   const handleArticleChecked = (e: any) => {
     const { value, checked } = e.target;
     if (checked) {
+      setQuantityArticles((prev) => ({
+        ...prev,
+        [value]: {
+          id_articulo: value,
+          cantidadComprar: "",
+          precioInventario: 0,
+        },
+      }));
       setArticlesId((prev) => [...prev, value]);
     } else {
+      const { [value]: removedItem, ...rest } = quantityArticles;
+      setQuantityArticles(rest);
       setArticlesId(articlesId.filter((item) => item !== value));
     }
   };
 
-  const handleAddArticles = useCallback(() => {
-    const missingQuantity = Object.keys(quantityArticles).some(
-      (id) => !quantityArticles[id]?.cantidadComprar
-    );
-    console.log(missingQuantity);
-    // if (!missingQuantity) return setShowError(true);
+  const handleAddArticles = () => {
+    const missingQuantity = Object.keys(quantityArticles).some((id) => {
+      return quantityArticles[id].cantidadComprar.trim() === "";
+    });
+    if (missingQuantity) return setShowError(true);
     const articlesPurchasedArray = Object.values(quantityArticles).map(
       (item) => ({
         id_articulo: item.id_articulo,
@@ -493,11 +506,10 @@ const AddMoreArticlesTable = () => {
         precioInventario: item.precioInventario,
       })
     );
-    console.log({ articlesPurchasedArray });
     setArticlesPurchased([...articlesPurchased, ...articlesPurchasedArray]);
-    setCheckedArticles([...checkedArticles, ...articlesId]);
+    // setCheckedArticles([...checkedArticles, ...articlesId]);
     setIsAddingMoreArticles(!isAddingMoreArticles);
-  }, [articlesId]);
+  };
 
   const handleCantidadChange = (
     id: string,

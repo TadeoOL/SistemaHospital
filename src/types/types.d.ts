@@ -146,13 +146,19 @@ export interface IPurchaseAuthorization {
 }
 
 export interface IArticlesAlert {
-  id: string;
-  nombreArticulo: string;
-  id_Articulo: string;
-  departamentoProveniente: string;
-  cantidadComprar: number;
-  cantidadStock: number;
-  precioInventario: number;
+  id_Almacen: string;
+  nombreAlmacen: number;
+  articulos: [
+    {
+      id_Articulo: string;
+      cantidadComprar: number;
+      nombreArticulo: string;
+      cantidadStock: number;
+      precioInventario: number;
+      unidadMedida: string;
+      id_AlertaCompra: string;
+    }
+  ];
 }
 
 export interface IPurchaseConfig {

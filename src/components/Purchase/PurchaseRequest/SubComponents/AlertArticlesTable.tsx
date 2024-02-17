@@ -1,35 +1,29 @@
 import {
   Box,
+  Button,
   Card,
   Checkbox,
   CircularProgress,
+  Divider,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 import { shallow } from "zustand/shallow";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { IArticlesAlert } from "../../../../types/types";
 
 const useGetAllData = () => {
   const {
     isLoading,
-    count,
     data,
-    enabled,
     fetchArticlesAlert,
-    pageIndex,
-    pageSize,
-    search,
-    setPageIndex,
-    setPageSize,
-    handleChangeArticlesAlert,
     checkedArticles,
     setCheckedArticles,
     alertArticlesChecked,
@@ -37,19 +31,13 @@ const useGetAllData = () => {
     setStep,
     articlesPurchased,
     setArticlesPurchased,
+    handleOpen,
+    setHandleOpen,
   } = useArticlesAlertPagination(
     (state) => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
       fetchArticlesAlert: state.fetchArticlesAlert,
-      search: state.search,
-      enabled: state.enabled,
       data: state.data,
-      setPageSize: state.setPageSize,
-      setPageIndex: state.setPageIndex,
       isLoading: state.isLoading,
-      handleChangeArticlesAlert: state.handleChangeArticlesAlert,
       checkedArticles: state.checkedArticles,
       setCheckedArticles: state.setCheckedArticles,
       setAlertArticlesChecked: state.setAlertArticlesChecked,
@@ -57,23 +45,19 @@ const useGetAllData = () => {
       setStep: state.setStep,
       articlesPurchased: state.articlesPurchased,
       setArticlesPurchased: state.setArticlesPurchased,
+      handleOpen: state.handleOpen,
+      setHandleOpen: state.setHandleOpen,
     }),
     shallow
   );
 
   useEffect(() => {
     fetchArticlesAlert();
-  }, [pageIndex, pageSize, search, enabled, handleChangeArticlesAlert]);
+  }, []);
 
   return {
     isLoading,
     data: data as IArticlesAlert[],
-    enabled,
-    count,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
     checkedArticles,
     setCheckedArticles,
     alertArticlesChecked,
@@ -81,18 +65,15 @@ const useGetAllData = () => {
     setStep,
     articlesPurchased,
     setArticlesPurchased,
+    handleOpen,
+    setHandleOpen,
   };
 };
 
 export const AlertArticlesTable = () => {
   const {
-    count,
     data,
     isLoading,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
     checkedArticles,
     setCheckedArticles,
     setAlertArticlesChecked,
@@ -100,11 +81,9 @@ export const AlertArticlesTable = () => {
     setStep,
     articlesPurchased,
     setArticlesPurchased,
+    handleOpen,
+    setHandleOpen,
   } = useGetAllData();
-
-  const handlePageChange = useCallback((event: any, value: any) => {
-    setPageIndex(value);
-  }, []);
 
   const handleUserChecked = (
     idArticulo: string,
@@ -119,11 +98,16 @@ export const AlertArticlesTable = () => {
       precioInventario: precioInventario,
     };
     if (checked) {
-      setCheckedArticles([...checkedArticles, idArticulo]);
+      setCheckedArticles([
+        ...checkedArticles,
+        { idAlerta: idAlerta, idArticulo: idArticulo },
+      ]);
       setAlertArticlesChecked([...alertArticlesChecked, idAlerta]);
       setArticlesPurchased([...articlesPurchased, objectArticle]);
     } else {
-      setCheckedArticles(checkedArticles.filter((item) => item !== idArticulo));
+      setCheckedArticles(
+        checkedArticles.filter((item) => item.idAlerta !== idAlerta)
+      );
       setAlertArticlesChecked(
         alertArticlesChecked.filter((item) => item !== idAlerta)
       );
@@ -132,11 +116,16 @@ export const AlertArticlesTable = () => {
       );
     }
   };
-  console.log({ articlesPurchased });
+  console.log({ checkedArticles });
 
   const handleIsArticleChecked = useCallback(
-    (articleId: string) => {
-      if (checkedArticles.some((user) => user === articleId)) {
+    (articleId: string, alertId: string) => {
+      if (
+        checkedArticles.some(
+          (article) =>
+            article.idArticulo === articleId && article.idAlerta === alertId
+        )
+      ) {
         return true;
       } else {
         return false;
@@ -154,84 +143,130 @@ export const AlertArticlesTable = () => {
     };
   }, []);
 
+  const handleSelectAllArticles = (idAlmacen: string, isChecked: boolean) => {
+    const articlesToSelect =
+      data.find((alert) => alert.id_Almacen === idAlmacen)?.articulos || [];
+    articlesToSelect.forEach((item) => {
+      handleUserChecked(
+        item.id_Articulo,
+        item.id_AlertaCompra,
+        item.cantidadComprar,
+        item.precioInventario,
+        isChecked
+      );
+    });
+  };
+
+  console.log({ data });
+
+  if (isLoading) return <CircularProgress />;
   return (
-    <Card>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>
-              <Checkbox />
-            </TableCell>
-            <TableCell>Articulo</TableCell>
-            <TableCell>Cantidad a comprar</TableCell>
-            <TableCell>Cantidad de stock</TableCell>
-            <TableCell>Departamento proveniente</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
-                <Checkbox
-                  onChange={(event) =>
-                    handleUserChecked(
-                      item.id_Articulo,
-                      item.id,
-                      item.cantidadComprar,
-                      item.precioInventario,
-                      event.target.checked
-                    )
-                  }
-                  checked={handleIsArticleChecked(item.id_Articulo)}
-                />
-              </TableCell>
-              <TableCell>{item.nombreArticulo}</TableCell>
-              <TableCell>{item.cantidadComprar}</TableCell>
-              <TableCell>{item.cantidadStock}</TableCell>
-              <TableCell>{item.departamentoProveniente}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {isLoading && data.length === 0 && (
-        <Box sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {data.length === 0 && !isLoading && (
-        <Card
-          sx={{
-            display: "flex",
-            flexGrow: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            p: 2,
-            columnGap: 1,
-          }}
-        >
-          <ErrorOutlineIcon
-            sx={{ color: "neutral.400", width: "40px", height: "40px" }}
-          />
-          <Typography
-            sx={{ color: "neutral.400" }}
-            fontSize={24}
-            fontWeight={500}
+    <Stack spacing={4} sx={{ p: 2 }}>
+      {data.map((alert, index) => (
+        <React.Fragment key={alert.id_Almacen}>
+          <Stack
+            sx={{
+              flexDirection: "row",
+              display: "flex",
+              flexGrow: 1,
+              justifyContent: "space-between",
+              alignItems: "end",
+            }}
           >
-            No existen registros
-          </Typography>
-        </Card>
-      )}
-      <TablePagination
-        component="div"
-        count={count}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={(e: any) => {
-          setPageSize(e.target.value);
-        }}
-        page={pageIndex}
-        rowsPerPage={pageSize}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-      />
-    </Card>
+            <Typography variant="subtitle2">
+              Almacen: {alert.nombreAlmacen}
+            </Typography>
+            <Button variant="contained" onClick={() => setHandleOpen(true)}>
+              Solicitar orden de compra
+            </Button>
+          </Stack>
+          <Card>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelectAllArticles(
+                          alert.id_Almacen,
+                          event.target.checked
+                        )
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>Articulo</TableCell>
+                  <TableCell>Cantidad a comprar</TableCell>
+                  <TableCell>Cantidad de stock</TableCell>
+                  <TableCell>Unidad de medida</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {alert.articulos.map((item) => (
+                  <TableRow key={item.id_AlertaCompra}>
+                    <TableCell>
+                      <Checkbox
+                        onChange={(event) =>
+                          handleUserChecked(
+                            item.id_Articulo,
+                            item.id_AlertaCompra,
+                            item.cantidadComprar,
+                            item.precioInventario,
+                            event.target.checked
+                          )
+                        }
+                        checked={handleIsArticleChecked(
+                          item.id_Articulo,
+                          item.id_AlertaCompra
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell>{item.nombreArticulo}</TableCell>
+                    <TableCell>{item.cantidadComprar}</TableCell>
+                    <TableCell>{item.cantidadStock}</TableCell>
+                    <TableCell>{item.unidadMedida}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {isLoading && data.length === 0 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flex: 1,
+                  justifyContent: "center",
+                  p: 4,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            )}
+            {data.length === 0 && !isLoading && (
+              <Card
+                sx={{
+                  display: "flex",
+                  flexGrow: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  p: 2,
+                  columnGap: 1,
+                }}
+              >
+                <ErrorOutlineIcon
+                  sx={{ color: "neutral.400", width: "40px", height: "40px" }}
+                />
+                <Typography
+                  sx={{ color: "neutral.400" }}
+                  fontSize={24}
+                  fontWeight={500}
+                >
+                  No existen registros
+                </Typography>
+              </Card>
+            )}
+          </Card>
+          {index === data.length - 1 ? null : <Divider sx={{ my: 6 }} />}
+        </React.Fragment>
+      ))}
+    </Stack>
   );
 };

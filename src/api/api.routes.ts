@@ -531,10 +531,8 @@ export const getArticlesByIds = async (Ids: string[]) => {
   return res.data as IArticle[];
 };
 
-export const getArticlesAlert = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-alerta-articulo?${paramUrl}`
-  );
+export const getArticlesAlert = async () => {
+  const res = await axios.get(`/api/Compras/obtener-alerta-compras`);
   return res.data;
 };
 
