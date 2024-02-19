@@ -1,15 +1,7 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { getArticlesAlert } from "../../api/api.routes";
+import { ArticleObject, ICheckedArticles } from "../../types/types";
 
-interface ArticleObject {
-  id_articulo: string;
-  cantidadComprar: number;
-  precioInventario: number;
-}
-interface ICheckedArticles {
-  idAlerta: string;
-  idArticulo: string;
-}
 interface State {
   data: any[];
   isLoading: boolean;
@@ -20,6 +12,7 @@ interface State {
   isManyProviders: boolean;
   alertArticlesChecked: string[];
   articlesPurchased: ArticleObject[];
+  warehouseSelected: string;
 }
 
 interface Action {
@@ -31,10 +24,12 @@ interface Action {
   setIsManyProviders: (isManyProviders: boolean) => void;
   setAlertArticlesChecked: (alertArticlesChecked: string[]) => void;
   setArticlesPurchased: (articlesPurchased: ArticleObject[]) => void;
+  setWarehouseSelected: (warehouseSelected: string) => void;
+  cleanAllData: () => void;
 }
 
 export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
-  (set) => ({
+  (set, get) => ({
     count: 0,
     pageCount: 0,
     resultByPage: 0,
@@ -52,6 +47,9 @@ export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
     isManyProviders: false,
     alertArticlesChecked: [],
     articlesPurchased: [],
+    warehouseSelected: "",
+    setWarehouseSelected: (warehouseSelected: string) =>
+      set({ warehouseSelected }),
     setArticlesPurchased: (articlesPurchased: ArticleObject[]) =>
       set({ articlesPurchased }),
     setAlertArticlesChecked: (alertArticlesChecked: string[]) =>
@@ -61,8 +59,9 @@ export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
     setIsAddingMoreArticles: (isAddingMoreArticles: boolean) =>
       set({ isAddingMoreArticles }),
     setStep: (step: number) => set({ step }),
-    setCheckedArticles: (checkedArticles: ICheckedArticles[]) =>
-      set({ checkedArticles }),
+    setCheckedArticles: (state: ICheckedArticles[]) => {
+      set({ checkedArticles: state });
+    },
     fetchArticlesAlert: async () => {
       set(() => ({ isLoading: true }));
       try {
@@ -75,6 +74,15 @@ export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
       } finally {
         set(() => ({ isLoading: false }));
       }
+    },
+    cleanAllData: () => {
+      set(() => ({
+        step: 0,
+        articlesPurchased: [],
+        checkedArticles: [],
+        isAddingMoreArticles: false,
+        warehouseSelected: "",
+      }));
     },
   })
 );

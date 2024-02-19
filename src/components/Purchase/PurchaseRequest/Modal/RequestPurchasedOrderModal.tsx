@@ -37,7 +37,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
-  getArticlesByIds,
+  addPurchaseOrder,
   getPurchaseConfig,
 } from "../../../../api/api.routes";
 import { addArticlesPrice } from "../../../../utils/functions/dataUtils";
@@ -164,27 +164,24 @@ const stepsForm = [
 interface RequestPurchasedOrderModalProps {
   open: Function;
 }
+
 export const RequestPurchasedOrderModal = ({
   open,
 }: RequestPurchasedOrderModalProps) => {
-  const { cleanArticles } = useArticlePagination();
   const {
     step,
     isAddingMoreArticles,
     setIsAddingMoreArticles,
     isManyProviders,
-  } = useArticlesAlertPagination((state) => ({
-    step: state.step,
-    isAddingMoreArticles: state.isAddingMoreArticles,
-    setIsAddingMoreArticles: state.setIsAddingMoreArticles,
-    isManyProviders: state.isManyProviders,
-  }));
-
-  useEffect(() => {
-    return () => {
-      cleanArticles();
-    };
-  }, []);
+  } = useArticlesAlertPagination(
+    (state) => ({
+      step: state.step,
+      isAddingMoreArticles: state.isAddingMoreArticles,
+      setIsAddingMoreArticles: state.setIsAddingMoreArticles,
+      isManyProviders: state.isManyProviders,
+    }),
+    shallow
+  );
 
   return (
     <Box sx={{ ...style, ...styleBar }}>
@@ -252,41 +249,56 @@ export const RequestPurchasedOrderModal = ({
 };
 
 const TableComponent = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
-    checkedArticles,
-    setCheckedArticles,
     setStep,
     setHandleOpen,
     handleOpen,
     step,
     setIsManyProviders,
+    warehouseSelected,
+    articlesPurchased,
   } = useArticlesAlertPagination(
     (state) => ({
-      checkedArticles: state.checkedArticles,
-      setCheckedArticles: state.setCheckedArticles,
       setStep: state.setStep,
       setHandleOpen: state.setHandleOpen,
       handleOpen: state.handleOpen,
       step: state.step,
       setIsManyProviders: state.setIsManyProviders,
+      warehouseSelected: state.warehouseSelected,
+      setArticlesPurchased: state.setArticlesPurchased,
+      articlesPurchased: state.articlesPurchased,
     }),
     shallow
   );
+
+  const { checkedArticles: articlesWare } =
+    useArticlesAlertPagination.getState();
+
+  const [checkedArticles, setCheckedArticles] = useState(
+    articlesWare.filter((i) => i.idAlmacen === warehouseSelected)
+  );
+
   const { articles, isLoadingArticles } = useGetArticlesByIds(
     checkedArticles.flatMap((article) => article.idArticulo)
   );
+
   const handleDeleteArticle = (id: string) => () => {
     const articlesFiltered = checkedArticles.filter(
       (article) => article.idArticulo !== id
     );
     setCheckedArticles(articlesFiltered);
+    useArticlesAlertPagination.setState({ checkedArticles: articlesFiltered });
+    useArticlesAlertPagination.setState({
+      articlesPurchased: articlesPurchased.filter((i) => i.id_articulo !== id),
+    });
   };
-  const [isLoading, setIsLoading] = useState(false);
 
   const simulateAsyncCall = () => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve("Llamada asincrónica completada");
+        resolve("Llamada asincronía completada");
       }, 2000);
     });
   };
@@ -295,12 +307,8 @@ const TableComponent = () => {
     try {
       setIsLoading(true);
       const { cantidadOrdenDirecta } = await getPurchaseConfig();
-      const articleData = await getArticlesByIds(
-        checkedArticles.flatMap((article) => article.idArticulo)
-      );
-      const sumaPrecios = addArticlesPrice(articleData);
+      const sumaPrecios = addArticlesPrice(articlesPurchased);
       await simulateAsyncCall();
-      console.log({ cantidadOrdenDirecta });
       if (sumaPrecios >= cantidadOrdenDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders);
       } else {
@@ -314,6 +322,11 @@ const TableComponent = () => {
     }
   };
 
+  const articleName = (articleId: string) => {
+    const article = articles.find((i) => i.id === articleId);
+    return article ? article.nombre : "";
+  };
+
   return (
     <>
       <Box sx={{ overflowY: "auto" }}>
@@ -324,32 +337,34 @@ const TableComponent = () => {
                 <TableRow>
                   <TableCell>Nombre</TableCell>
                   <TableCell>Cantidad</TableCell>
-                  <TableCell>Precio estimado</TableCell>
+                  <TableCell>Precio inventario</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {!isLoadingArticles && articles.length > 0 ? (
-                  articles.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.nombre}</TableCell>
-                      <TableCell>{item.stockMinimo}</TableCell>
+                {!isLoadingArticles && articlesPurchased.length > 0 ? (
+                  articlesPurchased.map((item) => (
+                    <TableRow key={item.id_articulo}>
+                      <TableCell>{articleName(item.id_articulo)}</TableCell>
+                      <TableCell>{item.cantidadComprar}</TableCell>
                       <TableCell>{item.precioInventario}</TableCell>
                       <TableCell>
                         <Tooltip title="Eliminar">
-                          <IconButton onClick={handleDeleteArticle(item.id)}>
+                          <IconButton
+                            onClick={handleDeleteArticle(item.id_articulo)}
+                          >
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))
-                ) : isLoadingArticles && articles.length === 0 ? (
+                ) : isLoadingArticles && articlesPurchased.length === 0 ? (
                   <CircularProgress />
                 ) : null}
               </TableBody>
             </Table>
-            {articles.length === 0 && !isLoadingArticles && (
+            {articlesPurchased.length === 0 && !isLoadingArticles && (
               <Paper
                 sx={{
                   columnGap: 2,
@@ -373,6 +388,22 @@ const TableComponent = () => {
           </Card>
         </Box>
       </Box>
+      <Stack
+        sx={{
+          mt: 4,
+          display: "flex",
+          flex: 1,
+          alignItems: "end",
+        }}
+      >
+        <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
+          Total precio estimado: ${addArticlesPrice(articlesPurchased)}.
+        </Typography>
+        <Typography sx={{ fontSize: 10 }}>
+          Nota: El precio del proveedor puede variar con respecto al precio de
+          inventario.
+        </Typography>
+      </Stack>
       <Stack
         sx={{
           flexDirection: "row",
@@ -428,6 +459,7 @@ const AddMoreArticlesTable = () => {
     isAddingMoreArticles,
     articlesPurchased,
     setArticlesPurchased,
+    warehouseSelected,
   } = useArticlesAlertPagination(
     (state) => ({
       checkedArticles: state.checkedArticles,
@@ -436,6 +468,7 @@ const AddMoreArticlesTable = () => {
       isAddingMoreArticles: state.isAddingMoreArticles,
       articlesPurchased: state.articlesPurchased,
       setArticlesPurchased: state.setArticlesPurchased,
+      warehouseSelected: state.warehouseSelected,
     }),
     shallow
   );
@@ -454,13 +487,20 @@ const AddMoreArticlesTable = () => {
   }, []);
 
   const handleArticlesSelected = (id: string) => {
-    return articlesAlreadyChecked.some((article) => article.idArticulo === id);
+    return articlesAlreadyChecked.some(
+      (article) =>
+        article.idArticulo === id && article.idAlmacen === warehouseSelected
+    );
   };
 
   const handleIsArticleChecked = useCallback(
     (articleId: string) => {
       if (
-        checkedArticles.some((article) => article.idArticulo === articleId) ||
+        checkedArticles.some(
+          (article) =>
+            article.idArticulo === articleId &&
+            article.idAlmacen === warehouseSelected
+        ) ||
         articlesId.some((article) => article === articleId)
       ) {
         return true;
@@ -506,8 +546,13 @@ const AddMoreArticlesTable = () => {
         precioInventario: item.precioInventario,
       })
     );
+    console.log({ articlesPurchasedArray });
+    const articleToChecked = Object.values(quantityArticles).map((i) => ({
+      idArticulo: i.id_articulo,
+      idAlmacen: warehouseSelected,
+    }));
     setArticlesPurchased([...articlesPurchased, ...articlesPurchasedArray]);
-    // setCheckedArticles([...checkedArticles, ...articlesId]);
+    setCheckedArticles([...checkedArticles, ...articleToChecked]);
     setIsAddingMoreArticles(!isAddingMoreArticles);
   };
 
@@ -554,7 +599,7 @@ const AddMoreArticlesTable = () => {
                     <TableCell />
                     <TableCell>Nombre</TableCell>
                     <TableCell>Cantidad</TableCell>
-                    <TableCell>Precio estimado</TableCell>
+                    <TableCell>Precio inventario</TableCell>
                   </TableRow>
                 </TableHead>
                 {!isLoading && data.length > 0 ? (
@@ -583,11 +628,19 @@ const AddMoreArticlesTable = () => {
                             <TextField
                               label="Cantidad a comprar"
                               value={
-                                quantityArticles[item.id]?.cantidadComprar || ""
+                                quantityArticles[item.id].cantidadComprar || ""
                               }
-                              error={showError && !quantityArticles[item.id]}
+                              error={
+                                showError &&
+                                quantityArticles[
+                                  item.id
+                                ].cantidadComprar.trim() === ""
+                              }
                               helperText={
-                                showError && !quantityArticles[item.id]
+                                showError &&
+                                quantityArticles[
+                                  item.id
+                                ].cantidadComprar.trim() === ""
                                   ? "Debe agregar una cantidad"
                                   : null
                               }
@@ -792,14 +845,60 @@ const SelectManyProviders = () => {
 };
 
 const SelectSingleProvider = () => {
-  const { setStep, step } = useArticlesAlertPagination((state) => ({
-    setStep: state.setStep,
-    step: state.step,
-  }));
-  const { isLoadingProviders, providers } = useGetAllProviders();
-  const [selectedProvider, setSelectedProvider] = useState<string | string[]>(
-    ""
+  const {
+    setStep,
+    step,
+    warehouseSelected,
+    articlesPurchased,
+    checkedArticles,
+  } = useArticlesAlertPagination(
+    (state) => ({
+      setStep: state.setStep,
+      step: state.step,
+      warehouseSelected: state.warehouseSelected,
+      articlesPurchased: state.articlesPurchased,
+      checkedArticles: state.checkedArticles,
+    }),
+    shallow
   );
+  const { isLoadingProviders, providers } = useGetAllProviders();
+  const [error, setError] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    if (selectedProvider.length === 0) return setError(true);
+    console.log(selectedProvider);
+    const objectToPurchase = {
+      id_proveedor: selectedProvider,
+      Articulos: articlesPurchased.map((i) => ({
+        Id_Articulo: i.id_articulo,
+        CantidadComprar: i.cantidadComprar,
+      })),
+      id_almacen: warehouseSelected,
+      PrecioTotalInventario: addArticlesPrice(articlesPurchased),
+      AlertaCompras: checkedArticles.flatMap((i) => i.idAlerta),
+    };
+    console.log({ objectToPurchase });
+    try {
+      const data = await addPurchaseOrder(
+        objectToPurchase.id_proveedor,
+        objectToPurchase.Articulos,
+        objectToPurchase.id_almacen,
+        objectToPurchase.PrecioTotalInventario,
+        objectToPurchase.AlertaCompras ? [] : objectToPurchase.AlertaCompras
+      );
+      console.log({ data });
+      toast.success("Orden de compra exitosa!");
+      useArticlesAlertPagination.setState({ handleOpen: false });
+    } catch (error) {
+      toast.error("Error al ordenar la compra!");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoadingProviders)
     return (
@@ -820,8 +919,14 @@ const SelectSingleProvider = () => {
             select
             label="Proveedor"
             value={selectedProvider}
+            error={error && selectedProvider.trim() === ""}
+            helperText={
+              error && selectedProvider.trim() === ""
+                ? "Selecciona un proveedor"
+                : null
+            }
             onChange={(e) => {
-              setSelectedProvider([e.target.value]);
+              setSelectedProvider(e.target.value);
             }}
           >
             {providers.map((provider) => (
@@ -845,6 +950,7 @@ const SelectSingleProvider = () => {
       >
         <Button
           variant="outlined"
+          disabled={isLoading}
           onClick={() => {
             setStep(step - 1);
           }}
@@ -854,8 +960,9 @@ const SelectSingleProvider = () => {
         <Button
           variant="contained"
           onClick={() => {
-            setStep(step + 1);
+            handleSubmit();
           }}
+          disabled={isLoading}
         >
           Enviar solicitud
         </Button>

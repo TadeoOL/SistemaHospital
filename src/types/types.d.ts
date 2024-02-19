@@ -171,3 +171,14 @@ export interface IFactor {
   cantidadMaxima: number;
   factor: number;
 }
+
+export interface ArticleObject {
+  id_articulo: string;
+  cantidadComprar: number;
+  precioInventario: number;
+}
+export interface ICheckedArticles {
+  idAlmacen: string;
+  idAlerta?: string;
+  idArticulo: string;
+}

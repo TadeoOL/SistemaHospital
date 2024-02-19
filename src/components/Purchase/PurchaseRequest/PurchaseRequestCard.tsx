@@ -1,13 +1,19 @@
-import { Box, Button, Modal, Stack } from "@mui/material";
+import { Box, Modal } from "@mui/material";
 import { AlertArticlesTable } from "./SubComponents/AlertArticlesTable";
 import { RequestPurchasedOrderModal } from "./Modal/RequestPurchasedOrderModal";
 import { useArticlesAlertPagination } from "../../../store/purchaseStore/articlesAlertPagination";
+import { shallow } from "zustand/shallow";
 
 export const PurchaseRequestCard = () => {
-  const { handleOpen, setHandleOpen } = useArticlesAlertPagination((state) => ({
-    handleOpen: state.handleOpen,
-    setHandleOpen: state.setHandleOpen,
-  }));
+  const { handleOpen, setHandleOpen } = useArticlesAlertPagination(
+    (state) => ({
+      handleOpen: state.handleOpen,
+      setHandleOpen: state.setHandleOpen,
+      cleanAllData: state.cleanAllData,
+    }),
+    shallow
+  );
+
   return (
     <>
       <Box
@@ -23,7 +29,12 @@ export const PurchaseRequestCard = () => {
           <AlertArticlesTable />
         </Box>
       </Box>
-      <Modal open={handleOpen} onClose={() => setHandleOpen(false)}>
+      <Modal
+        open={handleOpen}
+        onClose={() => {
+          setHandleOpen(false);
+        }}
+      >
         <>
           <RequestPurchasedOrderModal open={setHandleOpen} />
         </>

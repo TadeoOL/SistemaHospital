@@ -1,7 +1,10 @@
-export const addArticlesPrice = (arrayDeObjetos: any[]) => {
-  console.log({ arrayDeObjetos });
-  const precioTotal = arrayDeObjetos.flatMap(
-    (objeto) => objeto.precioInventario
-  );
-  return precioTotal.reduce((total, precio) => total + precio, 0);
+import { ArticleObject } from "../../types/types";
+
+export const addArticlesPrice = (arrayDeObjetos: ArticleObject[]) => {
+  const precioTotal = arrayDeObjetos.reduce((total, objeto) => {
+    const precioTotalObjeto = objeto.cantidadComprar * objeto.precioInventario;
+    return total + precioTotalObjeto;
+  }, 0);
+
+  return precioTotal;
 };

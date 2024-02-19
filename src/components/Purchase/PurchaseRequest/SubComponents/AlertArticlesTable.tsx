@@ -16,8 +16,9 @@ import {
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 import { shallow } from "zustand/shallow";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { IArticlesAlert } from "../../../../types/types";
+import { getArticlesByIds } from "../../../../api/api.routes";
 
 const useGetAllData = () => {
   const {
@@ -33,6 +34,8 @@ const useGetAllData = () => {
     setArticlesPurchased,
     handleOpen,
     setHandleOpen,
+    warehouseSelected,
+    cleanAllData,
   } = useArticlesAlertPagination(
     (state) => ({
       fetchArticlesAlert: state.fetchArticlesAlert,
@@ -47,6 +50,8 @@ const useGetAllData = () => {
       setArticlesPurchased: state.setArticlesPurchased,
       handleOpen: state.handleOpen,
       setHandleOpen: state.setHandleOpen,
+      warehouseSelected: state.warehouseSelected,
+      cleanAllData: state.cleanAllData,
     }),
     shallow
   );
@@ -67,6 +72,8 @@ const useGetAllData = () => {
     setArticlesPurchased,
     handleOpen,
     setHandleOpen,
+    warehouseSelected,
+    cleanAllData,
   };
 };
 
@@ -83,47 +90,17 @@ export const AlertArticlesTable = () => {
     setArticlesPurchased,
     handleOpen,
     setHandleOpen,
+    cleanAllData,
   } = useGetAllData();
 
-  const handleUserChecked = (
-    idArticulo: string,
-    idAlerta: string,
-    cantidadComprar: number,
-    precioInventario: number,
-    checked: boolean
-  ) => {
-    const objectArticle = {
-      id_articulo: idArticulo,
-      cantidadComprar: cantidadComprar,
-      precioInventario: precioInventario,
-    };
-    if (checked) {
-      setCheckedArticles([
-        ...checkedArticles,
-        { idAlerta: idAlerta, idArticulo: idArticulo },
-      ]);
-      setAlertArticlesChecked([...alertArticlesChecked, idAlerta]);
-      setArticlesPurchased([...articlesPurchased, objectArticle]);
-    } else {
-      setCheckedArticles(
-        checkedArticles.filter((item) => item.idAlerta !== idAlerta)
-      );
-      setAlertArticlesChecked(
-        alertArticlesChecked.filter((item) => item !== idAlerta)
-      );
-      setArticlesPurchased(
-        articlesPurchased.filter((item) => item.id_articulo !== idArticulo)
-      );
-    }
-  };
-  console.log({ checkedArticles });
+  const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
 
   const handleIsArticleChecked = useCallback(
-    (articleId: string, alertId: string) => {
+    (articleId: string, almacenId: string) => {
       if (
         checkedArticles.some(
           (article) =>
-            article.idArticulo === articleId && article.idAlerta === alertId
+            article.idArticulo === articleId && article.idAlmacen === almacenId
         )
       ) {
         return true;
@@ -143,21 +120,102 @@ export const AlertArticlesTable = () => {
     };
   }, []);
 
-  const handleSelectAllArticles = (idAlmacen: string, isChecked: boolean) => {
+  useEffect(() => {
+    if (!handleOpen) return cleanAllData();
+  }, [handleOpen]);
+
+  const handleSelectAllArticles = async (
+    idAlmacen: string,
+    isChecked: boolean
+  ) => {
     const articlesToSelect =
       data.find((alert) => alert.id_Almacen === idAlmacen)?.articulos || [];
-    articlesToSelect.forEach((item) => {
-      handleUserChecked(
-        item.id_Articulo,
-        item.id_AlertaCompra,
-        item.cantidadComprar,
-        item.precioInventario,
-        isChecked
-      );
+
+    const newCheckedArticles = articlesToSelect.map((iterator) => ({
+      idAlmacen: idAlmacen,
+      idAlerta: iterator.id_AlertaCompra,
+      idArticulo: iterator.id_Articulo,
+    }));
+
+    const { checkedArticles: prevCheckedArticles } =
+      useArticlesAlertPagination.getState();
+
+    useArticlesAlertPagination.setState({
+      checkedArticles: isChecked
+        ? [...prevCheckedArticles, ...newCheckedArticles]
+        : prevCheckedArticles.filter(
+            (item) =>
+              !newCheckedArticles.some(
+                (newItem) => newItem.idAlerta === item.idAlerta
+              )
+          ),
     });
   };
 
-  console.log({ data });
+  const handleUserChecked = (
+    idAlmacen: string,
+    idArticulo: string,
+    idAlerta: string,
+    cantidadComprar: number,
+    precioInventario: number,
+    checked: boolean
+  ) => {
+    const objectArticle = {
+      id_articulo: idArticulo,
+      cantidadComprar: cantidadComprar,
+      precioInventario: precioInventario,
+    };
+    const objectChecked = {
+      idAlmacen: idAlmacen,
+      idAlerta: idAlerta,
+      idArticulo: idArticulo,
+    };
+
+    if (checked) {
+      setCheckedArticles([...checkedArticles, objectChecked]);
+      setAlertArticlesChecked([...alertArticlesChecked, idAlerta]);
+      setArticlesPurchased([...articlesPurchased, objectArticle]);
+    } else {
+      setCheckedArticles(
+        checkedArticles.filter(
+          (item) =>
+            item.idArticulo !== idArticulo && item.idAlmacen === idAlmacen
+        )
+      );
+      setAlertArticlesChecked(
+        alertArticlesChecked.filter((item) => item !== idAlerta)
+      );
+      setArticlesPurchased(
+        articlesPurchased.filter((item) => item.id_articulo !== idArticulo)
+      );
+    }
+  };
+
+  const handlePurchaseOrder = async (idAlmacen: string) => {
+    setIsLoadingNextStep(true);
+
+    try {
+      const articles = checkedArticles.filter((i) => i.idAlmacen === idAlmacen);
+      const res = await getArticlesByIds(
+        articles.flatMap((article) => article.idArticulo)
+      );
+      setArticlesPurchased(
+        res.map((article) => ({
+          id_articulo: article.id,
+          cantidadComprar: article.stockMinimo,
+          precioInventario: article.precioInventario,
+        }))
+      );
+      useArticlesAlertPagination.setState({
+        warehouseSelected: idAlmacen,
+      });
+      setHandleOpen(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingNextStep(false);
+    }
+  };
 
   if (isLoading) return <CircularProgress />;
   return (
@@ -176,7 +234,13 @@ export const AlertArticlesTable = () => {
             <Typography variant="subtitle2">
               Almacen: {alert.nombreAlmacen}
             </Typography>
-            <Button variant="contained" onClick={() => setHandleOpen(true)}>
+            <Button
+              variant="contained"
+              disabled={isLoadingNextStep}
+              onClick={() => {
+                handlePurchaseOrder(alert.id_Almacen);
+              }}
+            >
               Solicitar orden de compra
             </Button>
           </Stack>
@@ -207,6 +271,7 @@ export const AlertArticlesTable = () => {
                       <Checkbox
                         onChange={(event) =>
                           handleUserChecked(
+                            alert.id_Almacen,
                             item.id_Articulo,
                             item.id_AlertaCompra,
                             item.cantidadComprar,
@@ -216,7 +281,7 @@ export const AlertArticlesTable = () => {
                         }
                         checked={handleIsArticleChecked(
                           item.id_Articulo,
-                          item.id_AlertaCompra
+                          alert.id_Almacen
                         )}
                       />
                     </TableCell>
