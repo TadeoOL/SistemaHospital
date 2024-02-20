@@ -561,17 +561,19 @@ export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
 
 export const addPurchaseOrder = async (
   providerId: string,
-  articles: { Id_Articulo: string; CantidadComprar: number }[],
+  articles: {
+    Id_Articulo: string;
+    CantidadCompra: number;
+    Id_AlertaCompra: string | null;
+  }[],
   warehouseId: string,
-  totalArticlePrice: number,
-  alertArticlesId: string[]
+  totalArticlePrice: number
 ) => {
   const res = await axios.post("/api/Compras/registrar-orden-compra", {
     id_proveedor: providerId,
     Articulos: articles,
     id_almacen: warehouseId,
     PrecioTotalInventario: totalArticlePrice,
-    AlertaCompras: alertArticlesId,
   });
   return res.data;
 };

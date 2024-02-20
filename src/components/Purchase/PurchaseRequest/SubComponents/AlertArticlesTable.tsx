@@ -217,6 +217,8 @@ export const AlertArticlesTable = () => {
     }
   };
 
+  console.log({ data });
+
   if (isLoading) return <CircularProgress />;
   return (
     <Stack spacing={4} sx={{ p: 2 }}>
@@ -293,45 +295,45 @@ export const AlertArticlesTable = () => {
                 ))}
               </TableBody>
             </Table>
-            {isLoading && data.length === 0 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  flex: 1,
-                  justifyContent: "center",
-                  p: 4,
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            )}
-            {data.length === 0 && !isLoading && (
-              <Card
-                sx={{
-                  display: "flex",
-                  flexGrow: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  p: 2,
-                  columnGap: 1,
-                }}
-              >
-                <ErrorOutlineIcon
-                  sx={{ color: "neutral.400", width: "40px", height: "40px" }}
-                />
-                <Typography
-                  sx={{ color: "neutral.400" }}
-                  fontSize={24}
-                  fontWeight={500}
-                >
-                  No existen registros
-                </Typography>
-              </Card>
-            )}
           </Card>
           {index === data.length - 1 ? null : <Divider sx={{ my: 6 }} />}
         </React.Fragment>
       ))}
+      {isLoading && data.length === 0 && (
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+            justifyContent: "center",
+            p: 4,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+      {data.length === 0 && !isLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            flexGrow: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            p: 2,
+            columnGap: 1,
+          }}
+        >
+          <ErrorOutlineIcon
+            sx={{ color: "neutral.400", width: "40px", height: "40px" }}
+          />
+          <Typography
+            sx={{ color: "neutral.400" }}
+            fontSize={24}
+            fontWeight={500}
+          >
+            No existen registros
+          </Typography>
+        </Box>
+      )}
     </Stack>
   );
 };

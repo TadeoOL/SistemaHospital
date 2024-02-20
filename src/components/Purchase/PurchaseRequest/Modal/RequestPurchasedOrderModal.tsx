@@ -846,6 +846,7 @@ const SelectSingleProvider = () => {
     warehouseSelected,
     articlesPurchased,
     checkedArticles,
+    fetchArticlesAlert,
   } = useArticlesAlertPagination(
     (state) => ({
       setStep: state.setStep,
@@ -853,6 +854,7 @@ const SelectSingleProvider = () => {
       warehouseSelected: state.warehouseSelected,
       articlesPurchased: state.articlesPurchased,
       checkedArticles: state.checkedArticles,
+      fetchArticlesAlert: state.fetchArticlesAlert,
     }),
     shallow
   );
@@ -864,29 +866,38 @@ const SelectSingleProvider = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     if (selectedProvider.length === 0) return setError(true);
-    console.log(selectedProvider);
     const objectToPurchase = {
       id_proveedor: selectedProvider,
-      Articulos: articlesPurchased.map((i) => ({
-        Id_Articulo: i.id_articulo,
-        CantidadComprar: i.cantidadComprar,
-      })),
+      Articulos: articlesPurchased.map((article) => {
+        const matchingCheckedArticle = checkedArticles.find(
+          (checkedArticle) => {
+            return (
+              checkedArticle.idAlmacen === warehouseSelected &&
+              checkedArticle.idArticulo === article.id_articulo
+            );
+          }
+        );
+        const idAlertaCompra = matchingCheckedArticle?.idAlerta;
+
+        return {
+          Id_Articulo: article.id_articulo,
+          CantidadCompra: article.cantidadComprar,
+          Id_AlertaCompra: idAlertaCompra !== undefined ? idAlertaCompra : null,
+        };
+      }),
       id_almacen: warehouseSelected,
       PrecioTotalInventario: addArticlesPrice(articlesPurchased),
-      AlertaCompras: checkedArticles.flatMap((i) => i.idAlerta),
     };
-    console.log({ objectToPurchase });
     try {
-      const data = await addPurchaseOrder(
+      await addPurchaseOrder(
         objectToPurchase.id_proveedor,
         objectToPurchase.Articulos,
         objectToPurchase.id_almacen,
-        objectToPurchase.PrecioTotalInventario,
-        objectToPurchase.AlertaCompras ? [] : objectToPurchase.AlertaCompras
+        objectToPurchase.PrecioTotalInventario
       );
-      console.log({ data });
       toast.success("Orden de compra exitosa!");
       useArticlesAlertPagination.setState({ handleOpen: false });
+      fetchArticlesAlert();
     } catch (error) {
       toast.error("Error al ordenar la compra!");
       console.log(error);
