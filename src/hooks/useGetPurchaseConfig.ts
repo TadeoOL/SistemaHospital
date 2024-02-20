@@ -9,7 +9,7 @@ export const useGetPurchaseConfig = () => {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["allProviders"],
+    queryKey: ["purchaseConfig"],
     queryFn: async () => getPurchaseConfig(),
   });
 
