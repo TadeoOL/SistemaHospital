@@ -1,17 +1,14 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { shallow } from "zustand/shallow";
-import withReactContent from "sweetalert2-react-content";
-import Swal from "sweetalert2";
-import EditIcon from "@mui/icons-material/Edit";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-
 import {
   Box,
   Card,
+  Chip,
   CircularProgress,
+  Collapse,
   IconButton,
   Modal,
   Table,
@@ -24,6 +21,8 @@ import {
   Typography,
 } from "@mui/material";
 import { usePurchaseAuthorizationPagination } from "../../../store/purchaseStore/purchaseAuthorizationPagination";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const useGetAllData = () => {
   const {
@@ -73,43 +72,12 @@ const useGetAllData = () => {
 };
 
 export const PurchaseAuthorizationTable = () => {
-  const {
-    count,
-    enabled,
-    isLoading,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-  } = useGetAllData();
+  const { data, count, isLoading, pageIndex, pageSize, setPageSize } =
+    useGetAllData();
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [articleId, setArticleId] = useState("");
+  const [viewArticles, setViewArticles] = useState(false);
 
-  // const handleUserChecked = (e: any) => {
-  //   const { value, checked } = e.target;
-
-  //   if (checked) {
-  //     setIsChecked([...isChecked, value]);
-  //   } else {
-  //     setIsChecked(isChecked.filter((item) => item !== value));
-  //   }
-  // };
-
-  // const handleIsUserChecked = (userId: string) => {
-  //   if (isChecked.some((user) => user === userId)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-  const data = [
-    {
-      id: "1",
-      ordenCompra: "HSB1021",
-      fechaSolicitud: "24-10-2024",
-      creadoPor: "Tadeo Osuna",
-    },
-  ];
+  console.log({ data });
   return (
     <>
       <Card sx={{ m: 2 }}>
@@ -118,7 +86,9 @@ export const PurchaseAuthorizationTable = () => {
             <TableRow>
               <TableCell>Orden de compra</TableCell>
               <TableCell>Creado por</TableCell>
+              <TableCell>Proveedor</TableCell>
               <TableCell>Fecha de solicitud</TableCell>
+              <TableCell>Total</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -127,12 +97,36 @@ export const PurchaseAuthorizationTable = () => {
               ? null
               : isLoading
               ? null
-              : data.map((article) => (
-                  <React.Fragment key={article.id}>
+              : data.map((auth) => (
+                  <React.Fragment key={auth.id_OrdenCompra}>
                     <TableRow>
-                      <TableCell>{article.ordenCompra}</TableCell>
-                      <TableCell>{article.creadoPor}</TableCell>
-                      <TableCell>{article.fechaSolicitud}</TableCell>
+                      <TableCell>
+                        {!viewArticles ? (
+                          <IconButton
+                            onClick={() => setViewArticles(!viewArticles)}
+                          >
+                            <ExpandMoreIcon />
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            onClick={() => setViewArticles(!viewArticles)}
+                          >
+                            <ExpandLessIcon />
+                          </IconButton>
+                        )}
+                        {auth.folio}
+                      </TableCell>
+                      <TableCell>{auth.usuarioSolicitado}</TableCell>
+                      <TableCell>
+                        {auth.solicitudProveedor.map((i) => (
+                          <Chip
+                            key={i.proveedor.id_Proveedor}
+                            label={i.proveedor.nombre}
+                          />
+                        ))}
+                      </TableCell>
+                      <TableCell>{auth.fechaSolicitud.split("T")[0]}</TableCell>
+                      <TableCell>${auth.precioTotalOrden}</TableCell>
                       <TableCell>
                         <Tooltip title="Aceptar">
                           <IconButton
@@ -150,6 +144,26 @@ export const PurchaseAuthorizationTable = () => {
                         </Tooltip>
                       </TableCell>
                     </TableRow>
+                    <Collapse in={viewArticles}>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Articulo</TableCell>
+                            <TableCell>Cantidad</TableCell>
+                            <TableCell>Precio</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        {auth.ordenCompraArticulo.map((order) => (
+                          <TableBody key={order.id}>
+                            <TableRow>
+                              <TableCell>{order.articulo.nombre}</TableCell>
+                              <TableCell>{order.cantidadCompra}</TableCell>
+                              <TableCell>{order.precioProveedor}</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        ))}
+                      </Table>
+                    </Collapse>
                   </React.Fragment>
                 ))}
           </TableBody>

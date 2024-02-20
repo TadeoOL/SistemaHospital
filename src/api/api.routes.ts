@@ -546,6 +546,19 @@ export const getPurchaseConfig = async () => {
   return res.data as IPurchaseConfig;
 };
 
+export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
+  const { cantidadOrdenDirecta, factor } = data;
+  const res = await axios.put("/api/Compras/actualizar-configuracion-compras", {
+    factor: JSON.stringify(factor),
+    cantidadOrdenDirecta,
+  });
+  const resData = {
+    factor: JSON.parse(res.data.factor),
+    cantidadOrdenDirecta: res.data.cantidadOrdenDirecta,
+  };
+  return resData as IPurchaseConfig;
+};
+
 export const addPurchaseOrder = async (
   providerId: string,
   articles: { Id_Articulo: string; CantidadComprar: number }[],
@@ -560,5 +573,12 @@ export const addPurchaseOrder = async (
     PrecioTotalInventario: totalArticlePrice,
     AlertaCompras: alertArticlesId,
   });
+  return res.data;
+};
+
+export const getPurchaseAuthorization = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-autorizacion-compras-administrador?${paramUrl}`
+  );
   return res.data;
 };

@@ -1,20 +1,22 @@
-import { getAllProviders } from "../api/api.routes";
-import { IProvider } from "../types/types";
+import { getPurchaseConfig } from "../api/api.routes";
+import { IPurchaseConfig } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetAllProviders = () => {
+export const useGetPurchaseConfig = () => {
   const {
     data = [],
     isError,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ["allProviders"],
-    queryFn: async () => getAllProviders(),
+    queryFn: async () => getPurchaseConfig(),
   });
 
   return {
-    isLoadingProviders: isLoading,
-    providers: data as IProvider[],
+    isLoadingPurchaseConfig: isLoading,
+    config: data as IPurchaseConfig,
     isError,
+    refetch,
   };
 };

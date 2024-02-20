@@ -131,21 +131,16 @@ const AlertConfigAmount = (
 ) => {
   Swal.fire({
     icon: "warning",
-    title: "Tu orden excede el limite de precio para compra directa?",
-    showDenyButton: true,
+    title: "Tu orden excede el limite de precio para compra directa!",
     showCancelButton: true,
     cancelButtonText: "Cancelar",
     confirmButtonText: "Mandar a autorización",
-    denyButtonText: `Solicitar proveedores`,
     customClass: {
       container: "swal-container",
     },
   }).then((result) => {
     if (result.isConfirmed) {
       setIsManyProviders(false);
-      setStep(step + 1);
-    } else if (result.isDenied) {
-      setIsManyProviders(true);
       setStep(step + 1);
     }
   });
@@ -929,7 +924,7 @@ const SelectSingleProvider = () => {
               setSelectedProvider(e.target.value);
             }}
           >
-            {providers.map((provider) => (
+            {providers?.map((provider) => (
               <MenuItem value={provider.id} key={provider.id}>
                 {provider.nombreContacto + " - " + provider.nombreCompania}
               </MenuItem>

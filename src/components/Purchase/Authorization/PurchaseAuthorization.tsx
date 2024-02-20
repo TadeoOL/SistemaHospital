@@ -2,6 +2,7 @@ import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import { SearchBar } from "../../Inputs/SearchBar";
 import { PurchaseAuthorizationTable } from "./PurchaseAuthorizationTable";
+import { PurchaseConfigModal } from "./Modal/PurchaseConfigModal";
 
 export const PurchaseAuthorization = () => {
   const [open, setOpen] = useState(false);
@@ -35,22 +36,35 @@ export const PurchaseAuthorization = () => {
               display: "flex",
               flexGrow: 1,
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "end",
               p: 3,
             }}
           >
             <Typography fontWeight={700} fontSize={24}>
-              Cotizaciones realizadas
+              Autorización de ordenes de compra
             </Typography>
+            <Button variant="contained" onClick={() => setOpen(true)}>
+              Configuración ordenes de compra
+            </Button>
           </Stack>
           <SearchBar
-            title="Busca el articulo existente..."
+            title="Busca la orden de compra..."
             searchState={() => {}}
           />
           <Divider sx={{ my: 1 }} />
           <PurchaseAuthorizationTable />
         </Box>
       </Box>
+      <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
+        <>
+          <PurchaseConfigModal open={setOpen} />
+        </>
+      </Modal>
     </>
   );
 };

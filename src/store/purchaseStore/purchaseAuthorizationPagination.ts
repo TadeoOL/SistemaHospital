@@ -1,12 +1,13 @@
 import { createWithEqualityFn } from "zustand/traditional";
-import { getArticles } from "../../api/api.routes";
+import { getPurchaseAuthorization } from "../../api/api.routes";
+import { IPurchaseAuthorization } from "../../types/types";
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: any[];
+  data: IPurchaseAuthorization[];
   isLoading: boolean;
   search: string;
   enabled: boolean;
@@ -53,7 +54,7 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
-      const res = await getArticles(
+      const res = await getPurchaseAuthorization(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
         }&search=${search}&habilitado=${enabled}`

@@ -182,3 +182,42 @@ export const addPurchase = z.object({
     { message: "Escribe una cantidad válida y mayor que cero" }
   ),
 });
+
+export const addNewFactorSchema = z
+  .object({
+    cantidadMinima: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida" }
+    ),
+    cantidadMaxima: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida" }
+    ),
+    factorMultiplicador: z.string().refine(
+      (value) => {
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: "Escribe una cantidad válida" }
+    ),
+  })
+  .refine(
+    (data) => parseFloat(data.cantidadMinima) < parseFloat(data.cantidadMaxima),
+    {
+      message: "La cantidad mínima debe ser menor que la cantidad máxima",
+      path: ["cantidadMinima"],
+    }
+  )
+  .refine(
+    (data) => parseFloat(data.cantidadMaxima) > parseFloat(data.cantidadMinima),
+    {
+      message: "La cantidad máxima debe ser mayor que la cantidad mínima",
+      path: ["cantidadMaxima"],
+    }
+  );

@@ -140,9 +140,27 @@ export interface IPurchase {
 }
 
 export interface IPurchaseAuthorization {
-  ordenCompra: string;
+  estatus: number;
   fechaSolicitud: string;
-  creadoPor: string;
+  folio: string;
+  usuarioSolicitado: string;
+  solicitudProveedor: [
+    {
+      id: string;
+      proveedor: { id_Proveedor: string; nombre: string };
+    }
+  ];
+  precioTotalOrden: number;
+  ordenCompraArticulo: [
+    {
+      id: string;
+      id_Articulo: string;
+      cantidadCompra: number;
+      precioProveedor: number;
+      articulo: { id_Articulo: string; nombre: string };
+    }
+  ];
+  id_OrdenCompra: string;
 }
 
 export interface IArticlesAlert {
@@ -167,9 +185,9 @@ export interface IPurchaseConfig {
 }
 
 export interface IFactor {
-  cantidadMinima: number;
-  cantidadMaxima: number;
-  factor: number;
+  cantidadMinima: number | string;
+  cantidadMaxima: number | string;
+  factorMultiplicador: number | string;
 }
 
 export interface ArticleObject {
