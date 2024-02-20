@@ -75,7 +75,6 @@ export const AddExistingArticleModal = (props: IModifyCategoryModal) => {
     console.log({ err });
   };
   const onSubmit: SubmitHandler<IExistingArticle> = async (data) => {
-    console.log({ data });
     try {
       await addNewExistingArticle(data);
       setHandleChangeExistingArticle(!handleChangeExistingArticle);
@@ -97,7 +96,6 @@ export const AddExistingArticleModal = (props: IModifyCategoryModal) => {
     const {
       target: { value },
     } = event;
-    console.log(value);
     setAlmacenState(value);
   };
 

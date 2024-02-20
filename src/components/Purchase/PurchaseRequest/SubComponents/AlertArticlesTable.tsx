@@ -217,8 +217,6 @@ export const AlertArticlesTable = () => {
     }
   };
 
-  console.log({ data });
-
   if (isLoading) return <CircularProgress />;
   return (
     <Stack spacing={4} sx={{ p: 2 }}>

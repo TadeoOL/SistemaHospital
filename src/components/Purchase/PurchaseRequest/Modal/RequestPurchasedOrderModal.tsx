@@ -541,7 +541,6 @@ const AddMoreArticlesTable = () => {
         precioInventario: item.precioInventario,
       })
     );
-    console.log({ articlesPurchasedArray });
     const articleToChecked = Object.values(quantityArticles).map((i) => ({
       idArticulo: i.id_articulo,
       idAlmacen: warehouseSelected,
@@ -556,7 +555,6 @@ const AddMoreArticlesTable = () => {
     cantidad: string,
     precio: number
   ) => {
-    console.log({ precio });
     setQuantityArticles((prevState) => ({
       ...prevState,
       [id]: {
@@ -566,8 +564,6 @@ const AddMoreArticlesTable = () => {
       },
     }));
   };
-
-  console.log({ quantityArticles });
 
   return (
     <>
@@ -784,7 +780,6 @@ const SelectManyProviders = () => {
             }}
             value={selectedProvider}
             onChange={(e) => {
-              console.log({ e });
               if (
                 selectedProvider.length === 3 &&
                 selectedProvider.some((i) => i === providerSelectedId)

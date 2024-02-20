@@ -82,7 +82,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     console.log({ err });
   };
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
-    console.log({ data });
     try {
       await addNewArticle(data);
       setHandleChangeArticle(!handleChangeArticle);
@@ -97,7 +96,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     const {
       target: { value },
     } = event;
-    console.log(value);
     setSubCategory(value);
   };
 

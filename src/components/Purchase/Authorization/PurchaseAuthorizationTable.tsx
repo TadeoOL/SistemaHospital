@@ -23,6 +23,8 @@ import {
 import { usePurchaseAuthorizationPagination } from "../../../store/purchaseStore/purchaseAuthorizationPagination";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import Swal from "sweetalert2";
+import { changePurchaseStatus } from "../../../api/api.routes";
 
 const useGetAllData = () => {
   const {
@@ -71,13 +73,89 @@ const useGetAllData = () => {
   };
 };
 
+const acceptPurchaseAuthorization = (
+  Id_OrdenCompra: string,
+  Mensaje: string = "Aceptada"
+) => {
+  const { fetchPurchaseAuthorization } =
+    usePurchaseAuthorizationPagination.getState();
+  Swal.fire({
+    icon: "warning",
+    html: "Esta orden sobrepasa la cantidad para orden directa.<br><br>Selecciona una de las siguientes opciones.",
+    showDenyButton: true,
+    showCancelButton: true,
+    cancelButtonText: "Salir",
+    denyButtonText: `Autorizar compra`,
+    confirmButtonText: "Solicitar licitación",
+    reverseButtons: true,
+  }).then(async (result) => {
+    try {
+      if (result.isConfirmed) {
+        await changePurchaseStatus(Id_OrdenCompra, 2, Mensaje);
+        fetchPurchaseAuthorization();
+        Swal.fire("Compra enviada a licitación!", "", "success");
+      } else if (result.isDenied) {
+        await changePurchaseStatus(Id_OrdenCompra, 4, Mensaje);
+        fetchPurchaseAuthorization();
+        Swal.fire("Compra aprobada correctamente!", "", "success");
+      }
+    } catch (error) {
+      console.log(error);
+      Swal.fire("Error al autorizar la compra!", "", "error");
+    }
+  });
+};
+
+const declinePurchaseAuthorization = (
+  Id_OrdenCompra: string,
+  Mensaje: string = "Rechazada"
+) => {
+  Swal.fire({
+    title: "¿Deseas rechazar la solicitud de orden de compra?",
+    text: "Se cambiará el estatus de la solicitud de orden de compra a orden cancelada!",
+    icon: "error",
+    showCancelButton: true,
+    confirmButtonColor: "#4338CA",
+    cancelButtonColor: "#d33",
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Rechazar orden de compra!",
+    customClass: {
+      confirmButton: "confirm-button-class",
+      cancelButton: "cancel-button-class",
+    },
+    reverseButtons: true,
+  }).then(async (result) => {
+    const { fetchPurchaseAuthorization } =
+      usePurchaseAuthorizationPagination.getState();
+    if (result.isConfirmed) {
+      try {
+        await changePurchaseStatus(Id_OrdenCompra, 0, Mensaje);
+        Swal.fire({
+          title: "Rechazada",
+          text: "La compra ha sido rechazada correctamente!",
+          icon: "success",
+        });
+        fetchPurchaseAuthorization();
+      } catch (error) {
+        console.log(error);
+        Swal.fire({
+          title: "Error!",
+          text: "Error al rechazar la compra!",
+          icon: "error",
+        });
+      }
+    }
+  });
+};
+
 export const PurchaseAuthorizationTable = () => {
   const { data, count, isLoading, pageIndex, pageSize, setPageSize } =
     useGetAllData();
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [viewArticles, setViewArticles] = useState(false);
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
-  console.log({ data });
   return (
     <>
       <Card sx={{ m: 2 }}>
@@ -101,15 +179,25 @@ export const PurchaseAuthorizationTable = () => {
                   <React.Fragment key={auth.id_OrdenCompra}>
                     <TableRow>
                       <TableCell>
-                        {!viewArticles ? (
+                        {!viewArticles[auth.id_OrdenCompra] ? (
                           <IconButton
-                            onClick={() => setViewArticles(!viewArticles)}
+                            onClick={() =>
+                              setViewArticles({
+                                [auth.id_OrdenCompra]:
+                                  !viewArticles[auth.id_OrdenCompra],
+                              })
+                            }
                           >
                             <ExpandMoreIcon />
                           </IconButton>
                         ) : (
                           <IconButton
-                            onClick={() => setViewArticles(!viewArticles)}
+                            onClick={() =>
+                              setViewArticles({
+                                [auth.id_OrdenCompra]:
+                                  !viewArticles[auth.id_OrdenCompra],
+                              })
+                            }
                           >
                             <ExpandLessIcon />
                           </IconButton>
@@ -132,38 +220,47 @@ export const PurchaseAuthorizationTable = () => {
                           <IconButton
                             size="small"
                             sx={{ color: "neutral.700" }}
-                            onClick={() => {}}
+                            onClick={() => {
+                              acceptPurchaseAuthorization(auth.id_OrdenCompra);
+                            }}
                           >
                             <CheckIcon sx={{ color: "green" }} />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Rechazar">
-                          <IconButton size="small" onClick={() => {}}>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              declinePurchaseAuthorization(auth.id_OrdenCompra);
+                            }}
+                          >
                             <CloseIcon sx={{ color: "red" }} />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
                     </TableRow>
-                    <Collapse in={viewArticles}>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Articulo</TableCell>
-                            <TableCell>Cantidad</TableCell>
-                            <TableCell>Precio</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        {auth.ordenCompraArticulo.map((order) => (
-                          <TableBody key={order.id}>
+                    <TableCell colSpan={6} sx={{ p: 0 }}>
+                      <Collapse in={viewArticles[auth.id_OrdenCompra]}>
+                        <Table>
+                          <TableHead>
                             <TableRow>
-                              <TableCell>{order.articulo.nombre}</TableCell>
-                              <TableCell>{order.cantidadCompra}</TableCell>
-                              <TableCell>{order.precioProveedor}</TableCell>
+                              <TableCell>Articulo</TableCell>
+                              <TableCell>Cantidad</TableCell>
+                              <TableCell>Precio</TableCell>
                             </TableRow>
-                          </TableBody>
-                        ))}
-                      </Table>
-                    </Collapse>
+                          </TableHead>
+                          {auth.ordenCompraArticulo.map((order) => (
+                            <TableBody key={order.id}>
+                              <TableRow>
+                                <TableCell>{order.articulo.nombre}</TableCell>
+                                <TableCell>{order.cantidadCompra}</TableCell>
+                                <TableCell>${order.precioProveedor}</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          ))}
+                        </Table>
+                      </Collapse>
+                    </TableCell>
                   </React.Fragment>
                 ))}
           </TableBody>

@@ -85,7 +85,6 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
       setHandleChangeSubCategory: state.setHandleChangeSubCategory,
     }));
 
-  console.log({ subCategory });
   const {
     register,
     handleSubmit,

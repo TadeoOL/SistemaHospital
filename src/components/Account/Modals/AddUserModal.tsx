@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { HeaderModal } from "./SubComponents/HeaderModal";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addNewUserSchema, userSettingsSchema } from "../../../schema/schemas";
+import { addNewUserSchema } from "../../../schema/schemas";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IAddUser } from "../../../types/types";
 import { useState } from "react";
@@ -86,7 +86,6 @@ export const AddUserModal = (props: IAddUserModal) => {
 
   const {
     register,
-    getValues,
     handleSubmit,
     formState: { errors },
   } = useForm<IAddUser>({
@@ -111,7 +110,6 @@ export const AddUserModal = (props: IAddUserModal) => {
       const userData = {
         ...data,
       };
-      console.log({ userData });
       setIsLoading(true);
       const user = await registerNewUser(userData);
       setNewUser(user);

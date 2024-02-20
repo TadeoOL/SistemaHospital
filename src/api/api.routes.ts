@@ -79,7 +79,6 @@ export const updateBasicUserInformation = async (data: {
     nombre,
     imagenURL,
   } = data;
-  console.log({ imagenURL });
   const formData = new FormData();
   formData.append("Nombre", nombre);
   formData.append("ApellidoPaterno", apellidoPaterno);
@@ -582,5 +581,18 @@ export const getPurchaseAuthorization = async (paramUrl: string) => {
   const res = await axios.get(
     `/api/Compras/paginacion-autorizacion-compras-administrador?${paramUrl}`
   );
+  return res.data;
+};
+
+export const changePurchaseStatus = async (
+  Id_OrdenCompra: string,
+  Estatus: number,
+  Mensaje: string
+) => {
+  const res = await axios.put(`/api/Compras/estatus-autorizacion-compras`, {
+    Id_OrdenCompra,
+    Estatus,
+    Mensaje,
+  });
   return res.data;
 };

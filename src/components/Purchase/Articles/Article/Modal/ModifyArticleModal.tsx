@@ -137,7 +137,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     console.log({ err });
   };
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
-    console.log({ data });
     try {
       const idForm = getValues("id");
       await modifyArticle({ ...data, id: idForm });
@@ -153,7 +152,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     const {
       target: { value },
     } = event;
-    console.log(value);
     setSubCategory(value);
   };
 

@@ -88,7 +88,9 @@ const handleChangePassword = () => {
     didOpen: () => {
       const popup = withReactContent(Swal).getPopup()!;
       passwordInput = popup.querySelector("#password") as HTMLInputElement;
-      actualPasswordInput = popup.querySelector("#actualPassword") as HTMLInputElement;
+      actualPasswordInput = popup.querySelector(
+        "#actualPassword"
+      ) as HTMLInputElement;
       confirmPasswordInput = popup.querySelector(
         "#confirmPassword"
       ) as HTMLInputElement;
@@ -130,7 +132,11 @@ const handleChangePassword = () => {
 
       if (password === confirmPassword) {
         try {
-          const res = await changeUserPassword(password, confirmPassword, actualPassword);
+          const res = await changeUserPassword(
+            password,
+            confirmPassword,
+            actualPassword
+          );
           withReactContent(Swal).fire({
             title: `Cambio realizado`,
             text: res,
@@ -180,7 +186,6 @@ export const AccountCard = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    console.log({ file });
     if (file) {
       const base64 = await convertBase64(file);
       setSelectedImage(base64);
@@ -209,7 +214,6 @@ export const AccountCard = () => {
       const formattedData = { ...data, imagenURL: selectedImage };
       const user: IUser = await updateBasicUserInformation(formattedData);
       toast.success("Datos actualizados correctamente!");
-      console.log({ user });
       setProfile(user);
     } catch (error) {
       console.log(error);
@@ -219,7 +223,6 @@ export const AccountCard = () => {
   const handleError = (error: any) => {
     console.log({ error });
   };
-  console.log({ user });
   return (
     <Box
       sx={{

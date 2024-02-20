@@ -119,7 +119,6 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
   };
 
   const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
-    console.log({ data });
     try {
       const idForm = getValues("id");
       await modifyPurchaseWarehouse({ ...data, id: idForm });

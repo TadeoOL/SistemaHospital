@@ -137,7 +137,6 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
     console.log({ err });
   };
   const onSubmit: SubmitHandler<IExistingArticle> = async (data) => {
-    console.log({ data });
     try {
       const idForm = getValues("id");
       await modifyExistingArticle({ ...data, id: idForm });
@@ -153,7 +152,6 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
     const {
       target: { value },
     } = event;
-    console.log(value);
     setAlmacenState(value);
   };
 
