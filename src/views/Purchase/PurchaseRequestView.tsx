@@ -7,7 +7,17 @@ export const PurchaseRequestView = () => {
     <Box sx={{ flexGrow: 1, p: 3 }}>
       <Container maxWidth="xl">
         <PurchaseTabNav />
-        {<Outlet />}
+        <Box
+          sx={{
+            boxShadow: 10,
+            borderBottomLeftRadius: 12,
+            borderBottomRightRadius: 12,
+            overflowX: "auto",
+            bgcolor: "white",
+          }}
+        >
+          {<Outlet />}
+        </Box>
       </Container>
     </Box>
   );

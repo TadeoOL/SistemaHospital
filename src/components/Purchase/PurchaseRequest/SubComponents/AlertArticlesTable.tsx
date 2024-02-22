@@ -258,7 +258,7 @@ export const AlertArticlesTable = () => {
                       }
                     />
                   </TableCell>
-                  <TableCell>Articulo</TableCell>
+                  <TableCell>Articulo en alerta</TableCell>
                   <TableCell>Cantidad a comprar</TableCell>
                   <TableCell>Cantidad de stock</TableCell>
                   <TableCell>Unidad de medida</TableCell>

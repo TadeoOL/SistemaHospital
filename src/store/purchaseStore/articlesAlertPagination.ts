@@ -29,17 +29,9 @@ interface Action {
 }
 
 export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
-  (set, get) => ({
-    count: 0,
-    pageCount: 0,
-    resultByPage: 0,
-    pageIndex: 0,
-    pageSize: 5,
+  (set) => ({
     data: [],
     isLoading: true,
-    search: "",
-    enabled: true,
-    handleChangeArticlesAlert: false,
     checkedArticles: [],
     step: 0,
     isAddingMoreArticles: false,

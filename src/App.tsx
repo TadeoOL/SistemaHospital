@@ -10,8 +10,6 @@ import { LoginRoute } from "./utils/LoginRoute";
 import { ToastContainer } from "react-toastify";
 import { ProvidersView } from "./views/Purchase/ProvidersView";
 import { PurchaseRequestView } from "./views/Purchase/PurchaseRequestView";
-import { RequestedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/RequestedMedicineTable";
-import { PurchasedMedicineTable } from "./components/Purchase/PurchaseRequest/SubComponents/PurchasedMedicineTable";
 import { CategoryView } from "./views/Purchase/CategoryView";
 import { Category } from "./components/Purchase/Categorys/Category/Category";
 import { SubCategory } from "./components/Purchase/Categorys/SubCategory/SubCategory";
@@ -21,7 +19,8 @@ import { ExistingArticle } from "./components/Purchase/Articles/ExistingArticle/
 import { WarehouseView } from "./views/Purchase/WarehouseView";
 import { PurchaseAuthorizationView } from "./views/Purchase/PurchaseAuthorizationView";
 import { PurchaseRequestCard } from "./components/Purchase/PurchaseRequest/PurchaseRequestCard";
-import { AlertArticlesTable } from "./components/Purchase/PurchaseRequest/SubComponents/AlertArticlesTable";
+import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuthPurchase";
+import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
 
 function App() {
   return (
@@ -40,12 +39,12 @@ function App() {
                 element={<PurchaseRequestCard />}
               />
               <Route
-                path="productos-cotizados"
-                element={<AlertArticlesTable />}
+                path="productos-espera-autorizacion"
+                element={<WaitAuthPurchase />}
               />
               <Route
-                path="productos-comprados"
-                element={<PurchasedMedicineTable />}
+                path="productos-solicitados-orden-compra"
+                element={<PurchaseOrderRequest />}
               />
             </Route>
             <Route path="/compras/categorias" element={<CategoryView />}>

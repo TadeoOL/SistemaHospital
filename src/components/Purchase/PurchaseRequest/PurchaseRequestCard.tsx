@@ -16,18 +16,8 @@ export const PurchaseRequestCard = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          boxShadow: 10,
-          borderBottomLeftRadius: 12,
-          borderBottomRightRadius: 12,
-          overflowX: "auto",
-          bgcolor: "white",
-        }}
-      >
-        <Box sx={{ minWidth: { xs: 950, xl: 0 } }}>
-          <AlertArticlesTable />
-        </Box>
+      <Box sx={{ minWidth: { xs: 950, xl: 0 } }}>
+        <AlertArticlesTable />
       </Box>
       <Modal
         open={handleOpen}

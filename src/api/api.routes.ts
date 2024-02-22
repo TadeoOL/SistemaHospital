@@ -596,3 +596,24 @@ export const changePurchaseStatus = async (
   });
   return res.data;
 };
+
+export const getWaitAuthPurchase = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-autorizacion-compras?${paramUrl}`
+  );
+  return res.data;
+};
+
+export const getPurchaseOrderRequest = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-solicitud-orden-compra?${paramUrl}`
+  );
+  return res.data;
+};
+
+export const getProviderQuotePdf = async (idQuote: string) => {
+  const res = await axios.get(
+    `/api/Compras/obtener-cotizacion-proveedor-pdf/${idQuote}`
+  );
+  return res.data;
+};

@@ -140,16 +140,11 @@ export interface IPurchase {
 }
 
 export interface IPurchaseAuthorization {
+  id_OrdenCompra: string;
+  usuarioSolicitado: string;
+  folio: string;
   estatus: number;
   fechaSolicitud: string;
-  folio: string;
-  usuarioSolicitado: string;
-  solicitudProveedor: [
-    {
-      id: string;
-      proveedor: { id_Proveedor: string; nombre: string };
-    }
-  ];
   precioTotalOrden: number;
   ordenCompraArticulo: [
     {
@@ -158,9 +153,15 @@ export interface IPurchaseAuthorization {
       cantidadCompra: number;
       precioProveedor: number;
       articulo: { id_Articulo: string; nombre: string };
+      id_AlertaCompra: string;
     }
   ];
-  id_OrdenCompra: string;
+  solicitudProveedor: [
+    {
+      id: string;
+      proveedor: { id_Proveedor: string; nombre: string };
+    }
+  ];
 }
 
 export interface IArticlesAlert {
