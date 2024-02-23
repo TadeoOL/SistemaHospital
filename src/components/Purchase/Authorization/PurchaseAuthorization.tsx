@@ -21,39 +21,29 @@ export const PurchaseAuthorization = () => {
           boxShadow: 10,
           borderBottomLeftRadius: 10,
           borderBottomRightRadius: 10,
-          overflowX: "auto",
           bgcolor: "white",
         }}
       >
-        <Box
+        <Stack
           sx={{
-            minWidth: { xs: 950, xl: 0 },
+            flexDirection: "row",
+            display: "flex",
+            flexGrow: 1,
+            justifyContent: "space-between",
+            alignItems: "end",
+            p: 3,
           }}
         >
-          <Stack
-            sx={{
-              flexDirection: "row",
-              display: "flex",
-              flexGrow: 1,
-              justifyContent: "space-between",
-              alignItems: "end",
-              p: 3,
-            }}
-          >
-            <Typography fontWeight={700} fontSize={24}>
-              Autorización de ordenes de compra
-            </Typography>
-            <Button variant="contained" onClick={() => setOpen(true)}>
-              Configuración ordenes de compra
-            </Button>
-          </Stack>
-          <SearchBar
-            title="Busca la orden de compra..."
-            searchState={() => {}}
-          />
-          <Divider sx={{ my: 1 }} />
-          <PurchaseAuthorizationTable />
-        </Box>
+          <Typography fontWeight={700} fontSize={24}>
+            Autorización de ordenes de compra
+          </Typography>
+          <Button variant="contained" onClick={() => setOpen(true)}>
+            Configuración ordenes de compra
+          </Button>
+        </Stack>
+        <SearchBar title="Busca la orden de compra..." searchState={() => {}} />
+        <Divider sx={{ my: 1 }} />
+        <PurchaseAuthorizationTable />
       </Box>
       <Modal
         open={open}

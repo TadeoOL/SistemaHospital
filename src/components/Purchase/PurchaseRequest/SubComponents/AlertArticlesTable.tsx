@@ -217,7 +217,12 @@ export const AlertArticlesTable = () => {
     }
   };
 
-  if (isLoading) return <CircularProgress />;
+  if (isLoading)
+    return (
+      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}>
+        <CircularProgress />;
+      </Box>
+    );
   return (
     <Stack spacing={4} sx={{ p: 2 }}>
       {data.map((alert, index) => (

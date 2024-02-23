@@ -9,6 +9,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TablePagination,
   TableRow,
@@ -26,6 +27,8 @@ import { useWaitAuthPurchasePagination } from "../../../store/purchaseStore/wait
 import { changePurchaseStatus } from "../../../api/api.routes";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { Status } from "../../../types/types";
+import InfoIcon from "@mui/icons-material/Info";
 
 const useGetAllData = () => {
   const {
@@ -130,148 +133,177 @@ export const WaitAuthPurchase = () => {
     });
   };
 
+  console.log({ data });
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
       <SearchBar title="Buscar orden de compra..." searchState={setSearch} />
-      <Card>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Orden de compra</TableCell>
-              <TableCell>Creado por</TableCell>
-              <TableCell>Proveedor</TableCell>
-              <TableCell>Fecha de solicitud</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.length === 0
-              ? null
-              : isLoading
-              ? null
-              : data.map((auth) => (
-                  <React.Fragment key={auth.id_OrdenCompra}>
-                    <TableRow>
-                      <TableCell>
-                        {!viewArticles[auth.id_OrdenCompra] ? (
-                          <IconButton
-                            onClick={() =>
-                              setViewArticles({
-                                [auth.id_OrdenCompra]:
-                                  !viewArticles[auth.id_OrdenCompra],
-                              })
-                            }
-                          >
-                            <ExpandMoreIcon />
-                          </IconButton>
-                        ) : (
-                          <IconButton
-                            onClick={() =>
-                              setViewArticles({
-                                [auth.id_OrdenCompra]:
-                                  !viewArticles[auth.id_OrdenCompra],
-                              })
-                            }
-                          >
-                            <ExpandLessIcon />
-                          </IconButton>
-                        )}
-                        {auth.folio}
-                      </TableCell>
-                      <TableCell>{auth.usuarioSolicitado}</TableCell>
-                      <TableCell>
-                        {auth.solicitudProveedor.map((i) => (
-                          <Chip
-                            key={i.proveedor.id_Proveedor}
-                            label={i.proveedor.nombre}
-                          />
-                        ))}
-                      </TableCell>
-                      <TableCell>{auth.fechaSolicitud.split("T")[0]}</TableCell>
-                      <TableCell>${auth.precioTotalOrden}</TableCell>
-                      <TableCell>
-                        <Tooltip title="Eliminar">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              handleRemoveOrder(auth.id_OrdenCompra);
-                            }}
-                          >
-                            <CloseIcon sx={{ color: "red" }} />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                    <TableCell colSpan={6} sx={{ p: 0 }}>
-                      <Collapse in={viewArticles[auth.id_OrdenCompra]}>
-                        <Table>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Articulo</TableCell>
-                              <TableCell>Cantidad</TableCell>
-                              <TableCell>Precio</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {auth.ordenCompraArticulo.map((order) => (
-                              <TableRow key={order.id}>
-                                <TableCell>{order.articulo.nombre}</TableCell>
-                                <TableCell>{order.cantidadCompra}</TableCell>
-                                <TableCell>${order.precioProveedor}</TableCell>
+      <Card sx={{ overflowX: "auto" }}>
+        <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Orden de compra</TableCell>
+                <TableCell>Creado por</TableCell>
+                <TableCell>Proveedor</TableCell>
+                <TableCell>Fecha de solicitud</TableCell>
+                <TableCell>Total</TableCell>
+                <TableCell>Estatus</TableCell>
+                <TableCell>Acciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.length === 0
+                ? null
+                : isLoading
+                ? null
+                : data.map((auth) => (
+                    <React.Fragment key={auth.id_SolicitudCompra}>
+                      <TableRow>
+                        <TableCell>
+                          {!viewArticles[auth.id_SolicitudCompra] ? (
+                            <IconButton
+                              onClick={() =>
+                                setViewArticles({
+                                  [auth.id_SolicitudCompra]:
+                                    !viewArticles[auth.id_SolicitudCompra],
+                                })
+                              }
+                            >
+                              <ExpandMoreIcon />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              onClick={() =>
+                                setViewArticles({
+                                  [auth.id_SolicitudCompra]:
+                                    !viewArticles[auth.id_SolicitudCompra],
+                                })
+                              }
+                            >
+                              <ExpandLessIcon />
+                            </IconButton>
+                          )}
+                          {auth.folio}
+                        </TableCell>
+                        <TableCell>{auth.usuarioSolicitado}</TableCell>
+                        <TableCell>
+                          {auth.solicitudProveedor.map((i) => (
+                            <Chip
+                              key={i.proveedor.id_Proveedor}
+                              label={i.proveedor.nombre}
+                            />
+                          ))}
+                        </TableCell>
+                        <TableCell>
+                          {auth.fechaSolicitud.split("T")[0]}
+                        </TableCell>
+                        <TableCell>${auth.precioSolicitud}</TableCell>
+                        <TableCell>{Status[auth.estatus]}</TableCell>
+                        <TableCell>
+                          {Status[auth.estatus] === "Cancelado" ? (
+                            <Tooltip
+                              title={
+                                <Typography
+                                  sx={{ fontSize: 14, fontWeight: 300 }}
+                                >
+                                  {auth.notas}
+                                </Typography>
+                              }
+                            >
+                              <IconButton size="small">
+                                <InfoIcon />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="Eliminar">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  handleRemoveOrder(auth.id_SolicitudCompra);
+                                }}
+                              >
+                                <CloseIcon sx={{ color: "red" }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableCell colSpan={6} sx={{ p: 0 }}>
+                        <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Articulo</TableCell>
+                                <TableCell>Cantidad</TableCell>
+                                <TableCell>Precio</TableCell>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </Collapse>
-                    </TableCell>
-                  </React.Fragment>
-                ))}
-          </TableBody>
-        </Table>
-        {isLoading && (
-          <Box
-            sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
-        {data.length === 0 && !isLoading && (
-          <Card
-            sx={{
-              display: "flex",
-              flexGrow: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              p: 2,
-              columnGap: 1,
-            }}
-          >
-            <RemoveCircleIcon
-              sx={{ color: "neutral.400", width: "40px", height: "40px" }}
-            />
-            <Typography
-              sx={{ color: "neutral.400" }}
-              fontSize={24}
-              fontWeight={500}
+                            </TableHead>
+                            <TableBody>
+                              {auth.solicitudCompraArticulo.map((request) => (
+                                <TableRow key={request.id}>
+                                  <TableCell>
+                                    {request.articulo.nombre}
+                                  </TableCell>
+                                  <TableCell>
+                                    {request.cantidadCompra}
+                                  </TableCell>
+                                  <TableCell>
+                                    ${request.precioProveedor}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Collapse>
+                      </TableCell>
+                    </React.Fragment>
+                  ))}
+            </TableBody>
+          </Table>
+          {isLoading && (
+            <Box
+              sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}
             >
-              No existen registros
-            </Typography>
-          </Card>
-        )}
-        <TablePagination
-          component="div"
-          count={count}
-          onPageChange={(e, value) => {
-            setPageIndex(value);
-          }}
-          onRowsPerPageChange={(e: any) => {
-            setPageSize(e.target.value);
-          }}
-          page={pageIndex}
-          rowsPerPage={pageSize}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-        />
+              <CircularProgress />
+            </Box>
+          )}
+          {data.length === 0 && !isLoading && (
+            <Card
+              sx={{
+                display: "flex",
+                flexGrow: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                p: 2,
+                columnGap: 1,
+              }}
+            >
+              <RemoveCircleIcon
+                sx={{ color: "neutral.400", width: "40px", height: "40px" }}
+              />
+              <Typography
+                sx={{ color: "neutral.400" }}
+                fontSize={24}
+                fontWeight={500}
+              >
+                No existen registros
+              </Typography>
+            </Card>
+          )}
+          <TablePagination
+            component="div"
+            count={count}
+            onPageChange={(e, value) => {
+              setPageIndex(value);
+            }}
+            onRowsPerPageChange={(e: any) => {
+              setPageSize(e.target.value);
+            }}
+            page={pageIndex}
+            rowsPerPage={pageSize}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          />
+        </TableContainer>
       </Card>
     </Stack>
   );

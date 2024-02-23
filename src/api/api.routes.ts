@@ -546,10 +546,11 @@ export const getPurchaseConfig = async () => {
 };
 
 export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
-  const { cantidadOrdenDirecta, factor } = data;
+  const { cantidadOrdenDirecta, factor, cantidadLicitacionDirecta } = data;
   const res = await axios.put("/api/Compras/actualizar-configuracion-compras", {
     factor: JSON.stringify(factor),
     cantidadOrdenDirecta,
+    cantidadLicitacionDirecta,
   });
   const resData = {
     factor: JSON.parse(res.data.factor),
@@ -559,7 +560,7 @@ export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
 };
 
 export const addPurchaseOrder = async (
-  providerId: string,
+  providerId: string[],
   articles: {
     Id_Articulo: string;
     CantidadCompra: number;
@@ -614,6 +615,34 @@ export const getPurchaseOrderRequest = async (paramUrl: string) => {
 export const getProviderQuotePdf = async (idQuote: string) => {
   const res = await axios.get(
     `/api/Compras/obtener-cotizacion-proveedor-pdf/${idQuote}`
+  );
+  return res.data;
+};
+
+export const addProviderQuote = async (
+  Id_SolicitudProveedor: string,
+  PDFCadena: string
+) => {
+  const res = await axios.put(
+    `/api/Compras/guardar-cotizacion-proveedor-pdf/`,
+    {
+      Id_SolicitudProveedor,
+      PDFCadena,
+    }
+  );
+  return res.data;
+};
+
+export const getPurchaseOrderRequestPdf = async (idQuote: string) => {
+  const res = await axios.get(
+    `/api/Compras/obtener-solicitud-orden-compra/${idQuote}`
+  );
+  return res.data;
+};
+
+export const deleteProviderQuote = async (idQuote: string) => {
+  const res = await axios.delete(
+    `/api/Compras/eliminar-cotizacion-proveedor-pdf/${idQuote}`
   );
   return res.data;
 };

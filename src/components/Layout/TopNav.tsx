@@ -18,7 +18,7 @@ import { useAuthStore } from "../../store/auth";
 
 export const TopNav = () => {
   const theme = useTheme();
-  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
   const setIsOpen = useAppNavStore((state) => state.setOpen);
   const profile = useAuthStore((state) => state.profile);
   const isOpen = useAppNavStore((state) => state.open);
@@ -43,11 +43,11 @@ export const TopNav = () => {
             alpha(theme.palette.background.default, 0.8),
           position: "sticky",
           left: {
-            lg: `${SIDE_NAV_WIDTH}px`,
+            xl: `${SIDE_NAV_WIDTH}px`,
           },
           top: 0,
           width: {
-            lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
+            xl: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
           },
           zIndex: (theme) => theme.zIndex.appBar,
         }}
@@ -63,7 +63,7 @@ export const TopNav = () => {
           }}
         >
           <Stack alignItems="center" direction="row" spacing={2}>
-            {!lgUp && (
+            {!xlUp && (
               <IconButton
                 onClick={() => {
                   setIsOpen(!isOpen);

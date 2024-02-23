@@ -128,10 +128,16 @@ export interface IWarehouse {
 }
 
 export enum Status {
-  cancelado = 0,
-  pedido = 1,
-  entregado = 2,
+  "Cancelado" = 0,
+  "Necesita autorización" = 1,
+  "Necesita licitación" = 2,
+  "Necesita elegir proveedor" = 3,
+  "Solicitud a proveedor" = 4,
+  "En espera de entrega" = 5,
+  "Recibida" = 6,
+  "Entregada" = 7,
 }
+
 export interface IPurchase {
   id_articulo: string;
   articulo: IArticle;
@@ -140,13 +146,14 @@ export interface IPurchase {
 }
 
 export interface IPurchaseAuthorization {
-  id_OrdenCompra: string;
+  id_SolicitudCompra: string;
   usuarioSolicitado: string;
   folio: string;
+  notas?: string | null;
   estatus: number;
   fechaSolicitud: string;
-  precioTotalOrden: number;
-  ordenCompraArticulo: [
+  precioSolicitud: number;
+  solicitudCompraArticulo: [
     {
       id: string;
       id_Articulo: string;
@@ -183,6 +190,7 @@ export interface IArticlesAlert {
 export interface IPurchaseConfig {
   cantidadOrdenDirecta: number;
   factor: IFactor[];
+  cantidadLicitacionDirecta: number;
 }
 
 export interface IFactor {

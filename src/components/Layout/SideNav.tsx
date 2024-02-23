@@ -20,18 +20,18 @@ export const SideNav = () => {
   const theme = useTheme();
   const isOpen = useAppNavStore((state) => state.open);
   const setIsOpen = useAppNavStore((state) => state.setOpen);
-  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
     <Drawer
-      variant={lgUp ? "permanent" : "temporary"}
+      variant={xlUp ? "permanent" : "temporary"}
       anchor="left"
       onClose={() => {
         setIsOpen(false);
       }}
-      open={lgUp ? true : isOpen}
+      open={xlUp ? true : isOpen}
       PaperProps={{
         sx: {
           backgroundColor: "neutral.700",

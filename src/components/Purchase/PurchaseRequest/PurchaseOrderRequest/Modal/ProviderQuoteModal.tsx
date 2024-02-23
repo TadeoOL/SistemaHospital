@@ -4,19 +4,37 @@ import {
   Button,
   CircularProgress,
   ClickAwayListener,
+  Collapse,
   IconButton,
   Modal,
   Stack,
   Step,
   StepLabel,
   Stepper,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { getProviderQuotePdf } from "../../../../../api/api.routes";
+import {
+  addProviderQuote,
+  deleteProviderQuote,
+  getProviderQuotePdf,
+} from "../../../../../api/api.routes";
 import { useDropzone } from "React-dropzone";
-import CloseIcon from "@mui/icons-material/Close";
+import {
+  KeyboardArrowUp,
+  CloudUpload,
+  KeyboardArrowDown,
+  Close,
+  Delete,
+} from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { convertBase64 } from "../../../../../utils/functions/dataUtils";
+import { usePurchaseOrderRequestModals } from "../../../../../store/purchaseStore/purchaseOrderRequestModals";
+import { FillQuoteInformationModal } from "./Steps/FillQuoteInformationModal";
+import { useShallow } from "zustand/react/shallow";
+import { shallow } from "zustand/shallow";
 
 const style = {
   position: "absolute",
@@ -25,8 +43,9 @@ const style = {
   display: "flex",
   flexDirection: "column",
   transform: "translate(-50%, -50%)",
-  width: 600,
+  width: { xs: 380, md: 600, lg: 800 },
 };
+
 type Provider = {
   id: string;
   proveedor: { id_Proveedor: string; nombre: string };
@@ -46,7 +65,7 @@ const renderStepForm = (
     case 0:
       return <ProvidersQuotePdf providersData={providerData} />;
     case 1:
-      return <h1>Rellenado de información</h1>;
+      return <FillQuoteInformationModal />;
     case 2:
       return <h1>Generador de orden de compra</h1>;
     default:
@@ -105,7 +124,17 @@ const useFetchPdfProviders = (providers: Provider[]) => {
 export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
   const { idFolio, open, providers } = props;
   const { providersData, isLoading } = useFetchPdfProviders(providers);
-  const [step, setStep] = useState(0);
+  const step = usePurchaseOrderRequestModals(useShallow((state) => state.step));
+
+  useEffect(() => {
+    console.log("monte");
+    return () => {
+      console.log("desmonte");
+      usePurchaseOrderRequestModals.setState({ step: 0 });
+    };
+  }, []);
+
+  console.log({ providersData });
 
   if (isLoading)
     return (
@@ -142,91 +171,226 @@ export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
           ))}
         </Stepper>
         {renderStepForm(step, providersData)}
-        {/* <Stack>
-          <Button onClick={() => setStep((prev) => prev - 1)}>Atras</Button>
-          <Button onClick={() => setStep((prev) => prev + 1)}>Siguiente</Button>
-        </Stack> */}
       </Stack>
     </Box>
   );
 };
 
 const ProvidersQuotePdf = (props: {
-  providersData: Array<Provider & { pdf: string }> | undefined;
+  providersData: Array<Provider & { pdf: string | null }> | undefined;
 }) => {
-  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({});
   const { providersData } = props;
+  const { step, setStep, providerSelected, setProviderSelected } =
+    usePurchaseOrderRequestModals(
+      (state) => ({
+        step: state.step,
+        setStep: state.setStep,
+        providerSelected: state.providerSelected,
+        setProviderSelected: state.setProviderSelected,
+      }),
+      shallow
+    );
   const [viewPdf, setViewPdf] = useState(false);
   const [pdfOpen, setPdfOpen] = useState("");
+  const [providerQuoteRequest, setProviderQuoteRequest] = useState("");
+  const [openCollapse, setOpenCollapse] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+  const [providersClone, setProvidersClone] = useState<typeof providersData>(
+    structuredClone(providersData)
+  );
 
-  const files = acceptedFiles.map((file) => console.log(file));
-  console.log("data en el pdf comp", providersData);
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      if (acceptedFiles.length === 0)
+        return toast.error("Error: Solo se puede adjuntar 1 archivo .pdf!");
+      const base64 = await convertBase64(acceptedFiles[0]);
+      const existingFile = providersClone?.find(
+        (file) => file.id === providerQuoteRequest && file.pdf === null
+      );
+      if (existingFile) {
+        try {
+          await addProviderQuote(providerQuoteRequest, base64);
+          setProvidersClone((prev) =>
+            prev?.map((file) =>
+              file.id === providerQuoteRequest && file.pdf === null
+                ? { ...file, pdf: base64 }
+                : file
+            )
+          );
+          toast.success("Archivo subido con éxito!");
+        } catch (error) {
+          console.log(error);
+          toast.error("Error al subir el documento pdf!");
+        }
+      }
+    },
+    [providerQuoteRequest, providersClone]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+    },
+    maxFiles: 1,
+  });
+
+  console.log({ providersClone });
+  const hasEmptyPdf = () => {
+    if (!providersClone || providersClone.length === 0) return true;
+    return providersClone.some((provider) => provider.pdf === null);
+  };
+
+  const handleNext = useCallback(() => {
+    if (hasEmptyPdf())
+      return toast.error(
+        "Es necesario subir todas las cotizaciones antes de continuar!"
+      );
+
+    setStep(step + 1);
+  }, [step]);
+
+  const handleDeleteQuote = useCallback(async (idQuote: string) => {
+    try {
+      await deleteProviderQuote(idQuote);
+      setProvidersClone((prev) =>
+        prev?.map((file) =>
+          file.id === idQuote ? { ...file, pdf: null } : file
+        )
+      );
+      toast.success("Cotización eliminada con éxito!");
+    } catch (error) {
+      toast.error("Error al eliminar la cotización!");
+      console.log(error);
+    }
+  }, []);
 
   return (
     <>
       <Stack sx={{ mt: 4 }}>
-        {providersData?.map((provider) => (
-          <Stack key={provider.id}>
+        {providersClone?.map((quoteRequest) => (
+          <Stack key={quoteRequest.id}>
             <Box
-              sx={{ display: "flex", flex: 1, justifyContent: "space-between" }}
+              sx={{
+                display: "flex",
+                flex: 1,
+                justifyContent: "space-between",
+                bgcolor: "#EDEDED",
+                p: 1,
+                borderRadius: 2,
+                alignItems: "center",
+              }}
             >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                {openCollapse[quoteRequest.id] ? (
+                  <IconButton
+                    onClick={() =>
+                      setOpenCollapse({
+                        [quoteRequest.id]: !openCollapse[quoteRequest.id],
+                      })
+                    }
+                  >
+                    <KeyboardArrowUp />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    onClick={() => {
+                      setOpenCollapse({
+                        [quoteRequest.id]: !openCollapse[quoteRequest.id],
+                      });
+                      setProviderQuoteRequest(quoteRequest.id);
+                      setProviderSelected(quoteRequest.proveedor.id_Proveedor);
+                    }}
+                  >
+                    <KeyboardArrowDown />
+                  </IconButton>
+                )}
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                  {quoteRequest.pdf ? "Ver PDF" : " Subir PDF"}
+                </Typography>
+              </Box>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-                {provider.pdf ? "Ver PDF" : " Subir PDF"}
-              </Typography>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-                Proveedor: {provider.proveedor.nombre}
+                Proveedor: {quoteRequest.proveedor.nombre}
               </Typography>
             </Box>
-            {provider.pdf ? (
-              <Button
-                onClick={() => {
-                  setPdfOpen(provider.pdf);
-                  setViewPdf(true);
-                }}
-                variant="outlined"
-                sx={{ p: 6 }}
-              >
-                {"Cotización - " + provider.proveedor.nombre}
-              </Button>
-            ) : (
-              <Box
-                sx={{
-                  my: 2,
-                  p: 4,
-                  border: "1px black dashed",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                {...getRootProps({ className: "dropzone" })}
-              >
-                <input {...getInputProps()} />
-                <Typography>Aqui se subira el pdf</Typography>
-              </Box>
-            )}
+            <Collapse in={openCollapse[quoteRequest.id]} sx={{ px: 2 }}>
+              {quoteRequest.pdf ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flex: 1,
+                    justifyContent: "center",
+                    p: 1,
+                  }}
+                >
+                  <Button
+                    onClick={() => {
+                      setPdfOpen(quoteRequest.pdf as string);
+                      setViewPdf(true);
+                    }}
+                    variant="outlined"
+                    sx={{ p: 6 }}
+                  >
+                    {"Cotización - " + quoteRequest.proveedor.nombre}
+                  </Button>
+                  <Box>
+                    <Tooltip title="Eliminar">
+                      <IconButton
+                        onClick={() => handleDeleteQuote(quoteRequest.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              ) : (
+                <Stack
+                  sx={{
+                    my: 1,
+                    p: 4,
+                    border: "1px #B4B4B8 dashed",
+                    borderRadius: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  {...getRootProps({ className: "dropzone" })}
+                >
+                  <CloudUpload sx={{ width: 40, height: 40, color: "Gray" }} />
+                  <input {...getInputProps()} />
+                  <Typography
+                    sx={{
+                      color: "#B4B4B8",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      textAlign: "center",
+                    }}
+                  >
+                    Arrastra y suelta tus archivos aquí para subirlos
+                  </Typography>
+                </Stack>
+              )}
+            </Collapse>
           </Stack>
         ))}
       </Stack>
       <Box sx={{ display: "flex", flex: 1, justifyContent: "flex-end", mt: 4 }}>
-        <Button variant="contained">Siguiente</Button>
+        <Button variant="contained" onClick={() => handleNext()}>
+          Siguiente
+        </Button>
       </Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
-        <Box
+        <Stack
           sx={{
             display: "flex",
-            flex: 1,
-            top: "50%",
-            left: "50%",
             position: "absolute",
-            transform: "translate(-50%, -50%)",
             width: "100%",
             height: "100%",
-            border: "none",
-            flexDirection: "column",
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton onClick={() => setViewPdf(false)}>
-              <CloseIcon />
+              <Close />
             </IconButton>
           </Box>
           <ClickAwayListener
@@ -243,7 +407,7 @@ const ProvidersQuotePdf = (props: {
               }}
             >
               <iframe
-                src={"data:application/pdf;base64," + pdfOpen}
+                src={pdfOpen}
                 style={{
                   width: "100%",
                   height: "100%",
@@ -252,7 +416,7 @@ const ProvidersQuotePdf = (props: {
               />
             </Box>
           </ClickAwayListener>
-        </Box>
+        </Stack>
       </Modal>
     </>
   );

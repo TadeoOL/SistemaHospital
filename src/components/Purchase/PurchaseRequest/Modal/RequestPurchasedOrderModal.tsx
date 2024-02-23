@@ -40,15 +40,17 @@ import {
   addPurchaseOrder,
   getPurchaseConfig,
 } from "../../../../api/api.routes";
-import { addArticlesPrice } from "../../../../utils/functions/dataUtils";
+import {
+  addArticlesPrice,
+  isValidInteger,
+} from "../../../../utils/functions/dataUtils";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: 400, md: 600, lg: 800 },
-  bgcolor: "background.paper",
+  width: { xs: 380, md: 600, lg: 800 },
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
@@ -186,7 +188,7 @@ export const RequestPurchasedOrderModal = ({
           step === 0 ? "Solicitar de orden de compra" : "Seleccionar proveedor"
         }
       />
-      <Stack spacing={4} sx={{ p: 3, px: 6 }}>
+      <Stack spacing={4} sx={{ p: 3, px: 6, bgcolor: "background.paper" }}>
         <Stepper activeStep={step}>
           {stepsForm.map((step) => (
             <Step key={step.id}>
@@ -533,7 +535,10 @@ const AddMoreArticlesTable = () => {
     const missingQuantity = Object.keys(quantityArticles).some((id) => {
       return quantityArticles[id].cantidadComprar.trim() === "";
     });
-    if (missingQuantity) return setShowError(true);
+    const hasNoQuantity = Object.keys(quantityArticles).some((id) => {
+      return quantityArticles[id].cantidadComprar.trim() === "0";
+    });
+    if (missingQuantity || hasNoQuantity) return setShowError(true);
     const articlesPurchasedArray = Object.values(quantityArticles).map(
       (item) => ({
         id_articulo: item.id_articulo,
@@ -555,6 +560,7 @@ const AddMoreArticlesTable = () => {
     cantidad: string,
     precio: number
   ) => {
+    if (!isValidInteger(cantidad)) return;
     setQuantityArticles((prevState) => ({
       ...prevState,
       [id]: {
@@ -622,23 +628,30 @@ const AddMoreArticlesTable = () => {
                                 quantityArticles[item.id].cantidadComprar || ""
                               }
                               error={
-                                showError &&
+                                (showError &&
+                                  quantityArticles[
+                                    item.id
+                                  ].cantidadComprar.trim() === "") ||
                                 quantityArticles[
                                   item.id
-                                ].cantidadComprar.trim() === ""
+                                ].cantidadComprar.trim() === "0"
                               }
                               helperText={
                                 showError &&
-                                quantityArticles[
+                                (quantityArticles[
                                   item.id
                                 ].cantidadComprar.trim() === ""
                                   ? "Debe agregar una cantidad"
-                                  : null
+                                  : quantityArticles[
+                                      item.id
+                                    ].cantidadComprar.trim() === "0"
+                                  ? "Agrega una cantidad mayor a 0"
+                                  : null)
                               }
                               onChange={(e) =>
                                 handleCantidadChange(
                                   item.id,
-                                  e.target.value,
+                                  e.target.value.trim(),
                                   item.precioInventario
                                 )
                               }
@@ -855,7 +868,9 @@ const SelectSingleProvider = () => {
   );
   const { isLoadingProviders, providers } = useGetAllProviders();
   const [error, setError] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<string>("");
+  const [selectedProvider, setSelectedProvider] = useState<string[] | string>(
+    ""
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -885,7 +900,7 @@ const SelectSingleProvider = () => {
     };
     try {
       await addPurchaseOrder(
-        objectToPurchase.id_proveedor,
+        objectToPurchase.id_proveedor as string[],
         objectToPurchase.Articulos,
         objectToPurchase.id_almacen,
         objectToPurchase.PrecioTotalInventario
@@ -920,14 +935,14 @@ const SelectSingleProvider = () => {
             select
             label="Proveedor"
             value={selectedProvider}
-            error={error && selectedProvider.trim() === ""}
+            error={error && selectedProvider.length < 1}
             helperText={
-              error && selectedProvider.trim() === ""
+              error && selectedProvider.length < 1
                 ? "Selecciona un proveedor"
                 : null
             }
             onChange={(e) => {
-              setSelectedProvider(e.target.value);
+              setSelectedProvider([e.target.value]);
             }}
           >
             {providers?.map((provider) => (

@@ -20,6 +20,7 @@ import {
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useState } from "react";
+import { convertBase64 } from "../../utils/functions/dataUtils";
 // import { updateUserData } from "../../api/api.routes";
 
 interface IUpdateUserData extends IUserSettings {
@@ -98,7 +99,6 @@ const handleChangePassword = () => {
         "#showPassword"
       ) as HTMLInputElement;
 
-      // Evento para cambiar entre el modo de contraseña y texto
       showPasswordCheckbox.addEventListener("change", () => {
         const type = showPasswordCheckbox.checked ? "text" : "password";
         passwordInput.type = type;
@@ -158,21 +158,6 @@ const handleChangePassword = () => {
         }
       }
     },
-  });
-};
-
-const convertBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL(file);
-
-    fileReader.onload = () => {
-      resolve(fileReader.result as string);
-    };
-
-    fileReader.onerror = (error) => {
-      reject(error);
-    };
   });
 };
 

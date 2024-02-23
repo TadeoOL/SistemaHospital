@@ -8,3 +8,24 @@ export const addArticlesPrice = (arrayDeObjetos: ArticleObject[]) => {
 
   return precioTotal;
 };
+
+export const convertBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+
+    fileReader.onload = () => {
+      resolve(fileReader.result as string);
+    };
+
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
+export const isValidInteger = (value: string) => {
+  if (value.trim() === "") return true;
+  const regex = /^[1-9][0-9]*$/;
+  return regex.test(value);
+};

@@ -4,7 +4,9 @@ import {
   Button,
   CircularProgress,
   Collapse,
+  Grid,
   IconButton,
+  Paper,
   Stack,
   Table,
   TableBody,
@@ -26,14 +28,14 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addNewFactorSchema } from "../../../../schema/schemas";
 import { modifyPurchaseConfig } from "../../../../api/api.routes";
+import { isValidInteger } from "../../../../utils/functions/dataUtils";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: 400, md: 600 },
-  bgcolor: "background.paper",
+  width: { xs: 380, md: 600 },
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
@@ -70,15 +72,16 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
   const { isLoadingPurchaseConfig, config, isError, refetch } =
     useGetPurchaseConfig();
   const [configPurchase, setConfigPurchase] = useState<IPurchaseConfig>();
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState("");
   const [addNewFactor, setAddNewFactor] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [directlyTender, setDirectlyTender] = useState("");
 
   useEffect(() => {
     if (isLoadingPurchaseConfig) return;
     setConfigPurchase(config);
-    setValue(config.cantidadOrdenDirecta);
+    setValue(config.cantidadOrdenDirecta.toString());
   }, [isLoadingPurchaseConfig]);
 
   const {
@@ -132,13 +135,15 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
       }
     }
   };
+  console.log(parseFloat(directlyTender));
 
   const handleModifyConfig = async () => {
     setIsLoading(true);
     if (!configPurchase) return;
     const object: IPurchaseConfig = {
-      cantidadOrdenDirecta: value,
+      cantidadOrdenDirecta: parseFloat(value),
       factor: configPurchase.factor,
+      cantidadLicitacionDirecta: parseFloat(directlyTender),
     };
 
     try {
@@ -159,6 +164,9 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
     const hasConfigChanges = () => {
       if (!config || !configPurchase) return false;
       if (Number(value) !== config.cantidadOrdenDirecta) {
+        return true;
+      }
+      if (Number(directlyTender) !== config.cantidadLicitacionDirecta) {
         return true;
       }
       if (config.factor.length !== configPurchase.factor.length) {
@@ -182,7 +190,7 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
     };
 
     setHasChanges(hasConfigChanges());
-  }, [isLoadingPurchaseConfig, config, value]);
+  }, [isLoadingPurchaseConfig, config, value, directlyTender]);
 
   const handleDelete = (factor: string | number) => {
     setHasChanges(true);
@@ -215,7 +223,7 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
   return (
     <Box sx={{ ...style, ...styleBar }}>
       <HeaderModal setOpen={open} title="Configuración de compras" />
-      <Stack sx={{ display: "flex", p: 4 }}>
+      <Stack sx={{ display: "flex", p: 4, bgcolor: "background.paper" }}>
         <form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
           <Stack
             sx={{
@@ -327,6 +335,7 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
         <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
         <Box sx={{ overflowY: "auto" }}>
           <TableContainer
+            component={Paper}
             sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
           >
             <Table>
@@ -361,30 +370,46 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
             </Table>
           </TableContainer>
         </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flex: 1,
-            justifyContent: "flex-start",
-            alignItems: "center",
-            mt: 4,
-            columnGap: 2,
-          }}
-        >
-          <Typography>Cantidad maxima para orden directa:</Typography>
-          <TextField
-            size="small"
-            placeholder="Factor"
-            value={value}
-            type="number"
-            inputProps={{
-              style: {
-                ...styleInput,
-              },
-            }}
-            onChange={(e) => setValue(Number(e.target.value))}
-          />
-        </Box>
+        <Grid spacing={2} container sx={{ mt: 4 }}>
+          <Grid item xs={6}>
+            <Typography>Cantidad maxima para orden directa:</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              size="small"
+              placeholder="Cantidad para orden directa"
+              value={value}
+              inputProps={{
+                style: {
+                  ...styleInput,
+                },
+              }}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setValue(e.target.value);
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography>Cantidad minima para licitación directa:</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              size="small"
+              placeholder="Cantidad para licitación"
+              value={directlyTender}
+              inputProps={{
+                style: {
+                  ...styleInput,
+                },
+              }}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setDirectlyTender(e.target.value);
+              }}
+            />
+          </Grid>
+        </Grid>
         {hasChanges && (
           <Box>
             <Typography sx={{ fontSize: 12, fontWeight: 700, color: "red" }}>

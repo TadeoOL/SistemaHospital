@@ -54,7 +54,6 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<
           pageSize === 0 ? "" : "pageSize=" + pageSize
         }&search=${search}&habilitado=${enabled}`
       );
-      console.log({ res });
       set(() => ({
         data: res.data,
         count: res.count,
