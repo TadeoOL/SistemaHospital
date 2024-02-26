@@ -49,7 +49,7 @@ export const PurchaseAuthorization = () => {
               Mensaje personalizado
             </Button>
             <Button variant="contained" onClick={() => setOpen(true)}>
-              Mensaje personalizado
+              Configuración ordenes de compra
             </Button>
           </Box>
         </Stack>
