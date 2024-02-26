@@ -10,7 +10,6 @@ import {
   Tab,
   CircularProgress,
 } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
 import { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -22,6 +21,8 @@ import { login } from "../../api/api.routes";
 import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
 import { toast } from "react-toastify";
+import "./LoginComponent.css"
+import { useTheme } from "@mui/material/styles";
 interface ILogin {
   userName: string;
   password: string;
@@ -30,10 +31,10 @@ interface ILogin {
 export const LoginComponent = () => {
   const setToken = useAuthStore((state) => state.setToken);
   const setProfile = useAuthStore((state) => state.setProfile);
-
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
+  const theme = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -66,7 +67,6 @@ export const LoginComponent = () => {
   };
 
 
-
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passwordValue = e.target.value;
     setValue("password", passwordValue);
@@ -76,7 +76,7 @@ export const LoginComponent = () => {
   return (
     <Box>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack sx={{  }} spacing={3}>
+        <Stack sx={{ }} spacing={3} className="container">
           <Typography fontWeight={700} fontSize={24}>
             Iniciar sesión
           </Typography>
@@ -84,6 +84,7 @@ export const LoginComponent = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
+              
             }}
             spacing={2}
           >
@@ -92,6 +93,7 @@ export const LoginComponent = () => {
               <Tab label="Recuperar Usuario" value="" />
             </Tabs>
             <TextField
+              
               error={!!errors.userName}
               helperText={errors?.userName?.message}
               {...register("userName")}
