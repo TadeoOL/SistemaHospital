@@ -586,12 +586,12 @@ export const getPurchaseAuthorization = async (paramUrl: string) => {
 };
 
 export const changePurchaseStatus = async (
-  Id_OrdenCompra: string,
+  Id_SolicitudCompra: string,
   Estatus: number,
   Mensaje: string
 ) => {
   const res = await axios.put(`/api/Compras/estatus-autorizacion-compras`, {
-    Id_OrdenCompra,
+    Id_SolicitudCompra,
     Estatus,
     Mensaje,
   });

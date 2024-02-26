@@ -77,7 +77,7 @@ const useGetAllData = () => {
 };
 
 const acceptPurchaseAuthorization = (
-  Id_OrdenCompra: string,
+  Id_SolicitudCompra: string,
   Mensaje: string = "Aceptada"
 ) => {
   const { fetchPurchaseAuthorization } =
@@ -94,11 +94,11 @@ const acceptPurchaseAuthorization = (
   }).then(async (result) => {
     try {
       if (result.isConfirmed) {
-        await changePurchaseStatus(Id_OrdenCompra, 2, Mensaje);
+        await changePurchaseStatus(Id_SolicitudCompra, 2, Mensaje);
         fetchPurchaseAuthorization();
         Swal.fire("Compra enviada a licitación!", "", "success");
       } else if (result.isDenied) {
-        await changePurchaseStatus(Id_OrdenCompra, 4, Mensaje);
+        await changePurchaseStatus(Id_SolicitudCompra, 4, Mensaje);
         fetchPurchaseAuthorization();
         Swal.fire("Compra aprobada correctamente!", "", "success");
       }
@@ -110,7 +110,7 @@ const acceptPurchaseAuthorization = (
 };
 
 const declinePurchaseAuthorization = (
-  Id_OrdenCompra: string,
+  Id_SolicitudCompra: string,
   Mensaje: string = "Rechazada"
 ) => {
   Swal.fire({
@@ -132,7 +132,7 @@ const declinePurchaseAuthorization = (
       usePurchaseAuthorizationPagination.getState();
     if (result.isConfirmed) {
       try {
-        await changePurchaseStatus(Id_OrdenCompra, 0, Mensaje);
+        await changePurchaseStatus(Id_SolicitudCompra, 0, Mensaje);
         Swal.fire({
           title: "Rechazada",
           text: "La compra ha sido rechazada correctamente!",
@@ -251,7 +251,7 @@ export const PurchaseAuthorizationTable = () => {
                           </Tooltip>
                         </TableCell>
                       </TableRow>
-                      <TableCell colSpan={6} sx={{ p: 0 }}>
+                      <TableCell colSpan={7} sx={{ p: 0 }}>
                         <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
                           <Table>
                             <TableHead>

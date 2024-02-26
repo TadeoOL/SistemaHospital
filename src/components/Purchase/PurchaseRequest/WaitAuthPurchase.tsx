@@ -228,7 +228,7 @@ export const WaitAuthPurchase = () => {
                           )}
                         </TableCell>
                       </TableRow>
-                      <TableCell colSpan={6} sx={{ p: 0 }}>
+                      <TableCell colSpan={7} sx={{ p: 0 }}>
                         <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
                           <Table>
                             <TableHead>

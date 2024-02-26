@@ -35,7 +35,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, sm: 500, md: 600 },
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
@@ -82,6 +82,7 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
     if (isLoadingPurchaseConfig) return;
     setConfigPurchase(config);
     setValue(config.cantidadOrdenDirecta.toString());
+    setDirectlyTender(config.cantidadLicitacionDirecta.toString());
   }, [isLoadingPurchaseConfig]);
 
   const {
@@ -135,7 +136,6 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
       }
     }
   };
-  console.log(parseFloat(directlyTender));
 
   const handleModifyConfig = async () => {
     setIsLoading(true);
@@ -160,13 +160,13 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
   };
 
   useEffect(() => {
-    if (!isLoadingPurchaseConfig) return;
+    if (isLoadingPurchaseConfig) return;
     const hasConfigChanges = () => {
       if (!config || !configPurchase) return false;
-      if (Number(value) !== config.cantidadOrdenDirecta) {
+      if (parseFloat(value) !== config.cantidadOrdenDirecta) {
         return true;
       }
-      if (Number(directlyTender) !== config.cantidadLicitacionDirecta) {
+      if (parseFloat(directlyTender) !== config.cantidadLicitacionDirecta) {
         return true;
       }
       if (config.factor.length !== configPurchase.factor.length) {
@@ -190,7 +190,7 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
     };
 
     setHasChanges(hasConfigChanges());
-  }, [isLoadingPurchaseConfig, config, value, directlyTender]);
+  }, [isLoadingPurchaseConfig, config, value, directlyTender, configPurchase]);
 
   const handleDelete = (factor: string | number) => {
     setHasChanges(true);
