@@ -10,8 +10,7 @@ import {
   IUpdateUsers,
   IWarehouse,
 } from "../types/types";
-import { AxiosError } from 'axios';
-
+import { AxiosError } from "axios";
 
 export const login = async (userName: string, password: string) => {
   try {
@@ -590,7 +589,7 @@ export const getPurchaseAuthorization = async (paramUrl: string) => {
 export const changePurchaseStatus = async (
   Id_SolicitudCompra: string,
   Estatus: number,
-  Mensaje: string
+  Mensaje?: string
 ) => {
   const res = await axios.put(`/api/Compras/estatus-autorizacion-compras`, {
     Id_SolicitudCompra,
@@ -649,6 +648,17 @@ export const deleteProviderQuote = async (idQuote: string) => {
   return res.data;
 };
 
+export const selectManyProvidersForTender = async (
+  id_SolicitudCompra: string,
+  id_Proveedor: string[]
+) => {
+  const res = await axios.put(`/api/Compras/licitar-solicitud-compra`, {
+    id_SolicitudCompra,
+    id_Proveedor,
+  });
+  return res.data;
+};
+
 export const obtenerMensajes = async (modulo: string) => {
   try {
     const res = await axios.get(
@@ -659,15 +669,15 @@ export const obtenerMensajes = async (modulo: string) => {
     console.error("Error al obtener los mensajes:", error);
     throw error;
   }
-};  
+};
 
 export const crearMensaje = async (nuevoMensaje: string) => {
   try {
     const modulo = "Compras_AutorizacionCancelada";
-    await axios.post(
-      "/api/Sistema/Mensajes/crear-mensaje-alerta",
-      { Mensaje: nuevoMensaje, Modulo: modulo }
-    );
+    await axios.post("/api/Sistema/Mensajes/crear-mensaje-alerta", {
+      Mensaje: nuevoMensaje,
+      Modulo: modulo,
+    });
 
     const res = await axios.get(
       `/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`
@@ -676,7 +686,7 @@ export const crearMensaje = async (nuevoMensaje: string) => {
     return res.data;
   } catch (error) {
     console.error("Error al crear el mensaje:", error);
-    throw error; 
+    throw error;
   }
 };
 
@@ -697,7 +707,13 @@ export const eliminarMensaje = async (mensajeId: string) => {
   }
 };
 
-export const editarMensaje = async ({ mensajeId, nuevoContenido }: { mensajeId: string, nuevoContenido: string }) => {
+export const editarMensaje = async ({
+  mensajeId,
+  nuevoContenido,
+}: {
+  mensajeId: string;
+  nuevoContenido: string;
+}) => {
   try {
     await axios.put(
       `/api/Sistema/Mensajes/modificar-mensaje-alerta/${mensajeId}`,
@@ -719,9 +735,3 @@ export const editarMensaje = async ({ mensajeId, nuevoContenido }: { mensajeId: 
     throw error;
   }
 };
-
-
-
-
-
-

@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
 import {
   addProviderQuote,
+  changePurchaseStatus,
   deleteProviderQuote,
   getProviderQuotePdf,
 } from "../../../../../api/api.routes";
@@ -35,6 +36,8 @@ import { usePurchaseOrderRequestModals } from "../../../../../store/purchaseStor
 import { FillQuoteInformationModal } from "./Steps/FillQuoteInformationModal";
 import { useShallow } from "zustand/react/shallow";
 import { shallow } from "zustand/shallow";
+import { Provider } from "../../../../../types/types";
+import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 
 const style = {
   position: "absolute",
@@ -46,24 +49,27 @@ const style = {
   width: { xs: 380, md: 600, lg: 800 },
 };
 
-type Provider = {
-  id: string;
-  proveedor: { id_Proveedor: string; nombre: string };
-};
-
 type ProviderQuoteModalProps = {
-  idFolio: string;
+  idFolio: { folio: string; purchaseOrderId: string };
   open: Function;
   providers: Provider[];
 };
 
 const renderStepForm = (
   step: number,
-  providerData: Array<Provider & { pdf: string }> | undefined
+  providers: Provider[],
+  id: string,
+  open: Function
 ) => {
   switch (step) {
     case 0:
-      return <ProvidersQuotePdf providersData={providerData} />;
+      return (
+        <ProvidersQuotePdf
+          providers={providers}
+          purchaseRequestId={id}
+          setOpen={open}
+        />
+      );
     case 1:
       return <FillQuoteInformationModal />;
     case 2:
@@ -90,7 +96,7 @@ const stepsForm = [
 
 const useFetchPdfProviders = (providers: Provider[]) => {
   const [providersData, setProvidersData] =
-    useState<Array<Provider & { pdf: string }>>();
+    useState<Array<Provider & { pdf: string | null }>>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -123,20 +129,11 @@ const useFetchPdfProviders = (providers: Provider[]) => {
 
 export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
   const { idFolio, open, providers } = props;
-  const { providersData, isLoading } = useFetchPdfProviders(providers);
   const step = usePurchaseOrderRequestModals(useShallow((state) => state.step));
 
-  useEffect(() => {
-    console.log("monte");
-    return () => {
-      console.log("desmonte");
-      usePurchaseOrderRequestModals.setState({ step: 0 });
-    };
-  }, []);
+  console.log({ providers });
 
-  console.log({ providersData });
-
-  if (isLoading)
+  if (!providers)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -144,10 +141,7 @@ export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
     );
   return (
     <Box sx={style}>
-      <HeaderModal
-        title={"Enviar orden de compra - Solicitud No. " + idFolio}
-        setOpen={open}
-      />
+      <HeaderModal title={"Solicitud No. " + idFolio.folio} setOpen={open} />
       <Stack
         sx={{
           px: 8,
@@ -157,39 +151,42 @@ export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
           borderBottomRightRadius: 12,
         }}
       >
-        <Stepper activeStep={step}>
-          {stepsForm.map((step) => (
-            <Step key={step.id}>
-              <StepLabel>
-                {
-                  <Typography fontSize={{ xs: 10, lg: 12 }} fontWeight={500}>
-                    {step.title}
-                  </Typography>
-                }
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        {renderStepForm(step, providersData)}
+        {providers.length > 1 ? null : (
+          <Stepper activeStep={step}>
+            {stepsForm.map((step) => (
+              <Step key={step.id}>
+                <StepLabel>
+                  {
+                    <Typography fontSize={{ xs: 10, lg: 12 }} fontWeight={500}>
+                      {step.title}
+                    </Typography>
+                  }
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        )}
+        {renderStepForm(step, providers, idFolio.purchaseOrderId, open)}
       </Stack>
     </Box>
   );
 };
 
-const ProvidersQuotePdf = (props: {
-  providersData: Array<Provider & { pdf: string | null }> | undefined;
+export const ProvidersQuotePdf = (props: {
+  providers: Provider[];
+  purchaseRequestId: string;
+  setOpen: Function;
 }) => {
-  const { providersData } = props;
-  const { step, setStep, providerSelected, setProviderSelected } =
-    usePurchaseOrderRequestModals(
-      (state) => ({
-        step: state.step,
-        setStep: state.setStep,
-        providerSelected: state.providerSelected,
-        setProviderSelected: state.setProviderSelected,
-      }),
-      shallow
-    );
+  const { providers, purchaseRequestId, setOpen } = props;
+  const { providersData, isLoading } = useFetchPdfProviders(providers);
+  const { step, setStep, setProviderSelected } = usePurchaseOrderRequestModals(
+    (state) => ({
+      step: state.step,
+      setStep: state.setStep,
+      setProviderSelected: state.setProviderSelected,
+    }),
+    shallow
+  );
   const [viewPdf, setViewPdf] = useState(false);
   const [pdfOpen, setPdfOpen] = useState("");
   const [providerQuoteRequest, setProviderQuoteRequest] = useState("");
@@ -199,6 +196,17 @@ const ProvidersQuotePdf = (props: {
   const [providersClone, setProvidersClone] = useState<typeof providersData>(
     structuredClone(providersData)
   );
+  const [asyncLoading, setAsyncLoading] = useState(false);
+  const [inputKey, setInputKey] = useState(0);
+  const [isManyProviders, setIsManyProviders] = useState(false);
+
+  useEffect(() => {
+    if (!providersData) return;
+    providersData.length > 1
+      ? setIsManyProviders(true)
+      : setIsManyProviders(false);
+    setProvidersClone(providersData);
+  }, [providersData]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -219,6 +227,7 @@ const ProvidersQuotePdf = (props: {
             )
           );
           toast.success("Archivo subido con éxito!");
+          setInputKey((prevKey) => prevKey + 1);
         } catch (error) {
           console.log(error);
           toast.error("Error al subir el documento pdf!");
@@ -236,39 +245,69 @@ const ProvidersQuotePdf = (props: {
     maxFiles: 1,
   });
 
-  console.log({ providersClone });
   const hasEmptyPdf = () => {
     if (!providersClone || providersClone.length === 0) return true;
     return providersClone.some((provider) => provider.pdf === null);
   };
 
   const handleNext = useCallback(() => {
+    if (!providersClone) return;
     if (hasEmptyPdf())
       return toast.error(
         "Es necesario subir todas las cotizaciones antes de continuar!"
       );
 
-    setStep(step + 1);
-  }, [step]);
-
-  const handleDeleteQuote = useCallback(async (idQuote: string) => {
-    try {
-      await deleteProviderQuote(idQuote);
-      setProvidersClone((prev) =>
-        prev?.map((file) =>
-          file.id === idQuote ? { ...file, pdf: null } : file
-        )
-      );
-      toast.success("Cotización eliminada con éxito!");
-    } catch (error) {
-      toast.error("Error al eliminar la cotización!");
-      console.log(error);
+    if (isManyProviders) {
+      handleSendQuotes();
+    } else {
+      setProviderSelected(providersClone[0].proveedor.id_Proveedor);
+      setStep(step + 1);
     }
-  }, []);
+  }, [step, providersClone]);
 
+  const handleSendQuotes = async () => {
+    setAsyncLoading(true);
+    try {
+      await changePurchaseStatus(purchaseRequestId, 5);
+      toast.success("Cotizaciones enviadas correctamente!");
+      usePurchaseOrderRequestPagination.getState().fetch();
+      setOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al enviar las cotizaciones!");
+    } finally {
+      setAsyncLoading(false);
+    }
+  };
+
+  const handleDeleteQuote = useCallback(
+    async (idQuote: string) => {
+      if (!providersClone) return;
+      try {
+        await deleteProviderQuote(idQuote);
+        setProvidersClone((prev) =>
+          prev?.map((file) =>
+            file.id === idQuote ? { ...file, pdf: null } : file
+          )
+        );
+        toast.success("Cotización eliminada con éxito!");
+      } catch (error) {
+        toast.error("Error al eliminar la cotización!");
+        console.log(error);
+      }
+    },
+    [providersClone]
+  );
+
+  if (isLoading)
+    return (
+      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", m: 4 }}>
+        <CircularProgress />;
+      </Box>
+    );
   return (
     <>
-      <Stack sx={{ mt: 4 }}>
+      <Stack spacing={1} sx={{ mt: 4 }}>
         {providersClone?.map((quoteRequest) => (
           <Stack key={quoteRequest.id}>
             <Box
@@ -357,7 +396,7 @@ const ProvidersQuotePdf = (props: {
                   {...getRootProps({ className: "dropzone" })}
                 >
                   <CloudUpload sx={{ width: 40, height: 40, color: "Gray" }} />
-                  <input {...getInputProps()} />
+                  <input key={inputKey} {...getInputProps()} />
                   <Typography
                     sx={{
                       color: "#B4B4B8",
@@ -375,8 +414,12 @@ const ProvidersQuotePdf = (props: {
         ))}
       </Stack>
       <Box sx={{ display: "flex", flex: 1, justifyContent: "flex-end", mt: 4 }}>
-        <Button variant="contained" onClick={() => handleNext()}>
-          Siguiente
+        <Button
+          variant="contained"
+          onClick={() => handleNext()}
+          disabled={asyncLoading}
+        >
+          {isManyProviders ? "Enviar" : "Siguiente"}
         </Button>
       </Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
@@ -406,7 +449,7 @@ const ProvidersQuotePdf = (props: {
                 mb: 3,
               }}
             >
-              <iframe
+              <embed
                 src={pdfOpen}
                 style={{
                   width: "100%",

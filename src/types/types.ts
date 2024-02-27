@@ -133,7 +133,7 @@ export enum Status {
   "Necesita licitación" = 2,
   "Necesita elegir proveedor" = 3,
   "Solicitud a proveedor" = 4,
-  "En espera de entrega" = 5,
+  "Selección de productos por proveedor" = 5,
   "Recibida" = 6,
   "Entregada" = 7,
 }
@@ -209,3 +209,8 @@ export interface ICheckedArticles {
   idAlerta?: string;
   idArticulo: string;
 }
+
+export type Provider = {
+  id: string;
+  proveedor: { id_Proveedor: string; nombre: string };
+};
