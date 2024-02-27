@@ -1,5 +1,18 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
+import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
+import {
+  obtenerMensajes,
+  crearMensaje,
+  eliminarMensaje,
+  editarMensaje,
+} from "../../../../api/api.routes";
 import {
   Box,
   Button,
@@ -10,12 +23,17 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Typography,
   IconButton,
   Paper,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
+
+interface Mensaje {
+  id_Mensaje: string;
+  mensaje: string;
+  modulo: string;
+  habilitado: boolean;
+}
 
 const style = {
   position: "absolute",
@@ -46,84 +64,95 @@ const styleBar = {
   },
 };
 
-const styleInput = {
-  paddingTop: "0.4rem",
-  paddingBottom: "0.4rem",
-};
-
 interface MensajeProps {
   open: Function;
 }
 
 const Mensaje = ({ open }: MensajeProps) => {
-  const [mensajes, setMensajes] = useState([]);
+  const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMensaje, setNuevoMensaje] = useState<string>("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [mensajeIdToDelete, setMensajeIdToDelete] = useState("");
+  const [selectedMensaje, setSelectedMensaje] = useState<Mensaje | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState("");
+  const [editingMessageText, setEditingMessageText] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://192.250.226.41:5000/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada"
-        );
-        console.log(response.data);
-        setMensajes(response.data);
+        const res = await obtenerMensajes("Compras_AutorizacionCancelada");
+        console.log(res);
+        setMensajes(res);
       } catch (error: any) {
         console.error("Error al obtener los mensajes:", error);
         console.log("Código de estado HTTP:", error.response?.status);
       }
     };
+
     fetchData();
   }, []);
 
-  const crearMensaje = async () => {
+  const agregarNuevoMensaje = async () => {
     try {
-      await axios.post(
-        "http://192.250.226.41:5000/api/Sistema/Mensajes/crear-mensaje-alerta",
-        { mensaje: nuevoMensaje }
-      );
-      const response = await axios.get(
-        "http://192.250.226.41:5000/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada"
-      );
-      setMensajes(response.data);
-      setNuevoMensaje("");
-    } catch (error) {
-      console.error("Error al crear el mensaje:", error);
-    }
-  };
-
-  const editarMensaje = async (mensajeId: string) => {
-    try {
-      const mensajeAEditar = mensajes.find((mensaje) => mensaje === mensajeId);
-
-      if (mensajeAEditar) {
-        // mensajeAEditar.mensaje = "Nuevo contenido";
-
-        await axios.put(
-          `http://192.250.226.41:5000/api/Sistema/Mensajes/modificar-mensaje-alerta/${mensajeId}`,
-          { nuevoContenido: "Nuevo contenido del mensaje" }
-        );
-
-        const response = await axios.get(
-          "http://192.250.226.41:5000/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada"
-        );
-        setMensajes(response.data);
+      if (nuevoMensaje.trim() !== "") {
+        await crearMensaje(nuevoMensaje);
+        setNuevoMensaje("");
+        const res = await obtenerMensajes("Compras_AutorizacionCancelada");
+        setMensajes(res);
+      } else {
+        console.error("El nuevo mensaje no puede estar vacío.");
       }
     } catch (error) {
-      console.error("Error al editar el mensaje:", error);
+      console.error("Error al agregar el nuevo mensaje:", error);
     }
   };
 
-  const eliminarMensaje = async (mensajeId: string) => {
+  const eliminarMensajes = async (mensajeId: string) => {
     try {
-      await axios.delete(
-        `http://192.250.226.41:5000/api/Sistema/Mensajes/eliminar-mensaje-alerta/${mensajeId}`
-      );
-      const response = await axios.get(
-        "http://192.250.226.41:5000/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada"
-      );
-      setMensajes(response.data);
+      handleOpenDialog(mensajeId);
     } catch (error) {
       console.error("Error al eliminar el mensaje:", error);
+    }
+  };
+  const handleOpenDialog = (mensajeId: string) => {
+    setMensajeIdToDelete(mensajeId);
+    setOpenDialog(true);
+    const selected = mensajes.find(
+      (mensaje) => mensaje.id_Mensaje === mensajeId
+    );
+    setSelectedMensaje(selected || null);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedMensaje(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (mensajeIdToDelete) {
+      await eliminarMensaje(mensajeIdToDelete);
+      handleCloseDialog();
+      const res = await obtenerMensajes("Compras_AutorizacionCancelada");
+      setMensajes(res);
+    }
+  };
+
+  const toggleEditMode = (mensajeId: string, mensajeText: string) => {
+    setEditingMessageId(mensajeId);
+    setEditingMessageText(mensajeText);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      await editarMensaje({
+        mensajeId: editingMessageId,
+        nuevoContenido: editingMessageText,
+      });
+      setEditingMessageId("");
+      setEditingMessageText("");
+      const res = await obtenerMensajes("Compras_AutorizacionCancelada");
+      setMensajes(res);
+    } catch (error) {
+      console.error("Error al editar el mensaje:", error);
     }
   };
 
@@ -143,14 +172,36 @@ const Mensaje = ({ open }: MensajeProps) => {
             </TableHead>
             <TableBody>
               {mensajes.map((mensaje) => (
-                <TableRow key={mensaje}>
-                  <TableCell>{mensaje}</TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>test</TableCell>
+                <TableRow key={mensaje.id_Mensaje}>
                   <TableCell>
-                    <IconButton onClick={() => editarMensaje(mensaje)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton onClick={() => eliminarMensaje(mensaje)}>
+                    {editingMessageId === mensaje.id_Mensaje ? (
+                      <TextField
+                        value={editingMessageText}
+                        onChange={(e) => setEditingMessageText(e.target.value)}
+                      />
+                    ) : (
+                      mensaje.mensaje
+                    )}
+                  </TableCell>
+                  <TableCell
+                    sx={{ display: "flex", justifyContent: "flex-end" }}
+                  >
+                    {editingMessageId === mensaje.id_Mensaje ? (
+                      <IconButton onClick={handleSaveEdit}>
+                        <SaveIcon />
+                      </IconButton>
+                    ) : (
+                      <IconButton
+                        onClick={() =>
+                          toggleEditMode(mensaje.id_Mensaje, mensaje.mensaje)
+                        }
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    )}
+                    <IconButton
+                      onClick={() => eliminarMensajes(mensaje.id_Mensaje)}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -159,20 +210,47 @@ const Mensaje = ({ open }: MensajeProps) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TextField
-          label="Nuevo Mensaje"
-          value={nuevoMensaje}
-          onChange={(e) => setNuevoMensaje(e.target.value)}
-          sx={{ mt: 2 }}
-        />
-        <Button
-          sx={{ mt: 2, marginLeft: "5px", marginTop: "25px" }}
-          variant="contained"
-          onClick={crearMensaje}
-        >
-          Agregar Mensaje
-        </Button>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <Typography sx={{ marginTop: "10%" }}>
+            Crear un nuevo mensaje
+          </Typography>
+          <TextField
+            label="Nuevo Mensaje"
+            value={nuevoMensaje}
+            onChange={(e) => setNuevoMensaje(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <Button
+            sx={{ mt: 2, marginLeft: "5px", marginTop: "25px" }}
+            variant="contained"
+            onClick={agregarNuevoMensaje}
+          >
+            Agregar nuevo mensaje
+          </Button>
+        </Box>
       </Box>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          {selectedMensaje && (
+            <Box>
+              <Typography variant="body1">
+                ¿Estás seguro de que deseas eliminar el siguiente mensaje?
+              </Typography>
+              <Typography
+                variant="body2"
+                style={{ marginTop: "1rem", marginLeft: "10px" }}
+              >
+                {selectedMensaje.mensaje}
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleConfirmDelete}>Eliminar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

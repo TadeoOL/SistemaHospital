@@ -10,6 +10,8 @@ import {
   IUpdateUsers,
   IWarehouse,
 } from "../types/types";
+import { AxiosError } from 'axios';
+
 
 export const login = async (userName: string, password: string) => {
   try {
@@ -646,3 +648,80 @@ export const deleteProviderQuote = async (idQuote: string) => {
   );
   return res.data;
 };
+
+export const obtenerMensajes = async (modulo: string) => {
+  try {
+    const res = await axios.get(
+      `/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error al obtener los mensajes:", error);
+    throw error;
+  }
+};  
+
+export const crearMensaje = async (nuevoMensaje: string) => {
+  try {
+    const modulo = "Compras_AutorizacionCancelada";
+    await axios.post(
+      "/api/Sistema/Mensajes/crear-mensaje-alerta",
+      { Mensaje: nuevoMensaje, Modulo: modulo }
+    );
+
+    const res = await axios.get(
+      `/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`
+    );
+
+    return res.data;
+  } catch (error) {
+    console.error("Error al crear el mensaje:", error);
+    throw error; 
+  }
+};
+
+export const eliminarMensaje = async (mensajeId: string) => {
+  try {
+    await axios.delete(
+      `/api/Sistema/Mensajes/eliminar-mensaje-alerta/${mensajeId}`
+    );
+
+    const res = await axios.get(
+      "/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada"
+    );
+
+    return res.data;
+  } catch (error) {
+    console.error("Error al eliminar el mensaje:", error);
+    throw error;
+  }
+};
+
+export const editarMensaje = async ({ mensajeId, nuevoContenido }: { mensajeId: string, nuevoContenido: string }) => {
+  try {
+    await axios.put(
+      `/api/Sistema/Mensajes/modificar-mensaje-alerta/${mensajeId}`,
+      { nuevoContenido }
+    );
+
+    const res = await axios.get(
+      `/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada`
+    );
+
+    return res.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    if (axiosError.response) {
+      console.log(axiosError.response);
+    } else {
+      console.error("Error al editar el mensaje:", error);
+    }
+    throw error;
+  }
+};
+
+
+
+
+
+
