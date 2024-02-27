@@ -51,25 +51,33 @@ export const FillQuoteInformationModal = () => {
     <Stack spacing={2} sx={{ mt: 4 }}>
       <Grid container>
         <Grid item xs={12}>
-          <Typography>Información del proveedor</Typography>
+          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
+            Información del proveedor
+          </Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>Compañía:</Typography>
+          <Typography>Compañía: {providerData?.nombreCompania}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>Nombre contacto:</Typography>
+          <Typography>
+            Nombre contacto: {providerData?.nombreContacto}
+          </Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>Dirección:</Typography>
+          <Typography>Dirección: {providerData?.direccion}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>Teléfono:</Typography>
+          <Typography>Teléfono: {providerData?.telefono}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>Correo electrónico:</Typography>
+          <Typography>
+            Correo electrónico: {providerData?.correoElectronico}
+          </Typography>
         </Grid>
       </Grid>
-      <Typography>Productos solicitados</Typography>
+      <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
+        Productos solicitados
+      </Typography>
       <Box sx={{ borderRadius: 2, boxShadow: 4 }}>
         <Table>
           <TableHead>

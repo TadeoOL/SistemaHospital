@@ -27,7 +27,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Swal from "sweetalert2";
 import { changePurchaseStatus } from "../../../api/api.routes";
-import { Status } from "../../../types/types";
+import { Provider, Status } from "../../../types/types";
+import { Checklist, Info } from "@mui/icons-material";
+import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
 
 const useGetAllData = () => {
   const {
@@ -94,7 +96,7 @@ const acceptPurchaseAuthorization = (
   }).then(async (result) => {
     try {
       if (result.isConfirmed) {
-        await changePurchaseStatus(Id_SolicitudCompra, 2, Mensaje);
+        await changePurchaseStatus(Id_SolicitudCompra, 3, Mensaje);
         fetchPurchaseAuthorization();
         Swal.fire("Compra enviada a licitación!", "", "success");
       } else if (result.isDenied) {
@@ -154,10 +156,13 @@ const declinePurchaseAuthorization = (
 export const PurchaseAuthorizationTable = () => {
   const { data, count, isLoading, pageIndex, pageSize, setPageSize } =
     useGetAllData();
-  const [openEditModal, setOpenEditModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const [purchaseRequestId, setPurchaseRequestId] = useState("");
+  const [providerState, setProviderState] = useState<Provider[]>();
+  const [folio, setFolio] = useState("");
 
   return (
     <>
@@ -186,23 +191,25 @@ export const PurchaseAuthorizationTable = () => {
                         <TableCell>
                           {!viewArticles[auth.id_SolicitudCompra] ? (
                             <IconButton
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setViewArticles({
                                   [auth.id_SolicitudCompra]:
                                     !viewArticles[auth.id_SolicitudCompra],
-                                })
-                              }
+                                });
+                              }}
                             >
                               <ExpandMoreIcon />
                             </IconButton>
                           ) : (
                             <IconButton
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setViewArticles({
                                   [auth.id_SolicitudCompra]:
                                     !viewArticles[auth.id_SolicitudCompra],
-                                })
-                              }
+                                });
+                              }}
                             >
                               <ExpandLessIcon />
                             </IconButton>
@@ -224,31 +231,62 @@ export const PurchaseAuthorizationTable = () => {
                         <TableCell>${auth.precioSolicitud}</TableCell>
                         <TableCell>{Status[auth.estatus]}</TableCell>
                         <TableCell>
-                          <Tooltip title="Aceptar">
-                            <IconButton
-                              size="small"
-                              sx={{ color: "neutral.700" }}
-                              onClick={() => {
-                                acceptPurchaseAuthorization(
-                                  auth.id_SolicitudCompra
-                                );
-                              }}
+                          {Status[auth.estatus] === "Cancelado" ? (
+                            <Tooltip
+                              title={
+                                <Typography variant="body1">
+                                  {auth.notas}
+                                </Typography>
+                              }
                             >
-                              <CheckIcon sx={{ color: "green" }} />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Rechazar">
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                declinePurchaseAuthorization(
-                                  auth.id_SolicitudCompra
-                                );
-                              }}
-                            >
-                              <CloseIcon sx={{ color: "red" }} />
-                            </IconButton>
-                          </Tooltip>
+                              <Info sx={{ color: "gray" }} />
+                            </Tooltip>
+                          ) : Status[auth.estatus] ===
+                            "Selección de productos por proveedor" ? (
+                            <Tooltip title="Seleccionar los productos con el proveedor">
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPurchaseRequestId(auth.id_SolicitudCompra);
+                                  setProviderState(auth.solicitudProveedor);
+                                  setFolio(auth.folio);
+                                  setOpenModal(true);
+                                }}
+                              >
+                                <Checklist />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <>
+                              <Tooltip title="Aceptar">
+                                <IconButton
+                                  size="small"
+                                  sx={{ color: "neutral.700" }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    acceptPurchaseAuthorization(
+                                      auth.id_SolicitudCompra
+                                    );
+                                  }}
+                                >
+                                  <CheckIcon sx={{ color: "green" }} />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Rechazar">
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    declinePurchaseAuthorization(
+                                      auth.id_SolicitudCompra
+                                    );
+                                  }}
+                                >
+                                  <CloseIcon sx={{ color: "red" }} />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
                         </TableCell>
                       </TableRow>
                       <TableCell colSpan={7} sx={{ p: 0 }}>
@@ -326,9 +364,14 @@ export const PurchaseAuthorizationTable = () => {
           rowsPerPageOptions={[5, 10, 25, 50]}
         />
       </Card>
-      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <div>
-          {/* <ModifyArticleModal articleId={articleId} open={setOpenEditModal} /> */}
+          <MatchProvidersAndArticles
+            providers={providerState ? providerState : []}
+            purchaseRequestId={purchaseRequestId}
+            setOpen={setOpenModal}
+            folio={folio}
+          />
         </div>
       </Modal>
     </>

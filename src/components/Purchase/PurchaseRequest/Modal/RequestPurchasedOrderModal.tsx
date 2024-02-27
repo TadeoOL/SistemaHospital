@@ -129,11 +129,16 @@ const useGetAllArticles = () => {
 const AlertConfigAmount = (
   setStep: Function,
   step: number,
-  setIsManyProviders: Function
+  setIsManyProviders: Function,
+  directlyTender: boolean
 ) => {
   Swal.fire({
     icon: "warning",
-    title: "Tu orden excede el limite de precio para compra directa!",
+    title: `Tu orden excede el limite de precio${
+      directlyTender
+        ? ", se enviara a licitación directamente!"
+        : " para compra directa!"
+    }`,
     showCancelButton: true,
     cancelButtonText: "Cancelar",
     confirmButtonText: "Mandar a autorización",
@@ -142,7 +147,7 @@ const AlertConfigAmount = (
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      setIsManyProviders(false);
+      setIsManyProviders(directlyTender ? true : false);
       setStep(step + 1);
     }
   });
@@ -296,18 +301,21 @@ const TableComponent = () => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve("Llamada asincronía completada");
-      }, 2000);
+      }, 1000);
     });
   };
 
   const handleNextStep = async () => {
     try {
       setIsLoading(true);
-      const { cantidadOrdenDirecta } = await getPurchaseConfig();
+      const { cantidadOrdenDirecta, cantidadLicitacionDirecta } =
+        await getPurchaseConfig();
       const sumaPrecios = addArticlesPrice(articlesPurchased);
       await simulateAsyncCall();
-      if (sumaPrecios >= cantidadOrdenDirecta) {
-        AlertConfigAmount(setStep, step, setIsManyProviders);
+      if (sumaPrecios >= cantidadLicitacionDirecta) {
+        AlertConfigAmount(setStep, step, setIsManyProviders, true);
+      } else if (sumaPrecios >= cantidadOrdenDirecta) {
+        AlertConfigAmount(setStep, step, setIsManyProviders, false);
       } else {
         setStep(step + 1);
         setIsManyProviders(false);
@@ -587,8 +595,10 @@ const AddMoreArticlesTable = () => {
           searchState={setSearch}
           title="Buscar articulo..."
         />
-        <Box sx={{ overflowX: "auto", p: 1 }}>
-          <Box sx={{ minWidth: "700px", maxHeight: "300px" }}>
+        <Box sx={{ overflowX: "auto" }}>
+          <Box
+            sx={{ minWidth: { lg: "700px", md: "500px" }, maxHeight: "300px" }}
+          >
             <Card>
               <Table stickyHeader>
                 <TableHead>
@@ -723,16 +733,28 @@ const AddMoreArticlesTable = () => {
 };
 
 const SelectManyProviders = () => {
-  const { setStep, step, checkedArticles } = useArticlesAlertPagination(
+  const {
+    setStep,
+    step,
+    checkedArticles,
+    articlesPurchased,
+    warehouseSelected,
+    fetchArticlesAlert,
+  } = useArticlesAlertPagination(
     (state) => ({
       setStep: state.setStep,
       step: state.step,
       checkedArticles: state.checkedArticles,
-    })
+      articlesPurchased: state.articlesPurchased,
+      warehouseSelected: state.warehouseSelected,
+      fetchArticlesAlert: state.fetchArticlesAlert,
+    }),
+    shallow
   );
   const { isLoadingProviders, providers } = useGetAllProviders();
   const [selectedProvider, setSelectedProvider] = useState<string[]>([]);
   const [providerSelectedId, setProviderSelectedId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const providerName = (providerId: string) => {
     const providerRes = providers.find((item) => item.id === providerId);
@@ -744,11 +766,53 @@ const SelectManyProviders = () => {
     setSelectedProvider(provFilter);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsLoading(true);
     if (selectedProvider.length === 0 || selectedProvider.length !== 3)
       return toast.error("Selecciona 3 proveedores");
     if (checkedArticles.length === 0)
       return toast.error("Error, no hay artículos seleccionados!");
+
+    const objectToPurchase = {
+      id_proveedor: selectedProvider,
+      Articulos: articlesPurchased.map((article) => {
+        const matchingCheckedArticle = checkedArticles.find(
+          (checkedArticle) => {
+            return (
+              checkedArticle.idAlmacen === warehouseSelected &&
+              checkedArticle.idArticulo === article.id_articulo
+            );
+          }
+        );
+        const idAlertaCompra = matchingCheckedArticle?.idAlerta;
+
+        return {
+          Id_Articulo: article.id_articulo,
+          CantidadCompra: article.cantidadComprar,
+          Id_AlertaCompra: idAlertaCompra !== undefined ? idAlertaCompra : null,
+        };
+      }),
+      id_almacen: warehouseSelected,
+      PrecioTotalInventario: addArticlesPrice(articlesPurchased),
+    };
+
+    console.log({ objectToPurchase });
+    try {
+      await addPurchaseOrder(
+        objectToPurchase.id_proveedor as string[],
+        objectToPurchase.Articulos,
+        objectToPurchase.id_almacen,
+        objectToPurchase.PrecioTotalInventario
+      );
+      toast.success("Orden de compra exitosa!");
+      useArticlesAlertPagination.setState({ handleOpen: false });
+      fetchArticlesAlert();
+    } catch (error) {
+      toast.error("Error al ordenar la compra!");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoadingProviders)
@@ -831,16 +895,19 @@ const SelectManyProviders = () => {
           onClick={() => {
             setStep(step - 1);
           }}
+          disabled={isLoading}
         >
           Volver
         </Button>
         <Button
           variant="contained"
-          onClick={() => {
-            setStep(step + 1);
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSubmit();
           }}
+          disabled={isLoading}
         >
-          Enviar solicitud
+          {isLoading ? <CircularProgress size={15} /> : "Enviar solicitud"}
         </Button>
       </Stack>
     </Stack>

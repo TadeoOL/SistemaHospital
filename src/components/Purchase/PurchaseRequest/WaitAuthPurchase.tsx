@@ -203,16 +203,12 @@ export const WaitAuthPurchase = () => {
                           {Status[auth.estatus] === "Cancelado" ? (
                             <Tooltip
                               title={
-                                <Typography
-                                  sx={{ fontSize: 14, fontWeight: 300 }}
-                                >
+                                <Typography variant="body1">
                                   {auth.notas}
                                 </Typography>
                               }
                             >
-                              <IconButton size="small">
-                                <InfoIcon />
-                              </IconButton>
+                              <InfoIcon sx={{ color: "gray" }} />
                             </Tooltip>
                           ) : (
                             <Tooltip title="Eliminar">

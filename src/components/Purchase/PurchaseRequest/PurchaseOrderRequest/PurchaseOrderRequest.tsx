@@ -32,6 +32,8 @@ import { PurchaseOrderModal } from "./Modal/PurchaseOrderModal";
 import { ProviderQuoteModal } from "./Modal/ProviderQuoteModal";
 import { Status } from "../../../../types/types";
 import { usePurchaseOrderRequestModals } from "../../../../store/purchaseStore/purchaseOrderRequestModals";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { AddMoreProviders } from "./Modal/AddMoreProviders";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -125,7 +127,11 @@ export const PurchaseOrderRequest = () => {
   );
   const [openPurchaseOrder, setOpenPurchaseOrder] = useState(false);
   const [openProviderQuote, setOpenProviderQuote] = useState(false);
-  const [orderSelected, setOrderSelected] = useState("");
+  const [openAddMoreProviders, setOpenAddMoreProviders] = useState(false);
+  const [orderSelected, setOrderSelected] = useState<{
+    folio: string;
+    purchaseOrderId: string;
+  }>({ folio: "", purchaseOrderId: "" });
   const [providers, setProviders] = useState<any[]>([]);
 
   useEffect(() => {
@@ -135,9 +141,8 @@ export const PurchaseOrderRequest = () => {
       providerSelected: "",
       dataOrder: null,
     });
-  }, [open]);
+  }, [openProviderQuote]);
 
-  console.log({ data });
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
@@ -205,27 +210,55 @@ export const PurchaseOrderRequest = () => {
                           <TableCell>${auth.precioSolicitud}</TableCell>
                           <TableCell>{Status[auth.estatus]}</TableCell>
                           <TableCell>
-                            <Tooltip title="Ver orden de compra">
-                              <IconButton
-                                onClick={() => {
-                                  setOrderSelected(auth.folio);
-                                  setOpenPurchaseOrder(true);
-                                }}
-                              >
-                                <DownloadIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Subir cotización">
-                              <IconButton
-                                onClick={() => {
-                                  setOrderSelected(auth.folio);
-                                  setProviders(auth.solicitudProveedor);
-                                  setOpenProviderQuote(true);
-                                }}
-                              >
-                                <UploadFileIcon />
-                              </IconButton>
-                            </Tooltip>
+                            {Status[auth.estatus] ===
+                            "Necesita elegir proveedor" ? (
+                              <Tooltip title="Seleccionar proveedores">
+                                <IconButton
+                                  onClick={() => {
+                                    setProviders(auth.solicitudProveedor);
+                                    setOrderSelected({
+                                      folio: auth.folio,
+                                      purchaseOrderId: auth.id_SolicitudCompra,
+                                    });
+                                    setOpenAddMoreProviders(true);
+                                  }}
+                                >
+                                  <PersonAddIcon />
+                                </IconButton>
+                              </Tooltip>
+                            ) : (
+                              <>
+                                <Tooltip title="Ver orden de compra">
+                                  <IconButton
+                                    onClick={() => {
+                                      setOrderSelected({
+                                        folio: auth.folio,
+                                        purchaseOrderId:
+                                          auth.id_SolicitudCompra,
+                                      });
+                                      setOpenPurchaseOrder(true);
+                                    }}
+                                  >
+                                    <DownloadIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Subir cotización">
+                                  <IconButton
+                                    onClick={() => {
+                                      setOrderSelected({
+                                        folio: auth.folio,
+                                        purchaseOrderId:
+                                          auth.id_SolicitudCompra,
+                                      });
+                                      setProviders(auth.solicitudProveedor);
+                                      setOpenProviderQuote(true);
+                                    }}
+                                  >
+                                    <UploadFileIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </>
+                            )}
                             <Tooltip title="Cancelar">
                               <IconButton
                                 size="small"
@@ -309,6 +342,7 @@ export const PurchaseOrderRequest = () => {
               component="div"
               count={count}
               onPageChange={(e, value) => {
+                e?.stopPropagation();
                 setPageIndex(value);
               }}
               onRowsPerPageChange={(e: any) => {
@@ -327,7 +361,7 @@ export const PurchaseOrderRequest = () => {
       >
         <>
           <PurchaseOrderModal
-            idFolio={orderSelected}
+            purchaseData={orderSelected}
             open={setOpenPurchaseOrder}
           />
         </>
@@ -341,6 +375,20 @@ export const PurchaseOrderRequest = () => {
             idFolio={orderSelected}
             open={setOpenProviderQuote}
             providers={providers}
+          />
+        </>
+      </Modal>
+      <Modal
+        open={openAddMoreProviders}
+        onClose={() => {
+          setOpenAddMoreProviders(false);
+        }}
+      >
+        <>
+          <AddMoreProviders
+            providersData={providers}
+            requestPurchaseInfo={orderSelected}
+            setOpen={setOpenAddMoreProviders}
           />
         </>
       </Modal>

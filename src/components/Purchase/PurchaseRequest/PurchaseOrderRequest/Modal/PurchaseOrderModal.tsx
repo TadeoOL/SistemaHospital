@@ -10,8 +10,8 @@ import {
   Typography,
 } from "@mui/material";
 import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { Close } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { Close, Download } from "@mui/icons-material";
+import { useState } from "react";
 import { getPurchaseOrderRequestPdf } from "../../../../../api/api.routes";
 
 const style = {
@@ -27,20 +27,21 @@ const style = {
 };
 
 interface PurchaseOrderModaProps {
-  idFolio: string;
+  purchaseData: { folio: string; purchaseOrderId: string };
   open: Function;
 }
 
 export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
-  const { idFolio, open } = props;
+  const { purchaseData, open } = props;
   const [viewPdf, setViewPdf] = useState(false);
-  const idSolicitud = "b8124178-bd24-4dd8-826f-632b1fea6917";
   const [pdf, setPdf] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const pdfFetch = async () => {
     setIsLoading(true);
     try {
-      const res = await getPurchaseOrderRequestPdf(idSolicitud);
+      const res = await getPurchaseOrderRequestPdf(
+        purchaseData.purchaseOrderId
+      );
       console.log({ res });
       setPdf(res[0].pdfBase64);
     } catch (error) {
@@ -55,7 +56,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
     <>
       <Box sx={style}>
         <HeaderModal
-          title={"Enviar orden de compra - Solicitud No. " + idFolio}
+          title={"Enviar orden de compra - Solicitud No. " + purchaseData.folio}
           setOpen={open}
         />
         <Stack
@@ -66,34 +67,43 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
             borderBottomLeftRadius: 12,
             borderBottomRightRadius: 12,
           }}
+          spacing={4}
         >
-          <Typography>
-            Seleccione los proveedores para enviarle la solicitud:
-          </Typography>
-          <Box>
-            <Button>Select de proveedores</Button>
-          </Box>
-          <Stack
-            sx={{
-              display: "flex",
-              flex: 1,
-              justifyContent: "space-between",
-              flexDirection: "row",
-            }}
-          >
-            <Button variant="contained">Enviar por whatsapp</Button>
-            <Button variant="contained">Enviar por correo</Button>
+          <Stack spacing={2}>
+            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
+              Seleccione los proveedores para enviarle la solicitud
+            </Typography>
+            <Box>
+              <Button>Select de proveedores</Button>
+            </Box>
+            <Stack
+              sx={{
+                display: "flex",
+                flex: 1,
+                justifyContent: "space-between",
+                flexDirection: "row",
+              }}
+            >
+              <Button variant="contained">Enviar por whatsapp</Button>
+              <Button variant="contained">Enviar por correo</Button>
+            </Stack>
           </Stack>
-          <Typography>Solicitud de orden de compra</Typography>
-          <Button
-            variant="contained"
-            onClick={() => {
-              pdfFetch();
-              setViewPdf(true);
-            }}
-          >
-            Descargar
-          </Button>
+          <Stack spacing={2}>
+            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
+              Solicitud de orden de compra
+            </Typography>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                pdfFetch();
+                setViewPdf(true);
+              }}
+              sx={{ alignContent: "center", display: "flex" }}
+            >
+              {<Download />}
+              Descargar
+            </Button>
+          </Stack>
           <Box
             sx={{ display: "flex", flex: 1, justifyContent: "flex-end", mt: 5 }}
           >
@@ -130,7 +140,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
                     flex: 1,
                   }}
                 >
-                  <iframe
+                  <embed
                     src={"data:application/pdf;base64," + pdf}
                     style={{
                       width: "100%",
