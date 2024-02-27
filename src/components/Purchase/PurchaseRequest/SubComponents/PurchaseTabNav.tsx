@@ -21,13 +21,13 @@ export const PurchaseTabNav = () => {
   useEffect(() => {
     switch (tabValue) {
       case 0:
-        return navigate("productos-stock-bajo");
-      case 1:
-        return navigate("productos-espera-autorizacion");
-      case 2:
         return navigate("productos-solicitados-orden-compra");
-      case 3:
+      case 1:
         return navigate("productos-comprados");
+      case 2:
+        return navigate("productos-stock-bajo");
+      case 3:
+        return navigate("productos-espera-autorizacion");
       default:
         break;
     }
@@ -46,10 +46,10 @@ export const PurchaseTabNav = () => {
           textColor="inherit"
           variant="fullWidth"
         >
-          <Tab label="Solicitud de productos" />
-          <Tab label="Espera de autorización" />
+          <Tab label="Ordenes de compra" />
+          <Tab label="Alerta de productos" />
           <Tab label="Solicitud de orden de compra" />
-          <Tab label="Historial de orden de compra" />
+          <Tab label="Autorizaciónes" />
         </Tabs>
       </AppBar>
     </Box>

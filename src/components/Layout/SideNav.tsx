@@ -6,7 +6,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import homeLogo from "../../assets/homeLogoHSB.svg";
 import { useAppNavStore } from "../../store/appNav";
 import { ModuleItems } from "../../utils/ModuleItems";
-import { SideNavItems } from "./SideNavItems";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Collapse from "@mui/material/Collapse";
+import List from "@mui/material/List";
+import { useState } from "react";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -16,14 +21,81 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+interface SideNavItemsProps {
+  icon: React.ReactNode;
+  title: string;
+  path: string;
+  childrenItems?: ModuleItem[] | undefined;
+  topLevel?: boolean;
+}
+
+interface ModuleItem {
+  title: string;
+  path: string;
+  icon: React.ReactNode;
+  childrenItems?: ModuleItem[] | undefined;
+}
+
 export const SideNav = () => {
   const theme = useTheme();
   const isOpen = useAppNavStore((state) => state.open);
   const setIsOpen = useAppNavStore((state) => state.setOpen);
   const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
   const navigate = useNavigate();
-  const location = useLocation();
 
+  const SideNavItems: React.FC<SideNavItemsProps> = ({
+    icon,
+    title,
+    path,
+    childrenItems,
+  }) => {
+    const [open, setOpen] = useState(false);
+    const location = useLocation();
+    const isActive = path === location.pathname;
+
+    const handleClick = () => {
+      if (childrenItems) {
+        setOpen(!open);
+        setIsOpen(!open);
+      } else {
+        setOpen(false);
+        setIsOpen(false);
+        navigate(path);
+      }
+    };
+
+    const handleChildClick = (childPath: string) => {
+      setOpen(false);
+      setIsOpen(false);
+      navigate(childPath);
+    };
+
+    return (
+      <>
+        <ListItemButton onClick={handleClick} selected={isActive}>
+          <ListItemIcon>{icon}</ListItemIcon>
+          {xlUp && <ListItemText primary={title} sx={{ display: "inline" }} />}
+        </ListItemButton>
+        {childrenItems && (
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {childrenItems.map((child, index) => (
+                <ListItemButton
+                  key={index}
+                  onClick={() => handleChildClick(child.path)}
+                  selected={child.path === location.pathname}
+                  sx={{ pl: 4, marginTop: 1, marginBottom: 1 }}
+                >
+                  <ListItemIcon>{child.icon}</ListItemIcon>
+                  <ListItemText primary={child.title} />
+                </ListItemButton>
+              ))}
+            </List>
+          </Collapse>
+        )}
+      </>
+    );
+  };
   return (
     <Drawer
       variant={xlUp ? "permanent" : "temporary"}
@@ -34,9 +106,12 @@ export const SideNav = () => {
       open={xlUp ? true : isOpen}
       PaperProps={{
         sx: {
-          backgroundColor: "neutral.700",
+          backgroundColor: "#24282C",
           color: "common.white",
-          width: 280,
+          width: xlUp ? (isOpen ? 230 : 80) : 230,
+          transition: xlUp
+            ? "width 0.3s ease-in-out"
+            : "width 0.3s ease-in-out, background-color 0.3s ease-in-out",
         },
       }}
     >
@@ -62,11 +137,11 @@ export const SideNav = () => {
                 "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
             },
           }}
-          src={homeLogo}
+          // src={homeLogo}
           onClick={() => navigate("/")}
         />
       </DrawerHeader>
-      <Divider sx={{ borderColor: "neutral.700" }} />
+      <Divider sx={{ borderColor: "#24282C" }} />
       <Box
         component="nav"
         sx={{
@@ -84,21 +159,15 @@ export const SideNav = () => {
             m: 0,
           }}
         >
-          {ModuleItems.map((item, i) => {
-            const pathSplit = location.pathname.split("/");
-            const isActive = pathSplit.includes(item.path);
-            return (
-              <SideNavItems
-                active={isActive}
-                childrenItems={item.childrenItems}
-                disabled={false}
-                icon={item.icon}
-                path={item.path}
-                title={item.title}
-                key={i}
-              />
-            );
-          })}
+          {ModuleItems.map((item, i) => (
+            <SideNavItems
+              key={i}
+              icon={item.icon}
+              title={item.title}
+              path={item.path}
+              childrenItems={item.childrenItems}
+            />
+          ))}
         </Stack>
       </Box>
     </Drawer>

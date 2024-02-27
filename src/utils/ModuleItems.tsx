@@ -8,24 +8,25 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ArticleIcon from "@mui/icons-material/Article";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import RuleIcon from "@mui/icons-material/Rule";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 
 export const ModuleItems: IModuleItems[] = [
   {
-    title: "Compras",
+    title: "Inicio",
+    path: "/",
+    icon: <DashboardIcon />,
+  },
+  {
+    title: "Cátalogos",
     path: "/compras",
     childrenItems: [
-      {
-        title: "Proveedores",
-        path: "/compras/proveedores",
-        icon: <PermContactCalendarIcon />,
-      },
       {
         title: "Solicitud de compras",
         path: "/compras/solicitud-compras",
         icon: <AddShoppingCartIcon />,
       },
       {
-        title: "Categorías",
+        title: "Categorías y subcategorias",
         path: "/compras/categorias",
         icon: <FormatListBulletedIcon />,
       },
@@ -40,23 +41,16 @@ export const ModuleItems: IModuleItems[] = [
         icon: <WarehouseIcon />,
       },
       {
-        title: "Autorización de compras",
+        title: "Autorizaciones",
         path: "/compras/autorizacion-compras",
         icon: <RuleIcon />,
       },
-    ],
-    icon: <StoreIcon />,
-  },
-  {
-    title: "Programacion",
-    path: "/programacion",
-    childrenItems: [
       {
-        title: "Agenda Quirofano",
-        path: "/programacion/agenda-quirofano",
-        icon: <MonitorHeartIcon />,
+        title: "Proveedores",
+        path: "/compras/proveedores",
+        icon: <PermContactCalendarIcon />,
       },
     ],
-    icon: <AssignmentIcon />,
+    icon: <StoreIcon />,
   },
 ];

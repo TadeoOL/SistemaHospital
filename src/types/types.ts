@@ -7,7 +7,7 @@ export interface IChildrenItems {
 export interface IModuleItems {
   title: string;
   path: string;
-  childrenItems: IChildrenItems[] | [];
+  childrenItems?: IChildrenItems[] | [];
   icon: React.ReactElement;
 }
 

@@ -30,7 +30,7 @@ export const TopNav = () => {
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
-  const SIDE_NAV_WIDTH = 280;
+  const SIDE_NAV_WIDTH = 80;
   const TOP_NAV_HEIGHT = 64;
 
   return (
