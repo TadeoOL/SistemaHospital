@@ -214,3 +214,19 @@ export type Provider = {
   id: string;
   proveedor: { id_Proveedor: string; nombre: string };
 };
+
+export interface Root {
+  Id_SolicitudCompra: string;
+  OrdenCompra: OrdenCompra[];
+}
+
+export interface OrdenCompra {
+  Id_Proveedor: string;
+  OrdenCompraArticulo: OrdenCompraArticulo[];
+}
+
+export interface OrdenCompraArticulo {
+  Id_Articulo: string;
+  Cantidad: number;
+  PrecioProveedor: number;
+}

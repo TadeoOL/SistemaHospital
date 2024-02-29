@@ -30,6 +30,7 @@ import { changePurchaseStatus } from "../../../api/api.routes";
 import { Provider, Status } from "../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
+import { useMatchProvidersAndArticles } from "../../../store/purchaseStore/matchProvidersAndArticles";
 
 const useGetAllData = () => {
   const {
@@ -160,9 +161,15 @@ export const PurchaseAuthorizationTable = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
     {}
   );
-  const [purchaseRequestId, setPurchaseRequestId] = useState("");
-  const [providerState, setProviderState] = useState<Provider[]>();
   const [folio, setFolio] = useState("");
+
+  useEffect(() => {
+    if (openModal) return;
+    useMatchProvidersAndArticles.setState({
+      formattedData: null,
+      purchaseOrderMatched: null,
+    });
+  }, [openModal]);
 
   return (
     <>
@@ -247,8 +254,9 @@ export const PurchaseAuthorizationTable = () => {
                               <IconButton
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setPurchaseRequestId(auth.id_SolicitudCompra);
-                                  setProviderState(auth.solicitudProveedor);
+                                  useMatchProvidersAndArticles.setState({
+                                    purchaseRequestData: auth,
+                                  });
                                   setFolio(auth.folio);
                                   setOpenModal(true);
                                 }}
@@ -366,12 +374,7 @@ export const PurchaseAuthorizationTable = () => {
       </Card>
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <div>
-          <MatchProvidersAndArticles
-            providers={providerState ? providerState : []}
-            purchaseRequestId={purchaseRequestId}
-            setOpen={setOpenModal}
-            folio={folio}
-          />
+          <MatchProvidersAndArticles setOpen={setOpenModal} folio={folio} />
         </div>
       </Modal>
     </>

@@ -139,7 +139,7 @@ export const PurchaseOrderRequest = () => {
     usePurchaseOrderRequestModals.setState({
       step: 0,
       providerSelected: "",
-      dataOrder: null,
+      dataOrderRequest: null,
     });
   }, [openProviderQuote]);
 
@@ -252,6 +252,9 @@ export const PurchaseOrderRequest = () => {
                                       });
                                       setProviders(auth.solicitudProveedor);
                                       setOpenProviderQuote(true);
+                                      usePurchaseOrderRequestModals.setState({
+                                        dataOrderRequest: auth,
+                                      });
                                     }}
                                   >
                                     <UploadFileIcon />

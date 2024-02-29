@@ -37,7 +37,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
-  addPurchaseOrder,
+  addPurchaseRequest,
   getPurchaseConfig,
 } from "../../../../api/api.routes";
 import {
@@ -767,12 +767,12 @@ const SelectManyProviders = () => {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
     if (selectedProvider.length === 0 || selectedProvider.length !== 3)
       return toast.error("Selecciona 3 proveedores");
     if (checkedArticles.length === 0)
       return toast.error("Error, no hay artículos seleccionados!");
 
+    setIsLoading(true);
     const objectToPurchase = {
       id_proveedor: selectedProvider,
       Articulos: articlesPurchased.map((article) => {
@@ -798,7 +798,7 @@ const SelectManyProviders = () => {
 
     console.log({ objectToPurchase });
     try {
-      await addPurchaseOrder(
+      await addPurchaseRequest(
         objectToPurchase.id_proveedor as string[],
         objectToPurchase.Articulos,
         objectToPurchase.id_almacen,
@@ -966,7 +966,7 @@ const SelectSingleProvider = () => {
       PrecioTotalInventario: addArticlesPrice(articlesPurchased),
     };
     try {
-      await addPurchaseOrder(
+      await addPurchaseRequest(
         objectToPurchase.id_proveedor as string[],
         objectToPurchase.Articulos,
         objectToPurchase.id_almacen,

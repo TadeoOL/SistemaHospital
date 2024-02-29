@@ -46,7 +46,22 @@ const style = {
   display: "flex",
   flexDirection: "column",
   transform: "translate(-50%, -50%)",
-  width: { xs: 380, md: 600, lg: 800 },
+  width: { xs: 380, sm: 600, md: 800, lg: 800 },
+};
+
+const styleBar = {
+  "&::-webkit-scrollbar": {
+    width: "0.4em",
+  },
+  "&::-webkit-scrollbar-track": {
+    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "rgba(0,0,0,.1)",
+    outline: "1px solid slategrey",
+    borderRadius: 10,
+  },
 };
 
 type ProviderQuoteModalProps = {
@@ -140,34 +155,41 @@ export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
       </Backdrop>
     );
   return (
-    <Box sx={style}>
+    <Box sx={{ ...style }}>
       <HeaderModal title={"Solicitud No. " + idFolio.folio} setOpen={open} />
-      <Stack
-        sx={{
-          px: 8,
-          py: 3,
-          bgcolor: "white",
-          borderBottomLeftRadius: 12,
-          borderBottomRightRadius: 12,
-        }}
-      >
-        {providers.length > 1 ? null : (
-          <Stepper activeStep={step}>
-            {stepsForm.map((step) => (
-              <Step key={step.id}>
-                <StepLabel>
-                  {
-                    <Typography fontSize={{ xs: 10, lg: 12 }} fontWeight={500}>
-                      {step.title}
-                    </Typography>
-                  }
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        )}
-        {renderStepForm(step, providers, idFolio.purchaseOrderId, open)}
-      </Stack>
+      <Box sx={{ overflowY: "auto", ...styleBar }}>
+        <Box sx={{ maxHeight: 500 }}>
+          <Stack
+            sx={{
+              px: 8,
+              py: 3,
+              bgcolor: "white",
+              borderBottomLeftRadius: 12,
+              borderBottomRightRadius: 12,
+            }}
+          >
+            {providers.length > 1 ? null : (
+              <Stepper activeStep={step}>
+                {stepsForm.map((step) => (
+                  <Step key={step.id}>
+                    <StepLabel>
+                      {
+                        <Typography
+                          fontSize={{ xs: 10, lg: 12 }}
+                          fontWeight={500}
+                        >
+                          {step.title}
+                        </Typography>
+                      }
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+            )}
+            {renderStepForm(step, providers, idFolio.purchaseOrderId, open)}
+          </Stack>
+        </Box>
+      </Box>
     </Box>
   );
 };

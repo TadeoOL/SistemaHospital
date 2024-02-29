@@ -9,6 +9,7 @@ import {
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
+  Root,
 } from "../types/types";
 import { AxiosError } from "axios";
 
@@ -560,7 +561,7 @@ export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
   return resData as IPurchaseConfig;
 };
 
-export const addPurchaseOrder = async (
+export const addPurchaseRequest = async (
   providerId: string[],
   articles: {
     Id_Articulo: string;
@@ -570,7 +571,7 @@ export const addPurchaseOrder = async (
   warehouseId: string,
   totalArticlePrice: number
 ) => {
-  const res = await axios.post("/api/Compras/registrar-orden-compra", {
+  const res = await axios.post("/api/Compras/registrar-solicitud-compra", {
     id_proveedor: providerId,
     Articulos: articles,
     id_almacen: warehouseId,
@@ -591,7 +592,7 @@ export const changePurchaseStatus = async (
   Estatus: number,
   Mensaje?: string
 ) => {
-  const res = await axios.put(`/api/Compras/estatus-autorizacion-compras`, {
+  const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
     Id_SolicitudCompra,
     Estatus,
     Mensaje,
@@ -608,7 +609,7 @@ export const getWaitAuthPurchase = async (paramUrl: string) => {
 
 export const getPurchaseOrderRequest = async (paramUrl: string) => {
   const res = await axios.get(
-    `/api/Compras/paginacion-solicitud-orden-compra?${paramUrl}`
+    `/api/Compras/paginacion-solicitud-compra?${paramUrl}`
   );
   return res.data;
 };
@@ -636,7 +637,7 @@ export const addProviderQuote = async (
 
 export const getPurchaseOrderRequestPdf = async (idQuote: string) => {
   const res = await axios.get(
-    `/api/Compras/obtener-solicitud-orden-compra/${idQuote}`
+    `/api/Compras/obtener-solicitud-compra//${idQuote}`
   );
   return res.data;
 };
@@ -734,4 +735,13 @@ export const editarMensaje = async ({
     }
     throw error;
   }
+};
+
+export const addPurchaseOrder = async (data: Root) => {
+  const { Id_SolicitudCompra, OrdenCompra } = data;
+  const res = await axios.post("/api/Compras/registrar-orden-compra", {
+    Id_SolicitudCompra,
+    OrdenCompra,
+  });
+  return res.data;
 };
