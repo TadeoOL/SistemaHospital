@@ -26,11 +26,9 @@ const styleInput = {
 
 type Articles = {
   id: string;
-  id_Articulo: string;
   cantidadCompra: number;
   precioProveedor: number;
   articulo: { id_Articulo: string; nombre: string };
-  id_AlertaCompra: string;
 };
 
 export const FillQuoteInformationModal = () => {
@@ -46,7 +44,9 @@ export const FillQuoteInformationModal = () => {
     );
   const { isLoading, providerData } = useGetProvider(providerSelected);
   const [articles, setArticles] = useState<Articles[] | []>(
-    dataOrderRequest ? dataOrderRequest.solicitudCompraArticulo : []
+    dataOrderRequest
+      ? dataOrderRequest.solicitudProveedor[0].solicitudCompraArticulos
+      : []
   );
 
   const [precios, setPrecios] = useState<{ [key: string]: string }>({});
@@ -83,9 +83,11 @@ export const FillQuoteInformationModal = () => {
       setErrores(nuevosErrores);
     }
   };
+
   const handleNextStep = () => {
     setStep(step + 1);
   };
+
   const handlePrevStep = () => {
     setStep(step - 1);
   };

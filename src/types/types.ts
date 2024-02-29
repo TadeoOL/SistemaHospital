@@ -153,22 +153,18 @@ export interface IPurchaseAuthorization {
   estatus: number;
   fechaSolicitud: string;
   precioSolicitud: number;
-  solicitudCompraArticulo: [
-    {
-      id: string;
-      id_Articulo: string;
-      cantidadCompra: number;
-      precioProveedor: number;
-      articulo: { id_Articulo: string; nombre: string };
-      id_AlertaCompra: string;
-    }
-  ];
-  solicitudProveedor: [
-    {
-      id: string;
-      proveedor: { id_Proveedor: string; nombre: string };
-    }
-  ];
+  solicitudProveedor: {
+    id: string;
+    proveedor: { id_Proveedor: string; nombre: string };
+    solicitudCompraArticulos: [
+      {
+        articulo: { id_Articulo: string; nombre: string };
+        id: string;
+        cantidadCompra: number;
+        precioProveedor: number;
+      }
+    ];
+  }[];
 }
 
 export interface IArticlesAlert {
