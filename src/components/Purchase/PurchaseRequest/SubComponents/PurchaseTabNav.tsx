@@ -21,11 +21,11 @@ export const PurchaseTabNav = () => {
   useEffect(() => {
     switch (tabValue) {
       case 0:
-        return navigate("productos-solicitados-orden-compra");
+        return navigate("ordenes-compra");
       case 1:
-        return navigate("productos-comprados");
-      case 2:
         return navigate("productos-stock-bajo");
+      case 2:
+        return navigate("productos-solicitados-orden-compra");
       case 3:
         return navigate("productos-espera-autorizacion");
       default:
