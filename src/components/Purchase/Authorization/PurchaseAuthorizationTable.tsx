@@ -307,21 +307,23 @@ export const PurchaseAuthorizationTable = () => {
                                 <TableCell>Precio</TableCell>
                               </TableRow>
                             </TableHead>
-                            {auth.solicitudCompraArticulo.map((request) => (
-                              <TableBody key={request.id}>
-                                <TableRow>
-                                  <TableCell>
-                                    {request.articulo.nombre}
-                                  </TableCell>
-                                  <TableCell>
-                                    {request.cantidadCompra}
-                                  </TableCell>
-                                  <TableCell>
-                                    ${request.precioProveedor}
-                                  </TableCell>
-                                </TableRow>
-                              </TableBody>
-                            ))}
+                            {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
+                              (request) => (
+                                <TableBody key={request.id}>
+                                  <TableRow>
+                                    <TableCell>
+                                      {request.articulo.nombre}
+                                    </TableCell>
+                                    <TableCell>
+                                      {request.cantidadCompra}
+                                    </TableCell>
+                                    <TableCell>
+                                      ${request.precioProveedor}
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              )
+                            )}
                           </Table>
                         </Collapse>
                       </TableCell>
