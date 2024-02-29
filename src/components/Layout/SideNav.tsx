@@ -93,8 +93,9 @@ export const SideNav = () => {
           sx={{ "&.Mui-selected": { backgroundColor: SelectedOptionColor } }}
         >
           <ListItemIcon>{icon}</ListItemIcon>
-          {xlUp && <ListItemText primary={title} sx={{ display: "inline" }} />}
+          {xlUp && <ListItemText primary={title} />}
         </ListItemButton>
+
         {open && (
           <>
             <ListItemButton
@@ -102,11 +103,9 @@ export const SideNav = () => {
               selected={isActive}
               sx={{ pl: 4, mt: 1, mb: 1 }}
             >
-              <ListItemText
-                primary={title}
-                sx={{ fontWeight: 600, display: "inline" }}
-              />
+              <ListItemText primary={title} sx={{ fontWeight: 600 }} />
             </ListItemButton>
+
             {childrenItems && (
               <>
                 {childrenItems.map((child, index) => (
@@ -130,11 +129,9 @@ export const SideNav = () => {
 
   return (
     <Drawer
-      variant={xlUp ? "permanent" : "temporary"}
+      variant={xlUp ? "permanent" : isOpen ? "permanent" : "temporary"}
       anchor="left"
-      onClose={() => {
-        setIsOpen(false);
-      }}
+      onClose={() => {}}
       PaperProps={{
         sx: {
           backgroundColor: "#24282C",
