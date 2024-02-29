@@ -90,10 +90,21 @@ export const SideNav = () => {
         <ListItemButton
           onClick={handleClick}
           selected={isActive}
-          sx={{ "&.Mui-selected": { backgroundColor: SelectedOptionColor } }}
+          sx={{
+            "&.Mui-selected": { backgroundColor: SelectedOptionColor },
+            pl: 2,
+            mt: 1,
+            mb: 1,
+          }}
         >
           <ListItemIcon>{icon}</ListItemIcon>
-          {xlUp && <ListItemText primary={title} />}
+          <ListItemText
+            primary={title}
+            sx={{
+              fontWeight: 600,
+              display: xlUp ? "inline" : "inline",
+            }}
+          />
         </ListItemButton>
 
         {open && (
