@@ -226,7 +226,7 @@ export const AlertArticlesTable = () => {
     );
   return (
     <Stack spacing={4} sx={{ p: 2 }}>
-      {/* {data.map((alert, index) => (
+      {data.map((alert, index) => (
         <React.Fragment key={alert.id_Almacen}>
           <Stack
             sx={{
@@ -337,7 +337,7 @@ export const AlertArticlesTable = () => {
             No existen registros
           </Typography>
         </Box>
-      )} */}
+      )}
     </Stack>
   );
 };
