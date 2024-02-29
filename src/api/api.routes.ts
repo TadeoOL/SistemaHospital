@@ -571,15 +571,12 @@ export const addPurchaseRequest = async (
   warehouseId: string,
   totalArticlePrice: number
 ) => {
-  const res = await axios.post(
-    "/api/Compras/registrar-solicitud-orden-compra",
-    {
-      id_proveedor: providerId,
-      Articulos: articles,
-      id_almacen: warehouseId,
-      PrecioTotalInventario: totalArticlePrice,
-    }
-  );
+  const res = await axios.post("/api/Compras/registrar-solicitud-compra", {
+    id_proveedor: providerId,
+    Articulos: articles,
+    id_almacen: warehouseId,
+    PrecioTotalInventario: totalArticlePrice,
+  });
   return res.data;
 };
 
@@ -595,7 +592,7 @@ export const changePurchaseStatus = async (
   Estatus: number,
   Mensaje?: string
 ) => {
-  const res = await axios.put(`/api/Compras/estatus-autorizacion-compras`, {
+  const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
     Id_SolicitudCompra,
     Estatus,
     Mensaje,
@@ -612,7 +609,7 @@ export const getWaitAuthPurchase = async (paramUrl: string) => {
 
 export const getPurchaseOrderRequest = async (paramUrl: string) => {
   const res = await axios.get(
-    `/api/Compras/paginacion-solicitud-orden-compra?${paramUrl}`
+    `/api/Compras/paginacion-solicitud-compra?${paramUrl}`
   );
   return res.data;
 };
@@ -640,7 +637,7 @@ export const addProviderQuote = async (
 
 export const getPurchaseOrderRequestPdf = async (idQuote: string) => {
   const res = await axios.get(
-    `/api/Compras/obtener-solicitud-orden-compra/${idQuote}`
+    `/api/Compras/obtener-solicitud-compra//${idQuote}`
   );
   return res.data;
 };

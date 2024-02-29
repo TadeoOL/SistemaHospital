@@ -4,13 +4,15 @@ import { IPurchaseAuthorization } from "../../types/types";
 interface State {
   step: number;
   providerSelected: string;
-  dataOrder: IPurchaseAuthorization | null;
+  dataOrderRequest: IPurchaseAuthorization | null;
 }
 
 interface Action {
   setStep: (step: number) => void;
   setProviderSelected: (selected: string) => void;
-  setDataOrder: (dataOrder: IPurchaseAuthorization | null) => void;
+  setDataOrderRequest: (
+    dataOrderRequest: IPurchaseAuthorization | null
+  ) => void;
 }
 
 export const usePurchaseOrderRequestModals = createWithEqualityFn<
@@ -20,7 +22,7 @@ export const usePurchaseOrderRequestModals = createWithEqualityFn<
   setStep: (step: number) => set({ step }),
   providerSelected: "",
   setProviderSelected: (providerSelected: string) => set({ providerSelected }),
-  dataOrder: null,
-  setDataOrder: (dataOrder: IPurchaseAuthorization | null) =>
-    set({ dataOrder }),
+  dataOrderRequest: null,
+  setDataOrderRequest: (dataOrderRequest: IPurchaseAuthorization | null) =>
+    set({ dataOrderRequest }),
 }));

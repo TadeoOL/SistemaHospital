@@ -7,32 +7,90 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import { usePurchaseOrderRequestModals } from "../../../../../../store/purchaseStore/purchaseOrderRequestModals";
 import { shallow } from "zustand/shallow";
 import { useGetProvider } from "../../../../../../hooks/useGetProvider";
+import { KeyboardReturn, Save } from "@mui/icons-material";
+import { useState } from "react";
+
+const styleInput = {
+  paddingTop: "0.4rem",
+  paddingBottom: "0.4rem",
+};
+
+type Articles = {
+  id: string;
+  id_Articulo: string;
+  cantidadCompra: number;
+  precioProveedor: number;
+  articulo: { id_Articulo: string; nombre: string };
+  id_AlertaCompra: string;
+};
 
 export const FillQuoteInformationModal = () => {
-  const { step, setStep, providerSelected } = usePurchaseOrderRequestModals(
-    (state) => ({
-      step: state.step,
-      setStep: state.setStep,
-      providerSelected: state.providerSelected,
-    }),
-    shallow
-  );
+  const { step, setStep, providerSelected, dataOrderRequest } =
+    usePurchaseOrderRequestModals(
+      (state) => ({
+        step: state.step,
+        setStep: state.setStep,
+        providerSelected: state.providerSelected,
+        dataOrderRequest: state.dataOrderRequest,
+      }),
+      shallow
+    );
   const { isLoading, providerData } = useGetProvider(providerSelected);
+  const [articles, setArticles] = useState<Articles[] | []>(
+    dataOrderRequest ? dataOrderRequest.solicitudCompraArticulo : []
+  );
 
+  const [precios, setPrecios] = useState<{ [key: string]: string }>({});
+  const [errores, setErrores] = useState<{ [key: string]: string }>({});
+
+  const handlePrecioChange = (articleId: string, precio: string) => {
+    if (precio.trim() !== "") {
+      setPrecios((prevPrecios) => ({
+        ...prevPrecios,
+        [articleId]: precio,
+      }));
+      setErrores((prevErrores) => ({
+        ...prevErrores,
+        [articleId]: "",
+      }));
+    } else {
+      const { [articleId]: _, ...restPrecios } = precios;
+      setPrecios(restPrecios);
+    }
+  };
+
+  const handleSubmit = () => {
+    const preciosCompletos = Object.keys(precios).length === articles.length;
+    if (preciosCompletos) {
+      console.log("Todos los precios fueron ingresados:", precios);
+    } else {
+      const nuevosErrores: { [key: string]: string } = {};
+      articles.forEach((a) => {
+        if (!precios[a.articulo.id_Articulo]) {
+          nuevosErrores[a.articulo.id_Articulo] =
+            "Por favor ingresa un precio.";
+        }
+      });
+      setErrores(nuevosErrores);
+    }
+  };
   const handleNextStep = () => {
     setStep(step + 1);
   };
   const handlePrevStep = () => {
     setStep(step - 1);
   };
-  console.log({ providerData });
+
+  console.log({ dataOrderRequest });
 
   if (isLoading)
     return (
@@ -78,36 +136,77 @@ export const FillQuoteInformationModal = () => {
       <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
         Productos solicitados
       </Typography>
-      <Box sx={{ borderRadius: 2, boxShadow: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Cantidad</TableCell>
-              <TableCell>Precio</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+      <Box sx={{ borderRadius: 2, boxShadow: 4, overflowX: "auto" }}>
+        <TableContainer sx={{ minWidth: 400 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre</TableCell>
+                <TableCell>Cantidad</TableCell>
+                <TableCell>Precio</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {articles.length > 0 &&
+                articles.map((a) => (
+                  <TableRow key={a.articulo.id_Articulo}>
+                    <TableCell>{a.articulo.nombre}</TableCell>
+                    <TableCell>{a.cantidadCompra}</TableCell>
+                    <TableCell>
+                      <TextField
+                        placeholder="Precio"
+                        size="small"
+                        inputProps={{
+                          style: {
+                            ...styleInput,
+                          },
+                        }}
+                        onChange={(e) =>
+                          handlePrecioChange(
+                            a.articulo.id_Articulo,
+                            e.target.value
+                          )
+                        }
+                        error={errores[a.articulo.id_Articulo] ? true : false}
+                        helperText={errores[a.articulo.id_Articulo]}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
       <Box
         sx={{
-          display: "flex",
-          flex: 1,
-          justifyContent: "space-between",
-          mt: 10,
+          position: "sticky",
+          bottom: 0,
+          backgroundColor: "#fff", // Color de fondo opcional
+          padding: "10px", // Espaciado opcional
+          zIndex: 2, // Ajustar z-index según sea necesario
         }}
       >
-        <Button variant="contained" onClick={() => handlePrevStep()}>
-          Regresar
-        </Button>
-        <Button variant="contained" onClick={() => handleNextStep()}>
-          Generar orden de compra
-        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Button
+            startIcon={<KeyboardReturn />}
+            variant="contained"
+            onClick={() => handlePrevStep()}
+          >
+            Regresar
+          </Button>
+          <Button
+            startIcon={<Save />}
+            variant="contained"
+            onClick={() => handleSubmit()}
+          >
+            Generar
+          </Button>
+        </Box>
       </Box>
     </Stack>
   );
