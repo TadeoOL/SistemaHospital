@@ -9,6 +9,7 @@ import {
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
+  Root,
 } from "../types/types";
 import { AxiosError } from "axios";
 
@@ -737,4 +738,13 @@ export const editarMensaje = async ({
     }
     throw error;
   }
+};
+
+export const addPurchaseOrder = async (data: Root) => {
+  const { Id_SolicitudCompra, OrdenCompra } = data;
+  const res = await axios.post("/api/Compras/registrar-orden-compra", {
+    Id_SolicitudCompra,
+    OrdenCompra,
+  });
+  return res.data;
 };

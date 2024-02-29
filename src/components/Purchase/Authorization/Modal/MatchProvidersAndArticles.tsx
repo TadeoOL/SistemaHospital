@@ -6,6 +6,7 @@ import {
   Checkbox,
   CircularProgress,
   Divider,
+  IconButton,
   MenuItem,
   Stack,
   Table,
@@ -18,16 +19,15 @@ import {
   Typography,
 } from "@mui/material";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import { getProviderQuotePdf } from "../../../../api/api.routes";
-import { useState } from "react";
 import {
-  ProvidersMatched,
-  useMatchProvidersAndArticles,
-} from "../../../../store/purchaseStore/matchProvidersAndArticles";
+  addPurchaseOrder,
+  getProviderQuotePdf,
+} from "../../../../api/api.routes";
+import { useCallback, useEffect, useState } from "react";
+import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
 import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
-import { PurchaseOrder } from "../../../../store/purchaseStore/matchProvidersAndArticles";
-import { Info } from "@mui/icons-material";
+import { Delete, Info } from "@mui/icons-material";
 
 const style = {
   position: "absolute",
@@ -85,35 +85,46 @@ export const MatchProvidersAndArticles = (
   const [providerSelected, setProviderSelected] = useState("");
   const [articlesChecked, setArticlesChecked] = useState<string[]>([]);
 
-  const handleChange = (e: any) => {
+  const handleChange = useCallback((e: any) => {
     setProviderSelected(e.target.value);
-  };
+  }, []);
 
-  const handleCheckArticle = (e: any) => {
-    const { value, checked } = e.target;
-    if (checked) {
-      setArticlesChecked((prev) => [...prev, value]);
-    } else {
-      setArticlesChecked(articlesChecked.filter((a) => a !== value));
-    }
-  };
+  const handleCheckArticle = useCallback(
+    (e: any) => {
+      const { value, checked } = e.target;
+      if (checked) {
+        setArticlesChecked((prev) => [...prev, value]);
+      } else {
+        setArticlesChecked(articlesChecked.filter((a) => a !== value));
+      }
+    },
+    [articlesChecked]
+  );
 
-  const handleIsArticlesChecked = (articleId: string) => {
-    return articlesChecked.some((a) => a === articleId);
-  };
+  const handleIsArticlesChecked = useCallback(
+    (articleId: string) => {
+      return articlesChecked.some((a) => a === articleId);
+    },
+    [articlesChecked]
+  );
 
-  const getProviderNameById = (providerId: string) => {
-    const provider = purchaseRequestData?.solicitudProveedor.find(
-      (p) => p.proveedor.id_Proveedor === providerId
-    );
-    return provider?.proveedor.nombre;
-  };
+  const getProviderNameById = useCallback(
+    (providerId: string) => {
+      if (!purchaseRequestData) return;
+      const provider = purchaseRequestData.solicitudProveedor.find(
+        (p) => p.proveedor.id_Proveedor === providerId
+      );
+      return provider ? provider.proveedor.nombre : "";
+    },
+    [purchaseRequestData]
+  );
 
   const getArticleNameById = (articleId: string) => {
-    const article = purchaseRequestData?.solicitudCompraArticulo.find(
+    if (!purchaseRequestData) return;
+    const article = purchaseRequestData.solicitudCompraArticulo.find(
       (a) => a.articulo.id_Articulo === articleId
     );
-    return article?.articulo.nombre;
+    return article ? article.articulo.nombre : "";
   };
 
   const handleMatchArticlesAndProviders = () => {
@@ -136,7 +147,6 @@ export const MatchProvidersAndArticles = (
       }),
     };
 
-    console.log({ object });
     setPurchaseOrderMatched(
       !purchaseOrderMatched ? [object] : purchaseOrderMatched.concat(object)
     );
@@ -156,47 +166,141 @@ export const MatchProvidersAndArticles = (
     setProviderSelected("");
   };
 
-  const handleRemoveProvider = (providerId: string) => {
-    if (!purchaseOrderMatched) return;
-    const orderRemoved = purchaseOrderMatched.find(
-      (p) => p.providerId === providerId
-    );
-    const articleArray = purchaseRequestData?.solicitudCompraArticulo.filter(
-      (a) =>
-        orderRemoved?.article.some(
-          (artR) => artR.articleId === a.articulo.id_Articulo
-        )
-    );
-    const provider = purchaseRequestData?.solicitudProveedor.find(
-      (p) => p.proveedor.id_Proveedor === orderRemoved?.providerId
-    );
+  const handleRemoveProvider = useCallback(
+    (providerId: string) => {
+      if (!purchaseOrderMatched) return;
+      const orderRemoved = purchaseOrderMatched.find(
+        (p) => p.providerId === providerId
+      );
+      const articleArray = purchaseRequestData?.solicitudCompraArticulo.filter(
+        (a) =>
+          orderRemoved?.article.some(
+            (artR) => artR.articleId === a.articulo.id_Articulo
+          )
+      );
+      const provider = purchaseRequestData?.solicitudProveedor.find(
+        (p) => p.proveedor.id_Proveedor === orderRemoved?.providerId
+      );
 
-    setArticles((prev) => {
-      if (prev && articleArray) {
-        return [...prev, ...articleArray];
-      } else if (articleArray) {
-        return [...articleArray];
-      } else {
-        return [];
-      }
-    });
+      setArticles((prev) => {
+        if (prev && articleArray) {
+          return [...prev, ...articleArray];
+        } else if (articleArray) {
+          return [...articleArray];
+        } else {
+          return [];
+        }
+      });
 
-    setProviders((prev) => {
-      if (prev && provider) {
-        return [...prev, provider];
-      } else if (provider) {
-        return [provider];
-      } else {
-        return [];
-      }
-    });
+      setProviders((prev) => {
+        if (prev && provider) {
+          return [...prev, provider];
+        } else if (provider) {
+          return [provider];
+        } else {
+          return [];
+        }
+      });
 
-    setPurchaseOrderMatched(
-      purchaseOrderMatched.filter((p) => p.providerId !== providerId)
-    );
-  };
+      setPurchaseOrderMatched(
+        purchaseOrderMatched.filter((p) => p.providerId !== providerId)
+      );
+    },
+    [purchaseOrderMatched, purchaseRequestData]
+  );
+
+  const handleRemoveArticleFromProvider = useCallback(
+    (articleId: string, providerId: string) => {
+      if (!purchaseRequestData) return;
+      if (!purchaseOrderMatched) return;
+
+      const article = purchaseRequestData.solicitudCompraArticulo.find(
+        (a) => a.articulo.id_Articulo === articleId
+      );
+      const provider = purchaseRequestData?.solicitudProveedor.find(
+        (p) => p.proveedor.id_Proveedor === providerId
+      );
+
+      setArticles((prev) => {
+        if (prev && article) {
+          return [...prev, article];
+        } else if (article) {
+          return [article];
+        } else {
+          return [];
+        }
+      });
+
+      setProviders((prev) => {
+        if (prev && provider) {
+          return [...prev, provider];
+        } else if (provider) {
+          return [provider];
+        } else {
+          return [];
+        }
+      });
+
+      const updatedPurchaseOrderMatched = purchaseOrderMatched
+        .map((p) => {
+          const updatedArticle = p.article.filter(
+            (a) => a.articleId !== articleId
+          );
+          if (updatedArticle.length === 0) {
+            return null;
+          }
+          return {
+            ...p,
+            article: updatedArticle,
+          };
+        })
+        .filter(
+          (
+            item
+          ): item is {
+            providerId: string;
+            article: {
+              articleId: string;
+              purchasePrice: number;
+              amount: number;
+            }[];
+          } => item !== null
+        );
+
+      setPurchaseOrderMatched(updatedPurchaseOrderMatched);
+    },
+    [purchaseRequestData, purchaseOrderMatched]
+  );
 
   console.log({ providers });
+  const handleSendAuth = useCallback(async () => {
+    if (!purchaseOrderMatched) return;
+    if (!purchaseRequestData) return;
+    const ordenCompra = purchaseOrderMatched.map((item) => {
+      return {
+        Id_Proveedor: item.providerId,
+        OrdenCompraArticulo: item.article.map((article) => {
+          return {
+            Id_Articulo: article.articleId,
+            Cantidad: article.amount,
+            PrecioProveedor: article.purchasePrice,
+          };
+        }),
+      };
+    });
+
+    const object = {
+      Id_SolicitudCompra: purchaseRequestData.id_SolicitudCompra,
+      OrdenCompra: ordenCompra,
+    };
+    try {
+      await addPurchaseOrder(object);
+    } catch (error) {
+      console.log(error);
+    }
+
+    console.log({ object });
+  }, [purchaseRequestData, purchaseOrderMatched]);
 
   if (!purchaseRequestData)
     return (
@@ -382,6 +486,18 @@ export const MatchProvidersAndArticles = (
                                   </TableCell>
                                   <TableCell>{a.amount}</TableCell>
                                   <TableCell>{a.purchasePrice}</TableCell>
+                                  <TableCell>
+                                    <IconButton
+                                      onClick={() =>
+                                        handleRemoveArticleFromProvider(
+                                          a.articleId,
+                                          i.providerId
+                                        )
+                                      }
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -417,9 +533,12 @@ export const MatchProvidersAndArticles = (
                 }}
               >
                 <Button
-                  disabled={!purchaseOrderMatched}
+                  disabled={
+                    !purchaseOrderMatched || purchaseOrderMatched.length === 0
+                  }
                   variant="contained"
                   sx={{ mt: 1 }}
+                  onClick={() => handleSendAuth()}
                 >
                   Enviar
                 </Button>
