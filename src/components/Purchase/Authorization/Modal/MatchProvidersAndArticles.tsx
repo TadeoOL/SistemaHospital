@@ -80,7 +80,7 @@ export const MatchProvidersAndArticles = (
     purchaseRequestData?.solicitudProveedor
   );
   const [articles, setArticles] = useState<any[] | undefined>(
-    purchaseRequestData?.solicitudCompraArticulo
+    purchaseRequestData?.solicitudProveedor[0].solicitudCompraArticulos
   );
   const [providerSelected, setProviderSelected] = useState("");
   const [articlesChecked, setArticlesChecked] = useState<string[]>([]);
@@ -121,9 +121,10 @@ export const MatchProvidersAndArticles = (
 
   const getArticleNameById = (articleId: string) => {
     if (!purchaseRequestData) return;
-    const article = purchaseRequestData.solicitudCompraArticulo.find(
-      (a) => a.articulo.id_Articulo === articleId
-    );
+    const article =
+      purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
+        (a) => a.articulo.id_Articulo === articleId
+      );
     return article ? article.articulo.nombre : "";
   };
 
@@ -172,12 +173,13 @@ export const MatchProvidersAndArticles = (
       const orderRemoved = purchaseOrderMatched.find(
         (p) => p.providerId === providerId
       );
-      const articleArray = purchaseRequestData?.solicitudCompraArticulo.filter(
-        (a) =>
-          orderRemoved?.article.some(
-            (artR) => artR.articleId === a.articulo.id_Articulo
-          )
-      );
+      const articleArray =
+        purchaseRequestData?.solicitudProveedor[0].solicitudCompraArticulos.filter(
+          (a) =>
+            orderRemoved?.article.some(
+              (artR) => artR.articleId === a.articulo.id_Articulo
+            )
+        );
       const provider = purchaseRequestData?.solicitudProveedor.find(
         (p) => p.proveedor.id_Proveedor === orderRemoved?.providerId
       );
@@ -214,9 +216,10 @@ export const MatchProvidersAndArticles = (
       if (!purchaseRequestData) return;
       if (!purchaseOrderMatched) return;
 
-      const article = purchaseRequestData.solicitudCompraArticulo.find(
-        (a) => a.articulo.id_Articulo === articleId
-      );
+      const article =
+        purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
+          (a) => a.articulo.id_Articulo === articleId
+        );
       const provider = purchaseRequestData?.solicitudProveedor.find(
         (p) => p.proveedor.id_Proveedor === providerId
       );

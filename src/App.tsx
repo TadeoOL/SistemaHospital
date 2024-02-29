@@ -46,6 +46,7 @@ function App() {
                 path="productos-solicitados-orden-compra"
                 element={<PurchaseOrderRequest />}
               />
+              <Route path="ordenes-compra" element={<h1>holaaa</h1>} />
             </Route>
             <Route path="/compras/categorias" element={<CategoryView />}>
               <Route path="categoria" element={<Category />} />
