@@ -3,13 +3,12 @@ import Divider from "@mui/material/Divider";
 import { styled, useTheme } from "@mui/material/styles";
 import { Drawer, Stack, useMediaQuery } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import homeLogo from "../../assets/homeLogoHSB.svg";
+import Plug from "../../assets/Plug.svg";
 import { useAppNavStore } from "../../store/appNav";
 import { ModuleItems } from "../../utils/ModuleItems";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Collapse from "@mui/material/Collapse";
 import List from "@mui/material/List";
 import { useState } from "react";
 
@@ -42,6 +41,7 @@ export const SideNav = () => {
   const setIsOpen = useAppNavStore((state) => state.setOpen);
   const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
   const navigate = useNavigate();
+  const SelectedOptionColor = "#2196f3";
 
   const SideNavItems: React.FC<SideNavItemsProps> = ({
     icon,
@@ -71,31 +71,63 @@ export const SideNav = () => {
     };
 
     return (
-      <>
-        <ListItemButton onClick={handleClick} selected={isActive}>
+      <List component="div" disablePadding>
+        {open && (
+          <ListItemButton
+            sx={{
+              "&.Mui-selected": { backgroundColor: SelectedOptionColor },
+              pl: 2,
+              mt: 1,
+              mb: 1,
+            }}
+          >
+            <ListItemText
+              primary="Catálogos"
+              sx={{ fontWeight: 600, display: "inline" }}
+            />
+          </ListItemButton>
+        )}
+        <ListItemButton
+          onClick={handleClick}
+          selected={isActive}
+          sx={{ "&.Mui-selected": { backgroundColor: SelectedOptionColor } }}
+        >
           <ListItemIcon>{icon}</ListItemIcon>
           {xlUp && <ListItemText primary={title} sx={{ display: "inline" }} />}
         </ListItemButton>
-        {childrenItems && (
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {childrenItems.map((child, index) => (
-                <ListItemButton
-                  key={index}
-                  onClick={() => handleChildClick(child.path)}
-                  selected={child.path === location.pathname}
-                  sx={{ pl: 4, marginTop: 1, marginBottom: 1 }}
-                >
-                  <ListItemIcon>{child.icon}</ListItemIcon>
-                  <ListItemText primary={child.title} />
-                </ListItemButton>
-              ))}
-            </List>
-          </Collapse>
+        {open && (
+          <>
+            <ListItemButton
+              onClick={() => handleChildClick(path)}
+              selected={isActive}
+              sx={{ pl: 4, mt: 1, mb: 1 }}
+            >
+              <ListItemText
+                primary={title}
+                sx={{ fontWeight: 600, display: "inline" }}
+              />
+            </ListItemButton>
+            {childrenItems && (
+              <>
+                {childrenItems.map((child, index) => (
+                  <ListItemButton
+                    key={index}
+                    onClick={() => handleChildClick(child.path)}
+                    selected={child.path === location.pathname}
+                    sx={{ pl: 4, mt: 1, mb: 1 }}
+                  >
+                    <ListItemIcon>{child.icon}</ListItemIcon>
+                    <ListItemText primary={child.title} />
+                  </ListItemButton>
+                ))}
+              </>
+            )}
+          </>
         )}
-      </>
+      </List>
     );
   };
+
   return (
     <Drawer
       variant={xlUp ? "permanent" : "temporary"}
@@ -103,15 +135,12 @@ export const SideNav = () => {
       onClose={() => {
         setIsOpen(false);
       }}
-      open={xlUp ? true : isOpen}
       PaperProps={{
         sx: {
           backgroundColor: "#24282C",
           color: "common.white",
-          width: xlUp ? (isOpen ? 230 : 80) : 230,
-          transition: xlUp
-            ? "width 0.3s ease-in-out"
-            : "width 0.3s ease-in-out, background-color 0.3s ease-in-out",
+          width: isOpen ? 230 : 80,
+          transition: "width 0.3s ease-in-out",
         },
       }}
     >
@@ -120,13 +149,17 @@ export const SideNav = () => {
           display: "flex",
           justifyContent: "center",
           flexDirection: "column",
+          overflow: "hidden",
         }}
       >
         <Box
           component="img"
           sx={{
             p: 2,
-            maxWidth: 180,
+            width: "140px",
+            maxHeight: 100,
+            objectFit: "contain",
+            filter: "invert(1)",
             transition:
               "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
             "&:hover": {
@@ -137,7 +170,7 @@ export const SideNav = () => {
                 "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
             },
           }}
-          // src={homeLogo}
+          src={Plug}
           onClick={() => navigate("/")}
         />
       </DrawerHeader>

@@ -592,12 +592,18 @@ export const changePurchaseStatus = async (
   Estatus: number,
   Mensaje?: string
 ) => {
-  const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
-    Id_SolicitudCompra,
-    Estatus,
-    Mensaje,
-  });
-  return res.data;
+  try {
+    console.log("Cambiando estado de compra:", Id_SolicitudCompra, Estatus, Mensaje);
+    const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
+      Id_SolicitudCompra,
+      Estatus,
+      Mensaje,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error al cambiar estado de compra:", error);
+    throw error;
+  }
 };
 
 export const getWaitAuthPurchase = async (paramUrl: string) => {
@@ -709,18 +715,20 @@ export const eliminarMensaje = async (mensajeId: string) => {
 };
 
 export const editarMensaje = async ({
-  mensajeId,
-  nuevoContenido,
+  id_Mensaje,
+  mensaje,
+  modulo,
 }: {
-  mensajeId: string;
-  nuevoContenido: string;
+  id_Mensaje: string;
+  mensaje: string;
+  modulo: string;
 }) => {
   try {
     await axios.put(
-      `/api/Sistema/Mensajes/modificar-mensaje-alerta/${mensajeId}`,
-      { nuevoContenido }
-    );
-
+      `/api/Sistema/Mensajes/modificar-mensaje-alerta`,
+      { id_Mensaje, mensaje, modulo }
+    );    
+    
     const res = await axios.get(
       `/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada`
     );
@@ -729,7 +737,9 @@ export const editarMensaje = async ({
   } catch (error) {
     const axiosError = error as AxiosError;
     if (axiosError.response) {
-      console.log(axiosError.response);
+      const { status, data } = axiosError.response;
+      console.log(`Error al editar el mensaje. Código de estado: ${status}`);
+      console.log(`Respuesta del servidor:`, data);
     } else {
       console.error("Error al editar el mensaje:", error);
     }

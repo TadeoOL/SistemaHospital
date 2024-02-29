@@ -3,6 +3,7 @@ import { shallow } from "zustand/shallow";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import Mensaje from "./Modal/Mensaje";
 import {
   Box,
   Card,
@@ -27,7 +28,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Swal from "sweetalert2";
 import { changePurchaseStatus } from "../../../api/api.routes";
-import { Provider, Status } from "../../../types/types";
+import { Status } from "../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
 import { useMatchProvidersAndArticles } from "../../../store/purchaseStore/matchProvidersAndArticles";
@@ -112,46 +113,19 @@ const acceptPurchaseAuthorization = (
   });
 };
 
-const declinePurchaseAuthorization = (
+export const declinePurchaseAuthorization = async (
   Id_SolicitudCompra: string,
   Mensaje: string = "Rechazada"
 ) => {
-  Swal.fire({
-    title: "¿Deseas rechazar la solicitud de orden de compra?",
-    text: "Se cambiará el estatus de la solicitud de orden de compra a orden cancelada!",
-    icon: "error",
-    showCancelButton: true,
-    confirmButtonColor: "#4338CA",
-    cancelButtonColor: "#d33",
-    cancelButtonText: "Cancelar",
-    confirmButtonText: "Rechazar orden de compra!",
-    customClass: {
-      confirmButton: "confirm-button-class",
-      cancelButton: "cancel-button-class",
-    },
-    reverseButtons: true,
-  }).then(async (result) => {
+  try {
+    await changePurchaseStatus(Id_SolicitudCompra, 0, Mensaje);
     const { fetchPurchaseAuthorization } =
       usePurchaseAuthorizationPagination.getState();
-    if (result.isConfirmed) {
-      try {
-        await changePurchaseStatus(Id_SolicitudCompra, 0, Mensaje);
-        Swal.fire({
-          title: "Rechazada",
-          text: "La compra ha sido rechazada correctamente!",
-          icon: "success",
-        });
-        fetchPurchaseAuthorization();
-      } catch (error) {
-        console.log(error);
-        Swal.fire({
-          title: "Error!",
-          text: "Error al rechazar la compra!",
-          icon: "error",
-        });
-      }
-    }
-  });
+    await fetchPurchaseAuthorization();
+    console.log("Compra rechazada correctamente");
+  } catch (error) {
+    console.error("Error al rechazar la orden:", error);
+  }
 };
 
 export const PurchaseAuthorizationTable = () => {
@@ -162,6 +136,8 @@ export const PurchaseAuthorizationTable = () => {
     {}
   );
   const [folio, setFolio] = useState("");
+  const [openMensajeModal, setOpenMensajeModal] = useState(false);
+  const [purchaseRequestId, setPurchaseRequestId] = useState("");
 
   useEffect(() => {
     if (openModal) return;
@@ -285,15 +261,24 @@ export const PurchaseAuthorizationTable = () => {
                                   size="small"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    declinePurchaseAuthorization(
+                                    setPurchaseRequestId(
                                       auth.id_SolicitudCompra
                                     );
+                                    setOpenMensajeModal(true);
                                   }}
                                 >
                                   <CloseIcon sx={{ color: "red" }} />
                                 </IconButton>
                               </Tooltip>
                             </>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {openMensajeModal && (
+                            <Mensaje
+                              open={() => setOpenMensajeModal(false)}
+                              idSolicitudCompra={purchaseRequestId}
+                            />
                           )}
                         </TableCell>
                       </TableRow>

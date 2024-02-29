@@ -1,25 +1,17 @@
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import {
-  Avatar,
-  Badge,
-  Stack,
-  SvgIcon,
-  Tooltip,
-  useMediaQuery,
-} from "@mui/material";
+import { Avatar, Badge, Stack, SvgIcon, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import { alpha, useTheme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
 import { useAuthStore } from "../../store/auth";
 
-export const TopNav = () => {
-  const theme = useTheme();
-  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
-  const setIsOpen = useAppNavStore((state) => state.setOpen);
+export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
+  toggleSidebar,
+}) => {
   const profile = useAuthStore((state) => state.profile);
   const isOpen = useAppNavStore((state) => state.open);
   const anchorRef = useRef(null);
@@ -31,7 +23,7 @@ export const TopNav = () => {
     setOpen(false);
   }, []);
   const SIDE_NAV_WIDTH = 80;
-  const TOP_NAV_HEIGHT = 64;
+  // const TOP_NAV_HEIGHT = 64;
 
   return (
     <>
@@ -55,25 +47,20 @@ export const TopNav = () => {
         <Stack
           alignItems="center"
           direction="row"
-          justifyContent="space-between"
           spacing={2}
           sx={{
-            minHeight: TOP_NAV_HEIGHT,
-            px: 2,
+            marginLeft: isOpen ? 19 : 0,
+            transition: "margin-left 0.3s ease-in-out",
+            justifyContent: "space-between",
           }}
         >
           <Stack alignItems="center" direction="row" spacing={2}>
-            {!xlUp && (
-              <IconButton
-                onClick={() => {
-                  setIsOpen(!isOpen);
-                }}
-              >
-                <SvgIcon fontSize="small">
-                  <MenuIcon />
-                </SvgIcon>
-              </IconButton>
-            )}
+            <IconButton onClick={toggleSidebar}>
+              <SvgIcon fontSize="small">
+                <MenuIcon />
+              </SvgIcon>
+            </IconButton>
+
             {/* <Tooltip title="Search">
             <IconButton>
               <SvgIcon fontSize="small">
@@ -82,7 +69,12 @@ export const TopNav = () => {
             </IconButton>
           </Tooltip> */}
           </Stack>
-          <Stack alignItems="center" direction="row" spacing={2}>
+          <Stack
+            alignItems="center"
+            direction="row"
+            spacing={2}
+            sx={{ position: "absolute", right: 0, marginRight: 0 }}
+          >
             <Tooltip title="Contacts">
               <IconButton>
                 <SvgIcon fontSize="small">{/* <UsersIcon /> */}</SvgIcon>

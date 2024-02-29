@@ -6,6 +6,8 @@ import DialogActions from "@mui/material/DialogActions";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
+import WarningIcon from "@mui/icons-material/Warning";
+import { declinePurchaseAuthorization } from "../PurchaseAuthorizationTable";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import {
   obtenerMensajes,
@@ -26,6 +28,7 @@ import {
   Typography,
   IconButton,
   Paper,
+  Radio,
 } from "@mui/material";
 
 interface Mensaje {
@@ -66,9 +69,10 @@ const styleBar = {
 
 interface MensajeProps {
   open: Function;
+  idSolicitudCompra: string;
 }
 
-const Mensaje = ({ open }: MensajeProps) => {
+const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMensaje, setNuevoMensaje] = useState<string>("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -76,12 +80,14 @@ const Mensaje = ({ open }: MensajeProps) => {
   const [selectedMensaje, setSelectedMensaje] = useState<Mensaje | null>(null);
   const [editingMessageId, setEditingMessageId] = useState("");
   const [editingMessageText, setEditingMessageText] = useState("");
+  const [mostrarInput, setMostrarInput] = useState(false);
+  const [selectedReason, setSelectedReason] = useState<Mensaje | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await obtenerMensajes("Compras_AutorizacionCancelada");
-        console.log(res);
+        // console.log(res);
         setMensajes(res);
       } catch (error: any) {
         console.error("Error al obtener los mensajes:", error);
@@ -91,6 +97,24 @@ const Mensaje = ({ open }: MensajeProps) => {
 
     fetchData();
   }, []);
+
+  const handleRechazarOrden = async () => {
+    try {
+      if (selectedReason) {
+        if (nuevoMensaje.trim() !== "") {
+          await crearMensaje(nuevoMensaje);
+          setNuevoMensaje("");
+        }
+        await declinePurchaseAuthorization(
+          idSolicitudCompra,
+          selectedReason.mensaje
+        );
+        handleCloseModal();
+      }
+    } catch (error) {
+      console.error("Error al rechazar la orden:", error);
+    }
+  };
 
   const agregarNuevoMensaje = async () => {
     try {
@@ -143,23 +167,81 @@ const Mensaje = ({ open }: MensajeProps) => {
 
   const handleSaveEdit = async () => {
     try {
-      await editarMensaje({
-        mensajeId: editingMessageId,
-        nuevoContenido: editingMessageText,
-      });
-      setEditingMessageId("");
-      setEditingMessageText("");
-      const res = await obtenerMensajes("Compras_AutorizacionCancelada");
-      setMensajes(res);
-    } catch (error) {
-      console.error("Error al editar el mensaje:", error);
+      if (editingMessageId !== "" && editingMessageText.trim() !== "") {
+        await editarMensaje({
+          id_Mensaje: editingMessageId,
+          mensaje: editingMessageText,
+          modulo: "Compras_AutorizacionCancelada",
+        });
+        setEditingMessageId("");
+        setEditingMessageText("");
+
+        const res = await obtenerMensajes("Compras_AutorizacionCancelada");
+        setMensajes(res);
+      } else {
+        console.error("Mensaje ID o contenido no válido para la edición.");
+      }
+    } catch (error: any) {
+      console.error(
+        "Error al editar el mensaje:",
+        error.response?.data || error.message
+      );
     }
   };
 
+  const handleCloseModal = () => {
+    setOpenDialog(false);
+    open(false);
+  };
+
+  const handleOtro = () => {
+    setMostrarInput(true);
+  };
+
+  const handleAceptar = () => {
+    handleRechazarOrden();
+    agregarNuevoMensaje();
+  };
+
+  const handleSelectMessage = (mensaje: Mensaje) => {
+    setSelectedReason(mensaje === selectedReason ? null : mensaje);
+  };
+
   return (
-    <Box sx={{ ...style, ...styleBar }}>
-      <HeaderModal setOpen={open} title="Mensaje personalizado" />
+    <Box sx={{ ...style, ...styleBar, zIndex: 9999 }}>
+      <HeaderModal setOpen={open} title="Cancelar Solicitud" />
+      <Box
+        sx={{
+          p: 4,
+          bgcolor: "background.paper",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <WarningIcon
+          sx={{
+            color: "#FFA500",
+            fontSize: 70,
+            marginBottom: 4,
+          }}
+        />
+        <>
+          <Typography variant="h5">
+            ¿Deseas Cancelar la solicitud de compra?
+          </Typography>
+          <Typography variant="h6" sx={{ marginTop: 3 }}>
+            Se cambiará el estatus de la solicitud de orden de compra a orden
+            cancelada!
+          </Typography>
+        </>
+      </Box>
+
       <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+        <Typography variant="h6" sx={{ marginBottom: 3 }}>
+          Motivo:{" "}
+        </Typography>
         <TableContainer
           component={Paper}
           sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
@@ -172,35 +254,60 @@ const Mensaje = ({ open }: MensajeProps) => {
             </TableHead>
             <TableBody>
               {mensajes.map((mensaje) => (
-                <TableRow key={mensaje.id_Mensaje}>
+                <TableRow
+                  key={mensaje.id_Mensaje}
+                  onClick={() => handleSelectMessage(mensaje)}
+                  sx={{
+                    cursor: "pointer",
+                    backgroundColor:
+                      mensaje === selectedReason ? "rgba(0,0,0,.2)" : "inherit",
+                  }}
+                >
                   <TableCell>
+                    <Radio
+                      checked={mensaje === selectedReason}
+                      onChange={() => handleSelectMessage(mensaje)}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
                     {editingMessageId === mensaje.id_Mensaje ? (
                       <TextField
                         value={editingMessageText}
                         onChange={(e) => setEditingMessageText(e.target.value)}
+                        inputProps={{ style: { paddingTop: "10px" } }}
                       />
                     ) : (
                       mensaje.mensaje
                     )}
                   </TableCell>
+
                   <TableCell
                     sx={{ display: "flex", justifyContent: "flex-end" }}
                   >
                     {editingMessageId === mensaje.id_Mensaje ? (
-                      <IconButton onClick={handleSaveEdit}>
+                      <IconButton
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleSaveEdit();
+                        }}
+                      >
                         <SaveIcon />
                       </IconButton>
                     ) : (
                       <IconButton
-                        onClick={() =>
-                          toggleEditMode(mensaje.id_Mensaje, mensaje.mensaje)
-                        }
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggleEditMode(mensaje.id_Mensaje, mensaje.mensaje);
+                        }}
                       >
                         <EditIcon />
                       </IconButton>
                     )}
                     <IconButton
-                      onClick={() => eliminarMensajes(mensaje.id_Mensaje)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        eliminarMensajes(mensaje.id_Mensaje);
+                      }}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -210,26 +317,50 @@ const Mensaje = ({ open }: MensajeProps) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Typography sx={{ marginTop: "10%" }}>
-            Crear un nuevo mensaje
-          </Typography>
-          <TextField
-            label="Nuevo Mensaje"
-            value={nuevoMensaje}
-            onChange={(e) => setNuevoMensaje(e.target.value)}
-            sx={{ mt: 2 }}
-          />
+        <Button
+          sx={{ mt: 2, marginLeft: "5px", marginTop: "25px" }}
+          variant="outlined"
+          onClick={handleOtro}
+        >
+          Otro
+        </Button>
+
+        {mostrarInput && (
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <TextField
+              label="Nuevo Mensaje"
+              value={nuevoMensaje}
+              onChange={(e) => setNuevoMensaje(e.target.value)}
+              sx={{ mt: 2 }}
+            />
+          </Box>
+        )}
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: 5,
+          }}
+        >
+          <Button sx={{ mr: 2 }} onClick={handleCloseModal}>
+            Salir
+          </Button>
           <Button
-            sx={{ mt: 2, marginLeft: "5px", marginTop: "25px" }}
             variant="contained"
-            onClick={agregarNuevoMensaje}
+            color="primary"
+            onClick={handleAceptar}
+            disabled={!selectedReason && !nuevoMensaje.trim()}
           >
-            Agregar nuevo mensaje
+            Aceptar
           </Button>
         </Box>
       </Box>
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        sx={{ zIndex: 10000 }}
+      >
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
           {selectedMensaje && (

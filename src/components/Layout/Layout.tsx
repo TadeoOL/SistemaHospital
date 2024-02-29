@@ -1,8 +1,7 @@
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { TopNav } from "./TopNav";
 import { SideNav } from "./SideNav";
 import { Outlet } from "react-router-dom";
-import { useMediaQuery } from "@mui/material";
 import { useAppNavStore } from "../../store/appNav";
 
 const SIDE_NAV_WIDTH = 110;
@@ -20,6 +19,7 @@ const LayoutContainer = styled("div")(({ theme }) => ({
   flex: "1 1 auto",
   flexDirection: "column",
   width: "100%",
+  marginLeft: useAppNavStore((state) => state.open) ? SIDE_NAV_WIDTH : 0,
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -29,32 +29,18 @@ const LayoutContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const FixedTopNav = styled(TopNav)(({ theme }) => ({
-  position: "fixed",
-  width: "100%",
-  zIndex: theme.zIndex.drawer + 2, // Asegurémonos de que esté por encima del SideNav
-}));
-
 export const Layout: React.FC = () => {
-  const theme = useTheme();
   const isOpen = useAppNavStore((state) => state.open);
-  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
+  const setIsOpen = useAppNavStore((state) => state.setOpen);
 
-  const SidebarContainer = styled("div")(({ theme }) => ({
-    width: xlUp ? (isOpen ? SIDE_NAV_WIDTH : 0) : SIDE_NAV_WIDTH,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-  }));
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
     <>
-      <FixedTopNav />
-      <SidebarContainer theme={theme}>
-        <SideNav />
-      </SidebarContainer>
+      <TopNav toggleSidebar={toggleSidebar} />
+      <SideNav />
       <LayoutRoot>
         <LayoutContainer>{<Outlet />}</LayoutContainer>
       </LayoutRoot>

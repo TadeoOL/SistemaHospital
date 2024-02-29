@@ -3,11 +3,9 @@ import { useState } from "react";
 import { SearchBar } from "../../Inputs/SearchBar";
 import { PurchaseAuthorizationTable } from "./PurchaseAuthorizationTable";
 import { PurchaseConfigModal } from "./Modal/PurchaseConfigModal";
-import Mensaje from "./Modal/Mensaje";
 
 export const PurchaseAuthorization = () => {
   const [open, setOpen] = useState(false);
-  const [messageModalOpen, setMessageModalOpen] = useState(false);
 
   //   const { enabled, setEnabled, setSearch } = useExistingArticlePagination(
   //     (state) => ({
@@ -41,13 +39,6 @@ export const PurchaseAuthorization = () => {
             Autorización de ordenes de compra
           </Typography>
           <Box>
-            <Button
-              sx={{ marginRight: "5px" }}
-              variant="contained"
-              onClick={() => setMessageModalOpen(true)}
-            >
-              Mensaje personalizado
-            </Button>
             <Button variant="contained" onClick={() => setOpen(true)}>
               Configuración ordenes de compra
             </Button>
@@ -57,16 +48,7 @@ export const PurchaseAuthorization = () => {
         <Divider sx={{ my: 1 }} />
         <PurchaseAuthorizationTable />
       </Box>
-      <Modal
-        open={messageModalOpen}
-        onClose={() => {
-          setMessageModalOpen(false);
-        }}
-      >
-        <>
-          <Mensaje open={setMessageModalOpen} />
-        </>
-      </Modal>
+
       <Modal
         open={open}
         onClose={() => {
