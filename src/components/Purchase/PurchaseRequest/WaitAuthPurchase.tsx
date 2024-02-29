@@ -235,19 +235,21 @@ export const WaitAuthPurchase = () => {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {auth.solicitudCompraArticulo.map((request) => (
-                                <TableRow key={request.id}>
-                                  <TableCell>
-                                    {request.articulo.nombre}
-                                  </TableCell>
-                                  <TableCell>
-                                    {request.cantidadCompra}
-                                  </TableCell>
-                                  <TableCell>
-                                    ${request.precioProveedor}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
+                              {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
+                                (request) => (
+                                  <TableRow key={request.id}>
+                                    <TableCell>
+                                      {request.articulo.nombre}
+                                    </TableCell>
+                                    <TableCell>
+                                      {request.cantidadCompra}
+                                    </TableCell>
+                                    <TableCell>
+                                      ${request.precioProveedor}
+                                    </TableCell>
+                                  </TableRow>
+                                )
+                              )}
                             </TableBody>
                           </Table>
                         </Collapse>

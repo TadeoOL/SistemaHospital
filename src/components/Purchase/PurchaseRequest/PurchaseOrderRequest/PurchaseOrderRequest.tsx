@@ -143,6 +143,8 @@ export const PurchaseOrderRequest = () => {
     });
   }, [openProviderQuote]);
 
+  console.log({ data });
+
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
@@ -285,19 +287,21 @@ export const PurchaseOrderRequest = () => {
                                 </TableRow>
                               </TableHead>
                               <TableBody>
-                                {auth.solicitudCompraArticulo.map((request) => (
-                                  <TableRow key={request.id}>
-                                    <TableCell>
-                                      {request.articulo.nombre}
-                                    </TableCell>
-                                    <TableCell>
-                                      {request.cantidadCompra}
-                                    </TableCell>
-                                    <TableCell>
-                                      ${request.precioProveedor}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
+                                {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
+                                  (request) => (
+                                    <TableRow key={request.id}>
+                                      <TableCell>
+                                        {request.articulo.nombre}
+                                      </TableCell>
+                                      <TableCell>
+                                        {request.cantidadCompra}
+                                      </TableCell>
+                                      <TableCell>
+                                        ${request.precioProveedor}
+                                      </TableCell>
+                                    </TableRow>
+                                  )
+                                )}
                               </TableBody>
                             </Table>
                           </Collapse>
