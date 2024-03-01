@@ -82,6 +82,7 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
   const [editingMessageText, setEditingMessageText] = useState("");
   const [mostrarInput, setMostrarInput] = useState(false);
   const [selectedReason, setSelectedReason] = useState<Mensaje | null>(null);
+  const [otroSelected, setOtroSelected] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -195,7 +196,8 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
   };
 
   const handleOtro = () => {
-    setMostrarInput(true);
+    setMostrarInput((prevMostrarInput) => !prevMostrarInput);
+    setOtroSelected((prevOtroSelected) => !prevOtroSelected);
   };
 
   const handleAceptar = () => {
@@ -204,6 +206,10 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
   };
 
   const handleSelectMessage = (mensaje: Mensaje) => {
+    if (mensaje.id_Mensaje === "otro") {
+      setOtroSelected(!otroSelected);
+      return;
+    }
     setSelectedReason(mensaje === selectedReason ? null : mensaje);
   };
 
@@ -254,77 +260,92 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
             </TableHead>
             <TableBody>
               {mensajes.map((mensaje) => (
-                <TableRow
-                  key={mensaje.id_Mensaje}
-                  onClick={() => handleSelectMessage(mensaje)}
-                  sx={{
-                    cursor: "pointer",
-                    backgroundColor:
-                      mensaje === selectedReason ? "rgba(0,0,0,.2)" : "inherit",
-                  }}
-                >
-                  <TableCell>
-                    <Radio
-                      checked={mensaje === selectedReason}
-                      onChange={() => handleSelectMessage(mensaje)}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
-                    {editingMessageId === mensaje.id_Mensaje ? (
-                      <TextField
-                        value={editingMessageText}
-                        onChange={(e) => setEditingMessageText(e.target.value)}
-                        inputProps={{ style: { paddingTop: "10px" } }}
-                      />
-                    ) : (
-                      mensaje.mensaje
-                    )}
-                  </TableCell>
-
-                  <TableCell
-                    sx={{ display: "flex", justifyContent: "flex-end" }}
+                <>
+                  <TableRow
+                    key={mensaje.id_Mensaje}
+                    onClick={() => handleSelectMessage(mensaje)}
+                    sx={{
+                      cursor: "pointer",
+                      backgroundColor:
+                        mensaje === selectedReason
+                          ? "rgba(0,0,0,.2)"
+                          : "inherit",
+                    }}
                   >
-                    {editingMessageId === mensaje.id_Mensaje ? (
-                      <IconButton
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleSaveEdit();
-                        }}
-                      >
-                        <SaveIcon />
-                      </IconButton>
-                    ) : (
-                      <IconButton
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          toggleEditMode(mensaje.id_Mensaje, mensaje.mensaje);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    )}
-                    <IconButton
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        eliminarMensajes(mensaje.id_Mensaje);
-                      }}
+                    <TableCell>
+                      <Radio
+                        checked={mensaje === selectedReason}
+                        onChange={() => handleSelectMessage(mensaje)}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
+                      {editingMessageId === mensaje.id_Mensaje ? (
+                        <TextField
+                          value={editingMessageText}
+                          onChange={(e) =>
+                            setEditingMessageText(e.target.value)
+                          }
+                          inputProps={{ style: { paddingTop: "10px" } }}
+                        />
+                      ) : (
+                        mensaje.mensaje
+                      )}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{ display: "flex", justifyContent: "flex-end" }}
                     >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+                      {editingMessageId === mensaje.id_Mensaje ? (
+                        <IconButton
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleSaveEdit();
+                          }}
+                        >
+                          <SaveIcon />
+                        </IconButton>
+                      ) : (
+                        <IconButton
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleEditMode(mensaje.id_Mensaje, mensaje.mensaje);
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          eliminarMensajes(mensaje.id_Mensaje);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                </>
               ))}
+              <TableRow onClick={handleOtro} sx={{ cursor: "pointer" }}>
+                <TableCell>
+                  <Radio
+                    checked={otroSelected}
+                    sx={{
+                      color: otroSelected ? "#0000FF" : undefined,
+                    }}
+                    onChange={() => {}}
+                  />
+                </TableCell>
+                <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
+                  Otro
+                </TableCell>
+                <TableCell
+                  sx={{ display: "flex", justifyContent: "flex-end" }}
+                ></TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
-        <Button
-          sx={{ mt: 2, marginLeft: "5px", marginTop: "25px" }}
-          variant="outlined"
-          onClick={handleOtro}
-        >
-          Otro
-        </Button>
-
         {mostrarInput && (
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <TextField

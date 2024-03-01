@@ -3,6 +3,7 @@ import { TopNav } from "./TopNav";
 import { SideNav } from "./SideNav";
 import { Outlet } from "react-router-dom";
 import { useAppNavStore } from "../../store/appNav";
+import CustomBreadcrumb from "./CustomBreadcrumb";
 
 const SIDE_NAV_WIDTH = 110;
 
@@ -40,6 +41,7 @@ export const Layout: React.FC = () => {
   return (
     <>
       <TopNav toggleSidebar={toggleSidebar} />
+      <CustomBreadcrumb />
       <SideNav />
       <LayoutRoot>
         <LayoutContainer>{<Outlet />}</LayoutContainer>
