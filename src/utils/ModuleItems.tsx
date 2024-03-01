@@ -14,19 +14,27 @@ export const ModuleItems: IModuleItems[] = [
     icon: <DashboardIcon sx={{ color: "#fff" }} />,
   },
   {
-    title: "Solicitud de compras",
-    path: "/compras/solicitud-compras",
+    title: "Compras",
+    path: "/compras/solicitud-compras/ordenes-compra",
     icon: <AddShoppingCartIcon sx={{ color: "#fff" }} />,
+    childrenItems: [
+      "ordenes-compra",
+      "productos-stock-bajo",
+      "productos-solicitados-orden-compra",
+      "productos-espera-autorizacion",
+    ],
   },
   {
-    title: "Categorías y subcategorias",
-    path: "/compras/categorias",
+    title: "Categorías",
+    path: "/compras/categorias/categoria",
     icon: <FormatListBulletedIcon sx={{ color: "#fff" }} />,
+    childrenItems: ["categoria", "subcategoria"],
   },
   {
     title: "Artículos",
-    path: "/compras/articulos",
+    path: "/compras/articulos/articulo",
     icon: <ArticleIcon sx={{ color: "#fff" }} />,
+    childrenItems: ["articulo", "articulo-existente"],
   },
   {
     title: "Almacén",

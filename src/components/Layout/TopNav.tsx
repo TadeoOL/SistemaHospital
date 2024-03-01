@@ -8,6 +8,7 @@ import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
 import { useAuthStore } from "../../store/auth";
+import homelogo from "../../assets/homeLogoHSB.svg";
 
 export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
   toggleSidebar,
@@ -42,6 +43,7 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
             xl: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
           },
           zIndex: (theme) => theme.zIndex.appBar,
+          height: 60,
         }}
       >
         <Stack
@@ -59,6 +61,14 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
               <SvgIcon fontSize="small">
                 <MenuIcon />
               </SvgIcon>
+              <IconButton sx={{ marginLeft: 1 }}>
+                <img
+                  src={homelogo}
+                  alt="Company Logo"
+                  width="154px"
+                  height="30px"
+                />
+              </IconButton>
             </IconButton>
 
             {/* <Tooltip title="Search">

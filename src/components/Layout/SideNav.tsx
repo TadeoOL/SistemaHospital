@@ -24,16 +24,16 @@ interface SideNavItemsProps {
   icon: React.ReactNode;
   title: string;
   path: string;
-  childrenItems?: ModuleItem[] | undefined;
+  childrenItems?: string[] | undefined;
   topLevel?: boolean;
 }
 
-interface ModuleItem {
-  title: string;
-  path: string;
-  icon: React.ReactNode;
-  childrenItems?: ModuleItem[] | undefined;
-}
+// interface ModuleItem {
+//   title: string;
+//   path: string;
+//   icon: React.ReactNode;
+//   childrenItems?: string[] | undefined;
+// }
 
 export const SideNav = () => {
   const theme = useTheme();
@@ -51,24 +51,23 @@ export const SideNav = () => {
   }) => {
     const [open, setOpen] = useState(false);
     const location = useLocation();
-    const isActive = path === location.pathname;
+    const isActive = childrenItems
+      ? childrenItems.some((c) => c === location.pathname.split("/")[3])
+      : path === location.pathname;
+
+    console.log("actual", location.pathname);
 
     const handleClick = () => {
-      if (childrenItems) {
-        setOpen(!open);
-        setIsOpen(!open);
-      } else {
-        setOpen(false);
-        setIsOpen(false);
-        navigate(path);
-      }
-    };
-
-    const handleChildClick = (childPath: string) => {
       setOpen(false);
       setIsOpen(false);
-      navigate(childPath);
+      navigate(path);
     };
+
+    // const handleChildClick = (childPath: string) => {
+    //   setOpen(false);
+    //   setIsOpen(false);
+    //   navigate(childPath);
+    // };
 
     return (
       <List component="div" disablePadding>
@@ -97,17 +96,19 @@ export const SideNav = () => {
             mb: 1,
           }}
         >
-          <ListItemIcon>{icon}</ListItemIcon>
-          <ListItemText
-            primary={title}
-            sx={{
-              fontWeight: 600,
-              display: xlUp ? "inline" : "inline",
-            }}
-          />
+          <ListItemIcon sx={{ marginLeft: -1 }}>{icon}</ListItemIcon>
+          {isOpen && (
+            <ListItemText
+              primary={title}
+              sx={{
+                fontWeight: 600,
+                display: xlUp ? "inline" : "inline",
+              }}
+            />
+          )}
         </ListItemButton>
 
-        {open && (
+        {/* {open && (
           <>
             <ListItemButton
               onClick={() => handleChildClick(path)}
@@ -133,7 +134,7 @@ export const SideNav = () => {
               </>
             )}
           </>
-        )}
+        )} */}
       </List>
     );
   };
