@@ -25,9 +25,8 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { SearchBar } from "../../Inputs/SearchBar";
 import { useWaitAuthPurchasePagination } from "../../../store/purchaseStore/waitAuthPurchasePagination";
 import { changePurchaseStatus } from "../../../api/api.routes";
-import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { Status } from "../../../types/types";
+import { StatusPurchaseRequest } from "../../../types/types";
 import InfoIcon from "@mui/icons-material/Info";
 
 const useGetAllData = () => {
@@ -142,7 +141,7 @@ export const WaitAuthPurchase = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Orden de compra</TableCell>
+                <TableCell>Solicitud de orden de compra</TableCell>
                 <TableCell>Creado por</TableCell>
                 <TableCell>Proveedor</TableCell>
                 <TableCell>Fecha de solicitud</TableCell>
@@ -198,9 +197,12 @@ export const WaitAuthPurchase = () => {
                           {auth.fechaSolicitud.split("T")[0]}
                         </TableCell>
                         <TableCell>${auth.precioSolicitud}</TableCell>
-                        <TableCell>{Status[auth.estatus]}</TableCell>
                         <TableCell>
-                          {Status[auth.estatus] === "Cancelado" ? (
+                          {StatusPurchaseRequest[auth.estatus]}
+                        </TableCell>
+                        <TableCell>
+                          {StatusPurchaseRequest[auth.estatus] ===
+                          "Cancelado" ? (
                             <Tooltip
                               title={
                                 <Typography variant="body1">
@@ -229,23 +231,19 @@ export const WaitAuthPurchase = () => {
                           <Table>
                             <TableHead>
                               <TableRow>
-                                <TableCell>Articulo</TableCell>
-                                <TableCell>Cantidad</TableCell>
-                                <TableCell>Precio</TableCell>
+                                <TableCell align="center">Articulo</TableCell>
+                                <TableCell align="center">Cantidad</TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
                               {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
                                 (request) => (
                                   <TableRow key={request.id}>
-                                    <TableCell>
+                                    <TableCell align="center">
                                       {request.articulo.nombre}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell align="center">
                                       {request.cantidadCompra}
-                                    </TableCell>
-                                    <TableCell>
-                                      ${request.precioProveedor}
                                     </TableCell>
                                   </TableRow>
                                 )
@@ -292,6 +290,7 @@ export const WaitAuthPurchase = () => {
             component="div"
             count={count}
             onPageChange={(e, value) => {
+              e?.stopPropagation();
               setPageIndex(value);
             }}
             onRowsPerPageChange={(e: any) => {

@@ -333,6 +333,7 @@ export const modifyArticle = async (article: IArticle) => {
     stockAlerta,
     stockMinimo,
     unidadMedida,
+    precioInventario,
   } = article;
 
   const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
@@ -344,6 +345,7 @@ export const modifyArticle = async (article: IArticle) => {
     stockMinimo,
     id_subcategoria,
     unidadMedida,
+    precioInventario,
   });
   return res.data;
 };
@@ -593,7 +595,12 @@ export const changePurchaseStatus = async (
   Mensaje?: string
 ) => {
   try {
-    console.log("Cambiando estado de compra:", Id_SolicitudCompra, Estatus, Mensaje);
+    console.log(
+      "Cambiando estado de compra:",
+      Id_SolicitudCompra,
+      Estatus,
+      Mensaje
+    );
     const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
       Id_SolicitudCompra,
       Estatus,
@@ -724,11 +731,12 @@ export const editarMensaje = async ({
   modulo: string;
 }) => {
   try {
-    await axios.put(
-      `/api/Sistema/Mensajes/modificar-mensaje-alerta`,
-      { id_Mensaje, mensaje, modulo }
-    );    
-    
+    await axios.put(`/api/Sistema/Mensajes/modificar-mensaje-alerta`, {
+      id_Mensaje,
+      mensaje,
+      modulo,
+    });
+
     const res = await axios.get(
       `/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada`
     );
@@ -753,5 +761,12 @@ export const addPurchaseOrder = async (data: Root) => {
     Id_SolicitudCompra,
     OrdenCompra,
   });
+  return res.data;
+};
+
+export const getPurchaseOrder = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-orden-compra?${paramUrl}`
+  );
   return res.data;
 };

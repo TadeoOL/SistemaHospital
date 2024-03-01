@@ -21,8 +21,7 @@ import { login } from "../../api/api.routes";
 import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
 import { toast } from "react-toastify";
-import "./LoginComponent.css"
-import { useTheme } from "@mui/material/styles";
+import "./LoginComponent.css";
 interface ILogin {
   userName: string;
   password: string;
@@ -34,7 +33,6 @@ export const LoginComponent = () => {
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
-  const theme = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -60,12 +58,10 @@ export const LoginComponent = () => {
     } catch (error) {
       console.log(error);
       toast.error("Credenciales incorrectas!");
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
-
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passwordValue = e.target.value;
@@ -76,7 +72,7 @@ export const LoginComponent = () => {
   return (
     <Box>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack sx={{ }} spacing={3} className="container">
+        <Stack sx={{}} spacing={3} className="container">
           <Typography fontWeight={700} fontSize={24}>
             Iniciar sesión
           </Typography>
@@ -84,7 +80,6 @@ export const LoginComponent = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              
             }}
             spacing={2}
           >
@@ -93,7 +88,6 @@ export const LoginComponent = () => {
               <Tab label="Recuperar Usuario" value="" />
             </Tabs>
             <TextField
-              
               error={!!errors.userName}
               helperText={errors?.userName?.message}
               {...register("userName")}
@@ -128,21 +122,25 @@ export const LoginComponent = () => {
             />
           </Stack>
           <Button
-          fullWidth
+            fullWidth
             type="submit"
             sx={{
               bgcolor: "#023e8a",
               "&:hover": { backgroundColor: "#03045e" },
             }}
           >
-            {!isLoading?<Typography
-              color="white"
-              fontWeight={500}
-              fontSize={14}
-              sx={{ mt: "2%", mb: "2%" }}
-            >
-              Iniciar sesion
-            </Typography>:<CircularProgress />}
+            {!isLoading ? (
+              <Typography
+                color="white"
+                fontWeight={500}
+                fontSize={14}
+                sx={{ mt: "2%", mb: "2%" }}
+              >
+                Iniciar sesion
+              </Typography>
+            ) : (
+              <CircularProgress />
+            )}
           </Button>
         </Stack>
       </form>

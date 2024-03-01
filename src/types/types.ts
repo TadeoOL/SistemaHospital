@@ -127,7 +127,7 @@ export interface IWarehouse {
   descripcion: string;
 }
 
-export enum Status {
+export enum StatusPurchaseRequest {
   "Cancelado" = 0,
   "Necesita autorización" = 1,
   "Necesita licitación" = 2,
@@ -141,7 +141,7 @@ export enum Status {
 export interface IPurchase {
   id_articulo: string;
   articulo: IArticle;
-  estatus: Status;
+  estatus: StatusPurchaseRequest;
   cantidad: number;
 }
 
@@ -225,4 +225,32 @@ export interface OrdenCompraArticulo {
   Id_Articulo: string;
   Cantidad: number;
   PrecioProveedor: number;
+}
+
+enum ConceptPayment {
+  "Contado" = 0,
+  "Credito" = 1,
+}
+
+export interface IPurchaseOrder {
+  id_OrdenCompra: string;
+  conceptoPago: ConceptPayment;
+  estatus: StatusPurchaseOrder;
+  usuarioSolicitado: string;
+  fechaSolicitud: string;
+  folioExtension: string;
+  ordenCompraArticulo: {
+    cantidad: number;
+    precioProveedor: number;
+    id_OrdenCompraArticulo: string;
+    id_Articulo: string;
+    nombre: string;
+  }[];
+  precioTotalOrden: number;
+  proveedor: { id_Proveedor: string; nombre: string };
+}
+
+export enum StatusPurchaseOrder {
+  "Orden de compra cancelada" = 0,
+  "Orden de compra creada" = 1,
 }

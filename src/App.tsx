@@ -21,6 +21,7 @@ import { PurchaseAuthorizationView } from "./views/Purchase/PurchaseAuthorizatio
 import { PurchaseRequestCard } from "./components/Purchase/PurchaseRequest/PurchaseRequestCard";
 import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuthPurchase";
 import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
+import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
 
 function App() {
   return (
@@ -46,7 +47,7 @@ function App() {
                 path="productos-solicitados-orden-compra"
                 element={<PurchaseOrderRequest />}
               />
-              <Route path="ordenes-compra" element={<h1>holaaa</h1>} />
+              <Route path="ordenes-compra" element={<PurchaseOrder />} />
             </Route>
             <Route path="/compras/categorias" element={<CategoryView />}>
               <Route path="categoria" element={<Category />} />

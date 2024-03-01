@@ -85,10 +85,10 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     try {
       await addNewArticle(data);
       setHandleChangeArticle(!handleChangeArticle);
-      toast.success("Categoría creada con éxito");
+      toast.success("Articulo creado con éxito!");
       open(false);
     } catch (error) {
-      toast.error("Error al crear la categoría");
+      toast.error("Error al crear el articulo!");
     }
   };
 

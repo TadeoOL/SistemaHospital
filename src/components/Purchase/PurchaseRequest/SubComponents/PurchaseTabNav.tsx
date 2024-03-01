@@ -15,6 +15,7 @@ export const PurchaseTabNav = () => {
   );
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    event.stopPropagation();
     setTabValue(newValue);
   };
 

@@ -517,6 +517,7 @@ const AddMoreArticlesTable = () => {
   );
 
   const handlePageChange = useCallback((event: any, value: any) => {
+    event.stopPropagation();
     setPageIndex(value);
   }, []);
 
