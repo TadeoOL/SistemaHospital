@@ -23,7 +23,7 @@ import {
   addPurchaseOrder,
   getProviderQuotePdf,
 } from "../../../../api/api.routes";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
 import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
@@ -60,22 +60,15 @@ export const MatchProvidersAndArticles = (
   props: MatchProvidersAndArticlesProps
 ) => {
   const { setOpen, folio } = props;
-  const {
-    purchaseRequestData,
-    formattedData,
-    setFormattedData,
-    purchaseOrderMatched,
-    setPurchaseOrderMatched,
-  } = useMatchProvidersAndArticles(
-    (state) => ({
-      purchaseRequestData: state.purchaseRequestData,
-      formattedData: state.formattedData,
-      setFormattedData: state.setFormattedData,
-      purchaseOrderMatched: state.purchaseOrderMatched,
-      setPurchaseOrderMatched: state.setPurchaseOrderMatched,
-    }),
-    shallow
-  );
+  const { purchaseRequestData, purchaseOrderMatched, setPurchaseOrderMatched } =
+    useMatchProvidersAndArticles(
+      (state) => ({
+        purchaseRequestData: state.purchaseRequestData,
+        purchaseOrderMatched: state.purchaseOrderMatched,
+        setPurchaseOrderMatched: state.setPurchaseOrderMatched,
+      }),
+      shallow
+    );
   const [providers, setProviders] = useState<any[] | undefined>(
     purchaseRequestData?.solicitudProveedor
   );
@@ -376,7 +369,6 @@ export const MatchProvidersAndArticles = (
                           </TableCell>
                           <TableCell>Nombre</TableCell>
                           <TableCell>Cantidad</TableCell>
-                          <TableCell>Precio</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -394,7 +386,6 @@ export const MatchProvidersAndArticles = (
                             </TableCell>
                             <TableCell>{i.articulo.nombre}</TableCell>
                             <TableCell>{i.cantidadCompra}</TableCell>
-                            <TableCell>{i.precioProveedor}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

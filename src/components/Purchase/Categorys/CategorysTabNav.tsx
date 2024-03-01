@@ -11,6 +11,7 @@ export const CategorysTabNav = () => {
 
   const handleChange = useCallback(
     (event: React.SyntheticEvent, newValue: number) => {
+      event.stopPropagation();
       setTabValue(newValue);
     },
     []

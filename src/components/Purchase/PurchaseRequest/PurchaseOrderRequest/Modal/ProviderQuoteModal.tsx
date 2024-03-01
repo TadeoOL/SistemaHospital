@@ -86,7 +86,7 @@ const renderStepForm = (
         />
       );
     case 1:
-      return <FillQuoteInformationModal />;
+      return <FillQuoteInformationModal setOpen={open} />;
     case 2:
       return <h1>Generador de orden de compra</h1>;
     default:

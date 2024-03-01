@@ -139,12 +139,13 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
       const idForm = getValues("id");
+      console.log({ data });
       await modifyArticle({ ...data, id: idForm });
       setHandleChangeArticle(!handleChangeArticle);
-      toast.success("Categoría creada con éxito");
+      toast.success("Articulo modificado con éxito!");
       open(false);
     } catch (error) {
-      toast.error("Error al crear la categoría");
+      toast.error("Error al modificar el articulo!");
     }
   };
 

@@ -51,7 +51,6 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
     }
   };
 
-  console.log({ pdf });
   return (
     <>
       <Box sx={style}>

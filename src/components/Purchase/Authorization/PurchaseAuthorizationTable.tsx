@@ -28,7 +28,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Swal from "sweetalert2";
 import { changePurchaseStatus } from "../../../api/api.routes";
-import { Status } from "../../../types/types";
+import { StatusPurchaseRequest } from "../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
 import { useMatchProvidersAndArticles } from "../../../store/purchaseStore/matchProvidersAndArticles";
@@ -154,7 +154,7 @@ export const PurchaseAuthorizationTable = () => {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>Orden de compra</TableCell>
+                <TableCell>Solicitud de orden de compra</TableCell>
                 <TableCell>Creado por</TableCell>
                 <TableCell>Proveedor</TableCell>
                 <TableCell>Fecha de solicitud</TableCell>
@@ -212,9 +212,12 @@ export const PurchaseAuthorizationTable = () => {
                           {auth.fechaSolicitud.split("T")[0]}
                         </TableCell>
                         <TableCell>${auth.precioSolicitud}</TableCell>
-                        <TableCell>{Status[auth.estatus]}</TableCell>
                         <TableCell>
-                          {Status[auth.estatus] === "Cancelado" ? (
+                          {StatusPurchaseRequest[auth.estatus]}
+                        </TableCell>
+                        <TableCell>
+                          {StatusPurchaseRequest[auth.estatus] ===
+                          "Cancelado" ? (
                             <Tooltip
                               title={
                                 <Typography variant="body1">
@@ -224,7 +227,7 @@ export const PurchaseAuthorizationTable = () => {
                             >
                               <Info sx={{ color: "gray" }} />
                             </Tooltip>
-                          ) : Status[auth.estatus] ===
+                          ) : StatusPurchaseRequest[auth.estatus] ===
                             "Selección de productos por proveedor" ? (
                             <Tooltip title="Seleccionar los productos con el proveedor">
                               <IconButton
@@ -287,23 +290,19 @@ export const PurchaseAuthorizationTable = () => {
                           <Table>
                             <TableHead>
                               <TableRow>
-                                <TableCell>Articulo</TableCell>
-                                <TableCell>Cantidad</TableCell>
-                                <TableCell>Precio</TableCell>
+                                <TableCell align="center">Articulo</TableCell>
+                                <TableCell align="center">Cantidad</TableCell>
                               </TableRow>
                             </TableHead>
                             {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
                               (request) => (
                                 <TableBody key={request.id}>
                                   <TableRow>
-                                    <TableCell>
+                                    <TableCell align="center">
                                       {request.articulo.nombre}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell align="center">
                                       {request.cantidadCompra}
-                                    </TableCell>
-                                    <TableCell>
-                                      ${request.precioProveedor}
                                     </TableCell>
                                   </TableRow>
                                 </TableBody>

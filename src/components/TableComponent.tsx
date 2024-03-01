@@ -58,6 +58,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
 
   const handlePageChange = useCallback(
     (event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
+      event?.stopPropagation();
       setPageIndex(value);
     },
     []

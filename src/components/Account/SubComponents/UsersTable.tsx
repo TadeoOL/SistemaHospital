@@ -129,6 +129,7 @@ export const UsersTable = () => {
   }, [pageSize, enabled, search, pageIndex, userDisabled, profile, newUser]);
 
   const handlePageChange = useCallback((event: any, value: any) => {
+    event.stopPropagation();
     setPageIndex(value);
   }, []);
 

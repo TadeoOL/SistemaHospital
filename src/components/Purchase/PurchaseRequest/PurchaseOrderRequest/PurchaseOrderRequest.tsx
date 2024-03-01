@@ -30,7 +30,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { PurchaseOrderModal } from "./Modal/PurchaseOrderModal";
 import { ProviderQuoteModal } from "./Modal/ProviderQuoteModal";
-import { Status } from "../../../../types/types";
+import { StatusPurchaseRequest } from "../../../../types/types";
 import { usePurchaseOrderRequestModals } from "../../../../store/purchaseStore/purchaseOrderRequestModals";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { AddMoreProviders } from "./Modal/AddMoreProviders";
@@ -154,7 +154,7 @@ export const PurchaseOrderRequest = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Orden de compra</TableCell>
+                  <TableCell>Solicitud de orden de compra</TableCell>
                   <TableCell>Creado por</TableCell>
                   <TableCell>Proveedor</TableCell>
                   <TableCell>Fecha de solicitud</TableCell>
@@ -210,9 +210,11 @@ export const PurchaseOrderRequest = () => {
                             {auth.fechaSolicitud.split("T")[0]}
                           </TableCell>
                           <TableCell>${auth.precioSolicitud}</TableCell>
-                          <TableCell>{Status[auth.estatus]}</TableCell>
                           <TableCell>
-                            {Status[auth.estatus] ===
+                            {StatusPurchaseRequest[auth.estatus]}
+                          </TableCell>
+                          <TableCell>
+                            {StatusPurchaseRequest[auth.estatus] ===
                             "Necesita elegir proveedor" ? (
                               <Tooltip title="Seleccionar proveedores">
                                 <IconButton
@@ -281,23 +283,19 @@ export const PurchaseOrderRequest = () => {
                             <Table>
                               <TableHead>
                                 <TableRow>
-                                  <TableCell>Articulo</TableCell>
-                                  <TableCell>Cantidad</TableCell>
-                                  <TableCell>Precio</TableCell>
+                                  <TableCell align="center">Articulo</TableCell>
+                                  <TableCell align="center">Cantidad</TableCell>
                                 </TableRow>
                               </TableHead>
                               <TableBody>
                                 {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
                                   (request) => (
                                     <TableRow key={request.id}>
-                                      <TableCell>
+                                      <TableCell align="center">
                                         {request.articulo.nombre}
                                       </TableCell>
-                                      <TableCell>
+                                      <TableCell align="center">
                                         {request.cantidadCompra}
-                                      </TableCell>
-                                      <TableCell>
-                                        ${request.precioProveedor}
                                       </TableCell>
                                     </TableRow>
                                   )

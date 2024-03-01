@@ -176,6 +176,7 @@ export const ArticleTable = () => {
 
   const handlePageChange = useCallback(
     (event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
+      event?.stopPropagation();
       setPageIndex(value);
     },
     []

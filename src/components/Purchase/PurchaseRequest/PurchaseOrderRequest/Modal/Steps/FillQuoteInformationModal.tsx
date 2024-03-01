@@ -18,6 +18,9 @@ import { shallow } from "zustand/shallow";
 import { useGetProvider } from "../../../../../../hooks/useGetProvider";
 import { KeyboardReturn, Save } from "@mui/icons-material";
 import { useState } from "react";
+import { addPurchaseOrder } from "../../../../../../api/api.routes";
+import { toast } from "react-toastify";
+import { usePurchaseOrderRequestPagination } from "../../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 
 const styleInput = {
   paddingTop: "0.4rem",
@@ -31,7 +34,7 @@ type Articles = {
   articulo: { id_Articulo: string; nombre: string };
 };
 
-export const FillQuoteInformationModal = () => {
+export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
   const { step, setStep, providerSelected, dataOrderRequest } =
     usePurchaseOrderRequestModals(
       (state) => ({
@@ -43,14 +46,13 @@ export const FillQuoteInformationModal = () => {
       shallow
     );
   const { isLoading, providerData } = useGetProvider(providerSelected);
-  const [articles, setArticles] = useState<Articles[] | []>(
-    dataOrderRequest
-      ? dataOrderRequest.solicitudProveedor[0].solicitudCompraArticulos
-      : []
-  );
+  const articles: Articles[] | [] = dataOrderRequest
+    ? dataOrderRequest.solicitudProveedor[0].solicitudCompraArticulos
+    : [];
 
   const [precios, setPrecios] = useState<{ [key: string]: string }>({});
   const [errores, setErrores] = useState<{ [key: string]: string }>({});
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
 
   const handlePrecioChange = (articleId: string, precio: string) => {
     if (precio.trim() !== "") {
@@ -68,10 +70,48 @@ export const FillQuoteInformationModal = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!dataOrderRequest) return;
+    if (!articles) return;
     const preciosCompletos = Object.keys(precios).length === articles.length;
     if (preciosCompletos) {
-      console.log("Todos los precios fueron ingresados:", precios);
+      setIsLoadingSubmit(true);
+      let object: any[] = [];
+      for (let i = 0; i < Object.keys(precios).length; i++) {
+        const articleId = Object.keys(precios)[i];
+        const articleRes = articles.find(
+          (a) => a.articulo.id_Articulo === Object.keys(precios)[i]
+        );
+        const value = Object.values(precios)[i];
+
+        object.push({
+          id_Articulo: articleId,
+          cantidad: articleRes ? articleRes.cantidadCompra : 0,
+          precioProveedor: parseFloat(value),
+        });
+      }
+      console.log({ object });
+      const registerOrderPurchaseObject = {
+        Id_SolicitudCompra: dataOrderRequest.id_SolicitudCompra,
+        OrdenCompra: dataOrderRequest.solicitudProveedor.map((prov) => ({
+          Id_Proveedor: prov.proveedor.id_Proveedor,
+          OrdenCompraArticulo: object,
+        })),
+      };
+
+      console.log({ registerOrderPurchaseObject });
+
+      try {
+        await addPurchaseOrder(registerOrderPurchaseObject);
+        toast.success("Orden de compra creada con éxito!");
+        usePurchaseOrderRequestPagination.getState().fetch();
+        props.setOpen(false);
+      } catch (error) {
+        console.log(error);
+        toast.error("Error al crear la orden de compra!");
+      } finally {
+        setIsLoadingSubmit(false);
+      }
     } else {
       const nuevosErrores: { [key: string]: string } = {};
       articles.forEach((a) => {
@@ -82,10 +122,6 @@ export const FillQuoteInformationModal = () => {
       });
       setErrores(nuevosErrores);
     }
-  };
-
-  const handleNextStep = () => {
-    setStep(step + 1);
   };
 
   const handlePrevStep = () => {
@@ -204,9 +240,12 @@ export const FillQuoteInformationModal = () => {
           <Button
             startIcon={<Save />}
             variant="contained"
-            onClick={() => handleSubmit()}
+            onClick={() => {
+              handleSubmit();
+            }}
+            disabled={isLoadingSubmit}
           >
-            Generar
+            {isLoadingSubmit ? <CircularProgress size={14} /> : "Generar"}
           </Button>
         </Box>
       </Box>

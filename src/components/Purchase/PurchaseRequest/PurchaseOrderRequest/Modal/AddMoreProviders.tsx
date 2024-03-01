@@ -14,10 +14,7 @@ import { useGetAllProviders } from "../../../../../hooks/useGetAllProviders";
 import { useEffect, useState } from "react";
 import { Cancel } from "@mui/icons-material";
 import { toast } from "react-toastify";
-import {
-  changePurchaseStatus,
-  selectManyProvidersForTender,
-} from "../../../../../api/api.routes";
+import { selectManyProvidersForTender } from "../../../../../api/api.routes";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 
 const style = {
