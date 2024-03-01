@@ -26,7 +26,7 @@ export const PurchaseRequestCard = () => {
         }}
       >
         <>
-          <RequestPurchasedOrderModal open={setHandleOpen} />
+          <RequestPurchasedOrderModal open={setHandleOpen} isAlert={true} />
         </>
       </Modal>
     </>
