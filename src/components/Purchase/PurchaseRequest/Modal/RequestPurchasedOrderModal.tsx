@@ -21,6 +21,7 @@ import {
   Paper,
   TablePagination,
   Chip,
+  Backdrop,
 } from "@mui/material";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { IArticle } from "../../../../types/types";
@@ -44,6 +45,7 @@ import {
   addArticlesPrice,
   isValidInteger,
 } from "../../../../utils/functions/dataUtils";
+import { useGetAlmacenes } from "../../../../hooks/useGetAlmacenes";
 
 const style = {
   position: "absolute",
@@ -165,26 +167,40 @@ const stepsForm = [
 ];
 interface RequestPurchasedOrderModalProps {
   open: Function;
+  isAlert: boolean;
 }
 
 export const RequestPurchasedOrderModal = ({
   open,
+  isAlert,
 }: RequestPurchasedOrderModalProps) => {
   const {
     step,
     isAddingMoreArticles,
     setIsAddingMoreArticles,
     isManyProviders,
+    warehouseSelected,
+    setWarehouseSelected,
   } = useArticlesAlertPagination(
     (state) => ({
       step: state.step,
       isAddingMoreArticles: state.isAddingMoreArticles,
       setIsAddingMoreArticles: state.setIsAddingMoreArticles,
       isManyProviders: state.isManyProviders,
+      warehouseSelected: state.warehouseSelected,
+      setWarehouseSelected: state.setWarehouseSelected,
     }),
     shallow
   );
+  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
 
+  console.log({ almacenes });
+  if (isLoadingAlmacenes)
+    return (
+      <Backdrop open>
+        <CircularProgress />
+      </Backdrop>
+    );
   return (
     <Box sx={{ ...style, ...styleBar }}>
       <HeaderModal
@@ -219,18 +235,48 @@ export const RequestPurchasedOrderModal = ({
                 alignItems: "center",
               }}
             >
-              <Typography fontSize={20} fontWeight={700}>
-                {!isAddingMoreArticles
-                  ? "Productos seleccionados"
-                  : "Todos los productos"}
-              </Typography>
-              <Button
-                disabled={isAddingMoreArticles}
-                variant="contained"
-                onClick={() => setIsAddingMoreArticles(!isAddingMoreArticles)}
-              >
-                Agregar mas productos
-              </Button>
+              <Stack sx={{ display: "flex", flex: 1 }}>
+                <Stack
+                  sx={{
+                    flexDirection: "row",
+                    display: "flex",
+                    flex: 1,
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography fontSize={20} fontWeight={700}>
+                    {!isAddingMoreArticles
+                      ? "Productos seleccionados"
+                      : "Todos los productos"}
+                  </Typography>
+                  <Button
+                    size="small"
+                    disabled={isAddingMoreArticles}
+                    variant="contained"
+                    onClick={() =>
+                      setIsAddingMoreArticles(!isAddingMoreArticles)
+                    }
+                  >
+                    Agregar mas productos
+                  </Button>
+                </Stack>
+                {!isAlert && (
+                  <TextField
+                    size="small"
+                    label="Selecciona un almacén"
+                    select
+                    sx={{ maxWidth: 300 }}
+                    onChange={(e) => setWarehouseSelected(e.target.value)}
+                    value={warehouseSelected}
+                  >
+                    {almacenes.map((a) => (
+                      <MenuItem key={a.id} value={a.id}>
+                        {a.nombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              </Stack>
             </Stack>
             <Box>
               {!isAddingMoreArticles ? (
@@ -297,21 +343,12 @@ const TableComponent = () => {
     });
   };
 
-  const simulateAsyncCall = () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve("Llamada asincronía completada");
-      }, 1000);
-    });
-  };
-
   const handleNextStep = async () => {
     try {
       setIsLoading(true);
       const { cantidadOrdenDirecta, cantidadLicitacionDirecta } =
         await getPurchaseConfig();
       const sumaPrecios = addArticlesPrice(articlesPurchased);
-      await simulateAsyncCall();
       if (sumaPrecios >= cantidadLicitacionDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
       } else if (sumaPrecios >= cantidadOrdenDirecta) {

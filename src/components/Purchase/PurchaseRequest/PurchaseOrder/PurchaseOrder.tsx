@@ -1,10 +1,12 @@
 import {
   Box,
+  Button,
   Card,
   Chip,
   CircularProgress,
   Collapse,
   IconButton,
+  Modal,
   //   Modal,
   Stack,
   Table,
@@ -24,6 +26,8 @@ import { SearchBar } from "../../../Inputs/SearchBar";
 import { StatusPurchaseOrder } from "../../../../types/types";
 // import { usePurchaseOrderRequestModals } from "../../../../store/purchaseStore/purchaseOrderRequestModals";
 import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
+import { RequestPurchasedOrderModal } from "../Modal/RequestPurchasedOrderModal";
+import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 
 // const handleRemoveOrder = async (idOrdenCompra: string) => {
 //   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -115,6 +119,19 @@ export const PurchaseOrder = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const [openNewOrderPurchase, setOpenNewOrderPurchase] = useState(false);
+
+  useEffect(() => {
+    if (openNewOrderPurchase) return;
+    useArticlesAlertPagination.setState({
+      step: 0,
+      checkedArticles: [],
+      alertArticlesChecked: [],
+      articlesPurchased: [],
+      warehouseSelected: "",
+    });
+  }, [openNewOrderPurchase]);
+
   //   const [openPurchaseOrder, setOpenPurchaseOrder] = useState(false);
   //   const [openProviderQuote, setOpenProviderQuote] = useState(false);
   //   const [openAddMoreProviders, setOpenAddMoreProviders] = useState(false);
@@ -138,6 +155,14 @@ export const PurchaseOrder = () => {
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
+        <Box sx={{ display: "flex", flex: 1, justifyContent: "flex-end" }}>
+          <Button
+            variant="contained"
+            onClick={() => setOpenNewOrderPurchase(true)}
+          >
+            Nueva orden de compra
+          </Button>
+        </Box>
         <SearchBar title="Buscar orden de compra..." searchState={setSearch} />
         <Card sx={{ overflowX: "auto" }}>
           <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
@@ -290,6 +315,17 @@ export const PurchaseOrder = () => {
           </TableContainer>
         </Card>
       </Stack>
+      <Modal
+        open={openNewOrderPurchase}
+        onClose={() => setOpenNewOrderPurchase(false)}
+      >
+        <>
+          <RequestPurchasedOrderModal
+            open={setOpenNewOrderPurchase}
+            isAlert={false}
+          />
+        </>
+      </Modal>
     </>
   );
 };
