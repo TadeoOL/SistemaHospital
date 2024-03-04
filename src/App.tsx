@@ -27,6 +27,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardView />} />
@@ -70,6 +71,7 @@ function App() {
             />
           </Route>
         </Route>
+        {/* Rutas publicas */}
         <Route element={<LoginRoute />}>
           <Route path="/login" element={<LoginView />} />
         </Route>

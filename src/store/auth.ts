@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import { IUser } from "../types/types";
 
 interface State {
-  token: string;
+  token: string | null;
   profile: IUser | null;
   isAuth: boolean;
 }
@@ -17,9 +17,10 @@ interface Action {
 export const useAuthStore = create(
   persist<State & Action>(
     (set) => ({
-      token: "",
+      token: null,
       isAuth: false,
-      setToken: (state: string) => set(() => ({ token: state, isAuth: true })),
+      setToken: (state: string | null) =>
+        set(() => ({ token: state, isAuth: true })),
       profile: null,
       setProfile: (state: IUser | null) => set(() => ({ profile: state })),
       logout: () => set(() => ({ token: "", isAuth: false, profile: null })),
