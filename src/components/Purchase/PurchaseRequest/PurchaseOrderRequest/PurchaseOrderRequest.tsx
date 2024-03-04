@@ -140,6 +140,9 @@ export const PurchaseOrderRequest = () => {
       step: 0,
       providerSelected: "",
       dataOrderRequest: null,
+      precios: {},
+      registerOrderPurchase: null,
+      provider: null,
     });
   }, [openProviderQuote]);
 

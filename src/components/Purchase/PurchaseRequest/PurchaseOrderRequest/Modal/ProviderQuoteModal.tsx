@@ -38,6 +38,7 @@ import { shallow } from "zustand/shallow";
 import { Provider } from "../../../../../types/types";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 import { useDropzone } from "react-dropzone";
+import { OrderSummaryModal } from "./Steps/OrderSummaryModal";
 
 const style = {
   position: "absolute",
@@ -86,9 +87,9 @@ const renderStepForm = (
         />
       );
     case 1:
-      return <FillQuoteInformationModal setOpen={open} />;
+      return <FillQuoteInformationModal />;
     case 2:
-      return <h1>Generador de orden de compra</h1>;
+      return <OrderSummaryModal setOpen={open} />;
     default:
       break;
   }
