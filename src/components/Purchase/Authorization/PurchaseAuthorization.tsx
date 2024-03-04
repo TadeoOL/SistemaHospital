@@ -16,8 +16,7 @@ export const PurchaseAuthorization = () => {
       <Box
         sx={{
           boxShadow: 10,
-          borderBottomLeftRadius: 10,
-          borderBottomRightRadius: 10,
+          borderRadius: 2,
           bgcolor: "white",
         }}
       >

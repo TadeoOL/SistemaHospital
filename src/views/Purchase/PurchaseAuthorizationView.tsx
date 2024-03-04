@@ -3,7 +3,7 @@ import { PurchaseAuthorization } from "../../components/Purchase/Authorization/P
 
 export const PurchaseAuthorizationView = () => {
   return (
-    <Box sx={{ py: 4 }}>
+    <Box sx={{ flexGrow: 1, p: 3 }}>
       <Container maxWidth="xl">
         <PurchaseAuthorization />
       </Container>
