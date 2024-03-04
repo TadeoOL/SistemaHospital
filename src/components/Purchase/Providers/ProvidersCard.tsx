@@ -19,7 +19,6 @@ export const ProvidersCard = () => {
         sx={{
           boxShadow: 10,
           borderRadius: 2,
-          mt: 4,
           overflowX: "auto",
           bgcolor: "white",
         }}
