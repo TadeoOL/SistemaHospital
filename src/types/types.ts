@@ -205,7 +205,7 @@ export type Provider = {
   proveedor: { id_Proveedor: string; nombre: string };
 };
 
-export interface Root {
+export interface IRegisterOrderPurchase {
   Id_SolicitudCompra: string;
   OrdenCompra: OrdenCompra[];
 }
@@ -218,6 +218,8 @@ export interface OrdenCompra {
 export interface OrdenCompraArticulo {
   Id_Articulo: string;
   Cantidad: number;
+  precioProveedor: number;
+  nombre: string;
 }
 
 enum ConceptPayment {

@@ -52,13 +52,12 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: 380, md: 600, lg: 800 },
+  width: { xs: 380, md: 600, lg: 900 },
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
   flexDirection: "column",
   maxHeight: { xs: 600 },
-  overflowY: "auto",
 };
 
 const styleBar = {
@@ -194,6 +193,10 @@ export const RequestPurchasedOrderModal = ({
   );
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
 
+  useEffect(() => {
+    if (!isAlert) return setIsAddingMoreArticles(true);
+  }, [isAlert]);
+
   console.log({ almacenes });
   if (isLoadingAlmacenes)
     return (
@@ -209,7 +212,10 @@ export const RequestPurchasedOrderModal = ({
           step === 0 ? "Solicitar de orden de compra" : "Seleccionar proveedor"
         }
       />
-      <Stack spacing={4} sx={{ p: 3, px: 6, bgcolor: "background.paper" }}>
+      <Stack
+        spacing={4}
+        sx={{ p: 3, px: 6, bgcolor: "background.paper", overflowY: "auto" }}
+      >
         <Stepper activeStep={step}>
           {stepsForm.map((step) => (
             <Step key={step.id}>
@@ -626,8 +632,6 @@ const AddMoreArticlesTable = () => {
         sx={{
           alignItems: "start",
           justifyContent: "flex-start",
-          bgcolor: "white",
-          overflowY: "auto",
         }}
       >
         <SearchBar
@@ -635,10 +639,8 @@ const AddMoreArticlesTable = () => {
           searchState={setSearch}
           title="Buscar articulo..."
         />
-        <Box sx={{ overflowX: "auto" }}>
-          <Box
-            sx={{ minWidth: { lg: "700px", md: "500px" }, maxHeight: "300px" }}
-          >
+        <Box sx={{ overflow: "auto" }}>
+          <Box sx={{ minWidth: { lg: 800, md: "500px" }, maxHeight: "300px" }}>
             <Card>
               <Table stickyHeader>
                 <TableHead>
@@ -740,11 +742,13 @@ const AddMoreArticlesTable = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           position: "sticky",
+          display: "flex",
+          flex: 1,
           bottom: 0,
-          zIndex: 1,
+          zIndex: 3,
           backgroundColor: "white",
-          pb: 1,
           mt: 2,
+          p: 2,
         }}
       >
         <Button
