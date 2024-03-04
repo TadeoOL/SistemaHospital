@@ -1,12 +1,8 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 import { SearchBar } from "../../Inputs/SearchBar";
 import { PurchaseAuthorizationTable } from "./PurchaseAuthorizationTable";
-import { PurchaseConfigModal } from "./Modal/PurchaseConfigModal";
 
 export const PurchaseAuthorization = () => {
-  const [open, setOpen] = useState(false);
-
   //   const { enabled, setEnabled, setSearch } = useExistingArticlePagination(
   //     (state) => ({
   //       enabled: state.enabled,
@@ -38,27 +34,11 @@ export const PurchaseAuthorization = () => {
           <Typography fontWeight={700} fontSize={24}>
             Autorización de ordenes de compra
           </Typography>
-          <Box>
-            <Button variant="contained" onClick={() => setOpen(true)}>
-              Configuración ordenes de compra
-            </Button>
-          </Box>
         </Stack>
         <SearchBar title="Busca la orden de compra..." searchState={() => {}} />
         <Divider sx={{ my: 1 }} />
         <PurchaseAuthorizationTable />
       </Box>
-
-      <Modal
-        open={open}
-        onClose={() => {
-          setOpen(false);
-        }}
-      >
-        <>
-          <PurchaseConfigModal open={setOpen} />
-        </>
-      </Modal>
     </>
   );
 };

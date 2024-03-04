@@ -16,18 +16,18 @@ const CustomBreadcrumb = () => {
       <Breadcrumbs aria-label="breadcrumb" sx={{ marginLeft: 10 }}>
         <Link
           underline="hover"
-          sx={{ display: "flex", alignItems: "center" }}
+          sx={{ display: "flex", alignItems: "center", color: "#24282c" }}
           color="inherit"
           href="/"
         >
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-          Modulo
+          <HomeIcon sx={{ mr: 0.5, fontSize: "18px" }} fontSize="inherit" />
+          Módulo
         </Link>
         <Typography
-          sx={{ display: "flex", alignItems: "center" }}
+          sx={{ display: "flex", alignItems: "center", color: "#24282c" }}
           color="text.primary"
         >
-          <GrainIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          <GrainIcon sx={{ mr: 0.5, fontSize: "18px" }} fontSize="inherit" />
           Procesos
         </Typography>
       </Breadcrumbs>

@@ -18,7 +18,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useGetPurchaseConfig } from "../../../../hooks/useGetPurchaseConfig";
 import { useEffect, useState } from "react";
@@ -30,45 +29,41 @@ import { addNewFactorSchema } from "../../../../schema/schemas";
 import { modifyPurchaseConfig } from "../../../../api/api.routes";
 import { isValidInteger } from "../../../../utils/functions/dataUtils";
 
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: { xs: 380, sm: 500, md: 600 },
-  borderRadius: 2,
-  boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
-  maxHeight: { xs: 600 },
-  overflowY: "auto",
-};
+// const style = {
+//   position: "absolute",
+//   top: "50%",
+//   left: "50%",
+//   transform: "translate(-50%, -50%)",
+//   width: { xs: 380, sm: 500, md: 600 },
+//   borderRadius: 2,
+//   boxShadow: 24,
+//   display: "flex",
+//   flexDirection: "column",
+//   maxHeight: { xs: 800 },
+//   overflowY: "auto",
+// };
 
-const styleBar = {
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
-  },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-  },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
-    borderRadius: 10,
-  },
-};
+// const styleBar = {
+//   "&::-webkit-scrollbar": {
+//     width: "0.4em",
+//   },
+//   "&::-webkit-scrollbar-track": {
+//     boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+//     webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+//   },
+//   "&::-webkit-scrollbar-thumb": {
+//     backgroundColor: "rgba(0,0,0,.1)",
+//     outline: "1px solid slategrey",
+//     borderRadius: 10,
+//   },
+// };
 
 const styleInput = {
   paddingTop: "0.4rem",
   paddingBottom: "0.4rem",
 };
 
-interface PurchaseConfigModalProps {
-  open: Function;
-}
-
-export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
+export const PurchaseConfig = () => {
   const { isLoadingPurchaseConfig, config, isError, refetch } =
     useGetPurchaseConfig();
   const [configPurchase, setConfigPurchase] = useState<IPurchaseConfig>();
@@ -84,7 +79,6 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
     setValue(config.cantidadOrdenDirecta.toString());
     setDirectlyTender(config.cantidadLicitacionDirecta.toString());
   }, [isLoadingPurchaseConfig]);
-
   const {
     register,
     handleSubmit,
@@ -210,7 +204,6 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
   };
 
   if (!isLoadingPurchaseConfig && isError) {
-    open(false);
     toast.error("Ha habido un error!");
     return null;
   }
@@ -221,9 +214,29 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
       </Backdrop>
     );
   return (
-    <Box sx={{ ...style, ...styleBar }}>
-      <HeaderModal setOpen={open} title="Configuración de compras" />
-      <Stack sx={{ display: "flex", p: 4, bgcolor: "background.paper" }}>
+    <Box
+      sx={{
+        position: "absolute",
+        top: "54%",
+        left: "53%",
+        transform: "translate(-50%, -50%)",
+        width: { xs: "90%", sm: "70%", md: "80%" },
+        height: "100%",
+        borderRadius: 10,
+        display: "flex",
+        flexDirection: "column",
+        maxHeight: { xs: 600 },
+      }}
+    >
+      <Stack
+        sx={{
+          display: "flex",
+          p: 4,
+          bgcolor: "background.paper",
+          borderRadius: "20px",
+          borderColor: "black",
+        }}
+      >
         <form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
           <Stack
             sx={{

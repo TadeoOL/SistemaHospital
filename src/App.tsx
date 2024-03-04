@@ -22,6 +22,7 @@ import { PurchaseRequestCard } from "./components/Purchase/PurchaseRequest/Purch
 import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuthPurchase";
 import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
 import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
+import { PurchaseConfig } from "./components/Purchase/Authorization/Modal/PurchaseConfig";
 
 function App() {
   return (
@@ -68,6 +69,10 @@ function App() {
             <Route
               path="/programacion/agenda-quirofano"
               element={<ScheduleView />}
+            />
+            <Route
+              path="compras/configuracion-compras"
+              element={<PurchaseConfig />}
             />
           </Route>
         </Route>

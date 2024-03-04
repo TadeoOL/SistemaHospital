@@ -21,7 +21,7 @@ export const DashboardView: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <ModuleCards
-              title="Programacion"
+              title="Programación"
               value="$8k"
               icon={<MonitorHeartIcon />}
             />
@@ -31,7 +31,7 @@ export const DashboardView: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <ModuleCards
-              title="Admision"
+              title="Admisión"
               value="$76k"
               icon={<SupervisorAccountIcon />}
             />

@@ -6,6 +6,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import RuleIcon from "@mui/icons-material/Rule";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 export const ModuleItems: IModuleItems[] = [
   {
@@ -50,5 +51,10 @@ export const ModuleItems: IModuleItems[] = [
     title: "Proveedores",
     path: "/compras/proveedores",
     icon: <PermContactCalendarIcon sx={{ color: "#fff" }} />,
+  },
+  {
+    title: "Configuración",
+    path: "/compras/configuracion-compras",
+    icon: <SettingsIcon sx={{ color: "#fff" }} />,
   },
 ];
