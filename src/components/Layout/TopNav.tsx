@@ -3,6 +3,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import {
   Avatar,
   Badge,
+  Popover,
   Stack,
   SvgIcon,
   Tooltip,
@@ -17,23 +18,74 @@ import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
 import { useAuthStore } from "../../store/auth";
 import homelogo from "../../assets/homeLogoHSB.svg";
+import {
+  MensajeInicio,
+  MensajeOrdenesCompra,
+  MensajeProdcutosStockBajo,
+  MensajeArticulos,
+  MensajeCategorias,
+  MensajeProductosSolicitados,
+  MensajeProductosEspera,
+  MensajeSubCategorias,
+  MensajeArticuloExistente,
+  MensajeAlmacen,
+  MensajeAuthCompras,
+  MensajeProveedores,
+  MensajeConfig,
+} from "./Help/HelpMessage";
 
-export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
-  toggleSidebar,
-}) => {
+export const TopNav: React.FC<{
+  toggleSidebar: () => void;
+  currentPage: string;
+}> = ({ toggleSidebar, currentPage }) => {
   const profile = useAuthStore((state) => state.profile);
   const isOpen = useAppNavStore((state) => state.open);
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const [notificationsPopoverOpen, setNotificationsPopoverOpen] =
+    useState(false);
+
   const handleOpen = useCallback(() => {
     setOpen(true);
   }, []);
+
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
+
+  const handleNotificationsButtonClick = () => {
+    setNotificationsPopoverOpen(!notificationsPopoverOpen);
+  };
+
+  const handleNotificationsPopoverClose = () => {
+    setNotificationsPopoverOpen(false);
+  };
+
   const SIDE_NAV_WIDTH = 80;
   const theme = useTheme();
   const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
+
+  const messagesByLink: { [key: string]: React.ReactNode } = {
+    "/": <MensajeInicio />,
+    "/compras/solicitud-compras/ordenes-compra": <MensajeOrdenesCompra />,
+    "/compras/solicitud-compras/productos-stock-bajo": (
+      <MensajeProdcutosStockBajo />
+    ),
+    "/compras/solicitud-compras/productos-solicitados-orden-compra": (
+      <MensajeProductosSolicitados />
+    ),
+    "/compras/solicitud-compras/productos-espera-autorizacion": (
+      <MensajeProductosEspera />
+    ),
+    "/compras/categorias/categoria": <MensajeCategorias />,
+    "/compras/categorias/subcategoria": <MensajeSubCategorias />,
+    "/compras/articulos/articulo": <MensajeArticulos />,
+    "/compras/articulos/articulo-existente": <MensajeArticuloExistente />,
+    "/compras/almacen": <MensajeAlmacen />,
+    "/compras/autorizacion-compras": <MensajeAuthCompras />,
+    "/compras/proveedores": <MensajeProveedores />,
+    "/compras/configuracion-compras": <MensajeConfig />,
+  };
 
   return (
     <>
@@ -82,9 +134,24 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
               mr: 2,
             }}
           >
-            <IconButton>
+            <IconButton onClick={handleNotificationsButtonClick}>
               <HelpIcon />
             </IconButton>
+            <Popover
+              open={notificationsPopoverOpen}
+              anchorEl={anchorRef.current}
+              onClose={handleNotificationsPopoverClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+            >
+              <Box p={2}>{messagesByLink[currentPage]}</Box>
+            </Popover>
             <Tooltip title="Notifications">
               <IconButton>
                 <Badge badgeContent={4} color="success" variant="dot">

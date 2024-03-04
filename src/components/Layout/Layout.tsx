@@ -4,6 +4,8 @@ import { SideNav } from "./SideNav";
 import { Outlet } from "react-router-dom";
 import { useAppNavStore } from "../../store/appNav";
 import CustomBreadcrumb from "./CustomBreadcrumb";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const SIDE_NAV_WIDTH = 110;
 
@@ -33,6 +35,12 @@ const LayoutContainer = styled("div")(({ theme }) => ({
 export const Layout: React.FC = () => {
   const isOpen = useAppNavStore((state) => state.open);
   const setIsOpen = useAppNavStore((state) => state.setOpen);
+  const location = useLocation();
+  const [currentPage, setCurrentPage] = useState<string>(location.pathname);
+
+  useEffect(() => {
+    setCurrentPage(location.pathname);
+  }, [location.pathname]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -40,7 +48,7 @@ export const Layout: React.FC = () => {
 
   return (
     <>
-      <TopNav toggleSidebar={toggleSidebar} />
+      <TopNav toggleSidebar={toggleSidebar} currentPage={currentPage} />
       <CustomBreadcrumb />
       <SideNav />
       <LayoutRoot>
