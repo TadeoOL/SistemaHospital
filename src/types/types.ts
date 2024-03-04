@@ -218,8 +218,8 @@ export interface OrdenCompra {
 export interface OrdenCompraArticulo {
   Id_Articulo: string;
   Cantidad: number;
-  precioProveedor: number;
-  nombre: string;
+  precioProveedor?: number;
+  nombre?: string;
 }
 
 enum ConceptPayment {
