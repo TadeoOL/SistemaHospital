@@ -22,7 +22,6 @@ import {
   deleteProviderQuote,
   getProviderQuotePdf,
 } from "../../../../../api/api.routes";
-import { useDropzone } from "React-dropzone";
 import {
   KeyboardArrowUp,
   CloudUpload,
@@ -38,6 +37,7 @@ import { useShallow } from "zustand/react/shallow";
 import { shallow } from "zustand/shallow";
 import { Provider } from "../../../../../types/types";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
+import { useDropzone } from "react-dropzone";
 
 const style = {
   position: "absolute",
