@@ -650,7 +650,7 @@ export const addProviderQuote = async (
 
 export const getPurchaseOrderRequestPdf = async (idQuote: string) => {
   const res = await axios.get(
-    `/api/Compras/obtener-solicitud-compra//${idQuote}`
+    `/api/Compras/obtener-solicitud-compra/${idQuote}`
   );
   return res.data;
 };

@@ -233,7 +233,7 @@ export interface IPurchaseOrder {
   estatus: StatusPurchaseOrder;
   usuarioSolicitado: string;
   fechaSolicitud: string;
-  folioExtension: string;
+  folio_Extension: string;
   ordenCompraArticulo: {
     cantidad: number;
     precioProveedor: number;

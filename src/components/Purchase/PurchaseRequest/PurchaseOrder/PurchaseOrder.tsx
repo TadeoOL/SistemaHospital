@@ -28,40 +28,6 @@ import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purc
 import { RequestPurchasedOrderModal } from "../Modal/RequestPurchasedOrderModal";
 import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 
-// const handleRemoveOrder = async (idOrdenCompra: string) => {
-//   const { fetch } = usePurchaseOrderRequestPagination.getState();
-//   Swal.fire({
-//     title: "Estas seguro?",
-//     text: "No puedes revertir este cambio!",
-//     icon: "warning",
-//     showCancelButton: true,
-//     confirmButtonColor: "#3085d6",
-//     cancelButtonColor: "#d33",
-//     cancelButtonText: "Cancelar",
-//     confirmButtonText: "Si cancela lo!",
-//     reverseButtons: true,
-//   }).then(async (result) => {
-//     if (result.isConfirmed) {
-//       try {
-//         await changePurchaseStatus(idOrdenCompra, 0, "Cancelada");
-//         fetch();
-//         Swal.fire({
-//           title: "Cancelada!",
-//           text: "Tu orden de compra ha sido cancelada!",
-//           icon: "success",
-//         });
-//       } catch (error) {
-//         console.log(error);
-//         Swal.fire({
-//           title: "Error!",
-//           text: "Error al cancelar la compra!",
-//           icon: "error",
-//         });
-//       }
-//     }
-//   });
-// };
-
 const useGetAllData = () => {
   const {
     isLoading,
@@ -193,7 +159,7 @@ export const PurchaseOrder = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            {order.folioExtension}
+                            {order.folio_Extension}
                           </TableCell>
                           <TableCell>{order.usuarioSolicitado}</TableCell>
                           <TableCell>

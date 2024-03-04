@@ -52,7 +52,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: 380, md: 600, lg: 900 },
+  width: { xs: 380, sm: 550, md: 800, lg: 900 },
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
