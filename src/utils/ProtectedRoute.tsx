@@ -27,10 +27,10 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({
   const logout = useAuthStore((state) => state.logout);
   const location = useLocation();
   const navigate = useNavigate();
-  const tokenInfo = jwtDecode(token);
 
   useEffect(() => {
     if (token) {
+      const tokenInfo = jwtDecode(token);
       if (isTokenExpired(tokenInfo)) {
         logout();
         toast.error("Tiempo de sesión expirado");
@@ -42,6 +42,7 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (token) {
+        const tokenInfo = jwtDecode(token);
         if (isTokenExpired(tokenInfo)) {
           logout();
           toast.error("Tiempo de sesión expirado");
