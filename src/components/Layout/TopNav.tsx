@@ -1,9 +1,16 @@
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import { Avatar, Badge, Stack, SvgIcon, Tooltip } from "@mui/material";
+import {
+  Avatar,
+  Badge,
+  Stack,
+  SvgIcon,
+  Tooltip,
+  useMediaQuery,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import { alpha } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
@@ -24,7 +31,8 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
     setOpen(false);
   }, []);
   const SIDE_NAV_WIDTH = 80;
-  // const TOP_NAV_HEIGHT = 64;
+  const theme = useTheme();
+  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
 
   return (
     <>
@@ -44,52 +52,35 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
           },
           zIndex: (theme) => theme.zIndex.appBar,
           height: 60,
+          alignItems: "center",
+          display: "flex",
+          flex: 1,
         }}
       >
         <Stack
-          alignItems="center"
-          direction="row"
-          spacing={2}
           sx={{
-            marginLeft: isOpen ? 19 : 0,
+            alignItems: "center",
+            marginLeft: !xlUp && isOpen ? 29 : isOpen ? 19 : 0,
             transition: "margin-left 0.3s ease-in-out",
             justifyContent: "space-between",
+            flexDirection: "row",
+            display: "flex",
+            flex: 1,
           }}
         >
-          <Stack alignItems="center" direction="row" spacing={2}>
-            <IconButton onClick={toggleSidebar}>
-              <SvgIcon fontSize="small">
-                <MenuIcon />
-              </SvgIcon>
-              <IconButton sx={{ marginLeft: 1 }}>
-                <img
-                  src={homelogo}
-                  alt="Company Logo"
-                  width="154px"
-                  height="30px"
-                />
-              </IconButton>
+          <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
+            <IconButton size="small" onClick={toggleSidebar}>
+              <MenuIcon />
             </IconButton>
-
-            {/* <Tooltip title="Search">
-            <IconButton>
-              <SvgIcon fontSize="small">
-                <MagnifyingGlassIcon />
-              </SvgIcon>
-            </IconButton>
-          </Tooltip> */}
+            <Box component="img" src={homelogo} sx={{ height: 30 }} />
           </Stack>
           <Stack
-            alignItems="center"
-            direction="row"
-            spacing={2}
-            sx={{ position: "absolute", right: 0, marginRight: 0 }}
+            sx={{
+              flexDirection: "row",
+              columnGap: 2,
+              mr: 2,
+            }}
           >
-            <Tooltip title="Contacts">
-              <IconButton>
-                <SvgIcon fontSize="small">{/* <UsersIcon /> */}</SvgIcon>
-              </IconButton>
-            </Tooltip>
             <Tooltip title="Notifications">
               <IconButton>
                 <Badge badgeContent={4} color="success" variant="dot">

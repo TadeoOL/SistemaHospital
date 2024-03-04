@@ -268,7 +268,6 @@ export const MatchProvidersAndArticles = (
     [purchaseRequestData, purchaseOrderMatched]
   );
 
-  console.log({ providers });
   const handleSendAuth = useCallback(async () => {
     if (!purchaseOrderMatched) return;
     if (!purchaseRequestData) return;
@@ -425,7 +424,7 @@ export const MatchProvidersAndArticles = (
               <Stack spacing={2}>
                 {purchaseOrderMatched && purchaseOrderMatched.length > 0 ? (
                   purchaseOrderMatched.map((i) => (
-                    <Stack key={i.providerId}>
+                    <Stack key={i.providerId} spacing={1}>
                       <Stack
                         sx={{
                           display: "flex",
@@ -469,7 +468,7 @@ export const MatchProvidersAndArticles = (
                               <TableRow>
                                 <TableCell>Nombre</TableCell>
                                 <TableCell>Cantidad</TableCell>
-                                <TableCell>Precio</TableCell>
+                                <TableCell />
                               </TableRow>
                             </TableHead>
                             <TableBody>
@@ -479,7 +478,6 @@ export const MatchProvidersAndArticles = (
                                     {getArticleNameById(a.articleId)}
                                   </TableCell>
                                   <TableCell>{a.amount}</TableCell>
-                                  <TableCell>{a.purchasePrice}</TableCell>
                                   <TableCell>
                                     <IconButton
                                       onClick={() =>

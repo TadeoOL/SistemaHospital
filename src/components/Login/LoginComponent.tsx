@@ -83,7 +83,7 @@ export const LoginComponent = () => {
             }}
             spacing={2}
           >
-            <Tabs sx={{ mb: 3 }} value={"email"}>
+            <Tabs value={"email"} variant="fullWidth">
               <Tab label="Inicio de Sesión" value="email" />
               <Tab label="Recuperar Usuario" value="" />
             </Tabs>

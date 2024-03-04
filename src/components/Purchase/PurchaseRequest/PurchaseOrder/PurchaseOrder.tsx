@@ -7,7 +7,6 @@ import {
   Collapse,
   IconButton,
   Modal,
-  //   Modal,
   Stack,
   Table,
   TableBody,
@@ -119,7 +118,11 @@ export const PurchaseOrder = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
     {}
   );
-  const [openNewOrderPurchase, setOpenNewOrderPurchase] = useState(false);
+  const { openNewOrderPurchase, setOpenNewOrderPurchase } =
+    useArticlesAlertPagination((state) => ({
+      openNewOrderPurchase: state.handleOpen,
+      setOpenNewOrderPurchase: state.setHandleOpen,
+    }));
 
   useEffect(() => {
     if (openNewOrderPurchase) return;
@@ -131,26 +134,6 @@ export const PurchaseOrder = () => {
       warehouseSelected: "",
     });
   }, [openNewOrderPurchase]);
-
-  //   const [openPurchaseOrder, setOpenPurchaseOrder] = useState(false);
-  //   const [openProviderQuote, setOpenProviderQuote] = useState(false);
-  //   const [openAddMoreProviders, setOpenAddMoreProviders] = useState(false);
-  //   const [orderSelected, setOrderSelected] = useState<{
-  //     folio: string;
-  //     purchaseOrderId: string;
-  //   }>({ folio: "", purchaseOrderId: "" });
-  //   const [providers, setProviders] = useState<any[]>([]);
-
-  //   useEffect(() => {
-  //     if (openProviderQuote) return;
-  //     usePurchaseOrderRequestModals.setState({
-  //       step: 0,
-  //       providerSelected: "",
-  //       dataOrderRequest: null,
-  //     });
-  //   }, [openProviderQuote]);
-
-  console.log({ data });
 
   return (
     <>

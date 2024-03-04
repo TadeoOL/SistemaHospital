@@ -344,6 +344,8 @@ const TableComponent = () => {
   };
 
   const handleNextStep = async () => {
+    if (warehouseSelected.trim() === "")
+      return toast.error("Selecciona un almacén para avanzar!");
     try {
       setIsLoading(true);
       const { cantidadOrdenDirecta, cantidadLicitacionDirecta } =
@@ -778,6 +780,7 @@ const SelectManyProviders = () => {
     articlesPurchased,
     warehouseSelected,
     fetchArticlesAlert,
+    setHandleOpen,
   } = useArticlesAlertPagination(
     (state) => ({
       setStep: state.setStep,
@@ -786,6 +789,7 @@ const SelectManyProviders = () => {
       articlesPurchased: state.articlesPurchased,
       warehouseSelected: state.warehouseSelected,
       fetchArticlesAlert: state.fetchArticlesAlert,
+      setHandleOpen: state.setHandleOpen,
     }),
     shallow
   );
@@ -834,7 +838,6 @@ const SelectManyProviders = () => {
       PrecioTotalInventario: addArticlesPrice(articlesPurchased),
     };
 
-    console.log({ objectToPurchase });
     try {
       await addPurchaseRequest(
         objectToPurchase.id_proveedor as string[],
@@ -843,7 +846,7 @@ const SelectManyProviders = () => {
         objectToPurchase.PrecioTotalInventario
       );
       toast.success("Orden de compra exitosa!");
-      useArticlesAlertPagination.setState({ handleOpen: false });
+      setHandleOpen(false);
       fetchArticlesAlert();
     } catch (error) {
       toast.error("Error al ordenar la compra!");
@@ -960,6 +963,7 @@ const SelectSingleProvider = () => {
     articlesPurchased,
     checkedArticles,
     fetchArticlesAlert,
+    setHandleOpen,
   } = useArticlesAlertPagination(
     (state) => ({
       setStep: state.setStep,
@@ -968,6 +972,7 @@ const SelectSingleProvider = () => {
       articlesPurchased: state.articlesPurchased,
       checkedArticles: state.checkedArticles,
       fetchArticlesAlert: state.fetchArticlesAlert,
+      setHandleOpen: state.setHandleOpen,
     }),
     shallow
   );
@@ -1011,7 +1016,7 @@ const SelectSingleProvider = () => {
         objectToPurchase.PrecioTotalInventario
       );
       toast.success("Orden de compra exitosa!");
-      useArticlesAlertPagination.setState({ handleOpen: false });
+      setHandleOpen(false);
       fetchArticlesAlert();
     } catch (error) {
       toast.error("Error al ordenar la compra!");

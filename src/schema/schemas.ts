@@ -13,10 +13,12 @@ export const loginSchema = z.object({
 });
 
 export const userSettingsSchema = z.object({
-  nombre: z.string().min(3, "Escribe un nombre valido de almenos 3 caracteres"),
+  nombre: z
+    .string()
+    .min(3, "Escribe un nombre valido de al menos 3 caracteres"),
   apellidoPaterno: z.string().min(1, "Escribe un apellido paterno"),
   apellidoMaterno: z.string().min(1, "Escribe un apellido paterno"),
-  email: z.string().email("Escribe un correo electronico valido"),
+  email: z.string().email("Escribe un correo electrónico valido"),
   telefono: z.string().regex(phoneRegex, "Numero invalido!"),
   imagenURL: z.string().optional(),
 });

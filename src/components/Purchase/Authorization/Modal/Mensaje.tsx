@@ -49,7 +49,6 @@ const style = {
   display: "flex",
   flexDirection: "column",
   maxHeight: { xs: 600 },
-  overflowY: "auto",
 };
 
 const styleBar = {
@@ -217,201 +216,211 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
   };
 
   return (
-    <Box sx={{ ...style, ...styleBar, zIndex: 9999 }}>
+    <Box sx={{ ...style, zIndex: 9999 }}>
       <HeaderModal setOpen={open} title="Cancelar Solicitud" />
       <Box
         sx={{
-          p: 4,
-          bgcolor: "background.paper",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          overflowY: "auto",
+          ...styleBar,
         }}
       >
-        <WarningIcon
+        <Box
           sx={{
-            color: "#FFA500",
-            fontSize: 70,
-            marginBottom: 4,
+            p: 4,
+            bgcolor: "background.paper",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
-        <>
-          <Typography variant="h5">
-            ¿Deseas Cancelar la solicitud de compra?
-          </Typography>
-          <Typography variant="h6" sx={{ marginTop: 3 }}>
-            Se cambiará el estatus de la solicitud de orden de compra a orden
-            cancelada!
-          </Typography>
-        </>
-      </Box>
-
-      <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-        <Typography variant="h6" sx={{ marginBottom: 3 }}>
-          Motivo:{" "}
-        </Typography>
-        <TableContainer
-          component={Paper}
-          sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
         >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Mensajes</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {mensajes.map((mensaje) => (
-                <>
-                  <TableRow
-                    key={mensaje.id_Mensaje}
-                    onClick={() => handleSelectMessage(mensaje)}
-                    sx={{
-                      cursor: "pointer",
-                      backgroundColor:
-                        mensaje === selectedReason
-                          ? "rgba(0,0,0,.2)"
-                          : "inherit",
-                    }}
-                  >
-                    <TableCell>
-                      <Radio
-                        checked={mensaje === selectedReason}
-                        onChange={() => handleSelectMessage(mensaje)}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
-                      {editingMessageId === mensaje.id_Mensaje ? (
-                        <TextField
-                          value={editingMessageText}
-                          onChange={(e) =>
-                            setEditingMessageText(e.target.value)
-                          }
-                          inputProps={{ style: { paddingTop: "10px" } }}
-                        />
-                      ) : (
-                        mensaje.mensaje
-                      )}
-                    </TableCell>
+          <WarningIcon
+            sx={{
+              color: "#FFA500",
+              fontSize: 70,
+              marginBottom: 4,
+            }}
+          />
+          <>
+            <Typography variant="h5">
+              ¿Deseas Cancelar la solicitud de compra?
+            </Typography>
+            <Typography variant="h6" sx={{ marginTop: 3 }}>
+              Se cambiará el estatus de la solicitud de orden de compra a orden
+              cancelada!
+            </Typography>
+          </>
+        </Box>
 
-                    <TableCell
-                      sx={{ display: "flex", justifyContent: "flex-end" }}
+        <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+          <Typography variant="h6" sx={{ marginBottom: 3 }}>
+            Motivo:{" "}
+          </Typography>
+          <TableContainer
+            component={Paper}
+            sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell colSpan={3}>Mensajes</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {mensajes.map((mensaje) => (
+                  <>
+                    <TableRow
+                      key={mensaje.id_Mensaje}
+                      onClick={() => handleSelectMessage(mensaje)}
+                      sx={{
+                        cursor: "pointer",
+                        backgroundColor:
+                          mensaje === selectedReason
+                            ? "rgba(0,0,0,.2)"
+                            : "inherit",
+                      }}
                     >
-                      {editingMessageId === mensaje.id_Mensaje ? (
-                        <IconButton
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleSaveEdit();
-                          }}
-                        >
-                          <SaveIcon />
-                        </IconButton>
-                      ) : (
-                        <IconButton
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            toggleEditMode(mensaje.id_Mensaje, mensaje.mensaje);
-                          }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      )}
-                      <IconButton
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          eliminarMensajes(mensaje.id_Mensaje);
-                        }}
+                      <TableCell>
+                        <Radio
+                          checked={mensaje === selectedReason}
+                          onChange={() => handleSelectMessage(mensaje)}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
+                        {editingMessageId === mensaje.id_Mensaje ? (
+                          <TextField
+                            value={editingMessageText}
+                            onChange={(e) =>
+                              setEditingMessageText(e.target.value)
+                            }
+                            inputProps={{ style: { paddingTop: "10px" } }}
+                          />
+                        ) : (
+                          mensaje.mensaje
+                        )}
+                      </TableCell>
+
+                      <TableCell
+                        sx={{ display: "flex", justifyContent: "flex-end" }}
                       >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                </>
-              ))}
-              <TableRow onClick={handleOtro} sx={{ cursor: "pointer" }}>
-                <TableCell>
-                  <Radio
-                    checked={otroSelected}
-                    sx={{
-                      color: otroSelected ? "#0000FF" : undefined,
-                    }}
-                    onChange={() => {}}
-                  />
-                </TableCell>
-                <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
-                  Otro
-                </TableCell>
-                <TableCell
-                  sx={{ display: "flex", justifyContent: "flex-end" }}
-                ></TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {mostrarInput && (
+                        {editingMessageId === mensaje.id_Mensaje ? (
+                          <IconButton
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleSaveEdit();
+                            }}
+                          >
+                            <SaveIcon />
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleEditMode(
+                                mensaje.id_Mensaje,
+                                mensaje.mensaje
+                              );
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        )}
+                        <IconButton
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            eliminarMensajes(mensaje.id_Mensaje);
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  </>
+                ))}
+                <TableRow onClick={handleOtro} sx={{ cursor: "pointer" }}>
+                  <TableCell>
+                    <Radio
+                      checked={otroSelected}
+                      sx={{
+                        color: otroSelected ? "#0000FF" : undefined,
+                      }}
+                      onChange={() => {}}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "left", minWidth: 300 }}>
+                    Otro
+                  </TableCell>
+                  <TableCell
+                    sx={{ display: "flex", justifyContent: "flex-end" }}
+                  ></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {mostrarInput && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                transition: "height 0.9s ease",
+              }}
+            >
+              <TextField
+                label="Nuevo Mensaje"
+                value={nuevoMensaje}
+                onChange={(e) => setNuevoMensaje(e.target.value)}
+                sx={{ mt: 2 }}
+              />
+            </Box>
+          )}
+
           <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
-              transition: "height 0.9s ease",
+              justifyContent: "space-between",
+              marginTop: 5,
             }}
           >
-            <TextField
-              label="Nuevo Mensaje"
-              value={nuevoMensaje}
-              onChange={(e) => setNuevoMensaje(e.target.value)}
-              sx={{ mt: 2 }}
-            />
+            <Button sx={{ mr: 2 }} onClick={handleCloseModal}>
+              Salir
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAceptar}
+              disabled={!selectedReason && !nuevoMensaje.trim()}
+            >
+              Aceptar
+            </Button>
           </Box>
-        )}
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: 5,
-          }}
-        >
-          <Button sx={{ mr: 2 }} onClick={handleCloseModal}>
-            Salir
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAceptar}
-            disabled={!selectedReason && !nuevoMensaje.trim()}
-          >
-            Aceptar
-          </Button>
         </Box>
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          sx={{ zIndex: 10000 }}
+        >
+          <DialogTitle>Confirmar Eliminación</DialogTitle>
+          <DialogContent>
+            {selectedMensaje && (
+              <Box>
+                <Typography variant="body1">
+                  ¿Estás seguro de que deseas eliminar el siguiente mensaje?
+                </Typography>
+                <Typography
+                  variant="body2"
+                  style={{ marginTop: "1rem", marginLeft: "10px" }}
+                >
+                  {selectedMensaje.mensaje}
+                </Typography>
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cancelar</Button>
+            <Button onClick={handleConfirmDelete}>Eliminar</Button>
+          </DialogActions>
+        </Dialog>
       </Box>
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        sx={{ zIndex: 10000 }}
-      >
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
-        <DialogContent>
-          {selectedMensaje && (
-            <Box>
-              <Typography variant="body1">
-                ¿Estás seguro de que deseas eliminar el siguiente mensaje?
-              </Typography>
-              <Typography
-                variant="body2"
-                style={{ marginTop: "1rem", marginLeft: "10px" }}
-              >
-                {selectedMensaje.mensaje}
-              </Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button onClick={handleConfirmDelete}>Eliminar</Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

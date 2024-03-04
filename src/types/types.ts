@@ -1,5 +1,3 @@
-
-
 export interface IModuleItems {
   title: string;
   path: string;
@@ -220,7 +218,6 @@ export interface OrdenCompra {
 export interface OrdenCompraArticulo {
   Id_Articulo: string;
   Cantidad: number;
-  PrecioProveedor: number;
 }
 
 enum ConceptPayment {
