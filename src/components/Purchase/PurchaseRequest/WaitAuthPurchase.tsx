@@ -108,7 +108,7 @@ export const WaitAuthPurchase = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       cancelButtonText: "Cancelar",
-      confirmButtonText: "Si cancela lo!",
+      confirmButtonText: "Si, cancélalo!",
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {

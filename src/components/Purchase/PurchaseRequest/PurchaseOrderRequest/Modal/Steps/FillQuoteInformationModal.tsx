@@ -219,9 +219,9 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
         sx={{
           position: "sticky",
           bottom: 0,
-          backgroundColor: "#fff", // Color de fondo opcional
-          padding: "10px", // Espaciado opcional
-          zIndex: 2, // Ajustar z-index según sea necesario
+          backgroundColor: "#fff",
+          padding: "10px",
+          zIndex: 2,
         }}
       >
         <Box

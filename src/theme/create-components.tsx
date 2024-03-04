@@ -253,14 +253,25 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         root: {
           fontSize: 14,
+          padding: 1,
           fontWeight: 500,
           lineHeight: 1.71,
           minWidth: "auto",
           paddingLeft: 0,
           paddingRight: 0,
           textTransform: "none",
-          "& + &": {
-            marginLeft: 24,
+          "&:not(:last-child)": {
+            borderRight: "1.5px solid white",
+          },
+          "&.MuiTab-root:hover": {
+            fontWeight: 700,
+            fontSize: 14,
+            opacity: 1,
+            transition: " 150ms linear",
+          },
+          "&.Mui-selected:hover": {
+            fontWeight: 500,
+            fontSize: 14,
           },
         },
       },
@@ -279,7 +290,7 @@ export function createComponents(config: { palette: any }): Components {
           borderBottom: "none",
           [`& .${tableCellClasses.root}`]: {
             borderBottom: "none",
-            backgroundColor: palette.neutral[50],
+            backgroundColor: palette.neutral[200],
             color: palette.neutral[700],
             fontSize: 12,
             fontWeight: 600,

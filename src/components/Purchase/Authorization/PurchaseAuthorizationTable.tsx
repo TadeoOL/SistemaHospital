@@ -276,14 +276,6 @@ export const PurchaseAuthorizationTable = () => {
                             </>
                           )}
                         </TableCell>
-                        <TableCell>
-                          {openMensajeModal && (
-                            <Mensaje
-                              open={() => setOpenMensajeModal(false)}
-                              idSolicitudCompra={purchaseRequestId}
-                            />
-                          )}
-                        </TableCell>
                       </TableRow>
                       <TableCell colSpan={7} sx={{ p: 0 }}>
                         <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
@@ -362,6 +354,14 @@ export const PurchaseAuthorizationTable = () => {
         <div>
           <MatchProvidersAndArticles setOpen={setOpenModal} folio={folio} />
         </div>
+      </Modal>
+      <Modal open={openMensajeModal} onClose={() => setOpenMensajeModal(false)}>
+        <>
+          <Mensaje
+            open={() => setOpenMensajeModal(false)}
+            idSolicitudCompra={purchaseRequestId}
+          />
+        </>
       </Modal>
     </>
   );

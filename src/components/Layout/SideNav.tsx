@@ -10,7 +10,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import List from "@mui/material/List";
-import { useState } from "react";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -28,20 +27,13 @@ interface SideNavItemsProps {
   topLevel?: boolean;
 }
 
-// interface ModuleItem {
-//   title: string;
-//   path: string;
-//   icon: React.ReactNode;
-//   childrenItems?: string[] | undefined;
-// }
-
 export const SideNav = () => {
   const theme = useTheme();
   const isOpen = useAppNavStore((state) => state.open);
   const setIsOpen = useAppNavStore((state) => state.setOpen);
   const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
   const navigate = useNavigate();
-  const SelectedOptionColor = "#2196f3";
+  const SelectedOptionColor = "#9ca1a5";
 
   const SideNavItems: React.FC<SideNavItemsProps> = ({
     icon,
@@ -49,93 +41,41 @@ export const SideNav = () => {
     path,
     childrenItems,
   }) => {
-    const [open, setOpen] = useState(false);
     const location = useLocation();
     const isActive = childrenItems
       ? childrenItems.some((c) => c === location.pathname.split("/")[3])
       : path === location.pathname;
 
-    console.log("actual", location.pathname);
-
     const handleClick = () => {
-      setOpen(false);
+      if (isActive) return;
       setIsOpen(false);
       navigate(path);
     };
 
-    // const handleChildClick = (childPath: string) => {
-    //   setOpen(false);
-    //   setIsOpen(false);
-    //   navigate(childPath);
-    // };
-
     return (
-      <List component="div" disablePadding>
-        {open && (
-          <ListItemButton
+      <ListItemButton
+        onClick={handleClick}
+        selected={isActive}
+        sx={{
+          "&.Mui-selected": { backgroundColor: SelectedOptionColor },
+          "&:hover": { backgroundColor: "#373b3e", opacity: 2 },
+          "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
+          borderRadius: 1,
+          mb: 1,
+          p: 1,
+        }}
+      >
+        <ListItemIcon>{icon}</ListItemIcon>
+        {isOpen ? (
+          <ListItemText
+            primary={title}
             sx={{
-              "&.Mui-selected": { backgroundColor: SelectedOptionColor },
-              pl: 2,
-              mt: 1,
-              mb: 1,
+              fontWeight: 600,
+              display: "inline",
             }}
-          >
-            <ListItemText
-              primary="Catálogos"
-              sx={{ fontWeight: 600, display: "inline" }}
-            />
-          </ListItemButton>
-        )}
-        <ListItemButton
-          onClick={handleClick}
-          selected={isActive}
-          sx={{
-            "&.Mui-selected": { backgroundColor: SelectedOptionColor },
-            pl: 2,
-            mt: 1,
-            mb: 1,
-          }}
-        >
-          <ListItemIcon sx={{ marginLeft: -1 }}>{icon}</ListItemIcon>
-          {isOpen && (
-            <ListItemText
-              primary={title}
-              sx={{
-                fontWeight: 600,
-                display: xlUp ? "inline" : "inline",
-              }}
-            />
-          )}
-        </ListItemButton>
-
-        {/* {open && (
-          <>
-            <ListItemButton
-              onClick={() => handleChildClick(path)}
-              selected={isActive}
-              sx={{ pl: 4, mt: 1, mb: 1 }}
-            >
-              <ListItemText primary={title} sx={{ fontWeight: 600 }} />
-            </ListItemButton>
-
-            {childrenItems && (
-              <>
-                {childrenItems.map((child, index) => (
-                  <ListItemButton
-                    key={index}
-                    onClick={() => handleChildClick(child.path)}
-                    selected={child.path === location.pathname}
-                    sx={{ pl: 4, mt: 1, mb: 1 }}
-                  >
-                    <ListItemIcon>{child.icon}</ListItemIcon>
-                    <ListItemText primary={child.title} />
-                  </ListItemButton>
-                ))}
-              </>
-            )}
-          </>
-        )} */}
-      </List>
+          />
+        ) : null}
+      </ListItemButton>
     );
   };
 
@@ -143,7 +83,9 @@ export const SideNav = () => {
     <Drawer
       variant={xlUp ? "permanent" : isOpen ? "permanent" : "temporary"}
       anchor="left"
-      onClose={() => {}}
+      onClose={() => {
+        setIsOpen(false);
+      }}
       PaperProps={{
         sx: {
           backgroundColor: "#24282C",
@@ -183,7 +125,7 @@ export const SideNav = () => {
           onClick={() => navigate("/")}
         />
       </DrawerHeader>
-      <Divider sx={{ borderColor: "#24282C" }} />
+      <Divider sx={{ borderColor: "gray", my: 1 }} />
       <Box
         component="nav"
         sx={{
@@ -201,15 +143,17 @@ export const SideNav = () => {
             m: 0,
           }}
         >
-          {ModuleItems.map((item, i) => (
-            <SideNavItems
-              key={i}
-              icon={item.icon}
-              title={item.title}
-              path={item.path}
-              childrenItems={item.childrenItems}
-            />
-          ))}
+          <List component="div" disablePadding>
+            {ModuleItems.map((item, i) => (
+              <SideNavItems
+                key={i}
+                icon={item.icon}
+                title={item.title}
+                path={item.path}
+                childrenItems={item.childrenItems}
+              />
+            ))}
+          </List>
         </Stack>
       </Box>
     </Drawer>
