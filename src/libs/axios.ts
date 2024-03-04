@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "../store/auth";
 
 const API_ENV =
   import.meta.env.MODE === "production"
@@ -13,11 +14,7 @@ const authApi = axios.create({
 });
 
 authApi.interceptors.request.use((config) => {
-  const authToken = localStorage.getItem("auth");
-  console.log({ authToken });
-  const auth = JSON.parse(authToken ? authToken : "");
-  const token = auth.state.token;
-  console.log({ token });
+  const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
