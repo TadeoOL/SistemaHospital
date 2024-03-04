@@ -57,8 +57,11 @@ export const SideNav = () => {
         onClick={handleClick}
         selected={isActive}
         sx={{
-          "&.Mui-selected": { backgroundColor: SelectedOptionColor },
-          "&:hover": { backgroundColor: "#373b3e", opacity: 2 },
+          "&.Mui-selected": {
+            backgroundColor: SelectedOptionColor,
+            width: isOpen ? "100%" : "40px",
+          },
+          "&:hover": { backgroundColor: "#373b3e", opacity: 10 },
           "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
           borderRadius: 1,
           mb: 1,

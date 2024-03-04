@@ -217,7 +217,7 @@ export const PurchaseConfig = () => {
     <Box
       sx={{
         position: "absolute",
-        top: "54%",
+        top: "58%",
         left: "53%",
         transform: "translate(-50%, -50%)",
         width: { xs: "90%", sm: "70%", md: "80%" },

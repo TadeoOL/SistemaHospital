@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import HelpIcon from "@mui/icons-material/Help";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
@@ -81,6 +82,9 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
               mr: 2,
             }}
           >
+            <IconButton>
+              <HelpIcon />
+            </IconButton>
             <Tooltip title="Notifications">
               <IconButton>
                 <Badge badgeContent={4} color="success" variant="dot">

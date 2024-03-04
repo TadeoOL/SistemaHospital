@@ -13,7 +13,7 @@ function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 const CustomBreadcrumb = () => {
   return (
     <div role="presentation" onClick={handleClick}>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginLeft: 10 }}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ marginLeft: 15, padding: 4 }}>
         <Link
           underline="hover"
           sx={{ display: "flex", alignItems: "center", color: "#507FC6" }}
