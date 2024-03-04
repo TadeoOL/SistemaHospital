@@ -447,9 +447,9 @@ export const PurchaseConfig = () => {
             justifyContent: "space-between",
           }}
         >
-          <Button disabled={isLoading} variant="outlined">
+          {/* <Button disabled={isLoading} variant="outlined">
             Cancelar
-          </Button>
+          </Button> */}
           <Button
             disabled={isLoading}
             variant="contained"

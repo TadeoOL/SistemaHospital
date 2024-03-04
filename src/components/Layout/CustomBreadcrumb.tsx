@@ -16,7 +16,7 @@ const CustomBreadcrumb = () => {
       <Breadcrumbs aria-label="breadcrumb" sx={{ marginLeft: 10 }}>
         <Link
           underline="hover"
-          sx={{ display: "flex", alignItems: "center", color: "#24282c" }}
+          sx={{ display: "flex", alignItems: "center", color: "#507FC6" }}
           color="inherit"
           href="/"
         >
@@ -24,7 +24,7 @@ const CustomBreadcrumb = () => {
           Módulo
         </Link>
         <Typography
-          sx={{ display: "flex", alignItems: "center", color: "#24282c" }}
+          sx={{ display: "flex", alignItems: "center", color: "#507FC6" }}
           color="text.primary"
         >
           <GrainIcon sx={{ mr: 0.5, fontSize: "18px" }} fontSize="inherit" />
