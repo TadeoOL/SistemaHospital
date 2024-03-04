@@ -216,16 +216,9 @@ export const PurchaseConfig = () => {
   return (
     <Box
       sx={{
-        position: "absolute",
-        top: "58%",
-        left: "53%",
-        transform: "translate(-50%, -50%)",
-        width: { xs: "90%", sm: "70%", md: "80%" },
-        height: "100%",
-        borderRadius: 10,
-        display: "flex",
-        flexDirection: "column",
-        maxHeight: { xs: 600 },
+        boxShadow: 10,
+        borderRadius: 2,
+        bgcolor: "white",
       }}
     >
       <Stack
@@ -388,12 +381,12 @@ export const PurchaseConfig = () => {
           </TableContainer>
         </Box>
         <Grid spacing={2} container sx={{ mt: 4 }}>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={3}>
             <Typography>Cantidad maxima para orden directa:</Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={9}>
             <TextField
-              size="small"
+              size="medium"
               placeholder="Cantidad para orden directa"
               value={value}
               inputProps={{
@@ -407,12 +400,12 @@ export const PurchaseConfig = () => {
               }}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={3}>
             <Typography>Cantidad minima para licitación directa:</Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={9}>
             <TextField
-              size="small"
+              size="medium"
               placeholder="Cantidad para licitación"
               value={directlyTender}
               inputProps={{

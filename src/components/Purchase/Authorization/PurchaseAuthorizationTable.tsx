@@ -146,6 +146,7 @@ export const PurchaseAuthorizationTable = () => {
       purchaseOrderMatched: null,
     });
   }, [openModal]);
+  console.log({ data });
 
   return (
     <>
