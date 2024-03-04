@@ -43,7 +43,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
         purchaseData.purchaseOrderId
       );
       console.log({ res });
-      setPdf(res[0].pdfBase64);
+      setPdf(res.pdfBase64);
     } catch (error) {
       console.log(error);
     } finally {

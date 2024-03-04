@@ -236,7 +236,7 @@ export const WaitAuthPurchase = () => {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
+                              {auth.solicitudProveedor[0]?.solicitudCompraArticulos?.map(
                                 (request) => (
                                   <TableRow key={request.id}>
                                     <TableCell align="center">
