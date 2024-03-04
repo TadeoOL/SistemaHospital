@@ -43,8 +43,8 @@ export const ExistingArticle = () => {
           >
             <Typography fontWeight={700} fontSize={24}>
               {enabled
-                ? "Artículos existentes"
-                : "Artículos existentes deshabilitados"}
+                ? "Productos en Existencia"
+                : "Productos en Existencia Deshabilitados"}
             </Typography>
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button

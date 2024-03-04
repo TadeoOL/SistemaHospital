@@ -43,8 +43,8 @@ export const ArticleTabNav = () => {
           textColor="inherit"
           variant="fullWidth"
         >
-          <Tab label="Articulo" />
-          <Tab label="Articulo existente" />
+          <Tab label="Catálogo de Productos" />
+          <Tab label="Productos en Existencia" />
         </Tabs>
       </AppBar>
     </Box>

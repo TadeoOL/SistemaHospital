@@ -72,9 +72,6 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
             <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
               Seleccione los proveedores para enviarle la solicitud
             </Typography>
-            <Box>
-              <Button>Select de proveedores</Button>
-            </Box>
             <Stack
               sx={{
                 display: "flex",
