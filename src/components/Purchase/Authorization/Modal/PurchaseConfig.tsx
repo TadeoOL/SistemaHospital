@@ -237,6 +237,9 @@ export const PurchaseConfig = () => {
           borderColor: "black",
         }}
       >
+        <Typography fontWeight={700} fontSize={24} mb={3}>
+          Configuración de compras
+        </Typography>
         <form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
           <Stack
             sx={{
@@ -345,6 +348,7 @@ export const PurchaseConfig = () => {
             </Stack>
           </Stack>
         </form>
+
         <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
         <Box sx={{ overflowY: "auto" }}>
           <TableContainer
