@@ -58,6 +58,7 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
     ).map((art) => art);
     let totalAmount = 0;
     for (const articles of orders) {
+      if (!articles.precioProveedor) return;
       totalAmount = totalAmount + articles.Cantidad * articles.precioProveedor;
     }
     setTotalAmountOrder(totalAmount);
