@@ -24,11 +24,11 @@ export const PurchaseTabNav = () => {
       case 0:
         return navigate("ordenes-compra");
       case 1:
-        return navigate("productos-stock-bajo");
-      case 2:
         return navigate("productos-solicitados-orden-compra");
-      case 3:
-        return navigate("productos-espera-autorizacion");
+      case 2:
+        return navigate("productos-stock-bajo");
+      // case 3:
+      //   return navigate("productos-espera-autorizacion");
       default:
         break;
     }
@@ -48,9 +48,9 @@ export const PurchaseTabNav = () => {
           variant="fullWidth"
         >
           <Tab label="Ordenes de Compra" />
+          <Tab label="Solicitudes en Proceso" />
           <Tab label="Alerta de Productos" />
-          <Tab label="Solicitudes de Orden de Compra" />
-          <Tab label="Autorizaciones" />
+          {/* <Tab label="Autorizaciones" /> */}
         </Tabs>
       </AppBar>
     </Box>
