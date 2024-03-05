@@ -39,7 +39,6 @@ export const PurchaseTabNav = () => {
         sx={{
           borderTopRightRadius: 10,
           borderTopLeftRadius: 10,
-          backgroundColor: "#046DBD",
         }}
       >
         <Tabs
@@ -48,9 +47,54 @@ export const PurchaseTabNav = () => {
           textColor="inherit"
           variant="fullWidth"
         >
-          <Tab label="Ordenes de Compra" />
-          <Tab label="Solicitudes en Proceso" />
-          <Tab label="Alerta de Productos" />
+          <Tab
+            label="Ordenes de Compra"
+            sx={{
+              "&.Mui-selected": {
+                backgroundColor: "#046DBD",
+                color: "#FFFFFF",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#046DBD",
+              },
+              "&:not(.Mui-selected)": {
+                backgroundColor: "#FFFFFF",
+                color: "#000000",
+              },
+            }}
+          />
+          <Tab
+            label="Solicitudes en Proceso"
+            sx={{
+              "&.Mui-selected": {
+                backgroundColor: "#046DBD",
+                color: "#FFFFFF",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#046DBD",
+              },
+              "&:not(.Mui-selected)": {
+                backgroundColor: "#FFFFFF",
+                color: "#000000",
+              },
+            }}
+          />
+          <Tab
+            label="Alerta de Productos"
+            sx={{
+              "&.Mui-selected": {
+                backgroundColor: "#046DBD",
+                color: "#FFFFFF",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#046DBD",
+              },
+              "&:not(.Mui-selected)": {
+                backgroundColor: "#FFFFFF",
+                color: "#000000",
+              },
+            }}
+          />
         </Tabs>
       </AppBar>
     </Box>

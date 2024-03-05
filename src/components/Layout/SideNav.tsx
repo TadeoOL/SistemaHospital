@@ -103,7 +103,7 @@ export const SideNav = () => {
         />
       )}
       <Drawer
-        variant={xlUp ? "permanent" : isOpen ? "permanent" : "persistent"}
+        variant={xlUp ? "permanent" : isOpen ? "permanent" : "temporary"}
         anchor="left"
         onClose={() => {
           setIsOpen(false);
@@ -114,6 +114,7 @@ export const SideNav = () => {
             color: "common.white",
             width: isOpen ? 230 : 80,
             transition: "width 0.3s ease-in-out",
+            borderRight: isOpen ? "none" : "1px solid transparent",
           },
         }}
       >
