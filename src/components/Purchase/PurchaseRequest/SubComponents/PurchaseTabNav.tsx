@@ -27,8 +27,6 @@ export const PurchaseTabNav = () => {
         return navigate("productos-solicitados-orden-compra");
       case 2:
         return navigate("productos-stock-bajo");
-      // case 3:
-      //   return navigate("productos-espera-autorizacion");
       default:
         break;
     }
@@ -38,19 +36,21 @@ export const PurchaseTabNav = () => {
     <Box sx={{ width: "auto" }}>
       <AppBar
         position="static"
-        sx={{ borderTopRightRadius: 10, borderTopLeftRadius: 10 }}
+        sx={{
+          borderTopRightRadius: 10,
+          borderTopLeftRadius: 10,
+          backgroundColor: "#046DBD",
+        }}
       >
         <Tabs
           value={tabValue}
           onChange={handleChange}
-          indicatorColor="secondary"
           textColor="inherit"
           variant="fullWidth"
         >
           <Tab label="Ordenes de Compra" />
           <Tab label="Solicitudes en Proceso" />
           <Tab label="Alerta de Productos" />
-          {/* <Tab label="Autorizaciones" /> */}
         </Tabs>
       </AppBar>
     </Box>

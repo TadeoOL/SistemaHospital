@@ -37,12 +37,13 @@ const CustomBreadcrumb = () => {
     const currentMessage = messagesByLink[location.pathname] || "";
     setCurrentPageMessage(currentMessage);
   }, [location.pathname]);
+
   return (
     <div role="presentation" onClick={handleClick}>
       <Breadcrumbs
         aria-label="breadcrumb"
         sx={{
-          marginLeft: isSmallScreen ? 3 : 15,
+          marginLeft: isSmallScreen ? 10 : 15,
           padding: 4,
         }}
       >
@@ -51,10 +52,11 @@ const CustomBreadcrumb = () => {
             display: "flex",
             alignItems: "center",
             color: "black",
+            fontWeight: 600,
           }}
           color="inherit"
         >
-          <HomeIcon sx={{ mr: 0.5, fontSize: "1.2rem" }} fontSize="inherit" />
+          <HomeIcon sx={{ mr: 0.5, fontSize: "22px" }} fontSize="inherit" />
           Compras
         </Typography>
         <Typography
@@ -62,10 +64,11 @@ const CustomBreadcrumb = () => {
             display: "flex",
             alignItems: "center",
             color: "black",
+            fontWeight: 600,
           }}
           color="text.primary"
         >
-          <GrainIcon sx={{ mr: 0.5, fontSize: "1.2rem" }} fontSize="inherit" />
+          <GrainIcon sx={{ mr: 0.5, fontSize: "22px" }} fontSize="inherit" />
           {currentPageMessage}
         </Typography>
       </Breadcrumbs>

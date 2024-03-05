@@ -84,7 +84,7 @@ export const SideNav = () => {
 
   return (
     <Drawer
-      variant={xlUp ? "permanent" : isOpen ? "permanent" : "temporary"}
+      variant={xlUp ? "permanent" : isOpen ? "permanent" : "persistent"}
       anchor="left"
       onClose={() => {
         setIsOpen(false);
