@@ -50,6 +50,7 @@ export const PurchaseTabNav = () => {
           <Tab
             label="Ordenes de Compra"
             sx={{
+              borderTopLeftRadius: 10,
               "&.Mui-selected": {
                 backgroundColor: "#046DBD",
                 color: "#FFFFFF",
@@ -82,6 +83,7 @@ export const PurchaseTabNav = () => {
           <Tab
             label="Alerta de Productos"
             sx={{
+              borderTopRightRadius: 10,
               "&.Mui-selected": {
                 backgroundColor: "#046DBD",
                 color: "#FFFFFF",
