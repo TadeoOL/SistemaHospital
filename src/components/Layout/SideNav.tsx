@@ -61,7 +61,11 @@ export const SideNav = () => {
             backgroundColor: SelectedOptionColor,
             width: isOpen ? "100%" : "40px",
           },
-          "&:hover": { backgroundColor: "#373b3e", opacity: 10, width: "40px" },
+          "&:hover": {
+            backgroundColor: "#373b3e",
+            opacity: 10,
+            width: isOpen ? "100%" : "40px",
+          },
           "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
           borderRadius: 1,
           mb: 1,
