@@ -1,14 +1,13 @@
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import { styled, useTheme } from "@mui/material/styles";
-import { Drawer, Stack, useMediaQuery } from "@mui/material";
+import { Drawer, Stack, Typography, useMediaQuery } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import Plug from "../../assets/Plug.svg";
 import { useAppNavStore } from "../../store/appNav";
 import { ModuleItems } from "../../utils/ModuleItems";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import List from "@mui/material/List";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -58,13 +57,13 @@ export const SideNav = () => {
         selected={isActive}
         sx={{
           "&.Mui-selected": {
-            backgroundColor: SelectedOptionColor,
-            width: isOpen ? "100%" : "40px",
+            backgroundColor: "#046DBD",
+            width: isOpen ? "240px" : "40px",
           },
           "&:hover": {
             backgroundColor: "#373b3e",
             opacity: 10,
-            width: isOpen ? "100%" : "40px",
+            width: isOpen ? "240px" : "40px",
           },
           "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
           borderRadius: 1,
@@ -74,13 +73,15 @@ export const SideNav = () => {
       >
         <ListItemIcon>{icon}</ListItemIcon>
         {isOpen ? (
-          <ListItemText
-            primary={title}
+          <Typography
+            variant="body2"
             sx={{
               fontWeight: 600,
               display: "inline",
             }}
-          />
+          >
+            {title}
+          </Typography>
         ) : null}
       </ListItemButton>
     );

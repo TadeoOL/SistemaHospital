@@ -26,12 +26,42 @@ export const CategorysTabNav = () => {
         <Tabs
           value={tabValue}
           onChange={handleChange}
-          indicatorColor="secondary"
           textColor="inherit"
           variant="fullWidth"
         >
-          <Tab label="Categoría" />
-          <Tab label="Sub categoría" />
+          <Tab
+            label="Categoría"
+            sx={{
+              borderTopLeftRadius: 10,
+              "&.Mui-selected": {
+                backgroundColor: "#046DBD",
+                color: "#FFFFFF",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#046DBD",
+              },
+              "&:not(.Mui-selected)": {
+                backgroundColor: "#FFFFFF",
+                color: "#000000",
+              },
+            }}
+          />
+          <Tab
+            label="Sub Categoría"
+            sx={{
+              "&.Mui-selected": {
+                backgroundColor: "#046DBD",
+                color: "#FFFFFF",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#046DBD",
+              },
+              "&:not(.Mui-selected)": {
+                backgroundColor: "#FFFFFF",
+                color: "#000000",
+              },
+            }}
+          />
         </Tabs>
       </AppBar>
     </Box>
