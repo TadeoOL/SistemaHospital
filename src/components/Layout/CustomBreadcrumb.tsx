@@ -5,7 +5,7 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import HomeIcon from "@mui/icons-material/Home";
 import GrainIcon from "@mui/icons-material/Grain";
 import { useLocation } from "react-router-dom";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import { Box, Container } from "@mui/material";
 
 function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
   event.preventDefault();
@@ -31,7 +31,6 @@ const messagesByLink: Record<string, string> = {
 const CustomBreadcrumb = () => {
   const location = useLocation();
   const [currentPageMessage, setCurrentPageMessage] = useState<string>("");
-  const isSmallScreen = useMediaQuery("(max-width:1200px)");
 
   useEffect(() => {
     const currentMessage = messagesByLink[location.pathname] || "";
@@ -40,38 +39,41 @@ const CustomBreadcrumb = () => {
 
   return (
     <div role="presentation" onClick={handleClick}>
-      <Breadcrumbs
-        aria-label="breadcrumb"
-        sx={{
-          marginLeft: isSmallScreen ? 3 : 16,
-          padding: 4,
-        }}
-      >
-        <Typography
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            color: "black",
-            fontWeight: 600,
-          }}
-          color="inherit"
-        >
-          <HomeIcon sx={{ mr: 0.5, fontSize: "22px" }} fontSize="inherit" />
-          Compras
-        </Typography>
-        <Typography
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            color: "black",
-            fontWeight: 600,
-          }}
-          color="text.primary"
-        >
-          <GrainIcon sx={{ mr: 0.5, fontSize: "22px" }} fontSize="inherit" />
-          {currentPageMessage}
-        </Typography>
-      </Breadcrumbs>
+      <Box component="main" sx={{ pt: 3, pl: 3, flexGrow: 1 }}>
+        <Container maxWidth={"xl"}>
+          <Breadcrumbs
+            aria-label="breadcrumb"
+          >
+            <Typography
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                color: "black",
+                fontWeight: 600,
+              }}
+              color="inherit"
+            >
+              <HomeIcon sx={{ mr: 0.5, fontSize: "22px" }} fontSize="inherit" />
+              Inicio
+            </Typography>
+            <Typography
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                color: "black",
+                fontWeight: 600,
+              }}
+              color="text.primary"
+            >
+              <GrainIcon
+                sx={{ mr: 0.5, fontSize: "22px" }}
+                fontSize="inherit"
+              />
+              {currentPageMessage}
+            </Typography>
+          </Breadcrumbs>
+        </Container>
+      </Box>
     </div>
   );
 };

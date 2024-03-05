@@ -49,10 +49,16 @@ export const Layout: React.FC = () => {
   return (
     <>
       <TopNav toggleSidebar={toggleSidebar} currentPage={currentPage} />
-      <CustomBreadcrumb />
       <SideNav />
       <LayoutRoot>
-        <LayoutContainer>{<Outlet />}</LayoutContainer>
+        <LayoutContainer>
+          {
+            <>
+              <CustomBreadcrumb />
+              <Outlet />
+            </>
+          }
+        </LayoutContainer>
       </LayoutRoot>
     </>
   );
