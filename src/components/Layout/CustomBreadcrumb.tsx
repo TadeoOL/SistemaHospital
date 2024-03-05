@@ -43,7 +43,7 @@ const CustomBreadcrumb = () => {
       <Breadcrumbs
         aria-label="breadcrumb"
         sx={{
-          marginLeft: isSmallScreen ? 10 : 15,
+          marginLeft: isSmallScreen ? 3 : 16,
           padding: 4,
         }}
       >
