@@ -86,8 +86,58 @@ export const LoginComponent = () => {
             spacing={2}
           >
             <Tabs value={"email"} variant="fullWidth">
-              <Tab label="Inicio de Sesión" value="email" />
-              <Tab label="Recuperar Usuario" value="" />
+              <Tab
+                label="Inicio de Sesión"
+                value="email"
+                sx={{
+                  color: "#046dbd",
+                  backgroundColor: "#FFFFFF",
+                  fontSize: "14px",
+                  transition: "all 300ms linear 0s",
+                  "&.Mui-selected": {
+                    color: "#046dbd",
+                    backgroundColor: "#FFFFFF",
+                    "&:hover": {
+                      backgroundColor: "#FFFFFF", // Mantener el fondo blanco al pasar el mouse
+                    },
+                  },
+                  "&.MuiTab-root": {
+                    opacity: 1,
+                    "&:hover": {
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "14px",
+                      opacity: 1,
+                      color: "#046dbd", // Cambia el color al azul al pasar el mouse                    },
+                    },
+                  },
+                  "&:not(.last-child)": {
+                    borderRight: "1.5px solid #FFFFFF",
+                  },
+                }}
+              />
+              <Tab
+                label="Recuperar Usuario"
+                value=""
+                sx={{
+                  color: "#046dbd",
+                  "&.Mui-selected:hover": {
+                    fontWeight: 500,
+                    fontSize: "14px",
+                  },
+                  "&.MuiTab-root:hover": {
+                    fontWeight: 700,
+                    fontSize: "14px",
+                    opacity: 1,
+                    transition: "all 150ms linear 0s",
+                  },
+                  "&:not(.last-child)": {
+                    borderRight: "1.5px solid #FFFFFF",
+                  },
+                  "&.Mui-selected": {
+                    color: "#046dbd",
+                  },
+                }}
+              />
             </Tabs>
             <TextField
               error={!!errors.userName}
