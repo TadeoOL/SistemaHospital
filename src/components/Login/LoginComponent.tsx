@@ -21,6 +21,7 @@ import { login } from "../../api/api.routes";
 import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
 import { toast } from "react-toastify";
+import { useTheme } from "@mui/material/styles";
 import "./LoginComponent.css";
 interface ILogin {
   userName: string;
@@ -28,6 +29,7 @@ interface ILogin {
 }
 
 export const LoginComponent = () => {
+  const theme = useTheme();
   const setToken = useAuthStore((state) => state.setToken);
   const setProfile = useAuthStore((state) => state.setProfile);
   const [text, setText] = useState<string>("");
@@ -72,7 +74,7 @@ export const LoginComponent = () => {
   return (
     <Box>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack sx={{}} spacing={3} className="container">
+        <Stack>
           <Typography fontWeight={700} fontSize={24}>
             Iniciar sesión
           </Typography>
@@ -125,8 +127,16 @@ export const LoginComponent = () => {
             fullWidth
             type="submit"
             sx={{
+              marginTop: "2%",
               bgcolor: "#023e8a",
               "&:hover": { backgroundColor: "#03045e" },
+              [theme.breakpoints.down("sm")]: {
+                marginTop: "4%",
+                marginLeft: "8%",
+              },
+              [theme.breakpoints.between(600, 899)]: {
+                marginTop: "2%",
+              },
             }}
           >
             {!isLoading ? (
