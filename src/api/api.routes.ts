@@ -770,3 +770,10 @@ export const getPurchaseOrder = async (paramUrl: string) => {
   );
   return res.data;
 };
+
+export const getCountDashboard = async () => {
+  const res = await axios.get(
+    `/api/Compras/obtener-contador-inicio`
+  );
+  return res.data;
+};
