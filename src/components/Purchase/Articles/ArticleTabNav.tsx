@@ -39,42 +39,13 @@ export const ArticleTabNav = () => {
         <Tabs
           value={tabValue}
           onChange={handleChange}
-          indicatorColor="secondary"
-          textColor="inherit"
           variant="fullWidth"
         >
           <Tab
             label="Catálogo de Productos"
-            sx={{
-              borderTopLeftRadius: 10,
-              "&.Mui-selected": {
-                backgroundColor: "#046DBD",
-                color: "#FFFFFF",
-              },
-              "&.Mui-selected:hover": {
-                backgroundColor: "#046DBD",
-              },
-              "&:not(.Mui-selected)": {
-                backgroundColor: "#FFFFFF",
-                color: "#000000",
-              },
-            }}
           />
           <Tab
             label="Productos en Existencia"
-            sx={{
-              "&.Mui-selected": {
-                backgroundColor: "#046DBD",
-                color: "#FFFFFF",
-              },
-              "&.Mui-selected:hover": {
-                backgroundColor: "#046DBD",
-              },
-              "&:not(.Mui-selected)": {
-                backgroundColor: "#FFFFFF",
-                color: "#000000",
-              },
-            }}
           />
         </Tabs>
       </AppBar>

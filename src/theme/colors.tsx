@@ -31,12 +31,12 @@ export const neutral = {
   900: "#111927",
 };
 
-export const indigo = withAlphas({
-  lightest: "#F5F7FF",
-  light: "#EBEEFE",
+export const primary = withAlphas({
   main: "#046DBD",
-  dark: "#4338CA",
-  darkest: "#312E81",
+  lightest: "#F2F8FF",  // Puedes ajustar estos valores según tu preferencia
+  light: "#B0D4FF",     // Puedes ajustar estos valores según tu preferencia
+  dark: "#004B91",      // Puedes ajustar estos valores según tu preferencia
+  darkest: "#002E5F",   // Puedes ajustar estos valores según tu preferencia
   contrastText: "#FFFFFF",
 });
 

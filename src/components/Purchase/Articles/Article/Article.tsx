@@ -40,7 +40,7 @@ export const Article = () => {
             }}
           >
             <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Productos" : "Productos Deshabilitados"}
+              {enabled ? "Catálogo de Productos" : "Catálogo de Productos Deshabilitados"}
             </Typography>
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
