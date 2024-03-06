@@ -22,7 +22,7 @@ import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
 import { toast } from "react-toastify";
 import { useTheme } from "@mui/material/styles";
-import "./LoginComponent.css";
+
 interface ILogin {
   userName: string;
   password: string;
