@@ -29,7 +29,12 @@ export const LoginView = () => {
       height: "60vh",
       top: "40%",
     },
-    height: "70vh",
+    [theme.breakpoints.up("lg")]: {
+      maxWidth: "1024px",
+      maxHeight: "70vh",
+      width: "100%",
+      height: "100%",
+    },
     bgcolor: "background.paper",
     boxShadow: "20px 20px 30px 0px rgba(0, 0, 0, 0.3)",
     borderRadius: 0.5,
