@@ -132,7 +132,6 @@ export const LoginComponent = () => {
               "&:hover": { backgroundColor: "#03045e" },
               [theme.breakpoints.down("sm")]: {
                 marginTop: "4%",
-                marginLeft: "8%",
               },
               [theme.breakpoints.between(600, 899)]: {
                 marginTop: "2%",
