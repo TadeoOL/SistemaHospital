@@ -24,6 +24,7 @@ import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/Purc
 import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
 import { PurchaseConfigView } from "./views/Purchase/PurchaseConfigView";
 import { ProtectedRoutePurchase } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchase";
+import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply";
 
 function App() {
   return (
@@ -52,18 +53,25 @@ function App() {
                 />
                 <Route path="ordenes-compra" element={<PurchaseOrder />} />
               </Route>
-              <Route path="/compras/proveedores" element={<ProvidersView />} />
-              <Route path="/compras/categorias" element={<CategoryView />}>
-                <Route path="categoria" element={<Category />} />
-                <Route path="subcategoria" element={<SubCategory />} />
-              </Route>
-              <Route path="/compras/articulos" element={<ArticleView />}>
-                <Route path="articulo" element={<Article />} />
-                <Route
-                  path="articulo-existente"
-                  element={<ExistingArticle />}
+
+              <Route element={<ProtectedRouteSupply />}>
+                <Route path="/compras/articulos" element={<ArticleView />}>
+                  <Route path="articulo" element={<Article />} />
+                  <Route
+                    path="articulo-existente"
+                    element={<ExistingArticle />}
                   />
+                </Route>
+                <Route path="/compras/categorias" element={<CategoryView />}>
+                  <Route path="categoria" element={<Category />} />
+                  <Route path="subcategoria" element={<SubCategory />} />
+                </Route>
+                <Route
+                  path="/compras/proveedores"
+                  element={<ProvidersView />}
+                />
               </Route>
+
               <Route path="/compras/almacen" element={<WarehouseView />} />
               <Route
                 path="/compras/autorizacion-compras"
