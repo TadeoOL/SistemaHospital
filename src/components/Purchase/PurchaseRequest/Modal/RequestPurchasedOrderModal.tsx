@@ -127,7 +127,7 @@ const useGetAllArticles = () => {
   };
 };
 
-const AlertConfigAmount = (
+export const AlertConfigAmount = (
   setStep: Function,
   step: number,
   setIsManyProviders: Function,

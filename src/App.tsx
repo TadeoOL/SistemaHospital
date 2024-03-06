@@ -23,6 +23,7 @@ import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuth
 import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
 import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
 import { PurchaseConfigView } from "./views/Purchase/PurchaseConfigView";
+import { ProtectedRoutePurchase } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchase";
 
 function App() {
   return (
@@ -32,38 +33,43 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardView />} />
-            <Route path="/compras/proveedores" element={<ProvidersView />} />
-            <Route
-              path="/compras/solicitud-compras"
-              element={<PurchaseRequestView />}
-            >
+            <Route element={<ProtectedRoutePurchase />}>
               <Route
-                path="productos-stock-bajo"
-                element={<PurchaseRequestCard />}
-              />
+                path="/compras/solicitud-compras"
+                element={<PurchaseRequestView />}
+              >
+                <Route
+                  path="productos-stock-bajo"
+                  element={<PurchaseRequestCard />}
+                />
+                <Route
+                  path="productos-espera-autorizacion"
+                  element={<WaitAuthPurchase />}
+                />
+                <Route
+                  path="productos-solicitados-orden-compra"
+                  element={<PurchaseOrderRequest />}
+                />
+                <Route path="ordenes-compra" element={<PurchaseOrder />} />
+              </Route>
+              <Route path="/compras/proveedores" element={<ProvidersView />} />
+              <Route path="/compras/categorias" element={<CategoryView />}>
+                <Route path="categoria" element={<Category />} />
+                <Route path="subcategoria" element={<SubCategory />} />
+              </Route>
+              <Route path="/compras/articulos" element={<ArticleView />}>
+                <Route path="articulo" element={<Article />} />
+                <Route
+                  path="articulo-existente"
+                  element={<ExistingArticle />}
+                  />
+              </Route>
+              <Route path="/compras/almacen" element={<WarehouseView />} />
               <Route
-                path="productos-espera-autorizacion"
-                element={<WaitAuthPurchase />}
+                path="/compras/autorizacion-compras"
+                element={<PurchaseAuthorizationView />}
               />
-              <Route
-                path="productos-solicitados-orden-compra"
-                element={<PurchaseOrderRequest />}
-              />
-              <Route path="ordenes-compra" element={<PurchaseOrder />} />
             </Route>
-            <Route path="/compras/categorias" element={<CategoryView />}>
-              <Route path="categoria" element={<Category />} />
-              <Route path="subcategoria" element={<SubCategory />} />
-            </Route>
-            <Route path="/compras/articulos" element={<ArticleView />}>
-              <Route path="articulo" element={<Article />} />
-              <Route path="articulo-existente" element={<ExistingArticle />} />
-            </Route>
-            <Route path="/compras/almacen" element={<WarehouseView />} />
-            <Route
-              path="/compras/autorizacion-compras"
-              element={<PurchaseAuthorizationView />}
-            />
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route path="/configuracion" element={<AccountView />} />
             <Route

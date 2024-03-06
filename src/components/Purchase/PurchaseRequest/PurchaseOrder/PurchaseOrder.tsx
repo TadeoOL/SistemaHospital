@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Card,
   Chip,
   CircularProgress,
@@ -104,14 +103,6 @@ export const PurchaseOrder = () => {
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
-        <Box sx={{ display: "flex", flex: 1, justifyContent: "flex-end" }}>
-          <Button
-            variant="contained"
-            onClick={() => setOpenNewOrderPurchase(true)}
-          >
-            Nueva orden de compra
-          </Button>
-        </Box>
         <SearchBar title="Buscar orden de compra..." searchState={setSearch} />
         <Card sx={{ overflowX: "auto" }}>
           <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>

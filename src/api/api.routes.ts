@@ -568,7 +568,7 @@ export const addPurchaseRequest = async (
   articles: {
     Id_Articulo: string;
     CantidadCompra: number;
-    Id_AlertaCompra: string | null;
+    Id_AlertaCompra?: string | null;
   }[],
   warehouseId: string,
   totalArticlePrice: number
@@ -771,9 +771,14 @@ export const getPurchaseOrder = async (paramUrl: string) => {
   return res.data;
 };
 
-export const getCountDashboard = async () => {
+export const getArticlesBySearch = async (paramUrl: string) => {
   const res = await axios.get(
-    `/api/Compras/obtener-contador-inicio`
+    `/api/Articulo/busqueda-articulo?Search=${paramUrl}`
   );
+  return res.data;
+};
+
+export const getCountDashboard = async () => {
+  const res = await axios.get(`/api/Compras/obtener-contador-inicio`);
   return res.data;
 };

@@ -9,6 +9,8 @@ import { ModuleItems } from "../../utils/ModuleItems";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import List from "@mui/material/List";
+import { useAuthStore } from "../../store/auth";
+import { useShallow } from "zustand/react/shallow";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -33,6 +35,7 @@ export const SideNav = () => {
   const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const SelectedOptionColor = "#9ca1a5";
+  const profile = useAuthStore(useShallow((state) => state.profile));
 
   const SideNavItems: React.FC<SideNavItemsProps> = ({
     icon,
@@ -169,15 +172,35 @@ export const SideNav = () => {
             }}
           >
             <List component="div" disablePadding>
-              {ModuleItems.map((item, i) => (
-                <SideNavItems
-                  key={i}
-                  icon={item.icon}
-                  title={item.title}
-                  path={item.path}
-                  childrenItems={item.childrenItems}
-                />
-              ))}
+              {ModuleItems.map((item, i) => {
+                console.log("roles perfil", profile?.roles);
+                console.log("roles sidenav", item?.protectedRoles);
+                if (
+                  profile?.roles.some((roles) =>
+                    item?.protectedRoles?.includes(roles)
+                  )
+                ) {
+                  return (
+                    <SideNavItems
+                      key={i}
+                      icon={item.icon}
+                      title={item.title}
+                      path={item.path}
+                      childrenItems={item.childrenItems}
+                    />
+                  );
+                } else if (!item.protectedRoles) {
+                  return (
+                    <SideNavItems
+                      key={i}
+                      icon={item.icon}
+                      title={item.title}
+                      path={item.path}
+                      childrenItems={item.childrenItems}
+                    />
+                  );
+                }
+              })}
             </List>
           </Stack>
         </Box>
