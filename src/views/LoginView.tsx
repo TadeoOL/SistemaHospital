@@ -19,12 +19,12 @@ export const LoginView = () => {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "80%",
-    [theme.breakpoints.down("sm")]: {
-      width: "60%",
-      height: "55vh",
+    [theme.breakpoints.between(0, 599)]: {
+      width: "90%",
+      height: "65vh",
       top: "40%",
     },
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.between(600, 899)]: {
       width: "90%",
       height: "60vh",
       top: "40%",
