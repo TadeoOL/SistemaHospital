@@ -3,6 +3,7 @@ export interface IModuleItems {
   path: string;
   childrenItems?: string[] | [] | undefined;
   icon: React.ReactElement;
+  protectedRoles?: string[];
 }
 
 export interface IUser {

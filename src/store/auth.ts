@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { IUser } from "../types/types";
+import { createWithEqualityFn } from "zustand/traditional";
 
 interface State {
   token: string | null;
@@ -14,7 +14,7 @@ interface Action {
   logout: () => void;
 }
 
-export const useAuthStore = create(
+export const useAuthStore = createWithEqualityFn(
   persist<State & Action>(
     (set) => ({
       token: null,
