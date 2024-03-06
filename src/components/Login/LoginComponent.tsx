@@ -85,7 +85,11 @@ export const LoginComponent = () => {
             }}
             spacing={2}
           >
-            <Tabs value={"email"} variant="fullWidth">
+            <Tabs
+              value={"email"}
+              variant="fullWidth"
+              sx={{ marginBottom: "10px !important" }}
+            >
               <Tab
                 label="Inicio de Sesión"
                 value="email"
@@ -98,7 +102,7 @@ export const LoginComponent = () => {
                     color: "#046dbd",
                     backgroundColor: "#FFFFFF",
                     "&:hover": {
-                      backgroundColor: "#FFFFFF", // Mantener el fondo blanco al pasar el mouse
+                      backgroundColor: "#FFFFFF",
                     },
                   },
                   "&.MuiTab-root": {
@@ -107,7 +111,7 @@ export const LoginComponent = () => {
                       backgroundColor: "#FFFFFF",
                       fontSize: "14px",
                       opacity: 1,
-                      color: "#046dbd", // Cambia el color al azul al pasar el mouse                    },
+                      color: "#046dbd",
                     },
                   },
                   "&:not(.last-child)": {
