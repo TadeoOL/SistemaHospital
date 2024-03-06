@@ -12,7 +12,7 @@ const SIDE_NAV_WIDTH = 110;
 const LayoutRoot = styled("div")(({ theme }) => ({
   display: "flex",
   flex: "1 1 auto",
-  [theme.breakpoints.up("xl")]: {
+  [theme.breakpoints.up("lg")]: {
     marginLeft: 0,
   },
 }));
@@ -27,7 +27,7 @@ const LayoutContainer = styled("div")(({ theme }) => ({
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  [theme.breakpoints.up("xl")]: {
+  [theme.breakpoints.up("lg")]: {
     marginLeft: SIDE_NAV_WIDTH,
   },
 }));

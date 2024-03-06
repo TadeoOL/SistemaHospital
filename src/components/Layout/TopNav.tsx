@@ -63,7 +63,7 @@ export const TopNav: React.FC<{
 
   const SIDE_NAV_WIDTH = 80;
   const theme = useTheme();
-  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
+  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   const messagesByLink: { [key: string]: React.ReactNode } = {
     "/": <MensajeInicio />,
@@ -97,11 +97,11 @@ export const TopNav: React.FC<{
             alpha(theme.palette.background.default, 0.8),
           position: "sticky",
           left: {
-            xl: `${SIDE_NAV_WIDTH}px`,
+            lg: `${SIDE_NAV_WIDTH}px`,
           },
           top: 0,
           width: {
-            xl: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
+            lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
           },
           zIndex: (theme) => theme.zIndex.appBar,
           height: 60,
@@ -114,7 +114,7 @@ export const TopNav: React.FC<{
           sx={{
             alignItems: "center",
             marginLeft: !xlUp && isOpen ? 29 : isOpen ? 19 : 0,
-            transition: "margin-left 0.3s ease-in-out",
+            transition: "margin-left 0.2s ease-in-out",
             justifyContent: "space-between",
             flexDirection: "row",
             display: "flex",

@@ -30,7 +30,7 @@ export const SideNav = () => {
   const theme = useTheme();
   const isOpen = useAppNavStore((state) => state.open);
   const setIsOpen = useAppNavStore((state) => state.setOpen);
-  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
+  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const SelectedOptionColor = "#9ca1a5";
 
@@ -114,7 +114,7 @@ export const SideNav = () => {
             backgroundColor: "#24282C",
             color: "common.white",
             width: isOpen ? 230 : 80,
-            transition: "width 0.3s ease-in-out",
+            transition: "width 0.2s ease-in-out",
             borderRight: isOpen ? "none" : "1px solid transparent",
           },
         }}
