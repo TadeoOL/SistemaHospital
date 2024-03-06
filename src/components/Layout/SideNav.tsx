@@ -114,8 +114,9 @@ export const SideNav = () => {
             backgroundColor: "#24282C",
             color: "common.white",
             width: isOpen ? 230 : 80,
-            transition: "width 0.2s ease-in-out",
+            transition: "width 0.2s ease-in-out", // Remove transition when closed
             borderRight: isOpen ? "none" : "1px solid transparent",
+            overflowX: "hidden",
           },
         }}
       >
