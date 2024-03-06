@@ -27,7 +27,7 @@ export function createComponents(config: { palette: any }): Components {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: "12px",
+          borderRadius: 3,
           textTransform: "none" as "none",
         },
         sizeSmall: {
@@ -53,7 +53,7 @@ export function createComponents(config: { palette: any }): Components {
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
+          borderRadius: 2,
           [`&.${paperClasses.elevation1}`]: {
             boxShadow:
               "0px 5px 22px rgba(0, 0, 0, 0.04), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.03)",
@@ -259,19 +259,18 @@ export function createComponents(config: { palette: any }): Components {
           minWidth: "auto",
           paddingLeft: 0,
           paddingRight: 0,
+          borderTopRightRadius: 2,
+          borderTopLeftRadius: 2,
           textTransform: "none",
-          "&:not(:last-child)": {
-            borderRight: "1.5px solid white",
+          transition: "300ms linear",
+          color: palette.primary.contrastText,
+          "&.Mui-selected": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
           },
           "&.MuiTab-root:hover": {
-            fontWeight: 700,
-            fontSize: 14,
-            opacity: 1,
-            transition: " 150ms linear",
-          },
-          "&.Mui-selected:hover": {
-            fontWeight: 500,
-            fontSize: 14,
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
           },
         },
       },

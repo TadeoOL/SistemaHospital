@@ -36,7 +36,6 @@ export const PurchaseTabNav = () => {
   useEffect(() => {
     dashboardCount();
   }, []);
-  
 
   const dashboardCount = async () => {
     try {
@@ -50,9 +49,7 @@ export const PurchaseTabNav = () => {
   const [contadorOrden, setContadorOrden] = useState(0);
   const [contadorSolicitud, setContadorSolicitud] = useState(0);
   const [contadorAlerta, setContadorAlerta] = useState(0);
-  
-  // ...
-  
+
   const countPills = async (ordenCompra: any) => {
     setContadorOrden(ordenCompra.contadorOrdenCompra || 0);
     setContadorSolicitud(ordenCompra.contadorSolicitudCompra || 0);
@@ -68,62 +65,10 @@ export const PurchaseTabNav = () => {
           borderTopLeftRadius: 10,
         }}
       >
-        <Tabs
-          value={tabValue}
-          onChange={handleChange}
-          textColor="inherit"
-          variant="fullWidth"
-        >
-          <Tab
-            label={`Ordenes de Compra (${contadorOrden})`}
-            sx={{
-              borderTopLeftRadius: 10,
-              "&.Mui-selected": {
-                backgroundColor: "#046DBD",
-                color: "#FFFFFF",
-              },
-              "&.Mui-selected:hover": {
-                backgroundColor: "#046DBD",
-              },
-              "&:not(.Mui-selected)": {
-                backgroundColor: "#FFFFFF",
-                color: "#000000",
-              },
-            }}
-          />
-          <Tab
-            label={`Solicitudes en proceso (${contadorSolicitud})`}
-            sx={{
-              "&.Mui-selected": {
-                backgroundColor: "#046DBD",
-                color: "#FFFFFF",
-              },
-              "&.Mui-selected:hover": {
-                backgroundColor: "#046DBD",
-              },
-              "&:not(.Mui-selected)": {
-                backgroundColor: "#FFFFFF",
-                color: "#000000",
-              },
-            }}
-          />
-          <Tab
-            label={`Alertas de Producto (${contadorAlerta})`}
-            sx={{
-              borderTopRightRadius: 10,
-              "&.Mui-selected": {
-                backgroundColor: "#046DBD",
-                color: "#FFFFFF",
-              },
-              "&.Mui-selected:hover": {
-                backgroundColor: "#046DBD",
-              },
-              "&:not(.Mui-selected)": {
-                backgroundColor: "#FFFFFF",
-                color: "#000000",
-              },
-            }}
-          />
+        <Tabs value={tabValue} onChange={handleChange} variant="fullWidth">
+          <Tab label={`Ordenes de Compra (${contadorOrden})`} />
+          <Tab label={`Solicitudes en proceso (${contadorSolicitud})`} />
+          <Tab label={`Alertas de Producto (${contadorAlerta})`} />
         </Tabs>
       </AppBar>
     </Box>

@@ -1,6 +1,6 @@
 import { common } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
-import { error, indigo, info, neutral, success, warning } from "./colors";
+import { error, primary, info, neutral, success, warning } from "./colors";
 import { PaletteOptions } from "@mui/material/styles/createPalette";
 
 interface CustomPaletteOptions extends PaletteOptions {
@@ -28,7 +28,7 @@ export function createPalette(): CustomPaletteOptions {
     info,
     mode: "light",
     neutral,
-    primary: indigo,
+    primary,
     success,
     text: {
       primary: neutral[900],
