@@ -58,12 +58,12 @@ export const SideNav = () => {
         sx={{
           "&.Mui-selected": {
             backgroundColor: "#046DBD",
-            width: isOpen ? "240px" : "40px",
+            width: isOpen ? "100%" : "40px",
           },
           "&:hover": {
             backgroundColor: "#373b3e",
             opacity: 10,
-            width: isOpen ? "240px" : "40px",
+            width: isOpen ? "100%" : "40px",
           },
           "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
           borderRadius: 1,
