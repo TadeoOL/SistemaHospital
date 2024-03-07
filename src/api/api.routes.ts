@@ -673,6 +673,79 @@ export const selectManyProvidersForTender = async (
   return res.data;
 };
 
+// Order Response
+
+export const changeOrderStatus = async (
+  Id_OrdenCompra: string,
+  Estatus: number,
+  Mensaje?: string
+) => {
+  try {
+    console.log(
+      "Cambiando estado de orden:",
+      Id_OrdenCompra,
+      Estatus,
+      Mensaje
+    );
+    const res = await axios.put(`/api/Compras/estatus-orden-compra`, {
+      Id_OrdenCompra,
+      Estatus,
+      Mensaje,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error al cambiar estado de la orden:", error);
+    throw error;
+  }
+};
+
+export const getOrderRequest = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-orden-compra?${paramUrl}`
+  );
+  return res.data;
+};
+
+// Order Bill Response
+
+export const addBillQuote = async (
+  Id_OrdenCompra: string,
+  PDFCadena: string
+) => {
+  const res = await axios.put(
+    `/api/Compras/guardar-factura-proveedor-pdf/`,
+    {
+      Id_OrdenCompra,
+      PDFCadena,
+    }
+  );
+  return res.data;
+};
+
+export const deleteBillQuote = async (idQuote: string) => {
+  const res = await axios.delete(
+    `/api/Compras/eliminar-factura-proveedor-pdf/${idQuote}`
+  );
+  return res.data;
+};
+
+export const getBillPdf = async (idQuote: string) => {
+  const res = await axios.get(
+    `/api/Compras/obtener-factura-proveedor-pdf/${idQuote}`
+  );
+  return res.data;
+};
+
+export const getOrderRequestPdf = async (idQuote: string) => {
+  const res = await axios.get(
+    `/api/Compras/obtener-orden-compra/${idQuote}`
+  );
+  return res.data;
+};
+
+
+// Messages Response
+
 export const obtenerMensajes = async (modulo: string) => {
   try {
     const res = await axios.get(
