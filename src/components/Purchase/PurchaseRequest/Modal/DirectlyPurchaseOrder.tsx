@@ -30,6 +30,9 @@ import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { useDirectlyPurchaseRequestOrderStore as useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
 import { useGetAlmacenes } from "../../../../hooks/useGetAlmacenes";
 import {
+  ArrowBack,
+  ArrowForward,
+  Cancel,
   Close,
   CloudUpload,
   Delete,
@@ -45,9 +48,13 @@ import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
 import {
   convertBase64,
+  isValidFloat,
   isValidInteger,
 } from "../../../../utils/functions/dataUtils";
-import { getPurchaseConfig } from "../../../../api/api.routes";
+import {
+  addDirectlyPurchaseOrder,
+  getPurchaseConfig,
+} from "../../../../api/api.routes";
 import { AlertConfigAmount } from "./RequestPurchasedOrderModal";
 import {
   ManyProviders,
@@ -92,11 +99,11 @@ const stepsArray = [
 const stepsView = (step: number, setOpen: Function) => {
   switch (step) {
     case 0:
-      return <BuildOrder />;
+      return <BuildOrder setOpen={setOpen} />;
     case 1:
       return <StepTwo setOpen={setOpen} />;
     case 2:
-      return <StepThree />;
+      return <StepThree setOpen={setOpen} />;
   }
 };
 
@@ -132,7 +139,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
   );
 };
 
-const BuildOrder = () => {
+const BuildOrder = (props: { setOpen: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const { articlesRes, isLoadingArticles } = useGetArticlesBySearch();
   const {
@@ -159,6 +166,11 @@ const BuildOrder = () => {
 
   useEffect(() => {
     setArticlesFetched(articlesRes);
+    setArticlesFetched(
+      articlesRes.filter((a) => {
+        return !articles.some((ar) => ar.id === a.id);
+      })
+    );
   }, [articlesRes]);
 
   const handleAddArticles = () => {
@@ -275,12 +287,18 @@ const BuildOrder = () => {
           Agregar
         </Button>
       </Box>
-      <ArticlesTable setWarehouseError={setWarehouseError} />
+      <ArticlesTable
+        setWarehouseError={setWarehouseError}
+        setOpen={props.setOpen}
+      />
     </Stack>
   );
 };
 
-const ArticlesTable = (props: { setWarehouseError: Function }) => {
+const ArticlesTable = (props: {
+  setWarehouseError: Function;
+  setOpen: Function;
+}) => {
   const {
     articles,
     articlesFetched,
@@ -311,6 +329,22 @@ const ArticlesTable = (props: { setWarehouseError: Function }) => {
   const [quantity, setQuantity] = useState<any>({});
   const [prices, setPrices] = useState<{ [key: string]: string }>({});
   const [priceErrors, setPriceErrors] = useState<string[]>([]);
+  const [isChargingPrices, setIsChargingPrices] = useState(true);
+
+  const addPrices = () => {
+    const newPrices: any = {};
+    articles.forEach((article) => {
+      if (article.price) {
+        newPrices[article.id] = article.price.toString();
+      }
+    });
+    setPrices(newPrices);
+    setIsChargingPrices(false);
+  };
+
+  useEffect(() => {
+    addPrices();
+  }, [step]);
 
   useEffect(() => {
     articles.forEach((article) => {
@@ -383,6 +417,7 @@ const ArticlesTable = (props: { setWarehouseError: Function }) => {
   };
 
   const handlePriceChange = (id: string, value: string) => {
+    if (!isValidFloat(value)) return;
     if (parseFloat(value) <= 0 || !value) {
       setPrices({ ...prices, [id]: value });
       return setPriceErrors((prev) => [...prev, id]);
@@ -431,6 +466,12 @@ const ArticlesTable = (props: { setWarehouseError: Function }) => {
     console.log("Datos del artículo:", articleData);
   };
 
+  if (isChargingPrices)
+    return (
+      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   return (
     <>
       <Card sx={{ mt: 4, overflowX: "auto" }}>
@@ -475,9 +516,9 @@ const ArticlesTable = (props: { setWarehouseError: Function }) => {
                         size="small"
                         InputLabelProps={{ style: { fontSize: 12 } }}
                         value={prices[a.id] || ""}
-                        onChange={(e) =>
-                          handlePriceChange(a.id, e.target.value)
-                        }
+                        onChange={(e) => {
+                          handlePriceChange(a.id, e.target.value);
+                        }}
                         error={priceErrors.some((e) => e === a.id)}
                         helperText={
                           priceErrors.some((e) => e === a.id) &&
@@ -550,9 +591,16 @@ const ArticlesTable = (props: { setWarehouseError: Function }) => {
           bottom: 0,
         }}
       >
-        <Button variant="contained">Cancelar</Button>
         <Button
           variant="contained"
+          startIcon={<Cancel />}
+          onClick={() => props.setOpen(false)}
+        >
+          Cancelar
+        </Button>
+        <Button
+          variant="contained"
+          endIcon={<ArrowForward />}
           disabled={
             editingIds.size > 0 ||
             articles.length === 0 ||
@@ -601,6 +649,7 @@ const SelectProviderAndUploadPDF = () => {
   const [openCollapse, setOpenCollapse] = useState(false);
   const [inputKey, setInputKey] = useState(0);
   const [providerSelected, setProviderSelected] = useState("");
+  const [providerError, setProviderError] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0)
@@ -625,6 +674,7 @@ const SelectProviderAndUploadPDF = () => {
   });
 
   const handleSelectProvider = (e: any) => {
+    setProviderError(false);
     setProviderSelected(e.target.value);
     const providerData = providers.find((p) => p.id === e.target.value);
     if (providerData) {
@@ -632,7 +682,13 @@ const SelectProviderAndUploadPDF = () => {
     }
   };
 
-  const handleNext = () => {};
+  const handleNext = () => {
+    if (!provider) {
+      setProviderError(true);
+      return toast.error("Necesitas seleccionar a un proveedor!");
+    }
+    setStep(step + 1);
+  };
 
   if (isLoadingProviders)
     return (
@@ -642,14 +698,16 @@ const SelectProviderAndUploadPDF = () => {
     );
   return (
     <>
-      <Stack>
-        <Typography>Selecciona el proveedor:</Typography>
+      <Stack sx={{ mt: 2 }}>
+        <Typography variant="subtitle1">Selecciona el proveedor:</Typography>
         <TextField
           select
           size="small"
           label="Proveedores"
           value={providerSelected}
           onChange={handleSelectProvider}
+          error={providerError}
+          helperText={providerError && "Selecciona un proveedor"}
         >
           {providers.map((p) => (
             <MenuItem key={p.id} value={p.id}>
@@ -770,10 +828,18 @@ const SelectProviderAndUploadPDF = () => {
             bottom: 0,
           }}
         >
-          <Button variant="contained" onClick={() => setStep(step - 1)}>
-            Cancelar
+          <Button
+            variant="contained"
+            startIcon={<ArrowBack />}
+            onClick={() => setStep(step - 1)}
+          >
+            Regresar
           </Button>
-          <Button variant="contained" onClick={() => setStep(step + 1)}>
+          <Button
+            variant="contained"
+            endIcon={<ArrowForward />}
+            onClick={() => handleNext()}
+          >
             Siguiente
           </Button>
         </Box>
@@ -821,27 +887,141 @@ const SelectProviderAndUploadPDF = () => {
   );
 };
 
-const StepThree = () => {
-  const { provider } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    provider: state.provider,
-  }));
+const StepThree = (props: { setOpen: Function }) => {
+  const {
+    provider,
+    articles,
+    step,
+    setStep,
+    totalAmountRequest,
+    warehouseSelected,
+  } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      provider: state.provider,
+      articles: state.articles,
+      step: state.step,
+      setStep: state.setStep,
+      totalAmountRequest: state.totalAmountRequest,
+      warehouseSelected: state.warehouseSelected,
+    }),
+    shallow
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!provider) return;
+    setIsLoading(true);
+    const object = {
+      Id_Proveedor: provider.id,
+      Id_Almacen: warehouseSelected,
+      PrecioTotalOrden: totalAmountRequest,
+      OrdenCompraArticulo: articles.map((a) => {
+        return {
+          Id_Articulo: a.id,
+          Cantidad: a.amount,
+          PrecioProveedor: a.price,
+        };
+      }),
+    };
+
+    try {
+      await addDirectlyPurchaseOrder(object);
+      toast.success("Orden de compra realizada con éxito!");
+      props.setOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al realizar la compra");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Stack>
+    <Stack sx={{ mt: 2 }}>
       <Box sx={{ display: "flex", flex: 1, justifyContent: "center" }}>
         <Typography variant="h6">Resumen de la compra</Typography>
       </Box>
       <Stack>
-        <Typography>Información del proveedor</Typography>
-        <Grid container>
-          <Grid item xs={12} md={6}>
-            <Typography>Nombre contacto</Typography>
+        <Typography variant="subtitle1">Información del proveedor</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6} lg={4} spacing={1}>
+            <Typography variant="subtitle2">Nombre contacto:</Typography>
             <Typography>{provider?.nombreContacto}</Typography>
           </Grid>
-          <Grid item xs={12} md={6}></Grid>
-          <Grid item xs={12} md={6}></Grid>
-          <Grid item xs={12} md={6}></Grid>
+          <Grid item xs={12} md={6} lg={4} spacing={1}>
+            <Typography variant="subtitle2">Compañía:</Typography>
+            <Typography>{provider?.nombreCompania}</Typography>
+          </Grid>
+          <Grid item xs={12} md={6} lg={4} spacing={1}>
+            <Typography variant="subtitle2">Teléfono:</Typography>
+            <Typography>{provider?.telefono}</Typography>
+          </Grid>
+          <Grid item xs={12} md={6} lg={4} spacing={1}>
+            <Typography variant="subtitle2">RFC:</Typography>
+            <Typography>{provider?.rfc}</Typography>
+          </Grid>
         </Grid>
+        <Divider sx={{ my: 2 }} />
+        <Typography variant="subtitle1">Artículos</Typography>
+        <Card>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nombre</TableCell>
+                  <TableCell>Cantidad</TableCell>
+                  <TableCell>Precio</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {articles.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>{a.name}</TableCell>
+                    <TableCell>{a.amount}</TableCell>
+                    <TableCell>{a.price}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+            justifyContent: "flex-end",
+            columnGap: 1,
+          }}
+        >
+          <Typography variant="subtitle2">Total de la orden: </Typography>
+          <Typography>${totalAmountRequest}</Typography>
+        </Box>
       </Stack>
+      <Box
+        sx={{
+          display: "flex",
+          flex: 1,
+          justifyContent: "space-between",
+          mt: 2,
+          bottom: 0,
+        }}
+      >
+        <Button
+          variant="contained"
+          startIcon={<ArrowBack />}
+          onClick={() => setStep(step - 1)}
+        >
+          Regresar
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<Save />}
+          onClick={() => handleSubmit()}
+          disabled={isLoading}
+        >
+          {isLoading ? <CircularProgress size={18} /> : "Generar compra"}
+        </Button>
+      </Box>
     </Stack>
   );
 };

@@ -83,5 +83,6 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
       isManyProviders: false,
       isDirectlyPurchase: true,
       totalAmountRequest: 0,
+      provider: null,
     }),
 }));

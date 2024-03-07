@@ -4,6 +4,7 @@ export interface IModuleItems {
   childrenItems?: string[] | [] | undefined;
   icon: React.ReactElement;
   protectedRoles?: string[];
+  mainDashboard?: string;
 }
 
 export interface IUser {

@@ -90,6 +90,17 @@ export const SideNav = () => {
     );
   };
 
+  const filteredItems = ModuleItems.filter((item) => {
+    // Excluir el "main dashboard" si coincide con el rol actual del usuario o si es el "main dashboard" para el rol de compras
+    const isMainDashboard =
+      item.mainDashboard && profile?.roles.includes(item.mainDashboard);
+    return (
+      !isMainDashboard &&
+      (!item.protectedRoles ||
+        item.protectedRoles.some((role) => profile?.roles.includes(role)))
+    );
+  });
+
   return (
     <>
       {isOpen && (
@@ -172,35 +183,15 @@ export const SideNav = () => {
             }}
           >
             <List component="div" disablePadding>
-              {ModuleItems.map((item, i) => {
-                console.log("roles perfil", profile?.roles);
-                console.log("roles sidenav", item?.protectedRoles);
-                if (
-                  profile?.roles.some((roles) =>
-                    item?.protectedRoles?.includes(roles)
-                  )
-                ) {
-                  return (
-                    <SideNavItems
-                      key={i}
-                      icon={item.icon}
-                      title={item.title}
-                      path={item.path}
-                      childrenItems={item.childrenItems}
-                    />
-                  );
-                } else if (!item.protectedRoles) {
-                  return (
-                    <SideNavItems
-                      key={i}
-                      icon={item.icon}
-                      title={item.title}
-                      path={item.path}
-                      childrenItems={item.childrenItems}
-                    />
-                  );
-                }
-              })}
+              {filteredItems.map((item, i) => (
+                <SideNavItems
+                  key={i}
+                  icon={item.icon}
+                  title={item.title}
+                  path={item.path}
+                  childrenItems={item.childrenItems}
+                />
+              ))}
             </List>
           </Stack>
         </Box>
