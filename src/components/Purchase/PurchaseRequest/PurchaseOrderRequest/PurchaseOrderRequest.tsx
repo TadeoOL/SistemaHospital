@@ -49,7 +49,7 @@ const handleRemoveOrder = async (idOrdenCompra: string) => {
     confirmButtonText: "Aceptar",
     reverseButtons: true,
     customClass: {
-      container: "swal-container"
+      container: "swal-container",
     },
   }).then(async (result) => {
     if (result.isConfirmed) {
@@ -153,13 +153,13 @@ export const PurchaseOrderRequest = () => {
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
-        <SearchBar title="Buscar orden de compra..." searchState={setSearch} />
+        <SearchBar title="Buscar solicitud de compra..." searchState={setSearch} />
         <Card sx={{ overflowX: "auto" }}>
           <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Solicitud de orden de compra</TableCell>
+                  <TableCell>Solicitud de Compra</TableCell>
                   <TableCell>Creado por</TableCell>
                   <TableCell>Proveedor</TableCell>
                   <TableCell>Fecha de solicitud</TableCell>
@@ -251,24 +251,26 @@ export const PurchaseOrderRequest = () => {
                                     <DownloadIcon />
                                   </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Subir cotización">
-                                  <IconButton
-                                    onClick={() => {
-                                      setOrderSelected({
-                                        folio: auth.folio,
-                                        purchaseOrderId:
-                                          auth.id_SolicitudCompra,
-                                      });
-                                      setProviders(auth.solicitudProveedor);
-                                      setOpenProviderQuote(true);
-                                      usePurchaseOrderRequestModals.setState({
-                                        dataOrderRequest: auth,
-                                      });
-                                    }}
-                                  >
-                                    <UploadFileIcon />
-                                  </IconButton>
-                                </Tooltip>
+                                {auth.solicitudProveedor.length > 1 && (
+                                  <Tooltip title="Subir Cotización">
+                                    <IconButton
+                                      onClick={() => {
+                                        setOrderSelected({
+                                          folio: auth.folio,
+                                          purchaseOrderId:
+                                            auth.id_SolicitudCompra,
+                                        });
+                                        setProviders(auth.solicitudProveedor);
+                                        setOpenProviderQuote(true);
+                                        usePurchaseOrderRequestModals.setState({
+                                          dataOrderRequest: auth,
+                                        });
+                                      }}
+                                    >
+                                      <UploadFileIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
                               </>
                             )}
                             <Tooltip title="Cancelar">
