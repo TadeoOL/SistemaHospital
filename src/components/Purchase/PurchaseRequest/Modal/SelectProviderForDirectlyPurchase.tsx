@@ -48,6 +48,7 @@ export const SingleProvider = (props: { setOpen: Function }) => {
         return {
           Id_Articulo: a.id,
           CantidadCompra: a.amount,
+          PrecioProveedor: a.price,
         };
       }),
       id_almacen: warehouseSelected,
@@ -182,7 +183,11 @@ export const ManyProviders = (props: { setOpen: Function }) => {
     const objectToPurchase = {
       id_proveedor: selectedProvider,
       Articulos: articles.map((a) => {
-        return { Id_Articulo: a.id, CantidadCompra: a.amount };
+        return {
+          Id_Articulo: a.id,
+          CantidadCompra: a.amount,
+          PrecioProveedor: a.price,
+        };
       }),
       id_almacen: warehouseSelected,
       PrecioTotalInventario: totalAmountRequest,

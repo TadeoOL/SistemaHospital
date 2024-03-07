@@ -6,9 +6,10 @@ interface ISearchBar {
   searchState: Function;
   title: string;
   size?: "small" | "medium";
+  sx?: any;
 }
 export const SearchBar = (props: ISearchBar) => {
-  const { title, searchState, size } = props;
+  const { title, searchState, size, sx } = props;
   const [text, setText] = useState("");
   const handleChange = (event: any) => {
     setText(event.currentTarget.value);
@@ -17,7 +18,7 @@ export const SearchBar = (props: ISearchBar) => {
   };
 
   return (
-    <Box sx={{ px: 2 }}>
+    <Box sx={{ px: 2, ...sx }}>
       <OutlinedInput
         fullWidth
         size={size ? size : "medium"}
