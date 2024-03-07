@@ -12,6 +12,7 @@ interface State {
   search: string;
   enabled: boolean;
   handleChange: boolean;
+  status: string;
 }
 
 interface Action {
@@ -23,6 +24,7 @@ interface Action {
   setEnabled: (enabled: boolean) => void;
   setHandleChange: (handleChange: boolean) => void;
   fetch: () => Promise<void>;
+  setStatus: (status: string) => void;
 }
 
 export const usePurchaseOrderPagination = createWithEqualityFn<
@@ -37,6 +39,8 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
   search: "",
   enabled: true,
   handleChange: false,
+  status: "-1",
+  setStatus: (status: string) => set({ status, pageIndex: 0 }),
   setHandleChange: (handleChange: boolean) => set({ handleChange }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
@@ -46,13 +50,16 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled } = get();
+    const { pageIndex, pageSize, search, enabled, status } = get();
     const page = pageIndex + 1;
     try {
+      console.log({ status });
       const res = await getPurchaseOrder(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&estatus=${
+          parseInt(status) > -1 ? status : ""
+        }`
       );
       set(() => ({
         data: res.data,

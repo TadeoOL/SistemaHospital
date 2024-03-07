@@ -150,7 +150,7 @@ export const AlertConfigAmount = (
     cancelButtonColor: error.main,
     reverseButtons: true,
     customClass: {
-      container: "swal-container"
+      container: "swal-container",
     },
   }).then((result) => {
     if (result.isConfirmed) {
@@ -840,7 +840,7 @@ const SelectManyProviders = () => {
 
         return {
           Id_Articulo: article.id_articulo,
-          PrecioProveedor: article.precioProveedor,
+          PrecioProveedor: article.precioInventario,
           CantidadCompra: article.cantidadComprar,
           Id_AlertaCompra: idAlertaCompra !== undefined ? idAlertaCompra : null,
         };
@@ -1014,6 +1014,7 @@ const SelectSingleProvider = () => {
           Id_Articulo: article.id_articulo,
           CantidadCompra: article.cantidadComprar,
           Id_AlertaCompra: idAlertaCompra !== undefined ? idAlertaCompra : null,
+          PrecioProveedor: article.precioInventario,
         };
       }),
       id_almacen: warehouseSelected,
