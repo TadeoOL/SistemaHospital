@@ -17,14 +17,8 @@ export const ModuleItems: IModuleItems[] = [
   },
   {
     title: "Compras",
-    path: "/compras/solicitud-compras/ordenes-compra",
+    path: "/compras/solicitud-compras",
     icon: <AddShoppingCartIcon sx={{ color: "#fff" }} />,
-    childrenItems: [
-      "ordenes-compra",
-      "productos-stock-bajo",
-      "productos-solicitados-orden-compra",
-      "productos-espera-autorizacion",
-    ],
     protectedRoles: supplyRoles,
     mainDashboard: "ABASTECIMIENTO",
   },
