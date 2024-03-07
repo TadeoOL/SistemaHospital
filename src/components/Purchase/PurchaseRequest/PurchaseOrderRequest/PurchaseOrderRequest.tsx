@@ -40,7 +40,7 @@ const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
   Swal.fire({
     title: "Advertencia",
-    text: "Este cambio no puede revertirse en el sistema.",
+    text: "¿Desea cancelar la solicitud de compra seleccionada?.",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: primary.main,
