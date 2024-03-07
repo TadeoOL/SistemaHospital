@@ -100,6 +100,9 @@ const acceptPurchaseAuthorization = (
     denyButtonColor: primary.main,
     cancelButtonColor: error.main,
     reverseButtons: true,
+    customClass: {
+      container: "swal-container"
+    },
   }).then(async (result) => {
     try {
       if (result.isConfirmed) {
@@ -107,7 +110,7 @@ const acceptPurchaseAuthorization = (
         fetchPurchaseAuthorization();
         Swal.fire("Compra enviada a licitación!", "", "success");
       } else if (result.isDenied) {
-        await changePurchaseStatus(Id_SolicitudCompra, 4, Mensaje);
+        await changePurchaseStatus(Id_SolicitudCompra, 6, Mensaje, );
         fetchPurchaseAuthorization();
         Swal.fire("Compra aprobada correctamente!", "", "success");
       }
@@ -160,10 +163,10 @@ export const PurchaseAuthorizationTable = () => {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>Solicitud de orden de compra</TableCell>
+                <TableCell>Solicitud de Compra</TableCell>
                 <TableCell>Creado por</TableCell>
                 <TableCell>Proveedor</TableCell>
-                <TableCell>Fecha de solicitud</TableCell>
+                <TableCell>Fecha de Solicitud</TableCell>
                 <TableCell>Total</TableCell>
                 <TableCell>Estatus</TableCell>
                 <TableCell>Acciones</TableCell>

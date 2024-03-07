@@ -51,7 +51,7 @@ export const PurchaseRequestView = () => {
               variant="contained"
               onClick={() => setOpenPurchaseRequestOrder(true)}
             >
-              Solicitud de orden de compra
+              Solicitud de Compra
             </Button>
           </Box>
           <PurchaseTabNav />

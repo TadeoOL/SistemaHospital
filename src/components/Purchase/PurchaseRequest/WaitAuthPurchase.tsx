@@ -145,10 +145,10 @@ export const WaitAuthPurchase = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Solicitud de orden de compra</TableCell>
+                <TableCell>Solicitud de Compra</TableCell>
                 <TableCell>Creado por</TableCell>
                 <TableCell>Proveedor</TableCell>
-                <TableCell>Fecha de solicitud</TableCell>
+                <TableCell>Fecha de Solicitud</TableCell>
                 <TableCell>Total</TableCell>
                 <TableCell>Estatus</TableCell>
                 <TableCell>Acciones</TableCell>

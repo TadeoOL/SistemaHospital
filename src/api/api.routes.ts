@@ -567,6 +567,7 @@ export const addPurchaseRequest = async (
   providerId: string[],
   articles: {
     Id_Articulo: string;
+    PrecioProveedor: number;
     CantidadCompra: number;
     Id_AlertaCompra?: string | null;
   }[],

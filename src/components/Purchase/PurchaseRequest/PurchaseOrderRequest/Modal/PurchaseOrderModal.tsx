@@ -86,7 +86,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
           </Stack>
           <Stack spacing={2}>
             <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
-              Solicitud de orden de compra
+              Solicitud de Compra
             </Typography>
             <Button
               variant="outlined"

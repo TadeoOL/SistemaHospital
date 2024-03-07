@@ -246,7 +246,7 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
               ¿Deseas Cancelar la solicitud de compra?
             </Typography>
             <Typography variant="h6" sx={{ marginTop: 3 }}>
-              Se cambiará el estatus de la solicitud de orden de compra a orden
+              Se cambiará el estatus de la solicitud de compra a orden
               cancelada!
             </Typography>
           </>

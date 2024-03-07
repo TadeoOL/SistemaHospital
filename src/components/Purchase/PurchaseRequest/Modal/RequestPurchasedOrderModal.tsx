@@ -840,6 +840,7 @@ const SelectManyProviders = () => {
 
         return {
           Id_Articulo: article.id_articulo,
+          PrecioProveedor: article.precioProveedor,
           CantidadCompra: article.cantidadComprar,
           Id_AlertaCompra: idAlertaCompra !== undefined ? idAlertaCompra : null,
         };
