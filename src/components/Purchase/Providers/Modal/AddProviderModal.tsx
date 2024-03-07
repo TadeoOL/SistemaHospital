@@ -151,8 +151,8 @@ export const AddProviderModal = (props: IAddProviderModal) => {
       setHandleChangeProvider(!handleChangeProvider);
       props.setOpen(false);
       Swal.fire({
-        title: "Proveedor registrado!",
-        text: "El proveedor ha sido registrado correctamente!",
+        title: "Operación Exitosa",
+        text: "El proveedor ha sido registrado correctamente.",
         icon: "success",
       });
       toast.success("Proveedor registrado correctamente!");

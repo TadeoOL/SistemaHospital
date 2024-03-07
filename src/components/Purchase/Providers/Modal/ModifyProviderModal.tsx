@@ -178,8 +178,8 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       toast.success("Proveedor modificado correctamente!");
       props.setOpen(false);
       Swal.fire({
-        title: "Proveedor modificado!",
-        text: "El proveedor ha sido modificado correctamente!",
+        title: "Operación Exitosa",
+        text: "El proveedor ha sido modificado correctamente.",
         icon: "success",
       });
     } catch (error) {

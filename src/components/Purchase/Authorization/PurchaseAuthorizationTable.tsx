@@ -32,6 +32,7 @@ import { StatusPurchaseRequest } from "../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
 import { useMatchProvidersAndArticles } from "../../../store/purchaseStore/matchProvidersAndArticles";
+import { primary, error, warning } from "../../../theme/colors"; 
 
 const useGetAllData = () => {
   const {
@@ -88,12 +89,16 @@ const acceptPurchaseAuthorization = (
     usePurchaseAuthorizationPagination.getState();
   Swal.fire({
     icon: "warning",
-    html: "Esta orden sobrepasa la cantidad para orden directa.<br><br>Selecciona una de las siguientes opciones.",
+    title: "Advertencia",
+    text: "Seleccione una de las siguientes opciones para la solicitud de compra.",
     showDenyButton: true,
     showCancelButton: true,
     cancelButtonText: "Salir",
-    denyButtonText: `Autorizar compra`,
+    denyButtonText: "Autorizar compra",
     confirmButtonText: "Solicitar licitación",
+    confirmButtonColor: warning.main,
+    denyButtonColor: primary.main,
+    cancelButtonColor: error.main,
     reverseButtons: true,
   }).then(async (result) => {
     try {

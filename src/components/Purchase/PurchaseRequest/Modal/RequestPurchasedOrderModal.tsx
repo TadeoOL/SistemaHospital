@@ -47,6 +47,8 @@ import {
 } from "../../../../utils/functions/dataUtils";
 import { useGetAlmacenes } from "../../../../hooks/useGetAlmacenes";
 
+import { primary, error } from "../../../../theme/colors";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -135,16 +137,20 @@ export const AlertConfigAmount = (
 ) => {
   Swal.fire({
     icon: "warning",
-    title: `Tu orden excede el limite de precio${
+    title: "Advertencia",
+    text: `Esta orden sobrepasa el límite de compra directa. ${
       directlyTender
-        ? ", se enviara a licitación directamente!"
-        : " para compra directa!"
+        ? "Se requerirá 3 proveedores para licitar la solicitud de compra."
+        : "Se enviará la orden a autorización y es necesario anexar un PDF a continuación."
     }`,
     showCancelButton: true,
     cancelButtonText: "Cancelar",
-    confirmButtonText: "Mandar a autorización",
+    confirmButtonText: "Siguiente",
+    confirmButtonColor: primary.main,
+    cancelButtonColor: error.main,
+    reverseButtons: true,
     customClass: {
-      container: "swal-container",
+      container: "swal-container"
     },
   }).then((result) => {
     if (result.isConfirmed) {

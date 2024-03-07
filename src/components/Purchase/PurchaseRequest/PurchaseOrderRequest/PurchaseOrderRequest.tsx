@@ -34,34 +34,38 @@ import { StatusPurchaseRequest } from "../../../../types/types";
 import { usePurchaseOrderRequestModals } from "../../../../store/purchaseStore/purchaseOrderRequestModals";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { AddMoreProviders } from "./Modal/AddMoreProviders";
+import { primary, error } from "../../../../theme/colors";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
   Swal.fire({
-    title: "Estas seguro?",
-    text: "No puedes revertir este cambio!",
+    title: "Advertencia",
+    text: "Este cambio no puede revertirse en el sistema.",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
+    confirmButtonColor: primary.main,
+    cancelButtonColor: error.main,
     cancelButtonText: "Cancelar",
-    confirmButtonText: "Si, cancélalo!",
+    confirmButtonText: "Aceptar",
     reverseButtons: true,
+    customClass: {
+      container: "swal-container"
+    },
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
         await changePurchaseStatus(idOrdenCompra, 0, "Cancelada");
         fetch();
         Swal.fire({
-          title: "Cancelada!",
-          text: "Tu orden de compra ha sido cancelada!",
+          title: "Operación Exitosa",
+          text: "Tu orden de compra ha sido cancelada.",
           icon: "success",
         });
       } catch (error) {
         console.log(error);
         Swal.fire({
-          title: "Error!",
-          text: "Error al cancelar la compra!",
+          title: "Error",
+          text: "Error al cancelar la compra, consulte con su administrador.",
           icon: "error",
         });
       }
