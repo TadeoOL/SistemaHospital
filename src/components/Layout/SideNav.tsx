@@ -91,7 +91,6 @@ export const SideNav = () => {
   };
 
   const filteredItems = ModuleItems.filter((item) => {
-    // Excluir el "main dashboard" si coincide con el rol actual del usuario o si es el "main dashboard" para el rol de compras
     const isMainDashboard =
       item.mainDashboard && profile?.roles.includes(item.mainDashboard);
     return (
@@ -128,7 +127,7 @@ export const SideNav = () => {
             backgroundColor: "#24282C",
             color: "common.white",
             width: isOpen ? 230 : 80,
-            transition: "width 0.2s ease-in-out", // Remove transition when closed
+            transition: "width 0.2s ease-in-out",
             borderRight: isOpen ? "none" : "1px solid transparent",
             overflowX: "hidden",
           },

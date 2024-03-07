@@ -5,11 +5,9 @@ import Box from "@mui/material/Box";
 import { usePurchaseRequestNav } from "../../../../store/purchaseStore/purchaseRequestNav";
 import { shallow } from "zustand/shallow";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getCountDashboard } from "../../../../api/api.routes";
 
 export const PurchaseTabNav = () => {
-  const navigate = useNavigate();
   const { tabValue, setTabValue } = usePurchaseRequestNav(
     (state) => ({ tabValue: state.tabValue, setTabValue: state.setTabValue }),
     shallow
@@ -19,19 +17,6 @@ export const PurchaseTabNav = () => {
     event.stopPropagation();
     setTabValue(newValue);
   };
-
-  useEffect(() => {
-    switch (tabValue) {
-      case 0:
-        return navigate("ordenes-compra");
-      case 1:
-        return navigate("productos-solicitados-orden-compra");
-      case 2:
-        return navigate("productos-stock-bajo");
-      default:
-        break;
-    }
-  }, [tabValue]);
 
   useEffect(() => {
     dashboardCount();

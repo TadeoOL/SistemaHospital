@@ -18,10 +18,6 @@ import { Article } from "./components/Purchase/Articles/Article/Article";
 import { ExistingArticle } from "./components/Purchase/Articles/ExistingArticle/ExistingArticle";
 import { WarehouseView } from "./views/Purchase/WarehouseView";
 import { PurchaseAuthorizationView } from "./views/Purchase/PurchaseAuthorizationView";
-import { PurchaseRequestCard } from "./components/Purchase/PurchaseRequest/PurchaseRequestCard";
-import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuthPurchase";
-import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
-import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
 import { PurchaseConfigView } from "./views/Purchase/PurchaseConfigView";
 import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply";
 import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector";
@@ -38,21 +34,7 @@ function App() {
               <Route
                 path="/compras/solicitud-compras"
                 element={<PurchaseRequestView />}
-              >
-                <Route
-                  path="productos-stock-bajo"
-                  element={<PurchaseRequestCard />}
-                />
-                <Route
-                  path="productos-espera-autorizacion"
-                  element={<WaitAuthPurchase />}
-                />
-                <Route
-                  path="productos-solicitados-orden-compra"
-                  element={<PurchaseOrderRequest />}
-                />
-                <Route path="ordenes-compra" element={<PurchaseOrder />} />
-              </Route>
+              />
               <Route path="/compras/articulos" element={<ArticleView />}>
                 <Route path="articulo" element={<Article />} />
                 <Route
