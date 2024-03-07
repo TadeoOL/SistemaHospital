@@ -1,3 +1,4 @@
-export const purchaseRoles = ["DIRECTORCOMPRAS", "ABASTECIMIENTO", "ADMIN"];
-
-export const supplyRoles = ["ABASTECIMIENTO"]
+// Roles para compras
+export const purchaseGlobalRoles = ["ADMIN"];
+export const supplyRoles = [...purchaseGlobalRoles, "ABASTECIMIENTO"];
+export const purchasingDirector = [...purchaseGlobalRoles, "DIRECTORCOMPRAS"];

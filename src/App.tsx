@@ -23,8 +23,8 @@ import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuth
 import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
 import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
 import { PurchaseConfigView } from "./views/Purchase/PurchaseConfigView";
-import { ProtectedRoutePurchase } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchase";
 import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply";
+import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector";
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardView />} />
-            <Route element={<ProtectedRoutePurchase />}>
+            <Route element={<ProtectedRouteSupply />}>
               <Route
                 path="/compras/solicitud-compras"
                 element={<PurchaseRequestView />}
@@ -53,29 +53,28 @@ function App() {
                 />
                 <Route path="ordenes-compra" element={<PurchaseOrder />} />
               </Route>
-
-              <Route element={<ProtectedRouteSupply />}>
-                <Route path="/compras/articulos" element={<ArticleView />}>
-                  <Route path="articulo" element={<Article />} />
-                  <Route
-                    path="articulo-existente"
-                    element={<ExistingArticle />}
-                  />
-                </Route>
-                <Route path="/compras/categorias" element={<CategoryView />}>
-                  <Route path="categoria" element={<Category />} />
-                  <Route path="subcategoria" element={<SubCategory />} />
-                </Route>
+              <Route path="/compras/articulos" element={<ArticleView />}>
+                <Route path="articulo" element={<Article />} />
                 <Route
-                  path="/compras/proveedores"
-                  element={<ProvidersView />}
+                  path="articulo-existente"
+                  element={<ExistingArticle />}
                 />
               </Route>
-
+              <Route path="/compras/categorias" element={<CategoryView />}>
+                <Route path="categoria" element={<Category />} />
+                <Route path="subcategoria" element={<SubCategory />} />
+              </Route>
+              <Route path="/compras/proveedores" element={<ProvidersView />} />
+            </Route>
+            <Route element={<ProtectedRoutePurchasingDirector />}>
               <Route path="/compras/almacen" element={<WarehouseView />} />
               <Route
                 path="/compras/autorizacion-compras"
                 element={<PurchaseAuthorizationView />}
+              />
+              <Route
+                path="compras/configuracion-compras"
+                element={<PurchaseConfigView />}
               />
             </Route>
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
@@ -83,10 +82,6 @@ function App() {
             <Route
               path="/programacion/agenda-quirofano"
               element={<ScheduleView />}
-            />
-            <Route
-              path="compras/configuracion-compras"
-              element={<PurchaseConfigView />}
             />
           </Route>
         </Route>

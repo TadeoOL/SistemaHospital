@@ -1,5 +1,4 @@
 import {
-  Backdrop,
   Box,
   Button,
   CircularProgress,
@@ -28,35 +27,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { addNewFactorSchema } from "../../../../schema/schemas";
 import { modifyPurchaseConfig } from "../../../../api/api.routes";
 import { isValidInteger } from "../../../../utils/functions/dataUtils";
-
-// const style = {
-//   position: "absolute",
-//   top: "50%",
-//   left: "50%",
-//   transform: "translate(-50%, -50%)",
-//   width: { xs: 380, sm: 500, md: 600 },
-//   borderRadius: 2,
-//   boxShadow: 24,
-//   display: "flex",
-//   flexDirection: "column",
-//   maxHeight: { xs: 800 },
-//   overflowY: "auto",
-// };
-
-// const styleBar = {
-//   "&::-webkit-scrollbar": {
-//     width: "0.4em",
-//   },
-//   "&::-webkit-scrollbar-track": {
-//     boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-//     webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-//   },
-//   "&::-webkit-scrollbar-thumb": {
-//     backgroundColor: "rgba(0,0,0,.1)",
-//     outline: "1px solid slategrey",
-//     borderRadius: 10,
-//   },
-// };
 
 const styleInput = {
   paddingTop: "0.4rem",
@@ -209,9 +179,9 @@ export const PurchaseConfig = () => {
   }
   if (isLoadingPurchaseConfig || !{ configPurchase })
     return (
-      <Backdrop open={isLoadingPurchaseConfig}>
+      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", py: 6 }}>
         <CircularProgress />
-      </Backdrop>
+      </Box>
     );
   return (
     <Box

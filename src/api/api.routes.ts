@@ -782,3 +782,19 @@ export const getCountDashboard = async () => {
   const res = await axios.get(`/api/Compras/obtener-contador-inicio`);
   return res.data;
 };
+
+export const addDirectlyPurchaseOrder = async (OrdenCompra: {
+  Id_Proveedor: string;
+  Id_Almacen: string;
+  PrecioTotalOrden: number;
+  OrdenCompraArticulo: {
+    Id_Articulo: string;
+    Cantidad: number;
+    PrecioProveedor: number;
+  }[];
+}) => {
+  const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
+    OrdenCompra,
+  });
+  return res.data;
+};

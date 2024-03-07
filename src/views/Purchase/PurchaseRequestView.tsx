@@ -19,25 +19,24 @@ export const PurchaseRequestView = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flex: 1,
-          justifyContent: "flex-end",
-          mr: 6,
-          mt: -4,
-        }}
-      >
-        <Button
-          size="large"
-          variant="contained"
-          onClick={() => setOpenPurchaseRequestOrder(true)}
-        >
-          Solicitud de orden de compra
-        </Button>
-      </Box>
-      <Box sx={{ flexGrow: 1, px: 3, py: 1 }}>
+      <Box sx={{ flexGrow: 1, p: 3 }}>
         <Container maxWidth="xl">
+          <Box
+            sx={{
+              display: "flex",
+              flex: 1,
+              justifyContent: "flex-end",
+              mb: 1,
+            }}
+          >
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => setOpenPurchaseRequestOrder(true)}
+            >
+              Solicitud de orden de compra
+            </Button>
+          </Box>
           <PurchaseTabNav />
           <Box
             sx={{

@@ -1,19 +1,21 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../../../store/auth";
 import { shallow } from "zustand/shallow";
-import { purchaseRoles } from "../../dataRoles";
+import { purchasingDirector } from "../../dataRoles";
 
-interface ProtectedRoutePurchaseProps {
+interface ProtectedRoutesPurchasingDirectorProps {
   redirectTo?: string;
   children?: React.ReactNode;
 }
 
-export const ProtectedRoutePurchase = (props: ProtectedRoutePurchaseProps) => {
+export const ProtectedRoutePurchasingDirector = (
+  props: ProtectedRoutesPurchasingDirectorProps
+) => {
   const { profile } = useAuthStore(
     (state) => ({ profile: state.profile }),
     shallow
   );
-  if (profile?.roles.some((role) => purchaseRoles.includes(role))) {
+  if (profile?.roles.some((role) => purchasingDirector.includes(role))) {
     return props.children ? <>{props.children}</> : <Outlet />;
   } else {
     return <Navigate to={"/"} />;
