@@ -14,6 +14,7 @@ import {
   MensajeProveedores,
   MensajeConfig,
 } from "./Help/HelpMessage";
+import { usePurchaseRequestNav } from "../../store/purchaseStore/purchaseRequestNav";
 
 interface RightSideNavProps {
   open: boolean;
@@ -21,9 +22,9 @@ interface RightSideNavProps {
   currentPage: string;
 }
 
-const messagesByLink: { [key: string]: React.ReactNode } = {
+const messagesByLink: { [key: string]: React.ReactNode; tab?: number } = {
   "/": <MensajeInicio />,
-  "/compras/solicitud-compras/ordenes-compra": <MensajeOrdenesCompra />,
+  "/compras/solicitud-compras": <MensajeOrdenesCompra />,
   "/compras/solicitud-compras/productos-stock-bajo": (
     <MensajeProdcutosStockBajo />
   ),
@@ -50,7 +51,7 @@ const RightSideNav: React.FC<RightSideNavProps> = ({
 }) => {
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-      <List>
+      <List sx={{ width: "616px" }}>
         <ListItem>
           <ListItemText primary={messagesByLink[currentPage]} />
         </ListItem>

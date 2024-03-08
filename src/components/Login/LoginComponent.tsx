@@ -22,13 +22,15 @@ import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
 import { toast } from "react-toastify";
 import { useTheme } from "@mui/material/styles";
+import HelpIcon from "@mui/icons-material/Help";
+import CustomSideBar from "./CustomSidebar";
 
 interface ILogin {
   userName: string;
   password: string;
 }
 
-export const LoginComponent = () => {
+export const LoginComponent: React.FC<{}> = () => {
   const theme = useTheme();
   const setToken = useAuthStore((state) => state.setToken);
   const setProfile = useAuthStore((state) => state.setProfile);
@@ -36,6 +38,10 @@ export const LoginComponent = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const handleRightSidebarToggle = () => {
+    setRightSidebarOpen(!rightSidebarOpen);
+  };
   const {
     register,
     handleSubmit,
@@ -75,9 +81,18 @@ export const LoginComponent = () => {
     <Box>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Stack>
-          <Typography fontWeight={700} fontSize={24}>
-            Iniciar sesión
-          </Typography>
+          <Box sx={{ display: "flex" }}>
+            <Typography fontWeight={700} fontSize={24}>
+              Iniciar sesión
+            </Typography>
+            <IconButton onClick={handleRightSidebarToggle}>
+              <HelpIcon />
+            </IconButton>
+          </Box>
+          <CustomSideBar
+            open={rightSidebarOpen}
+            onClose={() => setRightSidebarOpen(false)}
+          />
           <Stack
             sx={{
               display: "flex",
