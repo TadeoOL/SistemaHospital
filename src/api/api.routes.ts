@@ -674,20 +674,12 @@ export const selectManyProvidersForTender = async (
   return res.data;
 };
 
-// Order Response
-
 export const changeOrderStatus = async (
   Id_OrdenCompra: string,
   Estatus: number,
   Mensaje?: string
 ) => {
   try {
-    console.log(
-      "Cambiando estado de orden:",
-      Id_OrdenCompra,
-      Estatus,
-      Mensaje
-    );
     const res = await axios.put(`/api/Compras/estatus-orden-compra`, {
       Id_OrdenCompra,
       Estatus,
@@ -713,14 +705,10 @@ export const addBillQuote = async (
   Id_OrdenCompra: string,
   PDFCadena: string
 ) => {
-  
-    const res = await axios.put(
-    `/api/Compras/guardar-factura-proveedor-pdf`,
-    {
-      Id_OrdenCompra,
-      PDFCadena,
-    }
-  );
+  const res = await axios.put(`/api/Compras/guardar-factura-proveedor-pdf`, {
+    Id_OrdenCompra,
+    PDFCadena,
+  });
   return res.data;
 };
 
@@ -739,12 +727,9 @@ export const getBillPdf = async (idQuote: string) => {
 };
 
 export const getOrderRequestPdf = async (idQuote: string) => {
-  const res = await axios.get(
-    `/api/Compras/obtener-orden-compra/${idQuote}`
-  );
+  const res = await axios.get(`/api/Compras/obtener-orden-compra/${idQuote}`);
   return res.data;
 };
-
 
 // Messages Response
 
@@ -870,6 +855,26 @@ export const addDirectlyPurchaseOrder = async (OrdenCompra: {
 }) => {
   const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
     OrdenCompra,
+  });
+  return res.data;
+};
+
+export const matchArticlesWithProviders = async (SolicitudCompra: {
+  Id_SolicitudCompra: string;
+  SolicitudProveedores: {
+    Id: string;
+    Proveedor: {
+      Id_Proveedor: string;
+    };
+    SolicitudCompraArticulos: {
+      Id_Articulo: string;
+      CantidadCompra: number;
+      PrecioProveedor: number;
+    }[];
+  }[];
+}) => {
+  const res = await axios.post("/api/Compras/dividir-solicitud-compra", {
+    SolicitudCompra,
   });
   return res.data;
 };

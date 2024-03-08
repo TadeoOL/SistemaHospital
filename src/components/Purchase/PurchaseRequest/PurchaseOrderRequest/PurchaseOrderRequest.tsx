@@ -30,11 +30,17 @@ import DownloadIcon from "@mui/icons-material/Download";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { PurchaseOrderModal } from "./Modal/PurchaseOrderModal";
 import { ProviderQuoteModal } from "./Modal/ProviderQuoteModal";
-import { StatusPurchaseRequest } from "../../../../types/types";
+import {
+  IPurchaseAuthorization,
+  StatusPurchaseRequest,
+} from "../../../../types/types";
 import { usePurchaseOrderRequestModals } from "../../../../store/purchaseStore/purchaseOrderRequestModals";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { AddMoreProviders } from "./Modal/AddMoreProviders";
 import { primary, error } from "../../../../theme/colors";
+import PriceChangeIcon from "@mui/icons-material/PriceChange";
+import { MatchPrices } from "./Modal/MatchPrices";
+import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -137,6 +143,10 @@ export const PurchaseOrderRequest = () => {
     purchaseOrderId: string;
   }>({ folio: "", purchaseOrderId: "" });
   const [providers, setProviders] = useState<any[]>([]);
+  const [openMatchPrices, setOpenMatchPrices] = useState(false);
+  const [orderData, setOrderData] = useState<IPurchaseAuthorization | null>(
+    null
+  );
 
   useEffect(() => {
     if (openProviderQuote) return;
@@ -149,6 +159,13 @@ export const PurchaseOrderRequest = () => {
       provider: null,
     });
   }, [openProviderQuote]);
+
+  useEffect(() => {
+    if (openMatchPrices) return;
+    useDirectlyPurchaseRequestOrderStore.getState().clearAllStates();
+  }, [openMatchPrices]);
+
+  console.log({ data });
 
   return (
     <>
@@ -236,6 +253,18 @@ export const PurchaseOrderRequest = () => {
                                   }}
                                 >
                                   <PersonAddIcon />
+                                </IconButton>
+                              </Tooltip>
+                            ) : StatusPurchaseRequest[auth.estatus] ===
+                              "Solicitud necesita precios" ? (
+                              <Tooltip title="Selección de precios">
+                                <IconButton
+                                  onClick={() => {
+                                    setOrderData(auth);
+                                    setOpenMatchPrices(true);
+                                  }}
+                                >
+                                  <PriceChangeIcon />
                                 </IconButton>
                               </Tooltip>
                             ) : (
@@ -407,6 +436,16 @@ export const PurchaseOrderRequest = () => {
             requestPurchaseInfo={orderSelected}
             setOpen={setOpenAddMoreProviders}
           />
+        </>
+      </Modal>
+      <Modal
+        open={openMatchPrices}
+        onClose={() => {
+          setOpenMatchPrices(false);
+        }}
+      >
+        <>
+          <MatchPrices data={orderData} />
         </>
       </Modal>
     </>

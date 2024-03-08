@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from "zustand/traditional";
-import { IProvider } from "../../types/types";
+import { IProvider, IRegisterOrderPurchase } from "../../types/types";
 
 // type Warehouse = {
 //   id: string;
@@ -30,6 +30,7 @@ interface State {
   isManyProviders: boolean;
   isDirectlyPurchase: boolean;
   totalAmountRequest: number;
+  registerOrder: IRegisterOrderPurchase | null 
 }
 
 interface Action {
@@ -44,6 +45,7 @@ interface Action {
   setIsDirectlyPurchase: (isDirectlyPurchase: boolean) => void;
   setTotalAmountRequest: (totalAmountRequest: number) => void;
   clearAllStates: () => void;
+  setRegisterOrder: (registerOrder:IRegisterOrderPurchase) =>void
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
@@ -59,6 +61,8 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
   isManyProviders: false,
   isDirectlyPurchase: true,
   totalAmountRequest: 0,
+  registerOrder: null,
+  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => set({registerOrder}),
   setWarehouseSelected: (warehouseSelected: string) =>
     set({ warehouseSelected }),
   setArticles: (articles: ArticleOrder[]) => set({ articles }),

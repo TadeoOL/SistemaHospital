@@ -131,7 +131,7 @@ export enum StatusPurchaseRequest {
   "Solicitud a proveedor" = 4,
   "Selección de productos por proveedor" = 5,
   "Recibida" = 6,
-  "Entregada" = 7,
+  "Solicitud necesita precios" = 7,
 }
 
 export interface IPurchase {
@@ -152,14 +152,13 @@ export interface IPurchaseAuthorization {
   solicitudProveedor: {
     id: string;
     proveedor: { id_Proveedor: string; nombre: string };
-    solicitudCompraArticulos: [
-      {
-        articulo: { id_Articulo: string; nombre: string };
-        id: string;
-        cantidadCompra: number;
-        precioProveedor: number;
-      }
-    ];
+    solicitudCompraArticulos: {
+      articulo: { id_Articulo: string; nombre: string };
+      id: string;
+      cantidadCompra: number;
+      precioProveedor: number;
+    }[];
+    almacen?: { id: string; nombre: string };
   }[];
 }
 
@@ -253,6 +252,7 @@ export interface IPurchaseOrder {
 }
 
 export enum StatusPurchaseOrder {
+  "Todas las ordenes" = -1,
   "Orden de compra cancelada" = 0,
   "Orden de compra creada" = 1,
 }
