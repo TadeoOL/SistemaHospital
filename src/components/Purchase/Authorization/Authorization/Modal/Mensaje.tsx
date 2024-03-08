@@ -8,13 +8,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import WarningIcon from "@mui/icons-material/Warning";
 import { declinePurchaseAuthorization } from "../PurchaseAuthorizationTable";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
+import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
 import {
   obtenerMensajes,
   crearMensaje,
   eliminarMensaje,
   editarMensaje,
-} from "../../../../api/api.routes";
+} from "../../../../../api/api.routes";
 import {
   Box,
   Button,

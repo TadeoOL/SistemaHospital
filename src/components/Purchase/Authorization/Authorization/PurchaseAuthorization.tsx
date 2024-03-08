@@ -1,5 +1,5 @@
-import { Box, Divider, Stack, Typography } from "@mui/material";
-import { SearchBar } from "../../Inputs/SearchBar";
+import { Box, Divider, Stack } from "@mui/material";
+import { SearchBar } from "../../../Inputs/SearchBar";
 import { PurchaseAuthorizationTable } from "./PurchaseAuthorizationTable";
 
 export const PurchaseAuthorization = () => {
@@ -30,9 +30,6 @@ export const PurchaseAuthorization = () => {
             p: 3,
           }}
         >
-          <Typography fontWeight={700} fontSize={24}>
-            Autorización de ordenes de compra
-          </Typography>
         </Stack>
         <SearchBar title="Busca la orden de compra..." searchState={() => {}} />
         <Divider sx={{ my: 1 }} />

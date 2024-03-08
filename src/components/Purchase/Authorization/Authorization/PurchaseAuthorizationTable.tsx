@@ -23,16 +23,16 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { usePurchaseAuthorizationPagination } from "../../../store/purchaseStore/purchaseAuthorizationPagination";
+import { usePurchaseAuthorizationPagination } from "../../../../store/purchaseStore/purchaseAuthorizationPagination";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Swal from "sweetalert2";
-import { changePurchaseStatus } from "../../../api/api.routes";
-import { StatusPurchaseRequest } from "../../../types/types";
+import { changePurchaseStatus } from "../../../../api/api.routes";
+import { StatusPurchaseRequest } from "../../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
-import { useMatchProvidersAndArticles } from "../../../store/purchaseStore/matchProvidersAndArticles";
-import { primary, error, warning } from "../../../theme/colors"; 
+import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
+import { primary, error, warning } from "../../../../theme/colors"; 
 
 const useGetAllData = () => {
   const {

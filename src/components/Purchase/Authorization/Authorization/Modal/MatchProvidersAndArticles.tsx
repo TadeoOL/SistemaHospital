@@ -18,17 +18,16 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
+import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
 import {
 	getProviderQuotePdf,
 	matchArticlesWithProviders,
-} from "../../../../api/api.routes";
+} from "../../../../../api/api.routes";
 import { useCallback, useState } from "react";
-import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
+import { useMatchProvidersAndArticles } from "../../../../../store/purchaseStore/matchProvidersAndArticles";
 import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
 import { Delete, Info } from "@mui/icons-material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const style = {
 	position: "absolute",
@@ -413,7 +412,6 @@ export const MatchProvidersAndArticles = (
 								<Button
 									variant="contained"
 									disabled={articles?.length === 0}
-									startIcon={<AddCircleIcon />}
 									onClick={(e) => {
 										e.stopPropagation();
 										handleMatchArticlesAndProviders();

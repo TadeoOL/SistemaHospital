@@ -21,72 +21,83 @@ import { PurchaseAuthorizationView } from "./views/Purchase/PurchaseAuthorizatio
 import { PurchaseConfigView } from "./views/Purchase/PurchaseConfigView";
 import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply";
 import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector";
+import { PurchaseAuthorization } from "./components/Purchase/Authorization/Authorization/PurchaseAuthorization";
+import { PurchaseHistoryAuthorization } from "./components/Purchase/Authorization/AuthorizationHistory/PurchaseAuthorization";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rutas protegidas */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<Layout />}>
-            <Route path="/" element={<DashboardView />} />
-            <Route element={<ProtectedRouteSupply />}>
-              <Route
-                path="/compras/solicitud-compras"
-                element={<PurchaseRequestView />}
-              />
-              <Route path="/compras/articulos" element={<ArticleView />}>
-                <Route path="articulo" element={<Article />} />
-                <Route
-                  path="articulo-existente"
-                  element={<ExistingArticle />}
-                />
-              </Route>
-              <Route path="/compras/categorias" element={<CategoryView />}>
-                <Route path="categoria" element={<Category />} />
-                <Route path="subcategoria" element={<SubCategory />} />
-              </Route>
-              <Route path="/compras/proveedores" element={<ProvidersView />} />
-            </Route>
-            <Route element={<ProtectedRoutePurchasingDirector />}>
-              <Route path="/compras/almacen" element={<WarehouseView />} />
-              <Route
-                path="/compras/autorizacion-compras"
-                element={<PurchaseAuthorizationView />}
-              />
-              <Route
-                path="compras/configuracion-compras"
-                element={<PurchaseConfigView />}
-              />
-            </Route>
-            <Route path="/farmacia/almacen" element={<WarehouseView />} />
-            <Route path="/configuracion" element={<AccountView />} />
-            <Route
-              path="/programacion/agenda-quirofano"
-              element={<ScheduleView />}
-            />
-          </Route>
-        </Route>
-        {/* Rutas publicas */}
-        <Route element={<LoginRoute />}>
-          <Route path="/login" element={<LoginView />} />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable
-        pauseOnHover={false}
-        theme="colored"
-      />
-    </BrowserRouter>
-  );
+	return (
+		<BrowserRouter>
+			<Routes>
+				{/* Rutas protegidas */}
+				<Route element={<ProtectedRoute />}>
+					<Route element={<Layout />}>
+						<Route path="/" element={<DashboardView />} />
+						<Route element={<ProtectedRouteSupply />}>
+							<Route
+								path="/compras/solicitud-compras"
+								element={<PurchaseRequestView />}
+							/>
+							<Route path="/compras/articulos" element={<ArticleView />}>
+								<Route path="articulo" element={<Article />} />
+								<Route
+									path="articulo-existente"
+									element={<ExistingArticle />}
+								/>
+							</Route>
+							<Route path="/compras/categorias" element={<CategoryView />}>
+								<Route path="categoria" element={<Category />} />
+								<Route path="subcategoria" element={<SubCategory />} />
+							</Route>
+							<Route path="/compras/proveedores" element={<ProvidersView />} />
+						</Route>
+						<Route element={<ProtectedRoutePurchasingDirector />}>
+							<Route path="/compras/almacen" element={<WarehouseView />} />
+							<Route
+								path="/compras/autorizacion-compras"
+								element={<PurchaseAuthorizationView />}
+							>
+								<Route
+									path="autorizaciones"
+									element={<PurchaseAuthorization />}
+								/>
+								<Route
+									path="historial-autorizaciones"
+									element={<PurchaseHistoryAuthorization />}
+								/>
+							</Route>
+							<Route
+								path="compras/configuracion-compras"
+								element={<PurchaseConfigView />}
+							/>
+						</Route>
+						<Route path="/farmacia/almacen" element={<WarehouseView />} />
+						<Route path="/configuracion" element={<AccountView />} />
+						<Route
+							path="/programacion/agenda-quirofano"
+							element={<ScheduleView />}
+						/>
+					</Route>
+				</Route>
+				{/* Rutas publicas */}
+				<Route element={<LoginRoute />}>
+					<Route path="/login" element={<LoginView />} />
+				</Route>
+				<Route path="*" element={<NotFoundPage />} />
+			</Routes>
+			<ToastContainer
+				position="bottom-right"
+				autoClose={4000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss={false}
+				draggable
+				pauseOnHover={false}
+				theme="colored"
+			/>
+		</BrowserRouter>
+	);
 }
 
 export default App;
