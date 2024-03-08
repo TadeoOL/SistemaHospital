@@ -62,6 +62,9 @@ import {
 } from "./SelectProviderForDirectlyPurchase";
 import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
 import { useDropzone } from "react-dropzone";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+
+// import RequestPageIcon from "@mui/icons-material/RequestPage";
 
 type Article = {
   id: string;
@@ -119,7 +122,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
     <Box sx={style}>
       <HeaderModal
         setOpen={() => {
-          props.setOpen;
+          props.setOpen();
         }}
         title="Solicitud de compra directa"
       />
@@ -282,6 +285,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
         <Button
           size="medium"
           variant="contained"
+          startIcon={<AddCircleIcon />}
           onClick={() => handleAddArticles()}
         >
           Agregar
@@ -594,6 +598,7 @@ const ArticlesTable = (props: {
         <Button
           variant="contained"
           startIcon={<Cancel />}
+          color="error"
           onClick={() => props.setOpen(false)}
         >
           Cancelar

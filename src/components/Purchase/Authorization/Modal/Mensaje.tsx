@@ -30,6 +30,7 @@ import {
   Paper,
   Radio,
 } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 interface Mensaje {
   id_Mensaje: string;
@@ -416,7 +417,13 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancelar</Button>
+            <Button
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={handleCloseDialog}
+            >
+              Cancelar
+            </Button>
             <Button onClick={handleConfirmDelete}>Eliminar</Button>
           </DialogActions>
         </Dialog>

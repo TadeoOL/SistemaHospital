@@ -4,6 +4,8 @@ import { useState } from "react";
 import { CategoryTable } from "./CategoryTable";
 import { AddCategoryModal } from "./Modal/AddCategoryModal";
 import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
 
 export const Category = () => {
   const [open, setOpen] = useState(false);
@@ -47,12 +49,17 @@ export const Category = () => {
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ClassOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar categorías deshabilitadas"
                   : "Mostrar categorías habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>

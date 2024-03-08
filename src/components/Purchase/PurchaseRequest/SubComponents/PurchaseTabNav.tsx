@@ -52,7 +52,7 @@ export const PurchaseTabNav = () => {
       >
         <Tabs value={tabValue} onChange={handleChange} variant="fullWidth">
           <Tab label={`Ordenes de Compra (${contadorOrden})`} />
-          <Tab label={`Solicitudes en proceso (${contadorSolicitud})`} />
+          <Tab label={`Solicitudes en Proceso (${contadorSolicitud})`} />
           <Tab label={`Alertas de Producto (${contadorAlerta})`} />
         </Tabs>
       </AppBar>

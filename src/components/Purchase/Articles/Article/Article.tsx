@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ArticleTable } from "./ArticleTable";
 import { AddArticleModal } from "./Modal/AddArticleModal";
 import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 
 export const Article = () => {
   const [open, setOpen] = useState(false);
@@ -40,19 +42,26 @@ export const Article = () => {
             }}
           >
             <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Catálogo de Productos" : "Catálogo de Productos Deshabilitados"}
+              {enabled
+                ? "Catálogo de Productos"
+                : "Catálogo de Productos Deshabilitados"}
             </Typography>
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ArticleOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar artículos deshabilitados"
                   : "Mostrar artículos habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleOutlinedIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>

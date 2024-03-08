@@ -4,6 +4,8 @@ import { useState } from "react";
 import { SubCategoryTable } from "./SubCategoryTable";
 import { AddSubCategoryModal } from "./Modal/AddSubCategoryModal";
 import { useSubCategoryPagination } from "../../../../store/purchaseStore/subCategoryPagination";
+import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
 export const SubCategory = () => {
   const [open, setOpen] = useState(false);
@@ -49,12 +51,17 @@ export const SubCategory = () => {
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ClassOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar sub categorías deshabilitadas"
                   : "Mostrar sub categorías habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleOutlinedIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>

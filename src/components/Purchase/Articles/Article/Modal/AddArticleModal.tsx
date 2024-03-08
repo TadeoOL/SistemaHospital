@@ -18,6 +18,8 @@ import { toast } from "react-toastify";
 import { useGetSubCategories } from "../../../../../hooks/useGetSubCategories";
 import { useArticlePagination } from "../../../../../store/purchaseStore/articlePagination";
 import { addNewArticle } from "../../../../../api/api.routes";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -234,10 +236,19 @@ export const AddArticleModal = (props: IAddArticleModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

@@ -19,6 +19,7 @@ import { shallow } from "zustand/shallow";
 import React, { useCallback, useEffect, useState } from "react";
 import { IArticlesAlert } from "../../../../types/types";
 import { getArticlesByIds } from "../../../../api/api.routes";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 
 const useGetAllData = () => {
   const {
@@ -243,6 +244,7 @@ export const AlertArticlesTable = () => {
             <Button
               variant="contained"
               disabled={isLoadingNextStep}
+              startIcon={<ShoppingBagOutlinedIcon />}
               onClick={() => {
                 handlePurchaseOrder(alert.id_Almacen);
               }}

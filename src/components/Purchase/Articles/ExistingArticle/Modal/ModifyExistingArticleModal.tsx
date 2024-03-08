@@ -22,6 +22,8 @@ import {
 import { useGetArticles } from "../../../../../hooks/useGetArticles";
 import { useGetAlmacenes } from "../../../../../hooks/useGetAlmacenes";
 import { useExistingArticlePagination } from "../../../../../store/purchaseStore/existingArticlePagination";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -278,10 +280,19 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

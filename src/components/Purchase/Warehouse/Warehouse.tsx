@@ -5,6 +5,7 @@ import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import { PurchaseWarehouseTable } from "./WarehouseTable";
 import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
 import { AddPurchaseWarehouseModal } from "./Modal/AddWarehouseModal";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 
 export const Warehouse = () => {
   const [open, setOpen] = useState(false);
@@ -48,6 +49,7 @@ export const Warehouse = () => {
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<WarehouseOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar almacenes deshabilitados"

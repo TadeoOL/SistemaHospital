@@ -5,6 +5,7 @@ import { SearchBar } from "../../Inputs/SearchBar";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import { ProvidersTable } from "./ProvidersTable";
 import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
+import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 
 export const ProvidersCard = () => {
   const [open, setOpen] = useState(false);
@@ -46,6 +47,7 @@ export const ProvidersCard = () => {
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<InventoryOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar proveedores deshabilitados"

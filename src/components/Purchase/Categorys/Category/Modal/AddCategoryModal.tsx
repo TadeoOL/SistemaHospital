@@ -8,6 +8,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { addNewCategory } from "../../../../../api/api.routes";
 import { useCategoryPagination } from "../../../../../store/purchaseStore/categoryPagination";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -125,10 +127,19 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => props.open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => props.open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

@@ -383,15 +383,9 @@ export const QuotePdf = (props: {
           </Stack>
         ))}
       </Stack>
-      <Box sx={{ display: "flex", flex: 1, justifyContent: "flex-end", mt: 4 }}>
-        <Button
-          variant="contained"
-          onClick={() => handleNext()}
-          disabled={asyncLoading}
-        >
-          {isManyProviders ? "Enviar" : "Siguiente"}
-        </Button>
-      </Box>
+      <Box
+        sx={{ display: "flex", flex: 1, justifyContent: "flex-start", mt: 4 }}
+      ></Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
         <Stack
           sx={{

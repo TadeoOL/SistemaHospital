@@ -28,6 +28,7 @@ import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/ma
 import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
 import { Delete, Info } from "@mui/icons-material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const style = {
   position: "absolute",
@@ -404,6 +405,7 @@ export const MatchProvidersAndArticles = (
                 <Button
                   variant="contained"
                   disabled={articles?.length === 0}
+                  startIcon={<AddCircleIcon />}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleMatchArticlesAndProviders();

@@ -46,8 +46,9 @@ import {
   isValidInteger,
 } from "../../../../utils/functions/dataUtils";
 import { useGetAlmacenes } from "../../../../hooks/useGetAlmacenes";
-
 import { primary, error } from "../../../../theme/colors";
+import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimitsOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 
 const style = {
   position: "absolute",
@@ -265,6 +266,7 @@ export const RequestPurchasedOrderModal = ({
                     size="small"
                     disabled={isAddingMoreArticles}
                     variant="contained"
+                    startIcon={<ProductionQuantityLimitsOutlinedIcon />}
                     onClick={() =>
                       setIsAddingMoreArticles(!isAddingMoreArticles)
                     }
@@ -475,6 +477,8 @@ const TableComponent = () => {
         <Button
           variant="outlined"
           disabled={isLoading}
+          color="error"
+          startIcon={<CancelIcon />}
           onClick={() => {
             setHandleOpen(!handleOpen);
           }}
@@ -774,6 +778,7 @@ const AddMoreArticlesTable = () => {
             e.stopPropagation();
             handleAddArticles();
           }}
+          startIcon={<ArticleOutlinedIcon />}
         >
           Agregar artículos
         </Button>

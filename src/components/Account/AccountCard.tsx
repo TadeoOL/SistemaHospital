@@ -21,6 +21,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useState } from "react";
 import { convertBase64 } from "../../utils/functions/dataUtils";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 // import { updateUserData } from "../../api/api.routes";
 
 interface IUpdateUserData extends IUserSettings {
@@ -326,7 +327,12 @@ export const AccountCard = () => {
             </Stack>
           </Stack>
           <Box style={{ textAlign: "right" }}>
-            <Button variant="contained" type="submit" size="small">
+            <Button
+              variant="contained"
+              type="submit"
+              size="small"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar cambios
             </Button>
           </Box>

@@ -8,6 +8,8 @@ import { IWarehouse } from "../../../../types/types";
 import { addNewPurchaseWarehouse } from "../../../../api/api.routes";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { addWarehouse } from "../../../../schema/schemas";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -133,10 +135,19 @@ export const AddPurchaseWarehouseModal = (
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

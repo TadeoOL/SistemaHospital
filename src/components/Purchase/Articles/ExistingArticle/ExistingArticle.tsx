@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ExistingArticleTable } from "./ExistingArticleTable";
 import { useExistingArticlePagination } from "../../../../store/purchaseStore/existingArticlePagination";
 import { AddExistingArticleModal } from "./Modal/AddExistingArticleModal";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
 export const ExistingArticle = () => {
   const [open, setOpen] = useState(false);
@@ -51,12 +53,17 @@ export const ExistingArticle = () => {
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ArticleOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar artículos existentes deshabilitados"
                   : "Mostrar artículos existentes habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleOutlinedIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>

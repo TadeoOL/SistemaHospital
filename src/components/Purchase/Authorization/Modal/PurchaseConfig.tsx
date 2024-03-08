@@ -27,6 +27,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { addNewFactorSchema } from "../../../../schema/schemas";
 import { modifyPurchaseConfig } from "../../../../api/api.routes";
 import { isValidInteger } from "../../../../utils/functions/dataUtils";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const styleInput = {
   paddingTop: "0.4rem",
@@ -287,6 +290,9 @@ export const PurchaseConfig = () => {
                   fullWidth={addNewFactor ? true : false}
                   variant="contained"
                   type={addNewFactor ? "submit" : "button"}
+                  startIcon={
+                    addNewFactor ? <SaveOutlinedIcon /> : <AddBoxOutlinedIcon />
+                  }
                   onClick={(e) => {
                     if (addNewFactor) {
                       e.stopPropagation();
@@ -303,6 +309,8 @@ export const PurchaseConfig = () => {
                 <Button
                   fullWidth={addNewFactor ? true : false}
                   variant="outlined"
+                  color="error"
+                  startIcon={<CancelIcon />}
                   onClick={() => setAddNewFactor(false)}
                 >
                   Cancelar
@@ -410,13 +418,11 @@ export const PurchaseConfig = () => {
             justifyContent: "space-between",
           }}
         >
-          {/* <Button disabled={isLoading} variant="outlined">
-            Cancelar
-          </Button> */}
           <Button
             disabled={isLoading}
             variant="contained"
             onClick={() => handleModifyConfig()}
+            startIcon={<SaveOutlinedIcon />}
           >
             Guardar
           </Button>

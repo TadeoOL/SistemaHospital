@@ -22,6 +22,8 @@ import { useUserPaginationStore } from "../../../store/userPagination";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import HelpOutlinedIcon from "@mui/icons-material/HelpOutlined";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -308,12 +310,19 @@ export const AddUserModal = (props: IAddUserModal) => {
           >
             <Button
               variant="outlined"
+              startIcon={<CancelIcon />}
               onClick={() => setOpen(false)}
               disabled={isLoading}
+              color="error"
             >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit" disabled={isLoading}>
+            <Button
+              variant="contained"
+              type="submit"
+              disabled={isLoading}
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Box>

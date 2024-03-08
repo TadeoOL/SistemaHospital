@@ -21,6 +21,8 @@ import {
 import { toast } from "react-toastify";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 interface IModifyUserModal {
   setOpen: Function;
@@ -323,12 +325,19 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
           >
             <Button
               variant="outlined"
+              startIcon={<CancelIcon />}
               onClick={() => setOpen(false)}
               disabled={isLoading}
+              color="error"
             >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit" disabled={isLoading}>
+            <Button
+              variant="contained"
+              type="submit"
+              disabled={isLoading}
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Box>
