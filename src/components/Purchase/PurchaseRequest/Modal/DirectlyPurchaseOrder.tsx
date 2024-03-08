@@ -121,7 +121,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
         setOpen={() => {
           props.setOpen;
         }}
-        title="Solicitud de compra directa"
+        title="Solicitud de Compra"
       />
       <Stack sx={{ p: 4, bgcolor: "white", overflowY: "auto" }}>
         {isDirectlyPurchase && (

@@ -37,14 +37,14 @@ import Swal from "sweetalert2";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
-    title: "Estas seguro?",
-    text: "No puedes revertir este cambio!",
+    title: "Advertencia",
+    text: "¿Desea cancelar la orden de compra?, este cambio no se puede deshacer.",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    cancelButtonText: "Cancelar",
-    confirmButtonText: "Si, cancélalo!",
+    cancelButtonText: "Salir",
+    confirmButtonText: "Aceptar",
     reverseButtons: true,
   }).then(async (result) => {
     if (result.isConfirmed) {
