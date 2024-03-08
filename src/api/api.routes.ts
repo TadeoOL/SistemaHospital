@@ -713,8 +713,9 @@ export const addBillQuote = async (
   Id_OrdenCompra: string,
   PDFCadena: string
 ) => {
-  const res = await axios.put(
-    `/api/Compras/guardar-factura-proveedor-pdf/`,
+  
+    const res = await axios.put(
+    `/api/Compras/guardar-factura-proveedor-pdf`,
     {
       Id_OrdenCompra,
       PDFCadena,

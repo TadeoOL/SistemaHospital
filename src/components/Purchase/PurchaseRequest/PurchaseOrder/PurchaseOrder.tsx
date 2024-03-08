@@ -150,8 +150,6 @@ export const PurchaseOrder = () => {
     });
   }, [openNewOrderPurchase]);
 
-  console.log({ data });
-
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
@@ -257,6 +255,7 @@ export const PurchaseOrder = () => {
                                       });
                                       setOpenQuoteModal(true);
                                       setProviders([order.proveedor]);
+                                      console.log(order.proveedor);
                                     }}
                                   >
                                     <UploadFileIcon />
@@ -268,7 +267,6 @@ export const PurchaseOrder = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => {
-                                  console.log("info", order);
                                   handleRemoveOrder(order.id_OrdenCompra);
                                 }}
                               >

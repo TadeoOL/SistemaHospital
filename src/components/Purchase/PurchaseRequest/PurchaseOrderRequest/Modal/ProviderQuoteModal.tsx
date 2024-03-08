@@ -147,8 +147,6 @@ export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
   const { idFolio, open, providers } = props;
   const step = usePurchaseOrderRequestModals(useShallow((state) => state.step));
 
-  console.log({ providers });
-
   if (!providers)
     return (
       <Backdrop open>

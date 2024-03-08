@@ -29,9 +29,8 @@ import {
 import { toast } from "react-toastify";
 import { convertBase64 } from "../../../../../utils/functions/dataUtils";
 import { usePurchaseOrderRequestModals } from "../../../../../store/purchaseStore/purchaseOrderRequestModals";
-import { useShallow } from "zustand/react/shallow";
 import { shallow } from "zustand/shallow";
-import { Provider } from "../../../../../types/types";
+import { Provider, SingleProvider } from "../../../../../types/types";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 import { useDropzone } from "react-dropzone";
 
@@ -63,24 +62,20 @@ const styleBar = {
 type QuoteModalProps = {
   idFolio: { folio: string; OrderId: string };
   open: Function;
-  providers: Provider[];
+  providers: SingleProvider[];
 };
 
 const renderStepForm = (
-  step: number,
-  providers: Provider[],
+  providers: SingleProvider[],
   id: string,
   open: Function
 ) => {
-  switch (step) {
-    case 0:
-      return (
-        <QuotePdf providers={providers} purchaseRequestId={id} setOpen={open} />
-      );
-  }
+  return (
+    <QuotePdf providers={providers} purchaseRequestId={id} setOpen={open} />
+  );
 };
 
-const useFetchPdfProviders = (providers: any[], id: string) => {
+const useFetchPdfProviders = (providers: SingleProvider[], id: string) => {
   const [providersData, setProvidersData] =
     useState<Array<Provider & { pdf: string | null }>>();
   const [isLoading, setIsLoading] = useState(true);
@@ -89,12 +84,10 @@ const useFetchPdfProviders = (providers: any[], id: string) => {
     const fetch = async () => {
       const results = [];
       for (const provider of providers) {
-        console.log({ provider });
         try {
           const pdf = await getBillPdf(id);
-          console.log({ pdf });
           results.push({
-            id: "",
+            id: id,
             proveedor: {
               id_Proveedor: provider.id_Proveedor,
               nombre: provider.nombre,
@@ -117,9 +110,6 @@ const useFetchPdfProviders = (providers: any[], id: string) => {
 
 export const QuoteModal = (props: QuoteModalProps) => {
   const { idFolio, open, providers } = props;
-  const step = usePurchaseOrderRequestModals(useShallow((state) => state.step));
-
-  console.log({ providers });
 
   if (!providers)
     return (
@@ -141,7 +131,7 @@ export const QuoteModal = (props: QuoteModalProps) => {
               borderBottomRightRadius: 12,
             }}
           >
-            {renderStepForm(step, providers, idFolio.OrderId, open)}
+            {renderStepForm(providers, idFolio.OrderId, open)}
           </Stack>
         </Box>
       </Box>
@@ -150,7 +140,7 @@ export const QuoteModal = (props: QuoteModalProps) => {
 };
 
 export const QuotePdf = (props: {
-  providers: Provider[];
+  providers: SingleProvider[];
   purchaseRequestId: string;
   setOpen: Function;
 }) => {

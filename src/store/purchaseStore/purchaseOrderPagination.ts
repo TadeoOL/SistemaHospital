@@ -53,7 +53,6 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
     const { pageIndex, pageSize, search, enabled, status } = get();
     const page = pageIndex + 1;
     try {
-      console.log({ status });
       const res = await getPurchaseOrder(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize

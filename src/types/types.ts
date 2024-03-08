@@ -202,9 +202,14 @@ export interface ICheckedArticles {
   idArticulo: string;
 }
 
+export type SingleProvider = {
+  id_Proveedor: string;
+  nombre: string;
+}
+
 export type Provider = {
   id: string;
-  proveedor: { id_Proveedor: string; nombre: string };
+  proveedor: SingleProvider;
 };
 
 export interface IRegisterOrderPurchase {

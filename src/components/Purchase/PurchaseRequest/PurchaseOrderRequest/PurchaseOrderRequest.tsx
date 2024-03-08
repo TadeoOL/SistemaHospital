@@ -153,7 +153,10 @@ export const PurchaseOrderRequest = () => {
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
-        <SearchBar title="Buscar solicitud de compra..." searchState={setSearch} />
+        <SearchBar
+          title="Buscar solicitud de compra..."
+          searchState={setSearch}
+        />
         <Card sx={{ overflowX: "auto" }}>
           <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
             <Table>
@@ -261,6 +264,8 @@ export const PurchaseOrderRequest = () => {
                                             auth.id_SolicitudCompra,
                                         });
                                         setProviders(auth.solicitudProveedor);
+                                        console.log(auth.solicitudProveedor);
+
                                         setOpenProviderQuote(true);
                                         usePurchaseOrderRequestModals.setState({
                                           dataOrderRequest: auth,
