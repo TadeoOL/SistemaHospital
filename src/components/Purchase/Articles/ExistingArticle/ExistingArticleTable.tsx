@@ -70,13 +70,13 @@ const useDisableExistingArticle = () => {
   const disableProviderModal = (articleId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
         } un articulo existente`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
+        confirmButtonText: `${enabled ? "Deshabilitar" : "Habilitar"}`,
         confirmButtonColor: "red",
         cancelButtonText: "No, cancel!",
         reverseButtons: true,

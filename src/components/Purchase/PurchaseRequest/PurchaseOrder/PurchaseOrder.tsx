@@ -5,6 +5,7 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  MenuItem,
   Modal,
   Stack,
   Table,
@@ -14,11 +15,12 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -37,14 +39,14 @@ import Swal from "sweetalert2";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
-    title: "Estas seguro?",
-    text: "No puedes revertir este cambio!",
+    title: "Advertencia",
+    text: "¿Desea cancelar la orden de compra?, este cambio no se puede deshacer.",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    cancelButtonText: "Cancelar",
-    confirmButtonText: "Si, cancélalo!",
+    cancelButtonText: "Salir",
+    confirmButtonText: "Aceptar",
     reverseButtons: true,
   }).then(async (result) => {
     if (result.isConfirmed) {
@@ -81,6 +83,12 @@ const useGetAllData = () => {
     setSearch,
     fetch,
     handleChange,
+    status,
+    setStatus,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
   } = usePurchaseOrderPagination((state) => ({
     isLoading: state.isLoading,
     data: state.data,
@@ -93,10 +101,16 @@ const useGetAllData = () => {
     setSearch: state.setSearch,
     fetch: state.fetch,
     handleChange: state.handleChange,
+    status: state.status,
+    setStatus: state.setStatus,
+    startDate: state.startDate,
+    setStartDate: state.setStartDate,
+    endDate: state.endDate,
+    setEndDate: state.setEndDate,
   }));
   useEffect(() => {
     fetch();
-  }, [pageIndex, pageSize, search, handleChange]);
+  }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate]);
   return {
     isLoading,
     data,
@@ -107,6 +121,10 @@ const useGetAllData = () => {
     pageIndex,
     pageSize,
     setSearch,
+    status,
+    setStatus,
+    setStartDate,
+    setEndDate,
   };
 };
 
@@ -120,6 +138,10 @@ export const PurchaseOrder = () => {
     setPageIndex,
     setPageSize,
     setSearch,
+    status,
+    setStatus,
+    setStartDate,
+    setEndDate,
   } = useGetAllData();
 
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
@@ -150,10 +172,67 @@ export const PurchaseOrder = () => {
     });
   }, [openNewOrderPurchase]);
 
+  const values = useMemo(() => {
+    const statusPurchaseOrderValues: string[] = [];
+
+    for (const value in StatusPurchaseOrder) {
+      if (!isNaN(Number(StatusPurchaseOrder[value]))) {
+        statusPurchaseOrderValues.push(StatusPurchaseOrder[value]);
+      }
+    }
+    return statusPurchaseOrderValues;
+  }, []);
+
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
-        <SearchBar title="Buscar orden de compra..." searchState={setSearch} />
+        <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
+          <SearchBar
+            title="Buscar orden de compra..."
+            searchState={setSearch}
+            sx={{ display: "flex", flex: 2 }}
+            size="small"
+          />
+          <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
+            <TextField
+              label="Fecha inicio"
+              size="small"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+              }}
+            />
+            <TextField
+              label=" Fecha final"
+              size="small"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+              }}
+            />
+          </Box>
+          <Box sx={{ display: "flex", flex: 1 }}>
+            <TextField
+              select
+              label="Estatus"
+              size="small"
+              fullWidth
+              value={status}
+              onChange={(e) => {
+                const { value } = e.target;
+                setStatus(value);
+              }}
+            >
+              {values.map((v: any) => (
+                <MenuItem key={v} value={v}>
+                  {StatusPurchaseOrder[v]}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </Box>
         <Card sx={{ overflowX: "auto" }}>
           <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
             <Table>

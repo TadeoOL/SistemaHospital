@@ -67,7 +67,7 @@ const useDisableCategory = () => {
   const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
         } una categoría`,
