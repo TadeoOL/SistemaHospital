@@ -13,6 +13,8 @@ interface State {
   enabled: boolean;
   handleChange: boolean;
   status: string;
+  startDate: string;
+  endDate: string;
 }
 
 interface Action {
@@ -25,6 +27,8 @@ interface Action {
   setHandleChange: (handleChange: boolean) => void;
   fetch: () => Promise<void>;
   setStatus: (status: string) => void;
+  setStartDate: (startDate: string) => void;
+  setEndDate: (endDate: string) => void;
 }
 
 export const usePurchaseOrderPagination = createWithEqualityFn<
@@ -40,6 +44,10 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
   enabled: true,
   handleChange: false,
   status: "-1",
+  startDate: "",
+  endDate: "",
+  setEndDate: (endDate: string) => set({ endDate }),
+  setStartDate: (startDate: string) => set({ startDate }),
   setStatus: (status: string) => set({ status, pageIndex: 0 }),
   setHandleChange: (handleChange: boolean) => set({ handleChange }),
   setCount: (count: number) => set({ count }),
@@ -50,7 +58,8 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, status } = get();
+    const { pageIndex, pageSize, search, enabled, status, startDate, endDate } =
+      get();
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseOrder(
@@ -58,7 +67,7 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
           pageSize === 0 ? "" : "pageSize=" + pageSize
         }&search=${search}&habilitado=${enabled}&estatus=${
           parseInt(status) > -1 ? status : ""
-        }`
+        }&fechaInicio=${startDate}&fechaFin=${endDate}`
       );
       set(() => ({
         data: res.data,
