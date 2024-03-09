@@ -48,6 +48,7 @@ export const ModuleItems: IModuleItems[] = [
     icon: <RuleIcon sx={{ color: "#fff" }} />,
     protectedRoles: purchasingDirector,
     mainDashboard: "DIRECTORCOMPRAS",
+    childrenItems: ["autorizaciones", "historial-autorizaciones"],
   },
   {
     title: "Proveedores",

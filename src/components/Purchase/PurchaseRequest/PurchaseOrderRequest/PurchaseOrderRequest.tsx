@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import CloseIcon from "@mui/icons-material/Close";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { changePurchaseStatus } from "../../../../api/api.routes";
@@ -203,6 +203,20 @@ export const PurchaseOrderRequest = () => {
     return statusPurchaseOrderValues;
   }, []);
 
+  const returnArticles = useCallback((order: IPurchaseAuthorization) => {
+    return order.solicitudProveedor
+      .flatMap((p) => p.solicitudCompraArticulos)
+      .map((a) => {
+        return {
+          id: a.articulo.id_Articulo,
+          name: a.articulo.nombre,
+          price: a.precioProveedor,
+          amount: a.cantidadCompra,
+        };
+      });
+  }, []);
+
+  console.log({ data });
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
@@ -350,6 +364,9 @@ export const PurchaseOrderRequest = () => {
                                 <IconButton
                                   onClick={() => {
                                     setOrderData(auth);
+                                    useDirectlyPurchaseRequestOrderStore.setState(
+                                      { articles: returnArticles(auth) }
+                                    );
                                     setOpenMatchPrices(true);
                                   }}
                                 >
@@ -532,7 +549,7 @@ export const PurchaseOrderRequest = () => {
         }}
       >
         <>
-          <MatchPrices data={orderData} />
+          <MatchPrices data={orderData} setOpen={setOpenMatchPrices} />
         </>
       </Modal>
     </>

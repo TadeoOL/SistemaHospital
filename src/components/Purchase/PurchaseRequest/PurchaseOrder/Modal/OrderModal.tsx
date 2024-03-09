@@ -3,16 +3,15 @@ import {
   Box,
   Button,
   CircularProgress,
-  ClickAwayListener,
-  IconButton,
-  Modal,
   Stack,
   Typography,
+  Modal,
 } from "@mui/material";
 import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { Close, Download } from "@mui/icons-material";
+import { Download } from "@mui/icons-material";
 import { useState } from "react";
 import { getOrderRequestPdf } from "../../../../../api/api.routes";
+import { ViewPdf } from "../../../../Inputs/ViewPdf";
 
 const style = {
   width: 600,
@@ -107,43 +106,7 @@ export const OrderModal = (props: OrderModaProps) => {
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
         {!isLoading ? (
           <>
-            <Stack
-              sx={{
-                display: "flex",
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <IconButton onClick={() => setViewPdf(false)}>
-                  <Close />
-                </IconButton>
-              </Box>
-              <ClickAwayListener
-                mouseEvent="onMouseDown"
-                touchEvent="onTouchStart"
-                onClickAway={() => setViewPdf(false)}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    mx: 7,
-                    mb: 3,
-                    flex: 1,
-                  }}
-                >
-                  <embed
-                    src={"data:application/pdf;base64," + pdf}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      border: "none",
-                    }}
-                  />
-                </Box>
-              </ClickAwayListener>
-            </Stack>
+            <ViewPdf pdf={pdf} setViewPdf={setViewPdf} />
           </>
         ) : (
           <Backdrop open>

@@ -160,8 +160,8 @@ export interface IPurchaseAuthorization {
       cantidadCompra: number;
       precioProveedor: number;
     }[];
-    almacen?: { id: string; nombre: string };
   }[];
+  almacen?: { id: string; nombre: string };
 }
 
 export interface IArticlesAlert {

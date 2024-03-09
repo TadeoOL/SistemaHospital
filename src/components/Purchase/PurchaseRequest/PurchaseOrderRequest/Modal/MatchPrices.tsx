@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  Modal,
   Stack,
   Step,
   StepLabel,
@@ -30,6 +31,14 @@ import { useDirectlyPurchaseRequestOrderStore } from "../../../../../store/purch
 import { useShallow } from "zustand/react/shallow";
 import { shallow } from "zustand/shallow";
 import { useGetProvider } from "../../../../../hooks/useGetProvider";
+import {
+  addPurchaseOrder,
+  getPurchaseOrderRequestPdf,
+} from "../../../../../api/api.routes";
+import { ViewPdf } from "../../../../Inputs/ViewPdf";
+import { toast } from "react-toastify";
+import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
+import { usePurchaseOrderPagination } from "../../../../../store/purchaseStore/purchaseOrderPagination";
 
 const style = {
   position: "absolute",
@@ -46,24 +55,54 @@ const stepsForm = [
   { id: 2, title: "Resumen" },
 ];
 
-const stepperViews = (step: number, data: IPurchaseAuthorization) => {
+const stepperViews = (
+  step: number,
+  data: IPurchaseAuthorization,
+  open: Function
+) => {
   switch (step) {
     case 0:
-      return <FirstStep data={data} />;
+      return <FirstStep data={data} setOpen={open} />;
     case 1:
-      return <SecondStep />;
+      return <SecondStep setOpen={open} />;
     default:
       break;
   }
 };
 
-export const MatchPrices = (props: { data: IPurchaseAuthorization | null }) => {
-  const { data } = props;
+const useGetPdf = (idQuote: string) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const setPdf = useDirectlyPurchaseRequestOrderStore(
+    useShallow((state) => state.setPdf)
+  );
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await getPurchaseOrderRequestPdf(idQuote);
+        setPdf(res.pdfBase64);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetch();
+  }, []);
+  return { isLoading };
+};
+
+export const MatchPrices = (props: {
+  data: IPurchaseAuthorization | null;
+  setOpen: Function;
+}) => {
+  const { data, setOpen } = props;
+  const { isLoading } = useGetPdf(data ? data.id_SolicitudCompra : "");
   const step = useDirectlyPurchaseRequestOrderStore(
     useShallow((state) => state.step)
   );
 
-  if (!data)
+  if (!data || isLoading)
     return (
       <Backdrop open>
         <CircularProgress size={40} />
@@ -86,41 +125,61 @@ export const MatchPrices = (props: { data: IPurchaseAuthorization | null }) => {
             </Step>
           ))}
         </Stepper>
-        {stepperViews(step, data)}
+        {stepperViews(step, data, setOpen)}
       </Stack>
     </Box>
   );
 };
 
-const FirstStep = (props: { data: IPurchaseAuthorization }) => {
+const FirstStep = (props: {
+  data: IPurchaseAuthorization;
+  setOpen: Function;
+}) => {
   const { data } = props;
-  const { setStep, step, setRegisterOrder, setWarehouseSelected } =
-    useDirectlyPurchaseRequestOrderStore(
-      (state) => ({
-        setStep: state.setStep,
-        step: state.step,
-        setRegisterOrder: state.setRegisterOrder,
-        setWarehouseSelected: state.setWarehouseSelected,
-      }),
-      shallow
-    );
-  const [prices, setPrices] = useState<{ [key: string]: string }>({});
-  const articles = data?.solicitudProveedor.flatMap(
-    (p) => p.solicitudCompraArticulos
+  const {
+    setStep,
+    step,
+    setRegisterOrder,
+    setWarehouseSelected,
+    articlesData,
+    setArticlesData,
+    setTotalAmountRequest,
+    pdf,
+  } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      setStep: state.setStep,
+      step: state.step,
+      setRegisterOrder: state.setRegisterOrder,
+      setWarehouseSelected: state.setWarehouseSelected,
+      articlesData: state.articles,
+      setArticlesData: state.setArticles,
+      setTotalAmountRequest: state.setTotalAmountRequest,
+      pdf: state.pdf,
+    }),
+    shallow
   );
-  const disabledButton = Object.values(prices).some((a) => a.trim() === "");
+  const [viewPdf, setViewPdf] = useState(false);
+  const [prices, setPrices] = useState<{
+    [key: string]: { price: string; amount: number };
+  }>({});
+  const disabledButton = Object.values(prices).some(
+    (a) => a.price.trim() === "" || parseFloat(a.price) === 0
+  );
   const totalPrice = useMemo(() => {
     return Object.values(prices).reduce((total, item) => {
-      const totalPriceObject = parseFloat(item);
+      const totalPriceObject = parseFloat(item.price) * item.amount;
       return total + totalPriceObject || 0;
     }, 0);
   }, [prices]);
 
   useEffect(() => {
-    if (!articles) return;
+    if (!articlesData) return;
     const newPrices: typeof prices = {};
-    for (const iterator of articles) {
-      newPrices[iterator.articulo.id_Articulo] = "";
+    for (const iterator of articlesData) {
+      newPrices[iterator.id] = {
+        price: iterator.price.toString() || "",
+        amount: iterator.amount || 0,
+      };
     }
     setPrices(newPrices);
   }, []);
@@ -128,129 +187,189 @@ const FirstStep = (props: { data: IPurchaseAuthorization }) => {
   const handlePriceChange = useCallback((id: string, value: string) => {
     if (!isValidFloat(value)) return;
     setPrices((prevPrices) => {
-      return { ...prevPrices, [id]: value };
+      const existingItem = prevPrices[id];
+      if (!existingItem) return prevPrices;
+      const updatedItem = {
+        ...existingItem,
+        price: value,
+      };
+      return { ...prevPrices, [id]: updatedItem };
     });
   }, []);
 
   const handleSubmit = () => {
-    const warehouse =
-      data.solicitudProveedor.length <= 1
-        ? data.solicitudProveedor[0].almacen?.nombre
-        : "";
+    const warehouse = data.almacen?.nombre;
+    const articles = data.solicitudProveedor
+      .flatMap((p) => p.solicitudCompraArticulos)
+      .map((a) => {
+        return {
+          Id_Articulo: a.articulo.id_Articulo,
+          Cantidad: a.cantidadCompra,
+          precioProveedor: parseFloat(prices[a.articulo.id_Articulo].price),
+          nombre: a.articulo.nombre,
+        };
+      });
+
     const objectPurchase: IRegisterOrderPurchase = {
       Id_SolicitudCompra: data.id_SolicitudCompra,
       OrdenCompra: data.solicitudProveedor.map((p) => {
         const providerId = p.proveedor.id_Proveedor;
-        const articulos = p.solicitudCompraArticulos;
         return {
           Id_Proveedor: providerId,
-          OrdenCompraArticulo: articulos.map((a) => {
-            return {
-              Id_Articulo: a.articulo.id_Articulo,
-              Cantidad: a.cantidadCompra,
-              precioProveedor: parseFloat(prices[a.articulo.id_Articulo]),
-              nombre: a.articulo.nombre,
-            };
-          }),
+          OrdenCompraArticulo: articles,
         };
       }),
     };
 
     setWarehouseSelected(warehouse ? warehouse : "");
     setRegisterOrder(objectPurchase);
+    setTotalAmountRequest(totalPrice);
+    setArticlesData(
+      articles.map((a) => {
+        return {
+          id: a.Id_Articulo,
+          name: a.nombre,
+          amount: a.Cantidad,
+          price: a.precioProveedor,
+        };
+      })
+    );
     setStep(step + 1);
   };
 
   return (
-    <Box>
-      <Typography>PDF -</Typography>
+    <>
       <Box>
-        <Button>Ver PDF</Button>
-      </Box>
-      <Card>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align="center">Nombre</TableCell>
-                <TableCell align="center">Precio</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {articles?.map((a) => (
-                <TableRow key={a.articulo.id_Articulo}>
-                  <TableCell align="center">{a.articulo.nombre}</TableCell>
-                  <TableCell align="center">
-                    <TextField
-                      label="Precio"
-                      size="small"
-                      value={prices[a.articulo.id_Articulo]}
-                      onChange={(e) => {
-                        handlePriceChange(
-                          a.articulo.id_Articulo,
-                          e.target.value
-                        );
-                      }}
-                    />
-                  </TableCell>
+        <Typography>PDF -</Typography>
+        <Box>
+          <Button onClick={() => setViewPdf(true)}>Ver PDF</Button>
+        </Box>
+        <Card>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">Nombre</TableCell>
+                  <TableCell align="center">Cantidad</TableCell>
+                  <TableCell>Precio</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
-      <Box
-        sx={{
-          display: "flex",
-          flex: 1,
-          justifyContent: "flex-end",
-          columnGap: 1,
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="subtitle1">Total de la orden:</Typography>
-        <Typography variant="subtitle2">${totalPrice}</Typography>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flex: 1,
-          justifyContent: "space-between",
-          mt: 4,
-        }}
-      >
-        <Button variant="outlined">Cancelar</Button>
-        <Button
-          variant="contained"
-          disabled={disabledButton}
-          onClick={() => handleSubmit()}
+              </TableHead>
+              <TableBody>
+                {articlesData?.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell align="center">{a.name}</TableCell>
+                    <TableCell align="center">{a.amount}</TableCell>
+                    <TableCell>
+                      <TextField
+                        label="Precio"
+                        size="small"
+                        InputLabelProps={{ shrink: true }}
+                        value={
+                          Object.values(prices).length > 0
+                            ? prices[a.id].price
+                            : "" || ""
+                        }
+                        onChange={(e) => {
+                          handlePriceChange(a.id, e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+            justifyContent: "flex-end",
+            columnGap: 1,
+            alignItems: "center",
+          }}
         >
-          Siguiente
-        </Button>
+          <Typography variant="subtitle2">Total de la orden:</Typography>
+          <Typography variant="subtitle2">${totalPrice}</Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+            justifyContent: "space-between",
+            mt: 4,
+          }}
+        >
+          <Button variant="outlined" onClick={() => props.setOpen(false)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            disabled={disabledButton}
+            onClick={() => handleSubmit()}
+          >
+            Siguiente
+          </Button>
+        </Box>
       </Box>
-    </Box>
+      <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
+        <>
+          <ViewPdf pdf={pdf} setViewPdf={setViewPdf} />
+        </>
+      </Modal>
+    </>
   );
 };
 
-const SecondStep = () => {
-  const { registerOrder, setStep, step } = useDirectlyPurchaseRequestOrderStore(
+const SecondStep = (props: { setOpen: Function }) => {
+  const {
+    registerOrder,
+    setStep,
+    step,
+    warehouseSelected,
+    articles,
+    totalAmountRequest,
+  } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       registerOrder: state.registerOrder,
       warehouseSelected: state.warehouseSelected,
       provider: state.provider,
       step: state.step,
       setStep: state.setStep,
+      articles: state.articles,
+      totalAmountRequest: state.totalAmountRequest,
     }),
     shallow
   );
   const { isLoading, providerData } = useGetProvider(
     registerOrder?.OrdenCompra[0].Id_Proveedor as string
   );
-  const articles = registerOrder?.OrdenCompra.flatMap(
-    (p) => p.OrdenCompraArticulo
-  );
 
-  console.log({ registerOrder });
+  const handleSubmit = async () => {
+    if (!registerOrder) return;
+    const modifiedPurchaseOrder = registerOrder.OrdenCompra.map((o) => ({
+      ...o,
+      OrdenCompraArticulo: o.OrdenCompraArticulo.map((a) => {
+        const { nombre, ...rest } = a;
+        return rest;
+      }),
+    }));
+    const object = {
+      Id_SolicitudCompra: registerOrder.Id_SolicitudCompra,
+      OrdenCompra: modifiedPurchaseOrder,
+    };
+
+    try {
+      await addPurchaseOrder(object);
+      toast.success("Orden creada con éxito!");
+      usePurchaseOrderRequestPagination.getState().fetch();
+      usePurchaseOrderPagination.getState().fetch();
+      props.setOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al crear la orden!");
+    }
+  };
 
   if (isLoading)
     return (
@@ -316,6 +435,14 @@ const SecondStep = () => {
         </Grid>
       </Stack>
       <Divider sx={{ my: 2 }} />
+      <Stack>
+        <Typography variant="subtitle1">Información de almacén</Typography>
+        <Box sx={{ display: "flex", flex: 1, columnGap: 1 }}>
+          <Typography variant="subtitle2">Nombre:</Typography>
+          <Typography variant="subtitle2">{warehouseSelected}</Typography>
+        </Box>
+      </Stack>
+      <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle1">Artículos</Typography>
       <Card>
         <TableContainer>
@@ -329,16 +456,27 @@ const SecondStep = () => {
             </TableHead>
             <TableBody>
               {articles?.map((a) => (
-                <TableRow key={a.Id_Articulo}>
-                  <TableCell>{a.nombre}</TableCell>
-                  <TableCell>{a.Cantidad}</TableCell>
-                  <TableCell>{a.precioProveedor}</TableCell>
+                <TableRow key={a.id}>
+                  <TableCell>{a.name}</TableCell>
+                  <TableCell>{a.amount}</TableCell>
+                  <TableCell>{a.price}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Card>
+      <Box
+        sx={{
+          display: "flex",
+          flex: 1,
+          justifyContent: "flex-end",
+          columnGap: 1,
+        }}
+      >
+        <Typography variant="subtitle2">Total de la orden:</Typography>
+        <Typography variant="subtitle2">${totalAmountRequest}</Typography>
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -350,7 +488,9 @@ const SecondStep = () => {
         <Button variant="outlined" onClick={() => setStep(step - 1)}>
           Regresar
         </Button>
-        <Button variant="contained">Guardar</Button>
+        <Button variant="contained" onClick={() => handleSubmit()}>
+          Guardar
+        </Button>
       </Box>
     </Box>
   );
