@@ -136,7 +136,6 @@ export const WaitAuthPurchase = () => {
     });
   };
 
-  console.log({ data });
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
       <SearchBar title="Buscar orden de compra..." searchState={setSearch} />

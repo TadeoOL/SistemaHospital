@@ -141,7 +141,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
       const idForm = getValues("id");
-      console.log({ data });
       await modifyArticle({ ...data, id: idForm });
       setHandleChangeArticle(!handleChangeArticle);
       toast.success("Articulo modificado con éxito!");

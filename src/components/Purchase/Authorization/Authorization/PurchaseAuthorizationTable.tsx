@@ -32,7 +32,7 @@ import { StatusPurchaseRequest } from "../../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
 import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
-import { primary, error, warning } from "../../../../theme/colors"; 
+import { primary, error, warning } from "../../../../theme/colors";
 
 const useGetAllData = () => {
   const {
@@ -101,7 +101,7 @@ const acceptPurchaseAuthorization = (
     cancelButtonColor: error.main,
     reverseButtons: true,
     customClass: {
-      container: "swal-container"
+      container: "swal-container",
     },
   }).then(async (result) => {
     try {
@@ -110,7 +110,7 @@ const acceptPurchaseAuthorization = (
         fetchPurchaseAuthorization();
         Swal.fire("Compra enviada a licitación!", "", "success");
       } else if (result.isDenied) {
-        await changePurchaseStatus(Id_SolicitudCompra, 6, Mensaje, );
+        await changePurchaseStatus(Id_SolicitudCompra, 6, Mensaje);
         fetchPurchaseAuthorization();
         Swal.fire("Compra aprobada correctamente!", "", "success");
       }
@@ -154,7 +154,6 @@ export const PurchaseAuthorizationTable = () => {
       purchaseOrderMatched: null,
     });
   }, [openModal]);
-  console.log({ data });
 
   return (
     <>

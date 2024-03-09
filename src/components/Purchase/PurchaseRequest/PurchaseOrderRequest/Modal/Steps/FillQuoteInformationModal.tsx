@@ -130,8 +130,6 @@ export const FillQuoteInformationModal = () => {
     setStep(step - 1);
   };
 
-  console.log({ precios });
-
   if (isLoading)
     return (
       <Box

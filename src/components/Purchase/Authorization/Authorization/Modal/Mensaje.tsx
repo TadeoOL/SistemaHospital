@@ -88,7 +88,6 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
     const fetchData = async () => {
       try {
         const res = await obtenerMensajes("Compras_AutorizacionCancelada");
-        // console.log(res);
         setMensajes(res);
       } catch (error: any) {
         console.error("Error al obtener los mensajes:", error);

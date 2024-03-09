@@ -12,6 +12,9 @@ interface State {
   search: string;
   enabled: boolean;
   handleChange: boolean;
+  status: string;
+  startDate: string;
+  endDate: string;
 }
 
 interface Action {
@@ -23,6 +26,10 @@ interface Action {
   setEnabled: (enabled: boolean) => void;
   setHandleChange: (handleChange: boolean) => void;
   fetch: () => Promise<void>;
+  setStatus: (status: string) => void;
+  setStartDate: (startDate: string) => void;
+  setEndDate: (endDate: string) => void;
+  clearFilters: () => void;
 }
 
 export const usePurchaseOrderRequestPagination = createWithEqualityFn<
@@ -37,6 +44,12 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<
   search: "",
   enabled: true,
   handleChange: false,
+  status: "-1",
+  startDate: "",
+  endDate: "",
+  setEndDate: (endDate: string) => set({ endDate }),
+  setStartDate: (startDate: string) => set({ startDate }),
+  setStatus: (status: string) => set({ status, pageIndex: 0 }),
   setHandleChange: (handleChange: boolean) => set({ handleChange }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
@@ -44,15 +57,19 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  clearFilters: () => set({ endDate: "", startDate: "", status: "-1" }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled } = get();
+    const { pageIndex, pageSize, search, enabled, endDate, startDate, status } =
+      get();
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseOrderRequest(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&estatus=${
+          parseInt(status) > -1 ? status : ""
+        }&fechaInicio=${startDate}&fechaFin=${endDate}`
       );
       set(() => ({
         data: res.data,

@@ -30,7 +30,7 @@ interface State {
   isManyProviders: boolean;
   isDirectlyPurchase: boolean;
   totalAmountRequest: number;
-  registerOrder: IRegisterOrderPurchase | null 
+  registerOrder: IRegisterOrderPurchase | null;
 }
 
 interface Action {
@@ -45,7 +45,7 @@ interface Action {
   setIsDirectlyPurchase: (isDirectlyPurchase: boolean) => void;
   setTotalAmountRequest: (totalAmountRequest: number) => void;
   clearAllStates: () => void;
-  setRegisterOrder: (registerOrder:IRegisterOrderPurchase) =>void
+  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => void;
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
@@ -62,7 +62,8 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
   isDirectlyPurchase: true,
   totalAmountRequest: 0,
   registerOrder: null,
-  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => set({registerOrder}),
+  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) =>
+    set({ registerOrder }),
   setWarehouseSelected: (warehouseSelected: string) =>
     set({ warehouseSelected }),
   setArticles: (articles: ArticleOrder[]) => set({ articles }),

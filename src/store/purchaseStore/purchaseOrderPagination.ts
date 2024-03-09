@@ -29,6 +29,7 @@ interface Action {
   setStatus: (status: string) => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
+  clearFilters: () => void;
 }
 
 export const usePurchaseOrderPagination = createWithEqualityFn<
@@ -56,6 +57,7 @@ export const usePurchaseOrderPagination = createWithEqualityFn<
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  clearFilters: () => set({ endDate: "", startDate: "", status: "-1" }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
     const { pageIndex, pageSize, search, enabled, status, startDate, endDate } =

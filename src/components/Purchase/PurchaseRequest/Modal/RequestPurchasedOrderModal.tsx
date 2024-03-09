@@ -204,7 +204,6 @@ export const RequestPurchasedOrderModal = ({
     if (!isAlert) return setIsAddingMoreArticles(true);
   }, [isAlert]);
 
-  console.log({ almacenes });
   if (isLoadingAlmacenes)
     return (
       <Backdrop open>
