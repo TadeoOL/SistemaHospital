@@ -14,7 +14,7 @@ function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 
 const messagesByLink: Record<string, string> = {
   "/": "Inicio",
-  "/compras/solicitud-compras/ordenes-compra": "Ordenes de Compra",
+  "/compras/solicitud-compras": "Solicitud de compras",
   "/compras/solicitud-compras/productos-solicitados-orden-compra":
     "Solcitudes en Proceso",
   "/compras/solicitud-compras/productos-stock-bajo": "Alerta de Productos",
@@ -41,9 +41,7 @@ const CustomBreadcrumb = () => {
     <div role="presentation" onClick={handleClick}>
       <Box component="main" sx={{ pt: 3, pl: 3, flexGrow: 1 }}>
         <Container maxWidth={"xl"}>
-          <Breadcrumbs
-            aria-label="breadcrumb"
-          >
+          <Breadcrumbs aria-label="breadcrumb">
             <Typography
               sx={{
                 display: "flex",

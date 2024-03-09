@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  ClickAwayListener,
   Collapse,
   IconButton,
   Modal,
@@ -26,7 +25,6 @@ import {
   KeyboardArrowUp,
   CloudUpload,
   KeyboardArrowDown,
-  Close,
   Delete,
 } from "@mui/icons-material";
 import { toast } from "react-toastify";
@@ -39,6 +37,7 @@ import { Provider } from "../../../../../types/types";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 import { useDropzone } from "react-dropzone";
 import { OrderSummaryModal } from "./Steps/OrderSummaryModal";
+import { ViewPdf } from "../../../../Inputs/ViewPdf";
 
 const style = {
   position: "absolute",
@@ -444,43 +443,9 @@ export const ProvidersQuotePdf = (props: {
         </Button>
       </Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
-        <Stack
-          sx={{
-            display: "flex",
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <IconButton onClick={() => setViewPdf(false)}>
-              <Close />
-            </IconButton>
-          </Box>
-          <ClickAwayListener
-            mouseEvent="onMouseDown"
-            touchEvent="onTouchStart"
-            onClickAway={() => setViewPdf(false)}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flex: 10,
-                mx: 7,
-                mb: 3,
-              }}
-            >
-              <embed
-                src={pdfOpen}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  border: "none",
-                }}
-              />
-            </Box>
-          </ClickAwayListener>
-        </Stack>
+        <>
+          <ViewPdf pdf={pdfOpen} setViewPdf={setViewPdf} />
+        </>
       </Modal>
     </>
   );
