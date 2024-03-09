@@ -357,7 +357,6 @@ const ArticlesTable = (props: {
       if (articleHasPrice) {
         const articleId = article.id;
         const priceValue = prices[articleId];
-        console.log({ priceValue });
 
         if (priceValue.trim() !== "" && parseFloat(priceValue) > 0) {
           setPriceErrors((prev) => prev.filter((id) => id !== article.id));
@@ -453,21 +452,17 @@ const ArticlesTable = (props: {
       if (totalPrice >= cantidadLicitacionDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
         setIsDirectlyPurchase(false);
-        console.log("A licitacion de uña");
       } else if (totalPrice >= cantidadOrdenDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders, false);
         setIsDirectlyPurchase(false);
       } else {
         setIsDirectlyPurchase(true);
         setStep(step + 1);
-        console.log("Compra directa y pal siguiente paso");
       }
     } catch (error) {
       console.log(error);
       toast.error("Error al generar la compra");
     }
-
-    console.log("Datos del artículo:", articleData);
   };
 
   if (isChargingPrices)

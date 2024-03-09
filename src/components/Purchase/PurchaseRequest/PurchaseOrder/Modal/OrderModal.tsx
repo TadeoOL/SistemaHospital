@@ -40,7 +40,6 @@ export const OrderModal = (props: OrderModaProps) => {
     setIsLoading(true);
     try {
       const res = await getOrderRequestPdf(purchaseData.OrderId);
-      console.log({ res });
       setPdf(res.pdfBase64);
     } catch (error) {
       console.log(error);

@@ -14,7 +14,6 @@ export const PurchaseRequestCard = () => {
     shallow
   );
 
-  console.log({ handleOpen });
   return (
     <>
       <Box sx={{ minWidth: { xs: 950, xl: 0 } }}>

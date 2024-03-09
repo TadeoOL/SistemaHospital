@@ -36,6 +36,7 @@ import { useArticlesAlertPagination } from "../../../../store/purchaseStore/arti
 import { QuoteModal } from "./Modal/QuoteModal";
 import { OrderModal } from "./Modal/OrderModal";
 import Swal from "sweetalert2";
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -232,9 +233,18 @@ export const PurchaseOrder = () => {
               ))}
             </TextField>
           </Box>
+          <Box>
+            <IconButton
+              onClick={() =>
+                usePurchaseOrderPagination.getState().clearFilters()
+              }
+            >
+              <FilterListOffIcon />
+            </IconButton>
+          </Box>
         </Box>
-        <Card sx={{ overflowX: "auto" }}>
-          <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
+        <Card sx={{ minWidth: { xs: 950, xl: 0 } }}>
+          <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
@@ -248,7 +258,7 @@ export const PurchaseOrder = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.length === 0
+                {data && data.length === 0
                   ? null
                   : isLoading
                   ? null
@@ -334,7 +344,6 @@ export const PurchaseOrder = () => {
                                       });
                                       setOpenQuoteModal(true);
                                       setProviders([order.proveedor]);
-                                      console.log(order.proveedor);
                                     }}
                                   >
                                     <UploadFileIcon />

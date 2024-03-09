@@ -218,7 +218,6 @@ export const AlertArticlesTable = () => {
     }
   };
 
-  console.log({ data });
   if (isLoading)
     return (
       <Box sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}>

@@ -83,9 +83,7 @@ export const AddMoreProviders = (props: AddMoreProvidersProps) => {
   }, [providers]);
 
   const handleDeleteProvider = (providerId: string) => {
-    console.log({ providerId });
     const provFilter = providersClone.filter((item) => item !== providerId);
-    console.log({ provFilter });
     setProvidersClone(provFilter);
   };
 

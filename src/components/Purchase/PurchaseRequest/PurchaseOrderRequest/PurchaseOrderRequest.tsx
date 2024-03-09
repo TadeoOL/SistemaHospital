@@ -5,6 +5,7 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  MenuItem,
   Modal,
   Stack,
   Table,
@@ -14,12 +15,13 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import CloseIcon from "@mui/icons-material/Close";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { changePurchaseStatus } from "../../../../api/api.routes";
@@ -41,6 +43,7 @@ import { primary, error } from "../../../../theme/colors";
 import PriceChangeIcon from "@mui/icons-material/PriceChange";
 import { MatchPrices } from "./Modal/MatchPrices";
 import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -92,6 +95,12 @@ const useGetAllData = () => {
     setSearch,
     fetch,
     handleChange,
+    status,
+    startDate,
+    endDate,
+    setStatus,
+    setEndDate,
+    setStartDate,
   } = usePurchaseOrderRequestPagination((state) => ({
     isLoading: state.isLoading,
     data: state.data,
@@ -104,10 +113,16 @@ const useGetAllData = () => {
     setSearch: state.setSearch,
     fetch: state.fetch,
     handleChange: state.handleChange,
+    status: state.status,
+    startDate: state.startDate,
+    endDate: state.endDate,
+    setStatus: state.setStatus,
+    setEndDate: state.setEndDate,
+    setStartDate: state.setStartDate,
   }));
   useEffect(() => {
     fetch();
-  }, [pageIndex, pageSize, search, handleChange]);
+  }, [pageIndex, pageSize, search, handleChange, status, startDate, endDate]);
   return {
     isLoading,
     data,
@@ -118,6 +133,12 @@ const useGetAllData = () => {
     pageIndex,
     pageSize,
     setSearch,
+    status,
+    startDate,
+    endDate,
+    setStatus,
+    setEndDate,
+    setStartDate,
   };
 };
 
@@ -131,6 +152,12 @@ export const PurchaseOrderRequest = () => {
     setPageIndex,
     setPageSize,
     setSearch,
+    status,
+    startDate,
+    endDate,
+    setStatus,
+    setStartDate,
+    setEndDate,
   } = useGetAllData();
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
     {}
@@ -165,15 +192,77 @@ export const PurchaseOrderRequest = () => {
     useDirectlyPurchaseRequestOrderStore.getState().clearAllStates();
   }, [openMatchPrices]);
 
-  console.log({ data });
+  const values = useMemo(() => {
+    const statusPurchaseOrderValues: string[] = [];
+
+    for (const value in StatusPurchaseRequest) {
+      if (!isNaN(Number(StatusPurchaseRequest[value]))) {
+        statusPurchaseOrderValues.push(StatusPurchaseRequest[value]);
+      }
+    }
+    return statusPurchaseOrderValues;
+  }, []);
 
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
-        <SearchBar
-          title="Buscar solicitud de compra..."
-          searchState={setSearch}
-        />
+        <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
+          <SearchBar
+            title="Buscar solicitud de compra..."
+            searchState={setSearch}
+            sx={{ display: "flex", flex: 2 }}
+          />
+          <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
+            <TextField
+              label="Fecha inicio"
+              size="small"
+              type="date"
+              value={startDate}
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+              }}
+            />
+            <TextField
+              label=" Fecha final"
+              size="small"
+              type="date"
+              value={endDate}
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+              }}
+            />
+          </Box>
+          <Box sx={{ display: "flex", flex: 1 }}>
+            <TextField
+              select
+              label="Estatus"
+              size="small"
+              fullWidth
+              value={status}
+              onChange={(e) => {
+                const { value } = e.target;
+                setStatus(value);
+              }}
+            >
+              {values.map((v: any) => (
+                <MenuItem key={v} value={v}>
+                  {StatusPurchaseRequest[v]}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+          <Box>
+            <IconButton
+              onClick={() =>
+                usePurchaseOrderRequestPagination.getState().clearFilters()
+              }
+            >
+              <FilterListOffIcon />
+            </IconButton>
+          </Box>
+        </Box>
         <Card sx={{ overflowX: "auto" }}>
           <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
             <Table>
@@ -293,8 +382,6 @@ export const PurchaseOrderRequest = () => {
                                             auth.id_SolicitudCompra,
                                         });
                                         setProviders(auth.solicitudProveedor);
-                                        console.log(auth.solicitudProveedor);
-
                                         setOpenProviderQuote(true);
                                         usePurchaseOrderRequestModals.setState({
                                           dataOrderRequest: auth,
