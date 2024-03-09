@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
 import { ExistingArticleTable } from "./ExistingArticleTable";
