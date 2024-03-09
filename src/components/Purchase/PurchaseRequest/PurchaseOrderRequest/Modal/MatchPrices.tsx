@@ -148,7 +148,8 @@ const FirstStep = (props: { data: IPurchaseAuthorization }) => {
             return {
               Id_Articulo: a.articulo.id_Articulo,
               Cantidad: a.cantidadCompra,
-              PrecioProveedor: prices[a.articulo.id_Articulo],
+              precioProveedor: parseFloat(prices[a.articulo.id_Articulo]),
+              nombre: a.articulo.nombre,
             };
           }),
         };
@@ -232,17 +233,24 @@ const FirstStep = (props: { data: IPurchaseAuthorization }) => {
 };
 
 const SecondStep = () => {
-  const { registerOrder } = useDirectlyPurchaseRequestOrderStore(
+  const { registerOrder, setStep, step } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       registerOrder: state.registerOrder,
       warehouseSelected: state.warehouseSelected,
       provider: state.provider,
+      step: state.step,
+      setStep: state.setStep,
     }),
     shallow
   );
   const { isLoading, providerData } = useGetProvider(
     registerOrder?.OrdenCompra[0].Id_Proveedor as string
   );
+  const articles = registerOrder?.OrdenCompra.flatMap(
+    (p) => p.OrdenCompraArticulo
+  );
+
+  console.log({ registerOrder });
 
   if (isLoading)
     return (
@@ -255,26 +263,95 @@ const SecondStep = () => {
       <Stack>
         <Typography variant="subtitle1">Información del proveedor</Typography>
         <Grid container spacing={2}>
-          <Grid item container xs={12} md={6} lg={4} spacing={1}>
+          <Grid
+            item
+            container
+            xs={12}
+            md={6}
+            lg={4}
+            sx={{ alignItems: "center", columnGap: 1 }}
+          >
             <Typography variant="subtitle2">Nombre contacto:</Typography>
-            <Typography>{providerData?.nombreContacto}</Typography>
+            <Typography variant="subtitle2">
+              {providerData?.nombreContacto}
+            </Typography>
           </Grid>
-          <Grid item container xs={12} md={6} lg={4} spacing={1}>
+          <Grid
+            item
+            container
+            xs={12}
+            md={6}
+            lg={4}
+            sx={{ alignItems: "center", columnGap: 1 }}
+          >
             <Typography variant="subtitle2">Compañía:</Typography>
-            <Typography>{providerData?.nombreCompania}</Typography>
+            <Typography variant="subtitle2">
+              {providerData?.nombreCompania}
+            </Typography>
           </Grid>
-          <Grid item container xs={12} md={6} lg={4} spacing={1}>
+          <Grid
+            item
+            container
+            xs={12}
+            md={6}
+            lg={4}
+            sx={{ alignItems: "center", columnGap: 1 }}
+          >
             <Typography variant="subtitle2">Teléfono:</Typography>
-            <Typography>{providerData?.telefono}</Typography>
+            <Typography variant="subtitle2">
+              {providerData?.telefono}
+            </Typography>
           </Grid>
-          <Grid item container xs={12} md={6} lg={4} spacing={1}>
+          <Grid
+            item
+            container
+            xs={12}
+            md={6}
+            lg={4}
+            sx={{ alignItems: "center", columnGap: 1 }}
+          >
             <Typography variant="subtitle2">RFC:</Typography>
-            <Typography>{providerData?.rfc}</Typography>
+            <Typography variant="subtitle2">{providerData?.rfc}</Typography>
           </Grid>
         </Grid>
       </Stack>
       <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle1">Artículos</Typography>
+      <Card>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre</TableCell>
+                <TableCell>Cantidad</TableCell>
+                <TableCell>Precio</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {articles?.map((a) => (
+                <TableRow key={a.Id_Articulo}>
+                  <TableCell>{a.nombre}</TableCell>
+                  <TableCell>{a.Cantidad}</TableCell>
+                  <TableCell>{a.precioProveedor}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
+      <Box
+        sx={{
+          display: "flex",
+          flex: 1,
+          justifyContent: "space-between",
+          mt: 4,
+        }}
+      >
+        <Button variant="outlined" onClick={() => setStep(step - 1)}>
+          Regresar
+        </Button>
+        <Button variant="contained">Guardar</Button>
+      </Box>
     </Box>
   );
 };
