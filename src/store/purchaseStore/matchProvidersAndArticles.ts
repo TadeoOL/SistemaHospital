@@ -16,12 +16,12 @@ export type ProvidersMatched = {
 export type PurchaseOrder = {
   providerId: string;
   article: { articleId: string; purchasePrice: number; amount: number }[];
-}[];
+};
 
 interface State {
   purchaseRequestData: IPurchaseAuthorization | null;
   formattedData: ProvidersMatched | null;
-  purchaseOrderMatched: PurchaseOrder | null;
+  purchaseOrderMatched: PurchaseOrder[] | null;
 }
 
 interface Action {
@@ -29,7 +29,9 @@ interface Action {
     purchaseRequestData: IPurchaseAuthorization | null
   ) => void;
   setFormattedData: (formattedData: ProvidersMatched | null) => void;
-  setPurchaseOrderMatched: (purchaseOrderMatched: PurchaseOrder | null) => void;
+  setPurchaseOrderMatched: (
+    purchaseOrderMatched: PurchaseOrder[] | null
+  ) => void;
 }
 
 export const useMatchProvidersAndArticles = createWithEqualityFn<
@@ -38,7 +40,7 @@ export const useMatchProvidersAndArticles = createWithEqualityFn<
   purchaseRequestData: null,
   formattedData: null,
   purchaseOrderMatched: null,
-  setPurchaseOrderMatched: (purchaseOrderMatched: PurchaseOrder | null) =>
+  setPurchaseOrderMatched: (purchaseOrderMatched: PurchaseOrder[] | null) =>
     set({ purchaseOrderMatched }),
   setFormattedData: (formattedData: ProvidersMatched | null) =>
     set({ formattedData }),

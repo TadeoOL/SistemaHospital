@@ -70,9 +70,9 @@ export const MatchProvidersAndArticles = (
       }),
       shallow
     );
-  const [providers, setProviders] = useState<any[] | undefined>(
-    purchaseRequestData?.solicitudProveedor
-  );
+  const providers = purchaseRequestData
+    ? purchaseRequestData.solicitudProveedor
+    : [];
   const [articles, setArticles] = useState<any[] | undefined>(
     purchaseRequestData?.solicitudProveedor[0].solicitudCompraArticulos
   );
@@ -128,23 +128,51 @@ export const MatchProvidersAndArticles = (
     if (articlesChecked.length === 0)
       return toast.error("Necesitas seleccionar artículos!");
 
-    const object = {
-      providerId: providerSelected,
-      article: articlesChecked.map((articleCheck) => {
-        const art = articles?.find(
-          (a) => a.articulo.id_Articulo === articleCheck
-        );
-        return {
-          articleId: art ? art.articulo.id_Articulo : "",
-          purchasePrice: art ? art.precioProveedor : 0,
-          amount: art ? art.cantidadCompra : 0,
-        };
-      }),
-    };
+    const prevMatched = purchaseOrderMatched ? purchaseOrderMatched : [];
 
-    setPurchaseOrderMatched(
-      !purchaseOrderMatched ? [object] : purchaseOrderMatched.concat(object)
+    const isAlready = prevMatched.find(
+      (o) => o.providerId === providerSelected
     );
+    const articlesData = articlesChecked.map((articleCheck) => {
+      const art = articles?.find(
+        (a) => a.articulo.id_Articulo === articleCheck
+      );
+      return {
+        articleId: art ? art.articulo.id_Articulo : "",
+        purchasePrice: art ? art.precioProveedor : 0,
+        amount: art ? art.cantidadCompra : 0,
+      };
+    });
+
+    if (isAlready) {
+      const modifying = {
+        providerId: isAlready.providerId,
+        article: [...isAlready.article, ...articlesData],
+      };
+      const prevFilter = prevMatched.filter(
+        (p) => p.providerId !== modifying.providerId
+      );
+
+      setPurchaseOrderMatched([...prevFilter, modifying]);
+    } else {
+      const newObject = {
+        providerId: providerSelected,
+        article: articlesData,
+      };
+
+      const updatedMatched =
+        !prevMatched || prevMatched.length === 0
+          ? [newObject]
+          : [
+              ...prevMatched.filter(
+                (obj) => obj.providerId !== providerSelected
+              ),
+              newObject,
+            ];
+
+      setPurchaseOrderMatched(updatedMatched);
+    }
+
     setArticles((prevArticles) => {
       if (!prevArticles) return [];
       return prevArticles.filter(
@@ -154,9 +182,9 @@ export const MatchProvidersAndArticles = (
           )
       );
     });
-    setProviders((prev) => {
-      return prev?.filter((p) => p.proveedor.id_Proveedor !== providerSelected);
-    });
+    // setProviders((prev) => {
+    //   return prev?.filter((p) => p.proveedor.id_Proveedor !== providerSelected);
+    // });
     setArticlesChecked([]);
     setProviderSelected("");
   };
@@ -174,9 +202,9 @@ export const MatchProvidersAndArticles = (
               (artR) => artR.articleId === a.articulo.id_Articulo
             )
         );
-      const provider = purchaseRequestData?.solicitudProveedor.find(
-        (p) => p.proveedor.id_Proveedor === orderRemoved?.providerId
-      );
+      // const provider = purchaseRequestData?.solicitudProveedor.find(
+      //   (p) => p.proveedor.id_Proveedor === orderRemoved?.providerId
+      // );
 
       setArticles((prev) => {
         if (prev && articleArray) {
@@ -188,15 +216,15 @@ export const MatchProvidersAndArticles = (
         }
       });
 
-      setProviders((prev) => {
-        if (prev && provider) {
-          return [...prev, provider];
-        } else if (provider) {
-          return [provider];
-        } else {
-          return [];
-        }
-      });
+      // setProviders((prev) => {
+      //   if (prev && provider) {
+      //     return [...prev, provider];
+      //   } else if (provider) {
+      //     return [provider];
+      //   } else {
+      //     return [];
+      //   }
+      // });
 
       setPurchaseOrderMatched(
         purchaseOrderMatched.filter((p) => p.providerId !== providerId)
@@ -206,7 +234,7 @@ export const MatchProvidersAndArticles = (
   );
 
   const handleRemoveArticleFromProvider = useCallback(
-    (articleId: string, providerId: string) => {
+    (articleId: string) => {
       if (!purchaseRequestData) return;
       if (!purchaseOrderMatched) return;
 
@@ -214,9 +242,9 @@ export const MatchProvidersAndArticles = (
         purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
           (a) => a.articulo.id_Articulo === articleId
         );
-      const provider = purchaseRequestData?.solicitudProveedor.find(
-        (p) => p.proveedor.id_Proveedor === providerId
-      );
+      // const provider = purchaseRequestData?.solicitudProveedor.find(
+      //   (p) => p.proveedor.id_Proveedor === providerId
+      // );
 
       setArticles((prev) => {
         if (prev && article) {
@@ -228,15 +256,15 @@ export const MatchProvidersAndArticles = (
         }
       });
 
-      setProviders((prev) => {
-        if (prev && provider) {
-          return [...prev, provider];
-        } else if (provider) {
-          return [provider];
-        } else {
-          return [];
-        }
-      });
+      // setProviders((prev) => {
+      //   if (prev && provider) {
+      //     return [...prev, provider];
+      //   } else if (provider) {
+      //     return [provider];
+      //   } else {
+      //     return [];
+      //   }
+      // });
 
       const updatedPurchaseOrderMatched = purchaseOrderMatched
         .map((p) => {
@@ -376,7 +404,7 @@ export const MatchProvidersAndArticles = (
                       <TableHead>
                         <TableRow>
                           <TableCell>
-                            <Checkbox size="small" />
+                            {/* <Checkbox size="small" /> */}
                           </TableCell>
                           <TableCell>Nombre</TableCell>
                           <TableCell>Cantidad</TableCell>
@@ -494,8 +522,7 @@ export const MatchProvidersAndArticles = (
                                     <IconButton
                                       onClick={() =>
                                         handleRemoveArticleFromProvider(
-                                          a.articleId,
-                                          i.providerId
+                                          a.articleId
                                         )
                                       }
                                     >
