@@ -8,6 +8,10 @@ import ModalTres from "../../../assets/HelpImages/modal-3-orden-de-compra-direct
 import PantallaPrincipal from "../../../assets/HelpImages/pantalla-principal.png";
 import ProcesoPrincipal from "../../../assets/HelpImages/proceso-principal.png";
 import SeccionPunteada from "../../../assets/HelpImages/seccion-punteada.png";
+import PantallaAlertas from "../../../assets/HelpImages/pantalla-principal-alertas.png";
+import PantallaSolicitudes from "../../../assets/HelpImages/pantalla-principal-solicitudes-en-proceso.png";
+import ProcesoPrincipal2 from "../../../assets/HelpImages/proceso-principal-solicitudes-en-proceso2.png";
+import ProcesoAlerta from "../../../assets/HelpImages/proceso-alerta.png";
 
 import { Divider } from "@mui/material";
 
@@ -332,6 +336,7 @@ export const MensajeSolicitudProceso: React.FC = () => {
   return (
     <div>
       <h3>Solicitud Proceso </h3>
+      <img src={PantallaSolicitudes} style={imageStyles}></img>
       <Divider />
       <p>
         Este proceso permite identificar, consultar y/o cancelar una solicitud
@@ -340,9 +345,11 @@ export const MensajeSolicitudProceso: React.FC = () => {
         Solicitudes.
       </p>
       <h4>Proceso</h4>
+
       <p>Autorizaciones - Orden de compra</p>
       <p>C con auto - Licita</p>
       <h3>PANTALLA SOLICITUDES EN PROCESO</h3>
+      <img src={ProcesoPrincipal2} style={imageStyles}></img>
       <p>
         Listara todas las solicitudes ordenes de compra generadas y mostrara el
         estatus actual de cada una.
@@ -384,6 +391,7 @@ export const MensajeAlerta: React.FC = () => {
         requieren un mínimo de existencia en inventario.
       </p>
       <h4>PROCESO</h4>
+      <img src={ProcesoAlerta} style={imageStyles}></img>
       <p>
         Solicitud de orden de compra - Criterios de compra - Autorizaciones -
         Orden de compra
@@ -395,6 +403,7 @@ export const MensajeAlerta: React.FC = () => {
         de almacén,
         <strong> Por ejemplo: Almacen General, Farmacia, etc..</strong>
       </p>
+      <img src={PantallaAlertas} style={imageStyles}></img>
       <p>
         <strong>- Botón Solicitar de orden compra:</strong> Permite generar
         nuevas solicites de ordenes de compra de los productos en alerta.
