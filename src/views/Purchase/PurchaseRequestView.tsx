@@ -1,4 +1,4 @@
-import { Box, Button, Card, Container, Modal, Typography } from "@mui/material";
+import { Box, Button, Modal } from "@mui/material";
 import { PurchaseTabNav } from "../../components/Purchase/PurchaseRequest/SubComponents/PurchaseTabNav";
 import { useEffect, useState } from "react";
 import { DirectlyPurchaseOrder } from "../../components/Purchase/PurchaseRequest/Modal/DirectlyPurchaseOrder";
@@ -10,82 +10,72 @@ import { usePurchaseRequestNav } from "../../store/purchaseStore/purchaseRequest
 import RequestPageIcon from "@mui/icons-material/RequestPage";
 
 const getTabView = (value: number) => {
-  switch (value) {
-    case 0:
-      return <PurchaseOrder />;
-    case 1:
-      return <PurchaseOrderRequest />;
-    case 2:
-      return <PurchaseRequestCard />;
-    default:
-      break;
-  }
+	switch (value) {
+		case 0:
+			return <PurchaseOrder />;
+		case 1:
+			return <PurchaseOrderRequest />;
+		case 2:
+			return <PurchaseRequestCard />;
+		default:
+			break;
+	}
 };
 
 export const PurchaseRequestView = () => {
-  const [openPurchaseRequestOrder, setOpenPurchaseRequestOrder] =
-    useState(false);
-  const clearStates = useDirectlyPurchaseRequestOrderStore(
-    (state) => state.clearAllStates
-  );
-  const tabValue = usePurchaseRequestNav((state) => state.tabValue);
+	const [openPurchaseRequestOrder, setOpenPurchaseRequestOrder] =
+		useState(false);
+	const clearStates = useDirectlyPurchaseRequestOrderStore(
+		(state) => state.clearAllStates
+	);
+	const tabValue = usePurchaseRequestNav((state) => state.tabValue);
 
-  useEffect(() => {
-    if (openPurchaseRequestOrder) return;
-    clearStates();
-  }, [openPurchaseRequestOrder]);
+	useEffect(() => {
+		if (openPurchaseRequestOrder) return;
+		clearStates();
+	}, [openPurchaseRequestOrder]);
 
-  return (
-    <>
-      <Box sx={{ flexGrow: 1, p: 3 }}>
-        <Card sx={{ padding: "10px 20px 20px 10px" }}>
-          <Typography
-            variant="h4"
-            sx={{ marginBottom: "10px", marginTop: "25px", marginLeft: "15px" }}
-          >
-            Compras
-          </Typography>
-          <Container maxWidth="xl">
-            <Box
-              sx={{
-                display: "flex",
-                flex: 1,
-                justifyContent: "flex-end",
-                mb: 1,
-              }}
-            >
-              <Button
-                size="large"
-                variant="contained"
-                onClick={() => setOpenPurchaseRequestOrder(true)}
-                startIcon={<RequestPageIcon />}
-              >
-                Solicitud de Compra
-              </Button>
-            </Box>
-            <PurchaseTabNav />
-            <Box
-              sx={{
-                boxShadow: 10,
-                borderBottomLeftRadius: 12,
-                borderBottomRightRadius: 12,
-                overflowX: "auto",
-                bgcolor: "white",
-              }}
-            >
-              {getTabView(tabValue)}
-            </Box>
-          </Container>
-        </Card>
-      </Box>
-      <Modal
-        open={openPurchaseRequestOrder}
-        onClose={() => setOpenPurchaseRequestOrder(false)}
-      >
-        <>
-          <DirectlyPurchaseOrder setOpen={setOpenPurchaseRequestOrder} />
-        </>
-      </Modal>
-    </>
-  );
+	return (
+		<>
+			<Box>
+				<Box
+					sx={{
+						display: "flex",
+						flex: 1,
+						justifyContent: "flex-end",
+						mb: 1,
+					}}
+				>
+					<Button
+						size="large"
+						variant="contained"
+						onClick={() => setOpenPurchaseRequestOrder(true)}
+						startIcon={<RequestPageIcon />}
+					>
+						Solicitud de Compra
+					</Button>
+				</Box>
+				<PurchaseTabNav />
+				<Box
+					sx={{
+						boxShadow: 10,
+						borderBottomLeftRadius: 12,
+						borderBottomRightRadius: 12,
+						overflowX: "auto",
+						bgcolor: "white",
+					}}
+				>
+					{getTabView(tabValue)}
+				</Box>
+			</Box>
+			<Modal
+				open={openPurchaseRequestOrder}
+				onClose={() => setOpenPurchaseRequestOrder(false)}
+			>
+				<>
+					<DirectlyPurchaseOrder setOpen={setOpenPurchaseRequestOrder} />
+				</>
+			</Modal>
+		</>
+	);
 };

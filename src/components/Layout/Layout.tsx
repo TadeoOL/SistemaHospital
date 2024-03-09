@@ -40,7 +40,6 @@ export const Layout: React.FC = () => {
 	const [currentPage, setCurrentPage] = useState<string>(location.pathname);
 
 	const messagesByLink: Record<string, string> = {
-		"/": "Inicio",
 		"/compras/solicitud-compras/ordenes-compra": "Ordenes de Compra",
 		"/compras/solicitud-compras/productos-solicitados-orden-compra":
 			"Solcitudes en Proceso",
@@ -56,6 +55,7 @@ export const Layout: React.FC = () => {
 		"/compras/autorizacion-compras/autorizaciones": "Autorizaciones",
 		"/compras/autorizacion-compras/historial-autorizaciones":
 			"Historial de Autorizaciones",
+		"/compras/solicitud-compras": "Compras",
 	};
 
 	useEffect(() => {
@@ -83,10 +83,15 @@ export const Layout: React.FC = () => {
 					<Box sx={{ flexGrow: 1, p: 3 }}>
 						<Container maxWidth={"xl"}>
 							<Card>
-								<Typography variant="h4" sx={{ flexGrow: 1, p: 3 }}>
+								<Typography
+									variant="h4"
+									sx={{ flexGrow: 1, pt: 3, pl: 3, pr: 3 }}
+								>
 									{currentPageMessage}
 								</Typography>
-								<Outlet />
+								<Box component="main" sx={{ p: 3, flexGrow: 1 }}>
+									<Outlet />
+								</Box>
 							</Card>
 						</Container>
 					</Box>

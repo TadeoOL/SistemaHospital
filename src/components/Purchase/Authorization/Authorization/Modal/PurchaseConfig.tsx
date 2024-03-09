@@ -203,9 +203,6 @@ export const PurchaseConfig = () => {
 					borderColor: "black",
 				}}
 			>
-				<Typography fontWeight={700} fontSize={24} mb={3}>
-					Configuración de compras
-				</Typography>
 				<form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
 					<Stack
 						sx={{

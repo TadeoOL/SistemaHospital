@@ -2,7 +2,6 @@ import { AuthorizationTabNav } from "../../components/Purchase/Authorization/Aut
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthorizationTabNav } from "../../store/purchaseStore/authorizationTabNav";
 import { useEffect } from "react";
-import { Container } from "@mui/material";
 
 export const PurchaseAuthorizationView = () => {
 	const tabValue = useAuthorizationTabNav((state) => state.tabValue);
@@ -20,9 +19,9 @@ export const PurchaseAuthorizationView = () => {
 	}, [tabValue]);
 
 	return (
-		<Container maxWidth="xl">
+		<>
 			<AuthorizationTabNav />
 			{<Outlet />}
-		</Container>
+		</>
 	);
 };
