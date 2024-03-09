@@ -94,11 +94,6 @@ export const MensajeOrdenesCompra: React.FC = () => {
 			</p>
 			<h4>Proceso</h4>
 			<img src={ProcesoPrincipal}></img>
-			<h3>
-				Solicitud de orden de compra - Criterios de compra - Autorizaciones -
-				Orden de compra - Alerta de productos. OC directa - OC con auto -
-				Licitación
-			</h3>
 			<br />
 
 			<h3>Pantalla Compras</h3>
@@ -384,11 +379,6 @@ export const MensajeAlerta: React.FC = () => {
 				requieren un mínimo de existencia en inventario.
 			</p>
 			<h4>PROCESO</h4>
-			<p>
-				Solicitud de orden de compra - Criterios de compra - Autorizaciones -
-				Orden de compra
-			</p>
-			<p>!! Alerta de productos. C directa - C con auto - Licita</p>
 			<h3>PANTALLA PRODUCTOS EN ALERTA</h3>
 			<p>
 				La visualización de productos en alerta podía segmentarse por cada tipo
