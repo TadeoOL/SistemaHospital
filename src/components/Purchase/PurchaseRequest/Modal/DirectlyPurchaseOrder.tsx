@@ -335,20 +335,21 @@ const ArticlesTable = (props: {
   const [priceErrors, setPriceErrors] = useState<string[]>([]);
   const [isChargingPrices, setIsChargingPrices] = useState(true);
 
-  const addPrices = () => {
+  const updateArticlesData = () => {
     const newPrices: any = {};
+    const newQuantity: any = {};
     articles.forEach((article) => {
-      if (article.price) {
-        newPrices[article.id] = article.price.toString();
-      }
+      newPrices[article.id] = article.price.toString();
+      newQuantity[article.id] = article.amount.toString();
     });
+    setQuantity(newQuantity);
     setPrices(newPrices);
     setIsChargingPrices(false);
   };
 
   useEffect(() => {
-    addPrices();
-  }, [step]);
+    updateArticlesData();
+  }, [step, articles]);
 
   useEffect(() => {
     articles.forEach((article) => {
@@ -375,7 +376,9 @@ const ArticlesTable = (props: {
 
   const totalValue = () => {
     const totalPrice = articles.reduce((total, item) => {
-      const totalPriceObject = item.amount * parseFloat(prices[item.id]) || 0;
+      const quantityValue = parseFloat(quantity[item.id]) || item.amount;
+      const priceValue = parseFloat(prices[item.id]) || item.price;
+      const totalPriceObject = quantityValue * priceValue;
       return total + totalPriceObject;
     }, 0);
     return totalPrice;
@@ -407,12 +410,19 @@ const ArticlesTable = (props: {
     setArticles(articlesFiltered);
   };
 
-  const handleSaveQuantity = (id: string, newQuantity: string) => {
-    if (!newQuantity || parseFloat(newQuantity) <= 0)
-      return toast.warning("Escribe una cantidad valida!");
+  const handleSaveQuantity = (
+    id: string,
+    newQuantity: string,
+    newPrice: string
+  ) => {
+    if (!newQuantity || parseFloat(newQuantity) <= 0) return;
     const updatedArticles = articles.map((article) => {
       if (article.id === id) {
-        return { ...article, amount: parseFloat(newQuantity) };
+        return {
+          ...article,
+          amount: parseFloat(newQuantity),
+          price: parseFloat(newPrice),
+        };
       }
       return article;
     });
@@ -431,8 +441,6 @@ const ArticlesTable = (props: {
   };
 
   const handleNextStep = async () => {
-    const hasErrors = Object.values(priceErrors).some((error) => error);
-    if (hasErrors) return;
     if (warehouseSelected.trim() === "") {
       props.setWarehouseError(true);
       return toast.error("Selecciona un almacén!");
@@ -499,6 +507,7 @@ const ArticlesTable = (props: {
                           InputLabelProps={{ style: { fontSize: 12 } }}
                           value={quantity[a.id] || ""}
                           onChange={(e) => {
+                            if (!isValidInteger(e.target.value)) return;
                             setQuantity({
                               ...quantity,
                               [a.id]: e.target.value,
@@ -510,20 +519,19 @@ const ArticlesTable = (props: {
                       )}
                     </TableCell>
                     <TableCell>
-                      <TextField
-                        label="Precio"
-                        size="small"
-                        InputLabelProps={{ style: { fontSize: 12 } }}
-                        value={prices[a.id] || ""}
-                        onChange={(e) => {
-                          handlePriceChange(a.id, e.target.value);
-                        }}
-                        error={priceErrors.some((e) => e === a.id)}
-                        helperText={
-                          priceErrors.some((e) => e === a.id) &&
-                          "Agrega el precio"
-                        }
-                      />
+                      {editingIds.has(a.id) ? (
+                        <TextField
+                          label="Precio"
+                          size="small"
+                          InputLabelProps={{ style: { fontSize: 12 } }}
+                          value={prices[a.id] || ""}
+                          onChange={(e) => {
+                            handlePriceChange(a.id, e.target.value);
+                          }}
+                        />
+                      ) : (
+                        prices[a.id] || a.price
+                      )}
                     </TableCell>
                     <TableCell>
                       <>
@@ -533,7 +541,11 @@ const ArticlesTable = (props: {
                           <IconButton
                             onClick={() => {
                               if (editingIds.has(a.id)) {
-                                handleSaveQuantity(a.id, quantity[a.id]);
+                                handleSaveQuantity(
+                                  a.id,
+                                  quantity[a.id],
+                                  prices[a.id]
+                                );
                                 toggleEdit(a.id);
                               } else {
                                 toggleEdit(a.id);
@@ -601,11 +613,7 @@ const ArticlesTable = (props: {
         <Button
           variant="contained"
           endIcon={<ArrowForward />}
-          disabled={
-            editingIds.size > 0 ||
-            articles.length === 0 ||
-            priceErrors.length > 0
-          }
+          disabled={editingIds.size > 0 || articles.length === 0}
           onClick={() => handleNextStep()}
         >
           Siguiente
@@ -944,21 +952,25 @@ const StepThree = (props: { setOpen: Function }) => {
       <Stack>
         <Typography variant="subtitle1">Información del proveedor</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6} lg={4} spacing={1}>
+          <Grid item xs={12} md={6} lg={4}>
             <Typography variant="subtitle2">Nombre contacto:</Typography>
-            <Typography>{provider?.nombreContacto}</Typography>
+            <Typography variant="subtitle2">
+              {provider?.nombreContacto}
+            </Typography>
           </Grid>
-          <Grid item xs={12} md={6} lg={4} spacing={1}>
+          <Grid item xs={12} md={6} lg={4}>
             <Typography variant="subtitle2">Compañía:</Typography>
-            <Typography>{provider?.nombreCompania}</Typography>
+            <Typography variant="subtitle2">
+              {provider?.nombreCompania}
+            </Typography>
           </Grid>
-          <Grid item xs={12} md={6} lg={4} spacing={1}>
+          <Grid item xs={12} md={6} lg={4}>
             <Typography variant="subtitle2">Teléfono:</Typography>
-            <Typography>{provider?.telefono}</Typography>
+            <Typography variant="subtitle2">{provider?.telefono}</Typography>
           </Grid>
-          <Grid item xs={12} md={6} lg={4} spacing={1}>
+          <Grid item xs={12} md={6} lg={4}>
             <Typography variant="subtitle2">RFC:</Typography>
-            <Typography>{provider?.rfc}</Typography>
+            <Typography variant="subtitle2">{provider?.rfc}</Typography>
           </Grid>
         </Grid>
         <Divider sx={{ my: 2 }} />
@@ -994,7 +1006,7 @@ const StepThree = (props: { setOpen: Function }) => {
           }}
         >
           <Typography variant="subtitle2">Total de la orden: </Typography>
-          <Typography>${totalAmountRequest}</Typography>
+          <Typography variant="subtitle2">${totalAmountRequest}</Typography>
         </Box>
       </Stack>
       <Box

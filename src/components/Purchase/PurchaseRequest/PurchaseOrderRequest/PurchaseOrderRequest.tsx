@@ -44,6 +44,7 @@ import PriceChangeIcon from "@mui/icons-material/PriceChange";
 import { MatchPrices } from "./Modal/MatchPrices";
 import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
+import { Info } from "@mui/icons-material";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -374,23 +375,12 @@ export const PurchaseOrderRequest = () => {
                                 </IconButton>
                               </Tooltip>
                             ) : (
-                              <>
-                                <Tooltip title="Ver orden de compra">
-                                  <IconButton
-                                    onClick={() => {
-                                      setOrderSelected({
-                                        folio: auth.folio,
-                                        purchaseOrderId:
-                                          auth.id_SolicitudCompra,
-                                      });
-                                      setOpenPurchaseOrder(true);
-                                    }}
-                                  >
-                                    <DownloadIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                {auth.solicitudProveedor.length > 1 && (
-                                  <Tooltip title="Subir Cotización">
+                              StatusPurchaseRequest[auth.estatus] !==
+                                "Selección de productos por proveedor" &&
+                              StatusPurchaseRequest[auth.estatus] !==
+                                "Cancelado" && (
+                                <>
+                                  <Tooltip title="Ver orden de compra">
                                     <IconButton
                                       onClick={() => {
                                         setOrderSelected({
@@ -398,29 +388,59 @@ export const PurchaseOrderRequest = () => {
                                           purchaseOrderId:
                                             auth.id_SolicitudCompra,
                                         });
-                                        setProviders(auth.solicitudProveedor);
-                                        setOpenProviderQuote(true);
-                                        usePurchaseOrderRequestModals.setState({
-                                          dataOrderRequest: auth,
-                                        });
+                                        setOpenPurchaseOrder(true);
                                       }}
                                     >
-                                      <UploadFileIcon />
+                                      <DownloadIcon />
                                     </IconButton>
                                   </Tooltip>
-                                )}
-                              </>
+                                </>
+                              )
                             )}
-                            <Tooltip title="Cancelar">
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  handleRemoveOrder(auth.id_SolicitudCompra);
-                                }}
-                              >
-                                <CloseIcon sx={{ color: "red" }} />
-                              </IconButton>
-                            </Tooltip>
+                            {auth.solicitudProveedor.length > 1 && (
+                              <Tooltip title="Subir Cotización">
+                                <IconButton
+                                  onClick={() => {
+                                    setOrderSelected({
+                                      folio: auth.folio,
+                                      purchaseOrderId: auth.id_SolicitudCompra,
+                                    });
+                                    setProviders(auth.solicitudProveedor);
+                                    setOpenProviderQuote(true);
+                                    usePurchaseOrderRequestModals.setState({
+                                      dataOrderRequest: auth,
+                                    });
+                                  }}
+                                >
+                                  <UploadFileIcon />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            {StatusPurchaseRequest[auth.estatus] !==
+                              "Selección de productos por proveedor" &&
+                              StatusPurchaseRequest[auth.estatus] !==
+                                "Cancelado" && (
+                                <Tooltip title="Cancelar">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      handleRemoveOrder(
+                                        auth.id_SolicitudCompra
+                                      );
+                                    }}
+                                  >
+                                    <CloseIcon sx={{ color: "red" }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                            {StatusPurchaseRequest[auth.estatus] ===
+                              "Cancelado" && (
+                              <Tooltip title={auth?.notas}>
+                                <IconButton>
+                                  <Info sx={{ color: "gray" }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
                           </TableCell>
                         </TableRow>
                         <TableCell colSpan={7} sx={{ p: 0 }}>
