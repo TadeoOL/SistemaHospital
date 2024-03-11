@@ -1,15 +1,13 @@
 import { Box, Divider, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { PurchaseAuthorizationTable } from "./PurchaseAuthorizationTable";
+import { usePurchaseAuthorizationHistoryPagination } from "../../../../store/purchaseStore/purchaseAuthorizationHistoryPagination";
+import { useShallow } from "zustand/react/shallow";
 
 export const PurchaseHistoryAuthorization = () => {
-  //   const { enabled, setEnabled, setSearch } = useExistingArticlePagination(
-  //     (state) => ({
-  //       enabled: state.enabled,
-  //       setEnabled: state.setEnabled,
-  //       setSearch: state.setSearch,
-  //     })
-  //   );
+  const setSearch = usePurchaseAuthorizationHistoryPagination(
+    useShallow((state) => state.setSearch)
+  );
 
   return (
     <>
@@ -30,7 +28,10 @@ export const PurchaseHistoryAuthorization = () => {
             p: 3,
           }}
         ></Stack>
-        <SearchBar title="Busca la orden de compra..." searchState={() => {}} />
+        <SearchBar
+          title="Busca la orden de compra..."
+          searchState={setSearch}
+        />
         <Divider sx={{ my: 1 }} />
         <PurchaseAuthorizationTable />
       </Box>
