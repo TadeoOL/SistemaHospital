@@ -999,8 +999,8 @@ const SelectSingleProvider = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-    setIsLoading(true);
     if (selectedProvider.length === 0) return setError(true);
+    setIsLoading(true);
     const objectToPurchase = {
       id_proveedor: selectedProvider,
       Articulos: articlesPurchased.map((article) => {

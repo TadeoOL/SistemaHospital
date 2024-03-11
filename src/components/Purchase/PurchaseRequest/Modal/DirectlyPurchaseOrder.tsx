@@ -167,6 +167,8 @@ const BuildOrder = (props: { setOpen: Function }) => {
   const [articleSelected, setArticleSelected] = useState<Article | null>(null);
   const [amountText, setAmountText] = useState("");
   const [warehouseError, setWarehouseError] = useState(false);
+  const [articleError, setArticleError] = useState(false);
+  const [amountError, setAmountError] = useState(false);
 
   useEffect(() => {
     setArticlesFetched(articlesRes);
@@ -178,7 +180,14 @@ const BuildOrder = (props: { setOpen: Function }) => {
   }, [articlesRes]);
 
   const handleAddArticles = () => {
-    if (!articleSelected) return;
+    if (!articleSelected) {
+      setArticleError(true);
+      return toast.warning("Selecciona un articulo!");
+    }
+    if (amountText.trim() === "") {
+      setAmountError(true);
+      return toast.warning("Agrega una cantidad!");
+    }
     const objectArticle = {
       id: articleSelected.id,
       name: articleSelected.nombre,
@@ -250,12 +259,18 @@ const BuildOrder = (props: { setOpen: Function }) => {
             onChange={(e, val) => {
               e.stopPropagation();
               setArticleSelected(val);
+              setArticleError(false);
             }}
             getOptionLabel={(option) => option.nombre}
             options={articlesFetched}
             value={articleSelected}
             renderInput={(params) => (
-              <TextField {...params} label="Artículos" />
+              <TextField
+                {...params}
+                error={articleError}
+                helperText={articleError && "Selecciona un articulo"}
+                label="Artículos"
+              />
             )}
           />
         </Stack>
@@ -268,9 +283,12 @@ const BuildOrder = (props: { setOpen: Function }) => {
             fullWidth
             label="Cantidad"
             value={amountText}
+            error={amountError}
+            helperText={amountError && "Agrega una cantidad"}
             onChange={(e) => {
               if (!isValidInteger(e.target.value)) return;
               setAmountText(e.target.value);
+              setAmountError(false);
             }}
           />
         </Stack>
