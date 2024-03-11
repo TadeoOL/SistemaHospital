@@ -25,7 +25,7 @@ export const PurchaseHistoryAuthorization = () => {
             flexGrow: 1,
             justifyContent: "space-between",
             alignItems: "end",
-            p: 3,
+            p: 1,
           }}
         ></Stack>
         <SearchBar

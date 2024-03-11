@@ -622,7 +622,7 @@ const ArticlesTable = (props: {
         }}
       >
         <Button
-          variant="contained"
+          variant="outlined"
           startIcon={<Cancel />}
           color="error"
           onClick={() => props.setOpen(false)}

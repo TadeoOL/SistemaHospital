@@ -39,6 +39,10 @@ import { ViewPdf } from "../../../../Inputs/ViewPdf";
 import { toast } from "react-toastify";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 import { usePurchaseOrderPagination } from "../../../../../store/purchaseStore/purchaseOrderPagination";
+import { ArrowForward } from "@mui/icons-material";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SaveOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 
 const style = {
   position: "absolute",
@@ -303,12 +307,18 @@ const FirstStep = (props: {
             mt: 4,
           }}
         >
-          <Button variant="outlined" onClick={() => props.setOpen(false)}>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<CancelIcon />}
+            onClick={() => props.setOpen(false)}
+          >
             Cancelar
           </Button>
           <Button
             variant="contained"
             disabled={disabledButton}
+            endIcon={<ArrowForward />}
             onClick={() => handleSubmit()}
           >
             Siguiente
@@ -488,10 +498,18 @@ const SecondStep = (props: { setOpen: Function }) => {
           mt: 4,
         }}
       >
-        <Button variant="outlined" onClick={() => setStep(step - 1)}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => setStep(step - 1)}
+        >
           Regresar
         </Button>
-        <Button variant="contained" onClick={() => handleSubmit()}>
+        <Button
+          variant="contained"
+          startIcon={<SaveOutlinedIcon />}
+          onClick={() => handleSubmit()}
+        >
           Guardar
         </Button>
       </Box>

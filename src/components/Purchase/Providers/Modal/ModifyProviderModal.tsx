@@ -31,6 +31,10 @@ import { modifyProvider } from "../../../../api/api.routes";
 import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
 import { useGetProvider } from "../../../../hooks/useGetProvider";
 import { shallow } from "zustand/shallow";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SaveIcon from "@mui/icons-material/Save";
 
 const style = {
   position: "absolute",
@@ -254,6 +258,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
             >
               <Button
                 variant="outlined"
+                color="error"
                 disabled={disabledButtons}
                 onClick={() => {
                   step === 0
@@ -261,14 +266,34 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                     : setStep((prevStep) => prevStep - 1);
                 }}
               >
-                {step === 0 ? "Cancelar" : "Anterior"}
+                {step === 0 ? (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <CancelIcon />
+                    <span>Cancelar</span>
+                  </Stack>
+                ) : (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <ArrowBackIcon />
+                    <span>Anterior</span>
+                  </Stack>
+                )}
               </Button>
               <Button
                 variant="contained"
                 onClick={nextStep}
                 disabled={disabledButtons}
               >
-                {step === stepsForm.length - 1 ? "Guardar" : "Siguiente"}
+                {step === stepsForm.length - 1 ? (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <span>Guardar</span>
+                    <SaveIcon />
+                  </Stack>
+                ) : (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <span>Siguiente</span>
+                    <ArrowForwardIcon />
+                  </Stack>
+                )}
               </Button>
             </Stack>
           </Stack>

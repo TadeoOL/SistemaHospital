@@ -417,6 +417,7 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
           </DialogContent>
           <DialogActions>
             <Button
+              variant="outlined"
               color="error"
               startIcon={<CancelIcon />}
               onClick={handleCloseDialog}

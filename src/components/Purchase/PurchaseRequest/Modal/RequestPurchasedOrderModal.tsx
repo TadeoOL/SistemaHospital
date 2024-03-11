@@ -49,6 +49,7 @@ import { useGetAlmacenes } from "../../../../hooks/useGetAlmacenes";
 import { primary, error } from "../../../../theme/colors";
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimitsOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import { ArrowForward } from "@mui/icons-material";
 
 const style = {
   position: "absolute",
@@ -487,6 +488,7 @@ const TableComponent = () => {
         <Button
           variant="contained"
           disabled={isLoading}
+          endIcon={<ArrowForward />}
           onClick={() => {
             checkedArticles.length > 0
               ? handleNextStep()
