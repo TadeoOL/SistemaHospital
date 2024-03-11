@@ -6,11 +6,24 @@ import { usePurchaseRequestNav } from "../../../../store/purchaseStore/purchaseR
 import { shallow } from "zustand/shallow";
 import { useEffect, useState } from "react";
 import { getCountDashboard } from "../../../../api/api.routes";
+import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
+import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseStore/purchaseOrderRequestPagination";
+import { useShallow } from "zustand/react/shallow";
+import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 
 export const PurchaseTabNav = () => {
   const { tabValue, setTabValue } = usePurchaseRequestNav(
     (state) => ({ tabValue: state.tabValue, setTabValue: state.setTabValue }),
     shallow
+  );
+  const dataPurchaseOrder = usePurchaseOrderPagination(
+    useShallow((state) => state.data)
+  );
+  const dataPurchaseOrderRequest = usePurchaseOrderRequestPagination(
+    useShallow((state) => state.data)
+  );
+  const dataPurchaseAuth = useArticlesAlertPagination(
+    useShallow((state) => state.data)
   );
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -20,7 +33,7 @@ export const PurchaseTabNav = () => {
 
   useEffect(() => {
     dashboardCount();
-  }, []);
+  }, [dataPurchaseOrder, dataPurchaseOrderRequest, dataPurchaseAuth]);
 
   const dashboardCount = async () => {
     try {
