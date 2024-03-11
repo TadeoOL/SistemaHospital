@@ -42,7 +42,7 @@ import {
   KeyboardArrowUp,
   Save,
 } from "@mui/icons-material";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useGetArticlesBySearch } from "../../../../hooks/useGetArticlesBySearch";
 import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
@@ -53,6 +53,7 @@ import {
 } from "../../../../utils/functions/dataUtils";
 import {
   addDirectlyPurchaseOrder,
+  addPurchaseRequest,
   getPurchaseConfig,
 } from "../../../../api/api.routes";
 import { AlertConfigAmount } from "./RequestPurchasedOrderModal";
@@ -64,8 +65,8 @@ import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
 import { useDropzone } from "react-dropzone";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
-
-// import RequestPageIcon from "@mui/icons-material/RequestPage";
+import { useShallow } from "zustand/react/shallow";
+import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseStore/purchaseOrderRequestPagination";
 
 type Article = {
   id: string;
@@ -92,7 +93,7 @@ const stepsArray = [
   },
   {
     id: 2,
-    title: "Subir PDF",
+    title: "Seleccionar proveedor/es",
   },
   {
     id: 3,
@@ -105,18 +106,15 @@ const stepsView = (step: number, setOpen: Function) => {
     case 0:
       return <BuildOrder setOpen={setOpen} />;
     case 1:
-      return <StepTwo setOpen={setOpen} />;
+      return <StepTwo />;
     case 2:
       return <StepThree setOpen={setOpen} />;
   }
 };
 
 export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
-  const { step, isDirectlyPurchase } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      step: state.step,
-      isDirectlyPurchase: state.isDirectlyPurchase,
-    })
+  const step = useDirectlyPurchaseRequestOrderStore(
+    useShallow((state) => state.step)
   );
 
   return (
@@ -128,15 +126,13 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
         title="Solicitud de Compra"
       />
       <Stack sx={{ p: 4, bgcolor: "white", overflowY: "auto" }}>
-        {isDirectlyPurchase && (
-          <Stepper activeStep={step}>
-            {stepsArray.map((s) => (
-              <Step key={s.id}>
-                <StepLabel>{s.title}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        )}
+        <Stepper activeStep={step}>
+          {stepsArray.map((s) => (
+            <Step key={s.id}>
+              <StepLabel>{s.title}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
         {stepsView(step, props.setOpen)}
       </Stack>
     </Box>
@@ -642,7 +638,7 @@ const ArticlesTable = (props: {
   );
 };
 
-const StepTwo = (props: { setOpen: Function }) => {
+const StepTwo = () => {
   const { isDirectlyPurchase, isManyProviders } =
     useDirectlyPurchaseRequestOrderStore((state) => ({
       isManyProviders: state.isManyProviders,
@@ -652,9 +648,9 @@ const StepTwo = (props: { setOpen: Function }) => {
   if (isDirectlyPurchase) {
     return <SelectProviderAndUploadPDF />;
   } else if (isManyProviders) {
-    return <ManyProviders setOpen={props.setOpen} />;
+    return <ManyProviders />;
   } else {
-    return <SingleProvider setOpen={props.setOpen} />;
+    return <SingleProvider />;
   }
 };
 
@@ -731,7 +727,13 @@ const SelectProviderAndUploadPDF = () => {
           select
           size="small"
           label="Proveedores"
-          value={providerSelected}
+          value={
+            providerSelected || (provider && !Array.isArray(provider))
+              ? provider instanceof Array
+                ? ""
+                : provider?.id
+              : ""
+          }
           onChange={handleSelectProvider}
           error={providerError}
           helperText={providerError && "Selecciona un proveedor"}
@@ -779,9 +781,10 @@ const SelectProviderAndUploadPDF = () => {
               </Box>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
                 Proveedor:{" "}
-                {provider
-                  ? `${provider.nombreContacto} - ${provider.nombreCompania}`
-                  : "Sin seleccionar"}
+                {provider &&
+                  (!Array.isArray(provider)
+                    ? `${provider.nombreContacto} - ${provider.nombreCompania}`
+                    : "Sin seleccionar")}
               </Typography>
             </Box>
             <Collapse in={openCollapse} sx={{ px: 2 }}>
@@ -801,7 +804,7 @@ const SelectProviderAndUploadPDF = () => {
                     variant="outlined"
                     sx={{ p: 6 }}
                   >
-                    {provider
+                    {provider && !Array.isArray(provider)
                       ? `Cotización - ${provider.nombreContacto} - ${provider.nombreCompania}`
                       : `Cotización`}
                   </Button>
@@ -922,6 +925,10 @@ const StepThree = (props: { setOpen: Function }) => {
     setStep,
     totalAmountRequest,
     warehouseSelected,
+    isManyProviders,
+    isDirectlyPurchase,
+    needAuth,
+    pdf,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       provider: state.provider,
@@ -930,37 +937,109 @@ const StepThree = (props: { setOpen: Function }) => {
       setStep: state.setStep,
       totalAmountRequest: state.totalAmountRequest,
       warehouseSelected: state.warehouseSelected,
+      isManyProviders: state.isManyProviders,
+      isDirectlyPurchase: state.isDirectlyPurchase,
+      needAuth: state.needAuth,
+      pdf: state.pdf,
     }),
     shallow
   );
   const [isLoading, setIsLoading] = useState(false);
+  const refetchTableOrderRequest = usePurchaseOrderRequestPagination(
+    (state) => state.fetch
+  );
+  const refetchTableOrder = usePurchaseOrderPagination((state) => state.fetch);
 
   const handleSubmit = async () => {
     if (!provider) return;
     setIsLoading(true);
-    const object = {
-      Id_Proveedor: provider.id,
-      Id_Almacen: warehouseSelected,
-      PrecioTotalOrden: totalAmountRequest,
-      OrdenCompraArticulo: articles.map((a) => {
-        return {
-          Id_Articulo: a.id,
-          Cantidad: a.amount,
-          PrecioProveedor: a.price,
-        };
-      }),
-    };
+    if (!Array.isArray(provider) && isDirectlyPurchase) {
+      const object = {
+        Id_Proveedor: provider.id,
+        Id_Almacen: warehouseSelected,
+        PrecioTotalOrden: totalAmountRequest,
+        OrdenCompraArticulo: articles.map((a) => {
+          return {
+            Id_Articulo: a.id,
+            Cantidad: a.amount,
+            PrecioProveedor: a.price,
+          };
+        }),
+      };
 
-    try {
-      await addDirectlyPurchaseOrder(object);
-      toast.success("Orden de compra realizada con éxito!");
-      usePurchaseOrderPagination.getState().fetch();
-      props.setOpen(false);
-    } catch (error) {
-      console.log(error);
-      toast.error("Error al realizar la compra");
-    } finally {
-      setIsLoading(false);
+      try {
+        await addDirectlyPurchaseOrder(object);
+        toast.success("Orden de compra realizada con éxito!");
+        usePurchaseOrderPagination.getState().fetch();
+        props.setOpen(false);
+      } catch (error) {
+        console.log(error);
+        toast.error("Error al realizar la compra");
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (isManyProviders && Array.isArray(provider)) {
+      const objectToPurchase = {
+        id_proveedor: provider.flatMap((p) => p.id),
+        Articulos: articles.map((a) => {
+          return {
+            Id_Articulo: a.id,
+            CantidadCompra: a.amount,
+            PrecioProveedor: a.price,
+          };
+        }),
+        id_almacen: warehouseSelected,
+        PrecioTotalInventario: totalAmountRequest,
+      };
+      try {
+        await addPurchaseRequest(
+          objectToPurchase.id_proveedor as string[],
+          objectToPurchase.Articulos,
+          objectToPurchase.id_almacen,
+          objectToPurchase.PrecioTotalInventario
+        );
+        toast.success("Orden de compra exitosa!");
+        props.setOpen(false);
+        refetchTableOrderRequest();
+        refetchTableOrder();
+      } catch (error) {
+        toast.error("Error al ordenar la compra!");
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (needAuth && !Array.isArray(provider)) {
+      const objectToPurchase = {
+        id_proveedor: [provider.id],
+        Articulos: articles.map((a) => {
+          return {
+            Id_Articulo: a.id,
+            CantidadCompra: a.amount,
+            PrecioProveedor: a.price,
+          };
+        }),
+        id_almacen: warehouseSelected,
+        PrecioTotalInventario: totalAmountRequest,
+        PDFCadena: pdf,
+      };
+      try {
+        await addPurchaseRequest(
+          objectToPurchase.id_proveedor,
+          objectToPurchase.Articulos,
+          objectToPurchase.id_almacen,
+          objectToPurchase.PrecioTotalInventario,
+          objectToPurchase.PDFCadena
+        );
+        toast.success("Orden de compra exitosa!");
+        props.setOpen(false);
+        refetchTableOrderRequest();
+        refetchTableOrder();
+      } catch (error) {
+        toast.error("Error al ordenar la compra!");
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -969,29 +1048,50 @@ const StepThree = (props: { setOpen: Function }) => {
       <Box sx={{ display: "flex", flex: 1, justifyContent: "center" }}>
         <Typography variant="h6">Resumen de la compra</Typography>
       </Box>
-      <Stack>
-        <Typography variant="subtitle1">Información del proveedor</Typography>
+      <Stack sx={{ mt: 2 }}>
+        <Typography variant="subtitle1">
+          {!Array.isArray(provider)
+            ? "Información del proveedor"
+            : "Información de proveedores"}
+        </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6} lg={4}>
-            <Typography variant="subtitle2">Nombre contacto:</Typography>
-            <Typography variant="subtitle2">
-              {provider?.nombreContacto}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Typography variant="subtitle2">Compañía:</Typography>
-            <Typography variant="subtitle2">
-              {provider?.nombreCompania}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Typography variant="subtitle2">Teléfono:</Typography>
-            <Typography variant="subtitle2">{provider?.telefono}</Typography>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Typography variant="subtitle2">RFC:</Typography>
-            <Typography variant="subtitle2">{provider?.rfc}</Typography>
-          </Grid>
+          {!Array.isArray(provider) ? (
+            <>
+              <Grid item xs={12} md={6} lg={4}>
+                <Typography variant="subtitle2">Nombre contacto:</Typography>
+                <Typography variant="subtitle2">
+                  {provider?.nombreContacto}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Typography variant="subtitle2">Compañía:</Typography>
+                <Typography variant="subtitle2">
+                  {provider?.nombreCompania}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Typography variant="subtitle2">Teléfono:</Typography>
+                <Typography variant="subtitle2">
+                  {provider?.telefono}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Typography variant="subtitle2">RFC:</Typography>
+                <Typography variant="subtitle2">{provider?.rfc}</Typography>
+              </Grid>
+            </>
+          ) : (
+            provider.map((p, i) => (
+              <React.Fragment key={p.id}>
+                <Grid item xs={12} md={4}>
+                  <Typography variant="subtitle2">Proveedor {i}:</Typography>
+                  <Typography variant="subtitle2">
+                    {p.nombreContacto} - {p.nombreCompania}
+                  </Typography>
+                </Grid>
+              </React.Fragment>
+            ))
+          )}
         </Grid>
         <Divider sx={{ my: 2 }} />
         <Typography variant="subtitle1">Artículos</Typography>

@@ -1,8 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
 import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
 import { toast } from "react-toastify";
-import { addPurchaseRequest } from "../../../../api/api.routes";
 import { shallow } from "zustand/shallow";
 import {
   Box,
@@ -28,35 +27,30 @@ import {
   KeyboardArrowUp,
 } from "@mui/icons-material";
 
-import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseStore/purchaseOrderRequestPagination";
-import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
 import { useDropzone } from "react-dropzone";
 import { convertBase64 } from "../../../../utils/functions/dataUtils";
 
-export const SingleProvider = (props: { setOpen: Function }) => {
+export const SingleProvider = () => {
   const {
-    articles,
-    warehouseSelected,
-    totalAmountRequest,
     step,
     setStep,
     pdf,
     setPdf,
     registerOrder,
+    setProvider,
+    provider,
+    setNeedAuth,
   } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    articles: state.articles,
-    warehouseSelected: state.warehouseSelected,
-    totalAmountRequest: state.totalAmountRequest,
     step: state.step,
     setStep: state.setStep,
     pdf: state.pdf,
     setPdf: state.setPdf,
     registerOrder: state.registerOrder,
+    setProvider: state.setProvider,
+    provider: state.provider,
+    setNeedAuth: state.setNeedAuth,
   }));
-  const refetchTableOrderRequest = usePurchaseOrderRequestPagination(
-    (state) => state.fetch
-  );
-  const refetchTableOrder = usePurchaseOrderPagination((state) => state.fetch);
+
   const { isLoadingProviders, providers } = useGetAllProviders();
   const [error, setError] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string[] | string>(
@@ -91,42 +85,20 @@ export const SingleProvider = (props: { setOpen: Function }) => {
   });
 
   const handleSubmit = async () => {
-    if (selectedProvider.length === 0) return setError(true);
+    if (
+      (selectedProvider.length === 0 && !provider) ||
+      (provider instanceof Array && provider.length === 0)
+    )
+      return setError(true);
     setIsLoading(true);
-    const objectToPurchase = {
-      id_proveedor: selectedProvider,
-      Articulos: articles.map((a) => {
-        return {
-          Id_Articulo: a.id,
-          CantidadCompra: a.amount,
-          PrecioProveedor: a.price,
-        };
-      }),
-      id_almacen: warehouseSelected,
-      PrecioTotalInventario: totalAmountRequest,
-      PDFCadena: pdf,
-    };
-    try {
-      await addPurchaseRequest(
-        objectToPurchase.id_proveedor as string[],
-        objectToPurchase.Articulos,
-        objectToPurchase.id_almacen,
-        objectToPurchase.PrecioTotalInventario,
-        objectToPurchase.PDFCadena
-      );
-      toast.success("Orden de compra exitosa!");
-      props.setOpen(false);
-      refetchTableOrderRequest();
-      refetchTableOrder();
-    } catch (error) {
-      toast.error("Error al ordenar la compra!");
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
+    setNeedAuth(true);
+    setIsLoading(false);
+    setStep(step + 1);
   };
-  const provider = providers.find((p) => p.id === selectedProvider[0]);
-  const disableButton = pdf.trim() === "" || selectedProvider.length === 0;
+  const disableButton =
+    pdf.trim() === "" ||
+    !provider ||
+    (provider instanceof Array && provider.length === 0);
 
   if (isLoadingProviders)
     return (
@@ -136,7 +108,7 @@ export const SingleProvider = (props: { setOpen: Function }) => {
     );
   return (
     <>
-      <Stack spacing={4}>
+      <Stack spacing={4} sx={{ mt: 4 }}>
         <Stack spacing={2}>
           <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
             Selecciona el proveedor:
@@ -146,7 +118,10 @@ export const SingleProvider = (props: { setOpen: Function }) => {
             size="small"
             select
             label="Proveedor"
-            value={selectedProvider}
+            value={
+              selectedProvider ||
+              (provider && !Array.isArray(provider) ? provider.id : "")
+            }
             error={error && selectedProvider.length < 1}
             helperText={
               error && selectedProvider.length < 1
@@ -155,6 +130,11 @@ export const SingleProvider = (props: { setOpen: Function }) => {
             }
             onChange={(e) => {
               setSelectedProvider([e.target.value]);
+              const providerData = providers.find(
+                (p) => p.id === e.target.value
+              );
+              if (!providerData) return;
+              setProvider(providerData);
             }}
           >
             {providers?.map((provider) => (
@@ -200,7 +180,7 @@ export const SingleProvider = (props: { setOpen: Function }) => {
             </Box>
             <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
               Proveedor:{" "}
-              {provider
+              {provider && !Array.isArray(provider)
                 ? `${provider.nombreContacto} - ${provider.nombreCompania}`
                 : "Sin seleccionar"}
             </Typography>
@@ -222,7 +202,7 @@ export const SingleProvider = (props: { setOpen: Function }) => {
                   variant="outlined"
                   sx={{ p: 6 }}
                 >
-                  {provider
+                  {provider && !Array.isArray(provider)
                     ? `Cotización - ${provider.nombreContacto} - ${provider.nombreCompania}`
                     : `Cotización`}
                 </Button>
@@ -293,7 +273,7 @@ export const SingleProvider = (props: { setOpen: Function }) => {
             }}
             disabled={isLoading || disableButton}
           >
-            Enviar solicitud
+            Siguiente
           </Button>
         </Stack>
       </Stack>
@@ -340,22 +320,18 @@ export const SingleProvider = (props: { setOpen: Function }) => {
   );
 };
 
-export const ManyProviders = (props: { setOpen: Function }) => {
-  const { articles, warehouseSelected, totalAmountRequest, setStep, step } =
+export const ManyProviders = () => {
+  const { setStep, step, setProvider, provider, setIsManyProviders } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
-        articles: state.articles,
-        warehouseSelected: state.warehouseSelected,
-        totalAmountRequest: state.totalAmountRequest,
         setStep: state.setStep,
         step: state.step,
+        setProvider: state.setProvider,
+        provider: state.provider,
+        setIsManyProviders: state.setIsManyProviders,
       }),
       shallow
     );
-  const refetchTableOrderRequest = usePurchaseOrderRequestPagination(
-    (state) => state.fetch
-  );
-  const refetchTableOrder = usePurchaseOrderPagination((state) => state.fetch);
   const { isLoadingProviders, providers } = useGetAllProviders();
   const [selectedProvider, setSelectedProvider] = useState<string[]>([]);
   const [providerSelectedId, setProviderSelectedId] = useState("");
@@ -365,6 +341,15 @@ export const ManyProviders = (props: { setOpen: Function }) => {
     const providerRes = providers.find((item) => item.id === providerId);
     return providerRes?.nombreContacto + " - " + providerRes?.nombreCompania;
   };
+
+  useEffect(() => {
+    if (!provider) return;
+    if (Array.isArray(provider) && provider.length === 0) return;
+    if (provider instanceof Array) {
+      const providersAlready = provider.flatMap((p) => p.id);
+      setSelectedProvider(providersAlready);
+    }
+  }, [provider]);
 
   const handleDeleteProvider = (providerId: string) => {
     const provFilter = selectedProvider.filter((item) => item !== providerId);
@@ -376,36 +361,13 @@ export const ManyProviders = (props: { setOpen: Function }) => {
       return toast.error("Selecciona 3 proveedores");
 
     setIsLoading(true);
-    const objectToPurchase = {
-      id_proveedor: selectedProvider,
-      Articulos: articles.map((a) => {
-        return {
-          Id_Articulo: a.id,
-          CantidadCompra: a.amount,
-          PrecioProveedor: a.price,
-        };
-      }),
-      id_almacen: warehouseSelected,
-      PrecioTotalInventario: totalAmountRequest,
-    };
-
-    try {
-      await addPurchaseRequest(
-        objectToPurchase.id_proveedor as string[],
-        objectToPurchase.Articulos,
-        objectToPurchase.id_almacen,
-        objectToPurchase.PrecioTotalInventario
-      );
-      toast.success("Orden de compra exitosa!");
-      props.setOpen(false);
-      refetchTableOrderRequest();
-      refetchTableOrder();
-    } catch (error) {
-      toast.error("Error al ordenar la compra!");
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
+    const providersData = providers.filter((p) =>
+      selectedProvider.some((sp) => p.id === sp)
+    );
+    setProvider(providersData);
+    setIsManyProviders(true);
+    setIsLoading(false);
+    setStep(step + 1);
   };
 
   if (isLoadingProviders)
@@ -415,7 +377,7 @@ export const ManyProviders = (props: { setOpen: Function }) => {
       </Box>
     );
   return (
-    <Stack>
+    <Stack sx={{ mt: 4 }}>
       <form noValidate onSubmit={handleSubmit}>
         <Stack spacing={2}>
           <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
@@ -428,27 +390,35 @@ export const ManyProviders = (props: { setOpen: Function }) => {
             label="Proveedor"
             SelectProps={{
               multiple: true,
-              renderValue: (selected: any) => (
-                <div style={{ display: "flex", flexWrap: "wrap" }}>
-                  {selected.map((value: string) => (
-                    <Chip
-                      key={value}
-                      label={providerName(value)}
-                      style={{ margin: 2 }}
-                      onDelete={() => {
-                        handleDeleteProvider(value);
-                      }}
-                      deleteIcon={
-                        <Cancel
-                          onMouseDown={(event) => event.stopPropagation()}
-                        />
-                      }
-                    />
-                  ))}
-                </div>
-              ),
+              renderValue: (selected: any) => {
+                return (
+                  <div style={{ display: "flex", flexWrap: "wrap" }}>
+                    {selected.map((value: string) => (
+                      <Chip
+                        key={value}
+                        label={providerName(value)}
+                        style={{ margin: 2 }}
+                        onDelete={() => {
+                          handleDeleteProvider(value);
+                        }}
+                        deleteIcon={
+                          <Cancel
+                            onMouseDown={(event) => event.stopPropagation()}
+                          />
+                        }
+                      />
+                    ))}
+                  </div>
+                );
+              },
             }}
-            value={selectedProvider}
+            value={
+              selectedProvider ||
+              (provider &&
+              (provider instanceof Array || Array.isArray(provider))
+                ? provider.flatMap((p) => p.id)
+                : [])
+            }
             onChange={(e) => {
               if (
                 selectedProvider.length === 3 &&
@@ -500,7 +470,7 @@ export const ManyProviders = (props: { setOpen: Function }) => {
           }}
           disabled={isLoading}
         >
-          {isLoading ? <CircularProgress size={15} /> : "Enviar solicitud"}
+          {isLoading ? <CircularProgress size={15} /> : "Siguiente"}
         </Button>
       </Stack>
     </Stack>
