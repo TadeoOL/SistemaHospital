@@ -23,7 +23,7 @@ interface State {
   warehouseSelected: string;
   articles: ArticleOrder[] | [];
   pdf: string;
-  provider: IProvider | null;
+  provider: IProvider | null | IProvider[];
   step: number;
   search: string;
   articlesFetched: Article[] | [];
@@ -31,13 +31,14 @@ interface State {
   isDirectlyPurchase: boolean;
   totalAmountRequest: number;
   registerOrder: IRegisterOrderPurchase | null;
+  needAuth: boolean;
 }
 
 interface Action {
   setWarehouseSelected: (warehouseSelected: string) => void;
   setArticles: (articles: ArticleOrder[]) => void;
   setPdf: (pdf: string) => void;
-  setProvider: (provider: IProvider) => void;
+  setProvider: (provider: IProvider | IProvider[]) => void;
   setStep: (step: number) => void;
   setSearch: (search: string) => void;
   setArticlesFetched: (articlesFetched: Article[] | []) => void;
@@ -46,6 +47,7 @@ interface Action {
   setTotalAmountRequest: (totalAmountRequest: number) => void;
   clearAllStates: () => void;
   setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => void;
+  setNeedAuth: (needAuth: boolean) => void;
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
@@ -62,13 +64,15 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
   isDirectlyPurchase: true,
   totalAmountRequest: 0,
   registerOrder: null,
+  needAuth: false,
+  setNeedAuth: (needAuth: boolean) => set({ needAuth }),
   setRegisterOrder: (registerOrder: IRegisterOrderPurchase) =>
     set({ registerOrder }),
   setWarehouseSelected: (warehouseSelected: string) =>
     set({ warehouseSelected }),
   setArticles: (articles: ArticleOrder[]) => set({ articles }),
   setPdf: (pdf: string) => set({ pdf }),
-  setProvider: (provider: IProvider) => set({ provider }),
+  setProvider: (provider: IProvider | IProvider[]) => set({ provider }),
   setStep: (step: number) => set({ step }),
   setSearch: (search: string) => set({ search }),
   setArticlesFetched: (articlesFetched: Article[]) => set({ articlesFetched }),
@@ -89,5 +93,7 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
       isDirectlyPurchase: true,
       totalAmountRequest: 0,
       provider: null,
+      needAuth: false,
+      registerOrder: null,
     }),
 }));
