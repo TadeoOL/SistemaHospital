@@ -23,6 +23,7 @@ import { usePurchaseAuthorizationHistoryPagination } from "../../../../store/pur
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { getProviderQuotePdf } from "../../../../api/api.routes";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import { toast } from "react-toastify";
 
 const useGetAllData = () => {
   const {
@@ -74,6 +75,8 @@ const useGetAllData = () => {
 const handleOpenPdf = async (quoteId: string) => {
   try {
     const pdfRes = await getProviderQuotePdf(quoteId);
+    if (pdfRes === "")
+      return toast.warning("Esta orden no cuenta con cotización");
     const pdfWindow = window.open("", "_blank");
     pdfWindow?.document.write(
       "<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>"
