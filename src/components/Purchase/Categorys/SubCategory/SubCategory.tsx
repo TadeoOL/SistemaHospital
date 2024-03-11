@@ -46,6 +46,11 @@ export const SubCategory = () => {
 						{/* <Typography fontWeight={700} fontSize={24}>
               {enabled ? "Sub categorías" : "Sub categorías deshabilitadas"}
             </Typography> */}
+						<SearchBar
+							title="Busca la sub categoría..."
+							searchState={setSearch}
+						/>
+						<Divider sx={{ my: 1 }} />
 						<Stack sx={{ flexDirection: "row", columnGap: 2 }}>
 							<Button
 								onClick={() => {
@@ -66,11 +71,6 @@ export const SubCategory = () => {
 							</Button>
 						</Stack>
 					</Stack>
-					<SearchBar
-						title="Busca la sub categoría..."
-						searchState={setSearch}
-					/>
-					<Divider sx={{ my: 1 }} />
 					<SubCategoryTable />
 				</Box>
 			</Box>

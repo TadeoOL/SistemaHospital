@@ -97,7 +97,7 @@ const useDisableArticle = () => {
         showCancelButton: true,
         confirmButtonText: `${enabled ? "Deshabilitar" : "Habilitar"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {

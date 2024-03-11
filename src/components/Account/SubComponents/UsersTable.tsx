@@ -46,11 +46,9 @@ const useDisableUserModal = () => {
         } un usuario.`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `${
-          stateEnabled ? "Deshabilitar" : "Habilitar"
-        }`,
+        confirmButtonText: `${stateEnabled ? "Deshabilitar" : "Habilitar"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {

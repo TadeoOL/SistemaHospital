@@ -75,7 +75,7 @@ const useDisableCategory = () => {
         showCancelButton: true,
         confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {

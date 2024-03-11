@@ -270,7 +270,7 @@ export const RequestPurchasedOrderModal = ({
                       setIsAddingMoreArticles(!isAddingMoreArticles)
                     }
                   >
-                    Agregar mas productos
+                    Agregar más productos
                   </Button>
                 </Stack>
                 {!isAlert && (
