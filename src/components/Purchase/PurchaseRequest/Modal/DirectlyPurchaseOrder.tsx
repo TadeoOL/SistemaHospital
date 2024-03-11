@@ -63,6 +63,7 @@ import {
 import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
 import { useDropzone } from "react-dropzone";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
 
 // import RequestPageIcon from "@mui/icons-material/RequestPage";
 
@@ -935,6 +936,7 @@ const StepThree = (props: { setOpen: Function }) => {
     try {
       await addDirectlyPurchaseOrder(object);
       toast.success("Orden de compra realizada con éxito!");
+      usePurchaseOrderPagination.getState().fetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);

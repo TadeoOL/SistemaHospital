@@ -37,6 +37,7 @@ import { QuoteModal } from "./Modal/QuoteModal";
 import { OrderModal } from "./Modal/OrderModal";
 import Swal from "sweetalert2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
+import { Info } from "@mui/icons-material";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -320,6 +321,13 @@ export const PurchaseOrder = () => {
                                   <PersonAddIcon />
                                 </IconButton>
                               </Tooltip>
+                            ) : StatusPurchaseOrder[order.estatus] ===
+                              "Orden de compra cancelada" ? (
+                              <Tooltip title="Cancelado">
+                                <IconButton>
+                                  <Info />
+                                </IconButton>
+                              </Tooltip>
                             ) : (
                               <>
                                 <Tooltip title="Ver orden de compra">
@@ -351,16 +359,19 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               </>
                             )}
-                            <Tooltip title="Cancelar">
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  handleRemoveOrder(order.id_OrdenCompra);
-                                }}
-                              >
-                                <CloseIcon sx={{ color: "red" }} />
-                              </IconButton>
-                            </Tooltip>
+                            {StatusPurchaseOrder[order.estatus] !==
+                              "Orden de compra cancelada" && (
+                              <Tooltip title="Cancelar">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    handleRemoveOrder(order.id_OrdenCompra);
+                                  }}
+                                >
+                                  <CloseIcon sx={{ color: "red" }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
                           </TableCell>
                         </TableRow>
                         <TableRow>
