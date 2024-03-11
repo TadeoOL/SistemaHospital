@@ -110,7 +110,7 @@ export const MatchPrices = (props: {
     );
   return (
     <Box sx={style}>
-      <HeaderModal title="MAtch de precios tilin" setOpen={() => {}} />
+      <HeaderModal title="Selección de precios" setOpen={() => {}} />
       <Stack spacing={3} sx={{ bgcolor: "white", p: 4 }}>
         <Stepper activeStep={step}>
           {stepsForm.map((step) => (
@@ -171,6 +171,7 @@ const FirstStep = (props: {
       return total + totalPriceObject || 0;
     }, 0);
   }, [prices]);
+  const providerName = data.solicitudProveedor[0].proveedor.nombre;
 
   useEffect(() => {
     if (!articlesData) return;
@@ -240,10 +241,12 @@ const FirstStep = (props: {
   return (
     <>
       <Box>
-        <Typography>PDF -</Typography>
-        <Box>
-          <Button onClick={() => setViewPdf(true)}>Ver PDF</Button>
-        </Box>
+        <Stack sx={{ display: "flex", flex: 1, alignItems: "start", mb: 2 }}>
+          <Typography variant="subtitle2">PDF - {providerName}</Typography>
+          <Box>
+            <Button onClick={() => setViewPdf(true)}>Ver PDF</Button>
+          </Box>
+        </Stack>
         <Card>
           <TableContainer>
             <Table>

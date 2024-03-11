@@ -217,7 +217,6 @@ export const PurchaseOrderRequest = () => {
       });
   }, []);
 
-  console.log({ data });
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
