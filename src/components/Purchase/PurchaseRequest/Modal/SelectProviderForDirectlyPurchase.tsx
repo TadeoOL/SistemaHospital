@@ -29,6 +29,7 @@ import {
 
 import { useDropzone } from "react-dropzone";
 import { convertBase64 } from "../../../../utils/functions/dataUtils";
+import { Note } from "./Note";
 
 export const SingleProvider = () => {
   const {
@@ -245,6 +246,9 @@ export const SingleProvider = () => {
               </Stack>
             )}
           </Collapse>
+          <Box sx={{ mt: 1 }}>
+            <Note />
+          </Box>
         </Stack>
         <Stack
           sx={{
@@ -379,7 +383,7 @@ export const ManyProviders = () => {
   return (
     <Stack sx={{ mt: 4 }}>
       <form noValidate onSubmit={handleSubmit}>
-        <Stack spacing={2}>
+        <Stack spacing={1}>
           <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
             Selecciona los proveedores:
           </Typography>
@@ -440,6 +444,9 @@ export const ManyProviders = () => {
               </MenuItem>
             ))}
           </TextField>
+          <Box>
+            <Note />
+          </Box>
         </Stack>
       </form>
       <Stack
