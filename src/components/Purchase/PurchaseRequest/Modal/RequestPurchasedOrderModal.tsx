@@ -452,8 +452,6 @@ const TableComponent = () => {
     setEditingIds(newEditingIds);
   };
 
-  console.log({ articlesPurchased });
-
   return (
     <>
       <Box sx={{ overflowY: "auto" }}>
