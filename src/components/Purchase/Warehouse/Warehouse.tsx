@@ -40,7 +40,11 @@ export const Warehouse = () => {
               pt: 1,
             }}
           >
-            <SearchBar title="Buscar el almacén..." searchState={setSearch} />
+            <SearchBar
+              title="Buscar el almacén..."
+              searchState={setSearch}
+              sx={{ width: "25%" }}
+            />
             <Divider sx={{ my: 1 }} />
             {/* <Typography fontWeight={700} fontSize={24}>
               {enabled ? "Almacenes" : "Almacenes deshabilitados"}

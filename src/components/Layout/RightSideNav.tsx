@@ -1,4 +1,6 @@
 import { Drawer, List, ListItem, ListItemText } from "@mui/material";
+import { useEffect } from "react";
+import { usePurchaseRequestNav } from "../../store/purchaseStore/purchaseRequestNav";
 import {
   MensajeInicio,
   MensajeOrdenesCompra,
@@ -14,6 +16,8 @@ import {
   MensajeProveedores,
   MensajeConfig,
   MensajeHistorialCompras,
+  MensajeSolicitudProceso,
+  MensajeAlerta,
 } from "./Help/HelpMessage";
 
 interface RightSideNavProps {
@@ -52,6 +56,9 @@ const RightSideNav: React.FC<RightSideNavProps> = ({
   onClose,
   currentPage,
 }) => {
+  const tabValue = usePurchaseRequestNav((state) => state.tabValue);
+  useEffect(() => {}, [tabValue]);
+
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <List sx={{ width: "616px" }}>

@@ -25,8 +25,12 @@ export function createComponents(config: { palette: any }): Components {
       },
     },
     MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
       styleOverrides: {
         root: {
+          fontWeight: 400,
           borderRadius: 3,
           textTransform: "none" as "none",
         },
@@ -185,7 +189,7 @@ export function createComponents(config: { palette: any }): Components {
         },
         input: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
           lineHeight: "24px",
         },
       },
@@ -215,7 +219,7 @@ export function createComponents(config: { palette: any }): Components {
         },
         input: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 300,
           lineHeight: "24px",
         },
         notchedOutline: {

@@ -38,7 +38,11 @@ export const ProvidersCard = () => {
               pt: 1,
             }}
           >
-            <SearchBar title="Busca el proveedor..." searchState={setSearch} />
+            <SearchBar
+              title="Busca el proveedor..."
+              searchState={setSearch}
+              sx={{ width: "30%" }}
+            />
             <Divider sx={{ my: 1 }} />
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button

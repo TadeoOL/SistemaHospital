@@ -237,9 +237,7 @@ export const AlertArticlesTable = () => {
               alignItems: "end",
             }}
           >
-            <Typography variant="subtitle2">
-              Almacen: {alert.nombreAlmacen}
-            </Typography>
+            <Typography variant="h4">Almacen: {alert.nombreAlmacen}</Typography>
             <Button
               variant="contained"
               disabled={isLoadingNextStep}
