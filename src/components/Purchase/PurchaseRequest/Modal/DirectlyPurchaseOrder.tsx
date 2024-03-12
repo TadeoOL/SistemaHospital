@@ -214,9 +214,13 @@ const BuildOrder = (props: { setOpen: Function }) => {
   return (
     <Stack sx={{ display: "flex", flex: 1, mt: 2 }}>
       <Stack sx={{ display: "flex", flex: 1, maxWidth: 300 }}>
-        <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Almacén</Typography>
+        <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+          Seleccionar almacén
+        </Typography>
+
         <TextField
           select
+          label="Almacén"
           size="small"
           error={warehouseError}
           helperText={warehouseError && "Selecciona un almacén"}
@@ -224,6 +228,22 @@ const BuildOrder = (props: { setOpen: Function }) => {
           onChange={(e) => {
             setWarehouseError(false);
             setWarehouseSelected(e.target.value);
+          }}
+          sx={{
+            "& .MuiSelect-filled": {
+              paddingTop: 1,
+            },
+            "& legend": { display: "none" },
+            "& .MuiInputLabel-shrink": {
+              opacity: 0,
+              transition: "all 0.2s ease-in",
+            },
+          }}
+          InputLabelProps={{
+            sx: {
+              margin: -1,
+              marginLeft: 0.5,
+            },
           }}
         >
           {almacenes.map((warehouse) => (
@@ -246,7 +266,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
       >
         <Stack sx={{ display: "flex", flex: 1 }}>
           <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-            Articulo
+            Seleccionar articulo
           </Typography>
           <Autocomplete
             disablePortal
@@ -273,7 +293,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
         </Stack>
         <Stack sx={{ display: "flex", flex: 1 }}>
           <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-            Cantidad
+            Ingresar cantidad
           </Typography>
           <TextField
             size="small"
