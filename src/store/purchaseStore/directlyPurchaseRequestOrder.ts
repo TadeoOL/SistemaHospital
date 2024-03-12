@@ -32,13 +32,14 @@ interface State {
   totalAmountRequest: number;
   registerOrder: IRegisterOrderPurchase | null;
   needAuth: boolean;
+  note: string;
 }
 
 interface Action {
   setWarehouseSelected: (warehouseSelected: string) => void;
   setArticles: (articles: ArticleOrder[]) => void;
   setPdf: (pdf: string) => void;
-  setProvider: (provider: IProvider | IProvider[]) => void;
+  setProvider: (provider: IProvider | IProvider[] | null) => void;
   setStep: (step: number) => void;
   setSearch: (search: string) => void;
   setArticlesFetched: (articlesFetched: Article[] | []) => void;
@@ -48,6 +49,7 @@ interface Action {
   clearAllStates: () => void;
   setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => void;
   setNeedAuth: (needAuth: boolean) => void;
+  setNote: (note: string) => void;
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
@@ -65,6 +67,8 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
   totalAmountRequest: 0,
   registerOrder: null,
   needAuth: false,
+  note: "",
+  setNote: (note: string) => set({ note }),
   setNeedAuth: (needAuth: boolean) => set({ needAuth }),
   setRegisterOrder: (registerOrder: IRegisterOrderPurchase) =>
     set({ registerOrder }),
@@ -72,7 +76,7 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
     set({ warehouseSelected }),
   setArticles: (articles: ArticleOrder[]) => set({ articles }),
   setPdf: (pdf: string) => set({ pdf }),
-  setProvider: (provider: IProvider | IProvider[]) => set({ provider }),
+  setProvider: (provider: IProvider | IProvider[] | null) => set({ provider }),
   setStep: (step: number) => set({ step }),
   setSearch: (search: string) => set({ search }),
   setArticlesFetched: (articlesFetched: Article[]) => set({ articlesFetched }),
@@ -95,5 +99,6 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
       provider: null,
       needAuth: false,
       registerOrder: null,
+      note: "",
     }),
 }));

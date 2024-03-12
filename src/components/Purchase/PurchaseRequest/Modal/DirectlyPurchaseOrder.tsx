@@ -67,6 +67,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
 import { useShallow } from "zustand/react/shallow";
 import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseStore/purchaseOrderRequestPagination";
+import { Note } from "./Note";
 
 type Article = {
   id: string;
@@ -329,6 +330,7 @@ const ArticlesTable = (props: {
     setIsDirectlyPurchase,
     setTotalAmountRequest,
     warehouseSelected,
+    setProvider,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -341,6 +343,7 @@ const ArticlesTable = (props: {
       setIsDirectlyPurchase: state.setIsDirectlyPurchase,
       setTotalAmountRequest: state.setTotalAmountRequest,
       warehouseSelected: state.warehouseSelected,
+      setProvider: state.setProvider,
     }),
     shallow
   );
@@ -389,7 +392,11 @@ const ArticlesTable = (props: {
     });
   }, [articles, prices]);
 
-  const totalValue = () => {
+  useEffect(() => {
+    setProvider(null);
+  }, []);
+
+  function totalValue() {
     const totalPrice = articles.reduce((total, item) => {
       const quantityValue = parseFloat(quantity[item.id]) || item.amount;
       const priceValue = parseFloat(prices[item.id]) || item.price;
@@ -397,7 +404,7 @@ const ArticlesTable = (props: {
       return total + totalPriceObject;
     }, 0);
     return totalPrice;
-  };
+  }
 
   const toggleEdit = (id: string) => {
     const newEditingIds = new Set(editingIds);
@@ -848,6 +855,9 @@ const SelectProviderAndUploadPDF = () => {
               )}
             </Collapse>
           </Stack>
+          <Box>
+            <Note />
+          </Box>
         </Stack>
         <Box
           sx={{
