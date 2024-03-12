@@ -22,6 +22,7 @@ import {
   TablePagination,
   Chip,
   Backdrop,
+  TextFieldProps,
 } from "@mui/material";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import { IArticle } from "../../../../types/types";
@@ -43,13 +44,41 @@ import {
 } from "../../../../api/api.routes";
 import {
   addArticlesPrice,
+  isValidFloat,
   isValidInteger,
 } from "../../../../utils/functions/dataUtils";
 import { useGetAlmacenes } from "../../../../hooks/useGetAlmacenes";
 import { primary, error } from "../../../../theme/colors";
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimitsOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
-import { ArrowForward } from "@mui/icons-material";
+import { ArrowForward, Edit } from "@mui/icons-material";
+
+const TextFieldCustom = (props: TextFieldProps) => (
+  <TextField
+    {...props}
+    sx={{
+      "& legend": { display: "none" },
+      "& .MuiInputLabel-shrink": {
+        opacity: 0,
+        transition: "all 0.2s ease-in",
+        padding: 0,
+      },
+    }}
+    inputProps={{
+      style: {
+        paddingTop: 5,
+      },
+    }}
+    InputLabelProps={{
+      sx: {
+        margin: -1,
+        marginLeft: 0,
+      },
+    }}
+  >
+    {props.children}
+  </TextField>
+);
 
 const style = {
   position: "absolute",
@@ -321,6 +350,7 @@ const TableComponent = () => {
     setIsManyProviders,
     warehouseSelected,
     articlesPurchased,
+    setArticlesPurchased,
   } = useArticlesAlertPagination(
     (state) => ({
       setStep: state.setStep,
@@ -334,6 +364,7 @@ const TableComponent = () => {
     }),
     shallow
   );
+  const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
 
   const { checkedArticles: articlesWare } =
     useArticlesAlertPagination.getState();
@@ -385,6 +416,44 @@ const TableComponent = () => {
     return article ? article.nombre : "";
   };
 
+  const handleChangePrice = (id: string, value: string) => {
+    if (!isValidFloat(value)) return;
+    const prevArticles = articlesPurchased;
+    const newObject = prevArticles.map((article) => {
+      if (article.id_articulo === id) {
+        return { ...article, precioInventario: value ? parseFloat(value) : 0 };
+      }
+      return article;
+    });
+
+    setArticlesPurchased(newObject);
+  };
+
+  const handleChangeAmount = (id: string, value: string) => {
+    if (!isValidInteger(value)) return;
+    const prevArticles = articlesPurchased;
+    const newObject = prevArticles.map((article) => {
+      if (article.id_articulo === id) {
+        return { ...article, cantidadComprar: value ? parseInt(value) : 0 };
+      }
+      return article;
+    });
+
+    setArticlesPurchased(newObject);
+  };
+
+  const toggleEdit = (id: string) => {
+    const newEditingIds = new Set(editingIds);
+    if (newEditingIds.has(id)) {
+      newEditingIds.delete(id);
+    } else {
+      newEditingIds.add(id);
+    }
+    setEditingIds(newEditingIds);
+  };
+
+  console.log({ articlesPurchased });
+
   return (
     <>
       <Box sx={{ overflowY: "auto" }}>
@@ -404,16 +473,55 @@ const TableComponent = () => {
                   articlesPurchased.map((item) => (
                     <TableRow key={item.id_articulo}>
                       <TableCell>{articleName(item.id_articulo)}</TableCell>
-                      <TableCell>{item.cantidadComprar}</TableCell>
-                      <TableCell>{item.precioInventario}</TableCell>
                       <TableCell>
-                        <Tooltip title="Eliminar">
-                          <IconButton
-                            onClick={handleDeleteArticle(item.id_articulo)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
+                        {editingIds.has(item.id_articulo) ? (
+                          <TextFieldCustom
+                            label="Cantidad"
+                            value={item.cantidadComprar}
+                            onChange={(e) =>
+                              handleChangeAmount(
+                                item.id_articulo,
+                                e.target.value
+                              )
+                            }
+                          />
+                        ) : (
+                          item.cantidadComprar
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingIds.has(item.id_articulo) ? (
+                          <TextFieldCustom
+                            label="Precio"
+                            value={item.precioInventario}
+                            onChange={(e) =>
+                              handleChangePrice(
+                                item.id_articulo,
+                                e.target.value
+                              )
+                            }
+                          />
+                        ) : (
+                          item.precioInventario
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <>
+                          <Tooltip title="Editar">
+                            <IconButton
+                              onClick={() => toggleEdit(item.id_articulo)}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Eliminar">
+                            <IconButton
+                              onClick={handleDeleteArticle(item.id_articulo)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </>
                       </TableCell>
                     </TableRow>
                   ))
@@ -487,7 +595,7 @@ const TableComponent = () => {
         </Button>
         <Button
           variant="contained"
-          disabled={isLoading}
+          disabled={isLoading || editingIds.size > 0}
           endIcon={<ArrowForward />}
           onClick={() => {
             checkedArticles.length > 0
