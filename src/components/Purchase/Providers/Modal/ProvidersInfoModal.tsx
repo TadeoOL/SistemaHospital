@@ -16,13 +16,14 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: { xs: 380, md: 800, lg: 1000 },
-  bgcolor: "background.paper",
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
   flexDirection: "column",
   maxHeight: 600,
-  overflowY: "auto",
+};
+
+const styleBar = {
   "&::-webkit-scrollbar": {
     width: "0.4em",
     zIndex: 1,
@@ -81,125 +82,137 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
   return (
     <Box sx={style}>
       <HeaderModal title="Información del proveedor" setOpen={() => {}} />
-      <Stack spacing={2} sx={{ display: "flex", flex: 1, p: 2 }}>
-        <Card sx={{ p: 2 }}>
-          <Grid
-            container
-            spacing={3}
-            sx={{ justifyContent: "start", display: "flex", flex: 1 }}
-          >
-            <Grid item xs={12}>
-              <Typography fontWeight={700} fontSize={24}>
-                Información general:
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Nombre de la compañía:
+      <Stack
+        spacing={2}
+        sx={{
+          display: "flex",
+          flex: 1,
+          p: 2,
+          bgcolor: "background.paper",
+          overflowY: "auto",
+          ...styleBar,
+        }}
+      >
+        <Stack>
+          <Card sx={{ p: 2 }}>
+            <Grid
+              container
+              spacing={3}
+              sx={{ justifyContent: "start", display: "flex", flex: 1 }}
+            >
+              <Grid item xs={12}>
+                <Typography fontWeight={700} fontSize={24}>
+                  Información general:
                 </Typography>
-                <Typography>{nombreCompania}</Typography>
-              </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Nombre de la compañía:
+                  </Typography>
+                  <Typography>{nombreCompania}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Nombre del contacto:
+                  </Typography>
+                  <Typography>{nombreContacto}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Puesto:
+                  </Typography>
+                  <Typography>{puesto}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Dirección:
+                  </Typography>
+                  <Typography>{direccion}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Teléfono:
+                  </Typography>
+                  <Typography>{telefono}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Correo electrónico:
+                  </Typography>
+                  <Typography>{correoElectronico}</Typography>
+                </Stack>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Nombre del contacto:
+          </Card>
+          <Card sx={{ p: 2 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Typography fontWeight={700} fontSize={24}>
+                  Información fiscal:
                 </Typography>
-                <Typography>{nombreContacto}</Typography>
-              </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    RFC:
+                  </Typography>
+                  <Typography>{rfc}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Domicilio fiscal:
+                  </Typography>
+                  <Typography>{direccionFiscal}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Numero de identificación fiscal:
+                  </Typography>
+                  <Typography>{nif}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Giro de la empresa:
+                  </Typography>
+                  <Typography>{giroEmpresa}</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Stack>
+                  <Typography fontWeight={500} fontSize={16}>
+                    Tipo de contribuyente:
+                  </Typography>
+                  <Typography>{processType(tipoContribuyente ?? 0)}</Typography>
+                </Stack>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Puesto:
-                </Typography>
-                <Typography>{puesto}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Dirección:
-                </Typography>
-                <Typography>{direccion}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Teléfono:
-                </Typography>
-                <Typography>{telefono}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Correo electrónico:
-                </Typography>
-                <Typography>{correoElectronico}</Typography>
-              </Stack>
-            </Grid>
-          </Grid>
-        </Card>
-        <Card sx={{ p: 2 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Typography fontWeight={700} fontSize={24}>
-                Información fiscal:
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  RFC:
-                </Typography>
-                <Typography>{rfc}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Domicilio fiscal:
-                </Typography>
-                <Typography>{direccionFiscal}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Numero de identificación fiscal:
-                </Typography>
-                <Typography>{nif}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Giro de la empresa:
-                </Typography>
-                <Typography>{giroEmpresa}</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <Stack>
-                <Typography fontWeight={500} fontSize={16}>
-                  Tipo de contribuyente:
-                </Typography>
-                <Typography>{processType(tipoContribuyente ?? 0)}</Typography>
-              </Stack>
-            </Grid>
-          </Grid>
-        </Card>
+          </Card>
 
-        <Card>
-          <Stack>
-            <Typography fontWeight={700} fontSize={24}>
-              Certificaciones
-            </Typography>
-          </Stack>
-        </Card>
+          <Card>
+            <Stack>
+              <Typography fontWeight={700} fontSize={24}>
+                Certificaciones
+              </Typography>
+            </Stack>
+          </Card>
+        </Stack>
       </Stack>
     </Box>
   );

@@ -377,7 +377,9 @@ export const PurchaseOrderRequest = () => {
                               StatusPurchaseRequest[auth.estatus] !==
                                 "Selección de productos por proveedor" &&
                               StatusPurchaseRequest[auth.estatus] !==
-                                "Cancelado" && (
+                                "Cancelado" &&
+                              StatusPurchaseRequest[auth.estatus] !==
+                                "Necesita autorización" && (
                                 <>
                                   <Tooltip title="Ver orden de compra">
                                     <IconButton
