@@ -150,6 +150,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
     articles,
     setArticlesFetched,
     articlesFetched,
+    setSearch,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       warehouseSelected: state.warehouseSelected,
@@ -158,6 +159,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
       articles: state.articles,
       setArticlesFetched: state.setArticlesFetched,
       articlesFetched: state.articlesFetched,
+      setSearch: state.setSearch,
     }),
     shallow
   );
@@ -205,7 +207,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
     limit: OPTIONS_LIMIT,
   });
 
-  if (isLoadingAlmacenes || isLoadingArticles)
+  if (isLoadingAlmacenes)
     return (
       <Box sx={{ display: "flex", flex: 1, justifyContent: "center", p: 6 }}>
         <CircularProgress size={40} />
@@ -279,9 +281,11 @@ const BuildOrder = (props: { setOpen: Function }) => {
               setArticleSelected(val);
               setArticleError(false);
             }}
+            loading={isLoadingArticles && articlesFetched.length === 0}
             getOptionLabel={(option) => option.nombre}
             options={articlesFetched}
             value={articleSelected}
+            noOptionsText="No se encontraron artículos"
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -289,6 +293,9 @@ const BuildOrder = (props: { setOpen: Function }) => {
                 helperText={articleError && "Selecciona un articulo"}
                 label="Artículos"
                 sx={{ width: "50%" }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
               />
             )}
           />
