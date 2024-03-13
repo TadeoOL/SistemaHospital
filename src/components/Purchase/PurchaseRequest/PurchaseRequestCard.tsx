@@ -5,6 +5,7 @@ import { useArticlesAlertPagination } from "../../../store/purchaseStore/article
 import { shallow } from "zustand/shallow";
 
 export const PurchaseRequestCard = () => {
+  const userRole = "supplyRoles";
   const { handleOpen, setHandleOpen } = useArticlesAlertPagination(
     (state) => ({
       handleOpen: state.handleOpen,
@@ -17,8 +18,9 @@ export const PurchaseRequestCard = () => {
   return (
     <>
       <Box sx={{ minWidth: { xs: 950, xl: 0 } }}>
-        <AlertArticlesTable />
+        <AlertArticlesTable userRole={userRole} />
       </Box>
+
       <Modal
         open={handleOpen}
         onClose={() => {

@@ -78,7 +78,7 @@ const useGetAllData = () => {
   };
 };
 
-export const AlertArticlesTable = () => {
+export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
   const {
     data,
     isLoading,
@@ -238,16 +238,19 @@ export const AlertArticlesTable = () => {
             }}
           >
             <Typography variant="h4">Almacen: {alert.nombreAlmacen}</Typography>
-            <Button
-              variant="contained"
-              disabled={isLoadingNextStep}
-              startIcon={<ShoppingBagOutlinedIcon />}
-              onClick={() => {
-                handlePurchaseOrder(alert.id_Almacen);
-              }}
-            >
-              Solicitar orden de compra
-            </Button>
+
+            {userRole === "supplyRole" && (
+              <Button
+                variant="contained"
+                disabled={isLoadingNextStep}
+                startIcon={<ShoppingBagOutlinedIcon />}
+                onClick={() => {
+                  handlePurchaseOrder(alert.id_Almacen);
+                }}
+              >
+                Solicitar orden de comprax
+              </Button>
+            )}
           </Stack>
           <Card>
             <Table>
