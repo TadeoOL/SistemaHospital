@@ -225,7 +225,6 @@ const BuildOrder = (props: { setOpen: Function }) => {
           error={warehouseError}
           helperText={warehouseError && "Selecciona un almacén"}
           value={warehouseSelected}
-          sx={{ width: "69%" }}
           onChange={(e) => {
             setWarehouseError(false);
             setWarehouseSelected(e.target.value);
@@ -239,6 +238,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
               opacity: 0,
               transition: "all 0.2s ease-in",
             },
+            width: "69%",
           }}
           InputLabelProps={{
             sx: {
