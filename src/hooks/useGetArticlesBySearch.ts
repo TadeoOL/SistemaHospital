@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getArticlesBySearch } from "../api/api.routes";
 import { useDirectlyPurchaseRequestOrderStore } from "../store/purchaseStore/directlyPurchaseRequestOrder";
+import { useShallow } from "zustand/react/shallow";
 
 type Article = {
   id: string;
@@ -10,7 +11,9 @@ type Article = {
 export const useGetArticlesBySearch = () => {
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
   const [articlesRes, setArticles] = useState<Article[]>([]);
-  const search = useDirectlyPurchaseRequestOrderStore((state) => state.search);
+  const search = useDirectlyPurchaseRequestOrderStore(
+    useShallow((state) => state.search)
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +28,6 @@ export const useGetArticlesBySearch = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [search]);
   return { isLoadingArticles, articlesRes };
 };
