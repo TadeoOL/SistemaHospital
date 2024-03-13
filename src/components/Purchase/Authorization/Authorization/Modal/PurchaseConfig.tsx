@@ -122,6 +122,7 @@ export const PurchaseConfig = () => {
       toast.success("Configuración modificada con éxito!");
       refetch();
       setHasChanges(false);
+      setIsChecked(false);
     } catch (error) {
       console.log(error);
       toast.error("Error al modificar la configuración!");
