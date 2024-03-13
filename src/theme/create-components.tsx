@@ -31,8 +31,7 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         root: {
           fontWeight: 400,
-          borderRadius: 3,
-          textTransform: "none" as "none",
+          borderRadius: 4,
         },
         sizeSmall: {
           padding: "6px 16px",
@@ -54,10 +53,11 @@ export function createComponents(config: { palette: any }): Components {
         },
       },
     },
+
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
+          borderRadius: 8,
           [`&.${paperClasses.elevation1}`]: {
             boxShadow:
               "0px 5px 22px rgba(0, 0, 0, 0.04), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.03)",
@@ -263,8 +263,6 @@ export function createComponents(config: { palette: any }): Components {
           minWidth: "auto",
           paddingLeft: 0,
           paddingRight: 0,
-          borderTopRightRadius: 2,
-          borderTopLeftRadius: 2,
           textTransform: "none",
           transition: "300ms linear",
           color: palette.primary.contrastText,
@@ -275,6 +273,26 @@ export function createComponents(config: { palette: any }): Components {
           "&.MuiTab-root:hover": {
             backgroundColor: "#002E5F",
             color: palette.primary.contrastText,
+          },
+          "&.MuiTab-root:hover:first-of-type": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopLeftRadius: 10,
+          },
+          "&.MuiTab-root:hover:last-child": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopRightRadius: 10,
+          },
+          "&.Mui-selected:first-of-type": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopLeftRadius: 10,
+          },
+          "&.Mui-selected:last-child": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopRightRadius: 10,
           },
         },
       },
@@ -290,16 +308,11 @@ export function createComponents(config: { palette: any }): Components {
     MuiTableHead: {
       styleOverrides: {
         root: {
-          borderBottom: "none",
+          backgroundColor: palette.neutral[100],
           [`& .${tableCellClasses.root}`]: {
-            borderBottom: "none",
-            backgroundColor: palette.neutral[200],
-            color: palette.neutral[700],
-            fontSize: 12,
+            color: "rgb(38, 38, 38)",
+            fontSize: 14,
             fontWeight: 600,
-            lineHeight: 1,
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
           },
           [`& .${tableCellClasses.paddingCheckbox}`]: {
             paddingTop: 4,
@@ -311,6 +324,43 @@ export function createComponents(config: { palette: any }): Components {
     MuiTextField: {
       defaultProps: {
         variant: "filled",
+      },
+    },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          width: muiTheme.spacing(2.5),
+          height: muiTheme.spacing(2.5),
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          minWidth: 24,
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 4,
+        },
+        sizeLarge: {
+          width: muiTheme.spacing(5.5),
+          height: muiTheme.spacing(5.5),
+          fontSize: "1.25rem",
+        },
+        sizeMedium: {
+          width: muiTheme.spacing(4.5),
+          height: muiTheme.spacing(4.5),
+          fontSize: "1rem",
+        },
+        sizeSmall: {
+          width: muiTheme.spacing(3.75),
+          height: muiTheme.spacing(3.75),
+          fontSize: "0.75rem",
+        },
       },
     },
   };

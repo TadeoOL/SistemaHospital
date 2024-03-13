@@ -74,12 +74,11 @@ export const SideNav = () => {
           p: 1,
         }}
       >
-        <ListItemIcon>{icon}</ListItemIcon>
+        <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
         {isOpen ? (
           <Typography
-            variant="body2"
+            variant="body1"
             sx={{
-              fontWeight: 600,
               display: "inline",
             }}
           >
