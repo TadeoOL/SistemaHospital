@@ -403,7 +403,7 @@ export const PurchaseConfig = () => {
             />
             <Checkbox
               checked={isChecked}
-              onChange={(e) => setIsChecked(!e.target.checked)}
+              onChange={(e) => setIsChecked(e.target.checked)}
             />
           </Grid>
         </Grid>
