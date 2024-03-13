@@ -4,24 +4,24 @@ import { useAuthorizationTabNav } from "../../store/purchaseStore/authorizationT
 import { useEffect } from "react";
 
 export const PurchaseAuthorizationView = () => {
-	const tabValue = useAuthorizationTabNav((state) => state.tabValue);
-	const navigate = useNavigate();
+  const tabValue = useAuthorizationTabNav((state) => state.tabValue);
+  const navigate = useNavigate();
 
-	useEffect(() => {
-		switch (tabValue) {
-			case 0:
-				return navigate("autorizaciones");
-			case 1:
-				return navigate("historial-autorizaciones");
-			default:
-				break;
-		}
-	}, [tabValue]);
+  // useEffect(() => {
+  // 	switch (tabValue) {
+  // 		case 0:
+  // 			return navigate("autorizaciones");
+  // 		case 1:
+  // 			return navigate("historial-autorizaciones");
+  // 		default:
+  // 			break;
+  // 	}
+  // }, [tabValue]);
 
-	return (
-		<>
-			<AuthorizationTabNav />
-			{<Outlet />}
-		</>
-	);
+  return (
+    <>
+      <AuthorizationTabNav />
+      {<Outlet />}
+    </>
+  );
 };

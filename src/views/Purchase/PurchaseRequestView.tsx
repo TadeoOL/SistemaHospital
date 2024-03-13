@@ -22,7 +22,7 @@ const getTabView = (value: number) => {
   }
 };
 
-export const PurchaseRequestView = () => {
+export const PurchaseRequestView = ({ userRole }: { userRole: any }) => {
   const [openPurchaseRequestOrder, setOpenPurchaseRequestOrder] =
     useState(false);
   const clearStates = useDirectlyPurchaseRequestOrderStore(
@@ -46,14 +46,16 @@ export const PurchaseRequestView = () => {
             mb: 1,
           }}
         >
-          <Button
-            size="large"
-            variant="contained"
-            onClick={() => setOpenPurchaseRequestOrder(true)}
-            startIcon={<RequestPageIcon />}
-          >
-            Solicitud de Compra
-          </Button>
+          {userRole === "supplyRoles" && (
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => setOpenPurchaseRequestOrder(true)}
+              startIcon={<RequestPageIcon />}
+            >
+              Solicitud de Compra
+            </Button>
+          )}
         </Box>
         <PurchaseTabNav />
         <Box
