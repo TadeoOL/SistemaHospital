@@ -110,14 +110,14 @@ export const PurchaseConfig = () => {
     setIsLoading(true);
     if (!configPurchase) return;
 
-    const object: IPurchaseConfig = {
-      cantidadOrdenDirecta: parseFloat(value),
-      factor: configPurchase.factor,
-      cantidadLicitacionDirecta: parseFloat(directlyTender),
-      checkboxValue: !isChecked,
-    };
-
     try {
+      const object: IPurchaseConfig = {
+        cantidadOrdenDirecta: parseFloat(value),
+        factor: configPurchase.factor,
+        cantidadLicitacionDirecta: parseFloat(directlyTender),
+        activarLicitacion: isChecked,
+      };
+
       await modifyPurchaseConfig(object);
       toast.success("Configuración modificada con éxito!");
       refetch();
@@ -403,7 +403,7 @@ export const PurchaseConfig = () => {
             />
             <Checkbox
               checked={isChecked}
-              onChange={(e) => setIsChecked(e.target.checked)}
+              onChange={(e) => setIsChecked(!e.target.checked)}
             />
           </Grid>
         </Grid>
