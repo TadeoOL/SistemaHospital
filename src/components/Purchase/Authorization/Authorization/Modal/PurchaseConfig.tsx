@@ -3,6 +3,7 @@ import {
   Button,
   CircularProgress,
   Collapse,
+  Checkbox,
   Grid,
   IconButton,
   Paper,
@@ -37,6 +38,7 @@ const styleInput = {
 };
 
 export const PurchaseConfig = () => {
+  const [isChecked, setIsChecked] = useState(false);
   const { isLoadingPurchaseConfig, config, isError, refetch } =
     useGetPurchaseConfig();
   const [configPurchase, setConfigPurchase] = useState<IPurchaseConfig>();
@@ -107,10 +109,12 @@ export const PurchaseConfig = () => {
   const handleModifyConfig = async () => {
     setIsLoading(true);
     if (!configPurchase) return;
+
     const object: IPurchaseConfig = {
       cantidadOrdenDirecta: parseFloat(value),
       factor: configPurchase.factor,
       cantidadLicitacionDirecta: parseFloat(directlyTender),
+      checkboxValue: !isChecked,
     };
 
     try {
@@ -395,6 +399,10 @@ export const PurchaseConfig = () => {
                 if (!isValidInteger(e.target.value)) return;
                 setDirectlyTender(e.target.value);
               }}
+            />
+            <Checkbox
+              checked={isChecked}
+              onChange={(e) => setIsChecked(e.target.checked)}
             />
           </Grid>
         </Grid>

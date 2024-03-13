@@ -239,7 +239,7 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
           >
             <Typography variant="h4">Almacen: {alert.nombreAlmacen}</Typography>
 
-            {userRole === "supplyRole" && (
+            {userRole === "supplyRoles" && (
               <Button
                 variant="contained"
                 disabled={isLoadingNextStep}
@@ -256,16 +256,18 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
-                    <Checkbox
-                      onChange={(event) =>
-                        handleSelectAllArticles(
-                          alert.id_Almacen,
-                          event.target.checked
-                        )
-                      }
-                    />
-                  </TableCell>
+                  {userRole !== "supplyRoles" && (
+                    <TableCell>
+                      <Checkbox
+                        onChange={(event) =>
+                          handleSelectAllArticles(
+                            alert.id_Almacen,
+                            event.target.checked
+                          )
+                        }
+                      />
+                    </TableCell>
+                  )}
                   <TableCell>Articulo en alerta</TableCell>
                   <TableCell>Cantidad a comprar</TableCell>
                   <TableCell>Cantidad de stock</TableCell>
@@ -276,22 +278,24 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
                 {alert.articulos.map((item) => (
                   <TableRow key={item.id_AlertaCompra}>
                     <TableCell>
-                      <Checkbox
-                        onChange={(event) =>
-                          handleUserChecked(
-                            alert.id_Almacen,
+                      {userRole !== "supplyRoles" && (
+                        <Checkbox
+                          onChange={(event) =>
+                            handleUserChecked(
+                              alert.id_Almacen,
+                              item.id_Articulo,
+                              item.id_AlertaCompra,
+                              item.cantidadComprar,
+                              item.precioInventario,
+                              event.target.checked
+                            )
+                          }
+                          checked={handleIsArticleChecked(
                             item.id_Articulo,
-                            item.id_AlertaCompra,
-                            item.cantidadComprar,
-                            item.precioInventario,
-                            event.target.checked
-                          )
-                        }
-                        checked={handleIsArticleChecked(
-                          item.id_Articulo,
-                          alert.id_Almacen
-                        )}
-                      />
+                            alert.id_Almacen
+                          )}
+                        />
+                      )}
                     </TableCell>
                     <TableCell>{item.nombreArticulo}</TableCell>
                     <TableCell>{item.cantidadComprar}</TableCell>

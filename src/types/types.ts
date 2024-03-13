@@ -184,6 +184,7 @@ export interface IPurchaseConfig {
   cantidadOrdenDirecta: number;
   factor: IFactor[];
   cantidadLicitacionDirecta: number;
+  checkboxValue?: boolean;
 }
 
 export interface IFactor {
