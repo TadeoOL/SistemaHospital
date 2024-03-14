@@ -16,8 +16,6 @@ import {
   MensajeProveedores,
   MensajeConfig,
   MensajeHistorialCompras,
-  MensajeSolicitudProceso,
-  MensajeAlerta,
 } from "./Help/HelpMessage";
 
 interface RightSideNavProps {

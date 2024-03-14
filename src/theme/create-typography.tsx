@@ -1,7 +1,6 @@
 export const createTypography = () => {
   return {
-    fontFamily:
-      '"Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    fontFamily: "'Public Sans', sans-serif",
     body1: {
       fontSize: "0.875rem",
       fontWeight: 400,
@@ -14,7 +13,7 @@ export const createTypography = () => {
     },
     button: {
       fontWeight: 600,
-      textTransform: "capitalize",
+      textTransform: "capitalize" as any,
     },
     caption: {
       fontSize: "0.75rem",
@@ -39,37 +38,31 @@ export const createTypography = () => {
       textTransform: "uppercase" as "uppercase",
     },
     h1: {
-      fontFamily: '"Public Sans", sans-serif',
       fontWeight: 600,
       fontSize: "2.375rem",
       lineHeight: 1.21,
     },
     h2: {
-      fontFamily: '"Public Sans", sans-serif',
       fontWeight: 600,
       fontSize: "1.875rem",
       lineHeight: 1.27,
     },
     h3: {
-      fontFamily: '"Public Sans", sans-serif',
       fontWeight: 600,
       fontSize: "1.5rem",
       lineHeight: 1.33,
     },
     h4: {
-      fontFamily: '"Public Sans", sans-serif',
       fontWeight: 600,
       fontSize: "1.25rem",
       lineHeight: 1.4,
     },
     h5: {
-      fontFamily: '"Public Sans", sans-serif',
       fontWeight: 600,
       fontSize: "1rem",
       lineHeight: 1.5,
     },
     h6: {
-      fontFamily: '"Public Sans", sans-serif',
       fontWeight: 400,
       fontSize: "0.875rem",
       lineHeight: 1.57,
