@@ -1,9 +1,6 @@
 import { Drawer, List, ListItem, ListItemText } from "@mui/material";
-import { useEffect } from "react";
-import { usePurchaseRequestNav } from "../../store/purchaseStore/purchaseRequestNav";
 import {
   MensajeInicio,
-  MensajeOrdenesCompra,
   MensajeProdcutosStockBajo,
   MensajeArticulos,
   MensajeCategorias,
@@ -16,7 +13,9 @@ import {
   MensajeProveedores,
   MensajeConfig,
   MensajeHistorialCompras,
+  PurchaseMessages,
 } from "./Help/HelpMessage";
+import { useAuthStore } from "../../store/auth";
 
 interface RightSideNavProps {
   open: boolean;
@@ -24,9 +23,9 @@ interface RightSideNavProps {
   currentPage: string;
 }
 
-const messagesByLink: { [key: string]: React.ReactNode; tab?: number } = {
+const messagesByLink: { [key: string]: any } = {
   "/": <MensajeInicio />,
-  "/compras/solicitud-compras": <MensajeOrdenesCompra />,
+  "/compras/solicitud-compras": <PurchaseMessages />,
   "/compras/solicitud-compras/productos-stock-bajo": (
     <MensajeProdcutosStockBajo />
   ),
@@ -54,14 +53,22 @@ const RightSideNav: React.FC<RightSideNavProps> = ({
   onClose,
   currentPage,
 }) => {
-  const tabValue = usePurchaseRequestNav((state) => state.tabValue);
-  useEffect(() => {}, [tabValue]);
+  let messageByLink = messagesByLink[currentPage];
+  const profile = useAuthStore((state) => state.profile);
+
+  if (currentPage === "/" && profile) {
+    if (profile.roles.includes("DIRECTORCOMPRAS")) {
+      messageByLink = <MensajeAuthCompras />;
+    } else if (profile.roles.includes("ABASTECIMIENTO")) {
+      messageByLink = <PurchaseMessages />;
+    }
+  }
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <List sx={{ width: "616px" }}>
         <ListItem>
-          <ListItemText primary={messagesByLink[currentPage]} />
+          <ListItemText primary={messageByLink} />
         </ListItem>
       </List>
     </Drawer>

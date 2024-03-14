@@ -127,8 +127,12 @@ export const SideNav = () => {
   const filteredItems = ModuleItems.filter((item) => {
     const isMainDashboard =
       item.mainDashboard && profile?.roles.includes(item.mainDashboard);
+    const hideCatalogsForAbastecimiento =
+      item.title === "Catálogos" && profile?.roles.includes("DIRECTORCOMPRAS");
+
     return (
       !isMainDashboard &&
+      !hideCatalogsForAbastecimiento &&
       (!item.protectedRoles ||
         item.protectedRoles.some((role) => profile?.roles.includes(role)))
     );

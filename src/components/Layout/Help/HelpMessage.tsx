@@ -16,6 +16,8 @@ import { Box, Collapse, IconButton, Typography } from "@mui/material";
 
 import { Divider } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import { usePurchaseRequestNav } from "../../../store/purchaseStore/purchaseRequestNav";
+import { useShallow } from "zustand/react/shallow";
 
 const imageStyles = { maxWidth: "600px" };
 
@@ -632,7 +634,7 @@ export const MensajeSubCategorias: React.FC = () => {
 export const MensajeArticulos: React.FC = () => {
   return (
     <div>
-      <h3>Artículos</h3>
+      <h3>Catálogo de Productos</h3>
       <Divider />
       <p>Contenido </p>
     </div>
@@ -696,4 +698,22 @@ export const MensajeConfig: React.FC = () => {
       <p>Contenido </p>
     </div>
   );
+};
+
+export const PurchaseMessages = () => {
+  const tabValue = usePurchaseRequestNav(useShallow((state) => state.tabValue));
+
+  const renderMessage = () => {
+    switch (tabValue) {
+      case 0:
+        return <MensajeOrdenesCompra />;
+      case 1:
+        return <MensajeSolicitudProceso />;
+      case 2:
+        return <MensajeAlerta />;
+      default:
+        return null;
+    }
+  };
+  return renderMessage();
 };
