@@ -232,7 +232,14 @@ export const SideNav = () => {
                   {item.children &&
                     selectedTopLevel === item.title &&
                     item.children.map((childItem, j) => (
-                      <Box sx={{ paddingLeft: "20px" }}>
+                      <Box
+                        sx={{
+                          paddingLeft: isOpen ? "20px" : "0px",
+                          transition: isOpen
+                            ? "none"
+                            : "padding-left 0.3s ease-in-out",
+                        }}
+                      >
                         <SideNavItems
                           key={`${i}-${j}`}
                           icon={childItem.icon}
