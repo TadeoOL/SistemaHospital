@@ -427,7 +427,7 @@ const ArticlesTable = (props: {
   }, []);
 
   function totalValue() {
-    const totalPrice = articles.reduce((total, item) => {
+    const totalPrice = articles.reduce((total: any, item: any) => {
       const quantityValue = parseFloat(quantity[item.id]) || item.amount;
       const priceValue = parseFloat(prices[item.id]) || item.price;
       const totalPriceObject = quantityValue * priceValue;
@@ -507,12 +507,18 @@ const ArticlesTable = (props: {
     setArticles(articleData);
     setTotalAmountRequest(totalPrice);
     try {
-      const { cantidadOrdenDirecta, cantidadLicitacionDirecta } =
-        await getPurchaseConfig();
-      if (totalPrice >= cantidadLicitacionDirecta) {
+      const {
+        cantidadOrdenDirecta,
+        cantidadLicitacionDirecta,
+        activarLicitacion,
+      } = await getPurchaseConfig();
+      if (totalPrice >= cantidadLicitacionDirecta && activarLicitacion) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
         setIsDirectlyPurchase(false);
-      } else if (totalPrice >= cantidadOrdenDirecta) {
+      } else if (
+        totalPrice >= cantidadOrdenDirecta ||
+        (totalPrice >= cantidadLicitacionDirecta && !activarLicitacion)
+      ) {
         AlertConfigAmount(setStep, step, setIsManyProviders, false);
         setIsDirectlyPurchase(false);
       } else {

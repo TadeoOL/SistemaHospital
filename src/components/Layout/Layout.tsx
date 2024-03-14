@@ -57,8 +57,8 @@ export const Layout: React.FC = () => {
     "/compras/solicitud-compras/productos-solicitados-orden-compra":
       "Solcitudes en Proceso",
     "/compras/solicitud-compras/productos-stock-bajo": "Alerta de Productos",
-    "/compras/categorias/categoria": "Categoría",
-    "/compras/categorias/subcategoria": "Sub categoría",
+    "/compras/categorias/categoria": "Categorías",
+    "/compras/categorias/subcategoria": "Sub categorías",
     "/compras/articulos/articulo": "Catálogo de Productos",
     "/compras/articulos/articulo-existente": "Productos en Existencia",
     "/compras/almacen": "Almacén",

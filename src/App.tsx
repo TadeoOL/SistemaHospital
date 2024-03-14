@@ -68,9 +68,9 @@ function App() {
                 path="compras/configuracion-compras"
                 element={<PurchaseConfigView />}
               />
+              <Route path="/configuracion" element={<AccountView />} />
             </Route>
             <Route path="/farmacia/almacen" element={<WarehouseView />} />
-            <Route path="/configuracion" element={<AccountView />} />
             <Route
               path="/programacion/agenda-quirofano"
               element={<ScheduleView />}

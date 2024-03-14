@@ -1,10 +1,13 @@
 export interface IModuleItems {
   title: string;
   path: string;
+  children?: IModuleItems[];
   childrenItems?: string[] | [] | undefined;
   icon: React.ReactElement;
   protectedRoles?: string[];
   mainDashboard?: string;
+  topLevel?: boolean;
+  onClick?: () => void;
 }
 
 export interface IUser {

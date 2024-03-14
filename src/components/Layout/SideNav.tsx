@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import { styled, useTheme } from "@mui/material/styles";
@@ -11,6 +12,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import List from "@mui/material/List";
 import { useAuthStore } from "../../store/auth";
 import { useShallow } from "zustand/react/shallow";
+import { IModuleItems } from "../../types/types";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -24,7 +26,7 @@ interface SideNavItemsProps {
   icon: React.ReactNode;
   title: string;
   path: string;
-  childrenItems?: string[] | undefined;
+  children?: IModuleItems[];
   topLevel?: boolean;
 }
 
@@ -36,56 +38,95 @@ export const SideNav = () => {
   const navigate = useNavigate();
   const SelectedOptionColor = "#9ca1a5";
   const profile = useAuthStore(useShallow((state) => state.profile));
+  const [selectedCatalogOption, setSelectedCatalogOption] =
+    useState<boolean>(false);
+
+  const [selectedTopLevel, setSelectedTopLevel] = useState<string | null>(null);
+  const [isChildrenVisible, setIsChildrenVisible] = useState<boolean>(false);
 
   const SideNavItems: React.FC<SideNavItemsProps> = ({
     icon,
     title,
     path,
-    childrenItems,
+    children,
   }) => {
     const location = useLocation();
-    const isActive = childrenItems
-      ? childrenItems.some((c) => c === location.pathname.split("/")[3])
+    const isActive = children
+      ? children.some((child) => child.path === location.pathname)
       : path === location.pathname;
 
     const handleClick = () => {
       if (isActive) return;
-      setIsOpen(false);
-      navigate(path);
+      if (!children) {
+        setSelectedTopLevel(selectedTopLevel === title ? null : title);
+        setIsOpen(false);
+        navigate(path);
+      }
+
+      if (title === "Catálogos") {
+        if (children) {
+          if (selectedTopLevel === title && isChildrenVisible) {
+            setSelectedTopLevel(null);
+            setIsChildrenVisible(false);
+          } else {
+            setSelectedCatalogOption(!selectedCatalogOption);
+            setIsChildrenVisible(!isChildrenVisible);
+          }
+        } else {
+          setIsOpen(true);
+          setSelectedTopLevel(title);
+        }
+      }
     };
 
     return (
-      <ListItemButton
-        onClick={handleClick}
-        selected={isActive}
-        sx={{
-          "&.Mui-selected": {
-            backgroundColor: "#046DBD",
-            width: isOpen ? "100%" : "40px",
-          },
-          "&:hover": {
-            backgroundColor: "#373b3e",
-            opacity: 10,
-            width: isOpen ? "100%" : "40px",
-          },
-          "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
-          borderRadius: 1,
-          mb: 1,
-          p: 1,
-        }}
-      >
-        <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
-        {isOpen ? (
-          <Typography
-            variant="body1"
-            sx={{
-              display: "inline",
-            }}
-          >
-            {title}
-          </Typography>
-        ) : null}
-      </ListItemButton>
+      <>
+        <ListItemButton
+          onClick={handleClick}
+          selected={
+            isActive || (title === "Catálogos" && selectedCatalogOption)
+          }
+          sx={{
+            "&.Mui-selected": {
+              backgroundColor: "#046DBD",
+              width: isOpen ? "100%" : "40px",
+            },
+            "&:hover": {
+              backgroundColor: "#373b3e",
+              opacity: 10,
+              width: isOpen ? "100%" : "40px",
+            },
+            "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
+            borderRadius: 1,
+            mb: 1,
+            p: 1,
+          }}
+        >
+          <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
+          {isOpen ? (
+            <Typography
+              variant="body1"
+              sx={{
+                display: "inline",
+              }}
+            >
+              {title}
+            </Typography>
+          ) : null}
+        </ListItemButton>
+        {children && isChildrenVisible && selectedTopLevel === title && (
+          <List component="div">
+            {children.map((childItem, j) => (
+              <SideNavItems
+                key={`${title}-${j}`}
+                icon={childItem.icon}
+                title={childItem.title}
+                path={childItem.path}
+              />
+            ))}
+          </List>
+        )}
+      </>
     );
   };
 
@@ -182,13 +223,25 @@ export const SideNav = () => {
           >
             <List component="div" disablePadding>
               {filteredItems.map((item, i) => (
-                <SideNavItems
-                  key={i}
-                  icon={item.icon}
-                  title={item.title}
-                  path={item.path}
-                  childrenItems={item.childrenItems}
-                />
+                <React.Fragment key={i}>
+                  <SideNavItems
+                    icon={item.icon}
+                    title={item.title}
+                    path={item.path}
+                  />
+                  {item.children &&
+                    selectedTopLevel === item.title &&
+                    item.children.map((childItem, j) => (
+                      <Box sx={{ paddingLeft: "20px" }}>
+                        <SideNavItems
+                          key={`${i}-${j}`}
+                          icon={childItem.icon}
+                          title={childItem.title}
+                          path={childItem.path}
+                        />
+                      </Box>
+                    ))}
+                </React.Fragment>
               ))}
             </List>
           </Stack>
