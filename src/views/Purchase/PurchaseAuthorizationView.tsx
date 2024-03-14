@@ -1,27 +1,27 @@
 import { AuthorizationTabNav } from "../../components/Purchase/Authorization/AuthorizationTabNav";
-import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthorizationTabNav } from "../../store/purchaseStore/authorizationTabNav";
-import { useEffect } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { PurchaseAuthorization } from "../../components/Purchase/Authorization/Authorization/PurchaseAuthorization";
+import { PurchaseHistoryAuthorization } from "../../components/Purchase/Authorization/AuthorizationHistory/PurchaseAuthorization";
+
+const getTabView = () => {
+  const tabValue = useAuthorizationTabNav(
+    useShallow((state) => state.tabValue)
+  );
+
+  switch (tabValue) {
+    case 0:
+      return <PurchaseAuthorization />;
+    case 1:
+      return <PurchaseHistoryAuthorization />;
+  }
+};
 
 export const PurchaseAuthorizationView = () => {
-  const tabValue = useAuthorizationTabNav((state) => state.tabValue);
-  const navigate = useNavigate();
-
-  // useEffect(() => {
-  // 	switch (tabValue) {
-  // 		case 0:
-  // 			return navigate("autorizaciones");
-  // 		case 1:
-  // 			return navigate("historial-autorizaciones");
-  // 		default:
-  // 			break;
-  // 	}
-  // }, [tabValue]);
-
   return (
     <>
       <AuthorizationTabNav />
-      {<Outlet />}
+      {getTabView()}
     </>
   );
 };

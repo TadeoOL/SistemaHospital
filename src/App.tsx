@@ -25,8 +25,6 @@ import { PurchaseAuthorization } from "./components/Purchase/Authorization/Autho
 import { PurchaseHistoryAuthorization } from "./components/Purchase/Authorization/AuthorizationHistory/PurchaseAuthorization";
 
 function App() {
-  const userRole = "supplyRoles";
-
   return (
     <BrowserRouter>
       <Routes>
@@ -36,7 +34,7 @@ function App() {
             <Route element={<ProtectedRouteSupply />}>
               <Route
                 path="/compras/solicitud-compras"
-                element={<PurchaseRequestView userRole={userRole} />}
+                element={<PurchaseRequestView />}
               />
               <Route path="/compras/articulos" element={<ArticleView />}>
                 <Route path="articulo" element={<Article />} />
