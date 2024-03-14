@@ -62,19 +62,13 @@ export const SideNav = () => {
         setIsOpen(false);
         navigate(path);
       }
-
       if (title === "Catálogos") {
-        if (children) {
-          if (selectedTopLevel === title && isChildrenVisible) {
-            setSelectedTopLevel(null);
-            setIsChildrenVisible(false);
-          } else {
-            setSelectedCatalogOption(!selectedCatalogOption);
-            setIsChildrenVisible(!isChildrenVisible);
-          }
-        } else {
+        if (selectedTopLevel === title && isChildrenVisible) {
+          setSelectedTopLevel(null);
           setIsOpen(true);
-          setSelectedTopLevel(title);
+        } else {
+          setIsChildrenVisible(true);
+          setIsOpen(true);
         }
       }
     };
