@@ -36,9 +36,10 @@ const LayoutContainer = styled("div")(({ theme }) => ({
 }));
 
 const returnTitleForDashboard = (rol: string[]) => {
-  if (rol.some((r) => r === "DIRECTORCOMPRAS")) {
-    return "Autorización";
-  } else if (rol.some((r) => r === "ABASTECIMIENTO")) {
+  if (
+    rol.some((r) => r === "ABASTECIMIENTO") ||
+    rol.some((r) => r === "DIRECTORCOMPRAS")
+  ) {
     return "Compras";
   } else {
     return "";

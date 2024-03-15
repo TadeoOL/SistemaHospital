@@ -550,11 +550,17 @@ export const getPurchaseConfig = async () => {
 };
 
 export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
-  const { cantidadOrdenDirecta, factor, cantidadLicitacionDirecta } = data;
+  const {
+    cantidadOrdenDirecta,
+    factor,
+    cantidadLicitacionDirecta,
+    activarLicitacion,
+  } = data;
   const res = await axios.put("/api/Compras/actualizar-configuracion-compras", {
     factor: JSON.stringify(factor),
     cantidadOrdenDirecta,
     cantidadLicitacionDirecta,
+    activarLicitacion,
   });
   const resData = {
     factor: JSON.parse(res.data.factor),

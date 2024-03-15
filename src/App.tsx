@@ -23,6 +23,7 @@ import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/P
 import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector";
 import { PurchaseAuthorization } from "./components/Purchase/Authorization/Authorization/PurchaseAuthorization";
 import { PurchaseHistoryAuthorization } from "./components/Purchase/Authorization/AuthorizationHistory/PurchaseAuthorization";
+import { ProtectedPurchaseRequest } from "./utils/functions/ProtectedRoutesForRole/ProtectedPurchaseRequest";
 
 function App() {
   return (
@@ -31,11 +32,13 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardView />} />
-            <Route element={<ProtectedRouteSupply />}>
+            <Route element={<ProtectedPurchaseRequest />}>
               <Route
                 path="/compras/solicitud-compras"
                 element={<PurchaseRequestView />}
               />
+            </Route>
+            <Route element={<ProtectedRouteSupply />}>
               <Route path="/compras/articulos" element={<ArticleView />}>
                 <Route path="articulo" element={<Article />} />
                 <Route

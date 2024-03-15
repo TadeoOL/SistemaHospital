@@ -48,8 +48,8 @@ export const ModuleItems: IModuleItems[] = [
     title: "Compras",
     path: "/compras/solicitud-compras",
     icon: <AddShoppingCartIcon sx={{ color: "#fff" }} />,
-    protectedRoles: supplyRoles,
-    mainDashboard: "ABASTECIMIENTO",
+    protectedRoles: [...supplyRoles, ...purchasingDirector],
+    mainDashboard: ["ABASTECIMIENTO", "DIRECTORCOMPRAS"],
   },
   // {
   //   title: "Categorías",
@@ -76,7 +76,6 @@ export const ModuleItems: IModuleItems[] = [
     path: "/compras/autorizacion-compras",
     icon: <RuleIcon sx={{ color: "#fff" }} />,
     protectedRoles: purchasingDirector,
-    mainDashboard: "DIRECTORCOMPRAS",
     childrenItems: ["autorizaciones", "historial-autorizaciones"],
   },
   // {

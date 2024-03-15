@@ -45,6 +45,8 @@ import { MatchPrices } from "./Modal/MatchPrices";
 import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import { Info } from "@mui/icons-material";
+import { useAuthStore } from "../../../../store/auth";
+import { useShallow } from "zustand/react/shallow";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -160,6 +162,9 @@ export const PurchaseOrderRequest = () => {
     setStartDate,
     setEndDate,
   } = useGetAllData();
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
+  );
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -219,312 +224,326 @@ export const PurchaseOrderRequest = () => {
 
   return (
     <>
-      <Stack spacing={2} sx={{ p: 2, overflowY: "auto" }}>
-        <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
-          <SearchBar
-            title="Buscar solicitud de compra..."
-            searchState={setSearch}
-            sx={{ display: "flex", flex: 2 }}
-          />
+      <Stack sx={{ p: 2, overflowY: "auto" }}>
+        <Stack spacing={2} sx={{ minWidth: { xs: 950, xl: 0 } }}>
           <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
-            <TextField
-              label="Fecha inicio"
-              size="small"
-              type="date"
-              value={startDate}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-              }}
+            <SearchBar
+              title="Buscar solicitud de compra..."
+              searchState={setSearch}
+              sx={{ display: "flex", flex: 2 }}
             />
-            <TextField
-              label=" Fecha final"
-              size="small"
-              type="date"
-              value={endDate}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-              }}
-            />
+            <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
+              <TextField
+                label="Fecha inicio"
+                size="small"
+                type="date"
+                value={startDate}
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                }}
+              />
+              <TextField
+                label=" Fecha final"
+                size="small"
+                type="date"
+                value={endDate}
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                }}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flex: 1 }}>
+              <TextField
+                select
+                label="Estatus"
+                size="small"
+                fullWidth
+                value={status}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  setStatus(value);
+                }}
+              >
+                {values.map((v: any) => (
+                  <MenuItem key={v} value={v}>
+                    {StatusPurchaseRequest[v]}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={() =>
+                  usePurchaseOrderRequestPagination.getState().clearFilters()
+                }
+              >
+                <FilterListOffIcon />
+              </IconButton>
+            </Box>
           </Box>
-          <Box sx={{ display: "flex", flex: 1 }}>
-            <TextField
-              select
-              label="Estatus"
-              size="small"
-              fullWidth
-              value={status}
-              onChange={(e) => {
-                const { value } = e.target;
-                setStatus(value);
-              }}
-            >
-              {values.map((v: any) => (
-                <MenuItem key={v} value={v}>
-                  {StatusPurchaseRequest[v]}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-          <Box>
-            <IconButton
-              onClick={() =>
-                usePurchaseOrderRequestPagination.getState().clearFilters()
-              }
-            >
-              <FilterListOffIcon />
-            </IconButton>
-          </Box>
-        </Box>
-        <Card sx={{ overflowX: "auto" }}>
-          <TableContainer sx={{ minWidth: { xs: 950, xl: 0 } }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Solicitud de Compra</TableCell>
-                  <TableCell>Creado por</TableCell>
-                  <TableCell>Proveedor</TableCell>
-                  <TableCell>Fecha de solicitud</TableCell>
-                  <TableCell>Total</TableCell>
-                  <TableCell>Estatus</TableCell>
-                  <TableCell>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.length === 0
-                  ? null
-                  : isLoading
-                  ? null
-                  : data.map((auth) => (
-                      <React.Fragment key={auth.id_SolicitudCompra}>
-                        <TableRow>
-                          <TableCell>
-                            {!viewArticles[auth.id_SolicitudCompra] ? (
-                              <IconButton
-                                onClick={() =>
-                                  setViewArticles({
-                                    [auth.id_SolicitudCompra]:
-                                      !viewArticles[auth.id_SolicitudCompra],
-                                  })
-                                }
-                              >
-                                <ExpandMoreIcon />
-                              </IconButton>
-                            ) : (
-                              <IconButton
-                                onClick={() =>
-                                  setViewArticles({
-                                    [auth.id_SolicitudCompra]:
-                                      !viewArticles[auth.id_SolicitudCompra],
-                                  })
-                                }
-                              >
-                                <ExpandLessIcon />
-                              </IconButton>
-                            )}
-                            {auth.folio}
-                          </TableCell>
-                          <TableCell>{auth.usuarioSolicitado}</TableCell>
-                          <TableCell>
-                            {auth.solicitudProveedor.map((i) => (
-                              <Chip
-                                key={i.proveedor.id_Proveedor}
-                                label={i.proveedor.nombre}
-                              />
-                            ))}
-                          </TableCell>
-                          <TableCell>
-                            {auth.fechaSolicitud.split("T")[0]}
-                          </TableCell>
-                          <TableCell>${auth.precioSolicitud}</TableCell>
-                          <TableCell>
-                            {StatusPurchaseRequest[auth.estatus]}
-                          </TableCell>
-                          <TableCell>
-                            {StatusPurchaseRequest[auth.estatus] ===
-                            "Necesita elegir proveedor" ? (
-                              <Tooltip title="Seleccionar proveedores">
+          <Card>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Solicitud de Compra</TableCell>
+                    <TableCell>Creado por</TableCell>
+                    <TableCell>Proveedor</TableCell>
+                    <TableCell>Fecha de solicitud</TableCell>
+                    <TableCell>Total</TableCell>
+                    <TableCell>Estatus</TableCell>
+                    <TableCell>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.length === 0
+                    ? null
+                    : isLoading
+                    ? null
+                    : data.map((auth) => (
+                        <React.Fragment key={auth.id_SolicitudCompra}>
+                          <TableRow>
+                            <TableCell>
+                              {!viewArticles[auth.id_SolicitudCompra] ? (
                                 <IconButton
-                                  onClick={() => {
-                                    setProviders(auth.solicitudProveedor);
-                                    setOrderSelected({
-                                      folio: auth.folio,
-                                      purchaseOrderId: auth.id_SolicitudCompra,
-                                    });
-                                    setOpenAddMoreProviders(true);
-                                  }}
+                                  onClick={() =>
+                                    setViewArticles({
+                                      [auth.id_SolicitudCompra]:
+                                        !viewArticles[auth.id_SolicitudCompra],
+                                    })
+                                  }
                                 >
-                                  <PersonAddIcon />
+                                  <ExpandMoreIcon />
                                 </IconButton>
-                              </Tooltip>
-                            ) : StatusPurchaseRequest[auth.estatus] ===
-                              "Solicitud necesita precios" ? (
-                              <Tooltip title="Selección de precios">
+                              ) : (
                                 <IconButton
-                                  onClick={() => {
-                                    setOrderData(auth);
-                                    useDirectlyPurchaseRequestOrderStore.setState(
-                                      { articles: returnArticles(auth) }
-                                    );
-                                    setOpenMatchPrices(true);
-                                  }}
+                                  onClick={() =>
+                                    setViewArticles({
+                                      [auth.id_SolicitudCompra]:
+                                        !viewArticles[auth.id_SolicitudCompra],
+                                    })
+                                  }
                                 >
-                                  <PriceChangeIcon />
+                                  <ExpandLessIcon />
                                 </IconButton>
-                              </Tooltip>
-                            ) : (
-                              StatusPurchaseRequest[auth.estatus] !==
-                                "Selección de productos por proveedor" &&
-                              StatusPurchaseRequest[auth.estatus] !==
-                                "Cancelado" &&
-                              StatusPurchaseRequest[auth.estatus] !==
-                                "Necesita autorización" && (
-                                <>
-                                  <Tooltip title="Ver orden de compra">
-                                    <IconButton
-                                      onClick={() => {
-                                        setOrderSelected({
-                                          folio: auth.folio,
-                                          purchaseOrderId:
-                                            auth.id_SolicitudCompra,
-                                        });
-                                        setOpenPurchaseOrder(true);
-                                      }}
-                                    >
-                                      <DownloadIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </>
-                              )
-                            )}
-                            {auth.solicitudProveedor.length > 1 && (
-                              <Tooltip title="Subir Cotización">
-                                <IconButton
-                                  onClick={() => {
-                                    setOrderSelected({
-                                      folio: auth.folio,
-                                      purchaseOrderId: auth.id_SolicitudCompra,
-                                    });
-                                    setProviders(auth.solicitudProveedor);
-                                    setOpenProviderQuote(true);
-                                    usePurchaseOrderRequestModals.setState({
-                                      dataOrderRequest: auth,
-                                    });
-                                  }}
-                                >
-                                  <UploadFileIcon />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                            {StatusPurchaseRequest[auth.estatus] !==
-                              "Selección de productos por proveedor" &&
-                              StatusPurchaseRequest[auth.estatus] !==
-                                "Cancelado" && (
-                                <Tooltip title="Cancelar">
+                              )}
+                              {auth.folio}
+                            </TableCell>
+                            <TableCell>{auth.usuarioSolicitado}</TableCell>
+                            <TableCell>
+                              {auth.solicitudProveedor.map((i) => (
+                                <Chip
+                                  key={i.proveedor.id_Proveedor}
+                                  label={i.proveedor.nombre}
+                                />
+                              ))}
+                            </TableCell>
+                            <TableCell>
+                              {auth.fechaSolicitud.split("T")[0]}
+                            </TableCell>
+                            <TableCell>${auth.precioSolicitud}</TableCell>
+                            <TableCell>
+                              {StatusPurchaseRequest[auth.estatus]}
+                            </TableCell>
+                            <TableCell>
+                              {StatusPurchaseRequest[auth.estatus] ===
+                                "Necesita elegir proveedor" &&
+                              !isAdminPurchase() ? (
+                                <Tooltip title="Seleccionar proveedores">
                                   <IconButton
-                                    size="small"
                                     onClick={() => {
-                                      handleRemoveOrder(
-                                        auth.id_SolicitudCompra
-                                      );
+                                      setProviders(auth.solicitudProveedor);
+                                      setOrderSelected({
+                                        folio: auth.folio,
+                                        purchaseOrderId:
+                                          auth.id_SolicitudCompra,
+                                      });
+                                      setOpenAddMoreProviders(true);
                                     }}
                                   >
-                                    <CloseIcon sx={{ color: "red" }} />
+                                    <PersonAddIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              ) : StatusPurchaseRequest[auth.estatus] ===
+                                  "Solicitud necesita precios" &&
+                                !isAdminPurchase() ? (
+                                <Tooltip title="Selección de precios">
+                                  <IconButton
+                                    onClick={() => {
+                                      setOrderData(auth);
+                                      useDirectlyPurchaseRequestOrderStore.setState(
+                                        { articles: returnArticles(auth) }
+                                      );
+                                      setOpenMatchPrices(true);
+                                    }}
+                                  >
+                                    <PriceChangeIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              ) : (
+                                StatusPurchaseRequest[auth.estatus] !==
+                                  "Selección de productos por proveedor" &&
+                                StatusPurchaseRequest[auth.estatus] !==
+                                  "Cancelado" &&
+                                StatusPurchaseRequest[auth.estatus] !==
+                                  "Necesita autorización" &&
+                                !isAdminPurchase() && (
+                                  <>
+                                    <Tooltip title="Ver orden de compra">
+                                      <IconButton
+                                        onClick={() => {
+                                          setOrderSelected({
+                                            folio: auth.folio,
+                                            purchaseOrderId:
+                                              auth.id_SolicitudCompra,
+                                          });
+                                          setOpenPurchaseOrder(true);
+                                        }}
+                                      >
+                                        <DownloadIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </>
+                                )
+                              )}
+                              {auth.solicitudProveedor.length > 1 && (
+                                <Tooltip title="Subir Cotización">
+                                  <IconButton
+                                    onClick={() => {
+                                      setOrderSelected({
+                                        folio: auth.folio,
+                                        purchaseOrderId:
+                                          auth.id_SolicitudCompra,
+                                      });
+                                      setProviders(auth.solicitudProveedor);
+                                      setOpenProviderQuote(true);
+                                      usePurchaseOrderRequestModals.setState({
+                                        dataOrderRequest: auth,
+                                      });
+                                    }}
+                                  >
+                                    <UploadFileIcon />
                                   </IconButton>
                                 </Tooltip>
                               )}
-                            {StatusPurchaseRequest[auth.estatus] ===
-                              "Cancelado" && (
-                              <Tooltip title={auth?.notas}>
-                                <IconButton>
-                                  <Info sx={{ color: "gray" }} />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                        <TableCell colSpan={7} sx={{ p: 0 }}>
-                          <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
-                            <Table>
-                              <TableHead>
-                                <TableRow>
-                                  <TableCell align="center">Articulo</TableCell>
-                                  <TableCell align="center">Cantidad</TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
-                                  (request) => (
-                                    <TableRow key={request.id}>
-                                      <TableCell align="center">
-                                        {request.articulo.nombre}
-                                      </TableCell>
-                                      <TableCell align="center">
-                                        {request.cantidadCompra}
-                                      </TableCell>
-                                    </TableRow>
-                                  )
+                              {StatusPurchaseRequest[auth.estatus] !==
+                                "Selección de productos por proveedor" &&
+                                StatusPurchaseRequest[auth.estatus] !==
+                                  "Cancelado" &&
+                                !isAdminPurchase() && (
+                                  <Tooltip title="Cancelar">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => {
+                                        handleRemoveOrder(
+                                          auth.id_SolicitudCompra
+                                        );
+                                      }}
+                                    >
+                                      <CloseIcon sx={{ color: "red" }} />
+                                    </IconButton>
+                                  </Tooltip>
                                 )}
-                              </TableBody>
-                            </Table>
-                          </Collapse>
-                        </TableCell>
-                      </React.Fragment>
-                    ))}
-              </TableBody>
-            </Table>
-            {isLoading && (
-              <Box
-                sx={{
-                  display: "flex",
-                  flex: 1,
-                  justifyContent: "center",
-                  p: 4,
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            )}
-            {data.length === 0 && !isLoading && (
-              <Card
-                sx={{
-                  display: "flex",
-                  flexGrow: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  p: 2,
-                  columnGap: 1,
-                }}
-              >
-                <RemoveCircleIcon
-                  sx={{ color: "neutral.400", width: "40px", height: "40px" }}
-                />
-                <Typography
-                  sx={{ color: "neutral.400" }}
-                  fontSize={24}
-                  fontWeight={500}
+                              {StatusPurchaseRequest[auth.estatus] ===
+                                "Cancelado" && (
+                                <Tooltip title={auth?.notas}>
+                                  <IconButton>
+                                    <Info sx={{ color: "gray" }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                          <TableCell colSpan={7} sx={{ p: 0 }}>
+                            <Collapse
+                              in={viewArticles[auth.id_SolicitudCompra]}
+                            >
+                              <Table>
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell align="center">
+                                      Articulo
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      Cantidad
+                                    </TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
+                                    (request) => (
+                                      <TableRow key={request.id}>
+                                        <TableCell align="center">
+                                          {request.articulo.nombre}
+                                        </TableCell>
+                                        <TableCell align="center">
+                                          {request.cantidadCompra}
+                                        </TableCell>
+                                      </TableRow>
+                                    )
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </Collapse>
+                          </TableCell>
+                        </React.Fragment>
+                      ))}
+                </TableBody>
+              </Table>
+              {isLoading && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flex: 1,
+                    justifyContent: "center",
+                    p: 4,
+                  }}
                 >
-                  No existen registros
-                </Typography>
-              </Card>
-            )}
-            <TablePagination
-              component="div"
-              count={count}
-              onPageChange={(e, value) => {
-                e?.stopPropagation();
-                setPageIndex(value);
-              }}
-              onRowsPerPageChange={(e: any) => {
-                setPageSize(e.target.value);
-              }}
-              page={pageIndex}
-              rowsPerPage={pageSize}
-              rowsPerPageOptions={[5, 10, 25, 50]}
-            />
-          </TableContainer>
-        </Card>
+                  <CircularProgress />
+                </Box>
+              )}
+              {data.length === 0 && !isLoading && (
+                <Card
+                  sx={{
+                    display: "flex",
+                    flexGrow: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    p: 2,
+                    columnGap: 1,
+                  }}
+                >
+                  <RemoveCircleIcon
+                    sx={{ color: "neutral.400", width: "40px", height: "40px" }}
+                  />
+                  <Typography
+                    sx={{ color: "neutral.400" }}
+                    fontSize={24}
+                    fontWeight={500}
+                  >
+                    No existen registros
+                  </Typography>
+                </Card>
+              )}
+              <TablePagination
+                component="div"
+                count={count}
+                onPageChange={(e, value) => {
+                  e?.stopPropagation();
+                  setPageIndex(value);
+                }}
+                onRowsPerPageChange={(e: any) => {
+                  setPageSize(e.target.value);
+                }}
+                page={pageIndex}
+                rowsPerPage={pageSize}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+              />
+            </TableContainer>
+          </Card>
+        </Stack>
       </Stack>
       <Modal
         open={openPurchaseOrder}

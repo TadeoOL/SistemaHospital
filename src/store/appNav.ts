@@ -1,11 +1,11 @@
-import { create } from "zustand";
+import { createWithEqualityFn } from "zustand/traditional";
 
 interface IAppNav {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-export const useAppNavStore = create<IAppNav>((set) => {
+export const useAppNavStore = createWithEqualityFn<IAppNav>((set) => {
   return {
     open: false,
     setOpen: (state: boolean) => set(() => ({ open: state })),
