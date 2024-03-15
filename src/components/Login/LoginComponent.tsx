@@ -109,8 +109,8 @@ export const LoginComponent: React.FC<{}> = () => {
                 label="Inicio de Sesión"
                 value="email"
                 sx={{
-                  color: "#046dbd",
-                  backgroundColor: "#FFFFFF",
+                  color: "#046dbd !important",
+                  backgroundColor: "#FFFFFF !important",
                   fontSize: "14px",
                   transition: "all 300ms linear 0s",
                   "&.Mui-selected": {

@@ -33,10 +33,10 @@ export const neutral = {
 
 export const primary = withAlphas({
   main: "#046DBD",
-  lightest: "#F2F8FF",  // Puedes ajustar estos valores según tu preferencia
-  light: "#B0D4FF",     // Puedes ajustar estos valores según tu preferencia
-  dark: "#004B91",      // Puedes ajustar estos valores según tu preferencia
-  darkest: "#002E5F",   // Puedes ajustar estos valores según tu preferencia
+  lightest: "#F2F8FF", // Puedes ajustar estos valores según tu preferencia
+  light: "#B0D4FF", // Puedes ajustar estos valores según tu preferencia
+  dark: "#004B91", // Puedes ajustar estos valores según tu preferencia
+  darkest: "#002E5F", // Puedes ajustar estos valores según tu preferencia
   contrastText: "#FFFFFF",
 });
 

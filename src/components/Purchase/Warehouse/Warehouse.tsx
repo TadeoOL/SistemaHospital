@@ -37,7 +37,8 @@ export const Warehouse = () => {
               display: "flex",
               flexGrow: 1,
               justifyContent: "space-between",
-              pt: 1,
+              p: 1,
+              pt: 3,
             }}
           >
             <SearchBar
@@ -61,7 +62,7 @@ export const Warehouse = () => {
                   : "Mostrar almacenes habilitados"}
               </Button>
               <Button
-                sx={{ height: "75%", mt: "8px", marginRight: "8px" }}
+                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
                 variant="contained"
                 onClick={() => setOpen(!open)}
                 startIcon={<AddCircleOutlinedIcon />}

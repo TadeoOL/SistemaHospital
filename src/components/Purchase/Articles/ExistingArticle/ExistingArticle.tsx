@@ -40,7 +40,8 @@ export const ExistingArticle = () => {
               flexGrow: 1,
               justifyContent: "space-between",
               alignItems: "center",
-              p: 3,
+              p: 1,
+              pt: 3,
             }}
           >
             <SearchBar
@@ -61,6 +62,7 @@ export const ExistingArticle = () => {
                   : "Mostrar artículos existentes habilitados"}
               </Button>
               <Button
+                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
                 variant="contained"
                 startIcon={<AddCircleOutlinedIcon />}
                 onClick={() => setOpen(!open)}

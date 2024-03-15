@@ -33,7 +33,6 @@ interface SideNavItemsProps {
   title: string;
   path: string;
   children?: IModuleItems[];
-  topLevel?: boolean;
 }
 
 export const SideNav = () => {

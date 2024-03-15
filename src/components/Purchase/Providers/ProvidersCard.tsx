@@ -35,7 +35,8 @@ export const ProvidersCard = () => {
               display: "flex",
               flexGrow: 1,
               justifyContent: "space-between",
-              pt: 1,
+              p: 1,
+              pt: 3,
             }}
           >
             <SearchBar
@@ -56,7 +57,7 @@ export const ProvidersCard = () => {
                   : "Mostrar proveedores habilitados"}
               </Button>
               <Button
-                sx={{ height: "75%", mt: "8px", marginRight: "8px" }}
+                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
                 variant="contained"
                 onClick={() => setOpen(!open)}
                 startIcon={<AddCircleOutlinedIcon />}
