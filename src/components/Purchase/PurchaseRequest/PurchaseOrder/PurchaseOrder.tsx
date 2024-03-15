@@ -38,6 +38,8 @@ import { OrderModal } from "./Modal/OrderModal";
 import Swal from "sweetalert2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import { Info } from "@mui/icons-material";
+import { useAuthStore } from "../../../../store/auth";
+import { useShallow } from "zustand/react/shallow";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -145,7 +147,9 @@ export const PurchaseOrder = () => {
     setStartDate,
     setEndDate,
   } = useGetAllData();
-
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
+  );
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
   const [openOrderModal, setOpenOrderModal] = useState(false);
   const [providers, setProviders] = useState<any[]>([]);
@@ -308,7 +312,8 @@ export const PurchaseOrder = () => {
                           </TableCell>
                           <TableCell>
                             {StatusPurchaseOrder[order.estatus] ===
-                            "Necesita elegir proveedor" ? (
+                              "Necesita elegir proveedor" &&
+                            !isAdminPurchase() ? (
                               <Tooltip title="Seleccionar proveedores">
                                 <IconButton
                                   onClick={() => {
@@ -330,19 +335,21 @@ export const PurchaseOrder = () => {
                               </Tooltip>
                             ) : (
                               <>
-                                <Tooltip title="Ver orden de compra">
-                                  <IconButton
-                                    onClick={() => {
-                                      setOrderSelected({
-                                        folio: order.folio_Extension,
-                                        OrderId: order.id_OrdenCompra,
-                                      });
-                                      setOpenOrderModal(true);
-                                    }}
-                                  >
-                                    <DownloadIcon />
-                                  </IconButton>
-                                </Tooltip>
+                                {!isAdminPurchase() && (
+                                  <Tooltip title="Ver orden de compra">
+                                    <IconButton
+                                      onClick={() => {
+                                        setOrderSelected({
+                                          folio: order.folio_Extension,
+                                          OrderId: order.id_OrdenCompra,
+                                        });
+                                        setOpenOrderModal(true);
+                                      }}
+                                    >
+                                      <DownloadIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
                                 <Tooltip title="Subir Factura">
                                   <IconButton
                                     onClick={() => {
@@ -360,18 +367,19 @@ export const PurchaseOrder = () => {
                               </>
                             )}
                             {StatusPurchaseOrder[order.estatus] !==
-                              "Orden de compra cancelada" && (
-                              <Tooltip title="Cancelar">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => {
-                                    handleRemoveOrder(order.id_OrdenCompra);
-                                  }}
-                                >
-                                  <CloseIcon sx={{ color: "red" }} />
-                                </IconButton>
-                              </Tooltip>
-                            )}
+                              "Orden de compra cancelada" &&
+                              !isAdminPurchase() && (
+                                <Tooltip title="Cancelar">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      handleRemoveOrder(order.id_OrdenCompra);
+                                    }}
+                                  >
+                                    <CloseIcon sx={{ color: "red" }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                           </TableCell>
                         </TableRow>
                         <TableRow>

@@ -8,6 +8,8 @@ import { PurchaseOrder } from "../../components/Purchase/PurchaseRequest/Purchas
 import { PurchaseRequestCard } from "../../components/Purchase/PurchaseRequest/PurchaseRequestCard";
 import { usePurchaseRequestNav } from "../../store/purchaseStore/purchaseRequestNav";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
+import { useAuthStore } from "../../store/auth";
+import { useShallow } from "zustand/react/shallow";
 
 const getTabView = (value: number) => {
   switch (value) {
@@ -29,6 +31,9 @@ export const PurchaseRequestView = () => {
     (state) => state.clearAllStates
   );
   const tabValue = usePurchaseRequestNav((state) => state.tabValue);
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
+  );
 
   useEffect(() => {
     if (openPurchaseRequestOrder) return;
@@ -38,23 +43,25 @@ export const PurchaseRequestView = () => {
   return (
     <>
       <Box>
-        <Box
-          sx={{
-            display: "flex",
-            flex: 1,
-            justifyContent: "flex-end",
-            mb: 1,
-          }}
-        >
-          <Button
-            size="large"
-            variant="contained"
-            onClick={() => setOpenPurchaseRequestOrder(true)}
-            startIcon={<RequestPageIcon />}
+        {!isAdminPurchase() && (
+          <Box
+            sx={{
+              display: "flex",
+              flex: 1,
+              justifyContent: "flex-end",
+              mb: 1,
+            }}
           >
-            Solicitud de Compra
-          </Button>
-        </Box>
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => setOpenPurchaseRequestOrder(true)}
+              startIcon={<RequestPageIcon />}
+            >
+              Solicitud de Compra
+            </Button>
+          </Box>
+        )}
         <PurchaseTabNav />
         <Box
           sx={{

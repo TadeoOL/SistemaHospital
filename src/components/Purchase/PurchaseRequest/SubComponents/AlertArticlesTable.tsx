@@ -20,6 +20,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { IArticlesAlert } from "../../../../types/types";
 import { getArticlesByIds } from "../../../../api/api.routes";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import { useAuthStore } from "../../../../store/auth";
+import { useShallow } from "zustand/react/shallow";
 
 const useGetAllData = () => {
   const {
@@ -78,7 +80,7 @@ const useGetAllData = () => {
   };
 };
 
-export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
+export const AlertArticlesTable = () => {
   const {
     data,
     isLoading,
@@ -93,6 +95,9 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
     setHandleOpen,
     cleanAllData,
   } = useGetAllData();
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
+  );
 
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
 
@@ -239,7 +244,7 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
           >
             <Typography variant="h4">Almacen: {alert.nombreAlmacen}</Typography>
 
-            {userRole === "supplyRoles" && (
+            {!isAdminPurchase() && (
               <Button
                 variant="contained"
                 disabled={isLoadingNextStep}
@@ -248,7 +253,7 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
                   handlePurchaseOrder(alert.id_Almacen);
                 }}
               >
-                Solicitar orden de comprax
+                Solicitar orden de compra
               </Button>
             )}
           </Stack>
@@ -256,7 +261,7 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
             <Table>
               <TableHead>
                 <TableRow>
-                  {userRole !== "supplyRoles" && (
+                  {!isAdminPurchase() && (
                     <TableCell>
                       <Checkbox
                         onChange={(event) =>
@@ -275,10 +280,10 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {alert.articulos.map((item) => (
-                  <TableRow key={item.id_AlertaCompra}>
-                    <TableCell>
-                      {userRole !== "supplyRoles" && (
+                {alert.articulos.map((item, i) => (
+                  <TableRow key={i}>
+                    {!isAdminPurchase() && (
+                      <TableCell>
                         <Checkbox
                           onChange={(event) =>
                             handleUserChecked(
@@ -295,8 +300,8 @@ export const AlertArticlesTable = ({ userRole }: { userRole: any }) => {
                             alert.id_Almacen
                           )}
                         />
-                      )}
-                    </TableCell>
+                      </TableCell>
+                    )}
                     <TableCell>{item.nombreArticulo}</TableCell>
                     <TableCell>{item.cantidadComprar}</TableCell>
                     <TableCell>{item.cantidadStock}</TableCell>

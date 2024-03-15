@@ -38,6 +38,7 @@ import { usePurchaseOrderRequestPagination } from "../../../../../store/purchase
 import { useDropzone } from "react-dropzone";
 import { OrderSummaryModal } from "./Steps/OrderSummaryModal";
 import { ViewPdf } from "../../../../Inputs/ViewPdf";
+import { useAuthStore } from "../../../../../store/auth";
 
 const style = {
   position: "absolute",
@@ -207,6 +208,9 @@ export const ProvidersQuotePdf = (props: {
     }),
     shallow
   );
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
+  );
   const [viewPdf, setViewPdf] = useState(false);
   const [pdfOpen, setPdfOpen] = useState("");
   const [providerQuoteRequest, setProviderQuoteRequest] = useState("");
@@ -344,17 +348,18 @@ export const ProvidersQuotePdf = (props: {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 {openCollapse[quoteRequest.id] ? (
                   <IconButton
-                    onClick={() =>
+                    onClick={() => {
                       setOpenCollapse({
                         [quoteRequest.id]: !openCollapse[quoteRequest.id],
-                      })
-                    }
+                      });
+                    }}
                   >
                     <KeyboardArrowUp />
                   </IconButton>
                 ) : (
                   <IconButton
                     onClick={() => {
+                      if (isAdminPurchase() && !quoteRequest.pdf) return;
                       setOpenCollapse({
                         [quoteRequest.id]: !openCollapse[quoteRequest.id],
                       });
@@ -404,30 +409,34 @@ export const ProvidersQuotePdf = (props: {
                   </Box>
                 </Box>
               ) : (
-                <Stack
-                  sx={{
-                    my: 1,
-                    p: 4,
-                    border: "1px #B4B4B8 dashed",
-                    borderRadius: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  {...getRootProps({ className: "dropzone" })}
-                >
-                  <CloudUpload sx={{ width: 40, height: 40, color: "Gray" }} />
-                  <input key={inputKey} {...getInputProps()} />
-                  <Typography
+                !isAdminPurchase() && (
+                  <Stack
                     sx={{
-                      color: "#B4B4B8",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      textAlign: "center",
+                      my: 1,
+                      p: 4,
+                      border: "1px #B4B4B8 dashed",
+                      borderRadius: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
+                    {...getRootProps({ className: "dropzone" })}
                   >
-                    Arrastra y suelta tus archivos aquí para subirlos
-                  </Typography>
-                </Stack>
+                    <CloudUpload
+                      sx={{ width: 40, height: 40, color: "Gray" }}
+                    />
+                    <input key={inputKey} {...getInputProps()} />
+                    <Typography
+                      sx={{
+                        color: "#B4B4B8",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        textAlign: "center",
+                      }}
+                    >
+                      Arrastra y suelta tus archivos aquí para subirlos
+                    </Typography>
+                  </Stack>
+                )
               )}
             </Collapse>
           </Stack>

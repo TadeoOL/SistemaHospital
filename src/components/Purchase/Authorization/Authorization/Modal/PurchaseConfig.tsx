@@ -50,10 +50,12 @@ export const PurchaseConfig = () => {
 
   useEffect(() => {
     if (isLoadingPurchaseConfig) return;
+    setIsChecked(config.activarLicitacion ? config.activarLicitacion : false);
     setConfigPurchase(config);
     setValue(config.cantidadOrdenDirecta.toString());
     setDirectlyTender(config.cantidadLicitacionDirecta.toString());
-  }, [isLoadingPurchaseConfig]);
+  }, [config]);
+
   const {
     register,
     handleSubmit,
@@ -109,7 +111,6 @@ export const PurchaseConfig = () => {
   const handleModifyConfig = async () => {
     setIsLoading(true);
     if (!configPurchase) return;
-
     try {
       const object: IPurchaseConfig = {
         cantidadOrdenDirecta: parseFloat(value),
@@ -391,6 +392,7 @@ export const PurchaseConfig = () => {
               size="medium"
               placeholder="Cantidad para licitación"
               value={directlyTender}
+              disabled={!isChecked}
               inputProps={{
                 style: {
                   ...styleInput,
@@ -401,10 +403,22 @@ export const PurchaseConfig = () => {
                 setDirectlyTender(e.target.value);
               }}
             />
-            <Checkbox
-              checked={isChecked}
-              onChange={(e) => setIsChecked(e.target.checked)}
-            />
+          </Grid>
+          <Grid item>
+            <Box
+              sx={{
+                display: "flex",
+                flex: 1,
+                columnGap: 1,
+                alignItems: "center",
+              }}
+            >
+              <Typography>Habilitar licitación:</Typography>
+              <Checkbox
+                checked={isChecked}
+                onChange={(e) => setIsChecked(e.target.checked)}
+              />
+            </Box>
           </Grid>
         </Grid>
         {hasChanges && (

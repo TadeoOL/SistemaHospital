@@ -12,11 +12,12 @@ interface Action {
   setToken: (isAuth: string) => void;
   setProfile: (user: IUser | null) => void;
   logout: () => void;
+  isAdminPurchase: () => boolean;
 }
 
 export const useAuthStore = createWithEqualityFn(
   persist<State & Action>(
-    (set) => ({
+    (set, get) => ({
       token: null,
       isAuth: false,
       setToken: (state: string | null) =>
@@ -24,6 +25,10 @@ export const useAuthStore = createWithEqualityFn(
       profile: null,
       setProfile: (state: IUser | null) => set(() => ({ profile: state })),
       logout: () => set(() => ({ token: "", isAuth: false, profile: null })),
+      isAdminPurchase: () => {
+        const { profile } = get();
+        return !!profile && profile.roles.includes("DIRECTORCOMPRAS");
+      },
     }),
     {
       name: "auth",
