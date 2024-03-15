@@ -19,6 +19,8 @@ import List from "@mui/material/List";
 import { useAuthStore } from "../../store/auth";
 import { useShallow } from "zustand/react/shallow";
 import { IModuleItems } from "../../types/types";
+import { ExpandLess, ExpandMore, Info } from "@mui/icons-material";
+import { getSideBardWarehouse } from "../../api/api.routes";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -28,6 +30,25 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+const useGetWarehouses = () => {
+  const [warehouses, setWarehouses] = useState<any[]>();
+  const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(true);
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await getSideBardWarehouse();
+        setWarehouses(res);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingWarehouses(false);
+      }
+    };
+    fetch();
+  }, []);
+  return { warehouses, isLoadingWarehouses };
+};
+
 interface SideNavItemsProps {
   icon: React.ReactNode;
   title: string;
@@ -35,67 +56,72 @@ interface SideNavItemsProps {
   children?: IModuleItems[];
 }
 
-export const SideNav = () => {
-  const theme = useTheme();
+const SideNavItems: React.FC<SideNavItemsProps> = ({
+  icon,
+  title,
+  path,
+  children,
+}) => {
+  const { warehouses } = useGetWarehouses();
+  const SelectedOptionColor = "#9ca1a5";
+  const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
   const setIsOpen = useAppNavStore(useShallow((state) => state.setOpen));
-  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const isActive = children
+    ? children.some((child) => child.path === location.pathname)
+    : path === location.pathname;
   const navigate = useNavigate();
-  const SelectedOptionColor = "#9ca1a5";
-  const profile = useAuthStore(useShallow((state) => state.profile));
-  const [selectedTopLevel, setSelectedTopLevel] = useState<string | null>(null);
   const [childOpen, setChildOpen] = useState(false);
-
+  const handleClick = () => {
+    if (isActive && !children) return;
+    if (!children) {
+      setIsOpen(false);
+      navigate(path);
+    } else {
+      if (!isOpen) {
+        setIsOpen(true);
+        setChildOpen(true);
+      }
+    }
+  };
   useEffect(() => {
     if (!isOpen) setChildOpen(false);
   }, [isOpen]);
 
-  const SideNavItems: React.FC<SideNavItemsProps> = ({
-    icon,
-    title,
-    path,
-    children,
-  }) => {
-    const location = useLocation();
-    const isActive = children
-      ? children.some((child) => child.path === location.pathname)
-      : path === location.pathname;
-
-    const handleClick = () => {
-      if (isActive && !children) return;
-      if (!children) {
-        setSelectedTopLevel(selectedTopLevel === title ? null : title);
-        setIsOpen(false);
-        navigate(path);
-      } else {
-        if (isOpen) {
-          setChildOpen(!childOpen);
-        } else {
-          setIsOpen(true);
-          setChildOpen(!childOpen);
-        }
-      }
-    };
-
-    return (
-      <>
-        <ListItemButton
-          onClick={handleClick}
-          selected={isActive}
+  return (
+    <>
+      <ListItemButton
+        onClick={(e) => {
+          handleClick();
+          e.stopPropagation();
+        }}
+        selected={isActive}
+        sx={{
+          "&.Mui-selected": {
+            backgroundColor: "#046DBD",
+            width: isOpen ? "100%" : "40px",
+          },
+          "&:hover": {
+            backgroundColor: "#373b3e",
+            opacity: 10,
+            width: isOpen ? "100%" : "40px",
+          },
+          "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
+          borderRadius: 1,
+          mb: 1,
+          p: 1,
+          display: "flex",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box
           sx={{
-            "&.Mui-selected": {
-              backgroundColor: "#046DBD",
-              width: isOpen ? "100%" : "40px",
-            },
-            "&:hover": {
-              backgroundColor: "#373b3e",
-              opacity: 10,
-              width: isOpen ? "100%" : "40px",
-            },
-            "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
-            borderRadius: 1,
-            mb: 1,
-            p: 1,
+            display: "flex",
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "flex-start",
           }}
         >
           <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
@@ -109,58 +135,100 @@ export const SideNav = () => {
               {title}
             </Typography>
           ) : null}
-        </ListItemButton>
-        {children && (
-          <Collapse in={childOpen} unmountOnExit>
-            {children.map((childItem) => {
-              const pathSplit = location.pathname.split("/");
-              const childSplit = childItem.path.split("/");
-              const isActive = pathSplit.includes(childSplit[2]);
-              return (
-                <>
-                  <ListItemButton
-                    onClick={() => {
-                      setIsOpen(false);
-                      navigate(childItem.path);
-                    }}
-                    selected={isActive}
+        </Box>
+        <Box
+          sx={{
+            justifyContent: "flex-end",
+          }}
+        >
+          {(children && isOpen) || (title === "Almacén" && isOpen) ? (
+            <ListItemButton
+              sx={{
+                justifyContent: "center",
+                "&:hover": { backgroundColor: "transparent" },
+                p: 0,
+                width: 40,
+                height: 22,
+              }}
+              onClick={(e) => {
+                setChildOpen(!childOpen);
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              {childOpen ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+          ) : null}
+        </Box>
+      </ListItemButton>
+      <Collapse in={childOpen} unmountOnExit>
+        {title === "Almacén" &&
+          warehouses &&
+          warehouses.map((w) => (
+            <ListItemButton key={w.id}>
+              <ListItemIcon>
+                <Info />
+              </ListItemIcon>
+              <Typography>{w.nombre}</Typography>
+            </ListItemButton>
+          ))}
+        {children &&
+          children.map((childItem, i) => {
+            const pathSplit = location.pathname.split("/");
+            const childSplit = childItem.path.split("/");
+            const isActive = pathSplit.includes(childSplit[2]);
+            const uniqueKey = `${childItem.path}-${i}`;
+            return (
+              <ListItemButton
+                key={uniqueKey}
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate(childItem.path);
+                }}
+                selected={isActive}
+                sx={{
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(4, 109, 189, 0.7)",
+                    opacity: 1,
+                  },
+                  "&:hover": {
+                    backgroundColor: "#373b3e",
+                    opacity: 1,
+                  },
+                  "&.Mui-selected:hover": {
+                    backgroundColor: SelectedOptionColor,
+                  },
+                  borderRadius: 1,
+                  mb: 0.5,
+                  opacity: 0.7,
+                }}
+              >
+                <ListItemIcon sx={{ mr: 1 }}>{childItem.icon}</ListItemIcon>
+                {isOpen ? (
+                  <Typography
+                    variant="body1"
                     sx={{
-                      "&.Mui-selected": {
-                        backgroundColor: "rgba(4, 109, 189, 0.7)",
-                        opacity: 1,
-                      },
-                      "&:hover": {
-                        backgroundColor: "#373b3e",
-                        opacity: 1,
-                      },
-                      "&.Mui-selected:hover": {
-                        backgroundColor: SelectedOptionColor,
-                      },
-                      borderRadius: 1,
-                      mb: 0.5,
-                      opacity: 0.7,
+                      display: "inline",
                     }}
                   >
-                    <ListItemIcon sx={{ mr: 1 }}>{childItem.icon}</ListItemIcon>
-                    {isOpen ? (
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          display: "inline",
-                        }}
-                      >
-                        {childItem.title}
-                      </Typography>
-                    ) : null}
-                  </ListItemButton>
-                </>
-              );
-            })}
-          </Collapse>
-        )}
-      </>
-    );
-  };
+                    {childItem.title}
+                  </Typography>
+                ) : null}
+              </ListItemButton>
+            );
+          })}
+      </Collapse>
+    </>
+  );
+};
+
+export const SideNav = () => {
+  const theme = useTheme();
+  const isOpen = useAppNavStore(useShallow((state) => state.open));
+  const setIsOpen = useAppNavStore(useShallow((state) => state.setOpen));
+  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const navigate = useNavigate();
+  const profile = useAuthStore(useShallow((state) => state.profile));
 
   const filteredItems = ModuleItems.filter((item) => {
     const isMainDashboard =

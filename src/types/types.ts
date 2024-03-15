@@ -201,6 +201,8 @@ export interface ArticleObject {
   id_articulo: string;
   cantidadComprar: number;
   precioInventario: number;
+  nombre: string;
+  idAlmacen: string;
 }
 export interface ICheckedArticles {
   idAlmacen: string;

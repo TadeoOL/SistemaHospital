@@ -74,6 +74,7 @@ export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
         checkedArticles: [],
         isAddingMoreArticles: false,
         warehouseSelected: "",
+        articles: [],
       }));
     },
   })

@@ -56,7 +56,6 @@ import {
   addPurchaseRequest,
   getPurchaseConfig,
 } from "../../../../api/api.routes";
-import { AlertConfigAmount } from "./RequestPurchasedOrderModal";
 import {
   ManyProviders,
   SingleProvider,
@@ -68,6 +67,8 @@ import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purc
 import { useShallow } from "zustand/react/shallow";
 import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseStore/purchaseOrderRequestPagination";
 import { Note } from "./Note";
+import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
+import { AlertConfigAmount } from "./AlertConfigAmount";
 
 type Article = {
   id: string;
@@ -1016,7 +1017,7 @@ const StepThree = (props: { setOpen: Function }) => {
       try {
         await addDirectlyPurchaseOrder(object);
         toast.success("Orden de compra realizada con éxito!");
-        usePurchaseOrderPagination.getState().fetch();
+
         props.setOpen(false);
       } catch (error) {
         console.log(error);
@@ -1046,8 +1047,6 @@ const StepThree = (props: { setOpen: Function }) => {
         );
         toast.success("Orden de compra exitosa!");
         props.setOpen(false);
-        refetchTableOrderRequest();
-        refetchTableOrder();
       } catch (error) {
         toast.error("Error al ordenar la compra!");
         console.log(error);
@@ -1078,8 +1077,6 @@ const StepThree = (props: { setOpen: Function }) => {
         );
         toast.success("Orden de compra exitosa!");
         props.setOpen(false);
-        refetchTableOrderRequest();
-        refetchTableOrder();
       } catch (error) {
         toast.error("Error al ordenar la compra!");
         console.log(error);
@@ -1087,6 +1084,10 @@ const StepThree = (props: { setOpen: Function }) => {
         setIsLoading(false);
       }
     }
+    refetchTableOrderRequest();
+    refetchTableOrder();
+    usePurchaseOrderPagination.getState().fetch();
+    useArticlesAlertPagination.getState().fetchArticlesAlert();
   };
 
   return (
