@@ -1,5 +1,12 @@
-import { Warehouse } from "../../components/Purchase/Warehouse/Warehouse";
+import { Box, Container } from "@mui/material";
+import { Outlet } from "react-router-dom";
 
 export const WarehouseView = () => {
-	return <Warehouse />;
+  return (
+    <Box>
+      <Container maxWidth={"xl"}>
+        <Outlet />
+      </Container>
+    </Box>
+  );
 };

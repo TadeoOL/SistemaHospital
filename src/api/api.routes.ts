@@ -887,3 +887,8 @@ export const matchArticlesWithProviders = async (SolicitudCompra: {
   });
   return res.data;
 };
+
+export const getSideBardWarehouse = async () => {
+  const res = await axios.get(`/api/Sistema/SideBar/obtener-almacenes`);
+  return res.data;
+};

@@ -24,6 +24,7 @@ import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRou
 import { PurchaseAuthorization } from "./components/Purchase/Authorization/Authorization/PurchaseAuthorization";
 import { PurchaseHistoryAuthorization } from "./components/Purchase/Authorization/AuthorizationHistory/PurchaseAuthorization";
 import { ProtectedPurchaseRequest } from "./utils/functions/ProtectedRoutesForRole/ProtectedPurchaseRequest";
+import { WarehouseSelected } from "./components/Warehouse/WarehouseSelected";
 
 function App() {
   return (
@@ -73,10 +74,13 @@ function App() {
               />
               <Route path="/configuracion" element={<AccountView />} />
             </Route>
-            <Route path="/farmacia/almacen" element={<WarehouseView />} />
             <Route
               path="/programacion/agenda-quirofano"
               element={<ScheduleView />}
+            />
+            <Route
+              path="/almacenes/:warehouseId"
+              element={<WarehouseSelected />}
             />
           </Route>
         </Route>

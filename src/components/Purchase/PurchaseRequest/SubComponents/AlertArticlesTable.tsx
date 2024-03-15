@@ -18,10 +18,11 @@ import { useArticlesAlertPagination } from "../../../../store/purchaseStore/arti
 import { shallow } from "zustand/shallow";
 import React, { useCallback, useEffect, useState } from "react";
 import { IArticlesAlert } from "../../../../types/types";
-import { getArticlesByIds } from "../../../../api/api.routes";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { useAuthStore } from "../../../../store/auth";
 import { useShallow } from "zustand/react/shallow";
+import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
+import { toast } from "react-toastify";
 
 const useGetAllData = () => {
   const {
@@ -30,13 +31,7 @@ const useGetAllData = () => {
     fetchArticlesAlert,
     checkedArticles,
     setCheckedArticles,
-    alertArticlesChecked,
-    setAlertArticlesChecked,
     setStep,
-    articlesPurchased,
-    setArticlesPurchased,
-    handleOpen,
-    setHandleOpen,
     warehouseSelected,
     cleanAllData,
   } = useArticlesAlertPagination(
@@ -46,13 +41,8 @@ const useGetAllData = () => {
       isLoading: state.isLoading,
       checkedArticles: state.checkedArticles,
       setCheckedArticles: state.setCheckedArticles,
-      setAlertArticlesChecked: state.setAlertArticlesChecked,
-      alertArticlesChecked: state.alertArticlesChecked,
       setStep: state.setStep,
-      articlesPurchased: state.articlesPurchased,
-      setArticlesPurchased: state.setArticlesPurchased,
       handleOpen: state.handleOpen,
-      setHandleOpen: state.setHandleOpen,
       warehouseSelected: state.warehouseSelected,
       cleanAllData: state.cleanAllData,
     }),
@@ -68,13 +58,7 @@ const useGetAllData = () => {
     data: data as IArticlesAlert[],
     checkedArticles,
     setCheckedArticles,
-    alertArticlesChecked,
-    setAlertArticlesChecked,
     setStep,
-    articlesPurchased,
-    setArticlesPurchased,
-    handleOpen,
-    setHandleOpen,
     warehouseSelected,
     cleanAllData,
   };
@@ -86,19 +70,27 @@ export const AlertArticlesTable = () => {
     isLoading,
     checkedArticles,
     setCheckedArticles,
-    setAlertArticlesChecked,
-    alertArticlesChecked,
     setStep,
-    articlesPurchased,
-    setArticlesPurchased,
-    handleOpen,
-    setHandleOpen,
     cleanAllData,
   } = useGetAllData();
   const isAdminPurchase = useAuthStore(
     useShallow((state) => state.isAdminPurchase)
   );
-
+  const {
+    setOpenPurchaseRequestOrder,
+    openPurchaseRequestOrder,
+    setArticles,
+    setWarehouseSelected,
+  } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      setOpenPurchaseRequestOrder: state.setOpenPurchaseRequestOrder,
+      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+      setArticles: state.setArticles,
+      setWarehouseSelected: state.setWarehouseSelected,
+    }),
+    shallow
+  );
+  const [allChecked, setAllChecked] = useState<{ [key: string]: boolean }>({});
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
 
   const handleIsArticleChecked = useCallback(
@@ -117,18 +109,26 @@ export const AlertArticlesTable = () => {
     [checkedArticles]
   );
 
-  useEffect(() => {
-    return () => {
-      setCheckedArticles([]);
-      setAlertArticlesChecked([]);
-      setArticlesPurchased([]);
-      setStep(0);
-    };
-  }, []);
+  const cleanUpAllChecks = () => {
+    for (const alert of data) {
+      setAllChecked((prev) => ({ ...prev, [alert.id_Almacen]: false }));
+    }
+  };
 
   useEffect(() => {
-    if (!handleOpen) return cleanAllData();
-  }, [handleOpen]);
+    cleanUpAllChecks();
+    return () => {
+      setCheckedArticles([]);
+      setStep(0);
+    };
+  }, [data]);
+
+  useEffect(() => {
+    if (!openPurchaseRequestOrder) {
+      cleanUpAllChecks();
+      return cleanAllData();
+    }
+  }, [openPurchaseRequestOrder]);
 
   const handleSelectAllArticles = async (
     idAlmacen: string,
@@ -162,15 +162,8 @@ export const AlertArticlesTable = () => {
     idAlmacen: string,
     idArticulo: string,
     idAlerta: string,
-    cantidadComprar: number,
-    precioInventario: number,
     checked: boolean
   ) => {
-    const objectArticle = {
-      id_articulo: idArticulo,
-      cantidadComprar: cantidadComprar,
-      precioInventario: precioInventario,
-    };
     const objectChecked = {
       idAlmacen: idAlmacen,
       idAlerta: idAlerta,
@@ -179,8 +172,6 @@ export const AlertArticlesTable = () => {
 
     if (checked) {
       setCheckedArticles([...checkedArticles, objectChecked]);
-      setAlertArticlesChecked([...alertArticlesChecked, idAlerta]);
-      setArticlesPurchased([...articlesPurchased, objectArticle]);
     } else {
       setCheckedArticles(
         checkedArticles.filter(
@@ -188,39 +179,39 @@ export const AlertArticlesTable = () => {
             item.idArticulo !== idArticulo && item.idAlmacen === idAlmacen
         )
       );
-      setAlertArticlesChecked(
-        alertArticlesChecked.filter((item) => item !== idAlerta)
-      );
-      setArticlesPurchased(
-        articlesPurchased.filter((item) => item.id_articulo !== idArticulo)
-      );
     }
   };
 
   const handlePurchaseOrder = async (idAlmacen: string) => {
+    if (
+      checkedArticles.length === 0 ||
+      checkedArticles[0].idAlmacen !== idAlmacen
+    )
+      return toast.warning("No tienes ningún articulo en alerta seleccionado");
     setIsLoadingNextStep(true);
-
-    try {
-      const articles = checkedArticles.filter((i) => i.idAlmacen === idAlmacen);
-      const res = await getArticlesByIds(
-        articles.flatMap((article) => article.idArticulo)
-      );
-      setArticlesPurchased(
-        res.map((article) => ({
-          id_articulo: article.id,
-          cantidadComprar: article.stockMinimo,
-          precioInventario: article.precioInventario,
-        }))
-      );
-      useArticlesAlertPagination.setState({
-        warehouseSelected: idAlmacen,
-      });
-      setHandleOpen(true);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoadingNextStep(false);
-    }
+    const articles = checkedArticles.filter((i) => i.idAlmacen === idAlmacen);
+    const articlesToPurchaseFilteredByWarehouse = data
+      .flatMap((alert) => {
+        if (alert.id_Almacen === idAlmacen) {
+          return alert.articulos.map((a) => {
+            return {
+              id: a.id_Articulo,
+              name: a.nombreArticulo,
+              amount: a.cantidadComprar,
+              price: a.precioInventario,
+            };
+          });
+        }
+        return [];
+      })
+      .filter((a) => articles.some((ac) => a.id === ac.idArticulo));
+    useArticlesAlertPagination.setState({
+      warehouseSelected: idAlmacen,
+    });
+    setWarehouseSelected(idAlmacen);
+    setArticles(articlesToPurchaseFilteredByWarehouse);
+    setOpenPurchaseRequestOrder(true);
+    setIsLoadingNextStep(false);
   };
 
   if (isLoading)
@@ -264,12 +255,17 @@ export const AlertArticlesTable = () => {
                   {!isAdminPurchase() && (
                     <TableCell>
                       <Checkbox
-                        onChange={(event) =>
+                        checked={allChecked[alert.id_Almacen] || false}
+                        onChange={(event) => {
                           handleSelectAllArticles(
                             alert.id_Almacen,
                             event.target.checked
-                          )
-                        }
+                          );
+                          setAllChecked((prevState) => ({
+                            ...prevState,
+                            [alert.id_Almacen]: event.target.checked,
+                          }));
+                        }}
                       />
                     </TableCell>
                   )}
@@ -290,8 +286,6 @@ export const AlertArticlesTable = () => {
                               alert.id_Almacen,
                               item.id_Articulo,
                               item.id_AlertaCompra,
-                              item.cantidadComprar,
-                              item.precioInventario,
                               event.target.checked
                             )
                           }

@@ -33,6 +33,7 @@ interface State {
   registerOrder: IRegisterOrderPurchase | null;
   needAuth: boolean;
   note: string;
+  openPurchaseRequestOrder: boolean;
 }
 
 interface Action {
@@ -50,6 +51,7 @@ interface Action {
   setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => void;
   setNeedAuth: (needAuth: boolean) => void;
   setNote: (note: string) => void;
+  setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => void;
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
@@ -68,6 +70,9 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
   registerOrder: null,
   needAuth: false,
   note: "",
+  openPurchaseRequestOrder: false,
+  setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) =>
+    set({ openPurchaseRequestOrder }),
   setNote: (note: string) => set({ note }),
   setNeedAuth: (needAuth: boolean) => set({ needAuth }),
   setRegisterOrder: (registerOrder: IRegisterOrderPurchase) =>

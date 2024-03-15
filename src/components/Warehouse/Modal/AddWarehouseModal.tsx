@@ -1,25 +1,13 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Box, Button, Grid, Stack, TextField } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-
-import { useWarehousePagination } from "../../../../store/purchaseStore/warehousePagination";
-import { IWarehouse } from "../../../../types/types";
-import {
-  getPurchaseWarehouseById,
-  modifyPurchaseWarehouse,
-} from "../../../../api/api.routes";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import { addWarehouse } from "../../../../schema/schemas";
+import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
+import { IWarehouse } from "../../../types/types";
+import { addNewPurchaseWarehouse } from "../../../api/api.routes";
+import { HeaderModal } from "../../Account/Modals/SubComponents/HeaderModal";
+import { addWarehouse } from "../../../schema/schemas";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CancelIcon from "@mui/icons-material/Cancel";
 
@@ -49,37 +37,14 @@ const style = {
   },
 };
 
-interface IModifyCategoryModal {
+interface IAddPurchaseWarehouseModal {
   open: Function;
-  warehouseId: string;
 }
 
-const useFetchPurchaseWarehouse = (warehouseId: string) => {
-  const [isLoadingWarehouse, setIsLoadingExistingArticle] = useState(true);
-  const [warehouse, setWarehouse] = useState<IWarehouse | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoadingExistingArticle(true);
-      try {
-        const data = await getPurchaseWarehouseById(warehouseId);
-        setWarehouse(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoadingExistingArticle(false);
-      }
-    };
-    fetchData();
-  }, [warehouseId]);
-  return { isLoadingWarehouse, warehouse };
-};
-
-export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
-  const { open, warehouseId } = props;
-  const { isLoadingWarehouse, warehouse } =
-    useFetchPurchaseWarehouse(warehouseId);
-  const { id, nombre, descripcion } = warehouse ?? {};
+export const AddPurchaseWarehouseModal = (
+  props: IAddPurchaseWarehouseModal
+) => {
+  const { open } = props;
   const [textValue, setTextValue] = useState("");
 
   const { handleChangeWarehouse, setHandleChangeWarehouse } =
@@ -91,26 +56,10 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
   const {
     register,
     handleSubmit,
-    getValues,
-    setValue,
     formState: { errors },
   } = useForm<IWarehouse>({
-    defaultValues: {
-      id: id,
-      nombre: nombre,
-      descripcion: descripcion,
-    },
     resolver: zodResolver(addWarehouse),
   });
-
-  useEffect(() => {
-    if (warehouse) {
-      setTextValue(warehouse.descripcion);
-      Object.entries(warehouse).forEach(([key, value]) => {
-        setValue(key as keyof IWarehouse, String(value));
-      });
-    }
-  }, [warehouse, setValue]);
 
   const handleError = (err: any) => {
     console.log({ err });
@@ -122,8 +71,7 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
 
   const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
     try {
-      const idForm = getValues("id");
-      await modifyPurchaseWarehouse({ ...data, id: idForm });
+      await addNewPurchaseWarehouse(data);
       setHandleChangeWarehouse(!handleChangeWarehouse);
       toast.success("Almacén modificado con éxito!");
       open(false);
@@ -131,13 +79,6 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
       toast.error("Error al modificar el almacén!");
     }
   };
-
-  if (isLoadingWarehouse)
-    return (
-      <Backdrop open>
-        <CircularProgress />
-      </Backdrop>
-    );
 
   return (
     <Box sx={style}>

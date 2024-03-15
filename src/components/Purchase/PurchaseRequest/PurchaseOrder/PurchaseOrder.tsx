@@ -31,7 +31,6 @@ import { StatusPurchaseOrder } from "../../../../types/types";
 import { changeOrderStatus } from "../../../../api/api.routes";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
-import { RequestPurchasedOrderModal } from "../Modal/RequestPurchasedOrderModal";
 import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 import { QuoteModal } from "./Modal/QuoteModal";
 import { OrderModal } from "./Modal/OrderModal";
@@ -40,6 +39,7 @@ import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import { Info } from "@mui/icons-material";
 import { useAuthStore } from "../../../../store/auth";
 import { useShallow } from "zustand/react/shallow";
+import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -161,22 +161,19 @@ export const PurchaseOrder = () => {
     OrderId: string;
   }>({ folio: "", OrderId: "" });
 
-  const { openNewOrderPurchase, setOpenNewOrderPurchase } =
-    useArticlesAlertPagination((state) => ({
-      openNewOrderPurchase: state.handleOpen,
-      setOpenNewOrderPurchase: state.setHandleOpen,
-    }));
+  const { openPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+    })
+  );
 
   useEffect(() => {
-    if (openNewOrderPurchase) return;
+    if (openPurchaseRequestOrder) return;
     useArticlesAlertPagination.setState({
       step: 0,
       checkedArticles: [],
-      alertArticlesChecked: [],
-      articlesPurchased: [],
-      warehouseSelected: "",
     });
-  }, [openNewOrderPurchase]);
+  }, [openPurchaseRequestOrder]);
 
   const values = useMemo(() => {
     const statusPurchaseOrderValues: string[] = [];
@@ -478,17 +475,6 @@ export const PurchaseOrder = () => {
           </TableContainer>
         </Card>
       </Stack>
-      <Modal
-        open={openNewOrderPurchase}
-        onClose={() => setOpenNewOrderPurchase(false)}
-      >
-        <>
-          <RequestPurchasedOrderModal
-            open={setOpenNewOrderPurchase}
-            isAlert={false}
-          />
-        </>
-      </Modal>
       <Modal open={openOrderModal} onClose={() => setOpenOrderModal(false)}>
         <>
           <OrderModal purchaseData={orderSelected} open={setOpenOrderModal} />
