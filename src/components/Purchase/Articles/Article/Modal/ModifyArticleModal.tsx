@@ -170,7 +170,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={open} title="Agregar articulo" />
+      <HeaderModal setOpen={open} title="Modificar articulo" />
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
@@ -180,7 +180,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.nombre}
                 helperText={errors?.nombre?.message}
                 size="small"
-                label="Nombre"
+                placeholder="Nombre"
                 {...register("nombre")}
               />
             </Grid>
@@ -189,7 +189,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 fullWidth
                 error={!!errors.descripcion}
                 size="small"
-                label="Descripción"
+                placeholder="Descripción"
                 {...register("descripcion")}
                 multiline
                 onChange={handleChangeText}
@@ -221,7 +221,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.codigoBarras}
                 helperText={errors?.codigoBarras?.message}
                 size="small"
-                label="Código de barras"
+                placeholder="Código de barras"
                 {...register("codigoBarras")}
               />
             </Grid>
@@ -231,7 +231,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.stockMinimo}
                 helperText={errors?.stockMinimo?.message}
                 size="small"
-                label="Stock mínimo"
+                placeholder="Stock mínimo"
                 {...register("stockMinimo")}
               />
             </Grid>
@@ -241,7 +241,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.stockAlerta}
                 helperText={errors?.stockAlerta?.message}
                 size="small"
-                label="Stock alerta"
+                placeholder="Stock alerta"
                 {...register("stockAlerta")}
               />
             </Grid>
@@ -251,7 +251,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.precioInventario}
                 helperText={errors?.precioInventario?.message}
                 size="small"
-                label="Precio estimado"
+                placeholder="Precio estimado"
                 {...register("precioInventario")}
               />
             </Grid>
@@ -261,7 +261,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.unidadMedida}
                 helperText={errors?.unidadMedida?.message}
                 size="small"
-                label="Unidad de medida"
+                placeholder="Unidad de medida"
                 {...register("unidadMedida")}
               />
             </Grid>

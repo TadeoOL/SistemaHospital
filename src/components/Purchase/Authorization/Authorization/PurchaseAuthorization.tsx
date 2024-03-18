@@ -2,7 +2,7 @@ import { Box, Divider, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { PurchaseAuthorizationTable } from "./PurchaseAuthorizationTable";
 
-export const PurchaseAuthorization = () => {
+const PurchaseAuthorization = () => {
   //   const { enabled, setEnabled, setSearch } = useExistingArticlePagination(
   //     (state) => ({
   //       enabled: state.enabled,
@@ -37,3 +37,4 @@ export const PurchaseAuthorization = () => {
     </>
   );
 };
+export default PurchaseAuthorization;

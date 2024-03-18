@@ -87,14 +87,14 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
               error={!!errors.nombre}
               helperText={errors?.nombre?.message}
               size="small"
-              label="Nombre"
+              placeholder="Nombre"
               {...register("nombre")}
             />
             <TextField
               fullWidth
               error={!!errors.descripcion}
               size="small"
-              label="Descripción"
+              placeholder="Descripción"
               {...register("descripcion")}
               multiline
               helperText={

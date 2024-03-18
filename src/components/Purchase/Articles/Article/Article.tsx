@@ -7,7 +7,7 @@ import { useArticlePagination } from "../../../../store/purchaseStore/articlePag
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 
-export const Article = () => {
+const Article = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setEnabled, setSearch } = useArticlePagination((state) => ({
     enabled: state.enabled,
@@ -81,3 +81,5 @@ export const Article = () => {
     </>
   );
 };
+
+export default Article;

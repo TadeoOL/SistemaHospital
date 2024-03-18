@@ -166,7 +166,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={open} title="Agregar articulo" />
+      <HeaderModal setOpen={open} title="Modificar articulo" />
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
@@ -194,7 +194,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 fullWidth
                 error={!!errors.cantidad}
                 size="small"
-                label="Cantidad"
+                placeholder="Cantidad"
                 {...register("cantidad")}
                 helperText={errors.cantidad?.message}
               />
@@ -205,7 +205,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.precioCompra}
                 helperText={errors?.precioCompra?.message}
                 size="small"
-                label="Precio de compra"
+                placeholder="Precio de compra"
                 {...register("precioCompra")}
               />
             </Grid>
@@ -215,7 +215,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.precioVenta}
                 helperText={errors?.precioVenta?.message}
                 size="small"
-                label="Precio de venta"
+                placeholder="Precio de venta"
                 {...register("precioVenta")}
               />
             </Grid>
@@ -268,7 +268,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.factor}
                 helperText={errors?.factor?.message}
                 size="small"
-                label="Factor"
+                placeholder="Factor"
                 {...register("factor")}
               />
             </Grid>

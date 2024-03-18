@@ -149,7 +149,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.nombre?.message}
                 {...register("nombre")}
                 size="small"
-                label="Nombre"
+                placeholder="Nombre"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -159,7 +159,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.apellidoPaterno?.message}
                 {...register("apellidoPaterno")}
                 size="small"
-                label="Apellido paterno"
+                placeholder="Apellido paterno"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -169,7 +169,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.apellidoMaterno?.message}
                 {...register("apellidoMaterno")}
                 size="small"
-                label="Apellido materno"
+                placeholder="Apellido materno"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -179,7 +179,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.email?.message}
                 {...register("email")}
                 size="small"
-                label="Correo electrónico"
+                placeholder="Correo electrónico"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -189,7 +189,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.telefono?.message}
                 {...register("telefono")}
                 size="small"
-                label="Telefono"
+                placeholder="Telefono"
               />
             </Grid>
             <Grid item xs={12}>
@@ -207,7 +207,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.nombreUsuario?.message}
                 {...register("nombreUsuario")}
                 size="small"
-                label="Nombre de usuario"
+                placeholder="Nombre de usuario"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -215,7 +215,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.roles}
                 helperText={errors?.roles?.message}
-                label="Selecciona el rol"
+                placeholder="Selecciona el rol"
                 {...register("roles")}
                 name="roles"
                 size="small"
@@ -242,7 +242,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.contrasena?.message}
                 {...register("contrasena")}
                 size="small"
-                label="Contraseña"
+                placeholder="Contraseña"
                 onChange={handlePasswordChange}
                 InputProps={{
                   endAdornment: (
@@ -276,7 +276,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 helperText={errors?.confirmarContrasena?.message}
                 {...register("confirmarContrasena")}
                 size="small"
-                label="Confirmar Contraseña"
+                placeholder="Confirmar Contraseña"
                 onChange={handlePasswordChange}
                 InputProps={{
                   endAdornment: (

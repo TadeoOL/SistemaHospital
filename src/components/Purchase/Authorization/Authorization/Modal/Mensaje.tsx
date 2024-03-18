@@ -366,7 +366,7 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
               }}
             >
               <TextField
-                label="Nuevo Mensaje"
+                placeholder="Nuevo Mensaje"
                 value={nuevoMensaje}
                 onChange={(e) => setNuevoMensaje(e.target.value)}
                 sx={{ mt: 2 }}

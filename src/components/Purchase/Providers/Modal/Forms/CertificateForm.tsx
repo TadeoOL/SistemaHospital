@@ -78,7 +78,7 @@ export const CertificateForm = (props: ICertificateForm) => {
     error={!!errors.urlCertificadoBP}
     helperText={errors?.urlCertificadoBP?.message}
     {...register("urlCertificadoBP")}
-    label="Certificado buenas practicas de manofactura"
+    placeholder="Certificado buenas practicas de manofactura"
   /> */
   }
   {
@@ -87,7 +87,7 @@ export const CertificateForm = (props: ICertificateForm) => {
       error={!!errors.urlCertificadoCR}
       helperText={errors?.urlCertificadoCR?.message}
       {...register("urlCertificadoCR")}
-      label="Certificado de cumplimiento regulatorio"
+      placeholder="Certificado de cumplimiento regulatorio"
   /> */
   }
   {
@@ -96,7 +96,7 @@ export const CertificateForm = (props: ICertificateForm) => {
       error={!!errors.urlCertificadoISO9001}
       helperText={errors?.urlCertificadoISO9001?.message}
       {...register("urlCertificadoISO9001")}
-      label="Certificado ISO 9001"
+      placeholder="Certificado ISO 9001"
 /> */
   }
 

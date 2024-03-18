@@ -4,11 +4,12 @@ import { SideNav } from "./SideNav";
 import { Outlet } from "react-router-dom";
 import { useAppNavStore } from "../../store/appNav";
 import CustomBreadcrumb from "./CustomBreadcrumb";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Box, Typography, Container } from "@mui/material";
 import { useAuthStore } from "../../store/auth";
 import { useShallow } from "zustand/react/shallow";
+import LoadingView from "../../views/LoadingView/LoadingView";
 
 const SIDE_NAV_WIDTH = 110;
 
@@ -95,21 +96,23 @@ export const Layout: React.FC = () => {
       <LayoutRoot>
         <LayoutContainer>
           <CustomBreadcrumb />
-          <Box sx={{ flexGrow: 1, p: 3 }}>
-            <Container maxWidth={"xl"}>
-              <Typography
-                variant="h2"
-                sx={{ flexGrow: 1, pt: 3, pl: 3, pr: 3 }}
-              >
-                {currentPageMessage === ""
-                  ? returnTitleForDashboard(profile?.roles)
-                  : currentPageMessage}
-              </Typography>
-              <Box component="main" sx={{ p: 3, flexGrow: 1 }}>
-                <Outlet />
-              </Box>
-            </Container>
-          </Box>
+          <Suspense fallback={<LoadingView />}>
+            <Box sx={{ flexGrow: 1, p: 3 }}>
+              <Container maxWidth={"xl"}>
+                <Typography
+                  variant="h2"
+                  sx={{ flexGrow: 1, pt: 3, pl: 3, pr: 3 }}
+                >
+                  {currentPageMessage === ""
+                    ? returnTitleForDashboard(profile?.roles)
+                    : currentPageMessage}
+                </Typography>
+                <Box component="main" sx={{ p: 3, flexGrow: 1 }}>
+                  <Outlet />
+                </Box>
+              </Container>
+            </Box>
+          </Suspense>
         </LayoutContainer>
       </LayoutRoot>
     </>

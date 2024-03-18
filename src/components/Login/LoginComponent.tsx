@@ -162,13 +162,13 @@ export const LoginComponent: React.FC<{}> = () => {
               error={!!errors.userName}
               helperText={errors?.userName?.message}
               {...register("userName")}
-              label="Nombre de usuario"
+              placeholder="Nombre de usuario"
             />
             <TextField
               error={!!errors.password}
               helperText={errors?.password?.message}
               {...register("password")}
-              label="Contraseña"
+              placeholder="Contraseña"
               type={showPassword ? "text" : "password"}
               onChange={handlePasswordChange}
               InputProps={{

@@ -383,7 +383,7 @@ export const MatchProvidersAndArticles = (
                   sx={{ maxWidth: 300 }}
                   size="small"
                   select
-                  label="Proveedor"
+                  placeholder="Proveedor"
                   value={providerSelected}
                   onChange={handleChange}
                 >

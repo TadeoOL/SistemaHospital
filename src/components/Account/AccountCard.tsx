@@ -48,7 +48,7 @@ const handleChangePassword = () => {
           <TextField
             id="actualPassword"
             type="password"
-            label="Contraseña Actual"
+            placeholder="Contraseña Actual"
             margin="normal"
             size="small"
             required
@@ -56,7 +56,7 @@ const handleChangePassword = () => {
           <TextField
             id="password"
             type="password"
-            label="Contraseña Nueva"
+            placeholder="Contraseña Nueva"
             margin="normal"
             size="small"
             required
@@ -65,7 +65,7 @@ const handleChangePassword = () => {
           <TextField
             id="confirmPassword"
             type="password"
-            label="Confirmar contraseña"
+            placeholder="Confirmar contraseña"
             margin="normal"
             size="small"
             required
@@ -283,28 +283,28 @@ export const AccountCard = () => {
                 helperText={errors?.nombre?.message}
                 {...register("nombre")}
                 size="medium"
-                label="Nombre"
+                placeholder="Nombre"
               />
               <TextField
                 error={!!errors.apellidoPaterno}
                 helperText={errors?.apellidoPaterno?.message}
                 {...register("apellidoPaterno")}
                 size="medium"
-                label="Apellido paterno"
+                placeholder="Apellido paterno"
               />
               <TextField
                 error={!!errors.apellidoMaterno}
                 helperText={errors?.apellidoMaterno?.message}
                 {...register("apellidoMaterno")}
                 size="medium"
-                label="Apellido materno"
+                placeholder="Apellido materno"
               />
               <TextField
                 error={!!errors.email}
                 helperText={errors?.email?.message}
                 {...register("email")}
                 size="medium"
-                label="Correo electrónico"
+                placeholder="Correo electrónico"
               />
               <TextField
                 //
@@ -312,7 +312,7 @@ export const AccountCard = () => {
                 helperText={errors?.telefono?.message}
                 {...register("telefono")}
                 size="medium"
-                label="Teléfono"
+                placeholder="Teléfono"
               />
               <Box>
                 <Button
