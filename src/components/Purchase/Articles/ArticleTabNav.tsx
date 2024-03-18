@@ -36,17 +36,9 @@ export const ArticleTabNav = () => {
         position="static"
         sx={{ borderTopRightRadius: 10, borderTopLeftRadius: 10 }}
       >
-        <Tabs
-          value={tabValue}
-          onChange={handleChange}
-          variant="fullWidth"
-        >
-          <Tab
-            label="Catálogo de Productos"
-          />
-          <Tab
-            label="Productos en Existencia"
-          />
+        <Tabs value={tabValue} onChange={handleChange} variant="fullWidth">
+          <Tab label="Catálogo de Productos" />
+          <Tab label="Productos en Existencia" />
         </Tabs>
       </AppBar>
     </Box>

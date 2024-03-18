@@ -115,14 +115,14 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
               error={!!errors.nombre}
               helperText={errors?.nombre?.message}
               size="small"
-              label="Nombre"
+              placeholder="Nombre"
             />
             <TextField
               fullWidth
               {...register("descripcion")}
               error={!!errors.descripcion}
               size="small"
-              label="Descripción"
+              placeholder="Descripción"
               multiline
               helperText={
                 <Box

@@ -7,7 +7,7 @@ import { useCategoryPagination } from "../../../../store/purchaseStore/categoryP
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
 
-export const Category = () => {
+const Category = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setEnabled, setSearch } = useCategoryPagination((state) => ({
     enabled: state.enabled,
@@ -81,3 +81,5 @@ export const Category = () => {
     </>
   );
 };
+
+export default Category;

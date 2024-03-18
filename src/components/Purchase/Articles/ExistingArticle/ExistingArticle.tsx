@@ -7,7 +7,7 @@ import { AddExistingArticleModal } from "./Modal/AddExistingArticleModal";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
-export const ExistingArticle = () => {
+const ExistingArticle = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setEnabled, setSearch } = useExistingArticlePagination(
     (state) => ({
@@ -82,3 +82,5 @@ export const ExistingArticle = () => {
     </>
   );
 };
+
+export default ExistingArticle;

@@ -115,24 +115,6 @@ const useDisableExistingArticle = () => {
 export const PurchaseWarehouseTable = () => {
   const disableArticle = useDisableExistingArticle();
 
-  // const handleUserChecked = (e: any) => {
-  //   const { value, checked } = e.target;
-
-  //   if (checked) {
-  //     setIsChecked([...isChecked, value]);
-  //   } else {
-  //     setIsChecked(isChecked.filter((item) => item !== value));
-  //   }
-  // };
-
-  // const handleIsUserChecked = (userId: string) => {
-  //   if (isChecked.some((user) => user === userId)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-
   return (
     <>
       <TableComponent
@@ -144,6 +126,7 @@ export const PurchaseWarehouseTable = () => {
             open={props.open}
           />
         )}
+        headers={["Nombre", "Descripción", "Acciones"]}
       />
     </>
   );

@@ -141,6 +141,7 @@ export const CategoryTable = () => {
         modifyModalComponent={(props) => (
           <ModifyCategoryModal data={props.data} open={props.open} />
         )}
+        headers={["Nombre", "Descripción", "Acciones"]}
       />
     </>
   );

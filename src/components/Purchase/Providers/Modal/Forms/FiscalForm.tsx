@@ -28,7 +28,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             error={!!errors.rfc}
             helperText={errors?.rfc?.message}
             {...register("rfc")}
-            label="RFC"
+            placeholder="RFC"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -37,7 +37,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             error={!!errors.nif}
             helperText={errors?.nif?.message}
             {...register("nif")}
-            label="NIF"
+            placeholder="NIF"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -46,7 +46,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             error={!!errors.giroEmpresa}
             helperText={errors?.giroEmpresa?.message}
             {...register("giroEmpresa")}
-            label="Giro de la empresa"
+            placeholder="Giro de la empresa"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -55,7 +55,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             error={!!errors.direccionFiscal}
             helperText={errors?.direccionFiscal?.message}
             {...register("direccionFiscal")}
-            label="Dirección fiscal"
+            placeholder="Dirección fiscal"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -64,7 +64,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             error={!!errors.tipoContribuyente}
             helperText={errors?.tipoContribuyente?.message}
             {...register("tipoContribuyente")}
-            label="Tipo de contribuyente"
+            placeholder="Tipo de contribuyente"
             select
             onChange={(e: any) => {
               setContri(e.target.value);

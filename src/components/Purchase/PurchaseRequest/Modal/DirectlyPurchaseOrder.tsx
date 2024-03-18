@@ -69,6 +69,7 @@ import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseSto
 import { Note } from "./Note";
 import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
 import { AlertConfigAmount } from "./AlertConfigAmount";
+import AnimateButton from "../../../@extended/AnimateButton";
 
 type Article = {
   id: string;
@@ -232,23 +233,6 @@ const BuildOrder = (props: { setOpen: Function }) => {
             setWarehouseError(false);
             setWarehouseSelected(e.target.value);
           }}
-          sx={{
-            "& .MuiSelect-filled": {
-              paddingTop: 1,
-            },
-            "& legend": { display: "none" },
-            "& .MuiInputLabel-shrink": {
-              opacity: 0,
-              transition: "all 0.2s ease-in",
-            },
-            width: "69%",
-          }}
-          InputLabelProps={{
-            sx: {
-              margin: -1,
-              marginLeft: 0.5,
-            },
-          }}
         >
           {almacenes.map((warehouse) => (
             <MenuItem key={warehouse.id} value={warehouse.id}>
@@ -274,7 +258,6 @@ const BuildOrder = (props: { setOpen: Function }) => {
           </Typography>
           <Autocomplete
             disablePortal
-            size="small"
             fullWidth
             filterOptions={filterOptions}
             onChange={(e, val) => {
@@ -292,7 +275,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
                 {...params}
                 error={articleError}
                 helperText={articleError && "Selecciona un articulo"}
-                label="Artículos"
+                placeholder="Artículos"
                 sx={{ width: "50%" }}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -309,7 +292,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
             sx={{ width: "60%" }}
             size="small"
             fullWidth
-            label="Cantidad"
+            placeholder="Cantidad"
             value={amountText}
             error={amountError}
             helperText={amountError && "Agrega una cantidad"}
@@ -329,14 +312,16 @@ const BuildOrder = (props: { setOpen: Function }) => {
           mt: 2,
         }}
       >
-        <Button
-          size="medium"
-          variant="contained"
-          startIcon={<AddCircleIcon />}
-          onClick={() => handleAddArticles()}
-        >
-          Agregar
-        </Button>
+        <AnimateButton>
+          <Button
+            size="medium"
+            variant="contained"
+            startIcon={<AddCircleIcon />}
+            onClick={() => handleAddArticles()}
+          >
+            Agregar
+          </Button>
+        </AnimateButton>
       </Box>
       <ArticlesTable
         setWarehouseError={setWarehouseError}

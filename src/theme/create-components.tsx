@@ -1,14 +1,15 @@
 import {
   Components,
+  alpha,
   createTheme,
   filledInputClasses,
   inputLabelClasses,
   outlinedInputClasses,
   paperClasses,
+  selectClasses,
   tableCellClasses,
 } from "@mui/material";
 
-// Used only to create transitions
 const muiTheme = createTheme();
 
 export function createComponents(config: { palette: any }): Components {
@@ -27,33 +28,33 @@ export function createComponents(config: { palette: any }): Components {
     MuiButton: {
       defaultProps: {
         disableElevation: true,
+        color: "primary",
       },
       styleOverrides: {
         root: {
           fontWeight: 400,
           borderRadius: 4,
-        },
-        sizeSmall: {
-          padding: "6px 16px",
-        },
-        sizeMedium: {
-          padding: "8px 20px",
-        },
-        sizeLarge: {
-          padding: "11px 24px",
-        },
-        textSizeSmall: {
-          padding: "7px 12px",
-        },
-        textSizeMedium: {
-          padding: "9px 16px",
-        },
-        textSizeLarge: {
-          padding: "12px 16px",
+          sizeSmall: {
+            padding: "6px 16px",
+          },
+          sizeMedium: {
+            padding: "8px 20px",
+          },
+          sizeLarge: {
+            padding: "11px 24px",
+          },
+          textSizeSmall: {
+            padding: "7px 12px",
+          },
+          textSizeMedium: {
+            padding: "9px 16px",
+          },
+          textSizeLarge: {
+            padding: "12px 16px",
+          },
         },
       },
     },
-
     MuiCard: {
       styleOverrides: {
         root: {
@@ -135,7 +136,7 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         input: {
           "&::placeholder": {
-            opacity: 1,
+            opacity: 0.4,
           },
         },
       },
@@ -144,11 +145,25 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         input: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
           lineHeight: "24px",
           "&::placeholder": {
             color: palette.text.secondary,
           },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          padding: "9px 10px 9px 12px",
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        inputRoot: {
+          padding: "3px 14px 3px 12px",
         },
       },
     },
@@ -160,13 +175,16 @@ export function createComponents(config: { palette: any }): Components {
           borderStyle: "solid",
           borderWidth: 1,
           overflow: "hidden",
+          paddingTop: 0,
           borderColor: palette.neutral[200],
           transition: muiTheme.transitions.create([
             "border-color",
             "box-shadow",
           ]),
           "&:hover": {
-            backgroundColor: palette.action.hover,
+            borderColor: palette.primary.main,
+            backgroundColor: "transparent",
+            boxShadow: `${palette.primary.main} 0 0 0 1px`,
           },
           "&:before": {
             display: "none",
@@ -179,18 +197,25 @@ export function createComponents(config: { palette: any }): Components {
           },
           [`&.${filledInputClasses.focused}`]: {
             backgroundColor: "transparent",
-            borderColor: palette.primary.main,
-            boxShadow: `${palette.primary.main} 0 0 0 2px`,
+            borderColor: alpha(palette.primary.main, 0.6),
+            boxShadow: `${alpha(palette.primary.main, 0.2)} 0 0 0 2px`,
           },
           [`&.${filledInputClasses.error}`]: {
-            borderColor: palette.error.main,
-            boxShadow: `${palette.error.main} 0 0 0 2px`,
+            borderColor: alpha(palette.error.main, 0.6),
+            boxShadow: `${alpha(palette.error.main, 0.2)} 0 0 0 2px`,
           },
         },
         input: {
           fontSize: 14,
           fontWeight: 400,
           lineHeight: "24px",
+          padding: "10.5px 14px 10.5px 12px",
+        },
+        inputMultiline: {
+          fontSize: 14,
+          fontWeight: 400,
+          lineHeight: "24px",
+          padding: "8px 0px 5px 0px",
         },
       },
     },
@@ -235,21 +260,47 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         root: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
+          color: "gray",
+          padding: "11px 14px 10.5px 13px",
           [`&.${inputLabelClasses.filled}`]: {
-            transform: "translate(12px, 18px) scale(1)",
+            transform: "translate(0,0) scale(1)",
+            color: alpha("#808080", 0.5),
+            [`&.${selectClasses.select}`]: {
+              transform: "translate(20px,0) scale(1)",
+              color: alpha("#808080", 0.5),
+            },
           },
           [`&.${inputLabelClasses.shrink}`]: {
             [`&.${inputLabelClasses.standard}`]: {
-              transform: "translate(0, -1.5px) scale(0.85)",
+              transform: "translate(0,0) scale(0.85)",
             },
             [`&.${inputLabelClasses.filled}`]: {
-              transform: "translate(12px, 6px) scale(0.85)",
+              display: "none",
             },
             [`&.${inputLabelClasses.outlined}`]: {
               transform: "translate(14px, -9px) scale(0.85)",
             },
           },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        outlined: {
+          lineHeight: "0.8em",
+          "&.MuiInputLabel-sizeSmall": {
+            lineHeight: "1em",
+          },
+          "&.MuiInputLabel-shrink": {
+            padding: "0 8px",
+            marginLeft: -6,
+            lineHeight: "1.4375em",
+            color: "red",
+          },
+        },
+        filled: {
+          margin: 0,
         },
       },
     },

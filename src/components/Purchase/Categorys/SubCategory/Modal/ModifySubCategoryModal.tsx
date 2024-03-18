@@ -153,7 +153,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
             <TextField
               fullWidth
               size="small"
-              label="Nombre"
+              placeholder="Nombre"
               {...register("nombre")}
             />
             <TextField
@@ -161,7 +161,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               {...register("descripcion")}
               error={!!errors.descripcion}
               size="small"
-              label="Descripción"
+              placeholder="Descripción"
               multiline
               helperText={
                 <Box

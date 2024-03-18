@@ -1,4 +1,5 @@
 import { PurchaseConfig } from "../../components/Purchase/Authorization/Authorization/Modal/PurchaseConfig";
-export const PurchaseConfigView = () => {
-	return <PurchaseConfig />;
+const PurchaseConfigView = () => {
+  return <PurchaseConfig />;
 };
+export default PurchaseConfigView;

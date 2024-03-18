@@ -1,0 +1,33 @@
+.loading-container {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f05a30;
+}
+
+.loading-container svg {
+  position: absolute;
+  width: 240px;
+  height: 120px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
+.loading-container svg #plug,
+.loading-container svg #socket {
+  fill: #0957ce;
+}
+
+.loading-container svg #loop-normal {
+  fill: none;
+  stroke: #0957ce;
+  stroke-width: 12;
+}
+
+.loading-container svg #loop-offset {
+  display: none;
+}

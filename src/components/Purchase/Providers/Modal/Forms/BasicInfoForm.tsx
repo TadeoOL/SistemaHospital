@@ -18,7 +18,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             error={!!errors.nombreCompania}
             helperText={errors?.nombreCompania?.message}
             {...register("nombreCompania")}
-            label="Nombre compañía"
+            placeholder="Nombre compañía"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -27,7 +27,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             error={!!errors.nombreContacto}
             helperText={errors?.nombreContacto?.message}
             {...register("nombreContacto")}
-            label="Nombre contacto"
+            placeholder="Nombre contacto"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -36,7 +36,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             error={!!errors.puesto}
             helperText={errors?.puesto?.message}
             {...register("puesto")}
-            label="Puesto"
+            placeholder="Puesto"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -45,7 +45,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             error={!!errors.direccion}
             helperText={errors?.direccion?.message}
             {...register("direccion")}
-            label="Dirección"
+            placeholder="Dirección"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -54,7 +54,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             error={!!errors.telefono}
             helperText={errors?.telefono?.message}
             {...register("telefono")}
-            label="Teléfono"
+            placeholder="Teléfono"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -63,7 +63,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             error={!!errors.correoElectronico}
             helperText={errors?.correoElectronico?.message}
             {...register("correoElectronico")}
-            label="Correo electrónico"
+            placeholder="Correo electrónico"
           />
         </Grid>
       </Grid>

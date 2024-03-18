@@ -124,7 +124,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.nombre}
                 helperText={errors?.nombre?.message}
                 size="small"
-                label="Nombre"
+                placeholder="Nombre"
                 {...register("nombre")}
               />
             </Grid>
@@ -133,7 +133,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 fullWidth
                 error={!!errors.descripcion}
                 size="small"
-                label="Descripción"
+                placeholder="Descripción"
                 {...register("descripcion")}
                 multiline
                 onChange={handleChangeText}
@@ -165,7 +165,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.codigoBarras}
                 helperText={errors?.codigoBarras?.message}
                 size="small"
-                label="Código de barras"
+                placeholder="Código de barras"
                 {...register("codigoBarras")}
               />
             </Grid>
@@ -175,7 +175,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.stockMinimo}
                 helperText={errors?.stockMinimo?.message}
                 size="small"
-                label="Stock mínimo"
+                placeholder="Stock mínimo"
                 {...register("stockMinimo")}
               />
             </Grid>
@@ -185,7 +185,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.stockAlerta}
                 helperText={errors?.stockAlerta?.message}
                 size="small"
-                label="Stock alerta"
+                placeholder="Stock alerta"
                 {...register("stockAlerta")}
               />
             </Grid>
@@ -195,7 +195,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.precioInventario}
                 helperText={errors?.precioInventario?.message}
                 size="small"
-                label="Precio estimado"
+                placeholder="Precio estimado"
                 {...register("precioInventario")}
               />
             </Grid>
@@ -205,7 +205,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.unidadMedida}
                 helperText={errors?.unidadMedida?.message}
                 size="small"
-                label="Unidad de medida"
+                placeholder="Unidad de medida"
                 {...register("unidadMedida")}
               />
             </Grid>

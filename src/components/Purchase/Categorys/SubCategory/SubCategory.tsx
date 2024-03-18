@@ -7,7 +7,7 @@ import { useSubCategoryPagination } from "../../../../store/purchaseStore/subCat
 import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
-export const SubCategory = () => {
+const SubCategory = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setSearch, setEnabled } = useSubCategoryPagination(
     (state) => ({
@@ -83,3 +83,5 @@ export const SubCategory = () => {
     </>
   );
 };
+
+export default SubCategory;

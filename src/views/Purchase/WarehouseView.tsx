@@ -1,12 +1,6 @@
-import { Box, Container } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Warehouse } from "../../components/Warehouse/Warehouse";
 
-export const WarehouseView = () => {
-  return (
-    <Box>
-      <Container maxWidth={"xl"}>
-        <Outlet />
-      </Container>
-    </Box>
-  );
+const WarehouseView = () => {
+  return <Warehouse />;
 };
+export default WarehouseView;

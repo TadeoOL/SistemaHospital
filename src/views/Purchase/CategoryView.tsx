@@ -3,25 +3,27 @@ import { CategorysTabNav } from "../../components/Purchase/Categorys/CategorysTa
 import { useEffect } from "react";
 import { useCategoryTabNav } from "../../store/purchaseStore/categoryTabNav";
 
-export const CategoryView = () => {
-	const tabValue = useCategoryTabNav((state) => state.tabValue);
-	const navigate = useNavigate();
+const CategoryView = () => {
+  const tabValue = useCategoryTabNav((state) => state.tabValue);
+  const navigate = useNavigate();
 
-	useEffect(() => {
-		switch (tabValue) {
-			case 0:
-				return navigate("categoria");
-			case 1:
-				return navigate("subcategoria");
-			default:
-				break;
-		}
-	}, [tabValue]);
+  useEffect(() => {
+    switch (tabValue) {
+      case 0:
+        return navigate("categoria");
+      case 1:
+        return navigate("subcategoria");
+      default:
+        break;
+    }
+  }, [tabValue]);
 
-	return (
-		<>
-			<CategorysTabNav />
-			{<Outlet />}
-		</>
-	);
+  return (
+    <>
+      <CategorysTabNav />
+      {<Outlet />}
+    </>
+  );
 };
+
+export default CategoryView;

@@ -91,7 +91,7 @@ export const AddPurchaseWarehouseModal = (
                 fullWidth
                 error={!!errors.nombre}
                 size="small"
-                label="Nombre"
+                placeholder="Nombre"
                 {...register("nombre")}
                 helperText={errors.nombre?.message}
               />
@@ -102,7 +102,7 @@ export const AddPurchaseWarehouseModal = (
                 {...register("descripcion")}
                 error={!!errors.descripcion}
                 size="small"
-                label="Descripción"
+                placeholder="Descripción"
                 multiline
                 helperText={
                   <Box

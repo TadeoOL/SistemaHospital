@@ -9,7 +9,7 @@ import SpaIcon from "@mui/icons-material/Spa";
 import { getDashboardComponentForRole } from "../../utils/getDashboardComponentForRole";
 import { useAuthStore } from "../../store/auth";
 
-export const DashboardView: React.FC = () => {
+const DashboardView: React.FC = () => {
   const profile = useAuthStore((state) => state.profile);
 
   if (profile) {
@@ -69,3 +69,5 @@ export const DashboardAdminView = () => {
     </Box>
   );
 };
+
+export default DashboardView;

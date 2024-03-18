@@ -25,7 +25,7 @@ const getTabView = (value: number) => {
   }
 };
 
-export const PurchaseRequestView = () => {
+const PurchaseRequestView = () => {
   const { clearStates, openPurchaseRequestOrder, setOpenPurchaseRequestOrder } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
@@ -93,3 +93,4 @@ export const PurchaseRequestView = () => {
     </>
   );
 };
+export default PurchaseRequestView;

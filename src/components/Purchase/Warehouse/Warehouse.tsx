@@ -2,10 +2,10 @@ import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { useState } from "react";
 import { SearchBar } from "../../Inputs/SearchBar";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
-import { PurchaseWarehouseTable } from "./WarehouseTable";
 import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
-import { AddPurchaseWarehouseModal } from "./Modal/AddWarehouseModal";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import { AddPurchaseWarehouseModal } from "../../Warehouse/Modal/AddWarehouseModal";
+import { PurchaseWarehouseTable } from "../../Warehouse/WarehouseTable";
 
 export const Warehouse = () => {
   const [open, setOpen] = useState(false);
