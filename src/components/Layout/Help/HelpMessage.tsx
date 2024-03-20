@@ -634,7 +634,7 @@ export const MensajeSubCategorias: React.FC = () => {
 export const MensajeArticulos: React.FC = () => {
   return (
     <div>
-      <h3>Catálogo de Productos</h3>
+      <h3>Catálogo de Artículos</h3>
       <Divider />
       <p>Contenido </p>
     </div>
