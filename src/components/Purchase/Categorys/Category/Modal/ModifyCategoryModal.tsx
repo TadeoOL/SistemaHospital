@@ -24,13 +24,14 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: { xs: 380, lg: 600 },
-  bgcolor: "background.paper",
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
   flexDirection: "column",
   maxHeight: 600,
-  overflowY: "auto",
+};
+
+const styleBar = {
   "&::-webkit-scrollbar": {
     width: "0.4em",
   },
@@ -130,71 +131,75 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={open} title="Modificar categoría" />
-      <form noValidate onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={3} sx={{ p: 4 }}>
-          <Stack spacing={2}>
-            <TextField
-              fullWidth
-              {...register("nombre")}
-              size="small"
-              placeholder="Nombre"
-              error={!!errors.nombre}
-            />
-            <TextField
-              fullWidth
-              {...register("descripcion")}
-              size="small"
-              placeholder="Descripción"
-              error={!!errors.descripcion}
-              multiline
-              helperText={
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexGrow: 1,
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box>
-                    {errors
-                      ? errors.descripcion
-                        ? errors.descripcion.message
-                        : null
-                      : null}
+      <Stack
+        sx={{ overflowY: "auto", bgcolor: "background.paper", ...styleBar }}
+      >
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={3} sx={{ p: 4, maxHeight: 600 }}>
+            <Stack spacing={2}>
+              <TextField
+                fullWidth
+                {...register("nombre")}
+                size="small"
+                placeholder="Nombre"
+                error={!!errors.nombre}
+              />
+              <TextField
+                fullWidth
+                {...register("descripcion")}
+                size="small"
+                placeholder="Descripción"
+                error={!!errors.descripcion}
+                multiline
+                helperText={
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexGrow: 1,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box>
+                      {errors
+                        ? errors.descripcion
+                          ? errors.descripcion.message
+                          : null
+                        : null}
+                    </Box>
+                    <Box>{`${textValue?.length}/${200}`}</Box>
                   </Box>
-                  <Box>{`${textValue?.length}/${200}`}</Box>
-                </Box>
-              }
-              maxRows={5}
-              onChange={handleChange}
-              inputProps={{ maxLength: 200 }}
-            />
-          </Stack>
-          <Stack
-            sx={{
-              flexDirection: "row",
-              columnGap: 2,
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CancelIcon />}
-              onClick={() => open(false)}
+                }
+                maxRows={5}
+                onChange={handleChange}
+                inputProps={{ maxLength: 200 }}
+              />
+            </Stack>
+            <Stack
+              sx={{
+                flexDirection: "row",
+                columnGap: 2,
+                justifyContent: "space-between",
+              }}
             >
-              Cancelar
-            </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              startIcon={<SaveOutlinedIcon />}
-            >
-              Guardar
-            </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<CancelIcon />}
+                onClick={() => open(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                startIcon={<SaveOutlinedIcon />}
+              >
+                Guardar
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
-      </form>
+        </form>
+      </Stack>
     </Box>
   );
 };

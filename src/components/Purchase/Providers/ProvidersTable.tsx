@@ -119,34 +119,13 @@ export const ProvidersTable = () => {
     shallow
   );
 
-  // const handlePageChange = useCallback((event: any, value: any) => {
-  //   setPageIndex(value);
-  // }, []);
-
-  // const handleUserChecked = (e: any) => {
-  //   const { value, checked } = e.target;
-
-  //   if (checked) {
-  //     setIsChecked([...isChecked, value]);
-  //   } else {
-  //     setIsChecked(isChecked.filter((item) => item !== value));
-  //   }
-  // };
-
-  // const handleIsUserChecked = (userId: string) => {
-  //   if (isChecked.some((user) => user === userId)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-
   const handlePageChange = useCallback((event: any, value: any) => {
     event.stopPropagation();
     setPageIndex(value);
   }, []);
 
   useEffect(() => {
+    console.log({ pageIndex });
     fetchProviders(pageIndex, pageSize, search, enabled);
   }, [pageIndex, pageSize, search, enabled, handleChangeProvider]);
 
@@ -262,9 +241,7 @@ export const ProvidersTable = () => {
           <TablePagination
             component="div"
             count={count}
-            onPageChange={() => {
-              handlePageChange;
-            }}
+            onPageChange={handlePageChange}
             onRowsPerPageChange={(e: any) => {
               setPageSize(e.target.value);
             }}

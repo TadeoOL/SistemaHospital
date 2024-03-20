@@ -8,7 +8,11 @@ import RuleIcon from "@mui/icons-material/Rule";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SettingsIcon from "@mui/icons-material/Settings";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
-import { purchasingDirector, supplyRoles } from "./dataRoles";
+import {
+  purchaseGlobalRoles,
+  purchasingDirector,
+  supplyRoles,
+} from "./dataRoles";
 
 export const ModuleItems: IModuleItems[] = [
   {
@@ -69,7 +73,7 @@ export const ModuleItems: IModuleItems[] = [
     title: "Almacén",
     path: "/compras/almacen",
     icon: <WarehouseIcon sx={{ color: "#fff" }} />,
-    protectedRoles: purchasingDirector,
+    protectedRoles: purchaseGlobalRoles,
   },
   {
     title: "Autorizaciones",
