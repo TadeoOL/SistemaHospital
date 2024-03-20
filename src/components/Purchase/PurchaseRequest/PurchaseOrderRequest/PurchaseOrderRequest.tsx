@@ -1,7 +1,6 @@
 import {
   Box,
   Card,
-  Chip,
   CircularProgress,
   Collapse,
   IconButton,
@@ -47,6 +46,7 @@ import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import { Info } from "@mui/icons-material";
 import { useAuthStore } from "../../../../store/auth";
 import { useShallow } from "zustand/react/shallow";
+import { ProviderNameChip } from "../ProviderNameChip";
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -222,6 +222,8 @@ export const PurchaseOrderRequest = () => {
       });
   }, []);
 
+  console.log({ values });
+
   return (
     <>
       <Stack sx={{ p: 2, overflowY: "auto" }}>
@@ -333,12 +335,14 @@ export const PurchaseOrderRequest = () => {
                             </TableCell>
                             <TableCell>{auth.usuarioSolicitado}</TableCell>
                             <TableCell>
-                              {auth.solicitudProveedor.map((i) => (
-                                <Chip
-                                  key={i.proveedor.id_Proveedor}
-                                  label={i.proveedor.nombre}
-                                />
-                              ))}
+                              <ProviderNameChip
+                                provider={auth.solicitudProveedor.map((p) => {
+                                  return {
+                                    id: p.proveedor.id_Proveedor,
+                                    name: p.proveedor.nombre,
+                                  };
+                                })}
+                              />
                             </TableCell>
                             <TableCell>
                               {auth.fechaSolicitud.split("T")[0]}

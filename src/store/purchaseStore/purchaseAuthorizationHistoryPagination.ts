@@ -12,6 +12,9 @@ interface State {
   search: string;
   enabled: boolean;
   handleChangePurchaseAuthorization: boolean;
+  endDate: string;
+  startDate: string;
+  status: string;
 }
 
 interface Action {
@@ -25,6 +28,10 @@ interface Action {
     handleChangePurchaseAuthorization: boolean
   ) => void;
   fetchPurchaseAuthorization: () => Promise<void>;
+  setStartDate: (startDate: string) => void;
+  setEndDate: (endDate: string) => void;
+  setStatus: (status: string) => void;
+  clearFilters: () => void;
 }
 
 export const usePurchaseAuthorizationHistoryPagination = createWithEqualityFn<
@@ -40,6 +47,12 @@ export const usePurchaseAuthorizationHistoryPagination = createWithEqualityFn<
   search: "",
   enabled: true,
   handleChangePurchaseAuthorization: false,
+  status: "-1",
+  endDate: "",
+  startDate: "",
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
+  setStatus: (status: string) => set({ status }),
   setHandleChangePurchaseAuthorization: (
     handleChangePurchaseAuthorization: boolean
   ) => set({ handleChangePurchaseAuthorization }),
@@ -50,14 +63,17 @@ export const usePurchaseAuthorizationHistoryPagination = createWithEqualityFn<
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchPurchaseAuthorization: async () => {
-    const { pageIndex, enabled, pageSize, search } = get();
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, status } =
+      get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseAuthorizationHistory(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&estatus=${
+          parseInt(status) > -1 ? status : ""
+        }&fechaInicio=${startDate}&fechaFin=${endDate}`
       );
       set(() => ({
         data: res.data,
@@ -70,5 +86,8 @@ export const usePurchaseAuthorizationHistoryPagination = createWithEqualityFn<
     } finally {
       set(() => ({ isLoading: false }));
     }
+  },
+  clearFilters: () => {
+    set({ status: "-1", pageIndex: 0, startDate: "", endDate: "" });
   },
 }));

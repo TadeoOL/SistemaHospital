@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IProvider } from "../../../../../types/types";
-import { convertBase64 } from "../../../../../utils/functions/dataUtils";
+// import { convertBase64 } from "../../../../../utils/functions/dataUtils";
 import { useDropzone } from "react-dropzone";
 import {
   CloudUpload,
@@ -17,8 +17,8 @@ import {
   KeyboardArrowUp,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { useCertificateProviderStore } from "../../../../../store/provider/certificateProvider";
-import { shallow } from "zustand/shallow";
+// import { useCertificateProviderStore } from "../../../../../store/provider/certificateProvider";
+// import { shallow } from "zustand/shallow";
 
 interface ICertificateForm {
   errors: FieldErrors<IProvider>;
@@ -35,10 +35,10 @@ export const CertificateForm = (props: ICertificateForm) => {
   //   setUrlCertificadoISO9001,
   // } = useCertificateProviderStore();
   const { errors, register } = props;
-  const { urlCR } = useCertificateProviderStore(
-    (state) => ({ urlCR: state.urlCertificadoCR }),
-    shallow
-  );
+  // const { urlCR } = useCertificateProviderStore(
+  //   (state) => ({ urlCR: state.urlCertificadoCR }),
+  //   shallow
+  // );
   const [isCollapseOpenBP, setIsCollapseOpenBP] = useState(false);
   const [isCollapseOpenCR, setIsCollapseOpenCR] = useState(false);
   const [isCollapseOpenISO, setIsCollapseOpenISO] = useState(false);
@@ -57,7 +57,7 @@ export const CertificateForm = (props: ICertificateForm) => {
 
   const onDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
-    const base64 = await convertBase64(acceptedFiles[0]);
+    // const base64 = await convertBase64(acceptedFiles[0]);
   };
 
   const handleDrop = (input: number) => {
@@ -71,34 +71,6 @@ export const CertificateForm = (props: ICertificateForm) => {
     },
     maxFiles: 1,
   });
-
-  {
-    /* <TextField
-    fullWidth
-    error={!!errors.urlCertificadoBP}
-    helperText={errors?.urlCertificadoBP?.message}
-    {...register("urlCertificadoBP")}
-    placeholder="Certificado buenas practicas de manofactura"
-  /> */
-  }
-  {
-    /* <TextField
-      fullWidth
-      error={!!errors.urlCertificadoCR}
-      helperText={errors?.urlCertificadoCR?.message}
-      {...register("urlCertificadoCR")}
-      placeholder="Certificado de cumplimiento regulatorio"
-  /> */
-  }
-  {
-    /* <TextField
-      fullWidth
-      error={!!errors.urlCertificadoISO9001}
-      helperText={errors?.urlCertificadoISO9001?.message}
-      {...register("urlCertificadoISO9001")}
-      placeholder="Certificado ISO 9001"
-/> */
-  }
 
   return (
     <Box>

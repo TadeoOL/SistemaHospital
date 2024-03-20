@@ -54,6 +54,7 @@ interface SideNavItemsProps {
   title: string;
   path: string;
   children?: IModuleItems[];
+  warehouses: { id: string; nombre: string }[];
 }
 
 const SideNavItems: React.FC<SideNavItemsProps> = ({
@@ -61,8 +62,8 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
   title,
   path,
   children,
+  warehouses,
 }) => {
-  const { warehouses } = useGetWarehouses();
   const SelectedOptionColor = "#9ca1a5";
   const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
@@ -141,7 +142,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
             justifyContent: "flex-end",
           }}
         >
-          {(children && isOpen) || (title === "Almacén" && isOpen) ? (
+          {children && isOpen ? (
             <ListItemButton
               sx={{
                 justifyContent: "center",
@@ -165,7 +166,10 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
         {title === "Almacén" &&
           warehouses &&
           warehouses.map((w) => (
-            <ListItemButton key={w.id}>
+            <ListItemButton
+              key={w.id}
+              onClick={() => navigate(`/almacenes/${w.id}`)}
+            >
               <ListItemIcon>
                 <Info />
               </ListItemIcon>
@@ -223,6 +227,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
 };
 
 export const SideNav = () => {
+  const { warehouses } = useGetWarehouses();
   const theme = useTheme();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
   const setIsOpen = useAppNavStore(useShallow((state) => state.setOpen));
@@ -341,6 +346,7 @@ export const SideNav = () => {
                     title={item.title}
                     path={item.path}
                     children={item.children}
+                    warehouses={warehouses as []}
                   />
                 </React.Fragment>
               ))}

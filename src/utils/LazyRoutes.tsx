@@ -42,5 +42,5 @@ export const PurchaseConfigView = lazy(
 );
 export const AccountView = lazy(() => import("../views/AccountView"));
 export const WarehouseSelected = lazy(
-  () => import("../components/Warehouse/WarehouseSelected")
+  () => import("../components/Warehouse/WarehouseSelected/WarehouseSelected")
 );

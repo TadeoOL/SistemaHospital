@@ -1,4 +1,4 @@
-import { Box, Grid, TextField } from "@mui/material";
+import { Box, Grid, TextField, Typography } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IProvider } from "../../../../../types/types";
 
@@ -13,6 +13,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
     <Box sx={{ rowGap: 2, display: "flex", flexDirection: "column" }}>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Nombre de la compañía</Typography>
           <TextField
             fullWidth
             error={!!errors.nombreCompania}
@@ -22,6 +23,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Nombre del contacto</Typography>
           <TextField
             fullWidth
             error={!!errors.nombreContacto}
@@ -31,6 +33,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Puesto</Typography>
           <TextField
             fullWidth
             error={!!errors.puesto}
@@ -40,6 +43,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Dirección</Typography>
           <TextField
             fullWidth
             error={!!errors.direccion}
@@ -49,6 +53,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Teléfono</Typography>
           <TextField
             fullWidth
             error={!!errors.telefono}
@@ -58,6 +63,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Correo electrónico</Typography>
           <TextField
             fullWidth
             error={!!errors.correoElectronico}

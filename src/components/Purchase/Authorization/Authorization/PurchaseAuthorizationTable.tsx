@@ -8,7 +8,6 @@ import Mensaje from "./Modal/Mensaje";
 import {
   Box,
   Card,
-  Chip,
   CircularProgress,
   Collapse,
   IconButton,
@@ -35,6 +34,7 @@ import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
 import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
 import { primary, error, warning } from "../../../../theme/colors";
 import { getProviderQuotePdf } from "../../../../api/api.routes";
+import { ProviderNameChip } from "../../PurchaseRequest/ProviderNameChip";
 
 const useGetAllData = () => {
   const {
@@ -171,8 +171,8 @@ export const PurchaseAuthorizationTable = () => {
 
   return (
     <>
-      <Card sx={{ m: 2, overflowX: "auto" }}>
-        <TableContainer component={Paper} sx={{ minWidth: 950 }}>
+      <Card>
+        <TableContainer component={Paper} sx={{ overflow: "hidden" }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -223,12 +223,14 @@ export const PurchaseAuthorizationTable = () => {
                         </TableCell>
                         <TableCell>{auth.usuarioSolicitado}</TableCell>
                         <TableCell>
-                          {auth.solicitudProveedor.map((i) => (
-                            <Chip
-                              key={i.proveedor.id_Proveedor}
-                              label={i.proveedor.nombre}
-                            />
-                          ))}
+                          <ProviderNameChip
+                            provider={auth.solicitudProveedor.map((p) => {
+                              return {
+                                id: p.proveedor.id_Proveedor,
+                                name: p.proveedor.nombre,
+                              };
+                            })}
+                          />
                         </TableCell>
                         <TableCell>
                           {auth.fechaSolicitud.split("T")[0]}

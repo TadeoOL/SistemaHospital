@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { createWithEqualityFn } from "zustand/traditional";
 
 interface State {
   urlCertificadoCR: string;
@@ -12,11 +12,14 @@ interface Actions {
   setUrlCertificadoBP: (urlCertificadoBP: string) => void;
 }
 
-export const useCertificateProviderStore = create<State & Actions>((set) => ({
-  urlCertificadoCR: '',
-  urlCertificadoBP: '',
-  urlCertificadoISO9001: '',
+export const useCertificateProviderStore = createWithEqualityFn<
+  State & Actions
+>((set) => ({
+  urlCertificadoCR: "",
+  urlCertificadoBP: "",
+  urlCertificadoISO9001: "",
   setUrlCertificadoCR: (urlCertificadoCR) => set({ urlCertificadoCR }),
-  setUrlCertificadoISO9001: (urlCertificadoISO9001) => set({ urlCertificadoISO9001 }),
+  setUrlCertificadoISO9001: (urlCertificadoISO9001) =>
+    set({ urlCertificadoISO9001 }),
   setUrlCertificadoBP: (urlCertificadoBP) => set({ urlCertificadoBP }),
 }));

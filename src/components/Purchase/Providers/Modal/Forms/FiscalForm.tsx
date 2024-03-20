@@ -1,4 +1,4 @@
-import { Box, Grid, MenuItem, TextField } from "@mui/material";
+import { Box, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IProvider } from "../../../../../types/types";
 import { useState } from "react";
@@ -23,6 +23,7 @@ export const FiscalForm = (props: IFiscalForm) => {
     <Box sx={{ mt: 2 }}>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">RFC</Typography>
           <TextField
             fullWidth
             error={!!errors.rfc}
@@ -32,6 +33,7 @@ export const FiscalForm = (props: IFiscalForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">NIF</Typography>
           <TextField
             fullWidth
             error={!!errors.nif}
@@ -41,6 +43,7 @@ export const FiscalForm = (props: IFiscalForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Giro de la empresa</Typography>
           <TextField
             fullWidth
             error={!!errors.giroEmpresa}
@@ -50,6 +53,7 @@ export const FiscalForm = (props: IFiscalForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Dirección fiscal</Typography>
           <TextField
             fullWidth
             error={!!errors.direccionFiscal}
@@ -59,6 +63,7 @@ export const FiscalForm = (props: IFiscalForm) => {
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Tipo de contribuyente</Typography>
           <TextField
             fullWidth
             error={!!errors.tipoContribuyente}

@@ -1,4 +1,4 @@
-import { Box, InputAdornment, OutlinedInput } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
 
@@ -19,17 +19,15 @@ export const SearchBar = (props: ISearchBar) => {
 
   return (
     <Box sx={{ px: 2, ...sx }}>
-      <OutlinedInput
+      <TextField
         fullWidth
         size={size ? size : "medium"}
         placeholder={title}
         onChange={(e) => handleChange(e)}
         value={text}
-        startAdornment={
-          <InputAdornment position="start">
-            <SearchIcon />
-          </InputAdornment>
-        }
+        InputProps={{
+          startAdornment: <SearchIcon />,
+        }}
         sx={{ maxWidth: 500 }}
       />
     </Box>
