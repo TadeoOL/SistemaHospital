@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { IUser } from "../types/types";
+import { createWithEqualityFn } from "zustand/traditional";
 
 interface State {
   token: string | null;
@@ -12,11 +12,12 @@ interface Action {
   setToken: (isAuth: string) => void;
   setProfile: (user: IUser | null) => void;
   logout: () => void;
+  isAdminPurchase: () => boolean;
 }
 
-export const useAuthStore = create(
+export const useAuthStore = createWithEqualityFn(
   persist<State & Action>(
-    (set) => ({
+    (set, get) => ({
       token: null,
       isAuth: false,
       setToken: (state: string | null) =>
@@ -24,6 +25,10 @@ export const useAuthStore = create(
       profile: null,
       setProfile: (state: IUser | null) => set(() => ({ profile: state })),
       logout: () => set(() => ({ token: "", isAuth: false, profile: null })),
+      isAdminPurchase: () => {
+        const { profile } = get();
+        return !!profile && profile.roles.includes("DIRECTORCOMPRAS");
+      },
     }),
     {
       name: "auth",

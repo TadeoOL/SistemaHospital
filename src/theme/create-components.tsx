@@ -1,14 +1,16 @@
 import {
   Components,
+  alpha,
+  buttonClasses,
   createTheme,
   filledInputClasses,
   inputLabelClasses,
   outlinedInputClasses,
   paperClasses,
+  selectClasses,
   tableCellClasses,
 } from "@mui/material";
 
-// Used only to create transitions
 const muiTheme = createTheme();
 
 export function createComponents(config: { palette: any }): Components {
@@ -25,35 +27,123 @@ export function createComponents(config: { palette: any }): Components {
       },
     },
     MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+        color: "primary",
+      },
       styleOverrides: {
         root: {
-          borderRadius: "12px",
-          textTransform: "none" as "none",
-        },
-        sizeSmall: {
-          padding: "6px 16px",
-        },
-        sizeMedium: {
-          padding: "8px 20px",
-        },
-        sizeLarge: {
-          padding: "11px 24px",
-        },
-        textSizeSmall: {
-          padding: "7px 12px",
-        },
-        textSizeMedium: {
-          padding: "9px 16px",
-        },
-        textSizeLarge: {
-          padding: "12px 16px",
+          fontWeight: 400,
+          borderRadius: 4,
+          [`&.${buttonClasses.containedPrimary}`]: {
+            transitionDuration: "0.4s",
+            position: "relative",
+            "&:active": {
+              "&:after": {
+                boxShadow: "0 0 0 0 rgba(22, 119, 255, 0.9)",
+                position: "absolute",
+                borderRadius: 4,
+                left: 0,
+                top: 0,
+                opacity: 1,
+                transition: "0s",
+              },
+            },
+            "&:after": {
+              content: '""',
+              display: "block",
+              position: "absolute",
+              borderRadius: 4,
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              opacity: 0,
+              transition: "all 0.5s",
+              boxShadow: "0 0 5px 5px rgba(22, 119, 255, 0.9)",
+            },
+          },
+          [`&.${buttonClasses.outlinedError}`]: {
+            transitionDuration: "0.4s",
+            position: "relative",
+            "&:active": {
+              "&:after": {
+                boxShadow: "0 0 0 0 rgba(255, 77, 79, 0.9)",
+                position: "absolute",
+                borderRadius: 4,
+                left: 0,
+                top: 0,
+                opacity: 1,
+                transition: "0s",
+              },
+            },
+            "&:after": {
+              content: '""',
+              display: "block",
+              position: "absolute",
+              borderRadius: 4,
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              opacity: 0,
+              transition: "all 0.5s",
+              boxShadow: "0 0 5px 5px rgba(255, 77, 79, 0.9)",
+            },
+          },
+          [`&.${buttonClasses.containedError}`]: {
+            transitionDuration: "0.4s",
+            position: "relative",
+            "&:active": {
+              "&:after": {
+                boxShadow: "0 0 0 0 rgba(255, 77, 79, 0.9)",
+                position: "absolute",
+                borderRadius: 4,
+                left: 0,
+                top: 0,
+                opacity: 1,
+                transition: "0s",
+              },
+            },
+            "&:after": {
+              content: '""',
+              display: "block",
+              position: "absolute",
+              borderRadius: 4,
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              opacity: 0,
+              transition: "all 0.5s",
+              boxShadow: "0 0 5px 5px rgba(255, 77, 79, 0.9)",
+            },
+          },
+          sizeSmall: {
+            padding: "6px 16px",
+          },
+          sizeMedium: {
+            padding: "8px 20px",
+          },
+          sizeLarge: {
+            padding: "11px 24px",
+          },
+          textSizeSmall: {
+            padding: "7px 12px",
+          },
+          textSizeMedium: {
+            padding: "9px 16px",
+          },
+          textSizeLarge: {
+            padding: "12px 16px",
+          },
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
+          borderRadius: 8,
           [`&.${paperClasses.elevation1}`]: {
             boxShadow:
               "0px 5px 22px rgba(0, 0, 0, 0.04), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.03)",
@@ -131,7 +221,7 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         input: {
           "&::placeholder": {
-            opacity: 1,
+            opacity: 0.4,
           },
         },
       },
@@ -140,11 +230,25 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         input: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
           lineHeight: "24px",
           "&::placeholder": {
             color: palette.text.secondary,
           },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          padding: "9px 10px 9px 12px",
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        inputRoot: {
+          padding: "3px 14px 3px 12px",
         },
       },
     },
@@ -156,13 +260,16 @@ export function createComponents(config: { palette: any }): Components {
           borderStyle: "solid",
           borderWidth: 1,
           overflow: "hidden",
+          paddingTop: 0,
           borderColor: palette.neutral[200],
           transition: muiTheme.transitions.create([
             "border-color",
             "box-shadow",
           ]),
           "&:hover": {
-            backgroundColor: palette.action.hover,
+            borderColor: palette.primary.main,
+            backgroundColor: "transparent",
+            boxShadow: `${palette.primary.main} 0 0 0 1px`,
           },
           "&:before": {
             display: "none",
@@ -175,18 +282,25 @@ export function createComponents(config: { palette: any }): Components {
           },
           [`&.${filledInputClasses.focused}`]: {
             backgroundColor: "transparent",
-            borderColor: palette.primary.main,
-            boxShadow: `${palette.primary.main} 0 0 0 2px`,
+            borderColor: alpha(palette.primary.main, 0.6),
+            boxShadow: `${alpha(palette.primary.main, 0.2)} 0 0 0 2px`,
           },
           [`&.${filledInputClasses.error}`]: {
-            borderColor: palette.error.main,
-            boxShadow: `${palette.error.main} 0 0 0 2px`,
+            borderColor: alpha(palette.error.main, 0.6),
+            boxShadow: `${alpha(palette.error.main, 0.2)} 0 0 0 2px`,
           },
         },
         input: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
           lineHeight: "24px",
+          padding: "10.5px 14px 10.5px 12px",
+        },
+        inputMultiline: {
+          fontSize: 14,
+          fontWeight: 400,
+          lineHeight: "24px",
+          padding: "8px 0px 5px 0px",
         },
       },
     },
@@ -215,7 +329,7 @@ export function createComponents(config: { palette: any }): Components {
         },
         input: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 300,
           lineHeight: "24px",
         },
         notchedOutline: {
@@ -231,21 +345,47 @@ export function createComponents(config: { palette: any }): Components {
       styleOverrides: {
         root: {
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
+          color: "gray",
+          padding: "11px 14px 10.5px 13px",
           [`&.${inputLabelClasses.filled}`]: {
-            transform: "translate(12px, 18px) scale(1)",
+            transform: "translate(0,0) scale(1)",
+            color: alpha("#808080", 0.5),
+            [`&.${selectClasses.select}`]: {
+              transform: "translate(20px,0) scale(1)",
+              color: alpha("#808080", 0.5),
+            },
           },
           [`&.${inputLabelClasses.shrink}`]: {
             [`&.${inputLabelClasses.standard}`]: {
-              transform: "translate(0, -1.5px) scale(0.85)",
+              transform: "translate(0,0) scale(0.85)",
             },
             [`&.${inputLabelClasses.filled}`]: {
-              transform: "translate(12px, 6px) scale(0.85)",
+              display: "none",
             },
             [`&.${inputLabelClasses.outlined}`]: {
               transform: "translate(14px, -9px) scale(0.85)",
             },
           },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        outlined: {
+          lineHeight: "0.8em",
+          "&.MuiInputLabel-sizeSmall": {
+            lineHeight: "1em",
+          },
+          "&.MuiInputLabel-shrink": {
+            padding: "0 8px",
+            marginLeft: -6,
+            lineHeight: "1.4375em",
+            color: "red",
+          },
+        },
+        filled: {
+          margin: 0,
         },
       },
     },
@@ -260,18 +400,35 @@ export function createComponents(config: { palette: any }): Components {
           paddingLeft: 0,
           paddingRight: 0,
           textTransform: "none",
-          "&:not(:last-child)": {
-            borderRight: "1.5px solid white",
+          transition: "300ms linear",
+          color: palette.primary.contrastText,
+          "&.Mui-selected": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
           },
           "&.MuiTab-root:hover": {
-            fontWeight: 700,
-            fontSize: 14,
-            opacity: 1,
-            transition: " 150ms linear",
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
           },
-          "&.Mui-selected:hover": {
-            fontWeight: 500,
-            fontSize: 14,
+          "&.MuiTab-root:hover:first-of-type": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopLeftRadius: 10,
+          },
+          "&.MuiTab-root:hover:last-child": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopRightRadius: 10,
+          },
+          "&.Mui-selected:first-of-type": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopLeftRadius: 10,
+          },
+          "&.Mui-selected:last-child": {
+            backgroundColor: "#002E5F",
+            color: palette.primary.contrastText,
+            borderTopRightRadius: 10,
           },
         },
       },
@@ -287,16 +444,11 @@ export function createComponents(config: { palette: any }): Components {
     MuiTableHead: {
       styleOverrides: {
         root: {
-          borderBottom: "none",
+          backgroundColor: palette.neutral[100],
           [`& .${tableCellClasses.root}`]: {
-            borderBottom: "none",
-            backgroundColor: palette.neutral[200],
-            color: palette.neutral[700],
-            fontSize: 12,
+            color: "rgb(38, 38, 38)",
+            fontSize: 14,
             fontWeight: 600,
-            lineHeight: 1,
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
           },
           [`& .${tableCellClasses.paddingCheckbox}`]: {
             paddingTop: 4,
@@ -308,6 +460,43 @@ export function createComponents(config: { palette: any }): Components {
     MuiTextField: {
       defaultProps: {
         variant: "filled",
+      },
+    },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          width: muiTheme.spacing(2.5),
+          height: muiTheme.spacing(2.5),
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          minWidth: 24,
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 4,
+        },
+        sizeLarge: {
+          width: muiTheme.spacing(5.5),
+          height: muiTheme.spacing(5.5),
+          fontSize: "1.25rem",
+        },
+        sizeMedium: {
+          width: muiTheme.spacing(4.5),
+          height: muiTheme.spacing(4.5),
+          fontSize: "1rem",
+        },
+        sizeSmall: {
+          width: muiTheme.spacing(3.75),
+          height: muiTheme.spacing(3.75),
+          fontSize: "0.75rem",
+        },
       },
     },
   };

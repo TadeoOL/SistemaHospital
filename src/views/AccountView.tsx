@@ -3,7 +3,7 @@ import { AccountCard } from "../components/Account/AccountCard";
 import { AccountAdminUsers } from "../components/Account/AccountAdminUsers";
 import { useAuthStore } from "../store/auth";
 
-export const AccountView = () => {
+const AccountView = () => {
   const user = useAuthStore((state) => state.profile);
   const isAdmin = user?.roles.find((role) => role === "ADMIN");
   return (
@@ -15,3 +15,4 @@ export const AccountView = () => {
     </Box>
   );
 };
+export default AccountView;

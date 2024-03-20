@@ -1,10 +1,11 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { useState } from "react";
 import { SearchBar } from "../../Inputs/SearchBar";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
-import { PurchaseWarehouseTable } from "./WarehouseTable";
 import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
-import { AddPurchaseWarehouseModal } from "./Modal/AddWarehouseModal";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import { AddPurchaseWarehouseModal } from "../../Warehouse/Modal/AddWarehouseModal";
+import { PurchaseWarehouseTable } from "../../Warehouse/WarehouseTable";
 
 export const Warehouse = () => {
   const [open, setOpen] = useState(false);
@@ -21,7 +22,6 @@ export const Warehouse = () => {
         sx={{
           boxShadow: 10,
           borderRadius: 2,
-          mt: 4,
           overflowX: "auto",
           bgcolor: "white",
         }}
@@ -37,24 +37,32 @@ export const Warehouse = () => {
               display: "flex",
               flexGrow: 1,
               justifyContent: "space-between",
-              alignItems: "center",
-              p: 3,
+              p: 1,
+              pt: 3,
             }}
           >
-            <Typography fontWeight={700} fontSize={24}>
+            <SearchBar
+              title="Buscar el almacén..."
+              searchState={setSearch}
+              sx={{ width: "25%" }}
+            />
+            <Divider sx={{ my: 1 }} />
+            {/* <Typography fontWeight={700} fontSize={24}>
               {enabled ? "Almacenes" : "Almacenes deshabilitados"}
-            </Typography>
+            </Typography> */}
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<WarehouseOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar almacenes deshabilitados"
                   : "Mostrar almacenes habilitados"}
               </Button>
               <Button
+                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
                 variant="contained"
                 onClick={() => setOpen(!open)}
                 startIcon={<AddCircleOutlinedIcon />}
@@ -63,8 +71,6 @@ export const Warehouse = () => {
               </Button>
             </Stack>
           </Stack>
-          <SearchBar title="Buscar el almacén..." searchState={setSearch} />
-          <Divider sx={{ my: 1 }} />
           <PurchaseWarehouseTable />
         </Box>
       </Box>

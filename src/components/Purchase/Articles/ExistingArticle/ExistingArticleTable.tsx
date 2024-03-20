@@ -70,15 +70,15 @@ const useDisableExistingArticle = () => {
   const disableProviderModal = (articleId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
         } un articulo existente`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
+        confirmButtonText: `${enabled ? "Deshabilitar" : "Habilitar"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -118,24 +118,6 @@ const useDisableExistingArticle = () => {
 export const ExistingArticleTable = () => {
   const disableArticle = useDisableExistingArticle();
 
-  // const handleUserChecked = (e: any) => {
-  //   const { value, checked } = e.target;
-
-  //   if (checked) {
-  //     setIsChecked([...isChecked, value]);
-  //   } else {
-  //     setIsChecked(isChecked.filter((item) => item !== value));
-  //   }
-  // };
-
-  // const handleIsUserChecked = (userId: string) => {
-  //   if (isChecked.some((user) => user === userId)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-
   return (
     <>
       <TableComponent
@@ -147,6 +129,16 @@ export const ExistingArticleTable = () => {
             open={props.open}
           />
         )}
+        headers={[
+          "Cantidad",
+          "Fecha de compra",
+          "Precio de compra",
+          "Precio de venta",
+          "Factor",
+          "Fecha de caducidad",
+          "Nombre",
+          "Almacén",
+        ]}
       />
     </>
   );

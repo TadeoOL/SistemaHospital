@@ -14,17 +14,17 @@ export function createTheme() {
     breakpoints: {
       values: {
         xs: 0,
-        sm: 600,
-        md: 900,
-        lg: 1200,
-        xl: 1440,
+        sm: 768,
+        md: 1024,
+        lg: 1266,
+        xl: 1536,
       },
     },
     components,
     palette,
     shadows,
     shape: {
-      borderRadius: 8,
+      borderRadius: 2,
     },
     typography,
   });

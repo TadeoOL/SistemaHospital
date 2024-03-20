@@ -1,12 +1,6 @@
-import { Box, Container } from "@mui/material";
-import { Warehouse } from "../../components/Purchase/Warehouse/Warehouse";
+import { Warehouse } from "../../components/Warehouse/Warehouse";
 
-export const WarehouseView = () => {
-  return (
-    <Box component="main" sx={{ p: 3, flexGrow: 1 }}>
-      <Container maxWidth={"xl"}>
-        <Warehouse />
-      </Container>
-    </Box>
-  );
+const WarehouseView = () => {
+  return <Warehouse />;
 };
+export default WarehouseView;

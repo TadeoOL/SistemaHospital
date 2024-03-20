@@ -1,11 +1,13 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
 import { SubCategoryTable } from "./SubCategoryTable";
 import { AddSubCategoryModal } from "./Modal/AddSubCategoryModal";
 import { useSubCategoryPagination } from "../../../../store/purchaseStore/subCategoryPagination";
+import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
-export const SubCategory = () => {
+const SubCategory = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setSearch, setEnabled } = useSubCategoryPagination(
     (state) => ({
@@ -41,29 +43,35 @@ export const SubCategory = () => {
               p: 3,
             }}
           >
-            <Typography fontWeight={700} fontSize={24}>
+            {/* <Typography fontWeight={700} fontSize={24}>
               {enabled ? "Sub categorías" : "Sub categorías deshabilitadas"}
-            </Typography>
+            </Typography> */}
+            <SearchBar
+              title="Busca la sub categoría..."
+              searchState={setSearch}
+              sx={{ width: "30%" }}
+            />
+            <Divider sx={{ my: 1 }} />
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ClassOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar sub categorías deshabilitadas"
                   : "Mostrar sub categorías habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleOutlinedIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>
           </Stack>
-          <SearchBar
-            title="Busca la sub categoría..."
-            searchState={setSearch}
-          />
-          <Divider sx={{ my: 1 }} />
           <SubCategoryTable />
         </Box>
       </Box>
@@ -75,3 +83,5 @@ export const SubCategory = () => {
     </>
   );
 };
+
+export default SubCategory;

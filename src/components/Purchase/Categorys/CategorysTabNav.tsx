@@ -4,36 +4,30 @@ import { useCategoryTabNav } from "../../../store/purchaseStore/categoryTabNav";
 import { shallow } from "zustand/shallow";
 
 export const CategorysTabNav = () => {
-  const { tabValue, setTabValue } = useCategoryTabNav(
-    (state) => ({ tabValue: state.tabValue, setTabValue: state.setTabValue }),
-    shallow
-  );
+	const { tabValue, setTabValue } = useCategoryTabNav(
+		(state) => ({ tabValue: state.tabValue, setTabValue: state.setTabValue }),
+		shallow
+	);
 
-  const handleChange = useCallback(
-    (event: React.SyntheticEvent, newValue: number) => {
-      event.stopPropagation();
-      setTabValue(newValue);
-    },
-    []
-  );
+	const handleChange = useCallback(
+		(event: React.SyntheticEvent, newValue: number) => {
+			event.stopPropagation();
+			setTabValue(newValue);
+		},
+		[]
+	);
 
-  return (
-    <Box>
-      <AppBar
-        position="static"
-        sx={{ borderTopRightRadius: 10, borderTopLeftRadius: 10 }}
-      >
-        <Tabs
-          value={tabValue}
-          onChange={handleChange}
-          indicatorColor="secondary"
-          textColor="inherit"
-          variant="fullWidth"
-        >
-          <Tab label="Categoría" />
-          <Tab label="Sub categoría" />
-        </Tabs>
-      </AppBar>
-    </Box>
-  );
+	return (
+		<Box sx={{ width: "auto" }}>
+			<AppBar
+				position="static"
+				sx={{ borderTopRightRadius: 10, borderTopLeftRadius: 10 }}
+			>
+				<Tabs value={tabValue} onChange={handleChange} variant="fullWidth">
+					<Tab label="Categoría" />
+					<Tab label="SubCategoría" />
+				</Tabs>
+			</AppBar>
+		</Box>
+	);
 };

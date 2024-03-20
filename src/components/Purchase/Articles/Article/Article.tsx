@@ -1,11 +1,13 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
 import { ArticleTable } from "./ArticleTable";
 import { AddArticleModal } from "./Modal/AddArticleModal";
 import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 
-export const Article = () => {
+const Article = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setEnabled, setSearch } = useArticlePagination((state) => ({
     enabled: state.enabled,
@@ -36,29 +38,38 @@ export const Article = () => {
               flexGrow: 1,
               justifyContent: "space-between",
               alignItems: "center",
-              p: 3,
+              p: 1,
+              pt: 3,
             }}
           >
-            <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Artículos" : "Artículos deshabilitados"}
-            </Typography>
+            <SearchBar
+              title="Busca el articulo..."
+              searchState={setSearch}
+              sx={{ width: "30%" }}
+            />
+            <Divider sx={{ my: 1 }} />
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ArticleOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar artículos deshabilitados"
                   : "Mostrar artículos habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
+                variant="contained"
+                startIcon={<AddCircleOutlinedIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>
           </Stack>
-          <SearchBar title="Busca el articulo..." searchState={setSearch} />
-          <Divider sx={{ my: 1 }} />
+
           <ArticleTable />
         </Box>
       </Box>
@@ -70,3 +81,5 @@ export const Article = () => {
     </>
   );
 };
+
+export default Article;

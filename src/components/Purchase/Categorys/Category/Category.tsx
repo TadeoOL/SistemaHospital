@@ -1,11 +1,13 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
 import { CategoryTable } from "./CategoryTable";
 import { AddCategoryModal } from "./Modal/AddCategoryModal";
 import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
 
-export const Category = () => {
+const Category = () => {
   const [open, setOpen] = useState(false);
   const { enabled, setEnabled, setSearch } = useCategoryPagination((state) => ({
     enabled: state.enabled,
@@ -39,26 +41,35 @@ export const Category = () => {
               p: 3,
             }}
           >
-            <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Categorías" : "Categorías deshabilitadas"}
-            </Typography>
+            <SearchBar
+              title="Busca la categoría..."
+              searchState={setSearch}
+              sx={{ width: "30%" }}
+            />
+            <Divider sx={{ my: 1 }} />
+            {/* <Typography fontWeight={700} fontSize={24}>
+							{enabled ? "Categorías" : "Categorías deshabilitadas"}
+						</Typography> */}
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<ClassOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar categorías deshabilitadas"
                   : "Mostrar categorías habilitados"}
               </Button>
-              <Button variant="contained" onClick={() => setOpen(!open)}>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => setOpen(!open)}
+              >
                 Agregar
               </Button>
             </Stack>
           </Stack>
-          <SearchBar title="Busca la categoría..." searchState={setSearch} />
-          <Divider sx={{ my: 1 }} />
           <CategoryTable />
         </Box>
       </Box>
@@ -70,3 +81,5 @@ export const Category = () => {
     </>
   );
 };
+
+export default Category;

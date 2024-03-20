@@ -21,19 +21,27 @@ import { login } from "../../api/api.routes";
 import { IUser } from "../../types/types";
 import { useAuthStore } from "../../store/auth";
 import { toast } from "react-toastify";
-import "./LoginComponent.css";
+import { useTheme } from "@mui/material/styles";
+import HelpIcon from "@mui/icons-material/Help";
+import CustomSideBar from "./CustomSidebar";
+
 interface ILogin {
   userName: string;
   password: string;
 }
 
-export const LoginComponent = () => {
+export const LoginComponent: React.FC<{}> = () => {
+  const theme = useTheme();
   const setToken = useAuthStore((state) => state.setToken);
   const setProfile = useAuthStore((state) => state.setProfile);
   const [text, setText] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const handleRightSidebarToggle = () => {
+    setRightSidebarOpen(!rightSidebarOpen);
+  };
   const {
     register,
     handleSubmit,
@@ -72,10 +80,19 @@ export const LoginComponent = () => {
   return (
     <Box>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack sx={{}} spacing={3} className="container">
-          <Typography fontWeight={700} fontSize={24}>
-            Iniciar sesión
-          </Typography>
+        <Stack>
+          <Box sx={{ display: "flex" }}>
+            <Typography fontWeight={700} fontSize={24}>
+              Iniciar sesión
+            </Typography>
+            <IconButton onClick={handleRightSidebarToggle}>
+              <HelpIcon />
+            </IconButton>
+          </Box>
+          <CustomSideBar
+            open={rightSidebarOpen}
+            onClose={() => setRightSidebarOpen(false)}
+          />
           <Stack
             sx={{
               display: "flex",
@@ -83,21 +100,75 @@ export const LoginComponent = () => {
             }}
             spacing={2}
           >
-            <Tabs value={"email"} variant="fullWidth">
-              <Tab label="Inicio de Sesión" value="email" />
-              <Tab label="Recuperar Usuario" value="" />
+            <Tabs
+              value={"email"}
+              variant="fullWidth"
+              sx={{ marginBottom: "10px !important" }}
+            >
+              <Tab
+                label="Inicio de Sesión"
+                value="email"
+                sx={{
+                  color: "#046dbd !important",
+                  backgroundColor: "#FFFFFF !important",
+                  fontSize: "14px",
+                  transition: "all 300ms linear 0s",
+                  "&.Mui-selected": {
+                    color: "#046dbd",
+                    backgroundColor: "#FFFFFF",
+                    "&:hover": {
+                      backgroundColor: "#FFFFFF",
+                    },
+                  },
+                  "&.MuiTab-root": {
+                    opacity: 1,
+                    "&:hover": {
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "14px",
+                      opacity: 1,
+                      color: "#046dbd",
+                    },
+                  },
+                  "&:not(.last-child)": {
+                    borderRight: "1.5px solid #FFFFFF",
+                  },
+                }}
+              />
+              <Tab
+                label="Recuperar Usuario"
+                value=""
+                sx={{
+                  color: "#046dbd",
+                  "&.Mui-selected:hover": {
+                    fontWeight: 500,
+                    fontSize: "14px",
+                  },
+                  "&.MuiTab-root:hover": {
+                    fontWeight: 700,
+                    fontSize: "14px",
+                    opacity: 1,
+                    transition: "all 150ms linear 0s",
+                  },
+                  "&:not(.last-child)": {
+                    borderRight: "1.5px solid #FFFFFF",
+                  },
+                  "&.Mui-selected": {
+                    color: "#046dbd",
+                  },
+                }}
+              />
             </Tabs>
             <TextField
               error={!!errors.userName}
               helperText={errors?.userName?.message}
               {...register("userName")}
-              label="Nombre de usuario"
+              placeholder="Nombre de usuario"
             />
             <TextField
               error={!!errors.password}
               helperText={errors?.password?.message}
               {...register("password")}
-              label="Contraseña"
+              placeholder="Contraseña"
               type={showPassword ? "text" : "password"}
               onChange={handlePasswordChange}
               InputProps={{
@@ -125,8 +196,15 @@ export const LoginComponent = () => {
             fullWidth
             type="submit"
             sx={{
+              marginTop: "2%",
               bgcolor: "#023e8a",
               "&:hover": { backgroundColor: "#03045e" },
+              [theme.breakpoints.down("sm")]: {
+                marginTop: "4%",
+              },
+              [theme.breakpoints.between(600, 899)]: {
+                marginTop: "2%",
+              },
             }}
           >
             {!isLoading ? (

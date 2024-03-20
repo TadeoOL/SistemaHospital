@@ -1,4 +1,4 @@
-import { Box, Grid, MenuItem, TextField } from "@mui/material";
+import { Box, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IProvider } from "../../../../../types/types";
 import { useState } from "react";
@@ -23,48 +23,53 @@ export const FiscalForm = (props: IFiscalForm) => {
     <Box sx={{ mt: 2 }}>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">RFC</Typography>
           <TextField
             fullWidth
             error={!!errors.rfc}
             helperText={errors?.rfc?.message}
             {...register("rfc")}
-            label="RFC"
+            placeholder="RFC"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">NIF</Typography>
           <TextField
             fullWidth
             error={!!errors.nif}
             helperText={errors?.nif?.message}
             {...register("nif")}
-            label="NIF"
+            placeholder="NIF"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Giro de la empresa</Typography>
           <TextField
             fullWidth
             error={!!errors.giroEmpresa}
             helperText={errors?.giroEmpresa?.message}
             {...register("giroEmpresa")}
-            label="Giro de la empresa"
+            placeholder="Giro de la empresa"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Dirección fiscal</Typography>
           <TextField
             fullWidth
             error={!!errors.direccionFiscal}
             helperText={errors?.direccionFiscal?.message}
             {...register("direccionFiscal")}
-            label="Dirección fiscal"
+            placeholder="Dirección fiscal"
           />
         </Grid>
         <Grid item xs={12} lg={6}>
+          <Typography variant="subtitle2">Tipo de contribuyente</Typography>
           <TextField
             fullWidth
             error={!!errors.tipoContribuyente}
             helperText={errors?.tipoContribuyente?.message}
             {...register("tipoContribuyente")}
-            label="Tipo de contribuyente"
+            placeholder="Tipo de contribuyente"
             select
             onChange={(e: any) => {
               setContri(e.target.value);

@@ -1,13 +1,27 @@
-import { Box, Button, Grid, Stack, TextField } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useWarehousePagination } from "../../../../store/purchaseStore/warehousePagination";
-import { IWarehouse } from "../../../../types/types";
-import { addNewPurchaseWarehouse } from "../../../../api/api.routes";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import { addWarehouse } from "../../../../schema/schemas";
+
+import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
+import { IWarehouse } from "../../../types/types";
+import {
+  getPurchaseWarehouseById,
+  modifyPurchaseWarehouse,
+} from "../../../api/api.routes";
+import { HeaderModal } from "../../Account/Modals/SubComponents/HeaderModal";
+import { addWarehouse } from "../../../schema/schemas";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -16,8 +30,8 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: { xs: 380, md: 600 },
   bgcolor: "background.paper",
-  borderRadius: 2,
-  boxShadow: 24,
+  borderRadius: 8,
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   display: "flex",
   flexDirection: "column",
   maxHeight: 600,
@@ -35,14 +49,37 @@ const style = {
   },
 };
 
-interface IAddPurchaseWarehouseModal {
+interface IModifyCategoryModal {
   open: Function;
+  warehouseId: string;
 }
 
-export const AddPurchaseWarehouseModal = (
-  props: IAddPurchaseWarehouseModal
-) => {
-  const { open } = props;
+const useFetchPurchaseWarehouse = (warehouseId: string) => {
+  const [isLoadingWarehouse, setIsLoadingExistingArticle] = useState(true);
+  const [warehouse, setWarehouse] = useState<IWarehouse | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingExistingArticle(true);
+      try {
+        const data = await getPurchaseWarehouseById(warehouseId);
+        setWarehouse(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingExistingArticle(false);
+      }
+    };
+    fetchData();
+  }, [warehouseId]);
+  return { isLoadingWarehouse, warehouse };
+};
+
+export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
+  const { open, warehouseId } = props;
+  const { isLoadingWarehouse, warehouse } =
+    useFetchPurchaseWarehouse(warehouseId);
+  const { id, nombre, descripcion } = warehouse ?? {};
   const [textValue, setTextValue] = useState("");
 
   const { handleChangeWarehouse, setHandleChangeWarehouse } =
@@ -54,10 +91,26 @@ export const AddPurchaseWarehouseModal = (
   const {
     register,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<IWarehouse>({
+    defaultValues: {
+      id: id,
+      nombre: nombre,
+      descripcion: descripcion,
+    },
     resolver: zodResolver(addWarehouse),
   });
+
+  useEffect(() => {
+    if (warehouse) {
+      setTextValue(warehouse.descripcion);
+      Object.entries(warehouse).forEach(([key, value]) => {
+        setValue(key as keyof IWarehouse, String(value));
+      });
+    }
+  }, [warehouse, setValue]);
 
   const handleError = (err: any) => {
     console.log({ err });
@@ -69,7 +122,8 @@ export const AddPurchaseWarehouseModal = (
 
   const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
     try {
-      await addNewPurchaseWarehouse(data);
+      const idForm = getValues("id");
+      await modifyPurchaseWarehouse({ ...data, id: idForm });
       setHandleChangeWarehouse(!handleChangeWarehouse);
       toast.success("Almacén modificado con éxito!");
       open(false);
@@ -77,6 +131,13 @@ export const AddPurchaseWarehouseModal = (
       toast.error("Error al modificar el almacén!");
     }
   };
+
+  if (isLoadingWarehouse)
+    return (
+      <Backdrop open>
+        <CircularProgress />
+      </Backdrop>
+    );
 
   return (
     <Box sx={style}>
@@ -89,7 +150,7 @@ export const AddPurchaseWarehouseModal = (
                 fullWidth
                 error={!!errors.nombre}
                 size="small"
-                label="Nombre"
+                placeholder="Nombre"
                 {...register("nombre")}
                 helperText={errors.nombre?.message}
               />
@@ -100,7 +161,7 @@ export const AddPurchaseWarehouseModal = (
                 {...register("descripcion")}
                 error={!!errors.descripcion}
                 size="small"
-                label="Descripción"
+                placeholder="Descripción"
                 multiline
                 helperText={
                   <Box
@@ -133,10 +194,19 @@ export const AddPurchaseWarehouseModal = (
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

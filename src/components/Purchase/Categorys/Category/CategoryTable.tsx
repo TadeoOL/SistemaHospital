@@ -67,7 +67,7 @@ const useDisableCategory = () => {
   const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
         } una categoría`,
@@ -75,7 +75,7 @@ const useDisableCategory = () => {
         showCancelButton: true,
         confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -141,6 +141,7 @@ export const CategoryTable = () => {
         modifyModalComponent={(props) => (
           <ModifyCategoryModal data={props.data} open={props.open} />
         )}
+        headers={["Nombre", "Descripción", "Acciones"]}
       />
     </>
   );

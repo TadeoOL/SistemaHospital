@@ -1,77 +1,80 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { LoginView } from "./views/LoginView";
-import { DashboardView } from "./views/Layout/DashboardView";
 import { ProtectedRoute } from "./utils/ProtectedRoute";
+import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply";
+import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector";
+import { ProtectedPurchaseRequest } from "./utils/functions/ProtectedRoutesForRole/ProtectedPurchaseRequest";
+import { LoginView } from "./views/LoginView";
 import { ScheduleView } from "./views/Schedule/ScheduleView";
 import { Layout } from "./components/Layout/Layout";
-import { AccountView } from "./views/AccountView";
 import { NotFoundPage } from "./views/404Page";
 import { LoginRoute } from "./utils/LoginRoute";
 import { ToastContainer } from "react-toastify";
-import { ProvidersView } from "./views/Purchase/ProvidersView";
-import { PurchaseRequestView } from "./views/Purchase/PurchaseRequestView";
-import { CategoryView } from "./views/Purchase/CategoryView";
-import { Category } from "./components/Purchase/Categorys/Category/Category";
-import { SubCategory } from "./components/Purchase/Categorys/SubCategory/SubCategory";
-import { ArticleView } from "./views/Purchase/ArticleView";
-import { Article } from "./components/Purchase/Articles/Article/Article";
-import { ExistingArticle } from "./components/Purchase/Articles/ExistingArticle/ExistingArticle";
-import { WarehouseView } from "./views/Purchase/WarehouseView";
-import { PurchaseAuthorizationView } from "./views/Purchase/PurchaseAuthorizationView";
-import { PurchaseRequestCard } from "./components/Purchase/PurchaseRequest/PurchaseRequestCard";
-import { WaitAuthPurchase } from "./components/Purchase/PurchaseRequest/WaitAuthPurchase";
-import { PurchaseOrderRequest } from "./components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
-import { PurchaseOrder } from "./components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
+import {
+  Dashboard,
+  PurchaseRequest,
+  ArticleView,
+  Article,
+  ExistingArticle,
+  CategoryView,
+  Category,
+  SubCategory,
+  ProvidersView,
+  WarehouseView,
+  PurchaseAuthorizationView,
+  PurchaseConfigView,
+  AccountView,
+  WarehouseSelected,
+} from "./utils/LazyRoutes";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            <Route path="/" element={<DashboardView />} />
-            <Route path="/compras/proveedores" element={<ProvidersView />} />
-            <Route
-              path="/compras/solicitud-compras"
-              element={<PurchaseRequestView />}
-            >
+            <Route path="/" element={<Dashboard />} />
+            <Route element={<ProtectedPurchaseRequest />}>
               <Route
-                path="productos-stock-bajo"
-                element={<PurchaseRequestCard />}
+                path="/compras/solicitud-compras"
+                element={<PurchaseRequest />}
+              />
+            </Route>
+            <Route element={<ProtectedRouteSupply />}>
+              <Route path="/compras/articulos" element={<ArticleView />}>
+                <Route path="articulo" element={<Article />} />
+                <Route
+                  path="articulo-existente"
+                  element={<ExistingArticle />}
+                />
+              </Route>
+              <Route path="/compras/categorias" element={<CategoryView />}>
+                <Route path="categoria" element={<Category />} />
+                <Route path="subcategoria" element={<SubCategory />} />
+              </Route>
+              <Route path="/compras/proveedores" element={<ProvidersView />} />
+            </Route>
+            <Route element={<ProtectedRoutePurchasingDirector />}>
+              <Route path="/compras/almacen" element={<WarehouseView />} />
+              <Route
+                path="/compras/autorizacion-compras"
+                element={<PurchaseAuthorizationView />}
               />
               <Route
-                path="productos-espera-autorizacion"
-                element={<WaitAuthPurchase />}
+                path="compras/configuracion-compras"
+                element={<PurchaseConfigView />}
               />
-              <Route
-                path="productos-solicitados-orden-compra"
-                element={<PurchaseOrderRequest />}
-              />
-              <Route path="ordenes-compra" element={<PurchaseOrder />} />
+              <Route path="/configuracion" element={<AccountView />} />
             </Route>
-            <Route path="/compras/categorias" element={<CategoryView />}>
-              <Route path="categoria" element={<Category />} />
-              <Route path="subcategoria" element={<SubCategory />} />
-            </Route>
-            <Route path="/compras/articulos" element={<ArticleView />}>
-              <Route path="articulo" element={<Article />} />
-              <Route path="articulo-existente" element={<ExistingArticle />} />
-            </Route>
-            <Route path="/compras/almacen" element={<WarehouseView />} />
-            <Route
-              path="/compras/autorizacion-compras"
-              element={<PurchaseAuthorizationView />}
-            />
-            <Route path="/farmacia/almacen" element={<WarehouseView />} />
-            <Route path="/configuracion" element={<AccountView />} />
             <Route
               path="/programacion/agenda-quirofano"
               element={<ScheduleView />}
             />
+            <Route
+              path="/almacenes/:warehouseId"
+              element={<WarehouseSelected />}
+            />
           </Route>
         </Route>
-        {/* Rutas publicas */}
         <Route element={<LoginRoute />}>
           <Route path="/login" element={<LoginView />} />
         </Route>

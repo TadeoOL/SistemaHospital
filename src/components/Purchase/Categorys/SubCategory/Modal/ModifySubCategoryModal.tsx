@@ -20,6 +20,8 @@ import {
   modifySubCategory,
 } from "../../../../../api/api.routes";
 import { useSubCategoryPagination } from "../../../../../store/purchaseStore/subCategoryPagination";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -28,8 +30,8 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: { xs: 380, lg: 600 },
   bgcolor: "background.paper",
-  borderRadius: 2,
-  boxShadow: 24,
+  borderRadius: 8,
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   display: "flex",
   flexDirection: "column",
   maxHeight: 600,
@@ -151,7 +153,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
             <TextField
               fullWidth
               size="small"
-              label="Nombre"
+              placeholder="Nombre"
               {...register("nombre")}
             />
             <TextField
@@ -159,7 +161,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               {...register("descripcion")}
               error={!!errors.descripcion}
               size="small"
-              label="Descripción"
+              placeholder="Descripción"
               multiline
               helperText={
                 <Box
@@ -208,10 +210,19 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

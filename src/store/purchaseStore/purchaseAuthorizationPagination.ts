@@ -12,6 +12,9 @@ interface State {
   search: string;
   enabled: boolean;
   handleChangePurchaseAuthorization: boolean;
+  endDate: string;
+  startDate: string;
+  status: string;
 }
 
 interface Action {
@@ -25,6 +28,10 @@ interface Action {
     handleChangePurchaseAuthorization: boolean
   ) => void;
   fetchPurchaseAuthorization: () => Promise<void>;
+  setStartDate: (startDate: string) => void;
+  setEndDate: (endDate: string) => void;
+  setStatus: (status: string) => void;
+  clearFilters: () => void;
 }
 
 export const usePurchaseAuthorizationPagination = createWithEqualityFn<
@@ -40,6 +47,12 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<
   search: "",
   enabled: true,
   handleChangePurchaseAuthorization: false,
+  startDate: "",
+  endDate: "",
+  status: "-1",
+  setStatus: (status: string) => set({ status }),
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
   setHandleChangePurchaseAuthorization: (
     handleChangePurchaseAuthorization: boolean
   ) => set({ handleChangePurchaseAuthorization }),
@@ -50,14 +63,17 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchPurchaseAuthorization: async () => {
-    const { pageIndex, enabled, pageSize, search } = get();
+    const { pageIndex, enabled, pageSize, search, status, startDate, endDate } =
+      get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseAuthorization(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&estatus=${
+          parseInt(status) > -1 ? status : ""
+        }&fechaInicio=${startDate}&fechaFin=${endDate}`
       );
       set(() => ({
         data: res.data,
@@ -70,5 +86,8 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<
     } finally {
       set(() => ({ isLoading: false }));
     }
+  },
+  clearFilters: () => {
+    set({ status: "-1", endDate: "", startDate: "", pageIndex: 0 });
   },
 }));

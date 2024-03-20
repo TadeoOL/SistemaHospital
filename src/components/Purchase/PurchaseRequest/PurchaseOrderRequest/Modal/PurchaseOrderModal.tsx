@@ -42,8 +42,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
       const res = await getPurchaseOrderRequestPdf(
         purchaseData.purchaseOrderId
       );
-      console.log({ res });
-      setPdf(res[0].pdfBase64);
+      setPdf(res.pdfBase64);
     } catch (error) {
       console.log(error);
     } finally {
@@ -72,9 +71,6 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
             <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
               Seleccione los proveedores para enviarle la solicitud
             </Typography>
-            <Box>
-              <Button>Select de proveedores</Button>
-            </Box>
             <Stack
               sx={{
                 display: "flex",
@@ -89,7 +85,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
           </Stack>
           <Stack spacing={2}>
             <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
-              Solicitud de orden de compra
+              Solicitud de Compra
             </Typography>
             <Button
               variant="outlined"

@@ -40,17 +40,15 @@ const useDisableUserModal = () => {
   ) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           stateEnabled ? "deshabilitar" : "habilitar"
-        } un usuario`,
+        } un usuario.`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${
-          stateEnabled ? "deshabilitalo!" : "habilitalo!"
-        }`,
+        confirmButtonText: `${stateEnabled ? "Deshabilitar" : "Habilitar"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {

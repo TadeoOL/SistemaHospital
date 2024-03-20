@@ -1,9 +1,9 @@
 import {
-  Backdrop,
   Box,
   Button,
   CircularProgress,
   Collapse,
+  Checkbox,
   Grid,
   IconButton,
   Paper,
@@ -18,57 +18,27 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useGetPurchaseConfig } from "../../../../hooks/useGetPurchaseConfig";
+import { useGetPurchaseConfig } from "../../../../../hooks/useGetPurchaseConfig";
 import { useEffect, useState } from "react";
-import { IFactor, IPurchaseConfig } from "../../../../types/types";
+import { IFactor, IPurchaseConfig } from "../../../../../types/types";
 import { toast } from "react-toastify";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addNewFactorSchema } from "../../../../schema/schemas";
-import { modifyPurchaseConfig } from "../../../../api/api.routes";
-import { isValidInteger } from "../../../../utils/functions/dataUtils";
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: { xs: 380, sm: 500, md: 600 },
-  borderRadius: 2,
-  boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
-  maxHeight: { xs: 600 },
-  overflowY: "auto",
-};
-
-const styleBar = {
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
-  },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-  },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
-    borderRadius: 10,
-  },
-};
+import { addNewFactorSchema } from "../../../../../schema/schemas";
+import { modifyPurchaseConfig } from "../../../../../api/api.routes";
+import { isValidInteger } from "../../../../../utils/functions/dataUtils";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const styleInput = {
   paddingTop: "0.4rem",
   paddingBottom: "0.4rem",
 };
 
-interface PurchaseConfigModalProps {
-  open: Function;
-}
-
-export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
+export const PurchaseConfig = () => {
+  const [isChecked, setIsChecked] = useState(false);
   const { isLoadingPurchaseConfig, config, isError, refetch } =
     useGetPurchaseConfig();
   const [configPurchase, setConfigPurchase] = useState<IPurchaseConfig>();
@@ -80,10 +50,11 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
 
   useEffect(() => {
     if (isLoadingPurchaseConfig) return;
+    setIsChecked(config.activarLicitacion ? config.activarLicitacion : false);
     setConfigPurchase(config);
     setValue(config.cantidadOrdenDirecta.toString());
     setDirectlyTender(config.cantidadLicitacionDirecta.toString());
-  }, [isLoadingPurchaseConfig]);
+  }, [config]);
 
   const {
     register,
@@ -140,17 +111,19 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
   const handleModifyConfig = async () => {
     setIsLoading(true);
     if (!configPurchase) return;
-    const object: IPurchaseConfig = {
-      cantidadOrdenDirecta: parseFloat(value),
-      factor: configPurchase.factor,
-      cantidadLicitacionDirecta: parseFloat(directlyTender),
-    };
-
     try {
+      const object: IPurchaseConfig = {
+        cantidadOrdenDirecta: parseFloat(value),
+        factor: configPurchase.factor,
+        cantidadLicitacionDirecta: parseFloat(directlyTender),
+        activarLicitacion: isChecked,
+      };
+
       await modifyPurchaseConfig(object);
       toast.success("Configuración modificada con éxito!");
       refetch();
       setHasChanges(false);
+      setIsChecked(false);
     } catch (error) {
       console.log(error);
       toast.error("Error al modificar la configuración!");
@@ -210,20 +183,70 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
   };
 
   if (!isLoadingPurchaseConfig && isError) {
-    open(false);
     toast.error("Ha habido un error!");
     return null;
   }
   if (isLoadingPurchaseConfig || !{ configPurchase })
     return (
-      <Backdrop open={isLoadingPurchaseConfig}>
+      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", py: 6 }}>
         <CircularProgress />
-      </Backdrop>
+      </Box>
     );
   return (
-    <Box sx={{ ...style, ...styleBar }}>
-      <HeaderModal setOpen={open} title="Configuración de compras" />
-      <Stack sx={{ display: "flex", p: 4, bgcolor: "background.paper" }}>
+    <Box
+      sx={{
+        boxShadow: 10,
+        borderRadius: 2,
+        bgcolor: "white",
+      }}
+    >
+      <Stack
+        sx={{
+          display: "flex",
+          p: 4,
+          bgcolor: "background.paper",
+          borderRadius: "20px",
+          borderColor: "black",
+        }}
+      >
+        <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
+        <Box sx={{ overflowY: "auto" }}>
+          <TableContainer
+            component={Paper}
+            sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Rango</TableCell>
+                  <TableCell>Factor</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {configPurchase?.factor.map((i) => (
+                  <TableRow key={i.factorMultiplicador}>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                      ${i.cantidadMinima} a ${i.cantidadMaxima}
+                    </TableCell>
+                    <TableCell>{i.factorMultiplicador}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(i.factorMultiplicador);
+                          setHasChanges(true);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
         <form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
           <Stack
             sx={{
@@ -305,9 +328,13 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
             <Stack spacing={1} sx={{ display: "flex", flex: 1 }}>
               <Box>
                 <Button
+                  sx={{ marginTop: "10px" }}
                   fullWidth={addNewFactor ? true : false}
                   variant="contained"
                   type={addNewFactor ? "submit" : "button"}
+                  startIcon={
+                    addNewFactor ? <SaveOutlinedIcon /> : <AddBoxOutlinedIcon />
+                  }
                   onClick={(e) => {
                     if (addNewFactor) {
                       e.stopPropagation();
@@ -324,6 +351,8 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
                 <Button
                   fullWidth={addNewFactor ? true : false}
                   variant="outlined"
+                  color="error"
+                  startIcon={<CancelIcon />}
                   onClick={() => setAddNewFactor(false)}
                 >
                   Cancelar
@@ -332,51 +361,16 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
             </Stack>
           </Stack>
         </form>
-        <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
-        <Box sx={{ overflowY: "auto" }}>
-          <TableContainer
-            component={Paper}
-            sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
-          >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Rango</TableCell>
-                  <TableCell>Factor</TableCell>
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {configPurchase?.factor.map((i) => (
-                  <TableRow key={i.factorMultiplicador}>
-                    <TableCell sx={{ whiteSpace: "nowrap" }}>
-                      ${i.cantidadMinima} a ${i.cantidadMaxima}
-                    </TableCell>
-                    <TableCell>{i.factorMultiplicador}</TableCell>
-                    <TableCell>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(i.factorMultiplicador);
-                          setHasChanges(true);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+        <Typography variant="h5" sx={{ marginTop: "10px" }}>
+          Criterios para tipo de solicitud de compra
+        </Typography>
         <Grid spacing={2} container sx={{ mt: 4 }}>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={3}>
             <Typography>Cantidad maxima para orden directa:</Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={9}>
             <TextField
-              size="small"
+              size="medium"
               placeholder="Cantidad para orden directa"
               value={value}
               inputProps={{
@@ -390,14 +384,15 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
               }}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={3}>
             <Typography>Cantidad minima para licitación directa:</Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={9}>
             <TextField
-              size="small"
+              size="medium"
               placeholder="Cantidad para licitación"
               value={directlyTender}
+              disabled={!isChecked}
               inputProps={{
                 style: {
                   ...styleInput,
@@ -408,6 +403,22 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
                 setDirectlyTender(e.target.value);
               }}
             />
+          </Grid>
+          <Grid item>
+            <Box
+              sx={{
+                display: "flex",
+                flex: 1,
+                columnGap: 1,
+                alignItems: "center",
+              }}
+            >
+              <Typography>Habilitar licitación:</Typography>
+              <Checkbox
+                checked={isChecked}
+                onChange={(e) => setIsChecked(e.target.checked)}
+              />
+            </Box>
           </Grid>
         </Grid>
         {hasChanges && (
@@ -430,13 +441,11 @@ export const PurchaseConfigModal = ({ open }: PurchaseConfigModalProps) => {
             justifyContent: "space-between",
           }}
         >
-          <Button disabled={isLoading} variant="outlined">
-            Cancelar
-          </Button>
           <Button
             disabled={isLoading}
             variant="contained"
             onClick={() => handleModifyConfig()}
+            startIcon={<SaveOutlinedIcon />}
           >
             Guardar
           </Button>

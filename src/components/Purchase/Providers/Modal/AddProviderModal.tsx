@@ -28,6 +28,10 @@ import { addNewProvider } from "../../../../api/api.routes";
 import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
 import Swal from "sweetalert2";
 import { shallow } from "zustand/shallow";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SaveIcon from "@mui/icons-material/Save";
 
 const style = {
   position: "absolute",
@@ -36,8 +40,8 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: { xs: 380, lg: 600 },
   bgcolor: "background.paper",
-  borderRadius: 2,
-  boxShadow: 24,
+  borderRadius: 8,
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   display: "flex",
   flexDirection: "column",
   maxHeight: 600,
@@ -151,8 +155,8 @@ export const AddProviderModal = (props: IAddProviderModal) => {
       setHandleChangeProvider(!handleChangeProvider);
       props.setOpen(false);
       Swal.fire({
-        title: "Proveedor registrado!",
-        text: "El proveedor ha sido registrado correctamente!",
+        title: "Operación Exitosa",
+        text: "El proveedor ha sido registrado correctamente.",
         icon: "success",
       });
       toast.success("Proveedor registrado correctamente!");
@@ -216,11 +220,31 @@ export const AddProviderModal = (props: IAddProviderModal) => {
               mt: 4,
             }}
           >
-            <Button variant="outlined" onClick={prev}>
-              {step === 0 ? "Cancelar" : "Anterior"}
+            <Button variant="outlined" color="error" onClick={prev}>
+              {step === 0 ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <CancelIcon />
+                  <span>Cancelar</span>
+                </Stack>
+              ) : (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <ArrowBackIcon />
+                  <span>Anterior</span>
+                </Stack>
+              )}
             </Button>
             <Button variant="contained" onClick={nextStep}>
-              {step === stepsForm.length - 1 ? "Guardar" : "Siguiente"}
+              {step === stepsForm.length - 1 ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <span>Guardar</span>
+                  <SaveIcon />
+                </Stack>
+              ) : (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <span>Siguiente</span>
+                  <ArrowForwardIcon />
+                </Stack>
+              )}
             </Button>
           </Stack>
         </Stack>

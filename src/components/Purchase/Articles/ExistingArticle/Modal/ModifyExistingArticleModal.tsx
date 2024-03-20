@@ -22,6 +22,8 @@ import {
 import { useGetArticles } from "../../../../../hooks/useGetArticles";
 import { useGetAlmacenes } from "../../../../../hooks/useGetAlmacenes";
 import { useExistingArticlePagination } from "../../../../../store/purchaseStore/existingArticlePagination";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -30,8 +32,8 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: { xs: 380, md: 600 },
   bgcolor: "background.paper",
-  borderRadius: 2,
-  boxShadow: 24,
+  borderRadius: 8,
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   display: "flex",
   flexDirection: "column",
   maxHeight: 600,
@@ -164,7 +166,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={open} title="Agregar articulo" />
+      <HeaderModal setOpen={open} title="Modificar articulo" />
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
@@ -192,7 +194,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 fullWidth
                 error={!!errors.cantidad}
                 size="small"
-                label="Cantidad"
+                placeholder="Cantidad"
                 {...register("cantidad")}
                 helperText={errors.cantidad?.message}
               />
@@ -203,7 +205,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.precioCompra}
                 helperText={errors?.precioCompra?.message}
                 size="small"
-                label="Precio de compra"
+                placeholder="Precio de compra"
                 {...register("precioCompra")}
               />
             </Grid>
@@ -213,7 +215,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.precioVenta}
                 helperText={errors?.precioVenta?.message}
                 size="small"
-                label="Precio de venta"
+                placeholder="Precio de venta"
                 {...register("precioVenta")}
               />
             </Grid>
@@ -266,7 +268,7 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
                 error={!!errors.factor}
                 helperText={errors?.factor?.message}
                 size="small"
-                label="Factor"
+                placeholder="Factor"
                 {...register("factor")}
               />
             </Grid>
@@ -278,10 +280,19 @@ export const ModifyExistingArticleModal = (props: IModifyCategoryModal) => {
               justifyContent: "space-between",
             }}
           >
-            <Button variant="outlined" onClick={() => open(false)}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => open(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Stack>

@@ -8,6 +8,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { addNewCategory } from "../../../../../api/api.routes";
 import { useCategoryPagination } from "../../../../../store/purchaseStore/categoryPagination";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const style = {
   position: "absolute",
@@ -16,12 +18,13 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: { xs: 380 },
   bgcolor: "background.paper",
-  borderRadius: 2,
-  boxShadow: 24,
+  borderRadius: 8,
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   display: "flex",
   flexDirection: "column",
-  maxHeight: 600,
-  overflowY: "auto",
+};
+
+const styleBar = {
   "&::-webkit-scrollbar": {
     width: "0.4em",
   },
@@ -77,63 +80,76 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.open} title="Agregar categoría" />
-      <form noValidate onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={3} sx={{ p: 4 }}>
-          <Stack spacing={2}>
-            <TextField
-              fullWidth
-              error={!!errors.nombre}
-              helperText={errors?.nombre?.message}
-              size="small"
-              label="Nombre"
-              {...register("nombre")}
-            />
-            <TextField
-              fullWidth
-              error={!!errors.descripcion}
-              size="small"
-              label="Descripción"
-              {...register("descripcion")}
-              multiline
-              helperText={
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexGrow: 1,
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box>
-                    {errors
-                      ? errors.descripcion
-                        ? errors.descripcion.message
-                        : null
-                      : null}
+      <Stack
+        sx={{ bgcolor: "background.paper", overflowY: "auto", ...styleBar }}
+      >
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={3} sx={{ p: 4, maxHeight: 600 }}>
+            <Stack spacing={2}>
+              <TextField
+                fullWidth
+                error={!!errors.nombre}
+                helperText={errors?.nombre?.message}
+                size="small"
+                placeholder="Nombre"
+                {...register("nombre")}
+              />
+              <TextField
+                fullWidth
+                error={!!errors.descripcion}
+                size="small"
+                placeholder="Descripción"
+                {...register("descripcion")}
+                multiline
+                helperText={
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexGrow: 1,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box>
+                      {errors
+                        ? errors.descripcion
+                          ? errors.descripcion.message
+                          : null
+                        : null}
+                    </Box>
+                    <Box>{`${value.length}/${200}`}</Box>
                   </Box>
-                  <Box>{`${value.length}/${200}`}</Box>
-                </Box>
-              }
-              maxRows={5}
-              onChange={handleChange}
-              inputProps={{ maxLength: 200 }}
-            />
+                }
+                maxRows={5}
+                onChange={handleChange}
+                inputProps={{ maxLength: 200 }}
+              />
+            </Stack>
+            <Stack
+              sx={{
+                flexDirection: "row",
+                columnGap: 2,
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<CancelIcon />}
+                onClick={() => props.open(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                startIcon={<SaveOutlinedIcon />}
+              >
+                Guardar
+              </Button>
+            </Stack>
           </Stack>
-          <Stack
-            sx={{
-              flexDirection: "row",
-              columnGap: 2,
-              justifyContent: "space-between",
-            }}
-          >
-            <Button variant="outlined" onClick={() => props.open(false)}>
-              Cancelar
-            </Button>
-            <Button variant="contained" type="submit">
-              Guardar
-            </Button>
-          </Stack>
-        </Stack>
-      </form>
+        </form>
+      </Stack>
     </Box>
   );
 };

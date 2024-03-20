@@ -1,9 +1,11 @@
-// import { Box, ButtonBase } from "@mui/material";
+// import { Box, ButtonBase, Collapse, Stack } from "@mui/material";
 // import { IModuleItems } from "../../types/types";
 // import { useNavigate } from "react-router-dom";
-// import { useState } from "react";
+// import { useEffect, useState } from "react";
 // import ExpandLess from "@mui/icons-material/ExpandLess";
 // import ExpandMore from "@mui/icons-material/ExpandMore";
+// import { useAppNavStore } from "../../store/appNav";
+// import { shallow } from "zustand/shallow";
 
 // interface ISideNavItems extends IModuleItems {
 //   active: boolean;
@@ -11,8 +13,17 @@
 // }
 
 // export const SideNavItems = (props: ISideNavItems) => {
+//   const SelectedOptionColor = "#9ca1a5";
 //   const navigate = useNavigate();
 //   const [isOpen, setIsOpen] = useState(false);
+//   const { setOpen, open } = useAppNavStore(
+//     (state) => ({ setOpen: state.setOpen, open: state.open }),
+//     shallow
+//   );
+
+//   useEffect(() => {
+//     if (!open) setIsOpen(false);
+//   }, [open]);
 
 //   return (
 //     <li>
@@ -31,10 +42,13 @@
 //       >
 //         <ButtonBase
 //           onClick={() => {
-//             if (!props.childrenItems) return;
-//             props.active && props.childrenItems.length === 0
-//               ? navigate(props.path)
-//               : setIsOpen(!isOpen);
+//             if (props.active && !props.children) {
+//               setOpen(false);
+//               navigate(props.path);
+//             } else {
+//               setOpen(true);
+//               setIsOpen(!isOpen);
+//             }
 //           }}
 //           sx={{
 //             alignItems: "center",
@@ -65,55 +79,68 @@
 //               {props.icon}
 //             </Box>
 //           )}
-//           <Box
-//             component="span"
-//             sx={{
-//               color: "neutral.400",
-//               flexGrow: 1,
-//               fontFamily: (theme) => theme.typography.fontFamily,
-//               fontSize: 14,
-//               fontWeight: 600,
-//               lineHeight: "24px",
-//               whiteSpace: "nowrap",
-//               ...(props.active && {
-//                 color: "common.white",
-//               }),
-//               ...(props.disabled && {
-//                 color: "neutral.500",
-//               }),
-//             }}
-//           >
-//             aa
-//           </Box>
-//           <Box
-//             component="span"
-//             sx={{
-//               alignItems: "center",
-//               color: "neutral.400",
-//               display: "inline-flex",
-//               justifyContent: "center",
-//               transition: "color 0.3s ease-in-out",
-//               ...(props.active && {
-//                 color: "primary.main",
-//               }),
-//             }}
-//           >
-//             {isOpen ? <ExpandLess /> : <ExpandMore />}
-//           </Box>
+//           {open && (
+//             <>
+//               <Box
+//                 component="span"
+//                 sx={{
+//                   color: "white",
+//                   flexGrow: 1,
+//                   fontSize: 14,
+//                   fontWeight: 400,
+//                   lineHeight: "24px",
+//                   whiteSpace: "nowrap",
+//                   ...(props.active && {
+//                     color: "common.white",
+//                   }),
+//                   ...(props.disabled && {
+//                     color: "neutral.500",
+//                   }),
+//                 }}
+//               >
+//                 {props.title}
+//               </Box>
+//               <Box
+//                 component="span"
+//                 sx={{
+//                   alignItems: "center",
+//                   color: "neutral.400",
+//                   display: "inline-flex",
+//                   justifyContent: "center",
+//                   transition: "color 0.3s ease-in-out",
+//                   ...(props.active && {
+//                     color: "primary.main",
+//                   }),
+//                 }}
+//               >
+//                 {isOpen && props.children ? (
+//                   <ExpandLess />
+//                 ) : (
+//                   props.children && <ExpandMore />
+//                 )}
+//               </Box>
+//             </>
+//           )}
 //         </ButtonBase>
 //         {props.childrenItems && props.childrenItems.length === 0 ? null : (
 //           <Collapse in={isOpen}>
-//             {props.childrenItems &&
-//               props.childrenItems.map((childItem, i) => {
+//             {props.children &&
+//               props.children.map((childItem, i) => {
 //                 const pathSplit = location.pathname.split("/");
 //                 const childSplit = childItem.path.split("/");
 //                 const isActive = pathSplit.includes(childSplit[2]);
 //                 return (
 //                   <Stack key={i}>
 //                     <ButtonBase
-//                       onClick={() =>
-//                         isActive ? null : navigate(childItem.path)
-//                       }
+//                       onClick={() => {
+//                         if (isActive) {
+//                           null;
+//                         } else {
+//                           setIsOpen(false);
+//                           setOpen(false);
+//                           navigate(childItem.path);
+//                         }
+//                       }}
 //                       sx={{
 //                         ...(isActive && {
 //                           backgroundColor: "rgba(255, 255, 255, 0.04)",

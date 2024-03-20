@@ -3,11 +3,11 @@ import { shallow } from "zustand/shallow";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import Mensaje from "./Modal/Mensaje";
 import {
   Box,
   Card,
-  Chip,
   CircularProgress,
   Collapse,
   IconButton,
@@ -23,15 +23,18 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { usePurchaseAuthorizationPagination } from "../../../store/purchaseStore/purchaseAuthorizationPagination";
+import { usePurchaseAuthorizationPagination } from "../../../../store/purchaseStore/purchaseAuthorizationPagination";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Swal from "sweetalert2";
-import { changePurchaseStatus } from "../../../api/api.routes";
-import { StatusPurchaseRequest } from "../../../types/types";
+import { changePurchaseStatus } from "../../../../api/api.routes";
+import { StatusPurchaseRequest } from "../../../../types/types";
 import { Checklist, Info } from "@mui/icons-material";
 import { MatchProvidersAndArticles } from "./Modal/MatchProvidersAndArticles";
-import { useMatchProvidersAndArticles } from "../../../store/purchaseStore/matchProvidersAndArticles";
+import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
+import { primary, error, warning } from "../../../../theme/colors";
+import { getProviderQuotePdf } from "../../../../api/api.routes";
+import { ProviderNameChip } from "../../PurchaseRequest/ProviderNameChip";
 
 const useGetAllData = () => {
   const {
@@ -80,6 +83,18 @@ const useGetAllData = () => {
   };
 };
 
+const handleOpenPdf = async (quoteId: string) => {
+  try {
+    const pdfRes = await getProviderQuotePdf(quoteId);
+    const pdfWindow = window.open("", "_blank");
+    pdfWindow?.document.write(
+      "<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>"
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const acceptPurchaseAuthorization = (
   Id_SolicitudCompra: string,
   Mensaje: string = "Aceptada"
@@ -88,13 +103,20 @@ const acceptPurchaseAuthorization = (
     usePurchaseAuthorizationPagination.getState();
   Swal.fire({
     icon: "warning",
-    html: "Esta orden sobrepasa la cantidad para orden directa.<br><br>Selecciona una de las siguientes opciones.",
+    title: "Advertencia",
+    text: "Seleccione una de las siguientes opciones para la solicitud de compra.",
     showDenyButton: true,
     showCancelButton: true,
     cancelButtonText: "Salir",
-    denyButtonText: `Autorizar compra`,
+    denyButtonText: "Autorizar compra",
     confirmButtonText: "Solicitar licitación",
+    confirmButtonColor: warning.main,
+    denyButtonColor: primary.main,
+    cancelButtonColor: error.main,
     reverseButtons: true,
+    customClass: {
+      container: "swal-container",
+    },
   }).then(async (result) => {
     try {
       if (result.isConfirmed) {
@@ -102,7 +124,7 @@ const acceptPurchaseAuthorization = (
         fetchPurchaseAuthorization();
         Swal.fire("Compra enviada a licitación!", "", "success");
       } else if (result.isDenied) {
-        await changePurchaseStatus(Id_SolicitudCompra, 4, Mensaje);
+        await changePurchaseStatus(Id_SolicitudCompra, 6, Mensaje);
         fetchPurchaseAuthorization();
         Swal.fire("Compra aprobada correctamente!", "", "success");
       }
@@ -149,15 +171,15 @@ export const PurchaseAuthorizationTable = () => {
 
   return (
     <>
-      <Card sx={{ m: 2, overflowX: "auto" }}>
-        <TableContainer component={Paper} sx={{ minWidth: 950 }}>
+      <Card>
+        <TableContainer component={Paper} sx={{ overflow: "hidden" }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>Solicitud de orden de compra</TableCell>
+                <TableCell>Solicitud de Compra</TableCell>
                 <TableCell>Creado por</TableCell>
                 <TableCell>Proveedor</TableCell>
-                <TableCell>Fecha de solicitud</TableCell>
+                <TableCell>Fecha de Solicitud</TableCell>
                 <TableCell>Total</TableCell>
                 <TableCell>Estatus</TableCell>
                 <TableCell>Acciones</TableCell>
@@ -201,12 +223,14 @@ export const PurchaseAuthorizationTable = () => {
                         </TableCell>
                         <TableCell>{auth.usuarioSolicitado}</TableCell>
                         <TableCell>
-                          {auth.solicitudProveedor.map((i) => (
-                            <Chip
-                              key={i.proveedor.id_Proveedor}
-                              label={i.proveedor.nombre}
-                            />
-                          ))}
+                          <ProviderNameChip
+                            provider={auth.solicitudProveedor.map((p) => {
+                              return {
+                                id: p.proveedor.id_Proveedor,
+                                name: p.proveedor.nombre,
+                              };
+                            })}
+                          />
                         </TableCell>
                         <TableCell>
                           {auth.fechaSolicitud.split("T")[0]}
@@ -245,6 +269,19 @@ export const PurchaseAuthorizationTable = () => {
                             </Tooltip>
                           ) : (
                             <>
+                              <Tooltip title="Ver Cotización">
+                                <IconButton
+                                  size="small"
+                                  sx={{ color: "neutral.700" }}
+                                  onClick={() => {
+                                    handleOpenPdf(
+                                      auth.solicitudProveedor[0].id
+                                    );
+                                  }}
+                                >
+                                  <RemoveRedEyeIcon />
+                                </IconButton>
+                              </Tooltip>
                               <Tooltip title="Aceptar">
                                 <IconButton
                                   size="small"

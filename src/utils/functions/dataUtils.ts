@@ -29,3 +29,9 @@ export const isValidInteger = (value: string) => {
   const regex = /^[1-9][0-9]*$/;
   return regex.test(value);
 };
+
+export const isValidFloat = (value: string) => {
+  if (value.trim() === "") return true;
+  const regex = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
+  return regex.test(value);
+};

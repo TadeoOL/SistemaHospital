@@ -20,14 +20,15 @@ import {
 } from "@mui/material";
 import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
 import {
-  addPurchaseOrder,
   getProviderQuotePdf,
+  matchArticlesWithProviders,
 } from "../../../../api/api.routes";
 import { useCallback, useState } from "react";
 import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
 import { shallow } from "zustand/shallow";
 import { toast } from "react-toastify";
 import { Delete, Info } from "@mui/icons-material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const style = {
   position: "absolute",
@@ -272,29 +273,37 @@ export const MatchProvidersAndArticles = (
     if (!purchaseOrderMatched) return;
     if (!purchaseRequestData) return;
     const ordenCompra = purchaseOrderMatched.map((item) => {
+      const solicitudCompraProveedor =
+        purchaseRequestData.solicitudProveedor.find((p) => {
+          return p.proveedor.id_Proveedor === item.providerId;
+        });
+
       return {
-        Id_Proveedor: item.providerId,
-        OrdenCompraArticulo: item.article.map((article) => {
+        Id: solicitudCompraProveedor ? solicitudCompraProveedor.id : "",
+        Proveedor: {
+          Id_Proveedor: item.providerId,
+        },
+        SolicitudCompraArticulos: item.article.map((article) => {
           return {
             Id_Articulo: article.articleId,
-            Cantidad: article.amount,
+            CantidadCompra: article.amount,
             PrecioProveedor: article.purchasePrice,
           };
         }),
       };
     });
-
     const object = {
       Id_SolicitudCompra: purchaseRequestData.id_SolicitudCompra,
-      OrdenCompra: ordenCompra,
+      SolicitudProveedores: ordenCompra,
     };
     try {
-      await addPurchaseOrder(object);
+      await matchArticlesWithProviders(object);
+      toast.success("Operación exitosa artículos agregados!");
+      props.setOpen(false);
     } catch (error) {
       console.log(error);
+      toast.error("Error al realizar la operación!");
     }
-
-    console.log({ object });
   }, [purchaseRequestData, purchaseOrderMatched]);
 
   if (!purchaseRequestData)
@@ -343,7 +352,7 @@ export const MatchProvidersAndArticles = (
                   sx={{ maxWidth: 300 }}
                   size="small"
                   select
-                  label="Proveedor"
+                  placeholder="Proveedor"
                   value={providerSelected}
                   onChange={handleChange}
                 >
@@ -404,6 +413,7 @@ export const MatchProvidersAndArticles = (
                 <Button
                   variant="contained"
                   disabled={articles?.length === 0}
+                  startIcon={<AddCircleIcon />}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleMatchArticlesAndProviders();

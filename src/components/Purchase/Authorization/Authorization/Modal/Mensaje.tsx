@@ -8,13 +8,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import WarningIcon from "@mui/icons-material/Warning";
 import { declinePurchaseAuthorization } from "../PurchaseAuthorizationTable";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
+import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
 import {
   obtenerMensajes,
   crearMensaje,
   eliminarMensaje,
   editarMensaje,
-} from "../../../../api/api.routes";
+} from "../../../../../api/api.routes";
 import {
   Box,
   Button,
@@ -30,6 +30,7 @@ import {
   Paper,
   Radio,
 } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 interface Mensaje {
   id_Mensaje: string;
@@ -87,7 +88,6 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
     const fetchData = async () => {
       try {
         const res = await obtenerMensajes("Compras_AutorizacionCancelada");
-        // console.log(res);
         setMensajes(res);
       } catch (error: any) {
         console.error("Error al obtener los mensajes:", error);
@@ -246,7 +246,7 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
               ¿Deseas Cancelar la solicitud de compra?
             </Typography>
             <Typography variant="h6" sx={{ marginTop: 3 }}>
-              Se cambiará el estatus de la solicitud de orden de compra a orden
+              Se cambiará el estatus de la solicitud de compra a orden
               cancelada!
             </Typography>
           </>
@@ -366,7 +366,7 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
               }}
             >
               <TextField
-                label="Nuevo Mensaje"
+                placeholder="Nuevo Mensaje"
                 value={nuevoMensaje}
                 onChange={(e) => setNuevoMensaje(e.target.value)}
                 sx={{ mt: 2 }}
@@ -416,7 +416,14 @@ const Mensaje = ({ open, idSolicitudCompra }: MensajeProps) => {
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancelar</Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={handleCloseDialog}
+            >
+              Cancelar
+            </Button>
             <Button onClick={handleConfirmDelete}>Eliminar</Button>
           </DialogActions>
         </Dialog>

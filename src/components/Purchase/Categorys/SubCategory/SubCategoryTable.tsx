@@ -67,7 +67,7 @@ const useDisableSubCategory = () => {
   const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
         } una sub categoría`,
@@ -75,7 +75,7 @@ const useDisableSubCategory = () => {
         showCancelButton: true,
         confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -115,28 +115,6 @@ const useDisableSubCategory = () => {
 export const SubCategoryTable = () => {
   const disableSubCategory = useDisableSubCategory();
 
-  // const handlePageChange = useCallback((event: any, value: any) => {
-  //   setPageIndex(value);
-  // }, []);
-
-  // const handleUserChecked = (e: any) => {
-  //   const { value, checked } = e.target;
-
-  //   if (checked) {
-  //     setIsChecked([...isChecked, value]);
-  //   } else {
-  //     setIsChecked(isChecked.filter((item) => item !== value));
-  //   }
-  // };
-
-  // const handleIsUserChecked = (userId: string) => {
-  //   if (isChecked.some((user) => user === userId)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-
   return (
     <TableComponent
       disableHook={disableSubCategory}
@@ -144,6 +122,7 @@ export const SubCategoryTable = () => {
       modifyModalComponent={(props) => (
         <ModifySubCategoryModal data={props.data} open={props.open} />
       )}
+      headers={["Categoría", "Descripción", "Acciones"]}
     />
   );
 };

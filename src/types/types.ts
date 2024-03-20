@@ -1,8 +1,13 @@
 export interface IModuleItems {
   title: string;
   path: string;
+  children?: IModuleItems[];
   childrenItems?: string[] | [] | undefined;
   icon: React.ReactElement;
+  protectedRoles?: string[];
+  mainDashboard?: string[];
+  topLevel?: boolean;
+  onClick?: () => void;
 }
 
 export interface IUser {
@@ -93,10 +98,11 @@ export interface IArticle {
   nombre: string;
   codigoBarras: string;
   descripcion: string;
-  stockMinimo: number;
-  stockAlerta: number;
+  stockMinimo: string;
+  stockAlerta: string;
   unidadMedida: string;
-  precioInventario: number;
+  precioCompra: string;
+  precioVenta: string;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
 }
@@ -122,6 +128,7 @@ export interface IWarehouse {
 }
 
 export enum StatusPurchaseRequest {
+  "Todas las solicitudes" = -1,
   "Cancelado" = 0,
   "Necesita autorización" = 1,
   "Necesita licitación" = 2,
@@ -129,7 +136,7 @@ export enum StatusPurchaseRequest {
   "Solicitud a proveedor" = 4,
   "Selección de productos por proveedor" = 5,
   "Recibida" = 6,
-  "Entregada" = 7,
+  "Solicitud necesita precios" = 7,
 }
 
 export interface IPurchase {
@@ -144,21 +151,22 @@ export interface IPurchaseAuthorization {
   usuarioSolicitado: string;
   folio: string;
   notas?: string | null;
+  fechaAutorizacion?: string | null;
   estatus: number;
   fechaSolicitud: string;
   precioSolicitud: number;
   solicitudProveedor: {
     id: string;
     proveedor: { id_Proveedor: string; nombre: string };
-    solicitudCompraArticulos: [
-      {
-        articulo: { id_Articulo: string; nombre: string };
-        id: string;
-        cantidadCompra: number;
-        precioProveedor: number;
-      }
-    ];
+    solicitudCompraArticulos: {
+      articulo: { id_Articulo: string; nombre: string };
+      id: string;
+      cantidadCompra: number;
+      precioProveedor: number;
+    }[];
   }[];
+  almacen?: { id: string; nombre: string };
+  habilitado: boolean;
 }
 
 export interface IArticlesAlert {
@@ -181,6 +189,7 @@ export interface IPurchaseConfig {
   cantidadOrdenDirecta: number;
   factor: IFactor[];
   cantidadLicitacionDirecta: number;
+  activarLicitacion?: boolean;
 }
 
 export interface IFactor {
@@ -193,6 +202,8 @@ export interface ArticleObject {
   id_articulo: string;
   cantidadComprar: number;
   precioInventario: number;
+  nombre: string;
+  idAlmacen: string;
 }
 export interface ICheckedArticles {
   idAlmacen: string;
@@ -200,12 +211,17 @@ export interface ICheckedArticles {
   idArticulo: string;
 }
 
-export type Provider = {
-  id: string;
-  proveedor: { id_Proveedor: string; nombre: string };
+export type SingleProvider = {
+  id_Proveedor: string;
+  nombre: string;
 };
 
-export interface Root {
+export type Provider = {
+  id: string;
+  proveedor: SingleProvider;
+};
+
+export interface IRegisterOrderPurchase {
   Id_SolicitudCompra: string;
   OrdenCompra: OrdenCompra[];
 }
@@ -218,6 +234,8 @@ export interface OrdenCompra {
 export interface OrdenCompraArticulo {
   Id_Articulo: string;
   Cantidad: number;
+  precioProveedor?: number;
+  nombre?: string;
 }
 
 enum ConceptPayment {
@@ -231,7 +249,7 @@ export interface IPurchaseOrder {
   estatus: StatusPurchaseOrder;
   usuarioSolicitado: string;
   fechaSolicitud: string;
-  folioExtension: string;
+  folio_Extension: string;
   ordenCompraArticulo: {
     cantidad: number;
     precioProveedor: number;
@@ -244,6 +262,20 @@ export interface IPurchaseOrder {
 }
 
 export enum StatusPurchaseOrder {
+  "Todas las ordenes" = -1,
   "Orden de compra cancelada" = 0,
   "Orden de compra creada" = 1,
+}
+
+export interface IWarehouseData {
+  nombre: string;
+  descripcion: string;
+  esSubAlmacen: boolean;
+  id_AlmacenPrincipal: string | null;
+  id_UsuarioEncargado: string | null;
+  articuloExistentes: IExistingArticle[] | null;
+  id: string;
+  fechaCreacion: string;
+  fechaModificacion: string;
+  habilitado: boolean;
 }

@@ -10,29 +10,40 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import HelpIcon from "@mui/icons-material/Help";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useCallback, useRef, useState } from "react";
 import { useAppNavStore } from "../../store/appNav";
 import { AccountPopover } from "./AccountPopover";
 import { useAuthStore } from "../../store/auth";
 import homelogo from "../../assets/homeLogoHSB.svg";
+import RightSideNav from "./RightSideNav";
 
-export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
-  toggleSidebar,
-}) => {
+export const TopNav: React.FC<{
+  toggleSidebar: () => void;
+  currentPage: string;
+}> = ({ toggleSidebar, currentPage }) => {
   const profile = useAuthStore((state) => state.profile);
   const isOpen = useAppNavStore((state) => state.open);
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+
+  const handleRightSidebarToggle = () => {
+    setRightSidebarOpen(!rightSidebarOpen);
+  };
+
   const handleOpen = useCallback(() => {
     setOpen(true);
   }, []);
+
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
+
   const SIDE_NAV_WIDTH = 80;
   const theme = useTheme();
-  const xlUp = useMediaQuery(theme.breakpoints.up("xl"));
+  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
     <>
@@ -44,11 +55,11 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
             alpha(theme.palette.background.default, 0.8),
           position: "sticky",
           left: {
-            xl: `${SIDE_NAV_WIDTH}px`,
+            lg: `${SIDE_NAV_WIDTH}px`,
           },
           top: 0,
           width: {
-            xl: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
+            lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
           },
           zIndex: (theme) => theme.zIndex.appBar,
           height: 60,
@@ -61,7 +72,7 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
           sx={{
             alignItems: "center",
             marginLeft: !xlUp && isOpen ? 29 : isOpen ? 19 : 0,
-            transition: "margin-left 0.3s ease-in-out",
+            transition: "margin-left 0.2s ease-in-out",
             justifyContent: "space-between",
             flexDirection: "row",
             display: "flex",
@@ -81,6 +92,15 @@ export const TopNav: React.FC<{ toggleSidebar: () => void }> = ({
               mr: 2,
             }}
           >
+            <IconButton onClick={handleRightSidebarToggle}>
+              <HelpIcon />
+            </IconButton>
+            <RightSideNav
+              open={rightSidebarOpen}
+              onClose={() => setRightSidebarOpen(false)}
+              currentPage={currentPage}
+            />
+
             <Tooltip title="Notifications">
               <IconButton>
                 <Badge badgeContent={4} color="success" variant="dot">

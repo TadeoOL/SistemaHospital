@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  ClickAwayListener,
   Collapse,
   IconButton,
   Modal,
@@ -26,7 +25,6 @@ import {
   KeyboardArrowUp,
   CloudUpload,
   KeyboardArrowDown,
-  Close,
   Delete,
 } from "@mui/icons-material";
 import { toast } from "react-toastify";
@@ -38,6 +36,9 @@ import { shallow } from "zustand/shallow";
 import { Provider } from "../../../../../types/types";
 import { usePurchaseOrderRequestPagination } from "../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 import { useDropzone } from "react-dropzone";
+import { OrderSummaryModal } from "./Steps/OrderSummaryModal";
+import { ViewPdf } from "../../../../Inputs/ViewPdf";
+import { useAuthStore } from "../../../../../store/auth";
 
 const style = {
   position: "absolute",
@@ -86,9 +87,9 @@ const renderStepForm = (
         />
       );
     case 1:
-      return <FillQuoteInformationModal setOpen={open} />;
+      return <FillQuoteInformationModal />;
     case 2:
-      return <h1>Generador de orden de compra</h1>;
+      return <OrderSummaryModal setOpen={open} />;
     default:
       break;
   }
@@ -145,8 +146,6 @@ const useFetchPdfProviders = (providers: Provider[]) => {
 export const ProviderQuoteModal = (props: ProviderQuoteModalProps) => {
   const { idFolio, open, providers } = props;
   const step = usePurchaseOrderRequestModals(useShallow((state) => state.step));
-
-  console.log({ providers });
 
   if (!providers)
     return (
@@ -208,6 +207,9 @@ export const ProvidersQuotePdf = (props: {
       setProviderSelected: state.setProviderSelected,
     }),
     shallow
+  );
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
   );
   const [viewPdf, setViewPdf] = useState(false);
   const [pdfOpen, setPdfOpen] = useState("");
@@ -346,17 +348,18 @@ export const ProvidersQuotePdf = (props: {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 {openCollapse[quoteRequest.id] ? (
                   <IconButton
-                    onClick={() =>
+                    onClick={() => {
                       setOpenCollapse({
                         [quoteRequest.id]: !openCollapse[quoteRequest.id],
-                      })
-                    }
+                      });
+                    }}
                   >
                     <KeyboardArrowUp />
                   </IconButton>
                 ) : (
                   <IconButton
                     onClick={() => {
+                      if (isAdminPurchase() && !quoteRequest.pdf) return;
                       setOpenCollapse({
                         [quoteRequest.id]: !openCollapse[quoteRequest.id],
                       });
@@ -406,30 +409,34 @@ export const ProvidersQuotePdf = (props: {
                   </Box>
                 </Box>
               ) : (
-                <Stack
-                  sx={{
-                    my: 1,
-                    p: 4,
-                    border: "1px #B4B4B8 dashed",
-                    borderRadius: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  {...getRootProps({ className: "dropzone" })}
-                >
-                  <CloudUpload sx={{ width: 40, height: 40, color: "Gray" }} />
-                  <input key={inputKey} {...getInputProps()} />
-                  <Typography
+                !isAdminPurchase() && (
+                  <Stack
                     sx={{
-                      color: "#B4B4B8",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      textAlign: "center",
+                      my: 1,
+                      p: 4,
+                      border: "1px #B4B4B8 dashed",
+                      borderRadius: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
+                    {...getRootProps({ className: "dropzone" })}
                   >
-                    Arrastra y suelta tus archivos aquí para subirlos
-                  </Typography>
-                </Stack>
+                    <CloudUpload
+                      sx={{ width: 40, height: 40, color: "Gray" }}
+                    />
+                    <input key={inputKey} {...getInputProps()} />
+                    <Typography
+                      sx={{
+                        color: "#B4B4B8",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        textAlign: "center",
+                      }}
+                    >
+                      Arrastra y suelta tus archivos aquí para subirlos
+                    </Typography>
+                  </Stack>
+                )
               )}
             </Collapse>
           </Stack>
@@ -445,43 +452,9 @@ export const ProvidersQuotePdf = (props: {
         </Button>
       </Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
-        <Stack
-          sx={{
-            display: "flex",
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <IconButton onClick={() => setViewPdf(false)}>
-              <Close />
-            </IconButton>
-          </Box>
-          <ClickAwayListener
-            mouseEvent="onMouseDown"
-            touchEvent="onTouchStart"
-            onClickAway={() => setViewPdf(false)}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flex: 10,
-                mx: 7,
-                mb: 3,
-              }}
-            >
-              <embed
-                src={pdfOpen}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  border: "none",
-                }}
-              />
-            </Box>
-          </ClickAwayListener>
-        </Stack>
+        <>
+          <ViewPdf pdf={pdfOpen} setViewPdf={setViewPdf} />
+        </>
       </Modal>
     </>
   );

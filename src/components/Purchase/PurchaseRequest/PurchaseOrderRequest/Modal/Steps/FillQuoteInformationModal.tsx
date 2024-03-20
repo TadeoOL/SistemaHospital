@@ -18,9 +18,7 @@ import { shallow } from "zustand/shallow";
 import { useGetProvider } from "../../../../../../hooks/useGetProvider";
 import { KeyboardReturn, Save } from "@mui/icons-material";
 import { useState } from "react";
-import { addPurchaseOrder } from "../../../../../../api/api.routes";
 import { toast } from "react-toastify";
-import { usePurchaseOrderRequestPagination } from "../../../../../../store/purchaseStore/purchaseOrderRequestPagination";
 
 const styleInput = {
   paddingTop: "0.4rem",
@@ -34,32 +32,43 @@ type Articles = {
   articulo: { id_Articulo: string; nombre: string };
 };
 
-export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
-  const { step, setStep, providerSelected, dataOrderRequest } =
-    usePurchaseOrderRequestModals(
-      (state) => ({
-        step: state.step,
-        setStep: state.setStep,
-        providerSelected: state.providerSelected,
-        dataOrderRequest: state.dataOrderRequest,
-      }),
-      shallow
-    );
+export const FillQuoteInformationModal = () => {
+  const {
+    step,
+    setStep,
+    providerSelected,
+    dataOrderRequest,
+    setRegisterOrderPurchase,
+    setProvider,
+    precios,
+    setPrecios,
+  } = usePurchaseOrderRequestModals(
+    (state) => ({
+      step: state.step,
+      setStep: state.setStep,
+      providerSelected: state.providerSelected,
+      dataOrderRequest: state.dataOrderRequest,
+      setRegisterOrderPurchase: state.setRegisterOrderPurchase,
+      setProvider: state.setProvider,
+      precios: state.precios,
+      setPrecios: state.setPrecios,
+    }),
+    shallow
+  );
   const { isLoading, providerData } = useGetProvider(providerSelected);
   const articles: Articles[] | [] = dataOrderRequest
     ? dataOrderRequest.solicitudProveedor[0].solicitudCompraArticulos
     : [];
 
-  const [precios, setPrecios] = useState<{ [key: string]: string }>({});
   const [errores, setErrores] = useState<{ [key: string]: string }>({});
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
 
   const handlePrecioChange = (articleId: string, precio: string) => {
-    if (precio.trim() !== "") {
-      setPrecios((prevPrecios) => ({
-        ...prevPrecios,
+    if (precio.trim() !== "" || precio.trim() !== "0") {
+      setPrecios({
+        ...precios,
         [articleId]: precio,
-      }));
+      });
       setErrores((prevErrores) => ({
         ...prevErrores,
         [articleId]: "",
@@ -71,8 +80,11 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
   };
 
   const handleSubmit = async () => {
+    if (!providerData) return;
     if (!dataOrderRequest) return;
     if (!articles) return;
+    if (Object.values(precios).some((p) => parseFloat(p) <= 0))
+      return toast.error("Error, no se pueden agregar precios menores a 0");
     const preciosCompletos = Object.keys(precios).length === articles.length;
     if (preciosCompletos) {
       setIsLoadingSubmit(true);
@@ -86,11 +98,12 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
 
         object.push({
           id_Articulo: articleId,
-          cantidad: articleRes ? articleRes.cantidadCompra : 0,
+          Cantidad: articleRes ? articleRes.cantidadCompra : 0,
           precioProveedor: parseFloat(value),
+          nombre: articles.find((a) => a.articulo.id_Articulo === articleId)
+            ?.articulo.nombre,
         });
       }
-      console.log({ object });
       const registerOrderPurchaseObject = {
         Id_SolicitudCompra: dataOrderRequest.id_SolicitudCompra,
         OrdenCompra: dataOrderRequest.solicitudProveedor.map((prov) => ({
@@ -98,20 +111,9 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
           OrdenCompraArticulo: object,
         })),
       };
-
-      console.log({ registerOrderPurchaseObject });
-
-      try {
-        await addPurchaseOrder(registerOrderPurchaseObject);
-        toast.success("Orden de compra creada con éxito!");
-        usePurchaseOrderRequestPagination.getState().fetch();
-        props.setOpen(false);
-      } catch (error) {
-        console.log(error);
-        toast.error("Error al crear la orden de compra!");
-      } finally {
-        setIsLoadingSubmit(false);
-      }
+      setRegisterOrderPurchase(registerOrderPurchaseObject);
+      setProvider(providerData);
+      setStep(step + 1);
     } else {
       const nuevosErrores: { [key: string]: string } = {};
       articles.forEach((a) => {
@@ -127,8 +129,6 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
   const handlePrevStep = () => {
     setStep(step - 1);
   };
-
-  console.log({ dataOrderRequest });
 
   if (isLoading)
     return (
@@ -207,6 +207,7 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
                         }
                         error={errores[a.articulo.id_Articulo] ? true : false}
                         helperText={errores[a.articulo.id_Articulo]}
+                        value={precios[a.articulo.id_Articulo] || ""}
                       />
                     </TableCell>
                   </TableRow>
@@ -245,7 +246,7 @@ export const FillQuoteInformationModal = (props: { setOpen: Function }) => {
             }}
             disabled={isLoadingSubmit}
           >
-            {isLoadingSubmit ? <CircularProgress size={14} /> : "Generar"}
+            {isLoadingSubmit ? <CircularProgress size={14} /> : "Siguiente"}
           </Button>
         </Box>
       </Box>

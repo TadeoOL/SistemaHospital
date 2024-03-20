@@ -21,6 +21,8 @@ import {
 import { toast } from "react-toastify";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 interface IModifyUserModal {
   setOpen: Function;
@@ -218,7 +220,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 helperText={errors?.nombre?.message}
                 {...register("nombre")}
                 size="medium"
-                label="Nombre"
+                placeholder="Nombre"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -228,7 +230,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 helperText={errors?.apellidoPaterno?.message}
                 {...register("apellidoPaterno")}
                 size="medium"
-                label="Apellido paterno"
+                placeholder="Apellido paterno"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -238,7 +240,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 helperText={errors?.apellidoMaterno?.message}
                 {...register("apellidoMaterno")}
                 size="medium"
-                label="Apellido materno"
+                placeholder="Apellido materno"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -248,7 +250,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 helperText={errors?.email?.message}
                 {...register("email")}
                 size="medium"
-                label="Correo electrónico"
+                placeholder="Correo electrónico"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -258,7 +260,7 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 helperText={errors?.telefono?.message}
                 {...register("telefono")}
                 size="medium"
-                label="Telefono"
+                placeholder="Telefono"
               />
             </Grid>
             <Grid item xs={12}>
@@ -276,13 +278,13 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
                 helperText={errors?.nombreUsuario?.message}
                 {...register("nombreUsuario")}
                 size="medium"
-                label="Nombre de usuario"
+                placeholder="Nombre de usuario"
               />
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
                 fullWidth
-                label="Selecciona el rol"
+                placeholder="Selecciona el rol"
                 name="Rol"
                 onChange={handleChange}
                 SelectProps={{
@@ -323,12 +325,19 @@ export const ModifyUserModal = (props: IModifyUserModal) => {
           >
             <Button
               variant="outlined"
+              startIcon={<CancelIcon />}
               onClick={() => setOpen(false)}
               disabled={isLoading}
+              color="error"
             >
               Cancelar
             </Button>
-            <Button variant="contained" type="submit" disabled={isLoading}>
+            <Button
+              variant="contained"
+              type="submit"
+              disabled={isLoading}
+              startIcon={<SaveOutlinedIcon />}
+            >
               Guardar
             </Button>
           </Box>

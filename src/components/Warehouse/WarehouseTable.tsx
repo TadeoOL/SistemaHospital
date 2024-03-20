@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { shallow } from "zustand/shallow";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
-import { disablePurchaseWarehouse } from "../../../api/api.routes";
-import { TableComponent } from "../../TableComponent";
+import { useWarehousePagination } from "../../store/purchaseStore/warehousePagination";
+import { disablePurchaseWarehouse } from "../../api/api.routes";
+import { TableComponent } from "../TableComponent";
 import { ModifyPurchaseWarehouseModal } from "./Modal/ModifyWarehouseModal";
 
 const useGetAllData = () => {
@@ -67,15 +67,15 @@ const useDisableExistingArticle = () => {
   const disableProviderModal = (articleId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Estas seguro?",
+        title: "Advertencia",
         text: `Estas a punto de ${
           enabled ? "deshabilitar" : "habilitar"
         } un almacén existente`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitalo!" : "habilitalo!"}`,
+        confirmButtonText: `${enabled ? "Deshabilitar" : "Habilitar"}`,
         confirmButtonColor: "red",
-        cancelButtonText: "No, cancel!",
+        cancelButtonText: "No, cancelar!",
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -115,24 +115,6 @@ const useDisableExistingArticle = () => {
 export const PurchaseWarehouseTable = () => {
   const disableArticle = useDisableExistingArticle();
 
-  // const handleUserChecked = (e: any) => {
-  //   const { value, checked } = e.target;
-
-  //   if (checked) {
-  //     setIsChecked([...isChecked, value]);
-  //   } else {
-  //     setIsChecked(isChecked.filter((item) => item !== value));
-  //   }
-  // };
-
-  // const handleIsUserChecked = (userId: string) => {
-  //   if (isChecked.some((user) => user === userId)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-
   return (
     <>
       <TableComponent
@@ -144,6 +126,7 @@ export const PurchaseWarehouseTable = () => {
             open={props.open}
           />
         )}
+        headers={["Nombre", "Descripción", "Acciones"]}
       />
     </>
   );

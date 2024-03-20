@@ -14,8 +14,8 @@ const ImageUploader: React.FC = () => {
       // Mostrar SweetAlert2 con la dirección de la imagen
       Swal.fire({
         icon: "success",
-        title: "Imagen subida correctamente",
-        text: `Dirección de la imagen: ${imageUrl}`,
+        title: "Operación Exitosa",
+        text: `Imagen subida correctamente, Dirección de la imagen: ${imageUrl}`,
       });
     }
   };

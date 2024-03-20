@@ -35,12 +35,14 @@ interface ITableComponentProps {
     data: string;
     open: (isOpen: boolean) => void;
   }) => React.ReactElement;
+  headers: string[];
 }
 
 export const TableComponent: React.FC<ITableComponentProps> = ({
   fetchDataHook,
   disableHook,
   modifyModalComponent,
+  headers,
 }) => {
   const [dataId, setDataId] = useState("");
   const [open, setOpen] = useState(false);
@@ -70,13 +72,9 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {data.length > 0 &&
-                Object.keys(data[0])
-                  .filter((key) => key !== "id")
-                  .map((key, index) => (
-                    <TableCell key={index}>{key}</TableCell>
-                  ))}
-              <TableCell />
+              {headers.map((header, i) => (
+                <TableCell key={i}>{header}</TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>

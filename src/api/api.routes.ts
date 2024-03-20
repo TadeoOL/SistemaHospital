@@ -6,10 +6,10 @@ import {
   IExistingArticle,
   IProvider,
   IPurchaseConfig,
+  IRegisterOrderPurchase,
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
-  Root,
 } from "../types/types";
 import { AxiosError } from "axios";
 
@@ -333,7 +333,7 @@ export const modifyArticle = async (article: IArticle) => {
     stockAlerta,
     stockMinimo,
     unidadMedida,
-    precioInventario,
+    precioCompra,
   } = article;
 
   const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
@@ -345,7 +345,7 @@ export const modifyArticle = async (article: IArticle) => {
     stockMinimo,
     id_subcategoria,
     unidadMedida,
-    precioInventario,
+    precioCompra,
   });
   return res.data;
 };
@@ -359,7 +359,8 @@ export const addNewArticle = async (article: IArticle) => {
     stockAlerta,
     stockMinimo,
     unidadMedida,
-    precioInventario,
+    precioCompra,
+    precioVenta,
   } = article;
 
   const res = await axios.post(`/api/Articulo/registrar-articulo`, {
@@ -370,7 +371,8 @@ export const addNewArticle = async (article: IArticle) => {
     stockMinimo,
     id_subcategoria,
     unidadMedida,
-    precioInventario,
+    precioCompra,
+    precioVenta,
   });
   return res.data;
 };
@@ -550,11 +552,17 @@ export const getPurchaseConfig = async () => {
 };
 
 export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
-  const { cantidadOrdenDirecta, factor, cantidadLicitacionDirecta } = data;
+  const {
+    cantidadOrdenDirecta,
+    factor,
+    cantidadLicitacionDirecta,
+    activarLicitacion,
+  } = data;
   const res = await axios.put("/api/Compras/actualizar-configuracion-compras", {
     factor: JSON.stringify(factor),
     cantidadOrdenDirecta,
     cantidadLicitacionDirecta,
+    activarLicitacion,
   });
   const resData = {
     factor: JSON.parse(res.data.factor),
@@ -567,17 +575,20 @@ export const addPurchaseRequest = async (
   providerId: string[],
   articles: {
     Id_Articulo: string;
+    PrecioProveedor: number;
     CantidadCompra: number;
-    Id_AlertaCompra: string | null;
+    Id_AlertaCompra?: string | null;
   }[],
   warehouseId: string,
-  totalArticlePrice: number
+  totalArticlePrice: number,
+  pdf?: string
 ) => {
   const res = await axios.post("/api/Compras/registrar-solicitud-compra", {
     id_proveedor: providerId,
     Articulos: articles,
     id_almacen: warehouseId,
     PrecioTotalInventario: totalArticlePrice,
+    PDFCadena: pdf,
   });
   return res.data;
 };
@@ -589,18 +600,19 @@ export const getPurchaseAuthorization = async (paramUrl: string) => {
   return res.data;
 };
 
+export const getPurchaseAuthorizationHistory = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-historial-autorizacion-administrador?${paramUrl}`
+  );
+  return res.data;
+};
+
 export const changePurchaseStatus = async (
   Id_SolicitudCompra: string,
   Estatus: number,
   Mensaje?: string
 ) => {
   try {
-    console.log(
-      "Cambiando estado de compra:",
-      Id_SolicitudCompra,
-      Estatus,
-      Mensaje
-    );
     const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
       Id_SolicitudCompra,
       Estatus,
@@ -650,7 +662,7 @@ export const addProviderQuote = async (
 
 export const getPurchaseOrderRequestPdf = async (idQuote: string) => {
   const res = await axios.get(
-    `/api/Compras/obtener-solicitud-compra//${idQuote}`
+    `/api/Compras/obtener-solicitud-compra/${idQuote}`
   );
   return res.data;
 };
@@ -672,6 +684,65 @@ export const selectManyProvidersForTender = async (
   });
   return res.data;
 };
+
+export const changeOrderStatus = async (
+  Id_OrdenCompra: string,
+  Estatus: number,
+  Mensaje?: string
+) => {
+  try {
+    const res = await axios.put(`/api/Compras/estatus-orden-compra`, {
+      Id_OrdenCompra,
+      Estatus,
+      Mensaje,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error al cambiar estado de la orden:", error);
+    throw error;
+  }
+};
+
+export const getOrderRequest = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Compras/paginacion-orden-compra?${paramUrl}`
+  );
+  return res.data;
+};
+
+// Order Bill Response
+
+export const addBillQuote = async (
+  Id_OrdenCompra: string,
+  PDFCadena: string
+) => {
+  const res = await axios.put(`/api/Compras/guardar-factura-proveedor-pdf`, {
+    Id_OrdenCompra,
+    PDFCadena,
+  });
+  return res.data;
+};
+
+export const deleteBillQuote = async (idQuote: string) => {
+  const res = await axios.delete(
+    `/api/Compras/eliminar-factura-proveedor-pdf/${idQuote}`
+  );
+  return res.data;
+};
+
+export const getBillPdf = async (idQuote: string) => {
+  const res = await axios.get(
+    `/api/Compras/obtener-factura-proveedor-pdf/${idQuote}`
+  );
+  return res.data;
+};
+
+export const getOrderRequestPdf = async (idQuote: string) => {
+  const res = await axios.get(`/api/Compras/obtener-orden-compra/${idQuote}`);
+  return res.data;
+};
+
+// Messages Response
 
 export const obtenerMensajes = async (modulo: string) => {
   try {
@@ -755,7 +826,7 @@ export const editarMensaje = async ({
   }
 };
 
-export const addPurchaseOrder = async (data: Root) => {
+export const addPurchaseOrder = async (data: IRegisterOrderPurchase) => {
   const { Id_SolicitudCompra, OrdenCompra } = data;
   const res = await axios.post("/api/Compras/registrar-orden-compra", {
     Id_SolicitudCompra,
@@ -768,5 +839,63 @@ export const getPurchaseOrder = async (paramUrl: string) => {
   const res = await axios.get(
     `/api/Compras/paginacion-orden-compra?${paramUrl}`
   );
+  return res.data;
+};
+
+export const getArticlesBySearch = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Articulo/busqueda-articulo?Search=${paramUrl}`
+  );
+  return res.data;
+};
+
+export const getCountDashboard = async () => {
+  const res = await axios.get(`/api/Compras/obtener-contador-inicio`);
+  return res.data;
+};
+
+export const addDirectlyPurchaseOrder = async (OrdenCompra: {
+  Id_Proveedor: string;
+  Id_Almacen: string;
+  PrecioTotalOrden: number;
+  OrdenCompraArticulo: {
+    Id_Articulo: string;
+    Cantidad: number;
+    PrecioProveedor: number;
+  }[];
+}) => {
+  const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
+    OrdenCompra,
+  });
+  return res.data;
+};
+
+export const matchArticlesWithProviders = async (SolicitudCompra: {
+  Id_SolicitudCompra: string;
+  SolicitudProveedores: {
+    Id: string;
+    Proveedor: {
+      Id_Proveedor: string;
+    };
+    SolicitudCompraArticulos: {
+      Id_Articulo: string;
+      CantidadCompra: number;
+      PrecioProveedor: number;
+    }[];
+  }[];
+}) => {
+  const res = await axios.post("/api/Compras/dividir-solicitud-compra", {
+    SolicitudCompra,
+  });
+  return res.data;
+};
+
+export const getSideBardWarehouse = async () => {
+  const res = await axios.get(`/api/Sistema/SideBar/obtener-almacenes`);
+  return res.data;
+};
+
+export const getWarehouseById = async (warehouseId: string) => {
+  const res = await axios.get(`/api/Almacen/${warehouseId}`);
   return res.data;
 };

@@ -28,6 +28,7 @@ import { changePurchaseStatus } from "../../../api/api.routes";
 import Swal from "sweetalert2";
 import { StatusPurchaseRequest } from "../../../types/types";
 import InfoIcon from "@mui/icons-material/Info";
+import { primary, error } from "../../../theme/colors";
 
 const useGetAllData = () => {
   const {
@@ -101,30 +102,33 @@ export const WaitAuthPurchase = () => {
 
   const handleRemoveOrder = async (idOrdenCompra: string) => {
     Swal.fire({
-      title: "Estas seguro?",
-      text: "No puedes revertir este cambio!",
+      title: "Advertencia",
+      text: "¿Desea cancelar la orden de compra seleccionada?.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: primary.main,
+      cancelButtonColor: error.main,
       cancelButtonText: "Cancelar",
-      confirmButtonText: "Si, cancélalo!",
+      confirmButtonText: "Aceptar",
       reverseButtons: true,
+      customClass: {
+        container: "swal-container"
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await changePurchaseStatus(idOrdenCompra, 0, "Cancelada");
           refetch();
           Swal.fire({
-            title: "Cancelada!",
-            text: "Tu orden de compra ha sido cancelada!",
+            title: "Operación Exitosa",
+            text: "Tu orden de compra ha sido cancelada.",
             icon: "success",
           });
         } catch (error) {
           console.log(error);
           Swal.fire({
-            title: "Error!",
-            text: "Error al cancelar la compra!",
+            title: "Error",
+            text: "Error al cancelar la compra, consulte con su administrador.",
             icon: "error",
           });
         }
@@ -132,7 +136,6 @@ export const WaitAuthPurchase = () => {
     });
   };
 
-  console.log({ data });
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
       <SearchBar title="Buscar orden de compra..." searchState={setSearch} />
@@ -141,10 +144,10 @@ export const WaitAuthPurchase = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Solicitud de orden de compra</TableCell>
+                <TableCell>Solicitud de Compra</TableCell>
                 <TableCell>Creado por</TableCell>
                 <TableCell>Proveedor</TableCell>
-                <TableCell>Fecha de solicitud</TableCell>
+                <TableCell>Fecha de Solicitud</TableCell>
                 <TableCell>Total</TableCell>
                 <TableCell>Estatus</TableCell>
                 <TableCell>Acciones</TableCell>
@@ -236,7 +239,7 @@ export const WaitAuthPurchase = () => {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {auth.solicitudProveedor[0].solicitudCompraArticulos.map(
+                              {auth.solicitudProveedor[0]?.solicitudCompraArticulos?.map(
                                 (request) => (
                                   <TableRow key={request.id}>
                                     <TableCell align="center">

@@ -1,4 +1,4 @@
-import { Box, Container, Grid } from "@mui/material";
+import { Box, CircularProgress, Container, Grid } from "@mui/material";
 import React from "react";
 import { SalesGraph } from "../../components/Dashboard/SalesGraph";
 import { ModuleCards } from "../../components/Dashboard/ModuleCards";
@@ -6,8 +6,21 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import SpaIcon from "@mui/icons-material/Spa";
+import { getDashboardComponentForRole } from "../../utils/getDashboardComponentForRole";
+import { useAuthStore } from "../../store/auth";
 
-export const DashboardView: React.FC = () => {
+const DashboardView: React.FC = () => {
+  const profile = useAuthStore((state) => state.profile);
+
+  if (profile) {
+    const DashboardComponent = getDashboardComponentForRole(profile.roles);
+    return <DashboardComponent />;
+  } else {
+    return <CircularProgress />;
+  }
+};
+
+export const DashboardAdminView = () => {
   return (
     <Box component="main" sx={{ p: 3, flexGrow: 1 }}>
       <Container maxWidth={"xl"}>
@@ -21,7 +34,7 @@ export const DashboardView: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <ModuleCards
-              title="Programacion"
+              title="Programación"
               value="$8k"
               icon={<MonitorHeartIcon />}
             />
@@ -31,7 +44,7 @@ export const DashboardView: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <ModuleCards
-              title="Admision"
+              title="Admisión"
               value="$76k"
               icon={<SupervisorAccountIcon />}
             />
@@ -56,3 +69,5 @@ export const DashboardView: React.FC = () => {
     </Box>
   );
 };
+
+export default DashboardView;

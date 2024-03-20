@@ -1,10 +1,11 @@
-import { Box, Button, Divider, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { AddProviderModal } from "./Modal/AddProviderModal";
 import { useState } from "react";
 import { SearchBar } from "../../Inputs/SearchBar";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import { ProvidersTable } from "./ProvidersTable";
 import { useProviderPagination } from "../../../store/purchaseStore/providerPagination";
+import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 
 export const ProvidersCard = () => {
   const [open, setOpen] = useState(false);
@@ -19,7 +20,6 @@ export const ProvidersCard = () => {
         sx={{
           boxShadow: 10,
           borderRadius: 2,
-          mt: 4,
           overflowX: "auto",
           bgcolor: "white",
         }}
@@ -35,24 +35,29 @@ export const ProvidersCard = () => {
               display: "flex",
               flexGrow: 1,
               justifyContent: "space-between",
-              alignItems: "center",
-              p: 3,
+              p: 1,
+              pt: 3,
             }}
           >
-            <Typography fontWeight={700} fontSize={24}>
-              {enabled ? "Proveedores" : "Proveedores deshabilitados"}
-            </Typography>
+            <SearchBar
+              title="Busca el proveedor..."
+              searchState={setSearch}
+              sx={{ width: "30%" }}
+            />
+            <Divider sx={{ my: 1 }} />
             <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
+                startIcon={<InventoryOutlinedIcon />}
               >
                 {enabled
                   ? "Mostrar proveedores deshabilitados"
                   : "Mostrar proveedores habilitados"}
               </Button>
               <Button
+                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
                 variant="contained"
                 onClick={() => setOpen(!open)}
                 startIcon={<AddCircleOutlinedIcon />}
@@ -61,8 +66,7 @@ export const ProvidersCard = () => {
               </Button>
             </Stack>
           </Stack>
-          <SearchBar title="Busca el proveedor..." searchState={setSearch} />
-          <Divider sx={{ my: 1 }} />
+
           <ProvidersTable />
         </Box>
       </Box>

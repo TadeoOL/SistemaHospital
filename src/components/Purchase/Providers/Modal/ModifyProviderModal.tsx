@@ -31,6 +31,10 @@ import { modifyProvider } from "../../../../api/api.routes";
 import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
 import { useGetProvider } from "../../../../hooks/useGetProvider";
 import { shallow } from "zustand/shallow";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SaveIcon from "@mui/icons-material/Save";
 
 const style = {
   position: "absolute",
@@ -38,13 +42,13 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: { xs: 380, lg: 600 },
-  bgcolor: "background.paper",
   borderRadius: 2,
   boxShadow: 24,
   display: "flex",
   flexDirection: "column",
-  maxHeight: 600,
-  overflowY: "auto",
+};
+
+const styleBar = {
   "&::-webkit-scrollbar": {
     width: "0.4em",
   },
@@ -178,8 +182,8 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       toast.success("Proveedor modificado correctamente!");
       props.setOpen(false);
       Swal.fire({
-        title: "Proveedor modificado!",
-        text: "El proveedor ha sido modificado correctamente!",
+        title: "Operación Exitosa",
+        text: "El proveedor ha sido modificado correctamente.",
         icon: "success",
       });
     } catch (error) {
@@ -219,60 +223,99 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Modificar proveedor" />
-      <Box>
-        <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
-          <Stack sx={{ p: 2, px: 4, rowGap: 4 }}>
-            <Stack spacing={2} sx={{ pr: 2 }}>
-              <Stepper activeStep={step}>
-                {stepsForm.map((step) => (
-                  <Step key={step.id}>
-                    <StepLabel>
-                      {
-                        <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
-                          {step.title}
-                        </Typography>
-                      }
-                    </StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-              {renderStepForm(
-                step,
-                errors,
-                register,
-                providerData.tipoContribuyente
-              )}
-            </Stack>
+      <Box
+        sx={{
+          maxHeight: 600,
+          overflowY: "auto",
+          bgcolor: "background.paper",
+          ...styleBar,
+        }}
+      >
+        <Box sx={{ maxHeight: 550 }}>
+          <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
             <Stack
               sx={{
-                flexDirection: "row",
-                display: "flex",
-                flex: 1,
-                justifyContent: "space-between",
-                position: "sticky",
+                p: 2,
+                px: 4,
+                rowGap: 4,
               }}
             >
-              <Button
-                variant="outlined"
-                disabled={disabledButtons}
-                onClick={() => {
-                  step === 0
-                    ? props.setOpen(false)
-                    : setStep((prevStep) => prevStep - 1);
+              <Stack spacing={2} sx={{ pr: 2 }}>
+                <Stepper activeStep={step}>
+                  {stepsForm.map((step) => (
+                    <Step key={step.id}>
+                      <StepLabel>
+                        {
+                          <Typography
+                            fontSize={lgUp ? 14 : 12}
+                            fontWeight={500}
+                          >
+                            {step.title}
+                          </Typography>
+                        }
+                      </StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+                {renderStepForm(
+                  step,
+                  errors,
+                  register,
+                  providerData.tipoContribuyente
+                )}
+              </Stack>
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  display: "flex",
+                  flex: 1,
+                  justifyContent: "space-between",
+                  position: "sticky",
                 }}
               >
-                {step === 0 ? "Cancelar" : "Anterior"}
-              </Button>
-              <Button
-                variant="contained"
-                onClick={nextStep}
-                disabled={disabledButtons}
-              >
-                {step === stepsForm.length - 1 ? "Guardar" : "Siguiente"}
-              </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  disabled={disabledButtons}
+                  onClick={() => {
+                    step === 0
+                      ? props.setOpen(false)
+                      : setStep((prevStep) => prevStep - 1);
+                  }}
+                >
+                  {step === 0 ? (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CancelIcon />
+                      <span>Cancelar</span>
+                    </Stack>
+                  ) : (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <ArrowBackIcon />
+                      <span>Anterior</span>
+                    </Stack>
+                  )}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={nextStep}
+                  disabled={disabledButtons}
+                >
+                  {step === stepsForm.length - 1 ? (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <span>Guardar</span>
+                      <SaveIcon />
+                    </Stack>
+                  ) : (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <span>Siguiente</span>
+                      <ArrowForwardIcon />
+                    </Stack>
+                  )}
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
-        </form>
+          </form>
+        </Box>
       </Box>
     </Box>
   );

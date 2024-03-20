@@ -1,11 +1,72 @@
-import { Box, Container } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Box, Button, Modal } from "@mui/material";
 import { PurchaseTabNav } from "../../components/Purchase/PurchaseRequest/SubComponents/PurchaseTabNav";
+import { useEffect } from "react";
+import { useDirectlyPurchaseRequestOrderStore } from "../../store/purchaseStore/directlyPurchaseRequestOrder";
+import { PurchaseOrderRequest } from "../../components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest";
+import { PurchaseOrder } from "../../components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder";
+import { PurchaseRequestCard } from "../../components/Purchase/PurchaseRequest/PurchaseRequestCard";
+import { usePurchaseRequestNav } from "../../store/purchaseStore/purchaseRequestNav";
+import RequestPageIcon from "@mui/icons-material/RequestPage";
+import { useAuthStore } from "../../store/auth";
+import { useShallow } from "zustand/react/shallow";
+import { shallow } from "zustand/shallow";
+import { DirectlyPurchaseOrder } from "../../components/Purchase/PurchaseRequest/Modal/DirectlyPurchaseOrder";
 
-export const PurchaseRequestView = () => {
+const getTabView = (value: number) => {
+  switch (value) {
+    case 0:
+      return <PurchaseOrder />;
+    case 1:
+      return <PurchaseOrderRequest />;
+    case 2:
+      return <PurchaseRequestCard />;
+    default:
+      break;
+  }
+};
+
+const PurchaseRequestView = () => {
+  const { clearStates, openPurchaseRequestOrder, setOpenPurchaseRequestOrder } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        clearStates: state.clearAllStates,
+        openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+        setOpenPurchaseRequestOrder: state.setOpenPurchaseRequestOrder,
+      }),
+      shallow
+    );
+  const tabValue = usePurchaseRequestNav((state) => state.tabValue);
+  const isAdminPurchase = useAuthStore(
+    useShallow((state) => state.isAdminPurchase)
+  );
+
+  useEffect(() => {
+    if (openPurchaseRequestOrder) return;
+    clearStates();
+  }, [openPurchaseRequestOrder]);
+
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Container maxWidth="xl">
+    <>
+      <Box>
+        {!isAdminPurchase() && (
+          <Box
+            sx={{
+              display: "flex",
+              flex: 1,
+              justifyContent: "flex-end",
+              mb: 1,
+            }}
+          >
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => setOpenPurchaseRequestOrder(true)}
+              startIcon={<RequestPageIcon />}
+            >
+              Solicitud de Compra
+            </Button>
+          </Box>
+        )}
         <PurchaseTabNav />
         <Box
           sx={{
@@ -16,9 +77,20 @@ export const PurchaseRequestView = () => {
             bgcolor: "white",
           }}
         >
-          {<Outlet />}
+          {getTabView(tabValue)}
         </Box>
-      </Container>
-    </Box>
+      </Box>
+      <Modal
+        open={openPurchaseRequestOrder}
+        onClose={() => {
+          setOpenPurchaseRequestOrder(false);
+        }}
+      >
+        <>
+          <DirectlyPurchaseOrder setOpen={setOpenPurchaseRequestOrder} />
+        </>
+      </Modal>
+    </>
   );
 };
+export default PurchaseRequestView;
