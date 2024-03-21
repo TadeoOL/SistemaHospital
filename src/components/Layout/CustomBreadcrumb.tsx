@@ -42,7 +42,7 @@ const CustomBreadcrumb = () => {
 
 	return (
 		<div role="presentation" onClick={handleClick}>
-			<Box component="main" sx={{ pt: 3, pl: 3, flexGrow: 1 }}>
+			<Box component="main" sx={{ pt: 3, flexGrow: 1 }}>
 				<Container maxWidth={"xl"}>
 					<Breadcrumbs aria-label="breadcrumb">
 						<Typography
