@@ -4,6 +4,7 @@ import {
   buttonClasses,
   createTheme,
   filledInputClasses,
+  inputClasses,
   inputLabelClasses,
   outlinedInputClasses,
   paperClasses,
@@ -219,6 +220,11 @@ export function createComponents(config: { palette: any }): Components {
     },
     MuiInputBase: {
       styleOverrides: {
+        [`&.${inputClasses.multiline}`]: {
+          display: "flex",
+          alignItems: "start",
+          height: 100,
+        },
         input: {
           "&::placeholder": {
             opacity: 0.4,
@@ -288,6 +294,12 @@ export function createComponents(config: { palette: any }): Components {
           [`&.${filledInputClasses.error}`]: {
             borderColor: alpha(palette.error.main, 0.6),
             boxShadow: `${alpha(palette.error.main, 0.2)} 0 0 0 2px`,
+          },
+          [`&.${filledInputClasses.multiline}`]: {
+            display: "flex",
+            alignItems: "start",
+            height: 100,
+            overflowY: "auto",
           },
         },
         input: {

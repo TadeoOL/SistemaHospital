@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { useGetArticles } from "../../../../../hooks/useGetArticles";
 import { useGetAlmacenes } from "../../../../../hooks/useGetAlmacenes";
 import { addNewExistingArticle } from "../../../../../api/api.routes";
-import { useExistingArticlePagination } from "../../../../../store/purchaseStore/existingArticlePagination";
+import { useExistingArticlePagination } from "../../../../../store/warehouseStore/existingArticlePagination";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CancelIcon from "@mui/icons-material/Cancel";
 

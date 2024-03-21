@@ -3,7 +3,6 @@ import {
   IAddUser,
   IArticle,
   ICategory,
-  IExistingArticle,
   IProvider,
   IPurchaseConfig,
   IRegisterOrderPurchase,
@@ -404,38 +403,6 @@ export const getExistingArticleById = async (existingArticleId: string) => {
   return res.data;
 };
 
-export const modifyExistingArticle = async (
-  existingArticle: IExistingArticle
-) => {
-  const {
-    id,
-    id_almacen,
-    id_articulo,
-    factor,
-    fechaCaducidad,
-    fechaCompra,
-    precioCompra,
-    precioVenta,
-    cantidad,
-  } = existingArticle;
-
-  const res = await axios.put(
-    `/api/ArticuloExistente/actualizar-articulo-existente`,
-    {
-      id,
-      id_almacen,
-      id_articulo,
-      factor,
-      fechaCaducidad,
-      fechaCompra,
-      precioCompra,
-      precioVenta,
-      cantidad,
-    }
-  );
-  return res.data;
-};
-
 export const getAllArticles = async () => {
   const res = await axios.get(`/api/Articulo/obtener-articulos`);
   return res.data;
@@ -496,36 +463,6 @@ export const getCategoryById = async (categoryId: string) => {
 
 export const getSubCategoryById = async (subCategoryId: string) => {
   const res = await axios.get(`/api/SubCategoria/${subCategoryId}`);
-  return res.data;
-};
-
-export const addNewExistingArticle = async (
-  existingArticle: IExistingArticle
-) => {
-  const {
-    id_almacen,
-    id_articulo,
-    factor,
-    fechaCaducidad,
-    fechaCompra,
-    precioCompra,
-    precioVenta,
-    cantidad,
-  } = existingArticle;
-
-  const res = await axios.post(
-    `/api/ArticuloExistente/registrar-articulo-existente`,
-    {
-      id_almacen,
-      id_articulo,
-      factor,
-      fechaCaducidad,
-      fechaCompra,
-      precioCompra,
-      precioVenta,
-      cantidad,
-    }
-  );
   return res.data;
 };
 
@@ -897,5 +834,24 @@ export const getSideBardWarehouse = async () => {
 
 export const getWarehouseById = async (warehouseId: string) => {
   const res = await axios.get(`/api/Almacen/${warehouseId}`);
+  return res.data;
+};
+
+export const getWarehousePurchaseOrders = async () => {
+  const res = await axios.get(
+    "https://65e5ea50d7f0758a76e7be0f.mockapi.io/api/ordenesCompra"
+  );
+  return res.data;
+};
+
+export const getSubWarehouses = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-almacen?${paramUrl}`);
+  return res.data;
+};
+
+export const getUsersBySearch = async (paramUrl: string) => {
+  const res = await axios.get(
+    `/api/Usuario/busqueda-usuario?Search=${paramUrl}`
+  );
   return res.data;
 };

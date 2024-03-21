@@ -21,6 +21,7 @@ import { useShallow } from "zustand/react/shallow";
 import { IModuleItems } from "../../types/types";
 import { ExpandLess, ExpandMore, Info } from "@mui/icons-material";
 import { getSideBardWarehouse } from "../../api/api.routes";
+import { useSubWarehousePaginationStore } from "../../store/warehouseStore/subWarehousePagination";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -82,6 +83,8 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
       if (!isOpen) {
         setIsOpen(true);
         setChildOpen(true);
+      } else {
+        setChildOpen(!childOpen);
       }
     }
   };
@@ -142,7 +145,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
             justifyContent: "flex-end",
           }}
         >
-          {children && isOpen ? (
+          {(children && isOpen) || (title === "Almacén" && isOpen) ? (
             <ListItemButton
               sx={{
                 justifyContent: "center",
@@ -168,7 +171,10 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
           warehouses.map((w) => (
             <ListItemButton
               key={w.id}
-              onClick={() => navigate(`/almacenes/${w.id}`)}
+              onClick={() => {
+                useSubWarehousePaginationStore.getState().clearData();
+                navigate(`/almacenes/${w.id}`);
+              }}
             >
               <ListItemIcon>
                 <Info />

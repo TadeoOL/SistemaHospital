@@ -21,7 +21,7 @@ import {
 } from "../../../../../api/api.routes";
 import { useGetArticles } from "../../../../../hooks/useGetArticles";
 import { useGetAlmacenes } from "../../../../../hooks/useGetAlmacenes";
-import { useExistingArticlePagination } from "../../../../../store/purchaseStore/existingArticlePagination";
+import { useExistingArticlePagination } from "../../../../../store/warehouseStore/existingArticlePagination";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CancelIcon from "@mui/icons-material/Cancel";
 
