@@ -97,12 +97,9 @@ export const Layout: React.FC = () => {
 				<LayoutContainer>
 					<Suspense fallback={<LoadingView />}>
 						<Box component="main" sx={{ p: 3, flexGrow: 1 }}>
-							<CustomBreadcrumb />
 							<Container maxWidth={"xl"}>
-								<Typography
-									variant="h2"
-									sx={{ flexGrow: 1, pt: 3, pb: 3, pr: 3 }}
-								>
+								<CustomBreadcrumb />
+								<Typography variant="h2" sx={{ pt: 3, pb: 2 }}>
 									{currentPageMessage === ""
 										? returnTitleForDashboard(profile?.roles)
 										: currentPageMessage}
