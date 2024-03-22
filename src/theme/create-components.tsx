@@ -393,7 +393,7 @@ export function createComponents(config: { palette: any }): Components {
 			styleOverrides: {
 				root: {
 					"& .MuiTabs-indicator": {
-						backgroundColor: palette.primary.light,
+						backgroundColor: palette.primary.main,
 						height: 3,
 						borderLeft: `0.1rem solid ${palette.primary.contrastText}`,
 						borderRight: `0.1rem solid ${palette.primary.contrastText}`,
