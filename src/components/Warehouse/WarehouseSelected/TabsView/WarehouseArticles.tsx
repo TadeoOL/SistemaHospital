@@ -139,8 +139,10 @@ export const WarehouseArticles = () => {
             onPageChange={(e, value) => {
               e?.stopPropagation();
               // setPageIndex(value);
+              console.log({ value });
             }}
             onRowsPerPageChange={(e: any) => {
+              console.log({ e });
               // setPageSize(e.target.value);
             }}
             page={0}

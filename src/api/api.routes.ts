@@ -153,6 +153,11 @@ export const AdminChangeUsersPassword = async (
   return res.data;
 };
 
+export const getRoles = async () => {
+  const res = await axios.get(`/api/Usuario/obtener-roles`);
+  return res.data;
+};
+
 export const getProviders = async (paramUrl: string) => {
   const res = await axios.get(
     `/api/Proveedor/paginacion-proveedor?${paramUrl}`

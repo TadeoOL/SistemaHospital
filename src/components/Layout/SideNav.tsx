@@ -114,6 +114,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
           borderRadius: 1,
           mb: 1,
           p: 1,
+          width: "100%",
           display: "flex",
           flex: 1,
           alignItems: "center",
@@ -198,7 +199,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
                 selected={isActive}
                 sx={{
                   "&.Mui-selected": {
-                    backgroundColor: "rgba(4, 109, 189, 0.7)",
+                    backgroundColor: "#046DBD",
                     opacity: 1,
                   },
                   "&:hover": {
@@ -289,7 +290,7 @@ export const SideNav = () => {
           sx: {
             backgroundColor: "#24282C",
             color: "common.white",
-            width: isOpen ? 230 : 80,
+            width: isOpen ? 230 : 70,
             transition: "width 0.2s ease-in-out",
             borderRight: isOpen ? "none" : "1px solid transparent",
             overflowX: "hidden",

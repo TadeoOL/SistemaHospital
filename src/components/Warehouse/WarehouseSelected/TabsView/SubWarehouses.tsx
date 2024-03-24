@@ -124,9 +124,11 @@ export const SubWarehouses = () => {
               count={count}
               onPageChange={(e, value) => {
                 e?.stopPropagation();
+                console.log({ value });
                 // setPageIndex(value);
               }}
               onRowsPerPageChange={(e: any) => {
+                console.log({ e });
                 // setPageSize(e.target.value);
               }}
               page={pageIndex}
