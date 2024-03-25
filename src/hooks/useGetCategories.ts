@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { ICategory } from "../types/types";
-import { getAllCategories } from "../api/api.routes";
+import { useEffect, useState } from 'react';
+import { ICategory } from '../types/types';
+import { getAllCategories } from '../api/api.routes';
 
 export const useGetCategories = () => {
   const [isLoading, setIsLoading] = useState(true);

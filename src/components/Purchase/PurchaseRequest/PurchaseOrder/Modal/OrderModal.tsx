@@ -1,28 +1,20 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  Typography,
-  Modal,
-} from "@mui/material";
-import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { Download } from "@mui/icons-material";
-import { useState } from "react";
-import { getOrderRequestPdf } from "../../../../../api/api.routes";
-import { ViewPdf } from "../../../../Inputs/ViewPdf";
+import { Backdrop, Box, Button, CircularProgress, Stack, Typography, Modal } from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { Download } from '@mui/icons-material';
+import { useState } from 'react';
+import { getOrderRequestPdf } from '../../../../../api/api.routes';
+import { ViewPdf } from '../../../../Inputs/ViewPdf';
 
 const style = {
   width: 600,
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  display: "flex",
-  flexDirection: "column",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  display: 'flex',
+  flexDirection: 'column',
+  transform: 'translate(-50%, -50%)',
   boxShadow: 24,
-  overflowY: "auto",
+  overflowY: 'auto',
 };
 
 interface OrderModaProps {
@@ -33,7 +25,7 @@ interface OrderModaProps {
 export const OrderModal = (props: OrderModaProps) => {
   const { purchaseData, open } = props;
   const [viewPdf, setViewPdf] = useState(false);
-  const [pdf, setPdf] = useState("");
+  const [pdf, setPdf] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const pdfFetch = async () => {
     setIsLoading(true);
@@ -50,13 +42,10 @@ export const OrderModal = (props: OrderModaProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal
-          title={"Enviar orden de compra - Solicitud No. " + purchaseData.folio}
-          setOpen={open}
-        />
+        <HeaderModal title={'Enviar orden de compra - Solicitud No. ' + purchaseData.folio} setOpen={open} />
         <Stack
           sx={{
-            bgcolor: "white",
+            bgcolor: 'white',
             px: 8,
             py: 2,
             borderBottomLeftRadius: 12,
@@ -70,10 +59,10 @@ export const OrderModal = (props: OrderModaProps) => {
             </Typography>
             <Stack
               sx={{
-                display: "flex",
+                display: 'flex',
                 flex: 1,
-                justifyContent: "space-between",
-                flexDirection: "row",
+                justifyContent: 'space-between',
+                flexDirection: 'row',
               }}
             >
               <Button variant="contained">Enviar por whatsapp</Button>
@@ -81,24 +70,20 @@ export const OrderModal = (props: OrderModaProps) => {
             </Stack>
           </Stack>
           <Stack spacing={2}>
-            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
-              Orden de compra
-            </Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>Orden de compra</Typography>
             <Button
               variant="outlined"
               onClick={() => {
                 pdfFetch();
                 setViewPdf(true);
               }}
-              sx={{ alignContent: "center", display: "flex" }}
+              sx={{ alignContent: 'center', display: 'flex' }}
             >
               {<Download />}
               Descargar
             </Button>
           </Stack>
-          <Box
-            sx={{ display: "flex", flex: 1, justifyContent: "flex-end", mt: 5 }}
-          >
+          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end', mt: 5 }}>
             <Button variant="contained">Aceptar</Button>
           </Box>
         </Stack>

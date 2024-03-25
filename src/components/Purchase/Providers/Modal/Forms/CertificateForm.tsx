@@ -1,22 +1,10 @@
-import {
-  Box,
-  Grid,
-  Collapse,
-  Stack,
-  Tooltip,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IProvider } from "../../../../../types/types";
+import { Box, Grid, Collapse, Stack, Tooltip, IconButton, Typography } from '@mui/material';
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { IProvider } from '../../../../../types/types';
 // import { convertBase64 } from "../../../../../utils/functions/dataUtils";
-import { useDropzone } from "react-dropzone";
-import {
-  CloudUpload,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-} from "@mui/icons-material";
-import { useState } from "react";
+import { useDropzone } from 'react-dropzone';
+import { CloudUpload, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { useState } from 'react';
 // import { useCertificateProviderStore } from "../../../../../store/provider/certificateProvider";
 // import { shallow } from "zustand/shallow";
 
@@ -67,25 +55,25 @@ export const CertificateForm = (props: ICertificateForm) => {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
-      "application/pdf": [".pdf"],
+      'application/pdf': ['.pdf'],
     },
     maxFiles: 1,
   });
 
   return (
     <Box>
-      <Grid sx={{ display: "flex", flexDirection: "column" }}>
+      <Grid sx={{ display: 'flex', flexDirection: 'column' }}>
         <Grid>
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               flex: 1,
-              justifyContent: "space-between",
-              bgcolor: "#EDEDED",
+              justifyContent: 'space-between',
+              bgcolor: '#EDEDED',
               p: 1,
               borderRadius: 2,
-              alignItems: "center",
-              position: "relative",
+              alignItems: 'center',
+              position: 'relative',
             }}
           >
             <Stack direction="row" alignItems="center">
@@ -94,8 +82,8 @@ export const CertificateForm = (props: ICertificateForm) => {
               </IconButton>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
                 {isCollapseOpenBP
-                  ? "Ocultar Certificado buenas practicas de manofactura"
-                  : "Certificado buenas practicas de manofactura"}
+                  ? 'Ocultar Certificado buenas practicas de manofactura'
+                  : 'Certificado buenas practicas de manofactura'}
               </Typography>
             </Stack>
           </Box>
@@ -104,12 +92,12 @@ export const CertificateForm = (props: ICertificateForm) => {
               sx={{
                 my: 1,
                 p: 4,
-                border: "1px #B4B4B8 dashed",
+                border: '1px #B4B4B8 dashed',
                 borderRadius: 1,
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
-              {...getRootProps({ className: "dropzone" })}
+              {...getRootProps({ className: 'dropzone' })}
             >
               <Box>
                 <input {...getInputProps({ onClick: () => handleDrop(1) })} />
@@ -119,18 +107,18 @@ export const CertificateForm = (props: ICertificateForm) => {
                       sx={{
                         width: 40,
                         height: 40,
-                        color: "Gray",
-                        marginLeft: "255px",
+                        color: 'Gray',
+                        marginLeft: '255px',
                       }}
                     />
                   </IconButton>
                 </Tooltip>
                 <Typography
                   sx={{
-                    color: "#B4B4B8",
+                    color: '#B4B4B8',
                     fontSize: 14,
                     fontWeight: 700,
-                    textAlign: "center",
+                    textAlign: 'center',
                   }}
                 >
                   Arrastra y suelta tus archivos aquí para subirlos
@@ -143,14 +131,14 @@ export const CertificateForm = (props: ICertificateForm) => {
         <Grid item xs={12} lg={6}>
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               flex: 1,
-              justifyContent: "space-between",
-              bgcolor: "#EDEDED",
+              justifyContent: 'space-between',
+              bgcolor: '#EDEDED',
               p: 1,
               borderRadius: 2,
-              alignItems: "center",
-              position: "relative",
+              alignItems: 'center',
+              position: 'relative',
               mt: 1,
             }}
           >
@@ -160,8 +148,8 @@ export const CertificateForm = (props: ICertificateForm) => {
               </IconButton>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
                 {isCollapseOpenCR
-                  ? "Ocultar Certificado de cumplimiento regulatorio"
-                  : "Certificado de cumplimiento regulatorio"}
+                  ? 'Ocultar Certificado de cumplimiento regulatorio'
+                  : 'Certificado de cumplimiento regulatorio'}
               </Typography>
             </Stack>
           </Box>
@@ -170,33 +158,33 @@ export const CertificateForm = (props: ICertificateForm) => {
               sx={{
                 my: 1,
                 p: 4,
-                border: "1px #B4B4B8 dashed",
+                border: '1px #B4B4B8 dashed',
                 borderRadius: 1,
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
-              {...getRootProps({ className: "dropzone" })}
+              {...getRootProps({ className: 'dropzone' })}
             >
               <Box>
-                <input {...getInputProps()} {...register("urlCertificadoCR")} />
+                <input {...getInputProps()} {...register('urlCertificadoCR')} />
                 <Tooltip title="Certificado de cumplimiento regulatorio">
                   <IconButton>
                     <CloudUpload
                       sx={{
                         width: 40,
                         height: 40,
-                        color: "Gray",
-                        marginLeft: "255px",
+                        color: 'Gray',
+                        marginLeft: '255px',
                       }}
                     />
                   </IconButton>
                 </Tooltip>
                 <Typography
                   sx={{
-                    color: "#B4B4B8",
+                    color: '#B4B4B8',
                     fontSize: 14,
                     fontWeight: 700,
-                    textAlign: "center",
+                    textAlign: 'center',
                   }}
                 >
                   Arrastra y suelta tus archivos aquí para subirlos
@@ -210,29 +198,23 @@ export const CertificateForm = (props: ICertificateForm) => {
         <Grid item xs={12} lg={6}>
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               flex: 1,
-              justifyContent: "space-between",
-              bgcolor: "#EDEDED",
+              justifyContent: 'space-between',
+              bgcolor: '#EDEDED',
               p: 1,
               borderRadius: 2,
-              alignItems: "center",
-              position: "relative",
+              alignItems: 'center',
+              position: 'relative',
               mt: 1,
             }}
           >
             <Stack direction="row" alignItems="center">
               <IconButton onClick={toggleCollapseISO}>
-                {isCollapseOpenISO ? (
-                  <KeyboardArrowUp />
-                ) : (
-                  <KeyboardArrowDown />
-                )}
+                {isCollapseOpenISO ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
               </IconButton>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-                {isCollapseOpenISO
-                  ? "Ocultar Certificado ISO 9001"
-                  : "Certificado ISO 9001"}
+                {isCollapseOpenISO ? 'Ocultar Certificado ISO 9001' : 'Certificado ISO 9001'}
               </Typography>
             </Stack>
           </Box>
@@ -241,36 +223,33 @@ export const CertificateForm = (props: ICertificateForm) => {
               sx={{
                 my: 1,
                 p: 4,
-                border: "1px #B4B4B8 dashed",
+                border: '1px #B4B4B8 dashed',
                 borderRadius: 1,
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
-              {...getRootProps({ className: "dropzone" })}
+              {...getRootProps({ className: 'dropzone' })}
             >
               <Box>
-                <input
-                  {...getInputProps()}
-                  {...register("urlCertificadoISO9001")}
-                />
+                <input {...getInputProps()} {...register('urlCertificadoISO9001')} />
                 <Tooltip title="Certificado ISO 9001">
                   <IconButton>
                     <CloudUpload
                       sx={{
                         width: 40,
                         height: 40,
-                        color: "Gray",
-                        marginLeft: "255px",
+                        color: 'Gray',
+                        marginLeft: '255px',
                       }}
                     />
                   </IconButton>
                 </Tooltip>
                 <Typography
                   sx={{
-                    color: "#B4B4B8",
+                    color: '#B4B4B8',
                     fontSize: 14,
                     fontWeight: 700,
-                    textAlign: "center",
+                    textAlign: 'center',
                   }}
                 >
                   Arrastra y suelta tus archivos aquí para subirlos

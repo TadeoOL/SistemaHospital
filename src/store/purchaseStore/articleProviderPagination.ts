@@ -1,5 +1,5 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { getArticles } from "../../api/api.routes";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { getArticles } from '../../api/api.routes';
 
 interface State {
   count: number;
@@ -20,20 +20,11 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
-  setHandleChangeArticleProvider: (
-    handleChangeArticleProvider: boolean
-  ) => void;
-  fetchArticlesProvider: (
-    pageIndex: number,
-    pageSize: number,
-    search: string,
-    enabled: boolean
-  ) => Promise<void>;
+  setHandleChangeArticleProvider: (handleChangeArticleProvider: boolean) => void;
+  fetchArticlesProvider: (pageIndex: number, pageSize: number, search: string, enabled: boolean) => Promise<void>;
 }
 
-export const useArticleProviderPagination = createWithEqualityFn<
-  State & Action
->((set) => ({
+export const useArticleProviderPagination = createWithEqualityFn<State & Action>((set) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -41,29 +32,23 @@ export const useArticleProviderPagination = createWithEqualityFn<
   pageSize: 5,
   data: [],
   isLoading: true,
-  search: "",
+  search: '',
   enabled: true,
   handleChangeArticleProvider: false,
-  setHandleChangeArticleProvider: (handleChangeArticleProvider: boolean) =>
-    set({ handleChangeArticleProvider }),
+  setHandleChangeArticleProvider: (handleChangeArticleProvider: boolean) => set({ handleChangeArticleProvider }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchArticlesProvider: async (
-    pageIndex: number,
-    pageSize: number,
-    search: string,
-    enabled: boolean
-  ) => {
+  fetchArticlesProvider: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getArticles(
-        `${page === 0 ? "" : "pageIndex=" + page}&${
-          pageSize === 0 ? "" : "pageSize=" + pageSize
+        `${page === 0 ? '' : 'pageIndex=' + page}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}`
       );
       set(() => ({

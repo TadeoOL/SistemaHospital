@@ -1,6 +1,6 @@
-import { useShallow } from "zustand/react/shallow";
-import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
-import { Box, TextField } from "@mui/material";
+import { useShallow } from 'zustand/react/shallow';
+import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
+import { Box, TextField } from '@mui/material';
 
 export const Note = () => {
   const { setNote, note } = useDirectlyPurchaseRequestOrderStore(
@@ -16,10 +16,10 @@ export const Note = () => {
         rows={5}
         label="Escribe una nota..."
         sx={{
-          "& legend": { display: "none" },
-          "& .MuiInputLabel-shrink": {
+          '& legend': { display: 'none' },
+          '& .MuiInputLabel-shrink': {
             opacity: 0,
-            transition: "all 0.2s ease-in",
+            transition: 'all 0.2s ease-in',
             padding: 1,
           },
         }}

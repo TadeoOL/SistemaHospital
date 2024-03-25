@@ -10,86 +10,68 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@mui/material";
-import { IProvider } from "../../../../types/types";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import {
-  FieldErrors,
-  SubmitHandler,
-  UseFormRegister,
-  useForm,
-} from "react-hook-form";
-import { addNewProviderSchema } from "../../../../schema/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-toastify";
-import { BasicInfoForm } from "./Forms/BasicInfoForm";
-import { useEffect, useState } from "react";
-import { FiscalForm } from "./Forms/FiscalForm";
-import { CertificateForm } from "./Forms/CertificateForm";
-import Swal from "sweetalert2";
-import { modifyProvider } from "../../../../api/api.routes";
-import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
-import { useGetProvider } from "../../../../hooks/useGetProvider";
-import { shallow } from "zustand/shallow";
-import CancelIcon from "@mui/icons-material/Cancel";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import SaveIcon from "@mui/icons-material/Save";
+} from '@mui/material';
+import { IProvider } from '../../../../types/types';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { FieldErrors, SubmitHandler, UseFormRegister, useForm } from 'react-hook-form';
+import { addNewProviderSchema } from '../../../../schema/schemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
+import { BasicInfoForm } from './Forms/BasicInfoForm';
+import { useEffect, useState } from 'react';
+import { FiscalForm } from './Forms/FiscalForm';
+import { CertificateForm } from './Forms/CertificateForm';
+import Swal from 'sweetalert2';
+import { modifyProvider } from '../../../../api/api.routes';
+import { useProviderPagination } from '../../../../store/purchaseStore/providerPagination';
+import { useGetProvider } from '../../../../hooks/useGetProvider';
+import { shallow } from 'zustand/shallow';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SaveIcon from '@mui/icons-material/Save';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, lg: 600 },
   borderRadius: 2,
   boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const styleBar = {
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
 const stepsForm = [
   {
-    id: "step 1",
-    title: "Información general",
-    fields: [
-      "nombreCompania",
-      "nombreContacto",
-      "puesto",
-      "direccion",
-      "telefono",
-      "correoElectronico",
-    ],
+    id: 'step 1',
+    title: 'Información general',
+    fields: ['nombreCompania', 'nombreContacto', 'puesto', 'direccion', 'telefono', 'correoElectronico'],
   },
   {
-    id: "step 2",
-    title: "Información fiscal",
-    fields: [
-      "rfc",
-      "nif",
-      "giroEmpresa",
-      "direccionFiscal",
-      "tipoContribuyente",
-    ],
+    id: 'step 2',
+    title: 'Información fiscal',
+    fields: ['rfc', 'nif', 'giroEmpresa', 'direccionFiscal', 'tipoContribuyente'],
   },
   {
-    id: "step 3",
-    title: "Certificaciones",
-    fields: ["urlCertificadoBP", "urlCertificadoCR", "urlCertificadoISO9001"],
+    id: 'step 3',
+    title: 'Certificaciones',
+    fields: ['urlCertificadoBP', 'urlCertificadoCR', 'urlCertificadoISO9001'],
   },
 ];
 
@@ -103,13 +85,7 @@ const renderStepForm = (
     case 0:
       return <BasicInfoForm errors={errors} register={register} />;
     case 1:
-      return (
-        <FiscalForm
-          errors={errors}
-          register={register}
-          tipoContribuyente={tipoContribuyente}
-        />
-      );
+      return <FiscalForm errors={errors} register={register} tipoContribuyente={tipoContribuyente} />;
     case 2:
       return <CertificateForm errors={errors} register={register} />;
     default:
@@ -127,15 +103,14 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   const [step, setStep] = useState(0);
   const [disabledButtons, setDisabledButtons] = useState(false);
   const theme = useTheme();
-  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
-  const { handleChangeProvider, setHandleChangeProvider } =
-    useProviderPagination(
-      (state) => ({
-        handleChangeProvider: state.handleChangeProvider,
-        setHandleChangeProvider: state.setHandleChangeProvider,
-      }),
-      shallow
-    );
+  const lgUp = useMediaQuery(theme.breakpoints.up('lg'));
+  const { handleChangeProvider, setHandleChangeProvider } = useProviderPagination(
+    (state) => ({
+      handleChangeProvider: state.handleChangeProvider,
+      setHandleChangeProvider: state.setHandleChangeProvider,
+    }),
+    shallow
+  );
 
   const {
     register,
@@ -175,20 +150,20 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
     try {
       await modifyProvider({
         ...data,
-        id: providerData ? providerData.id : "",
+        id: providerData ? providerData.id : '',
       });
       setDisabledButtons(true);
       setHandleChangeProvider(!handleChangeProvider);
-      toast.success("Proveedor modificado correctamente!");
+      toast.success('Proveedor modificado correctamente!');
       props.setOpen(false);
       Swal.fire({
-        title: "Operación Exitosa",
-        text: "El proveedor ha sido modificado correctamente.",
-        icon: "success",
+        title: 'Operación Exitosa',
+        text: 'El proveedor ha sido modificado correctamente.',
+        icon: 'success',
       });
     } catch (error) {
       console.log(error);
-      toast.error("Error al modificar proveedor!");
+      toast.error('Error al modificar proveedor!');
     }
   };
 
@@ -212,10 +187,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
 
   if (isLoading || !providerData)
     return (
-      <Backdrop
-        open
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
+      <Backdrop open sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <CircularProgress />
       </Backdrop>
     );
@@ -226,8 +198,8 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       <Box
         sx={{
           maxHeight: 600,
-          overflowY: "auto",
-          bgcolor: "background.paper",
+          overflowY: 'auto',
+          bgcolor: 'background.paper',
           ...styleBar,
         }}
       >
@@ -246,10 +218,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                     <Step key={step.id}>
                       <StepLabel>
                         {
-                          <Typography
-                            fontSize={lgUp ? 14 : 12}
-                            fontWeight={500}
-                          >
+                          <Typography fontSize={lgUp ? 14 : 12} fontWeight={500}>
                             {step.title}
                           </Typography>
                         }
@@ -257,20 +226,15 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                     </Step>
                   ))}
                 </Stepper>
-                {renderStepForm(
-                  step,
-                  errors,
-                  register,
-                  providerData.tipoContribuyente
-                )}
+                {renderStepForm(step, errors, register, providerData.tipoContribuyente)}
               </Stack>
               <Stack
                 sx={{
-                  flexDirection: "row",
-                  display: "flex",
+                  flexDirection: 'row',
+                  display: 'flex',
                   flex: 1,
-                  justifyContent: "space-between",
-                  position: "sticky",
+                  justifyContent: 'space-between',
+                  position: 'sticky',
                 }}
               >
                 <Button
@@ -278,9 +242,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                   color="error"
                   disabled={disabledButtons}
                   onClick={() => {
-                    step === 0
-                      ? props.setOpen(false)
-                      : setStep((prevStep) => prevStep - 1);
+                    step === 0 ? props.setOpen(false) : setStep((prevStep) => prevStep - 1);
                   }}
                 >
                   {step === 0 ? (
@@ -295,11 +257,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
                     </Stack>
                   )}
                 </Button>
-                <Button
-                  variant="contained"
-                  onClick={nextStep}
-                  disabled={disabledButtons}
-                >
+                <Button variant="contained" onClick={nextStep} disabled={disabledButtons}>
                   {step === stepsForm.length - 1 ? (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <span>Guardar</span>

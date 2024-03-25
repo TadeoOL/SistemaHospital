@@ -1,4 +1,4 @@
-import { Warehouse } from "../../components/Warehouse/Warehouse";
+import { Warehouse } from '../../components/Warehouse/Warehouse';
 
 const WarehouseView = () => {
   return <Warehouse />;

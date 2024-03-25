@@ -1,12 +1,12 @@
-import axios from "axios";
-import { useAuthStore } from "../store/auth";
+import axios from 'axios';
+import { useAuthStore } from '../store/auth';
 
 const API_ENV =
-  import.meta.env.MODE === "production"
+  import.meta.env.MODE === 'production'
     ? import.meta.env.VITE_PRODUCTION_API
-    : import.meta.env.MODE === "development"
-    ? import.meta.env.VITE_DEVELOP_API
-    : "";
+    : import.meta.env.MODE === 'development'
+      ? import.meta.env.VITE_DEVELOP_API
+      : '';
 
 const authApi = axios.create({
   withCredentials: true,

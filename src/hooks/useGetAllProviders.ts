@@ -1,6 +1,6 @@
-import { getAllProviders } from "../api/api.routes";
-import { IProvider } from "../types/types";
-import { useQuery } from "@tanstack/react-query";
+import { getAllProviders } from '../api/api.routes';
+import { IProvider } from '../types/types';
+import { useQuery } from '@tanstack/react-query';
 
 export const useGetAllProviders = () => {
   const {
@@ -8,7 +8,7 @@ export const useGetAllProviders = () => {
     isError,
     isLoading,
   } = useQuery({
-    queryKey: ["allProviders"],
+    queryKey: ['allProviders'],
     queryFn: async () => getAllProviders(),
   });
 

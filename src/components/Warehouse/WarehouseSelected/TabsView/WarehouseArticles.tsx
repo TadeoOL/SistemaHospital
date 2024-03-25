@@ -17,45 +17,41 @@ import {
   alpha,
   styled,
   tableCellClasses,
-} from "@mui/material";
-import { useWarehouseTabsNavStore } from "../../../../store/warehouseStore/warehouseTabsNav";
-import { useShallow } from "zustand/react/shallow";
-import React, { useEffect, useState } from "react";
-import {
-  IExistingArticle,
-  IExistingArticleList,
-} from "../../../../types/types";
-import { Edit, ExpandLess, ExpandMore, Info } from "@mui/icons-material";
-import { SearchBar } from "../../../Inputs/SearchBar";
-import { useExistingArticlePagination } from "../../../../store/warehouseStore/existingArticlePagination";
-import { shallow } from "zustand/shallow";
+} from '@mui/material';
+import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
+import { useShallow } from 'zustand/react/shallow';
+import React, { useEffect, useState } from 'react';
+import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
+import { Edit, ExpandLess, ExpandMore, Info } from '@mui/icons-material';
+import { SearchBar } from '../../../Inputs/SearchBar';
+import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
+import { shallow } from 'zustand/shallow';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 12,
   },
   [`&.${tableCellClasses.body}`]: {
-    border: "hidden",
+    border: 'hidden',
   },
   [`&.${tableCellClasses.root}`]: {
-    width: "33.33%",
+    width: '33.33%',
   },
 }));
 
 const useGetExistingArticles = (warehouseId: string) => {
-  const { data, setSearch, search, fetchExistingArticles, setWarehouseId } =
-    useExistingArticlePagination(
-      (state) => ({
-        data: state.data,
-        setSearch: state.setSearch,
-        search: state.search,
-        fetchExistingArticles: state.fetchExistingArticles,
-        setWarehouseId: state.setWarehouseId,
-      }),
-      shallow
-    );
+  const { data, setSearch, search, fetchExistingArticles, setWarehouseId } = useExistingArticlePagination(
+    (state) => ({
+      data: state.data,
+      setSearch: state.setSearch,
+      search: state.search,
+      fetchExistingArticles: state.fetchExistingArticles,
+      setWarehouseId: state.setWarehouseId,
+    }),
+    shallow
+  );
 
   useEffect(() => {
     setWarehouseId(warehouseId);
@@ -68,26 +64,20 @@ const useGetExistingArticles = (warehouseId: string) => {
   };
 };
 export const WarehouseArticles = () => {
-  const warehouseData = useWarehouseTabsNavStore(
-    useShallow((state) => state.warehouseData)
-  );
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const { data, setSearch } = useGetExistingArticles(warehouseData.id);
   return (
     <Stack spacing={2}>
       <Box
         sx={{
-          display: "flex",
+          display: 'flex',
           flex: 1,
-          justifyContent: "space-between",
-          alignItems: "center",
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
-        <SearchBar
-          title="Buscar artículos..."
-          sx={{ display: "flex", flex: 1 }}
-          searchState={setSearch}
-        />
-        <Box sx={{ display: "flex", flex: 2, justifyContent: "flex-end" }}>
+        <SearchBar title="Buscar artículos..." sx={{ display: 'flex', flex: 1 }} searchState={setSearch} />
+        <Box sx={{ display: 'flex', flex: 2, justifyContent: 'flex-end' }}>
           <Button variant="contained">Salida de artículos</Button>
         </Box>
       </Box>
@@ -109,25 +99,22 @@ export const WarehouseArticles = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data &&
-                data.map((article) => (
-                  <TableRowComponent article={article} key={article.id} />
-                ))}
+              {data && data.map((article) => <TableRowComponent article={article} key={article.id} />)}
             </TableBody>
           </Table>
           {!data ||
             (data.length === 0 && (
               <Box
                 sx={{
-                  display: "flex",
+                  display: 'flex',
                   flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
+                  justifyContent: 'center',
+                  alignItems: 'center',
                   p: 5,
                   columnGap: 1,
                 }}
               >
-                <Info sx={{ width: 40, height: 40, color: "gray" }} />
+                <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                 <Typography variant="h2" color="gray">
                   No hay artículos existentes
                 </Typography>
@@ -168,11 +155,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           <Checkbox />
         </TableCell>
         <TableCell>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton onClick={() => setOpen(!open)}>
-              {article.listaArticuloExistente &&
-              article.listaArticuloExistente.length > 0 &&
-              !open ? (
+              {article.listaArticuloExistente && article.listaArticuloExistente.length > 0 && !open ? (
                 <ExpandMore />
               ) : (
                 <ExpandLess />
@@ -212,9 +197,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
       <Table>
         <TableHead>
           <TableRow>
-            <StyledTableCell align="center">
-              Fecha de compra de lote
-            </StyledTableCell>
+            <StyledTableCell align="center">Fecha de compra de lote</StyledTableCell>
             <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
             <StyledTableCell align="center">Stock</StyledTableCell>
           </TableRow>
@@ -222,12 +205,8 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
         <TableBody>
           {article.map((a) => (
             <TableRow key={a.id}>
-              <StyledTableCell align="center">
-                {a.fechaCompraLote}
-              </StyledTableCell>
-              <StyledTableCell align="center">
-                {a.fechaCaducidad}
-              </StyledTableCell>
+              <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
+              <StyledTableCell align="center">{a.fechaCaducidad}</StyledTableCell>
               <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
             </TableRow>
           ))}

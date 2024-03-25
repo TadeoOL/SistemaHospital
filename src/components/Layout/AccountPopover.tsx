@@ -1,15 +1,8 @@
-import { useCallback } from "react";
-import {
-  Box,
-  Divider,
-  MenuItem,
-  MenuList,
-  Popover,
-  Typography,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/auth";
-import { toast } from "react-toastify";
+import { useCallback } from 'react';
+import { Box, Divider, MenuItem, MenuList, Popover, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/auth';
+import { toast } from 'react-toastify';
 
 interface IAccountPopover {
   open: boolean;
@@ -23,22 +16,22 @@ export const AccountPopover = (props: IAccountPopover) => {
 
   const handleSignOut = useCallback(() => {
     onClose?.();
-    toast.success("Saliste de la sesion exitosamente!");
+    toast.success('Saliste de la sesion exitosamente!');
     logout();
-    navigate("/login");
+    navigate('/login');
   }, [onClose, navigate]);
 
   const handleConfiguration = useCallback(() => {
     onClose?.();
-    navigate("/configuracion");
+    navigate('/configuracion');
   }, [onClose, navigate]);
 
   return (
     <Popover
       anchorEl={anchorEl}
       anchorOrigin={{
-        horizontal: "left",
-        vertical: "bottom",
+        horizontal: 'left',
+        vertical: 'bottom',
       }}
       onClose={onClose}
       open={open}
@@ -60,8 +53,8 @@ export const AccountPopover = (props: IAccountPopover) => {
         disablePadding
         dense
         sx={{
-          p: "8px",
-          "& > *": {
+          p: '8px',
+          '& > *': {
             borderRadius: 1,
           },
         }}

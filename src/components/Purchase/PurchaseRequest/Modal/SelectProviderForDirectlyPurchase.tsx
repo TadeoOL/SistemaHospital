@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import { useGetAllProviders } from "../../../../hooks/useGetAllProviders";
-import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
-import { toast } from "react-toastify";
-import { shallow } from "zustand/shallow";
+import { useCallback, useEffect, useState } from 'react';
+import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
+import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
+import { toast } from 'react-toastify';
+import { shallow } from 'zustand/shallow';
 import {
   Box,
   Button,
@@ -17,61 +17,43 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@mui/material";
-import {
-  Cancel,
-  Close,
-  CloudUpload,
-  Delete,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-} from "@mui/icons-material";
+} from '@mui/material';
+import { Cancel, Close, CloudUpload, Delete, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 
-import { useDropzone } from "react-dropzone";
-import { convertBase64 } from "../../../../utils/functions/dataUtils";
-import { Note } from "./Note";
+import { useDropzone } from 'react-dropzone';
+import { convertBase64 } from '../../../../utils/functions/dataUtils';
+import { Note } from './Note';
 
 export const SingleProvider = () => {
-  const {
-    step,
-    setStep,
-    pdf,
-    setPdf,
-    registerOrder,
-    setProvider,
-    provider,
-    setNeedAuth,
-  } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    step: state.step,
-    setStep: state.setStep,
-    pdf: state.pdf,
-    setPdf: state.setPdf,
-    registerOrder: state.registerOrder,
-    setProvider: state.setProvider,
-    provider: state.provider,
-    setNeedAuth: state.setNeedAuth,
-  }));
+  const { step, setStep, pdf, setPdf, registerOrder, setProvider, provider, setNeedAuth } =
+    useDirectlyPurchaseRequestOrderStore((state) => ({
+      step: state.step,
+      setStep: state.setStep,
+      pdf: state.pdf,
+      setPdf: state.setPdf,
+      registerOrder: state.registerOrder,
+      setProvider: state.setProvider,
+      provider: state.provider,
+      setNeedAuth: state.setNeedAuth,
+    }));
 
   const { isLoadingProviders, providers } = useGetAllProviders();
   const [error, setError] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<string[] | string>(
-    ""
-  );
+  const [selectedProvider, setSelectedProvider] = useState<string[] | string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [openCollapse, setOpenCollapse] = useState(false);
   const [viewPdf, setViewPdf] = useState(false);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      if (acceptedFiles.length === 0)
-        return toast.error("Error: Solo se puede adjuntar 1 archivo .pdf!");
+      if (acceptedFiles.length === 0) return toast.error('Error: Solo se puede adjuntar 1 archivo .pdf!');
       try {
         const base64 = await convertBase64(acceptedFiles[0]);
         setPdf(base64);
-        toast.success("Archivo subido con éxito!");
+        toast.success('Archivo subido con éxito!');
       } catch (error) {
         console.log(error);
-        toast.error("Error al subir el documento pdf!");
+        toast.error('Error al subir el documento pdf!');
       }
     },
     [registerOrder]
@@ -80,30 +62,24 @@ export const SingleProvider = () => {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
-      "application/pdf": [".pdf"],
+      'application/pdf': ['.pdf'],
     },
     maxFiles: 1,
   });
 
   const handleSubmit = async () => {
-    if (
-      (selectedProvider.length === 0 && !provider) ||
-      (provider instanceof Array && provider.length === 0)
-    )
+    if ((selectedProvider.length === 0 && !provider) || (provider instanceof Array && provider.length === 0))
       return setError(true);
     setIsLoading(true);
     setNeedAuth(true);
     setIsLoading(false);
     setStep(step + 1);
   };
-  const disableButton =
-    pdf.trim() === "" ||
-    !provider ||
-    (provider instanceof Array && provider.length === 0);
+  const disableButton = pdf.trim() === '' || !provider || (provider instanceof Array && provider.length === 0);
 
   if (isLoadingProviders)
     return (
-      <Box sx={{ display: "flex", flex: 1, justifyContent: "center" }}>
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
         <CircularProgress />
       </Box>
     );
@@ -111,36 +87,25 @@ export const SingleProvider = () => {
     <>
       <Stack spacing={4} sx={{ mt: 4 }}>
         <Stack spacing={2}>
-          <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
-            Selecciona el proveedor:
-          </Typography>
+          <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Selecciona el proveedor:</Typography>
           <TextField
             fullWidth
             size="small"
             select
             label="Proveedor"
-            value={
-              selectedProvider ||
-              (provider && !Array.isArray(provider) ? provider.id : "")
-            }
+            value={selectedProvider || (provider && !Array.isArray(provider) ? provider.id : '')}
             error={error && selectedProvider.length < 1}
-            helperText={
-              error && selectedProvider.length < 1
-                ? "Selecciona un proveedor"
-                : null
-            }
+            helperText={error && selectedProvider.length < 1 ? 'Selecciona un proveedor' : null}
             onChange={(e) => {
               setSelectedProvider([e.target.value]);
-              const providerData = providers.find(
-                (p) => p.id === e.target.value
-              );
+              const providerData = providers.find((p) => p.id === e.target.value);
               if (!providerData) return;
               setProvider(providerData);
             }}
           >
             {providers?.map((provider) => (
               <MenuItem value={provider.id} key={provider.id}>
-                {provider.nombreContacto + " - " + provider.nombreCompania}
+                {provider.nombreContacto + ' - ' + provider.nombreCompania}
               </MenuItem>
             ))}
           </TextField>
@@ -148,16 +113,16 @@ export const SingleProvider = () => {
         <Stack>
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               flex: 1,
-              justifyContent: "space-between",
-              bgcolor: "#EDEDED",
+              justifyContent: 'space-between',
+              bgcolor: '#EDEDED',
               p: 1,
               borderRadius: 2,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {openCollapse ? (
                 <IconButton
                   onClick={() => {
@@ -175,24 +140,22 @@ export const SingleProvider = () => {
                   <KeyboardArrowDown />
                 </IconButton>
               )}
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-                {pdf ? "Ver PDF" : " Subir PDF"}
-              </Typography>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>{pdf ? 'Ver PDF' : ' Subir PDF'}</Typography>
             </Box>
             <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-              Proveedor:{" "}
+              Proveedor:{' '}
               {provider && !Array.isArray(provider)
                 ? `${provider.nombreContacto} - ${provider.nombreCompania}`
-                : "Sin seleccionar"}
+                : 'Sin seleccionar'}
             </Typography>
           </Box>
           <Collapse in={openCollapse} sx={{ px: 2 }}>
-            {pdf.trim() !== "" ? (
+            {pdf.trim() !== '' ? (
               <Box
                 sx={{
-                  display: "flex",
+                  display: 'flex',
                   flex: 1,
-                  justifyContent: "center",
+                  justifyContent: 'center',
                   p: 1,
                 }}
               >
@@ -211,7 +174,7 @@ export const SingleProvider = () => {
                   <Tooltip title="Eliminar">
                     <IconButton
                       onClick={() => {
-                        setPdf("");
+                        setPdf('');
                       }}
                     >
                       <Delete />
@@ -224,21 +187,21 @@ export const SingleProvider = () => {
                 sx={{
                   my: 1,
                   p: 4,
-                  border: "1px #B4B4B8 dashed",
+                  border: '1px #B4B4B8 dashed',
                   borderRadius: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
-                {...getRootProps({ className: "dropzone" })}
+                {...getRootProps({ className: 'dropzone' })}
               >
-                <CloudUpload sx={{ width: 40, height: 40, color: "Gray" }} />
+                <CloudUpload sx={{ width: 40, height: 40, color: 'Gray' }} />
                 <input {...getInputProps()} />
                 <Typography
                   sx={{
-                    color: "#B4B4B8",
+                    color: '#B4B4B8',
                     fontSize: 14,
                     fontWeight: 700,
-                    textAlign: "center",
+                    textAlign: 'center',
                   }}
                 >
                   Arrastra y suelta tus archivos aquí para subirlos
@@ -252,12 +215,12 @@ export const SingleProvider = () => {
         </Stack>
         <Stack
           sx={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            position: "sticky",
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            position: 'sticky',
             bottom: 0,
             zIndex: 1,
-            backgroundColor: "white",
+            backgroundColor: 'white',
             mt: 2,
           }}
         >
@@ -284,25 +247,21 @@ export const SingleProvider = () => {
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
         <Stack
           sx={{
-            display: "flex",
-            position: "absolute",
-            width: "100%",
-            height: "100%",
+            display: 'flex',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <IconButton onClick={() => setViewPdf(false)}>
               <Close />
             </IconButton>
           </Box>
-          <ClickAwayListener
-            mouseEvent="onMouseDown"
-            touchEvent="onTouchStart"
-            onClickAway={() => setViewPdf(false)}
-          >
+          <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 flex: 10,
                 mx: 7,
                 mb: 3,
@@ -311,9 +270,9 @@ export const SingleProvider = () => {
               <embed
                 src={pdf}
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  border: "none",
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
                 }}
               />
             </Box>
@@ -325,25 +284,24 @@ export const SingleProvider = () => {
 };
 
 export const ManyProviders = () => {
-  const { setStep, step, setProvider, provider, setIsManyProviders } =
-    useDirectlyPurchaseRequestOrderStore(
-      (state) => ({
-        setStep: state.setStep,
-        step: state.step,
-        setProvider: state.setProvider,
-        provider: state.provider,
-        setIsManyProviders: state.setIsManyProviders,
-      }),
-      shallow
-    );
+  const { setStep, step, setProvider, provider, setIsManyProviders } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      setStep: state.setStep,
+      step: state.step,
+      setProvider: state.setProvider,
+      provider: state.provider,
+      setIsManyProviders: state.setIsManyProviders,
+    }),
+    shallow
+  );
   const { isLoadingProviders, providers } = useGetAllProviders();
   const [selectedProvider, setSelectedProvider] = useState<string[]>([]);
-  const [providerSelectedId, setProviderSelectedId] = useState("");
+  const [providerSelectedId, setProviderSelectedId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const providerName = (providerId: string) => {
     const providerRes = providers.find((item) => item.id === providerId);
-    return providerRes?.nombreContacto + " - " + providerRes?.nombreCompania;
+    return providerRes?.nombreContacto + ' - ' + providerRes?.nombreCompania;
   };
 
   useEffect(() => {
@@ -361,13 +319,10 @@ export const ManyProviders = () => {
   };
 
   const handleSubmit = async () => {
-    if (selectedProvider.length === 0 || selectedProvider.length !== 3)
-      return toast.error("Selecciona 3 proveedores");
+    if (selectedProvider.length === 0 || selectedProvider.length !== 3) return toast.error('Selecciona 3 proveedores');
 
     setIsLoading(true);
-    const providersData = providers.filter((p) =>
-      selectedProvider.some((sp) => p.id === sp)
-    );
+    const providersData = providers.filter((p) => selectedProvider.some((sp) => p.id === sp));
     setProvider(providersData);
     setIsManyProviders(true);
     setIsLoading(false);
@@ -376,7 +331,7 @@ export const ManyProviders = () => {
 
   if (isLoadingProviders)
     return (
-      <Box sx={{ display: "flex", flex: 1, justifyContent: "center" }}>
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
         <CircularProgress />
       </Box>
     );
@@ -384,9 +339,7 @@ export const ManyProviders = () => {
     <Stack sx={{ mt: 4 }}>
       <form noValidate onSubmit={handleSubmit}>
         <Stack spacing={1}>
-          <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
-            Selecciona los proveedores:
-          </Typography>
+          <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Selecciona los proveedores:</Typography>
           <TextField
             fullWidth
             size="small"
@@ -396,7 +349,7 @@ export const ManyProviders = () => {
               multiple: true,
               renderValue: (selected: any) => {
                 return (
-                  <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                     {selected.map((value: string) => (
                       <Chip
                         key={value}
@@ -405,11 +358,7 @@ export const ManyProviders = () => {
                         onDelete={() => {
                           handleDeleteProvider(value);
                         }}
-                        deleteIcon={
-                          <Cancel
-                            onMouseDown={(event) => event.stopPropagation()}
-                          />
-                        }
+                        deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
                       />
                     ))}
                   </div>
@@ -418,29 +367,19 @@ export const ManyProviders = () => {
             }}
             value={
               selectedProvider ||
-              (provider &&
-              (provider instanceof Array || Array.isArray(provider))
-                ? provider.flatMap((p) => p.id)
-                : [])
+              (provider && (provider instanceof Array || Array.isArray(provider)) ? provider.flatMap((p) => p.id) : [])
             }
             onChange={(e) => {
-              if (
-                selectedProvider.length === 3 &&
-                selectedProvider.some((i) => i === providerSelectedId)
-              ) {
-                toast.warning("No puedes agregar mas de 3 proveedores");
+              if (selectedProvider.length === 3 && selectedProvider.some((i) => i === providerSelectedId)) {
+                toast.warning('No puedes agregar mas de 3 proveedores');
               } else {
                 setSelectedProvider([...e.target.value]);
               }
             }}
           >
             {providers.map((provider) => (
-              <MenuItem
-                value={provider.id}
-                key={provider.id}
-                onClick={() => setProviderSelectedId(provider.id)}
-              >
-                {provider.nombreContacto + " - " + provider.nombreCompania}
+              <MenuItem value={provider.id} key={provider.id} onClick={() => setProviderSelectedId(provider.id)}>
+                {provider.nombreContacto + ' - ' + provider.nombreCompania}
               </MenuItem>
             ))}
           </TextField>
@@ -451,12 +390,12 @@ export const ManyProviders = () => {
       </form>
       <Stack
         sx={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          position: "sticky",
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          position: 'sticky',
           bottom: 0,
           zIndex: 1,
-          backgroundColor: "white",
+          backgroundColor: 'white',
           mt: 2,
         }}
       >
@@ -477,7 +416,7 @@ export const ManyProviders = () => {
           }}
           disabled={isLoading}
         >
-          {isLoading ? <CircularProgress size={15} /> : "Siguiente"}
+          {isLoading ? <CircularProgress size={15} /> : 'Siguiente'}
         </Button>
       </Stack>
     </Stack>

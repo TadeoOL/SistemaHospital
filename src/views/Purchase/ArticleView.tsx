@@ -1,7 +1,7 @@
-import Article from "../../components/Purchase/Articles/Article/Article";
+import Article from '../../components/Purchase/Articles/Article/Article';
 
 const ArticleView = () => {
-	return <Article />;
+  return <Article />;
 };
 
 export default ArticleView;

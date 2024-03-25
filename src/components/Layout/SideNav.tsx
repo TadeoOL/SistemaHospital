@@ -1,32 +1,26 @@
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
-import { styled, useTheme } from "@mui/material/styles";
-import {
-  Collapse,
-  Drawer,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
-import Plug from "../../assets/Plug.svg";
-import { useAppNavStore } from "../../store/appNav";
-import { ModuleItems } from "../../utils/ModuleItems";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import List from "@mui/material/List";
-import { useAuthStore } from "../../store/auth";
-import { useShallow } from "zustand/react/shallow";
-import { IModuleItems } from "../../types/types";
-import { ExpandLess, ExpandMore, Info } from "@mui/icons-material";
-import { getSideBardWarehouse } from "../../api/api.routes";
-import { useSubWarehousePaginationStore } from "../../store/warehouseStore/subWarehousePagination";
+import React, { useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
+import { styled, useTheme } from '@mui/material/styles';
+import { Collapse, Drawer, Stack, Typography, useMediaQuery } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Plug from '../../assets/Plug.svg';
+import { useAppNavStore } from '../../store/appNav';
+import { ModuleItems } from '../../utils/ModuleItems';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import List from '@mui/material/List';
+import { useAuthStore } from '../../store/auth';
+import { useShallow } from 'zustand/react/shallow';
+import { IModuleItems } from '../../types/types';
+import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
+import { getSideBardWarehouse } from '../../api/api.routes';
+import { useSubWarehousePaginationStore } from '../../store/warehouseStore/subWarehousePagination';
 
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
@@ -58,20 +52,12 @@ interface SideNavItemsProps {
   warehouses: { id: string; nombre: string }[];
 }
 
-const SideNavItems: React.FC<SideNavItemsProps> = ({
-  icon,
-  title,
-  path,
-  children,
-  warehouses,
-}) => {
-  const SelectedOptionColor = "#9ca1a5";
+const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses }) => {
+  const SelectedOptionColor = '#9ca1a5';
   const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
   const setIsOpen = useAppNavStore(useShallow((state) => state.setOpen));
-  const isActive = children
-    ? children.some((child) => child.path === location.pathname)
-    : path === location.pathname;
+  const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
   const navigate = useNavigate();
   const [childOpen, setChildOpen] = useState(false);
   const handleClick = () => {
@@ -101,32 +87,32 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
         }}
         selected={isActive}
         sx={{
-          "&.Mui-selected": {
-            backgroundColor: "#046DBD",
-            width: isOpen ? "100%" : "40px",
+          '&.Mui-selected': {
+            backgroundColor: '#046DBD',
+            width: isOpen ? '100%' : '40px',
           },
-          "&:hover": {
-            backgroundColor: "#373b3e",
+          '&:hover': {
+            backgroundColor: '#373b3e',
             opacity: 10,
-            width: isOpen ? "100%" : "40px",
+            width: isOpen ? '100%' : '40px',
           },
-          "&.Mui-selected:hover": { backgroundColor: SelectedOptionColor },
+          '&.Mui-selected:hover': { backgroundColor: SelectedOptionColor },
           borderRadius: 1,
           mb: 1,
           p: 1,
-          width: "100%",
-          display: "flex",
+          width: '100%',
+          display: 'flex',
           flex: 1,
-          alignItems: "center",
-          justifyContent: "space-between",
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
         <Box
           sx={{
-            display: "flex",
+            display: 'flex',
             flex: 1,
-            alignItems: "center",
-            justifyContent: "flex-start",
+            alignItems: 'center',
+            justifyContent: 'flex-start',
           }}
         >
           <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
@@ -134,7 +120,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
             <Typography
               variant="body1"
               sx={{
-                display: "inline",
+                display: 'inline',
               }}
             >
               {title}
@@ -143,14 +129,14 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
         </Box>
         <Box
           sx={{
-            justifyContent: "flex-end",
+            justifyContent: 'flex-end',
           }}
         >
-          {(children && isOpen) || (title === "Almacén" && isOpen) ? (
+          {(children && isOpen) || (title === 'Almacén' && isOpen) ? (
             <ListItemButton
               sx={{
-                justifyContent: "center",
-                "&:hover": { backgroundColor: "transparent" },
+                justifyContent: 'center',
+                '&:hover': { backgroundColor: 'transparent' },
                 p: 0,
                 width: 40,
                 height: 22,
@@ -167,7 +153,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
         </Box>
       </ListItemButton>
       <Collapse in={childOpen} unmountOnExit>
-        {title === "Almacén" &&
+        {title === 'Almacén' &&
           warehouses &&
           warehouses.map((w) => (
             <ListItemButton
@@ -185,8 +171,8 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
           ))}
         {children &&
           children.map((childItem, i) => {
-            const pathSplit = location.pathname.split("/");
-            const childSplit = childItem.path.split("/");
+            const pathSplit = location.pathname.split('/');
+            const childSplit = childItem.path.split('/');
             const isActive = pathSplit.includes(childSplit[2]);
             const uniqueKey = `${childItem.path}-${i}`;
             return (
@@ -198,15 +184,15 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
                 }}
                 selected={isActive}
                 sx={{
-                  "&.Mui-selected": {
-                    backgroundColor: "#046DBD",
+                  '&.Mui-selected': {
+                    backgroundColor: '#046DBD',
                     opacity: 1,
                   },
-                  "&:hover": {
-                    backgroundColor: "#373b3e",
+                  '&:hover': {
+                    backgroundColor: '#373b3e',
                     opacity: 1,
                   },
-                  "&.Mui-selected:hover": {
+                  '&.Mui-selected:hover': {
                     backgroundColor: SelectedOptionColor,
                   },
                   borderRadius: 1,
@@ -219,7 +205,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({
                   <Typography
                     variant="body1"
                     sx={{
-                      display: "inline",
+                      display: 'inline',
                     }}
                   >
                     {childItem.title}
@@ -238,7 +224,7 @@ export const SideNav = () => {
   const theme = useTheme();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
   const setIsOpen = useAppNavStore(useShallow((state) => state.setOpen));
-  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const xlUp = useMediaQuery(theme.breakpoints.up('lg'));
   const navigate = useNavigate();
   const profile = useAuthStore(useShallow((state) => state.profile));
 
@@ -251,14 +237,12 @@ export const SideNav = () => {
         }
         return false;
       });
-    const hideCatalogsForAbastecimiento =
-      item.title === "Catálogos" && profile?.roles.includes("DIRECTORCOMPRAS");
+    const hideCatalogsForAbastecimiento = item.title === 'Catálogos' && profile?.roles.includes('DIRECTORCOMPRAS');
 
     return (
       !isMainDashboard &&
       !hideCatalogsForAbastecimiento &&
-      (!item.protectedRoles ||
-        item.protectedRoles.some((role) => profile?.roles.includes(role)))
+      (!item.protectedRoles || item.protectedRoles.some((role) => profile?.roles.includes(role)))
     );
   });
 
@@ -270,64 +254,62 @@ export const SideNav = () => {
             setIsOpen(false);
           }}
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             zIndex: 999,
           }}
         />
       )}
       <Drawer
-        variant={xlUp ? "permanent" : isOpen ? "permanent" : "temporary"}
+        variant={xlUp ? 'permanent' : isOpen ? 'permanent' : 'temporary'}
         anchor="left"
         onClose={() => {
           setIsOpen(false);
         }}
         PaperProps={{
           sx: {
-            backgroundColor: "#24282C",
-            color: "common.white",
+            backgroundColor: '#24282C',
+            color: 'common.white',
             width: isOpen ? 230 : 70,
-            transition: "width 0.2s ease-in-out",
-            borderRight: isOpen ? "none" : "1px solid transparent",
-            overflowX: "hidden",
+            transition: 'width 0.2s ease-in-out',
+            borderRight: isOpen ? 'none' : '1px solid transparent',
+            overflowX: 'hidden',
           },
         }}
       >
         <DrawerHeader
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-            overflow: "hidden",
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            overflow: 'hidden',
           }}
         >
           <Box
             component="img"
             sx={{
               p: 2,
-              width: "140px",
+              width: '140px',
               maxHeight: 100,
-              objectFit: "contain",
-              filter: "invert(1)",
-              transition:
-                "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.04)",
+              objectFit: 'contain',
+              filter: 'invert(1)',
+              transition: 'background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
                 borderRadius: 1,
-                cursor: "pointer",
-                transition:
-                  "background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out",
+                cursor: 'pointer',
+                transition: 'background-color 0.3s ease-in-out, border-radius 0.3s ease-in-out',
               },
             }}
             src={Plug}
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
           />
         </DrawerHeader>
-        <Divider sx={{ borderColor: "gray", my: 1 }} />
+        <Divider sx={{ borderColor: 'gray', my: 1 }} />
         <Box
           component="nav"
           sx={{
@@ -340,7 +322,7 @@ export const SideNav = () => {
             component="ul"
             spacing={0.5}
             sx={{
-              listStyle: "none",
+              listStyle: 'none',
               p: 0,
               m: 0,
             }}

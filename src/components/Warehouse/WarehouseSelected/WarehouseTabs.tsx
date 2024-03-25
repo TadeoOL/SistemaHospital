@@ -1,6 +1,6 @@
-import { AppBar, Box, Tab, Tabs } from "@mui/material";
-import { useWarehouseTabsNavStore } from "../../../store/warehouseStore/warehouseTabsNav";
-import { useCallback } from "react";
+import { AppBar, Box, Tab, Tabs } from '@mui/material';
+import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
+import { useCallback } from 'react';
 
 export const WarehouseTabs = () => {
   const { tabValue, setTabValue } = useWarehouseTabsNavStore((state) => ({
@@ -8,15 +8,12 @@ export const WarehouseTabs = () => {
     setTabValue: state.setTabValue,
   }));
 
-  const handleChange = useCallback(
-    (event: React.SyntheticEvent, newValue: number) => {
-      event.stopPropagation();
-      setTabValue(newValue);
-    },
-    []
-  );
+  const handleChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
+    event.stopPropagation();
+    setTabValue(newValue);
+  }, []);
   return (
-    <Box sx={{ width: "auto" }}>
+    <Box sx={{ width: 'auto' }}>
       <AppBar
         position="static"
         sx={{

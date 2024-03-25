@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { getUsersBySearch } from "../api/api.routes";
-import { useShallow } from "zustand/react/shallow";
-import { useSubWarehousePaginationStore } from "../store/warehouseStore/subWarehousePagination";
+import { useEffect, useState } from 'react';
+import { getUsersBySearch } from '../api/api.routes';
+import { useShallow } from 'zustand/react/shallow';
+import { useSubWarehousePaginationStore } from '../store/warehouseStore/subWarehousePagination';
 
 type User = {
   id: string;
@@ -11,9 +11,7 @@ type User = {
 export const useGetUsersBySearch = () => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [usersRes, setUsersRes] = useState<User[]>([]);
-  const searchUser = useSubWarehousePaginationStore(
-    useShallow((state) => state.searchUser)
-  );
+  const searchUser = useSubWarehousePaginationStore(useShallow((state) => state.searchUser));
 
   useEffect(() => {
     const fetchData = async () => {

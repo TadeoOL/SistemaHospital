@@ -1,32 +1,24 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Stack,
-  TextField,
-  Typography,
-  createFilterOptions,
-} from "@mui/material";
-import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { useSubWarehousePaginationStore } from "../../../../../store/warehouseStore/subWarehousePagination";
-import { useShallow } from "zustand/react/shallow";
-import { useGetUsersBySearch } from "../../../../../hooks/useGetUsersBySearch";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { ISubWarehouse } from "../../../../../types/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useWarehouseTabsNavStore } from "../../../../../store/warehouseStore/warehouseTabsNav";
-import { addNewSubWarehouseSchema } from "../../../../../schema/schemas";
-import { addNewSubWarehouse } from "../../../../../api/api.routes";
+import { Autocomplete, Box, Button, Stack, TextField, Typography, createFilterOptions } from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { useSubWarehousePaginationStore } from '../../../../../store/warehouseStore/subWarehousePagination';
+import { useShallow } from 'zustand/react/shallow';
+import { useGetUsersBySearch } from '../../../../../hooks/useGetUsersBySearch';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { ISubWarehouse } from '../../../../../types/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
+import { addNewSubWarehouseSchema } from '../../../../../schema/schemas';
+import { addNewSubWarehouse } from '../../../../../api/api.routes';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380 },
   boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const OPTIONS_LIMIT = 5;
@@ -45,9 +37,7 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
       fetchSubWarehouse: state.fetchSubWarehouse,
     }))
   );
-  const warehouseData = useWarehouseTabsNavStore(
-    useShallow((state) => state.warehouseData)
-  );
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const { isLoadingUsers, usersRes } = useGetUsersBySearch();
 
   const {
@@ -80,7 +70,7 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
     <Box sx={style}>
       <HeaderModal title="Agregar nuevo SubAlmacén" setOpen={props.setOpen} />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={4} sx={{ bgcolor: "background.paper", p: 2, pl: 4 }}>
+        <Stack spacing={4} sx={{ bgcolor: 'background.paper', p: 2, pl: 4 }}>
           <Stack spacing={2}>
             <Box>
               <Typography variant="subtitle1">Nombre del SubAlmacén</Typography>
@@ -88,8 +78,8 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
                 fullWidth
                 placeholder="SubAlmacén"
                 size="small"
-                sx={{ width: "90%" }}
-                {...register("nombre")}
+                sx={{ width: '90%' }}
+                {...register('nombre')}
                 error={!!errors.nombre}
                 helperText={errors?.nombre?.message}
               />
@@ -100,16 +90,14 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
                 fullWidth
                 placeholder="Descripción"
                 multiline
-                sx={{ width: "90%" }}
-                {...register("descripcion")}
+                sx={{ width: '90%' }}
+                {...register('descripcion')}
                 error={!!errors.descripcion}
                 helperText={errors?.descripcion?.message}
               />
             </Box>
             <Box>
-              <Typography variant="subtitle1">
-                Encargado de SubAlmacén
-              </Typography>
+              <Typography variant="subtitle1">Encargado de SubAlmacén</Typography>
               <Controller
                 control={control}
                 name="usuarioEncargado"
@@ -126,11 +114,9 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
                       }}
                       loading={isLoadingUsers && usersRes.length === 0}
                       getOptionLabel={(option) => {
-                        const res = usersRes.find(
-                          (u) => u.id === option
-                        )?.nombre;
+                        const res = usersRes.find((u) => u.id === option)?.nombre;
                         if (res) return res;
-                        return "";
+                        return '';
                       }}
                       options={usersRes.flatMap((r) => r.id)}
                       value={controlledValue}
@@ -139,7 +125,7 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
                         <TextField
                           {...params}
                           placeholder="Usuarios"
-                          sx={{ width: "90%" }}
+                          sx={{ width: '90%' }}
                           required={false}
                           error={!!errors.usuarioEncargado}
                           helperText={errors?.usuarioEncargado?.message}
@@ -156,10 +142,10 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
           </Stack>
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               flex: 1,
-              justifyContent: "space-between",
-              alignItems: "center",
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
             <Button variant="outlined" color="error">

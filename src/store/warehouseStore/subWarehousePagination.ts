@@ -1,7 +1,7 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { getSubWarehouses } from "../../api/api.routes";
-import { ISubWarehouse } from "../../types/types";
-import { useWarehouseTabsNavStore } from "./warehouseTabsNav";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { getSubWarehouses } from '../../api/api.routes';
+import { ISubWarehouse } from '../../types/types';
+import { useWarehouseTabsNavStore } from './warehouseTabsNav';
 
 interface State {
   count: number;
@@ -29,9 +29,7 @@ interface Action {
   setSearchUser: (searchUser: string) => void;
 }
 
-export const useSubWarehousePaginationStore = createWithEqualityFn<
-  State & Action
->((set, get) => ({
+export const useSubWarehousePaginationStore = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -39,13 +37,12 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<
   pageSize: 5,
   data: null,
   isLoading: true,
-  search: "",
+  search: '',
   enabled: true,
   handleChangeSubWarehouse: false,
-  searchUser: "",
+  searchUser: '',
   setSearchUser: (searchUser: string) => set({ searchUser }),
-  setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) =>
-    set({ handleChangeSubWarehouse }),
+  setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => set({ handleChangeSubWarehouse }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
@@ -59,8 +56,8 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<
     const page = pageIndex + 1;
     try {
       const res = await getSubWarehouses(
-        `${page === 0 ? "" : "pageIndex=" + page}&${
-          pageSize === 0 ? "" : "pageSize=" + pageSize
+        `${page === 0 ? '' : 'pageIndex=' + page}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_AlmacenPrincipal=${
           useWarehouseTabsNavStore.getState().warehouseData.id
         }`
@@ -83,7 +80,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<
       pageCount: 0,
       pageIndex: 0,
       pageSize: 5,
-      search: "",
+      search: '',
       data: null,
       isLoading: true,
     }));

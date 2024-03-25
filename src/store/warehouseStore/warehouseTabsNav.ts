@@ -1,16 +1,16 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { IWarehouseData } from "../../types/types";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { IWarehouseData } from '../../types/types';
 
 const initialValues = {
-  nombre: "",
-  descripcion: "",
+  nombre: '',
+  descripcion: '',
   esSubAlmacen: false,
   id_AlmacenPrincipal: null,
   id_UsuarioEncargado: null,
   articuloExistentes: null,
-  id: "",
-  fechaCreacion: "",
-  fechaModificacion: "",
+  id: '',
+  fechaCreacion: '',
+  fechaModificacion: '',
   habilitado: true,
 };
 
@@ -24,11 +24,9 @@ interface Action {
   setWarehouseData: (warehouseData: IWarehouseData) => void;
 }
 
-export const useWarehouseTabsNavStore = createWithEqualityFn<State & Action>(
-  (set) => ({
-    tabValue: 0,
-    warehouseData: { ...initialValues },
-    setTabValue: (tabValue: number) => set({ tabValue }),
-    setWarehouseData: (warehouseData: IWarehouseData) => set({ warehouseData }),
-  })
-);
+export const useWarehouseTabsNavStore = createWithEqualityFn<State & Action>((set) => ({
+  tabValue: 0,
+  warehouseData: { ...initialValues },
+  setTabValue: (tabValue: number) => set({ tabValue }),
+  setWarehouseData: (warehouseData: IWarehouseData) => set({ warehouseData }),
+}));

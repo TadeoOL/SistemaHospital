@@ -1,4 +1,4 @@
-import { Delete, Info } from "@mui/icons-material";
+import { Delete, Info } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -15,30 +15,24 @@ import {
   TablePagination,
   TableRow,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { AddSubWarehouseModal } from "./Modal/AddSubWarehouseModal";
-import { useSubWarehousePaginationStore } from "../../../../store/warehouseStore/subWarehousePagination";
-import { ISubWarehouse } from "../../../../types/types";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
+import { useSubWarehousePaginationStore } from '../../../../store/warehouseStore/subWarehousePagination';
+import { ISubWarehouse } from '../../../../types/types';
 
 const useGetWarehouses = () => {
-  const {
-    data,
-    fetchSubWarehouse,
-    isLoading,
-    pageCount,
-    pageIndex,
-    pageSize,
-    count,
-  } = useSubWarehousePaginationStore((state) => ({
-    data: state.data,
-    fetchSubWarehouse: state.fetchSubWarehouse,
-    isLoading: state.isLoading,
-    pageCount: state.pageCount,
-    pageIndex: state.pageIndex,
-    pageSize: state.pageSize,
-    count: state.count,
-  }));
+  const { data, fetchSubWarehouse, isLoading, pageCount, pageIndex, pageSize, count } = useSubWarehousePaginationStore(
+    (state) => ({
+      data: state.data,
+      fetchSubWarehouse: state.fetchSubWarehouse,
+      isLoading: state.isLoading,
+      pageCount: state.pageCount,
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+    })
+  );
 
   useEffect(() => {
     fetchSubWarehouse();
@@ -63,10 +57,10 @@ export const SubWarehouses = () => {
       <Stack spacing={2} sx={{ py: 0.5 }}>
         <Box
           sx={{
-            display: "flex",
+            display: 'flex',
             flex: 1,
-            justifyContent: "flex-end",
-            alignItems: "center",
+            justifyContent: 'flex-end',
+            alignItems: 'center',
           }}
         >
           <Button variant="contained" onClick={() => setOpenModal(true)}>
@@ -86,17 +80,15 @@ export const SubWarehouses = () => {
               </TableHead>
               <TableBody>
                 {data && data.length > 0 ? (
-                  data.map((sw) => (
-                    <TableRowComponent subWarehouse={sw} key={sw.id} />
-                  ))
+                  data.map((sw) => <TableRowComponent subWarehouse={sw} key={sw.id} />)
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4}>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           flex: 1,
-                          justifyContent: "center",
+                          justifyContent: 'center',
                           p: 2,
                           columnGap: 1,
                         }}
@@ -105,9 +97,7 @@ export const SubWarehouses = () => {
                           <CircularProgress size={25} />
                         ) : (
                           <>
-                            <Info
-                              sx={{ width: 40, height: 40, color: "gray" }}
-                            />
+                            <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                             <Typography variant="h2" color="gray">
                               No hay subalmacenes
                             </Typography>
@@ -156,9 +146,7 @@ interface TableRowComponentProps {
   subWarehouse: ISubWarehouse;
 }
 
-const TableRowComponent: React.FC<TableRowComponentProps> = ({
-  subWarehouse,
-}) => {
+const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) => {
   return (
     <TableRow>
       <TableCell>{subWarehouse.nombre}</TableCell>
