@@ -2,7 +2,7 @@ import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField } f
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addSubCategory } from '../../../../../schema/schemas';
+import { addSubCategorySchema } from '../../../../../schema/schemas';
 import { ISubCategory } from '../../../../../types/types';
 import { useGetCategories } from '../../../../../hooks/useGetCategories';
 import { useState } from 'react';
@@ -61,8 +61,9 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
       nombre: '',
       descripcion: '',
       id_categoria: '',
+      iva: '',
     },
-    resolver: zodResolver(addSubCategory),
+    resolver: zodResolver(addSubCategorySchema),
   });
 
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
@@ -148,6 +149,14 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
                 </MenuItem>
               ))}
             </TextField>
+            <TextField
+              fullWidth
+              size="small"
+              label="I.V.A."
+              error={!!errors.iva}
+              helperText={errors?.iva?.message}
+              {...register('iva')}
+            ></TextField>
           </Stack>
           <Stack
             sx={{

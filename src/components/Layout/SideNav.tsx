@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { styled, useTheme } from '@mui/material/styles';
-import { Collapse, Drawer, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Collapse, Drawer, List, Stack, Typography, useMediaQuery } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Plug from '../../assets/Plug.svg';
 import { useAppNavStore } from '../../store/appNav';
-import { ModuleItems } from '../../utils/ModuleItems';
+import { ModuleList } from '../../utils/ModuleItems';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import List from '@mui/material/List';
 import { useAuthStore } from '../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
-import { IModuleItems } from '../../types/types';
+import { IModuleItems, IModuleItemsList } from '../../types/types';
 import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
 import { getSideBardWarehouse } from '../../api/api.routes';
 import { useSubWarehousePaginationStore } from '../../store/warehouseStore/subWarehousePagination';
@@ -228,7 +227,35 @@ export const SideNav = () => {
   const navigate = useNavigate();
   const profile = useAuthStore(useShallow((state) => state.profile));
 
-  const filteredItems = ModuleItems.filter((item) => {
+  const filteredItems: IModuleItemsList[] = ModuleList.reduce(
+    (accumulator: IModuleItemsList[], list: IModuleItemsList) => {
+      const filteredModuleItems = list.moduleItems.filter((item) => {
+        const isMainDashboard =
+          item.mainDashboard &&
+          profile?.roles.some((role) => {
+            if (item.mainDashboard) {
+              return item.mainDashboard.includes(role);
+            }
+            return false;
+          });
+        /*const hideCatalogsForAbastecimiento =
+          item.title === "Catálogos" && profile?.roles.includes("DIRECTORCOMPRAS");
+  */
+        return (
+          !isMainDashboard &&
+          (!item.protectedRoles || item.protectedRoles.some((role) => profile?.roles.includes(role)))
+        );
+      });
+
+      if (filteredModuleItems.length > 0) {
+        accumulator.push({ ...list, moduleItems: filteredModuleItems });
+      }
+
+      return accumulator;
+    },
+    []
+  );
+  /*const filteredItems = ModuleItems.filter((item) => {
     const isMainDashboard =
       item.mainDashboard &&
       profile?.roles.some((role) => {
@@ -244,7 +271,7 @@ export const SideNav = () => {
       !hideCatalogsForAbastecimiento &&
       (!item.protectedRoles || item.protectedRoles.some((role) => profile?.roles.includes(role)))
     );
-  });
+  });*/
 
   return (
     <>
@@ -328,15 +355,20 @@ export const SideNav = () => {
             }}
           >
             <List component="div" disablePadding>
-              {filteredItems.map((item, i) => (
-                <React.Fragment key={`${item.path}-${i}`}>
-                  <SideNavItems
-                    icon={item.icon}
-                    title={item.title}
-                    path={item.path}
-                    children={item.children}
-                    warehouses={warehouses as []}
-                  />
+              {filteredItems.map((list: IModuleItemsList) => (
+                <React.Fragment key={list.categoryTitle}>
+                  {isOpen && <Typography fontSize={12}>{list.categoryTitle}</Typography>}
+                  {list.moduleItems.map((item, i) => (
+                    <React.Fragment key={`${item.path}-${i}`}>
+                      <SideNavItems
+                        icon={item.icon}
+                        title={item.title}
+                        path={item.path}
+                        children={item.children}
+                        warehouses={warehouses as []}
+                      />
+                    </React.Fragment>
+                  ))}
                 </React.Fragment>
               ))}
             </List>

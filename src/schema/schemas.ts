@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/);
 
+const number = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
+
 export const loginSchema = z.object({
   userName: z.string().min(3, 'Escribe un nombre de usuario valido'),
   password: z
@@ -73,10 +75,18 @@ export const addNewProviderSchema = z.object({
   urlCertificadoISO9001: z.string().nullable().optional(),
 });
 
-export const addSubCategory = z.object({
+export const addSubCategorySchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().min(1, 'Escribe una descripción'),
   id_categoria: z.string().min(1, 'Selecciona una categoría'),
+  iva: z.string().min(1, 'Debe tener al menos una cifra').refine(
+    (value) => {
+      return number.test(value);
+    },
+    {
+      message: 'Número no valido.',
+    }
+  ),
 });
 
 export const addCategory = z.object({

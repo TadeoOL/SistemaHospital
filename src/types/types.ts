@@ -10,6 +10,11 @@ export interface IModuleItems {
   onClick?: () => void;
 }
 
+export interface IModuleItemsList{
+  categoryTitle: string;
+  moduleItems: IModuleItems[];
+}
+
 export interface IUser {
   id: string;
   nombre: string;
@@ -90,6 +95,7 @@ export interface ISubCategory {
   nombre: string;
   descripcion: string;
   id_categoria: string;
+  iva: string;
   categoria: ICategory;
 }
 

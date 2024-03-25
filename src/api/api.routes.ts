@@ -262,11 +262,12 @@ export const getAllCategories = async () => {
 };
 
 export const addNewSubCategory = async (data: ISubCategory) => {
-  const { nombre, descripcion, id_categoria } = data;
+  const { nombre, descripcion, id_categoria, iva, } = data;
   const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
     nombre,
     descripcion,
     id_categoria,
+    iva,
   });
   return res.data;
 };

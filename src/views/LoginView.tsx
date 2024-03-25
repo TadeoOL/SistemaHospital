@@ -1,7 +1,7 @@
 import { Paper, Box, Grid } from '@mui/material';
 import { LoginComponent } from '../components/Login/LoginComponent';
-import logo from '../assets/cuadro-azul-logo.png';
-import background from '../assets/quirofano1-fondo.png';
+import logo from '../assets/cuadro-azul-logo.webp';
+import background from '../assets/quirofano1-fondo.webp';
 import { useTheme } from '@mui/material/styles';
 
 export const LoginView = () => {
