@@ -255,13 +255,13 @@ export const addNewFactorSchema = z
     }
   );
 
-export const addNewSubWarehouse = z.object({
+export const addNewSubWarehouseSchema = z.object({
   nombre: z.string().min(1, "Escribe un nombre"),
   descripcion: z.string().optional(),
-  usuarioEncargado: z.string().refine(
-    (value) => {
-      value === null;
-    },
-    { message: "Selecciona un usuario" }
-  ),
+  usuarioEncargado: z
+    .string()
+    .nullish()
+    .refine((data) => data !== null && data !== undefined, {
+      message: "Selecciona un usuario",
+    }),
 });

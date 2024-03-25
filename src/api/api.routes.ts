@@ -1,5 +1,6 @@
 import axios from "../libs/axios";
 import {
+  IAddSubWarehouse,
   IAddUser,
   IArticle,
   ICategory,
@@ -859,4 +860,22 @@ export const getUsersBySearch = async (paramUrl: string) => {
     `/api/Usuario/busqueda-usuario?Search=${paramUrl}`
   );
   return res.data;
+};
+
+export const addNewSubWarehouse = async (data: IAddSubWarehouse) => {
+  const {
+    Id_AlmacenPrincipal,
+    descripcion,
+    Id_UsuarioEncargado,
+    esSubAlmacen,
+    nombre,
+  } = data;
+  const res = await axios.post(`/api/Almacen/registrar-almacen`, {
+    Id_AlmacenPrincipal,
+    descripcion,
+    esSubAlmacen,
+    Id_UsuarioEncargado,
+    nombre,
+  });
+  return res;
 };

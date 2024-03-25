@@ -14,7 +14,9 @@ import { useGetUsersBySearch } from "../../../../../hooks/useGetUsersBySearch";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { ISubWarehouse } from "../../../../../types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addNewSubWarehouse } from "../../../../../schema/schemas";
+import { useWarehouseTabsNavStore } from "../../../../../store/warehouseStore/warehouseTabsNav";
+import { addNewSubWarehouseSchema } from "../../../../../schema/schemas";
+import { addNewSubWarehouse } from "../../../../../api/api.routes";
 
 const style = {
   position: "absolute",
@@ -32,9 +34,19 @@ const filterOptions = createFilterOptions<string>({
   limit: OPTIONS_LIMIT,
 });
 
-export const AddSubWarehouseModal = () => {
-  const setSearchUser = useSubWarehousePaginationStore(
-    useShallow((state) => state.setSearchUser)
+interface AddSubWarehouseModalProps {
+  setOpen: Function;
+}
+
+export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
+  const { setSearchUser, fetchSubWarehouse } = useSubWarehousePaginationStore(
+    useShallow((state) => ({
+      setSearchUser: state.setSearchUser,
+      fetchSubWarehouse: state.fetchSubWarehouse,
+    }))
+  );
+  const warehouseData = useWarehouseTabsNavStore(
+    useShallow((state) => state.warehouseData)
   );
   const { isLoadingUsers, usersRes } = useGetUsersBySearch();
 
@@ -44,13 +56,29 @@ export const AddSubWarehouseModal = () => {
     control,
     formState: { errors },
   } = useForm<ISubWarehouse>({
-    resolver: zodResolver(addNewSubWarehouse),
+    resolver: zodResolver(addNewSubWarehouseSchema),
   });
-  const onSubmit: SubmitHandler<ISubWarehouse> = (data) => console.log(data);
+
+  const onSubmit: SubmitHandler<ISubWarehouse> = async (data) => {
+    try {
+      const object = {
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        Id_UsuarioEncargado: data.usuarioEncargado,
+        esSubAlmacen: true,
+        Id_AlmacenPrincipal: warehouseData.id,
+      };
+      await addNewSubWarehouse(object);
+      fetchSubWarehouse();
+      props.setOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Box sx={style}>
-      <HeaderModal title="Agregar nuevo SubAlmacén" setOpen={() => {}} />
+      <HeaderModal title="Agregar nuevo SubAlmacén" setOpen={props.setOpen} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4} sx={{ bgcolor: "background.paper", p: 2, pl: 4 }}>
           <Stack spacing={2}>
@@ -85,7 +113,6 @@ export const AddSubWarehouseModal = () => {
               <Controller
                 control={control}
                 name="usuarioEncargado"
-                rules={{ required: true }}
                 render={({ field: { onChange, value } }) => {
                   const controlledValue = value !== undefined ? value : null;
                   return (
@@ -113,6 +140,7 @@ export const AddSubWarehouseModal = () => {
                           {...params}
                           placeholder="Usuarios"
                           sx={{ width: "90%" }}
+                          required={false}
                           error={!!errors.usuarioEncargado}
                           helperText={errors?.usuarioEncargado?.message}
                           onChange={(e) => {

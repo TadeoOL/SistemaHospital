@@ -302,3 +302,11 @@ export interface ISubWarehouse {
   descripcion: string;
   usuarioEncargado: string;
 }
+
+export interface IAddSubWarehouse {
+  nombre: string;
+  descripcion: string;
+  esSubAlmacen: boolean;
+  Id_AlmacenPrincipal: string;
+  Id_UsuarioEncargado: string;
+}

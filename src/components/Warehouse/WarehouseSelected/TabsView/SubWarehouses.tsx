@@ -145,7 +145,7 @@ export const SubWarehouses = () => {
         }}
       >
         <React.Fragment>
-          <AddSubWarehouseModal />
+          <AddSubWarehouseModal setOpen={setOpenModal} />
         </React.Fragment>
       </Modal>
     </>

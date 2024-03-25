@@ -401,46 +401,51 @@ export function createComponents(config: { palette: any }): Components {
         },
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          "& .MuiTabs-indicator": {
+            backgroundColor: palette.primary.main,
+            height: 3,
+            borderLeft: `0.1rem solid ${palette.primary.contrastText}`,
+            borderRight: `0.1rem solid ${palette.primary.contrastText}`,
+          },
+        },
+      },
+    },
     MuiTab: {
       styleOverrides: {
         root: {
           fontSize: 14,
-          padding: 1,
+          padding: "1px 0",
           fontWeight: 500,
           lineHeight: 1.71,
           minWidth: "auto",
           paddingLeft: 0,
           paddingRight: 0,
           textTransform: "none",
-          transition: "300ms linear",
-          color: palette.primary.contrastText,
+          transition: "background-color 300ms linear, color 300ms linear",
+          "&.MuiTab-root": {
+            color: palette.primary.contrastText,
+            backgroundColor: palette.primary.main,
+            borderLeft: `0.1rem solid ${palette.primary.contrastText}`,
+            borderRight: `0.1rem solid ${palette.primary.contrastText}`,
+            "&:hover": {
+              backgroundColor: palette.primary.darkest,
+            },
+          },
           "&.Mui-selected": {
-            backgroundColor: "#002E5F",
+            backgroundColor: palette.primary.dark,
             color: palette.primary.contrastText,
+            "&:hover": {
+              backgroundColor: palette.primary.darkest,
+            },
           },
-          "&.MuiTab-root:hover": {
-            backgroundColor: "#002E5F",
-            color: palette.primary.contrastText,
+          "&:first-child": {
+            borderLeft: "none",
           },
-          "&.MuiTab-root:hover:first-of-type": {
-            backgroundColor: "#002E5F",
-            color: palette.primary.contrastText,
-            borderTopLeftRadius: 10,
-          },
-          "&.MuiTab-root:hover:last-child": {
-            backgroundColor: "#002E5F",
-            color: palette.primary.contrastText,
-            borderTopRightRadius: 10,
-          },
-          "&.Mui-selected:first-of-type": {
-            backgroundColor: "#002E5F",
-            color: palette.primary.contrastText,
-            borderTopLeftRadius: 10,
-          },
-          "&.Mui-selected:last-child": {
-            backgroundColor: "#002E5F",
-            color: palette.primary.contrastText,
-            borderTopRightRadius: 10,
+          "&:last-child": {
+            borderRight: "none",
           },
         },
       },
