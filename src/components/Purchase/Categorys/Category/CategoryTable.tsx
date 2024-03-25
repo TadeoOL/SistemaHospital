@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import { shallow } from "zustand/shallow";
-import { useCategoryPagination } from "../../../../store/purchaseStore/categoryPagination";
-import { ModifyCategoryModal } from "./Modal/ModifyCategoryModal";
-import withReactContent from "sweetalert2-react-content";
-import Swal from "sweetalert2";
-import { disableCategory } from "../../../../api/api.routes";
-import { TableComponent } from "../../../TableComponent";
+import { useEffect } from 'react';
+import { shallow } from 'zustand/shallow';
+import { useCategoryPagination } from '../../../../store/purchaseStore/categoryPagination';
+import { ModifyCategoryModal } from './Modal/ModifyCategoryModal';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
+import { disableCategory } from '../../../../api/api.routes';
+import { TableComponent } from '../../../TableComponent';
 
 const useGetAllData = () => {
   const {
@@ -54,28 +54,25 @@ const useGetAllData = () => {
 };
 
 const useDisableCategory = () => {
-  const { setHandleChangeCategory, enabled, handleChangeCategory } =
-    useCategoryPagination(
-      (state) => ({
-        setHandleChangeCategory: state.setHandleChangeCategory,
-        enabled: state.enabled,
-        handleChangeCategory: state.handleChangeCategory,
-      }),
-      shallow
-    );
+  const { setHandleChangeCategory, enabled, handleChangeCategory } = useCategoryPagination(
+    (state) => ({
+      setHandleChangeCategory: state.setHandleChangeCategory,
+      enabled: state.enabled,
+      handleChangeCategory: state.handleChangeCategory,
+    }),
+    shallow
+  );
 
   const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Advertencia",
-        text: `Estas a punto de ${
-          enabled ? "deshabilitar" : "habilitar"
-        } una categoría`,
-        icon: "warning",
+        title: 'Advertencia',
+        text: `Estas a punto de ${enabled ? 'deshabilitar' : 'habilitar'} una categoría`,
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
-        confirmButtonColor: "red",
-        cancelButtonText: "No, cancelar!",
+        confirmButtonText: `Si, ${enabled ? 'deshabilitala!' : 'habilitala!'}`,
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -84,26 +81,22 @@ const useDisableCategory = () => {
             await disableCategory(categoryId);
             setHandleChangeCategory(!handleChangeCategory);
             withReactContent(Swal).fire({
-              title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `La categoría se ha ${
-                enabled ? "deshabilitado" : "habilitado"
-              }`,
-              icon: "success",
+              title: `${enabled ? 'Deshabilitado!' : 'Habilitado!'}`,
+              text: `La categoría se ha ${enabled ? 'deshabilitado' : 'habilitado'}`,
+              icon: 'success',
             });
           } catch (error) {
             console.log(error);
             withReactContent(Swal).fire({
-              title: "Error!",
-              text: `No se pudo ${
-                enabled ? "deshabilitar" : "habilitar"
-              } la categoría`,
-              icon: "error",
+              title: 'Error!',
+              text: `No se pudo ${enabled ? 'deshabilitar' : 'habilitar'} la categoría`,
+              icon: 'error',
             });
           }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           withReactContent(Swal).fire({
-            title: "Cancelado",
-            icon: "error",
+            title: 'Cancelado',
+            icon: 'error',
           });
         }
       });
@@ -138,10 +131,8 @@ export const CategoryTable = () => {
       <TableComponent
         disableHook={disableCategory}
         fetchDataHook={useGetAllData}
-        modifyModalComponent={(props) => (
-          <ModifyCategoryModal data={props.data} open={props.open} />
-        )}
-        headers={["Nombre", "Descripción", "Acciones"]}
+        modifyModalComponent={(props) => <ModifyCategoryModal data={props.data} open={props.open} />}
+        headers={['Nombre', 'Descripción', 'Acciones']}
       />
     </>
   );

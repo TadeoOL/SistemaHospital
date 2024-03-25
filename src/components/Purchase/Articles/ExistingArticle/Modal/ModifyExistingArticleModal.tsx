@@ -77,9 +77,7 @@ interface IModifyCategoryModal {
 //   return { isLoadingExistingArticle, existingArticle };
 // };
 
-export const ModifyExistingArticleModal: React.FC<
-  IModifyCategoryModal
-> = ({}) => {
+export const ModifyExistingArticleModal: React.FC<IModifyCategoryModal> = ({}) => {
   // const { open, existingArticleId } = props;
   // const { isLoadingExistingArticle, existingArticle } =
   //   useFetchExistingArticle(existingArticleId);

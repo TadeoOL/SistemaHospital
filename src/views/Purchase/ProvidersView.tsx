@@ -1,4 +1,4 @@
-import { ProvidersCard } from "../../components/Purchase/Providers/ProvidersCard";
+import { ProvidersCard } from '../../components/Purchase/Providers/ProvidersCard';
 
 const ProvidersView = () => {
   return <ProvidersCard />;

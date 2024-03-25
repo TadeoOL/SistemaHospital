@@ -1,5 +1,5 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { IProvider, IRegisterOrderPurchase } from "../../types/types";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { IProvider, IRegisterOrderPurchase } from '../../types/types';
 
 // type Warehouse = {
 //   id: string;
@@ -54,31 +54,26 @@ interface Action {
   setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => void;
 }
 
-export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
-  State & Action
->((set) => ({
+export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State & Action>((set) => ({
   articles: [],
-  pdf: "",
+  pdf: '',
   provider: null,
-  warehouseSelected: "",
+  warehouseSelected: '',
   step: 0,
-  search: "",
+  search: '',
   articlesFetched: [],
   isManyProviders: false,
   isDirectlyPurchase: true,
   totalAmountRequest: 0,
   registerOrder: null,
   needAuth: false,
-  note: "",
+  note: '',
   openPurchaseRequestOrder: false,
-  setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) =>
-    set({ openPurchaseRequestOrder }),
+  setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => set({ openPurchaseRequestOrder }),
   setNote: (note: string) => set({ note }),
   setNeedAuth: (needAuth: boolean) => set({ needAuth }),
-  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) =>
-    set({ registerOrder }),
-  setWarehouseSelected: (warehouseSelected: string) =>
-    set({ warehouseSelected }),
+  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => set({ registerOrder }),
+  setWarehouseSelected: (warehouseSelected: string) => set({ warehouseSelected }),
   setArticles: (articles: ArticleOrder[]) => set({ articles }),
   setPdf: (pdf: string) => set({ pdf }),
   setProvider: (provider: IProvider | IProvider[] | null) => set({ provider }),
@@ -86,17 +81,15 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
   setSearch: (search: string) => set({ search }),
   setArticlesFetched: (articlesFetched: Article[]) => set({ articlesFetched }),
   setIsManyProviders: (isManyProviders: boolean) => set({ isManyProviders }),
-  setIsDirectlyPurchase: (isDirectlyPurchase: boolean) =>
-    set({ isDirectlyPurchase }),
-  setTotalAmountRequest: (totalAmountRequest: number) =>
-    set({ totalAmountRequest }),
+  setIsDirectlyPurchase: (isDirectlyPurchase: boolean) => set({ isDirectlyPurchase }),
+  setTotalAmountRequest: (totalAmountRequest: number) => set({ totalAmountRequest }),
   clearAllStates: () =>
     set({
       step: 0,
-      warehouseSelected: "",
+      warehouseSelected: '',
       articles: [],
-      pdf: "",
-      search: "",
+      pdf: '',
+      search: '',
       articlesFetched: [],
       isManyProviders: false,
       isDirectlyPurchase: true,
@@ -104,6 +97,6 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<
       provider: null,
       needAuth: false,
       registerOrder: null,
-      note: "",
+      note: '',
     }),
 }));

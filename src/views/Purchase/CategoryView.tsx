@@ -1,7 +1,7 @@
-import { CategorysTabNav } from "../../components/Purchase/Categorys/CategorysTabNav";
+import { CategorysTabNav } from '../../components/Purchase/Categorys/CategorysTabNav';
 
 const CategoryView = () => {
-	return <CategorysTabNav />;
+  return <CategorysTabNav />;
 };
 
 export default CategoryView;

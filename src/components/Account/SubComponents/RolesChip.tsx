@@ -1,9 +1,9 @@
-import Chip from "@mui/material/Chip";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Tooltip from "@mui/material/Tooltip";
-import Stack from "@mui/material/Stack";
-import AddIcon from "@mui/icons-material/Add";
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import Stack from '@mui/material/Stack';
+import AddIcon from '@mui/icons-material/Add';
 
 interface IUser {
   id: string;
@@ -28,13 +28,13 @@ export const RolesChip = (props: IRolesChip) => {
             key={index}
             label={
               <Typography key={index} fontSize={13}>
-                {index < user.roles.length - 1 ? role + " " : role}
+                {index < user.roles.length - 1 ? role + ' ' : role}
               </Typography>
             }
           />
         ))
       ) : (
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {user.roles.slice(0, 2).map((role, i) => (
             <Chip
               key={i}
@@ -60,12 +60,12 @@ export const RolesChip = (props: IRolesChip) => {
               label={
                 <Stack
                   sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                   }}
                 >
-                  <AddIcon sx={{ width: "16px" }} />
+                  <AddIcon sx={{ width: '16px' }} />
                   <Typography fontSize={14}>{user.roles.length - 2}</Typography>
                 </Stack>
               }

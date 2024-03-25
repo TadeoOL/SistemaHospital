@@ -1,4 +1,4 @@
-import { PurchaseConfig } from "../../components/Purchase/Authorization/Authorization/Modal/PurchaseConfig";
+import { PurchaseConfig } from '../../components/Purchase/Authorization/Authorization/Modal/PurchaseConfig';
 const PurchaseConfigView = () => {
   return <PurchaseConfig />;
 };

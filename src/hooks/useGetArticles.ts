@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { IArticle } from "../types/types";
-import { getAllArticles } from "../api/api.routes";
+import { useEffect, useState } from 'react';
+import { IArticle } from '../types/types';
+import { getAllArticles } from '../api/api.routes';
 
 export const useGetArticles = () => {
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);

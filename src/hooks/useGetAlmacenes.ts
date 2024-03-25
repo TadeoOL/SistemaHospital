@@ -1,6 +1,6 @@
-import { getAllAlmacenes } from "../api/api.routes";
-import { IWarehouse } from "../types/types";
-import { useQuery } from "@tanstack/react-query";
+import { getAllAlmacenes } from '../api/api.routes';
+import { IWarehouse } from '../types/types';
+import { useQuery } from '@tanstack/react-query';
 
 export const useGetAlmacenes = () => {
   const {
@@ -8,7 +8,7 @@ export const useGetAlmacenes = () => {
     isError,
     isLoading,
   } = useQuery({
-    queryKey: ["almacen"],
+    queryKey: ['almacen'],
     queryFn: async () => getAllAlmacenes(),
   });
 

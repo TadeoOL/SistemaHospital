@@ -1,5 +1,5 @@
-import { Chip, Tooltip } from "@mui/material";
-import React from "react";
+import { Chip, Tooltip } from '@mui/material';
+import React from 'react';
 
 interface ProviderNameChip {
   provider: { id: string; name: string }[];
@@ -13,13 +13,8 @@ export const ProviderNameChip = (props: ProviderNameChip) => {
     <React.Fragment>
       {props.provider.map((p) => {
         return (
-          <Tooltip title={isLonger(p.name) ? p.name : null}>
-            <Chip
-              key={p.id}
-              label={
-                isLonger(p.name) ? p.name.slice(0, 24).concat("...") : p.name
-              }
-            />
+          <Tooltip key={p.id} title={isLonger(p.name) ? p.name : null}>
+            <Chip key={p.id} label={isLonger(p.name) ? p.name.slice(0, 24).concat('...') : p.name} />
           </Tooltip>
         );
       })}

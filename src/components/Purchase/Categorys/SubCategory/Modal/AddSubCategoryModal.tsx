@@ -1,48 +1,40 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  MenuItem,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addSubCategory } from "../../../../../schema/schemas";
-import { ISubCategory } from "../../../../../types/types";
-import { useGetCategories } from "../../../../../hooks/useGetCategories";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { addNewSubCategory } from "../../../../../api/api.routes";
-import { useSubCategoryPagination } from "../../../../../store/purchaseStore/subCategoryPagination";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField } from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addSubCategory } from '../../../../../schema/schemas';
+import { ISubCategory } from '../../../../../types/types';
+import { useGetCategories } from '../../../../../hooks/useGetCategories';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { addNewSubCategory } from '../../../../../api/api.routes';
+import { useSubCategoryPagination } from '../../../../../store/purchaseStore/subCategoryPagination';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, lg: 600 },
-  bgcolor: "background.paper",
+  bgcolor: 'background.paper',
   borderRadius: 8,
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  display: "flex",
-  flexDirection: "column",
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
-  overflowY: "auto",
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
@@ -53,13 +45,12 @@ interface IAddSubCategoryModal {
 export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
   const { open } = props;
   const { categories, isLoading } = useGetCategories();
-  const [category, setCategory] = useState("");
-  const [value, setValue] = useState("");
-  const { handleChangeSubCategory, setHandleChangeSubCategory } =
-    useSubCategoryPagination((state) => ({
-      setHandleChangeSubCategory: state.setHandleChangeSubCategory,
-      handleChangeSubCategory: state.handleChangeSubCategory,
-    }));
+  const [category, setCategory] = useState('');
+  const [value, setValue] = useState('');
+  const { handleChangeSubCategory, setHandleChangeSubCategory } = useSubCategoryPagination((state) => ({
+    setHandleChangeSubCategory: state.setHandleChangeSubCategory,
+    handleChangeSubCategory: state.handleChangeSubCategory,
+  }));
 
   const {
     register,
@@ -67,9 +58,9 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
     formState: { errors },
   } = useForm<ISubCategory>({
     defaultValues: {
-      nombre: "",
-      descripcion: "",
-      id_categoria: "",
+      nombre: '',
+      descripcion: '',
+      id_categoria: '',
     },
     resolver: zodResolver(addSubCategory),
   });
@@ -77,12 +68,12 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
       await addNewSubCategory(data);
-      toast.success("Sub categoría agregada correctamente!");
+      toast.success('Sub categoría agregada correctamente!');
       setHandleChangeSubCategory(!handleChangeSubCategory);
       open(false);
     } catch (error) {
       console.log(error);
-      toast.error("Error al agregar una nueva sub categoría!");
+      toast.error('Error al agregar una nueva sub categoría!');
     }
   };
 
@@ -111,7 +102,7 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
           <Stack spacing={2}>
             <TextField
               fullWidth
-              {...register("nombre")}
+              {...register('nombre')}
               error={!!errors.nombre}
               helperText={errors?.nombre?.message}
               size="small"
@@ -119,7 +110,7 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
             />
             <TextField
               fullWidth
-              {...register("descripcion")}
+              {...register('descripcion')}
               error={!!errors.descripcion}
               size="small"
               placeholder="Descripción"
@@ -127,18 +118,12 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
               helperText={
                 <Box
                   sx={{
-                    display: "flex",
+                    display: 'flex',
                     flexGrow: 1,
-                    justifyContent: "space-between",
+                    justifyContent: 'space-between',
                   }}
                 >
-                  <Box>
-                    {errors
-                      ? errors.descripcion
-                        ? errors.descripcion.message
-                        : null
-                      : null}
-                  </Box>
+                  <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
                   <Box>{`${value.length}/${200}`}</Box>
                 </Box>
               }
@@ -153,7 +138,7 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
               label="Categoría"
               error={!!errors.id_categoria}
               helperText={errors?.id_categoria?.message}
-              {...register("id_categoria")}
+              {...register('id_categoria')}
               value={category}
               onChange={handleChange}
             >
@@ -166,24 +151,15 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
           </Stack>
           <Stack
             sx={{
-              flexDirection: "row",
+              flexDirection: 'row',
               columnGap: 2,
-              justifyContent: "space-between",
+              justifyContent: 'space-between',
             }}
           >
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CancelIcon />}
-              onClick={() => open(false)}
-            >
+            <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
               Cancelar
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              startIcon={<SaveOutlinedIcon />}
-            >
+            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Stack>

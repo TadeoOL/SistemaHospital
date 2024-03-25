@@ -17,36 +17,35 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { useGetPurchaseConfig } from "../../../../../hooks/useGetPurchaseConfig";
-import { useEffect, useState } from "react";
-import { IFactor, IPurchaseConfig } from "../../../../../types/types";
-import { toast } from "react-toastify";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addNewFactorSchema } from "../../../../../schema/schemas";
-import { modifyPurchaseConfig } from "../../../../../api/api.routes";
-import { isValidInteger } from "../../../../../utils/functions/dataUtils";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useGetPurchaseConfig } from '../../../../../hooks/useGetPurchaseConfig';
+import { useEffect, useState } from 'react';
+import { IFactor, IPurchaseConfig } from '../../../../../types/types';
+import { toast } from 'react-toastify';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addNewFactorSchema } from '../../../../../schema/schemas';
+import { modifyPurchaseConfig } from '../../../../../api/api.routes';
+import { isValidInteger } from '../../../../../utils/functions/dataUtils';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const styleInput = {
-  paddingTop: "0.4rem",
-  paddingBottom: "0.4rem",
+  paddingTop: '0.4rem',
+  paddingBottom: '0.4rem',
 };
 
 export const PurchaseConfig = () => {
   const [isChecked, setIsChecked] = useState(false);
-  const { isLoadingPurchaseConfig, config, isError, refetch } =
-    useGetPurchaseConfig();
+  const { isLoadingPurchaseConfig, config, isError, refetch } = useGetPurchaseConfig();
   const [configPurchase, setConfigPurchase] = useState<IPurchaseConfig>();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const [addNewFactor, setAddNewFactor] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [directlyTender, setDirectlyTender] = useState("");
+  const [directlyTender, setDirectlyTender] = useState('');
 
   useEffect(() => {
     if (isLoadingPurchaseConfig) return;
@@ -63,9 +62,9 @@ export const PurchaseConfig = () => {
     formState: { errors },
   } = useForm<IFactor>({
     defaultValues: {
-      cantidadMinima: "",
-      cantidadMaxima: "",
-      factorMultiplicador: "",
+      cantidadMinima: '',
+      cantidadMaxima: '',
+      factorMultiplicador: '',
     },
     resolver: zodResolver(addNewFactorSchema),
   });
@@ -73,10 +72,8 @@ export const PurchaseConfig = () => {
   const onSubmitNewFactor: SubmitHandler<IFactor> = async (data) => {
     const isOverlapping = configPurchase?.factor.some(
       (factor) =>
-        (data.cantidadMinima >= factor.cantidadMinima &&
-          data.cantidadMinima <= factor.cantidadMaxima) ||
-        (data.cantidadMaxima >= factor.cantidadMinima &&
-          data.cantidadMaxima <= factor.cantidadMaxima)
+        (data.cantidadMinima >= factor.cantidadMinima && data.cantidadMinima <= factor.cantidadMaxima) ||
+        (data.cantidadMaxima >= factor.cantidadMinima && data.cantidadMaxima <= factor.cantidadMaxima)
     );
     const isFactorDuplicated = configPurchase?.factor.some(
       (factor) => factor.factorMultiplicador === data.factorMultiplicador
@@ -98,12 +95,10 @@ export const PurchaseConfig = () => {
       reset();
     } else {
       if (isOverlapping) {
-        toast.error("El nuevo factor se superpone con un factor existente.");
+        toast.error('El nuevo factor se superpone con un factor existente.');
       }
       if (isFactorDuplicated) {
-        toast.error(
-          "El factor multiplicador ya existe en los factores existentes."
-        );
+        toast.error('El factor multiplicador ya existe en los factores existentes.');
       }
     }
   };
@@ -120,13 +115,13 @@ export const PurchaseConfig = () => {
       };
 
       await modifyPurchaseConfig(object);
-      toast.success("Configuración modificada con éxito!");
+      toast.success('Configuración modificada con éxito!');
       refetch();
       setHasChanges(false);
       setIsChecked(false);
     } catch (error) {
       console.log(error);
-      toast.error("Error al modificar la configuración!");
+      toast.error('Error al modificar la configuración!');
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +147,7 @@ export const PurchaseConfig = () => {
         if (
           Number(factor1.cantidadMinima) !== Number(factor2.cantidadMinima) ||
           Number(factor1.cantidadMaxima) !== Number(factor2.cantidadMaxima) ||
-          Number(factor1.factorMultiplicador) !==
-            Number(factor2.factorMultiplicador)
+          Number(factor1.factorMultiplicador) !== Number(factor2.factorMultiplicador)
         ) {
           return true;
         }
@@ -172,9 +166,7 @@ export const PurchaseConfig = () => {
       if (prevConfig) {
         return {
           ...prevConfig,
-          factor: configPurchase?.factor.filter(
-            (f) => f.factorMultiplicador !== factor
-          ),
+          factor: configPurchase?.factor.filter((f) => f.factorMultiplicador !== factor),
         };
       } else {
         return prevConfig;
@@ -183,12 +175,12 @@ export const PurchaseConfig = () => {
   };
 
   if (!isLoadingPurchaseConfig && isError) {
-    toast.error("Ha habido un error!");
+    toast.error('Ha habido un error!');
     return null;
   }
   if (isLoadingPurchaseConfig || !{ configPurchase })
     return (
-      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", py: 6 }}>
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 6 }}>
         <CircularProgress />
       </Box>
     );
@@ -197,24 +189,21 @@ export const PurchaseConfig = () => {
       sx={{
         boxShadow: 10,
         borderRadius: 2,
-        bgcolor: "white",
+        bgcolor: 'white',
       }}
     >
       <Stack
         sx={{
-          display: "flex",
+          display: 'flex',
           p: 4,
-          bgcolor: "background.paper",
-          borderRadius: "20px",
-          borderColor: "black",
+          bgcolor: 'background.paper',
+          borderRadius: '20px',
+          borderColor: 'black',
         }}
       >
         <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
-        <Box sx={{ overflowY: "auto" }}>
-          <TableContainer
-            component={Paper}
-            sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}
-          >
+        <Box sx={{ overflowY: 'auto' }}>
+          <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -226,7 +215,7 @@ export const PurchaseConfig = () => {
               <TableBody>
                 {configPurchase?.factor.map((i) => (
                   <TableRow key={i.factorMultiplicador}>
-                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       ${i.cantidadMinima} a ${i.cantidadMaxima}
                     </TableCell>
                     <TableCell>{i.factorMultiplicador}</TableCell>
@@ -250,10 +239,10 @@ export const PurchaseConfig = () => {
         <form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
           <Stack
             sx={{
-              display: "flex",
+              display: 'flex',
               flex: 1,
-              flexDirection: "row",
-              justifyContent: "flex-end",
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
               columnGap: addNewFactor ? 2 : 0,
               mb: 2,
             }}
@@ -262,7 +251,7 @@ export const PurchaseConfig = () => {
               <Stack
                 spacing={{ xs: 1, md: 0 }}
                 sx={{
-                  flexDirection: { md: "row", xs: "column" },
+                  flexDirection: { md: 'row', xs: 'column' },
                   columnGap: 3,
                 }}
               >
@@ -276,13 +265,9 @@ export const PurchaseConfig = () => {
                     type="number"
                     size="small"
                     placeholder="Cantidad minima"
-                    {...register("cantidadMinima")}
+                    {...register('cantidadMinima')}
                     error={!!errors.cantidadMinima && addNewFactor}
-                    helperText={
-                      errors.cantidadMinima && addNewFactor
-                        ? errors?.cantidadMinima?.message
-                        : null
-                    }
+                    helperText={errors.cantidadMinima && addNewFactor ? errors?.cantidadMinima?.message : null}
                   />
                 </Tooltip>
                 <Tooltip title="Cantidad maxima">
@@ -295,13 +280,9 @@ export const PurchaseConfig = () => {
                     type="number"
                     size="small"
                     placeholder="Cantidad maxima"
-                    {...register("cantidadMaxima")}
+                    {...register('cantidadMaxima')}
                     error={!!errors.cantidadMaxima && addNewFactor}
-                    helperText={
-                      errors.cantidadMaxima && addNewFactor
-                        ? errors?.cantidadMaxima?.message
-                        : null
-                    }
+                    helperText={errors.cantidadMaxima && addNewFactor ? errors?.cantidadMaxima?.message : null}
                   />
                 </Tooltip>
                 <Tooltip title="Factor">
@@ -314,27 +295,23 @@ export const PurchaseConfig = () => {
                     type="number"
                     size="small"
                     placeholder="Factor"
-                    {...register("factorMultiplicador")}
+                    {...register('factorMultiplicador')}
                     error={!!errors.factorMultiplicador && addNewFactor}
                     helperText={
-                      errors.factorMultiplicador && addNewFactor
-                        ? errors?.factorMultiplicador?.message
-                        : null
+                      errors.factorMultiplicador && addNewFactor ? errors?.factorMultiplicador?.message : null
                     }
                   />
                 </Tooltip>
               </Stack>
             </Collapse>
-            <Stack spacing={1} sx={{ display: "flex", flex: 1 }}>
+            <Stack spacing={1} sx={{ display: 'flex', flex: 1 }}>
               <Box>
                 <Button
-                  sx={{ marginTop: "10px" }}
+                  sx={{ marginTop: '10px' }}
                   fullWidth={addNewFactor ? true : false}
                   variant="contained"
-                  type={addNewFactor ? "submit" : "button"}
-                  startIcon={
-                    addNewFactor ? <SaveOutlinedIcon /> : <AddBoxOutlinedIcon />
-                  }
+                  type={addNewFactor ? 'submit' : 'button'}
+                  startIcon={addNewFactor ? <SaveOutlinedIcon /> : <AddBoxOutlinedIcon />}
                   onClick={(e) => {
                     if (addNewFactor) {
                       e.stopPropagation();
@@ -344,7 +321,7 @@ export const PurchaseConfig = () => {
                     }
                   }}
                 >
-                  {addNewFactor ? "Guardar" : "Nuevo factor"}
+                  {addNewFactor ? 'Guardar' : 'Nuevo factor'}
                 </Button>
               </Box>
               <Collapse in={addNewFactor}>
@@ -361,7 +338,7 @@ export const PurchaseConfig = () => {
             </Stack>
           </Stack>
         </form>
-        <Typography variant="h5" sx={{ marginTop: "10px" }}>
+        <Typography variant="h5" sx={{ marginTop: '10px' }}>
           Criterios para tipo de solicitud de compra
         </Typography>
         <Grid spacing={2} container sx={{ mt: 4 }}>
@@ -407,38 +384,34 @@ export const PurchaseConfig = () => {
           <Grid item>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 flex: 1,
                 columnGap: 1,
-                alignItems: "center",
+                alignItems: 'center',
               }}
             >
               <Typography>Habilitar licitación:</Typography>
-              <Checkbox
-                checked={isChecked}
-                onChange={(e) => setIsChecked(e.target.checked)}
-              />
+              <Checkbox checked={isChecked} onChange={(e) => setIsChecked(e.target.checked)} />
             </Box>
           </Grid>
         </Grid>
         {hasChanges && (
           <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: "red" }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: 'red' }}>
               *Tienes cambios efectuados no guardados*
             </Typography>
-            <Typography sx={{ fontSize: 10, fontWeight: 400, color: "red" }}>
-              Nota: Los cambios no guardados se perderán en caso de salir de
-              esta ventana.
+            <Typography sx={{ fontSize: 10, fontWeight: 400, color: 'red' }}>
+              Nota: Los cambios no guardados se perderán en caso de salir de esta ventana.
             </Typography>
           </Box>
         )}
         <Stack
           sx={{
             mt: 4,
-            display: "flex",
+            display: 'flex',
             flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-between",
+            flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
           <Button

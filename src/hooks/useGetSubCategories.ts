@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { ISubCategory } from "../types/types";
-import { getAllSubCategories } from "../api/api.routes";
+import { useEffect, useState } from 'react';
+import { ISubCategory } from '../types/types';
+import { getAllSubCategories } from '../api/api.routes';
 
 export const useGetSubCategories = () => {
   const [isLoading, setIsLoading] = useState(true);

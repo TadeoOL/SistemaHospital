@@ -1,6 +1,6 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { getArticlesAlert } from "../../api/api.routes";
-import { ArticleObject, ICheckedArticles } from "../../types/types";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { getArticlesAlert } from '../../api/api.routes';
+import { ArticleObject, ICheckedArticles } from '../../types/types';
 
 interface State {
   data: any[];
@@ -28,54 +28,48 @@ interface Action {
   cleanAllData: () => void;
 }
 
-export const useArticlesAlertPagination = createWithEqualityFn<State & Action>(
-  (set) => ({
-    data: [],
-    isLoading: true,
-    checkedArticles: [],
-    step: 0,
-    isAddingMoreArticles: false,
-    handleOpen: false,
-    isManyProviders: false,
-    alertArticlesChecked: [],
-    articlesPurchased: [],
-    warehouseSelected: "",
-    setWarehouseSelected: (warehouseSelected: string) =>
-      set({ warehouseSelected }),
-    setArticlesPurchased: (articlesPurchased: ArticleObject[]) =>
-      set({ articlesPurchased }),
-    setAlertArticlesChecked: (alertArticlesChecked: string[]) =>
-      set({ alertArticlesChecked }),
-    setIsManyProviders: (isManyProviders: boolean) => set({ isManyProviders }),
-    setHandleOpen: (handleOpen: boolean) => set({ handleOpen }),
-    setIsAddingMoreArticles: (isAddingMoreArticles: boolean) =>
-      set({ isAddingMoreArticles }),
-    setStep: (step: number) => set({ step }),
-    setCheckedArticles: (state: ICheckedArticles[]) => {
-      set({ checkedArticles: state });
-    },
-    fetchArticlesAlert: async () => {
-      set(() => ({ isLoading: true }));
-      try {
-        const res = await getArticlesAlert();
-        set(() => ({
-          data: res,
-        }));
-      } catch (error) {
-        console.log(error);
-      } finally {
-        set(() => ({ isLoading: false }));
-      }
-    },
-    cleanAllData: () => {
+export const useArticlesAlertPagination = createWithEqualityFn<State & Action>((set) => ({
+  data: [],
+  isLoading: true,
+  checkedArticles: [],
+  step: 0,
+  isAddingMoreArticles: false,
+  handleOpen: false,
+  isManyProviders: false,
+  alertArticlesChecked: [],
+  articlesPurchased: [],
+  warehouseSelected: '',
+  setWarehouseSelected: (warehouseSelected: string) => set({ warehouseSelected }),
+  setArticlesPurchased: (articlesPurchased: ArticleObject[]) => set({ articlesPurchased }),
+  setAlertArticlesChecked: (alertArticlesChecked: string[]) => set({ alertArticlesChecked }),
+  setIsManyProviders: (isManyProviders: boolean) => set({ isManyProviders }),
+  setHandleOpen: (handleOpen: boolean) => set({ handleOpen }),
+  setIsAddingMoreArticles: (isAddingMoreArticles: boolean) => set({ isAddingMoreArticles }),
+  setStep: (step: number) => set({ step }),
+  setCheckedArticles: (state: ICheckedArticles[]) => {
+    set({ checkedArticles: state });
+  },
+  fetchArticlesAlert: async () => {
+    set(() => ({ isLoading: true }));
+    try {
+      const res = await getArticlesAlert();
       set(() => ({
-        step: 0,
-        articlesPurchased: [],
-        checkedArticles: [],
-        isAddingMoreArticles: false,
-        warehouseSelected: "",
-        articles: [],
+        data: res,
       }));
-    },
-  })
-);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      set(() => ({ isLoading: false }));
+    }
+  },
+  cleanAllData: () => {
+    set(() => ({
+      step: 0,
+      articlesPurchased: [],
+      checkedArticles: [],
+      isAddingMoreArticles: false,
+      warehouseSelected: '',
+      articles: [],
+    }));
+  },
+}));

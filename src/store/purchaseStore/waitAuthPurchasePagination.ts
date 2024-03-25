@@ -1,6 +1,6 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { IPurchaseAuthorization } from "../../types/types";
-import { getWaitAuthPurchase } from "../../api/api.routes";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { IPurchaseAuthorization } from '../../types/types';
+import { getWaitAuthPurchase } from '../../api/api.routes';
 
 interface State {
   count: number;
@@ -26,9 +26,7 @@ interface Action {
   cleanPurchaseOrderData: () => void;
 }
 
-export const useWaitAuthPurchasePagination = createWithEqualityFn<
-  State & Action
->((set, get) => ({
+export const useWaitAuthPurchasePagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -36,11 +34,10 @@ export const useWaitAuthPurchasePagination = createWithEqualityFn<
   pageSize: 5,
   data: [],
   isLoading: true,
-  search: "",
+  search: '',
   enabled: true,
   handleChangePurchaseOrder: false,
-  setHandleChangePurchaseOrder: (handleChangePurchaseOrder: boolean) =>
-    set({ handleChangePurchaseOrder }),
+  setHandleChangePurchaseOrder: (handleChangePurchaseOrder: boolean) => set({ handleChangePurchaseOrder }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
@@ -53,8 +50,8 @@ export const useWaitAuthPurchasePagination = createWithEqualityFn<
     const page = pageIndex + 1;
     try {
       const res = await getWaitAuthPurchase(
-        `${page === 0 ? "" : "pageIndex=" + page}&${
-          pageSize === 0 ? "" : "pageSize=" + pageSize
+        `${page === 0 ? '' : 'pageIndex=' + page}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}`
       );
       set(() => ({
@@ -70,6 +67,6 @@ export const useWaitAuthPurchasePagination = createWithEqualityFn<
     }
   },
   cleanPurchaseOrderData: () => {
-    set(() => ({ pageIndex: 0, pageSize: 5, enabled: true, search: "" }));
+    set(() => ({ pageIndex: 0, pageSize: 5, enabled: true, search: '' }));
   },
 }));

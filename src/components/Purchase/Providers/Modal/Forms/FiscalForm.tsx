@@ -1,7 +1,7 @@
-import { Box, Grid, MenuItem, TextField, Typography } from "@mui/material";
-import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IProvider } from "../../../../../types/types";
-import { useState } from "react";
+import { Box, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { IProvider } from '../../../../../types/types';
+import { useState } from 'react';
 
 interface IFiscalForm {
   errors: FieldErrors<IProvider>;
@@ -10,9 +10,9 @@ interface IFiscalForm {
 }
 
 const personType = [
-  { value: 0, label: "Seleccionar" },
-  { value: 1, label: "Física" },
-  { value: 2, label: "Moral" },
+  { value: 0, label: 'Seleccionar' },
+  { value: 1, label: 'Física' },
+  { value: 2, label: 'Moral' },
 ];
 
 export const FiscalForm = (props: IFiscalForm) => {
@@ -28,7 +28,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             fullWidth
             error={!!errors.rfc}
             helperText={errors?.rfc?.message}
-            {...register("rfc")}
+            {...register('rfc')}
             placeholder="RFC"
           />
         </Grid>
@@ -38,7 +38,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             fullWidth
             error={!!errors.nif}
             helperText={errors?.nif?.message}
-            {...register("nif")}
+            {...register('nif')}
             placeholder="NIF"
           />
         </Grid>
@@ -48,7 +48,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             fullWidth
             error={!!errors.giroEmpresa}
             helperText={errors?.giroEmpresa?.message}
-            {...register("giroEmpresa")}
+            {...register('giroEmpresa')}
             placeholder="Giro de la empresa"
           />
         </Grid>
@@ -58,7 +58,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             fullWidth
             error={!!errors.direccionFiscal}
             helperText={errors?.direccionFiscal?.message}
-            {...register("direccionFiscal")}
+            {...register('direccionFiscal')}
             placeholder="Dirección fiscal"
           />
         </Grid>
@@ -68,7 +68,7 @@ export const FiscalForm = (props: IFiscalForm) => {
             fullWidth
             error={!!errors.tipoContribuyente}
             helperText={errors?.tipoContribuyente?.message}
-            {...register("tipoContribuyente")}
+            {...register('tipoContribuyente')}
             placeholder="Tipo de contribuyente"
             select
             onChange={(e: any) => {

@@ -1,5 +1,5 @@
-import { Drawer, List, ListItem } from "@mui/material";
-import { MensajeLogin } from "../Layout/Help/HelpMessage";
+import { Drawer, List, ListItem } from '@mui/material';
+import { MensajeLogin } from '../Layout/Help/HelpMessage';
 
 interface CustomSideBarProps {
   open: boolean;
@@ -9,7 +9,7 @@ interface CustomSideBarProps {
 const CustomSideBar: React.FC<CustomSideBarProps> = ({ open, onClose }) => {
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-      <List sx={{ width: "616px" }}>
+      <List sx={{ width: '616px' }}>
         <ListItem>
           <MensajeLogin />
         </ListItem>

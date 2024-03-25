@@ -1,6 +1,6 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { getPurchaseOrderRequest } from "../../api/api.routes";
-import { IPurchaseAuthorization } from "../../types/types";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { getPurchaseOrderRequest } from '../../api/api.routes';
+import { IPurchaseAuthorization } from '../../types/types';
 
 interface State {
   count: number;
@@ -32,21 +32,19 @@ interface Action {
   clearFilters: () => void;
 }
 
-export const usePurchaseOrderRequestPagination = createWithEqualityFn<
-  State & Action
->()((set, get) => ({
+export const usePurchaseOrderRequestPagination = createWithEqualityFn<State & Action>()((set, get) => ({
   count: 0,
   pageCount: 0,
   pageIndex: 0,
   pageSize: 5,
   data: [],
   isLoading: true,
-  search: "",
+  search: '',
   enabled: true,
   handleChange: false,
-  status: "-1",
-  startDate: "",
-  endDate: "",
+  status: '-1',
+  startDate: '',
+  endDate: '',
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
   setStatus: (status: string) => set({ status, pageIndex: 0 }),
@@ -57,18 +55,17 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  clearFilters: () => set({ endDate: "", startDate: "", status: "-1" }),
+  clearFilters: () => set({ endDate: '', startDate: '', status: '-1' }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, endDate, startDate, status } =
-      get();
+    const { pageIndex, pageSize, search, enabled, endDate, startDate, status } = get();
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseOrderRequest(
-        `${page === 0 ? "" : "pageIndex=" + page}&${
-          pageSize === 0 ? "" : "pageSize=" + pageSize
+        `${page === 0 ? '' : 'pageIndex=' + page}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&estatus=${
-          parseInt(status) > -1 ? status : ""
+          parseInt(status) > -1 ? status : ''
         }&fechaInicio=${startDate}&fechaFin=${endDate}`
       );
       set(() => ({
