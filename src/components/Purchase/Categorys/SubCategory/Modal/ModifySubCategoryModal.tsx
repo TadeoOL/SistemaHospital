@@ -2,7 +2,7 @@ import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField } f
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addSubCategory } from '../../../../../schema/schemas';
+import { addSubCategorySchema } from '../../../../../schema/schemas';
 import { ISubCategory } from '../../../../../types/types';
 import { useEffect, useState } from 'react';
 import { useGetCategories } from '../../../../../hooks/useGetCategories';
@@ -87,7 +87,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
       nombre: subCategory?.nombre,
       descripcion: subCategory?.descripcion,
     },
-    resolver: zodResolver(addSubCategory),
+    resolver: zodResolver(addSubCategorySchema),
   });
 
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
