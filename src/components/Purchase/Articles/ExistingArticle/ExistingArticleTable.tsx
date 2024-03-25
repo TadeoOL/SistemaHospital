@@ -4,7 +4,7 @@ import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { disableExistingArticle } from "../../../../api/api.routes";
 import { TableComponent } from "../../../TableComponent";
-import { useExistingArticlePagination } from "../../../../store/purchaseStore/existingArticlePagination";
+import { useExistingArticlePagination } from "../../../../store/warehouseStore/existingArticlePagination";
 import { ModifyExistingArticleModal } from "./Modal/ModifyExistingArticleModal";
 
 const useGetAllData = () => {

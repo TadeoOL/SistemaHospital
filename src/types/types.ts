@@ -109,16 +109,23 @@ export interface IArticle {
 
 export interface IExistingArticle {
   id: string;
+  cantidad: number;
+  fechaCompra: string;
   precioCompra: number;
   precioVenta: number;
-  fechaCompra: number;
-  fechaCaducidad: number;
-  factor: number;
-  id_articulo: string;
-  id_almacen: string;
-  almacen: IWarehouse;
+  factorAplicado: number;
+  stockActual: number;
+  stockMinimo: number;
+  fechaCaducidad: string;
+  nombre: string;
+  listaArticuloExistente: IExistingArticleList[];
+}
+
+export interface IExistingArticleList {
+  id: string;
+  fechaCompraLote: string;
+  fechaCaducidad: string;
   cantidad: number;
-  articulo: IArticle;
 }
 
 export interface IWarehouse {
@@ -278,4 +285,28 @@ export interface IWarehouseData {
   fechaCreacion: string;
   fechaModificacion: string;
   habilitado: boolean;
+}
+
+export interface IWarehousePurchaseOrder {
+  id: string;
+  articulo: string;
+  cantidad: number;
+  precioCompra: number;
+  precioVenta: number;
+  factorAplicado: number;
+}
+
+export interface ISubWarehouse {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  usuarioEncargado: string;
+}
+
+export interface IAddSubWarehouse {
+  nombre: string;
+  descripcion: string;
+  esSubAlmacen: boolean;
+  Id_AlmacenPrincipal: string;
+  Id_UsuarioEncargado: string;
 }

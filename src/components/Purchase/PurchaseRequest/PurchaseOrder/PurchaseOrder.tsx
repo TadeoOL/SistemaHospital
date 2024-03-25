@@ -1,7 +1,6 @@
 import {
   Box,
   Card,
-  Chip,
   CircularProgress,
   Collapse,
   IconButton,
@@ -40,6 +39,7 @@ import { Info } from "@mui/icons-material";
 import { useAuthStore } from "../../../../store/auth";
 import { useShallow } from "zustand/react/shallow";
 import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
+import { ProviderNameChip } from "../ProviderNameChip";
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -295,9 +295,13 @@ export const PurchaseOrder = () => {
                           </TableCell>
                           <TableCell>{order.usuarioSolicitado}</TableCell>
                           <TableCell>
-                            <Chip
-                              key={order.proveedor.id_Proveedor}
-                              label={order.proveedor.nombre}
+                            <ProviderNameChip
+                              provider={[
+                                {
+                                  id: order.proveedor.id_Proveedor,
+                                  name: order.proveedor.nombre,
+                                },
+                              ]}
                             />
                           </TableCell>
                           <TableCell>

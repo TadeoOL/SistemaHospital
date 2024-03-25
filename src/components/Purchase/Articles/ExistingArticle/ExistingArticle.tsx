@@ -2,8 +2,8 @@ import { Box, Button, Divider, Modal, Stack } from "@mui/material";
 import { SearchBar } from "../../../Inputs/SearchBar";
 import { useState } from "react";
 import { ExistingArticleTable } from "./ExistingArticleTable";
-import { useExistingArticlePagination } from "../../../../store/purchaseStore/existingArticlePagination";
-import { AddExistingArticleModal } from "./Modal/AddExistingArticleModal";
+import { useExistingArticlePagination } from "../../../../store/warehouseStore/existingArticlePagination";
+// import { AddExistingArticleModal } from "./Modal/AddExistingArticleModal";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 
@@ -75,9 +75,7 @@ const ExistingArticle = () => {
         </Box>
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-          <AddExistingArticleModal open={setOpen} />
-        </>
+        <>{/* <AddExistingArticleModal open={setOpen} /> */}</>
       </Modal>
     </>
   );

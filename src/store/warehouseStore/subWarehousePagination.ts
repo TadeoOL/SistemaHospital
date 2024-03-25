@@ -1,16 +1,19 @@
 import { createWithEqualityFn } from "zustand/traditional";
-import { getExistingArticles } from "../../api/api.routes";
+import { getSubWarehouses } from "../../api/api.routes";
+import { ISubWarehouse } from "../../types/types";
+import { useWarehouseTabsNavStore } from "./warehouseTabsNav";
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: any[];
+  data: ISubWarehouse[] | null;
   isLoading: boolean;
   search: string;
   enabled: boolean;
-  handleChangeExistingArticle: boolean;
+  handleChangeSubWarehouse: boolean;
+  searchUser: string;
 }
 
 interface Action {
@@ -20,13 +23,13 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
-  setHandleChangeExistingArticle: (
-    handleChangeExistingArticle: boolean
-  ) => void;
-  fetchExistingArticles: () => Promise<void>;
+  setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => void;
+  fetchSubWarehouse: () => Promise<void>;
+  clearData: () => void;
+  setSearchUser: (searchUser: string) => void;
 }
 
-export const useExistingArticlePagination = createWithEqualityFn<
+export const useSubWarehousePaginationStore = createWithEqualityFn<
   State & Action
 >((set, get) => ({
   count: 0,
@@ -34,28 +37,33 @@ export const useExistingArticlePagination = createWithEqualityFn<
   resultByPage: 0,
   pageIndex: 0,
   pageSize: 5,
-  data: [],
+  data: null,
   isLoading: true,
   search: "",
   enabled: true,
-  handleChangeExistingArticle: false,
-  setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) =>
-    set({ handleChangeExistingArticle }),
+  handleChangeSubWarehouse: false,
+  searchUser: "",
+  setSearchUser: (searchUser: string) => set({ searchUser }),
+  setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) =>
+    set({ handleChangeSubWarehouse }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchExistingArticles: async () => {
+  fetchSubWarehouse: async () => {
+    const { pageIndex, enabled, pageSize, search } = get();
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled } = get();
+
     const page = pageIndex + 1;
     try {
-      const res = await getExistingArticles(
+      const res = await getSubWarehouses(
         `${page === 0 ? "" : "pageIndex=" + page}&${
           pageSize === 0 ? "" : "pageSize=" + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&Id_AlmacenPrincipal=${
+          useWarehouseTabsNavStore.getState().warehouseData.id
+        }`
       );
       set(() => ({
         data: res.data,
@@ -65,8 +73,19 @@ export const useExistingArticlePagination = createWithEqualityFn<
       }));
     } catch (error) {
       console.log(error);
+      set(() => ({ data: [] }));
     } finally {
       set(() => ({ isLoading: false }));
     }
+  },
+  clearData: () => {
+    set(() => ({
+      pageCount: 0,
+      pageIndex: 0,
+      pageSize: 5,
+      search: "",
+      data: null,
+      isLoading: true,
+    }));
   },
 }));
