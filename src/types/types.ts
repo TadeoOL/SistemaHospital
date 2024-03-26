@@ -293,6 +293,16 @@ export interface IWarehouseData {
   fechaModificacion: string;
   habilitado: boolean;
 }
+export interface IWarehouseMovementData {
+  almacenOrigen: string | null;
+  almacenDestino: string | null;
+  historialArticulos: IArticleHistory[] | null;
+  id: string;
+}
+export interface IArticleHistory {
+  nombre: string,
+  cantidad: number,
+}
 
 export interface IWarehousePurchaseOrder {
   id: string;

@@ -776,3 +776,8 @@ export const addNewSubWarehouse = async (data: IAddSubWarehouse) => {
   });
   return res;
 };
+
+export const getWareHouseMovementsById = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-historial-movimientos?${paramUrl}`);
+  return res.data;
+}

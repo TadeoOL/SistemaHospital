@@ -107,13 +107,12 @@ const useDisableSubCategory = () => {
 
 export const SubCategoryTable = () => {
   const disableSubCategory = useDisableSubCategory();
-
   return (
     <TableComponent
       disableHook={disableSubCategory}
       fetchDataHook={useGetAllData}
       modifyModalComponent={(props) => <ModifySubCategoryModal data={props.data} open={props.open} />}
-      headers={['Categoría', 'Sub Categoría', 'Descripción', 'Acciones']}
+      headers={['Categoría', 'Sub Categoría', 'Descripción', 'I.V.A.', 'Acciones']}
     />
   );
 };
