@@ -10,7 +10,7 @@ export interface IModuleItems {
   onClick?: () => void;
 }
 
-export interface IModuleItemsList{
+export interface IModuleItemsList {
   categoryTitle: string;
   moduleItems: IModuleItems[];
 }
@@ -103,7 +103,7 @@ export interface IArticle {
   id: string;
   nombre: string;
   codigoBarras: string;
-  descripcion: string;
+  descripcion: string | null;
   stockMinimo: string;
   stockAlerta: string;
   unidadMedida: string;

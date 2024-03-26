@@ -77,27 +77,27 @@ export const addNewProviderSchema = z.object({
 
 export const addSubCategorySchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  descripcion: z.string().min(1, 'Escribe una descripción'),
   id_categoria: z.string().min(1, 'Selecciona una categoría'),
-  iva: z.string().min(1, 'Debe tener al menos una cifra').refine(
-    (value) => {
-      return number.test(value);
-    },
-    {
-      message: 'Número no valido.',
-    }
-  ),
+  iva: z
+    .string()
+    .min(1, 'Debe tener al menos una cifra')
+    .refine(
+      (value) => {
+        return number.test(value);
+      },
+      {
+        message: 'Número no valido.',
+      }
+    ),
 });
 
 export const addCategory = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  descripcion: z.string().min(1, 'Escribe una descripción'),
 });
 
 export const addArticle = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   codigoBarras: z.string().min(1, 'Escribe un código de barras'),
-  descripcion: z.string().min(1, 'Escribe una descripción'),
   stockMinimo: z
     .string()
     .nullable() // Permitir valores nulos
@@ -124,7 +124,7 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  unidadMedida: z.string().min(1, 'Selecciona una unidad de medida'),
+  unidadMedida: z.string().min(1, 'Selecciona una presentación.'),
   precioCompra: z
     .string()
     .nullable() // Permitir valores nulos
@@ -203,7 +203,6 @@ export const addExistingArticle = z
 
 export const addWarehouse = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  descripcion: z.string().min(1, 'Escribe una descripción'),
 });
 
 export const addPurchase = z.object({
@@ -252,7 +251,6 @@ export const addNewFactorSchema = z
 
 export const addNewSubWarehouseSchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  descripcion: z.string().optional(),
   usuarioEncargado: z
     .string()
     .nullish()

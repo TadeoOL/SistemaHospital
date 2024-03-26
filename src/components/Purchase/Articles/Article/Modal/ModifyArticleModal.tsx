@@ -131,6 +131,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   useEffect(() => {
     if (article) {
       const subCate = article.subCategoria as ISubCategory;
+      if (article.descripcion == null) article.descripcion = '';
       if (textValue.trim() === '') setTextValue(article.descripcion);
       if (!subCategory) setSubCategory(subCate.id);
       setValue('id_subcategoria', subCate.id);
@@ -201,7 +202,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
-          const precioVentaString = precioVenta.toString();
+          const precioVentaString = precioVenta.toFixed(2).toString();
           setInputValue(precioVentaString);
         } else {
           setInputValue('0');

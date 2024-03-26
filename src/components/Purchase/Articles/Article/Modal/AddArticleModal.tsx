@@ -142,7 +142,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
-          const precioVentaString = precioVenta.toString();
+          const precioVentaString = precioVenta.toFixed(2).toString();
           setInputValue(precioVentaString);
           setValue('precioVenta', precioVentaString);
         } else {
@@ -245,7 +245,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.stockMinimo?.message}
                 size="small"
                 inputProps={{
-                  maxLength: 5,
+                  maxLength: 10,
                   onInput: handleInputNumberChange,
                 }}
                 placeholder="Dígite un Stock Mínimo"
@@ -260,7 +260,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.stockAlerta?.message}
                 size="small"
                 inputProps={{
-                  maxLength: 5,
+                  maxLength: 10,
                   onInput: handleInputNumberChange,
                 }}
                 placeholder="Dígite un Stock Alerta"

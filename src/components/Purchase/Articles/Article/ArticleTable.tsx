@@ -175,7 +175,7 @@ export const ArticleTable = () => {
               <TableCell>Stock alerta</TableCell>
               <TableCell>Precio Compra</TableCell>
               <TableCell>Precio Venta</TableCell>
-              <TableCell>Unidad de medida</TableCell>
+              <TableCell>Presentación</TableCell>
               <TableCell>Sub categoría</TableCell>
               <TableCell />
             </TableRow>
