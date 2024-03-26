@@ -1,51 +1,40 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  MenuItem,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addSubCategory } from "../../../../../schema/schemas";
-import { ISubCategory } from "../../../../../types/types";
-import { useEffect, useState } from "react";
-import { useGetCategories } from "../../../../../hooks/useGetCategories";
-import { toast } from "react-toastify";
-import {
-  getSubCategoryById,
-  modifySubCategory,
-} from "../../../../../api/api.routes";
-import { useSubCategoryPagination } from "../../../../../store/purchaseStore/subCategoryPagination";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField } from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addSubCategorySchema } from '../../../../../schema/schemas';
+import { ISubCategory } from '../../../../../types/types';
+import { useEffect, useState } from 'react';
+import { useGetCategories } from '../../../../../hooks/useGetCategories';
+import { toast } from 'react-toastify';
+import { getSubCategoryById, modifySubCategory } from '../../../../../api/api.routes';
+import { useSubCategoryPagination } from '../../../../../store/purchaseStore/subCategoryPagination';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, lg: 600 },
-  bgcolor: "background.paper",
+  bgcolor: 'background.paper',
   borderRadius: 8,
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  display: "flex",
-  flexDirection: "column",
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
-  overflowY: "auto",
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
@@ -78,14 +67,13 @@ const useFetchSubCategory = (categoryId: string) => {
 export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
   const { data, open } = props;
   const { isLoadingSubCategory, subCategory } = useFetchSubCategory(data);
-  const [textValue, setTextValue] = useState("");
-  const [category, setCategory] = useState("");
+  const [textValue, setTextValue] = useState('');
+  const [category, setCategory] = useState('');
   const { categories, isLoading } = useGetCategories();
-  const { handleChangeSubCategory, setHandleChangeSubCategory } =
-    useSubCategoryPagination((state) => ({
-      handleChangeSubCategory: state.handleChangeSubCategory,
-      setHandleChangeSubCategory: state.setHandleChangeSubCategory,
-    }));
+  const { handleChangeSubCategory, setHandleChangeSubCategory } = useSubCategoryPagination((state) => ({
+    handleChangeSubCategory: state.handleChangeSubCategory,
+    setHandleChangeSubCategory: state.setHandleChangeSubCategory,
+  }));
 
   const {
     register,
@@ -99,19 +87,19 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
       nombre: subCategory?.nombre,
       descripcion: subCategory?.descripcion,
     },
-    resolver: zodResolver(addSubCategory),
+    resolver: zodResolver(addSubCategorySchema),
   });
 
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
-      const idForm = getValues("id");
+      const idForm = getValues('id');
       await modifySubCategory({ ...data, id: idForm });
-      toast.success("La sub categoría ha sido modificada con éxito!");
+      toast.success('La sub categoría ha sido modificada con éxito!');
       props.open(false);
       setHandleChangeSubCategory(!handleChangeSubCategory);
     } catch (error) {
       console.log(error);
-      toast.error("Error al modificar la sub categoría!");
+      toast.error('Error al modificar la sub categoría!');
     }
   };
 
@@ -119,7 +107,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
     if (subCategory) {
       if (!category) setCategory(subCategory.categoria.id);
       if (!textValue) setTextValue(subCategory.descripcion);
-      setValue("id_categoria", subCategory.categoria.id);
+      setValue('id_categoria', subCategory.categoria.id);
       Object.entries(subCategory).forEach(([key, value]) => {
         setValue(key as keyof ISubCategory, String(value));
       });
@@ -150,15 +138,10 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Stack spacing={2}>
+            <TextField fullWidth size="small" placeholder="Nombre" {...register('nombre')} />
             <TextField
               fullWidth
-              size="small"
-              placeholder="Nombre"
-              {...register("nombre")}
-            />
-            <TextField
-              fullWidth
-              {...register("descripcion")}
+              {...register('descripcion')}
               error={!!errors.descripcion}
               size="small"
               placeholder="Descripción"
@@ -166,18 +149,12 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               helperText={
                 <Box
                   sx={{
-                    display: "flex",
+                    display: 'flex',
                     flexGrow: 1,
-                    justifyContent: "space-between",
+                    justifyContent: 'space-between',
                   }}
                 >
-                  <Box>
-                    {errors
-                      ? errors.descripcion
-                        ? errors.descripcion.message
-                        : null
-                      : null}
-                  </Box>
+                  <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
                   <Box>{`${textValue?.length}/${200}`}</Box>
                 </Box>
               }
@@ -192,7 +169,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               label="Categoría"
               error={!!errors.id_categoria}
               helperText={errors?.id_categoria?.message}
-              {...register("id_categoria")}
+              {...register('id_categoria')}
               value={category}
               onChange={handleChange}
             >
@@ -205,24 +182,15 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
           </Stack>
           <Stack
             sx={{
-              flexDirection: "row",
+              flexDirection: 'row',
               columnGap: 2,
-              justifyContent: "space-between",
+              justifyContent: 'space-between',
             }}
           >
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CancelIcon />}
-              onClick={() => open(false)}
-            >
+            <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
               Cancelar
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              startIcon={<SaveOutlinedIcon />}
-            >
+            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Stack>

@@ -12,17 +12,17 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material";
-import { usePurchaseOrderRequestModals } from "../../../../../../store/purchaseStore/purchaseOrderRequestModals";
-import { shallow } from "zustand/shallow";
-import { useGetProvider } from "../../../../../../hooks/useGetProvider";
-import { KeyboardReturn, Save } from "@mui/icons-material";
-import { useState } from "react";
-import { toast } from "react-toastify";
+} from '@mui/material';
+import { usePurchaseOrderRequestModals } from '../../../../../../store/purchaseStore/purchaseOrderRequestModals';
+import { shallow } from 'zustand/shallow';
+import { useGetProvider } from '../../../../../../hooks/useGetProvider';
+import { KeyboardReturn, Save } from '@mui/icons-material';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const styleInput = {
-  paddingTop: "0.4rem",
-  paddingBottom: "0.4rem",
+  paddingTop: '0.4rem',
+  paddingBottom: '0.4rem',
 };
 
 type Articles = {
@@ -64,14 +64,14 @@ export const FillQuoteInformationModal = () => {
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
 
   const handlePrecioChange = (articleId: string, precio: string) => {
-    if (precio.trim() !== "" || precio.trim() !== "0") {
+    if (precio.trim() !== '' || precio.trim() !== '0') {
       setPrecios({
         ...precios,
         [articleId]: precio,
       });
       setErrores((prevErrores) => ({
         ...prevErrores,
-        [articleId]: "",
+        [articleId]: '',
       }));
     } else {
       const { [articleId]: _, ...restPrecios } = precios;
@@ -84,24 +84,21 @@ export const FillQuoteInformationModal = () => {
     if (!dataOrderRequest) return;
     if (!articles) return;
     if (Object.values(precios).some((p) => parseFloat(p) <= 0))
-      return toast.error("Error, no se pueden agregar precios menores a 0");
+      return toast.error('Error, no se pueden agregar precios menores a 0');
     const preciosCompletos = Object.keys(precios).length === articles.length;
     if (preciosCompletos) {
       setIsLoadingSubmit(true);
       let object: any[] = [];
       for (let i = 0; i < Object.keys(precios).length; i++) {
         const articleId = Object.keys(precios)[i];
-        const articleRes = articles.find(
-          (a) => a.articulo.id_Articulo === Object.keys(precios)[i]
-        );
+        const articleRes = articles.find((a) => a.articulo.id_Articulo === Object.keys(precios)[i]);
         const value = Object.values(precios)[i];
 
         object.push({
           id_Articulo: articleId,
           Cantidad: articleRes ? articleRes.cantidadCompra : 0,
           precioProveedor: parseFloat(value),
-          nombre: articles.find((a) => a.articulo.id_Articulo === articleId)
-            ?.articulo.nombre,
+          nombre: articles.find((a) => a.articulo.id_Articulo === articleId)?.articulo.nombre,
         });
       }
       const registerOrderPurchaseObject = {
@@ -118,8 +115,7 @@ export const FillQuoteInformationModal = () => {
       const nuevosErrores: { [key: string]: string } = {};
       articles.forEach((a) => {
         if (!precios[a.articulo.id_Articulo]) {
-          nuevosErrores[a.articulo.id_Articulo] =
-            "Por favor ingresa un precio.";
+          nuevosErrores[a.articulo.id_Articulo] = 'Por favor ingresa un precio.';
         }
       });
       setErrores(nuevosErrores);
@@ -134,10 +130,10 @@ export const FillQuoteInformationModal = () => {
     return (
       <Box
         sx={{
-          display: "flex",
+          display: 'flex',
           flex: 1,
-          justifyContent: "center",
-          alignContent: "center",
+          justifyContent: 'center',
+          alignContent: 'center',
         }}
       >
         <CircularProgress />
@@ -147,17 +143,13 @@ export const FillQuoteInformationModal = () => {
     <Stack spacing={2} sx={{ mt: 4 }}>
       <Grid container>
         <Grid item xs={12}>
-          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
-            Información del proveedor
-          </Typography>
+          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>Información del proveedor</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography>Compañía: {providerData?.nombreCompania}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>
-            Nombre contacto: {providerData?.nombreContacto}
-          </Typography>
+          <Typography>Nombre contacto: {providerData?.nombreContacto}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography>Dirección: {providerData?.direccion}</Typography>
@@ -166,15 +158,11 @@ export const FillQuoteInformationModal = () => {
           <Typography>Teléfono: {providerData?.telefono}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>
-            Correo electrónico: {providerData?.correoElectronico}
-          </Typography>
+          <Typography>Correo electrónico: {providerData?.correoElectronico}</Typography>
         </Grid>
       </Grid>
-      <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
-        Productos solicitados
-      </Typography>
-      <Box sx={{ borderRadius: 2, boxShadow: 4, overflowX: "auto" }}>
+      <Typography sx={{ fontSize: 16, fontWeight: 500 }}>Productos solicitados</Typography>
+      <Box sx={{ borderRadius: 2, boxShadow: 4, overflowX: 'auto' }}>
         <TableContainer sx={{ minWidth: 400 }}>
           <Table>
             <TableHead>
@@ -199,15 +187,10 @@ export const FillQuoteInformationModal = () => {
                             ...styleInput,
                           },
                         }}
-                        onChange={(e) =>
-                          handlePrecioChange(
-                            a.articulo.id_Articulo,
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handlePrecioChange(a.articulo.id_Articulo, e.target.value)}
                         error={errores[a.articulo.id_Articulo] ? true : false}
                         helperText={errores[a.articulo.id_Articulo]}
-                        value={precios[a.articulo.id_Articulo] || ""}
+                        value={precios[a.articulo.id_Articulo] || ''}
                       />
                     </TableCell>
                   </TableRow>
@@ -218,24 +201,20 @@ export const FillQuoteInformationModal = () => {
       </Box>
       <Box
         sx={{
-          position: "sticky",
+          position: 'sticky',
           bottom: 0,
-          backgroundColor: "#fff",
-          padding: "10px",
+          backgroundColor: '#fff',
+          padding: '10px',
           zIndex: 2,
         }}
       >
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
+            display: 'flex',
+            justifyContent: 'space-between',
           }}
         >
-          <Button
-            startIcon={<KeyboardReturn />}
-            variant="contained"
-            onClick={() => handlePrevStep()}
-          >
+          <Button startIcon={<KeyboardReturn />} variant="contained" onClick={() => handlePrevStep()}>
             Regresar
           </Button>
           <Button
@@ -246,7 +225,7 @@ export const FillQuoteInformationModal = () => {
             }}
             disabled={isLoadingSubmit}
           >
-            {isLoadingSubmit ? <CircularProgress size={14} /> : "Siguiente"}
+            {isLoadingSubmit ? <CircularProgress size={14} /> : 'Siguiente'}
           </Button>
         </Box>
       </Box>

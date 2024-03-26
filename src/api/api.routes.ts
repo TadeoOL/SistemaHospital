@@ -1,17 +1,17 @@
-import axios from "../libs/axios";
+import axios from '../libs/axios';
 import {
+  IAddSubWarehouse,
   IAddUser,
   IArticle,
   ICategory,
-  IExistingArticle,
   IProvider,
   IPurchaseConfig,
   IRegisterOrderPurchase,
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
-} from "../types/types";
-import { AxiosError } from "axios";
+} from '../types/types';
+import { AxiosError } from 'axios';
 
 export const login = async (userName: string, password: string) => {
   try {
@@ -26,16 +26,7 @@ export const login = async (userName: string, password: string) => {
 };
 
 export const updateUserData = async (user: IUpdateUsers) => {
-  const {
-    apellidoMaterno,
-    apellidoPaterno,
-    email,
-    id,
-    nombre,
-    nombreUsuario,
-    roles,
-    telefono,
-  } = user;
+  const { apellidoMaterno, apellidoPaterno, email, id, nombre, nombreUsuario, roles, telefono } = user;
   const res = await axios.put(`/api/Usuario/actualizar-usuario-administrador`, {
     id: id,
     nombre,
@@ -73,27 +64,20 @@ export const updateBasicUserInformation = async (data: {
   nombre: string;
   imagenURL?: string;
 }) => {
-  const {
-    apellidoMaterno,
-    apellidoPaterno,
-    email,
-    telefono,
-    nombre,
-    imagenURL,
-  } = data;
+  const { apellidoMaterno, apellidoPaterno, email, telefono, nombre, imagenURL } = data;
   const formData = new FormData();
-  formData.append("Nombre", nombre);
-  formData.append("ApellidoPaterno", apellidoPaterno);
-  formData.append("ApellidoMaterno", apellidoMaterno);
-  formData.append("Telefono", telefono);
-  formData.append("Email", email);
+  formData.append('Nombre', nombre);
+  formData.append('ApellidoPaterno', apellidoPaterno);
+  formData.append('ApellidoMaterno', apellidoMaterno);
+  formData.append('Telefono', telefono);
+  formData.append('Email', email);
   if (imagenURL) {
-    formData.append("Imagen", imagenURL);
+    formData.append('Imagen', imagenURL);
   }
 
   const res = await axios.put(`/api/Usuario/actualizar-usuario`, formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
 
@@ -128,11 +112,7 @@ export const registerNewUser = async (user: IAddUser) => {
   return res.data;
 };
 
-export const changeUserPassword = async (
-  password: string,
-  confirmPassword: string,
-  actualPassword: string
-) => {
+export const changeUserPassword = async (password: string, confirmPassword: string, actualPassword: string) => {
   const res = await axios.put(`/api/Usuario/cambiar-contrasena`, {
     contrasena: password,
     confirmarContrasena: confirmPassword,
@@ -141,11 +121,7 @@ export const changeUserPassword = async (
   return res.data;
 };
 
-export const AdminChangeUsersPassword = async (
-  id: string,
-  password: string,
-  confirmPassword: string
-) => {
+export const AdminChangeUsersPassword = async (id: string, password: string, confirmPassword: string) => {
   const res = await axios.put(`/api/Usuario/cambiar-contrasena-administrador`, {
     id: id,
     contrasena: password,
@@ -154,10 +130,13 @@ export const AdminChangeUsersPassword = async (
   return res.data;
 };
 
+export const getRoles = async () => {
+  const res = await axios.get(`/api/Usuario/obtener-roles`);
+  return res.data;
+};
+
 export const getProviders = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Proveedor/paginacion-proveedor?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Proveedor/paginacion-proveedor?${paramUrl}`);
   return res.data;
 };
 
@@ -257,9 +236,7 @@ export const addNewCategory = async (data: ICategory) => {
 };
 
 export const getCategories = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Categoria/paginacion-categoria?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Categoria/paginacion-categoria?${paramUrl}`);
   return res.data;
 };
 
@@ -285,19 +262,18 @@ export const getAllCategories = async () => {
 };
 
 export const addNewSubCategory = async (data: ISubCategory) => {
-  const { nombre, descripcion, id_categoria } = data;
+  const { nombre, descripcion, id_categoria, iva, } = data;
   const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
     nombre,
     descripcion,
     id_categoria,
+    iva,
   });
   return res.data;
 };
 
 export const getSubCategories = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/SubCategoria/paginacion-subcategoria?${paramUrl}`
-  );
+  const res = await axios.get(`/api/SubCategoria/paginacion-subcategoria?${paramUrl}`);
   return res.data;
 };
 
@@ -393,46 +369,12 @@ export const getArticleById = async (articleId: string) => {
 };
 
 export const getExistingArticles = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`
-  );
+  const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`);
   return res.data;
 };
 
 export const getExistingArticleById = async (existingArticleId: string) => {
   const res = await axios.get(`/api/ArticuloExistente/${existingArticleId}`);
-  return res.data;
-};
-
-export const modifyExistingArticle = async (
-  existingArticle: IExistingArticle
-) => {
-  const {
-    id,
-    id_almacen,
-    id_articulo,
-    factor,
-    fechaCaducidad,
-    fechaCompra,
-    precioCompra,
-    precioVenta,
-    cantidad,
-  } = existingArticle;
-
-  const res = await axios.put(
-    `/api/ArticuloExistente/actualizar-articulo-existente`,
-    {
-      id,
-      id_almacen,
-      id_articulo,
-      factor,
-      fechaCaducidad,
-      fechaCompra,
-      precioCompra,
-      precioVenta,
-      cantidad,
-    }
-  );
   return res.data;
 };
 
@@ -447,10 +389,7 @@ export const getAllAlmacenes = async () => {
 };
 
 export const disableExistingArticle = async (id: string) => {
-  const res = await axios.put(
-    `/api/ArticuloExistente/estatus-articulo-existente`,
-    { id }
-  );
+  const res = await axios.put(`/api/ArticuloExistente/estatus-articulo-existente`, { id });
   return res.data;
 };
 
@@ -499,38 +438,8 @@ export const getSubCategoryById = async (subCategoryId: string) => {
   return res.data;
 };
 
-export const addNewExistingArticle = async (
-  existingArticle: IExistingArticle
-) => {
-  const {
-    id_almacen,
-    id_articulo,
-    factor,
-    fechaCaducidad,
-    fechaCompra,
-    precioCompra,
-    precioVenta,
-    cantidad,
-  } = existingArticle;
-
-  const res = await axios.post(
-    `/api/ArticuloExistente/registrar-articulo-existente`,
-    {
-      id_almacen,
-      id_articulo,
-      factor,
-      fechaCaducidad,
-      fechaCompra,
-      precioCompra,
-      precioVenta,
-      cantidad,
-    }
-  );
-  return res.data;
-};
-
 export const getArticlesByIds = async (Ids: string[]) => {
-  const res = await axios.post("/api/Articulo/obtener-articulos-id", {
+  const res = await axios.post('/api/Articulo/obtener-articulos-id', {
     id_articulo: Ids,
   });
   return res.data as IArticle[];
@@ -547,18 +456,13 @@ export const getAllProviders = async () => {
 };
 
 export const getPurchaseConfig = async () => {
-  const res = await axios.get("/api/Compras/obtener-configuracion-compras");
+  const res = await axios.get('/api/Compras/obtener-configuracion-compras');
   return res.data as IPurchaseConfig;
 };
 
 export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
-  const {
-    cantidadOrdenDirecta,
-    factor,
-    cantidadLicitacionDirecta,
-    activarLicitacion,
-  } = data;
-  const res = await axios.put("/api/Compras/actualizar-configuracion-compras", {
+  const { cantidadOrdenDirecta, factor, cantidadLicitacionDirecta, activarLicitacion } = data;
+  const res = await axios.put('/api/Compras/actualizar-configuracion-compras', {
     factor: JSON.stringify(factor),
     cantidadOrdenDirecta,
     cantidadLicitacionDirecta,
@@ -583,7 +487,7 @@ export const addPurchaseRequest = async (
   totalArticlePrice: number,
   pdf?: string
 ) => {
-  const res = await axios.post("/api/Compras/registrar-solicitud-compra", {
+  const res = await axios.post('/api/Compras/registrar-solicitud-compra', {
     id_proveedor: providerId,
     Articulos: articles,
     id_almacen: warehouseId,
@@ -594,24 +498,16 @@ export const addPurchaseRequest = async (
 };
 
 export const getPurchaseAuthorization = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-autorizacion-compras-administrador?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Compras/paginacion-autorizacion-compras-administrador?${paramUrl}`);
   return res.data;
 };
 
 export const getPurchaseAuthorizationHistory = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-historial-autorizacion-administrador?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Compras/paginacion-historial-autorizacion-administrador?${paramUrl}`);
   return res.data;
 };
 
-export const changePurchaseStatus = async (
-  Id_SolicitudCompra: string,
-  Estatus: number,
-  Mensaje?: string
-) => {
+export const changePurchaseStatus = async (Id_SolicitudCompra: string, Estatus: number, Mensaje?: string) => {
   try {
     const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
       Id_SolicitudCompra,
@@ -620,64 +516,45 @@ export const changePurchaseStatus = async (
     });
     return res.data;
   } catch (error) {
-    console.error("Error al cambiar estado de compra:", error);
+    console.error('Error al cambiar estado de compra:', error);
     throw error;
   }
 };
 
 export const getWaitAuthPurchase = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-autorizacion-compras?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Compras/paginacion-autorizacion-compras?${paramUrl}`);
   return res.data;
 };
 
 export const getPurchaseOrderRequest = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-solicitud-compra?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Compras/paginacion-solicitud-compra?${paramUrl}`);
   return res.data;
 };
 
 export const getProviderQuotePdf = async (idQuote: string) => {
-  const res = await axios.get(
-    `/api/Compras/obtener-cotizacion-proveedor-pdf/${idQuote}`
-  );
+  const res = await axios.get(`/api/Compras/obtener-cotizacion-proveedor-pdf/${idQuote}`);
   return res.data;
 };
 
-export const addProviderQuote = async (
-  Id_SolicitudProveedor: string,
-  PDFCadena: string
-) => {
-  const res = await axios.put(
-    `/api/Compras/guardar-cotizacion-proveedor-pdf/`,
-    {
-      Id_SolicitudProveedor,
-      PDFCadena,
-    }
-  );
+export const addProviderQuote = async (Id_SolicitudProveedor: string, PDFCadena: string) => {
+  const res = await axios.put(`/api/Compras/guardar-cotizacion-proveedor-pdf/`, {
+    Id_SolicitudProveedor,
+    PDFCadena,
+  });
   return res.data;
 };
 
 export const getPurchaseOrderRequestPdf = async (idQuote: string) => {
-  const res = await axios.get(
-    `/api/Compras/obtener-solicitud-compra/${idQuote}`
-  );
+  const res = await axios.get(`/api/Compras/obtener-solicitud-compra/${idQuote}`);
   return res.data;
 };
 
 export const deleteProviderQuote = async (idQuote: string) => {
-  const res = await axios.delete(
-    `/api/Compras/eliminar-cotizacion-proveedor-pdf/${idQuote}`
-  );
+  const res = await axios.delete(`/api/Compras/eliminar-cotizacion-proveedor-pdf/${idQuote}`);
   return res.data;
 };
 
-export const selectManyProvidersForTender = async (
-  id_SolicitudCompra: string,
-  id_Proveedor: string[]
-) => {
+export const selectManyProvidersForTender = async (id_SolicitudCompra: string, id_Proveedor: string[]) => {
   const res = await axios.put(`/api/Compras/licitar-solicitud-compra`, {
     id_SolicitudCompra,
     id_Proveedor,
@@ -685,11 +562,7 @@ export const selectManyProvidersForTender = async (
   return res.data;
 };
 
-export const changeOrderStatus = async (
-  Id_OrdenCompra: string,
-  Estatus: number,
-  Mensaje?: string
-) => {
+export const changeOrderStatus = async (Id_OrdenCompra: string, Estatus: number, Mensaje?: string) => {
   try {
     const res = await axios.put(`/api/Compras/estatus-orden-compra`, {
       Id_OrdenCompra,
@@ -698,24 +571,19 @@ export const changeOrderStatus = async (
     });
     return res.data;
   } catch (error) {
-    console.error("Error al cambiar estado de la orden:", error);
+    console.error('Error al cambiar estado de la orden:', error);
     throw error;
   }
 };
 
 export const getOrderRequest = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-orden-compra?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Compras/paginacion-orden-compra?${paramUrl}`);
   return res.data;
 };
 
 // Order Bill Response
 
-export const addBillQuote = async (
-  Id_OrdenCompra: string,
-  PDFCadena: string
-) => {
+export const addBillQuote = async (Id_OrdenCompra: string, PDFCadena: string) => {
   const res = await axios.put(`/api/Compras/guardar-factura-proveedor-pdf`, {
     Id_OrdenCompra,
     PDFCadena,
@@ -724,16 +592,12 @@ export const addBillQuote = async (
 };
 
 export const deleteBillQuote = async (idQuote: string) => {
-  const res = await axios.delete(
-    `/api/Compras/eliminar-factura-proveedor-pdf/${idQuote}`
-  );
+  const res = await axios.delete(`/api/Compras/eliminar-factura-proveedor-pdf/${idQuote}`);
   return res.data;
 };
 
 export const getBillPdf = async (idQuote: string) => {
-  const res = await axios.get(
-    `/api/Compras/obtener-factura-proveedor-pdf/${idQuote}`
-  );
+  const res = await axios.get(`/api/Compras/obtener-factura-proveedor-pdf/${idQuote}`);
   return res.data;
 };
 
@@ -746,48 +610,40 @@ export const getOrderRequestPdf = async (idQuote: string) => {
 
 export const obtenerMensajes = async (modulo: string) => {
   try {
-    const res = await axios.get(
-      `/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`
-    );
+    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`);
     return res.data;
   } catch (error) {
-    console.error("Error al obtener los mensajes:", error);
+    console.error('Error al obtener los mensajes:', error);
     throw error;
   }
 };
 
 export const crearMensaje = async (nuevoMensaje: string) => {
   try {
-    const modulo = "Compras_AutorizacionCancelada";
-    await axios.post("/api/Sistema/Mensajes/crear-mensaje-alerta", {
+    const modulo = 'Compras_AutorizacionCancelada';
+    await axios.post('/api/Sistema/Mensajes/crear-mensaje-alerta', {
       Mensaje: nuevoMensaje,
       Modulo: modulo,
     });
 
-    const res = await axios.get(
-      `/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`
-    );
+    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`);
 
     return res.data;
   } catch (error) {
-    console.error("Error al crear el mensaje:", error);
+    console.error('Error al crear el mensaje:', error);
     throw error;
   }
 };
 
 export const eliminarMensaje = async (mensajeId: string) => {
   try {
-    await axios.delete(
-      `/api/Sistema/Mensajes/eliminar-mensaje-alerta/${mensajeId}`
-    );
+    await axios.delete(`/api/Sistema/Mensajes/eliminar-mensaje-alerta/${mensajeId}`);
 
-    const res = await axios.get(
-      "/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada"
-    );
+    const res = await axios.get('/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada');
 
     return res.data;
   } catch (error) {
-    console.error("Error al eliminar el mensaje:", error);
+    console.error('Error al eliminar el mensaje:', error);
     throw error;
   }
 };
@@ -808,9 +664,7 @@ export const editarMensaje = async ({
       modulo,
     });
 
-    const res = await axios.get(
-      `/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada`
-    );
+    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada`);
 
     return res.data;
   } catch (error) {
@@ -820,7 +674,7 @@ export const editarMensaje = async ({
       console.log(`Error al editar el mensaje. Código de estado: ${status}`);
       console.log(`Respuesta del servidor:`, data);
     } else {
-      console.error("Error al editar el mensaje:", error);
+      console.error('Error al editar el mensaje:', error);
     }
     throw error;
   }
@@ -828,7 +682,7 @@ export const editarMensaje = async ({
 
 export const addPurchaseOrder = async (data: IRegisterOrderPurchase) => {
   const { Id_SolicitudCompra, OrdenCompra } = data;
-  const res = await axios.post("/api/Compras/registrar-orden-compra", {
+  const res = await axios.post('/api/Compras/registrar-orden-compra', {
     Id_SolicitudCompra,
     OrdenCompra,
   });
@@ -836,16 +690,12 @@ export const addPurchaseOrder = async (data: IRegisterOrderPurchase) => {
 };
 
 export const getPurchaseOrder = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Compras/paginacion-orden-compra?${paramUrl}`
-  );
+  const res = await axios.get(`/api/Compras/paginacion-orden-compra?${paramUrl}`);
   return res.data;
 };
 
 export const getArticlesBySearch = async (paramUrl: string) => {
-  const res = await axios.get(
-    `/api/Articulo/busqueda-articulo?Search=${paramUrl}`
-  );
+  const res = await axios.get(`/api/Articulo/busqueda-articulo?Search=${paramUrl}`);
   return res.data;
 };
 
@@ -884,7 +734,7 @@ export const matchArticlesWithProviders = async (SolicitudCompra: {
     }[];
   }[];
 }) => {
-  const res = await axios.post("/api/Compras/dividir-solicitud-compra", {
+  const res = await axios.post('/api/Compras/dividir-solicitud-compra', {
     SolicitudCompra,
   });
   return res.data;
@@ -898,4 +748,31 @@ export const getSideBardWarehouse = async () => {
 export const getWarehouseById = async (warehouseId: string) => {
   const res = await axios.get(`/api/Almacen/${warehouseId}`);
   return res.data;
+};
+
+export const getWarehousePurchaseOrders = async () => {
+  const res = await axios.get('https://65e5ea50d7f0758a76e7be0f.mockapi.io/api/ordenesCompra');
+  return res.data;
+};
+
+export const getSubWarehouses = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-almacen?${paramUrl}`);
+  return res.data;
+};
+
+export const getUsersBySearch = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Usuario/busqueda-usuario?Search=${paramUrl}`);
+  return res.data;
+};
+
+export const addNewSubWarehouse = async (data: IAddSubWarehouse) => {
+  const { Id_AlmacenPrincipal, descripcion, Id_UsuarioEncargado, esSubAlmacen, nombre } = data;
+  const res = await axios.post(`/api/Almacen/registrar-almacen`, {
+    Id_AlmacenPrincipal,
+    descripcion,
+    esSubAlmacen,
+    Id_UsuarioEncargado,
+    nombre,
+  });
+  return res;
 };

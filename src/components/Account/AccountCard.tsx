@@ -1,27 +1,16 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Stack,
-  TextField,
-  Typography,
-  Checkbox,
-} from "@mui/material";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { IUser, IUserSettings } from "../../types/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { userSettingsSchema } from "../../schema/schemas";
-import { useAuthStore } from "../../store/auth";
-import { toast } from "react-toastify";
-import {
-  changeUserPassword,
-  updateBasicUserInformation,
-} from "../../api/api.routes";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-import { useState } from "react";
-import { convertBase64 } from "../../utils/functions/dataUtils";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import { Avatar, Box, Button, Stack, TextField, Typography, Checkbox } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { IUser, IUserSettings } from '../../types/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { userSettingsSchema } from '../../schema/schemas';
+import { useAuthStore } from '../../store/auth';
+import { toast } from 'react-toastify';
+import { changeUserPassword, updateBasicUserInformation } from '../../api/api.routes';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { useState } from 'react';
+import { convertBase64 } from '../../utils/functions/dataUtils';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 // import { updateUserData } from "../../api/api.routes";
 
 interface IUpdateUserData extends IUserSettings {
@@ -41,7 +30,7 @@ const handleChangePassword = () => {
         sx={{
           boxShadow: 10,
           borderRadius: 2,
-          bgcolor: "white",
+          bgcolor: 'white',
         }}
       >
         <Stack>
@@ -80,39 +69,30 @@ const handleChangePassword = () => {
   );
 
   withReactContent(Swal).fire({
-    title: "Cambiar contraseña",
+    title: 'Cambiar contraseña',
     html: CambioContrasena,
-    cancelButtonText: "Cancelar",
-    confirmButtonText: "Cambiar",
+    cancelButtonText: 'Cancelar',
+    confirmButtonText: 'Cambiar',
     focusConfirm: false,
     showCancelButton: true,
     reverseButtons: true,
     didOpen: () => {
       const popup = withReactContent(Swal).getPopup()!;
-      passwordInput = popup.querySelector("#password") as HTMLInputElement;
-      actualPasswordInput = popup.querySelector(
-        "#actualPassword"
-      ) as HTMLInputElement;
-      confirmPasswordInput = popup.querySelector(
-        "#confirmPassword"
-      ) as HTMLInputElement;
-      showPasswordCheckbox = popup.querySelector(
-        "#showPassword"
-      ) as HTMLInputElement;
+      passwordInput = popup.querySelector('#password') as HTMLInputElement;
+      actualPasswordInput = popup.querySelector('#actualPassword') as HTMLInputElement;
+      confirmPasswordInput = popup.querySelector('#confirmPassword') as HTMLInputElement;
+      showPasswordCheckbox = popup.querySelector('#showPassword') as HTMLInputElement;
 
-      showPasswordCheckbox.addEventListener("change", () => {
-        const type = showPasswordCheckbox.checked ? "text" : "password";
+      showPasswordCheckbox.addEventListener('change', () => {
+        const type = showPasswordCheckbox.checked ? 'text' : 'password';
         passwordInput.type = type;
         confirmPasswordInput.type = type;
         actualPasswordInput.type = type;
       });
 
-      passwordInput.onkeyup = (event) =>
-        event.key === "Enter" && withReactContent(Swal).clickConfirm();
-      confirmPasswordInput.onkeyup = (event) =>
-        event.key === "Enter" && withReactContent(Swal).clickConfirm();
-      actualPasswordInput.onkeyup = (event) =>
-        event.key === "Enter" && withReactContent(Swal).clickConfirm();
+      passwordInput.onkeyup = (event) => event.key === 'Enter' && withReactContent(Swal).clickConfirm();
+      confirmPasswordInput.onkeyup = (event) => event.key === 'Enter' && withReactContent(Swal).clickConfirm();
+      actualPasswordInput.onkeyup = (event) => event.key === 'Enter' && withReactContent(Swal).clickConfirm();
     },
     preConfirm: async () => {
       const password = passwordInput.value;
@@ -126,34 +106,26 @@ const handleChangePassword = () => {
       }
 
       if (password !== confirmPassword) {
-        withReactContent(Swal).showValidationMessage(
-          `Las contraseñas no coinciden`
-        );
+        withReactContent(Swal).showValidationMessage(`Las contraseñas no coinciden`);
       }
 
       if (password === confirmPassword) {
         try {
-          const res = await changeUserPassword(
-            password,
-            confirmPassword,
-            actualPassword
-          );
+          const res = await changeUserPassword(password, confirmPassword, actualPassword);
           withReactContent(Swal).fire({
             title: `Cambio realizado`,
             text: res,
-            icon: "success",
+            icon: 'success',
           });
         } catch (error: any) {
           console.log(error.response);
           if (error.response.status === 400) {
-            return withReactContent(Swal).showValidationMessage(
-              error.response.data.message
-            );
+            return withReactContent(Swal).showValidationMessage(error.response.data.message);
           } else {
             withReactContent(Swal).fire({
               title: `Error`,
               text: `Error al actualizar la contraseña, la contraseña debe de tener al menos una Mayúscula y un Número`,
-              icon: "error",
+              icon: 'error',
             });
           }
         }
@@ -168,14 +140,12 @@ export const AccountCard = () => {
   const setProfile = useAuthStore((state) => state.setProfile);
   const [selectedImage, setSelectedImage] = useState(user?.imagenURL);
 
-  const handleImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const base64 = await convertBase64(file);
       setSelectedImage(base64);
-      event.target.value = "";
+      event.target.value = '';
     }
   };
 
@@ -199,11 +169,11 @@ export const AccountCard = () => {
     try {
       const formattedData = { ...data, imagenURL: selectedImage };
       const user: IUser = await updateBasicUserInformation(formattedData);
-      toast.success("Datos actualizados correctamente!");
+      toast.success('Datos actualizados correctamente!');
       setProfile(user);
     } catch (error) {
       console.log(error);
-      toast.error("Error al modificar los datos");
+      toast.error('Error al modificar los datos');
     }
   };
   const handleError = (error: any) => {
@@ -214,7 +184,7 @@ export const AccountCard = () => {
       sx={{
         boxShadow: 10,
         borderRadius: 2,
-        bgcolor: "white",
+        bgcolor: 'white',
       }}
     >
       <Stack sx={{ p: 2 }}>
@@ -223,11 +193,7 @@ export const AccountCard = () => {
             <Typography fontSize={24} fontWeight={700}>
               Informacion del perfil
             </Typography>
-            <Typography
-              fontSize={14}
-              fontWeight={400}
-              sx={{ color: "neutral.400" }}
-            >
+            <Typography fontSize={14} fontWeight={400} sx={{ color: 'neutral.400' }}>
               Actualiza tu informacion de usuario
             </Typography>
           </Stack>
@@ -235,45 +201,40 @@ export const AccountCard = () => {
             spacing={4}
             sx={{
               p: 4,
-              flexDirection: { xs: "column", md: "row" },
-              display: "flex",
+              flexDirection: { xs: 'column', md: 'row' },
+              display: 'flex',
               width: 1,
               flex: 1,
-              alignItems: { xs: "center" },
-              justifyContent: "space-between",
+              alignItems: { xs: 'center' },
+              justifyContent: 'space-between',
             }}
           >
             <Stack
               spacing={2}
               sx={{
-                width: { md: "50%" },
-                display: "flex",
+                width: { md: '50%' },
+                display: 'flex',
                 flex: 1,
-                alignItems: "center",
+                alignItems: 'center',
               }}
             >
               <Avatar
                 src={selectedImage}
                 sx={{
-                  height: { xs: "154px", md: "220px" },
-                  width: { xs: "154px", md: "220px" },
+                  height: { xs: '154px', md: '220px' },
+                  width: { xs: '154px', md: '220px' },
                 }}
               />
               <Button component="label" variant="outlined">
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleImageChange}
-                  accept="image/png, image/jpg"
-                />
+                <input type="file" hidden onChange={handleImageChange} accept="image/png, image/jpg" />
                 Cambiar foto de perfil
               </Button>
             </Stack>
             <Stack
               spacing={2}
               sx={{
-                width: { md: "50%" },
-                display: "flex",
+                width: { md: '50%' },
+                display: 'flex',
                 flex: 1,
                 pr: { md: 8 },
               }}
@@ -281,28 +242,28 @@ export const AccountCard = () => {
               <TextField
                 error={!!errors.nombre}
                 helperText={errors?.nombre?.message}
-                {...register("nombre")}
+                {...register('nombre')}
                 size="medium"
                 placeholder="Nombre"
               />
               <TextField
                 error={!!errors.apellidoPaterno}
                 helperText={errors?.apellidoPaterno?.message}
-                {...register("apellidoPaterno")}
+                {...register('apellidoPaterno')}
                 size="medium"
                 placeholder="Apellido paterno"
               />
               <TextField
                 error={!!errors.apellidoMaterno}
                 helperText={errors?.apellidoMaterno?.message}
-                {...register("apellidoMaterno")}
+                {...register('apellidoMaterno')}
                 size="medium"
                 placeholder="Apellido materno"
               />
               <TextField
                 error={!!errors.email}
                 helperText={errors?.email?.message}
-                {...register("email")}
+                {...register('email')}
                 size="medium"
                 placeholder="Correo electrónico"
               />
@@ -310,7 +271,7 @@ export const AccountCard = () => {
                 //
                 error={!!errors.telefono}
                 helperText={errors?.telefono?.message}
-                {...register("telefono")}
+                {...register('telefono')}
                 size="medium"
                 placeholder="Teléfono"
               />
@@ -326,13 +287,8 @@ export const AccountCard = () => {
               </Box>
             </Stack>
           </Stack>
-          <Box style={{ textAlign: "right" }}>
-            <Button
-              variant="contained"
-              type="submit"
-              size="small"
-              startIcon={<SaveOutlinedIcon />}
-            >
+          <Box style={{ textAlign: 'right' }}>
+            <Button variant="contained" type="submit" size="small" startIcon={<SaveOutlinedIcon />}>
               Guardar cambios
             </Button>
           </Box>

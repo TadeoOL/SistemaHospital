@@ -1,21 +1,21 @@
-import { IconButton, Typography, styled } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { IconButton, Typography, styled } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface IHeaderModal {
   title: string;
   setOpen: Function;
 }
 
-const Header = styled("div")(() => ({
-  width: "100%",
-  display: "flex",
+const Header = styled('div')(() => ({
+  width: '100%',
+  display: 'flex',
   flex: 1,
-  justifyContent: "space-between",
-  alignItems: "baseline",
-  position: "sticky",
+  justifyContent: 'space-between',
+  alignItems: 'baseline',
+  position: 'sticky',
   top: 0,
   zIndex: 2,
-  background: "rgba(255, 255, 255, 0.9)",
+  background: 'rgba(255, 255, 255, 0.9)',
 }));
 
 export const HeaderModal = (props: IHeaderModal) => {
@@ -24,7 +24,7 @@ export const HeaderModal = (props: IHeaderModal) => {
   return (
     <Header
       sx={{
-        bgcolor: "neutral.700",
+        bgcolor: 'neutral.700',
         borderTopLeftRadius: 15,
         borderTopRightRadius: { xs: 0, lg: 15 },
         p: 1,

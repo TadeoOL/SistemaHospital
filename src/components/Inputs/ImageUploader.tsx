@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Swal from "sweetalert2";
+import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 
 const ImageUploader: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -13,8 +13,8 @@ const ImageUploader: React.FC = () => {
 
       // Mostrar SweetAlert2 con la dirección de la imagen
       Swal.fire({
-        icon: "success",
-        title: "Operación Exitosa",
+        icon: 'success',
+        title: 'Operación Exitosa',
         text: `Imagen subida correctamente, Dirección de la imagen: ${imageUrl}`,
       });
     }
@@ -26,11 +26,7 @@ const ImageUploader: React.FC = () => {
       {imageUrl && (
         <div>
           <p>Imagen seleccionada:</p>
-          <img
-            src={imageUrl}
-            alt="Imagen seleccionada"
-            style={{ maxWidth: "100%" }}
-          />
+          <img src={imageUrl} alt="Imagen seleccionada" style={{ maxWidth: '100%' }} />
         </div>
       )}
     </div>

@@ -1,50 +1,42 @@
-import {
-  Backdrop,
-  Box,
-  Card,
-  CircularProgress,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import { useGetProvider } from "../../../../hooks/useGetProvider";
+import { Backdrop, Box, Card, CircularProgress, Grid, Stack, Typography } from '@mui/material';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { useGetProvider } from '../../../../hooks/useGetProvider';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 800, lg: 1000 },
   borderRadius: 2,
   boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
 };
 
 const styleBar = {
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
     zIndex: 1,
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
     zIndex: 1,
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
     zIndex: 1,
   },
 };
 
 const processType = (number: number) => {
   if (number === 1) {
-    return "Física";
+    return 'Física';
   } else {
-    return "Moral";
+    return 'Moral';
   }
 };
 
@@ -71,10 +63,7 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
 
   if (isLoading)
     return (
-      <Backdrop
-        open
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
+      <Backdrop open sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <CircularProgress />
       </Backdrop>
     );
@@ -85,21 +74,17 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
       <Stack
         spacing={2}
         sx={{
-          display: "flex",
+          display: 'flex',
           flex: 1,
           p: 2,
-          bgcolor: "background.paper",
-          overflowY: "auto",
+          bgcolor: 'background.paper',
+          overflowY: 'auto',
           ...styleBar,
         }}
       >
         <Stack>
           <Card sx={{ p: 2 }}>
-            <Grid
-              container
-              spacing={3}
-              sx={{ justifyContent: "start", display: "flex", flex: 1 }}
-            >
+            <Grid container spacing={3} sx={{ justifyContent: 'start', display: 'flex', flex: 1 }}>
               <Grid item xs={12}>
                 <Typography fontWeight={700} fontSize={24}>
                   Información general:

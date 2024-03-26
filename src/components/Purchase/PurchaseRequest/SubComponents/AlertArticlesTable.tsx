@@ -12,17 +12,17 @@ import {
   TableHead,
   TableRow,
   Typography,
-} from "@mui/material";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
-import { shallow } from "zustand/shallow";
-import React, { useCallback, useEffect, useState } from "react";
-import { IArticlesAlert } from "../../../../types/types";
-import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
-import { useAuthStore } from "../../../../store/auth";
-import { useShallow } from "zustand/react/shallow";
-import { useDirectlyPurchaseRequestOrderStore } from "../../../../store/purchaseStore/directlyPurchaseRequestOrder";
-import { toast } from "react-toastify";
+} from '@mui/material';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
+import { shallow } from 'zustand/shallow';
+import React, { useCallback, useEffect, useState } from 'react';
+import { IArticlesAlert } from '../../../../types/types';
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import { useAuthStore } from '../../../../store/auth';
+import { useShallow } from 'zustand/react/shallow';
+import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
+import { toast } from 'react-toastify';
 
 const useGetAllData = () => {
   const {
@@ -65,42 +65,24 @@ const useGetAllData = () => {
 };
 
 export const AlertArticlesTable = () => {
-  const {
-    data,
-    isLoading,
-    checkedArticles,
-    setCheckedArticles,
-    setStep,
-    cleanAllData,
-  } = useGetAllData();
-  const isAdminPurchase = useAuthStore(
-    useShallow((state) => state.isAdminPurchase)
-  );
-  const {
-    setOpenPurchaseRequestOrder,
-    openPurchaseRequestOrder,
-    setArticles,
-    setWarehouseSelected,
-  } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      setOpenPurchaseRequestOrder: state.setOpenPurchaseRequestOrder,
-      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
-      setArticles: state.setArticles,
-      setWarehouseSelected: state.setWarehouseSelected,
-    }),
-    shallow
-  );
+  const { data, isLoading, checkedArticles, setCheckedArticles, setStep, cleanAllData } = useGetAllData();
+  const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
+  const { setOpenPurchaseRequestOrder, openPurchaseRequestOrder, setArticles, setWarehouseSelected } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        setOpenPurchaseRequestOrder: state.setOpenPurchaseRequestOrder,
+        openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+        setArticles: state.setArticles,
+        setWarehouseSelected: state.setWarehouseSelected,
+      }),
+      shallow
+    );
   const [allChecked, setAllChecked] = useState<{ [key: string]: boolean }>({});
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
 
   const handleIsArticleChecked = useCallback(
     (articleId: string, almacenId: string) => {
-      if (
-        checkedArticles.some(
-          (article) =>
-            article.idArticulo === articleId && article.idAlmacen === almacenId
-        )
-      ) {
+      if (checkedArticles.some((article) => article.idArticulo === articleId && article.idAlmacen === almacenId)) {
         return true;
       } else {
         return false;
@@ -130,12 +112,8 @@ export const AlertArticlesTable = () => {
     }
   }, [openPurchaseRequestOrder]);
 
-  const handleSelectAllArticles = async (
-    idAlmacen: string,
-    isChecked: boolean
-  ) => {
-    const articlesToSelect =
-      data.find((alert) => alert.id_Almacen === idAlmacen)?.articulos || [];
+  const handleSelectAllArticles = async (idAlmacen: string, isChecked: boolean) => {
+    const articlesToSelect = data.find((alert) => alert.id_Almacen === idAlmacen)?.articulos || [];
 
     const newCheckedArticles = articlesToSelect.map((iterator) => ({
       idAlmacen: idAlmacen,
@@ -143,27 +121,18 @@ export const AlertArticlesTable = () => {
       idArticulo: iterator.id_Articulo,
     }));
 
-    const { checkedArticles: prevCheckedArticles } =
-      useArticlesAlertPagination.getState();
+    const { checkedArticles: prevCheckedArticles } = useArticlesAlertPagination.getState();
 
     useArticlesAlertPagination.setState({
       checkedArticles: isChecked
         ? [...prevCheckedArticles, ...newCheckedArticles]
         : prevCheckedArticles.filter(
-            (item) =>
-              !newCheckedArticles.some(
-                (newItem) => newItem.idAlerta === item.idAlerta
-              )
+            (item) => !newCheckedArticles.some((newItem) => newItem.idAlerta === item.idAlerta)
           ),
     });
   };
 
-  const handleUserChecked = (
-    idAlmacen: string,
-    idArticulo: string,
-    idAlerta: string,
-    checked: boolean
-  ) => {
+  const handleUserChecked = (idAlmacen: string, idArticulo: string, idAlerta: string, checked: boolean) => {
     const objectChecked = {
       idAlmacen: idAlmacen,
       idAlerta: idAlerta,
@@ -174,20 +143,14 @@ export const AlertArticlesTable = () => {
       setCheckedArticles([...checkedArticles, objectChecked]);
     } else {
       setCheckedArticles(
-        checkedArticles.filter(
-          (item) =>
-            item.idArticulo !== idArticulo && item.idAlmacen === idAlmacen
-        )
+        checkedArticles.filter((item) => item.idArticulo !== idArticulo && item.idAlmacen === idAlmacen)
       );
     }
   };
 
   const handlePurchaseOrder = async (idAlmacen: string) => {
-    if (
-      checkedArticles.length === 0 ||
-      checkedArticles[0].idAlmacen !== idAlmacen
-    )
-      return toast.warning("No tienes ningún articulo en alerta seleccionado");
+    if (checkedArticles.length === 0 || checkedArticles[0].idAlmacen !== idAlmacen)
+      return toast.warning('No tienes ningún articulo en alerta seleccionado');
     setIsLoadingNextStep(true);
     const articles = checkedArticles.filter((i) => i.idAlmacen === idAlmacen);
     const articlesToPurchaseFilteredByWarehouse = data
@@ -216,7 +179,7 @@ export const AlertArticlesTable = () => {
 
   if (isLoading)
     return (
-      <Box sx={{ display: "flex", flex: 1, justifyContent: "center", p: 4 }}>
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
         <CircularProgress />;
       </Box>
     );
@@ -226,11 +189,11 @@ export const AlertArticlesTable = () => {
         <React.Fragment key={alert.id_Almacen}>
           <Stack
             sx={{
-              flexDirection: "row",
-              display: "flex",
+              flexDirection: 'row',
+              display: 'flex',
               flexGrow: 1,
-              justifyContent: "space-between",
-              alignItems: "end",
+              justifyContent: 'space-between',
+              alignItems: 'end',
             }}
           >
             <Typography variant="h4">Almacen: {alert.nombreAlmacen}</Typography>
@@ -257,10 +220,7 @@ export const AlertArticlesTable = () => {
                       <Checkbox
                         checked={allChecked[alert.id_Almacen] || false}
                         onChange={(event) => {
-                          handleSelectAllArticles(
-                            alert.id_Almacen,
-                            event.target.checked
-                          );
+                          handleSelectAllArticles(alert.id_Almacen, event.target.checked);
                           setAllChecked((prevState) => ({
                             ...prevState,
                             [alert.id_Almacen]: event.target.checked,
@@ -289,10 +249,7 @@ export const AlertArticlesTable = () => {
                               event.target.checked
                             )
                           }
-                          checked={handleIsArticleChecked(
-                            item.id_Articulo,
-                            alert.id_Almacen
-                          )}
+                          checked={handleIsArticleChecked(item.id_Articulo, alert.id_Almacen)}
                         />
                       </TableCell>
                     )}
@@ -311,9 +268,9 @@ export const AlertArticlesTable = () => {
       {isLoading && data.length === 0 && (
         <Box
           sx={{
-            display: "flex",
+            display: 'flex',
             flex: 1,
-            justifyContent: "center",
+            justifyContent: 'center',
             p: 4,
           }}
         >
@@ -323,22 +280,16 @@ export const AlertArticlesTable = () => {
       {data.length === 0 && !isLoading && (
         <Box
           sx={{
-            display: "flex",
+            display: 'flex',
             flexGrow: 1,
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: 'center',
+            alignItems: 'center',
             p: 2,
             columnGap: 1,
           }}
         >
-          <ErrorOutlineIcon
-            sx={{ color: "neutral.400", width: "40px", height: "40px" }}
-          />
-          <Typography
-            sx={{ color: "neutral.400" }}
-            fontSize={24}
-            fontWeight={500}
-          >
+          <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
+          <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
             No existen registros
           </Typography>
         </Box>

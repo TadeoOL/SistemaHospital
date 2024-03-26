@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import { shallow } from "zustand/shallow";
-import withReactContent from "sweetalert2-react-content";
-import Swal from "sweetalert2";
-import { useWarehousePagination } from "../../store/purchaseStore/warehousePagination";
-import { disablePurchaseWarehouse } from "../../api/api.routes";
-import { TableComponent } from "../TableComponent";
-import { ModifyPurchaseWarehouseModal } from "./Modal/ModifyWarehouseModal";
+import { useEffect } from 'react';
+import { shallow } from 'zustand/shallow';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
+import { useWarehousePagination } from '../../store/purchaseStore/warehousePagination';
+import { disablePurchaseWarehouse } from '../../api/api.routes';
+import { TableComponent } from '../TableComponent';
+import { ModifyPurchaseWarehouseModal } from './Modal/ModifyWarehouseModal';
 
 const useGetAllData = () => {
   const {
@@ -54,28 +54,25 @@ const useGetAllData = () => {
 };
 
 const useDisableExistingArticle = () => {
-  const { setHandleChangeWarehouse, enabled, handleChangeWarehouse } =
-    useWarehousePagination(
-      (state) => ({
-        setHandleChangeWarehouse: state.setHandleChangeWarehouse,
-        enabled: state.enabled,
-        handleChangeWarehouse: state.handleChangeWarehouse,
-      }),
-      shallow
-    );
+  const { setHandleChangeWarehouse, enabled, handleChangeWarehouse } = useWarehousePagination(
+    (state) => ({
+      setHandleChangeWarehouse: state.setHandleChangeWarehouse,
+      enabled: state.enabled,
+      handleChangeWarehouse: state.handleChangeWarehouse,
+    }),
+    shallow
+  );
 
   const disableProviderModal = (articleId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Advertencia",
-        text: `Estas a punto de ${
-          enabled ? "deshabilitar" : "habilitar"
-        } un almacén existente`,
-        icon: "warning",
+        title: 'Advertencia',
+        text: `Estas a punto de ${enabled ? 'deshabilitar' : 'habilitar'} un almacén existente`,
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: `${enabled ? "Deshabilitar" : "Habilitar"}`,
-        confirmButtonColor: "red",
-        cancelButtonText: "No, cancelar!",
+        confirmButtonText: `${enabled ? 'Deshabilitar' : 'Habilitar'}`,
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -84,26 +81,22 @@ const useDisableExistingArticle = () => {
             await disablePurchaseWarehouse(articleId);
             setHandleChangeWarehouse(!handleChangeWarehouse);
             withReactContent(Swal).fire({
-              title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `El almacén existente se ha ${
-                enabled ? "deshabilitado" : "habilitado"
-              }`,
-              icon: "success",
+              title: `${enabled ? 'Deshabilitado!' : 'Habilitado!'}`,
+              text: `El almacén existente se ha ${enabled ? 'deshabilitado' : 'habilitado'}`,
+              icon: 'success',
             });
           } catch (error) {
             console.log(error);
             withReactContent(Swal).fire({
-              title: "Error!",
-              text: `No se pudo ${
-                enabled ? "deshabilitar" : "habilitar"
-              } El almacén existente`,
-              icon: "error",
+              title: 'Error!',
+              text: `No se pudo ${enabled ? 'deshabilitar' : 'habilitar'} El almacén existente`,
+              icon: 'error',
             });
           }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           withReactContent(Swal).fire({
-            title: "Cancelado",
-            icon: "error",
+            title: 'Cancelado',
+            icon: 'error',
           });
         }
       });
@@ -120,13 +113,8 @@ export const PurchaseWarehouseTable = () => {
       <TableComponent
         disableHook={disableArticle}
         fetchDataHook={useGetAllData}
-        modifyModalComponent={(props) => (
-          <ModifyPurchaseWarehouseModal
-            warehouseId={props.data}
-            open={props.open}
-          />
-        )}
-        headers={["Nombre", "Descripción", "Acciones"]}
+        modifyModalComponent={(props) => <ModifyPurchaseWarehouseModal warehouseId={props.data} open={props.open} />}
+        headers={['Nombre', 'Descripción', 'Acciones']}
       />
     </>
   );

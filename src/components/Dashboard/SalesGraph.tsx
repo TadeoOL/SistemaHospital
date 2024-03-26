@@ -1,38 +1,27 @@
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Divider,
-  SvgIcon,
-} from "@mui/material";
-import { alpha, useTheme } from "@mui/material/styles";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import SyncIcon from "@mui/icons-material/Sync";
-import ApexChart from "react-apexcharts";
+import { Button, Card, CardActions, CardContent, CardHeader, Divider, SvgIcon } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SyncIcon from '@mui/icons-material/Sync';
+import ApexChart from 'react-apexcharts';
 
 const useChartOptions = () => {
   const theme = useTheme();
 
   return {
     chart: {
-      background: "transparent",
+      background: 'transparent',
       stacked: false,
       toolbar: {
         show: false,
       },
     },
-    colors: [
-      theme.palette.primary.main,
-      alpha(theme.palette.primary.main, 0.25),
-    ],
+    colors: [theme.palette.primary.main, alpha(theme.palette.primary.main, 0.25)],
     dataLabels: {
       enabled: false,
     },
     fill: {
       opacity: 1,
-      type: "solid",
+      type: 'solid',
     },
     grid: {
       borderColor: theme.palette.divider,
@@ -53,11 +42,11 @@ const useChartOptions = () => {
     },
     plotOptions: {
       bar: {
-        columnWidth: "40px",
+        columnWidth: '40px',
       },
     },
     stroke: {
-      colors: ["transparent"],
+      colors: ['transparent'],
       show: true,
       width: 2,
     },
@@ -73,20 +62,7 @@ const useChartOptions = () => {
         color: theme.palette.divider,
         show: true,
       },
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       labels: {
         offsetY: 5,
         style: {
@@ -132,16 +108,10 @@ export const SalesGraph = (props: IOverviewSales) => {
         title="Ventas del año"
       />
       <CardContent>
-        <ApexChart
-          height={350}
-          options={chartOptions}
-          series={chartSeries}
-          type="bar"
-          width="100%"
-        />
+        <ApexChart height={350} options={chartOptions} series={chartSeries} type="bar" width="100%" />
       </CardContent>
       <Divider />
-      <CardActions sx={{ justifyContent: "flex-end" }}>
+      <CardActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           color="inherit"
           endIcon={

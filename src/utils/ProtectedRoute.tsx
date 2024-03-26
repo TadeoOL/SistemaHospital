@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/auth";
-import { jwtDecode } from "jwt-decode";
-import { toast } from "react-toastify";
+import React, { useEffect } from 'react';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/auth';
+import { jwtDecode } from 'jwt-decode';
+import { toast } from 'react-toastify';
 
 interface IProtectedRoute {
   redirectTo?: string;
@@ -18,10 +18,7 @@ const isTokenExpired = (token: any) => {
   return token.exp < currentTimeInSeconds;
 };
 
-export const ProtectedRoute: React.FC<IProtectedRoute> = ({
-  redirectTo = "/login",
-  children,
-}) => {
+export const ProtectedRoute: React.FC<IProtectedRoute> = ({ redirectTo = '/login', children }) => {
   const isAuth = useAuthStore((state) => state.isAuth);
   const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
@@ -33,7 +30,7 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({
       const tokenInfo = jwtDecode(token);
       if (isTokenExpired(tokenInfo)) {
         logout();
-        toast.error("Tiempo de sesión expirado");
+        toast.error('Tiempo de sesión expirado');
         navigate(redirectTo);
       }
     }
@@ -45,7 +42,7 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({
         const tokenInfo = jwtDecode(token);
         if (isTokenExpired(tokenInfo)) {
           logout();
-          toast.error("Tiempo de sesión expirado");
+          toast.error('Tiempo de sesión expirado');
           navigate(redirectTo);
         }
       }

@@ -12,26 +12,22 @@ import {
   TableHead,
   TableRow,
   Typography,
-} from "@mui/material";
-import { usePurchaseOrderRequestModals } from "../../../../../../store/purchaseStore/purchaseOrderRequestModals";
-import {
-  IProvider,
-  IRegisterOrderPurchase,
-} from "../../../../../../types/types";
-import { KeyboardReturn, Save } from "@mui/icons-material";
-import { useMemo, useState } from "react";
-import { addPurchaseOrder } from "../../../../../../api/api.routes";
-import { usePurchaseOrderRequestPagination } from "../../../../../../store/purchaseStore/purchaseOrderRequestPagination";
-import { toast } from "react-toastify";
+} from '@mui/material';
+import { usePurchaseOrderRequestModals } from '../../../../../../store/purchaseStore/purchaseOrderRequestModals';
+import { IProvider, IRegisterOrderPurchase } from '../../../../../../types/types';
+import { KeyboardReturn, Save } from '@mui/icons-material';
+import { useMemo, useState } from 'react';
+import { addPurchaseOrder } from '../../../../../../api/api.routes';
+import { usePurchaseOrderRequestPagination } from '../../../../../../store/purchaseStore/purchaseOrderRequestPagination';
+import { toast } from 'react-toastify';
 
 const useGetSummary = () => {
-  const { registerOrderPurchase, provider, step, setStep } =
-    usePurchaseOrderRequestModals((state) => ({
-      registerOrderPurchase: state.registerOrderPurchase,
-      provider: state.provider,
-      step: state.step,
-      setStep: state.setStep,
-    }));
+  const { registerOrderPurchase, provider, step, setStep } = usePurchaseOrderRequestModals((state) => ({
+    registerOrderPurchase: state.registerOrderPurchase,
+    provider: state.provider,
+    step: state.step,
+    setStep: state.setStep,
+  }));
   return {
     registerOrderPurchase: registerOrderPurchase as IRegisterOrderPurchase,
     providerData: provider as IProvider,
@@ -47,15 +43,12 @@ interface OrderSummaryModalProps {
 export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
   4;
   const { setOpen } = props;
-  const { providerData, registerOrderPurchase, step, setStep } =
-    useGetSummary();
+  const { providerData, registerOrderPurchase, step, setStep } = useGetSummary();
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmountOrder, setTotalAmountOrder] = useState(0);
 
   useMemo(() => {
-    const orders = registerOrderPurchase.OrdenCompra.flatMap(
-      (o) => o.OrdenCompraArticulo
-    ).map((art) => art);
+    const orders = registerOrderPurchase.OrdenCompra.flatMap((o) => o.OrdenCompraArticulo).map((art) => art);
     let totalAmount = 0;
     for (const articles of orders) {
       if (!articles.precioProveedor) return;
@@ -67,12 +60,12 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
   const handleSubmit = async () => {
     try {
       await addPurchaseOrder(registerOrderPurchase);
-      toast.success("Orden de compra creada con éxito!");
+      toast.success('Orden de compra creada con éxito!');
       usePurchaseOrderRequestPagination.getState().fetch();
       setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error("Error al crear la orden de compra!");
+      toast.error('Error al crear la orden de compra!');
     } finally {
       setIsLoading(false);
     }
@@ -83,17 +76,13 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
       <Typography>Resumen del pedido</Typography>
       <Grid container>
         <Grid item xs={12}>
-          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
-            Información del proveedor
-          </Typography>
+          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>Información del proveedor</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography>Compañía: {providerData?.nombreCompania}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>
-            Nombre contacto: {providerData?.nombreContacto}
-          </Typography>
+          <Typography>Nombre contacto: {providerData?.nombreContacto}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography>Dirección: {providerData?.direccion}</Typography>
@@ -102,9 +91,7 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
           <Typography>Teléfono: {providerData?.telefono}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography>
-            Correo electrónico: {providerData?.correoElectronico}
-          </Typography>
+          <Typography>Correo electrónico: {providerData?.correoElectronico}</Typography>
         </Grid>
       </Grid>
       <Card>
@@ -133,9 +120,9 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
       </Card>
       <Box
         sx={{
-          display: "flex",
+          display: 'flex',
           flex: 1,
-          justifyContent: "flex-end",
+          justifyContent: 'flex-end',
           columnGap: 1,
         }}
       >
@@ -144,17 +131,17 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
       </Box>
       <Box
         sx={{
-          position: "sticky",
+          position: 'sticky',
           bottom: 0,
-          backgroundColor: "#fff",
-          padding: "10px",
+          backgroundColor: '#fff',
+          padding: '10px',
           zIndex: 2,
         }}
       >
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
+            display: 'flex',
+            justifyContent: 'space-between',
           }}
         >
           <Button
@@ -173,7 +160,7 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
               handleSubmit();
             }}
           >
-            {isLoading ? <CircularProgress size={14} /> : "Generar"}
+            {isLoading ? <CircularProgress size={14} /> : 'Generar'}
           </Button>
         </Box>
       </Box>

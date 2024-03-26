@@ -1,7 +1,7 @@
-import { Box, Button, Container, SvgIcon, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import NotFoundLogo from "../assets/error-404.png";
-import { useNavigate } from "react-router";
+import { Box, Button, Container, SvgIcon, Typography } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import NotFoundLogo from '../assets/error-404.webp';
+import { useNavigate } from 'react-router';
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
@@ -10,32 +10,32 @@ export const NotFoundPage = () => {
       <Box
         component="main"
         sx={{
-          alignItems: "center",
-          display: "flex",
+          alignItems: 'center',
+          display: 'flex',
           flexGrow: 1,
-          minHeight: "100%",
+          minHeight: '100%',
         }}
       >
         <Container maxWidth="md">
           <Box
             sx={{
-              alignItems: "center",
-              display: "flex",
-              flexDirection: "column",
+              alignItems: 'center',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <Box
               sx={{
                 mb: 3,
-                textAlign: "center",
+                textAlign: 'center',
               }}
             >
               <img
                 alt="Under development"
                 src={NotFoundLogo}
                 style={{
-                  display: "inline-block",
-                  maxWidth: "100%",
+                  display: 'inline-block',
+                  maxWidth: '100%',
                   width: 400,
                 }}
               />
@@ -44,11 +44,10 @@ export const NotFoundPage = () => {
               404: The page you are looking for isn’t here
             </Typography>
             <Typography align="center" color="text.secondary" variant="body1">
-              You either tried some shady route or you came here by mistake.
-              Whichever it is, try using the navigation
+              You either tried some shady route or you came here by mistake. Whichever it is, try using the navigation
             </Typography>
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate('/')}
               startIcon={
                 <SvgIcon fontSize="small">
                   <ArrowBackIcon />

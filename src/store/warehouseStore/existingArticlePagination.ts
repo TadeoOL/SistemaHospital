@@ -1,16 +1,18 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { getExistingArticles } from "../../api/api.routes";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { getExistingArticles } from '../../api/api.routes';
+import { IExistingArticle } from '../../types/types';
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: any[];
+  data: IExistingArticle[];
   isLoading: boolean;
   search: string;
   enabled: boolean;
   handleChangeExistingArticle: boolean;
+  warehouseId: string;
 }
 
 interface Action {
@@ -20,15 +22,12 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
-  setHandleChangeExistingArticle: (
-    handleChangeExistingArticle: boolean
-  ) => void;
+  setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) => void;
   fetchExistingArticles: () => Promise<void>;
+  setWarehouseId: (warehouseId: string) => void;
 }
 
-export const useExistingArticlePagination = createWithEqualityFn<
-  State & Action
->((set, get) => ({
+export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -36,11 +35,12 @@ export const useExistingArticlePagination = createWithEqualityFn<
   pageSize: 5,
   data: [],
   isLoading: true,
-  search: "",
+  search: '',
   enabled: true,
   handleChangeExistingArticle: false,
-  setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) =>
-    set({ handleChangeExistingArticle }),
+  warehouseId: '',
+  setWarehouseId: (warehouseId: string) => set({ warehouseId }),
+  setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) => set({ handleChangeExistingArticle }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
@@ -49,13 +49,13 @@ export const useExistingArticlePagination = createWithEqualityFn<
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled } = get();
+    const { pageIndex, pageSize, search, enabled, warehouseId } = get();
     const page = pageIndex + 1;
     try {
       const res = await getExistingArticles(
-        `${page === 0 ? "" : "pageIndex=" + page}&${
-          pageSize === 0 ? "" : "pageSize=" + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        `${page === 0 ? '' : 'pageIndex=' + page}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}`
       );
       set(() => ({
         data: res.data,

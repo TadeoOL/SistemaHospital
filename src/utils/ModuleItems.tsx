@@ -1,4 +1,4 @@
-import { IModuleItems } from "../types/types";
+import { IModuleItemsList } from "../types/types";
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
@@ -14,47 +14,73 @@ import {
   supplyRoles,
 } from "./dataRoles";
 
-export const ModuleItems: IModuleItems[] = [
+export const ModuleList: IModuleItemsList[] = [
   {
-    title: "Inicio",
-    path: "/",
-    icon: <DashboardIcon sx={{ color: "#fff" }} />,
+    categoryTitle: "Dashboard",
+    moduleItems: [
+      {
+        title: "Inicio",
+        path: "/",
+        icon: <DashboardIcon sx={{ color: "#fff" }} />,
+      },
+    ]
   },
   {
-    title: "Catálogos",
-    icon: <MenuBookOutlinedIcon sx={{ color: "#fff" }} />,
-    path: "#",
-    topLevel: true,
-    children: [
+    categoryTitle: "Compras",
+    moduleItems: [
       {
-        title: "Artículos",
-        path: "/compras/articulos/articulo",
-        icon: <ArticleIcon sx={{ color: "#fff" }} />,
-        childrenItems: ["articulo", "articulo-existente"],
-        protectedRoles: supplyRoles,
+        title: "Compras",
+        path: "/compras/solicitud-compras",
+        icon: <AddShoppingCartIcon sx={{ color: "#fff" }} />,
+        protectedRoles: [...supplyRoles, ...purchasingDirector],
+        mainDashboard: ["ABASTECIMIENTO", "DIRECTORCOMPRAS"],
       },
       {
-        title: "Categorías",
-        path: "/compras/categorias/categoria",
-        icon: <FormatListBulletedIcon sx={{ color: "#fff" }} />,
-        childrenItems: ["categoria", "subcategoria"],
-        protectedRoles: supplyRoles,
+        title: "Autorizaciones",
+        path: "/compras/autorizacion-compras",
+        icon: <RuleIcon sx={{ color: "#fff" }} />,
+        protectedRoles: purchasingDirector,
+        childrenItems: ["autorizaciones", "historial-autorizaciones"],
       },
       {
-        title: "Proveedores",
-        path: "/compras/proveedores",
-        icon: <PermContactCalendarIcon sx={{ color: "#fff" }} />,
-        protectedRoles: supplyRoles,
+        title: "Catálogos",
+        icon: <MenuBookOutlinedIcon sx={{ color: "#fff" }} />,
+        path: "#",
+        topLevel: true,
+        children: [
+          {
+            title: "Artículos",
+            path: "/compras/articulos/articulo",
+            icon: <ArticleIcon sx={{ color: "#fff" }} />,
+            childrenItems: ["articulo", "articulo-existente"],
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: "Categorías",
+            path: "/compras/categorias/categoria",
+            icon: <FormatListBulletedIcon sx={{ color: "#fff" }} />,
+            childrenItems: ["categoria", "subcategoria"],
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: "Proveedores",
+            path: "/compras/proveedores",
+            icon: <PermContactCalendarIcon sx={{ color: "#fff" }} />,
+            protectedRoles: supplyRoles,
+          },
+        ],
       },
-    ],
+      {
+        title: "Configuración",
+        path: "/compras/configuracion-compras",
+        icon: <SettingsIcon sx={{ color: "#fff" }} />,
+        protectedRoles: purchasingDirector,
+      },
+    ]
   },
-  {
-    title: "Compras",
-    path: "/compras/solicitud-compras",
-    icon: <AddShoppingCartIcon sx={{ color: "#fff" }} />,
-    protectedRoles: [...supplyRoles, ...purchasingDirector],
-    mainDashboard: ["ABASTECIMIENTO", "DIRECTORCOMPRAS"],
-  },
+  
+  
+  
   // {
   //   title: "Categorías",
   //   path: "/compras/categorias/categoria",
@@ -70,28 +96,22 @@ export const ModuleItems: IModuleItems[] = [
   //   protectedRoles: supplyRoles,
   // },
   {
-    title: "Almacén",
-    path: "/compras/almacen",
-    icon: <WarehouseIcon sx={{ color: "#fff" }} />,
-    protectedRoles: purchaseGlobalRoles,
-  },
-  {
-    title: "Autorizaciones",
-    path: "/compras/autorizacion-compras",
-    icon: <RuleIcon sx={{ color: "#fff" }} />,
-    protectedRoles: purchasingDirector,
-    childrenItems: ["autorizaciones", "historial-autorizaciones"],
-  },
+    categoryTitle: "Almacen",
+    moduleItems:[
+      {
+        title: "Almacén",
+        path: "/compras/almacen",
+        icon: <WarehouseIcon sx={{ color: "#fff" }} />,
+        protectedRoles: purchaseGlobalRoles,
+      },
+    ]
+  }
+  
   // {
   //   title: "Proveedores",
   //   path: "/compras/proveedores",
   //   icon: <PermContactCalendarIcon sx={{ color: "#fff" }} />,
   //   protectedRoles: supplyRoles,
   // },
-  {
-    title: "Configuración",
-    path: "/compras/configuracion-compras",
-    icon: <SettingsIcon sx={{ color: "#fff" }} />,
-    protectedRoles: purchasingDirector,
-  },
+  
 ];

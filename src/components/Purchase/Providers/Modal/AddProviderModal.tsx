@@ -1,100 +1,68 @@
-import {
-  Box,
-  Button,
-  Stack,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import {
-  FieldErrors,
-  SubmitHandler,
-  UseFormRegister,
-  useForm,
-} from "react-hook-form";
-import { IProvider } from "../../../../types/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-toastify";
-import { addNewProviderSchema } from "../../../../schema/schemas";
-import { BasicInfoForm } from "./Forms/BasicInfoForm";
-import { CertificateForm } from "./Forms/CertificateForm";
-import { useState } from "react";
-import { FiscalForm } from "./Forms/FiscalForm";
-import { addNewProvider } from "../../../../api/api.routes";
-import { useProviderPagination } from "../../../../store/purchaseStore/providerPagination";
-import Swal from "sweetalert2";
-import { shallow } from "zustand/shallow";
-import CancelIcon from "@mui/icons-material/Cancel";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import SaveIcon from "@mui/icons-material/Save";
+import { Box, Button, Stack, Step, StepLabel, Stepper, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { FieldErrors, SubmitHandler, UseFormRegister, useForm } from 'react-hook-form';
+import { IProvider } from '../../../../types/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
+import { addNewProviderSchema } from '../../../../schema/schemas';
+import { BasicInfoForm } from './Forms/BasicInfoForm';
+import { CertificateForm } from './Forms/CertificateForm';
+import { useState } from 'react';
+import { FiscalForm } from './Forms/FiscalForm';
+import { addNewProvider } from '../../../../api/api.routes';
+import { useProviderPagination } from '../../../../store/purchaseStore/providerPagination';
+import Swal from 'sweetalert2';
+import { shallow } from 'zustand/shallow';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SaveIcon from '@mui/icons-material/Save';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, lg: 600 },
-  bgcolor: "background.paper",
+  bgcolor: 'background.paper',
   borderRadius: 8,
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  display: "flex",
-  flexDirection: "column",
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
-  overflowY: "auto",
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
 const stepsForm = [
   {
-    id: "step 1",
-    title: "Información general",
-    fields: [
-      "nombreCompania",
-      "nombreContacto",
-      "puesto",
-      "direccion",
-      "telefono",
-      "correoElectronico",
-    ],
+    id: 'step 1',
+    title: 'Información general',
+    fields: ['nombreCompania', 'nombreContacto', 'puesto', 'direccion', 'telefono', 'correoElectronico'],
   },
   {
-    id: "step 2",
-    title: "Información fiscal",
-    fields: [
-      "rfc",
-      "nif",
-      "giroEmpresa",
-      "direccionFiscal",
-      "tipoContribuyente",
-    ],
+    id: 'step 2',
+    title: 'Información fiscal',
+    fields: ['rfc', 'nif', 'giroEmpresa', 'direccionFiscal', 'tipoContribuyente'],
   },
   {
-    id: "step 3",
-    title: "Certificaciones",
-    fields: ["urlCertificadoBP", "urlCertificadoCR", "urlCertificadoISO9001"],
+    id: 'step 3',
+    title: 'Certificaciones',
+    fields: ['urlCertificadoBP', 'urlCertificadoCR', 'urlCertificadoISO9001'],
   },
 ];
 
-const renderStepForm = (
-  step: number,
-  errors: FieldErrors<IProvider>,
-  register: UseFormRegister<IProvider>
-) => {
+const renderStepForm = (step: number, errors: FieldErrors<IProvider>, register: UseFormRegister<IProvider>) => {
   switch (step) {
     case 0:
       return <BasicInfoForm errors={errors} register={register} />;
@@ -114,15 +82,14 @@ interface IAddProviderModal {
 export const AddProviderModal = (props: IAddProviderModal) => {
   const [step, setStep] = useState(0);
   const theme = useTheme();
-  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
-  const { handleChangeProvider, setHandleChangeProvider } =
-    useProviderPagination(
-      (state) => ({
-        handleChangeProvider: state.handleChangeProvider,
-        setHandleChangeProvider: state.setHandleChangeProvider,
-      }),
-      shallow
-    );
+  const lgUp = useMediaQuery(theme.breakpoints.up('lg'));
+  const { handleChangeProvider, setHandleChangeProvider } = useProviderPagination(
+    (state) => ({
+      handleChangeProvider: state.handleChangeProvider,
+      setHandleChangeProvider: state.setHandleChangeProvider,
+    }),
+    shallow
+  );
 
   const {
     register,
@@ -131,20 +98,20 @@ export const AddProviderModal = (props: IAddProviderModal) => {
     formState: { errors },
   } = useForm<IProvider>({
     defaultValues: {
-      nombreCompania: "",
-      nombreContacto: "",
-      puesto: "",
-      direccion: "",
-      telefono: "",
-      correoElectronico: "",
-      giroEmpresa: "",
-      rfc: "",
-      nif: "",
+      nombreCompania: '',
+      nombreContacto: '',
+      puesto: '',
+      direccion: '',
+      telefono: '',
+      correoElectronico: '',
+      giroEmpresa: '',
+      rfc: '',
+      nif: '',
       tipoContribuyente: 0,
-      direccionFiscal: "",
-      urlCertificadoBP: "",
-      urlCertificadoCR: "",
-      urlCertificadoISO9001: "",
+      direccionFiscal: '',
+      urlCertificadoBP: '',
+      urlCertificadoCR: '',
+      urlCertificadoISO9001: '',
     },
     resolver: zodResolver(addNewProviderSchema),
   });
@@ -155,14 +122,14 @@ export const AddProviderModal = (props: IAddProviderModal) => {
       setHandleChangeProvider(!handleChangeProvider);
       props.setOpen(false);
       Swal.fire({
-        title: "Operación Exitosa",
-        text: "El proveedor ha sido registrado correctamente.",
-        icon: "success",
+        title: 'Operación Exitosa',
+        text: 'El proveedor ha sido registrado correctamente.',
+        icon: 'success',
       });
-      toast.success("Proveedor registrado correctamente!");
+      toast.success('Proveedor registrado correctamente!');
     } catch (error) {
       console.log(error);
-      toast.error("Error al agregar nuevo proveedor!");
+      toast.error('Error al agregar nuevo proveedor!');
     }
   };
 
@@ -212,11 +179,11 @@ export const AddProviderModal = (props: IAddProviderModal) => {
           </Stack>
           <Stack
             sx={{
-              flexDirection: "row",
-              display: "flex",
+              flexDirection: 'row',
+              display: 'flex',
               flexGrow: 1,
-              justifyContent: "space-between",
-              alignItems: "center",
+              justifyContent: 'space-between',
+              alignItems: 'center',
               mt: 4,
             }}
           >

@@ -1,4 +1,4 @@
-import { ArticleObject } from "../../types/types";
+import { ArticleObject } from '../../types/types';
 
 export const addArticlesPrice = (arrayDeObjetos: ArticleObject[]) => {
   const precioTotal = arrayDeObjetos.reduce((total, objeto) => {
@@ -25,13 +25,13 @@ export const convertBase64 = (file: File): Promise<string> => {
 };
 
 export const isValidInteger = (value: string) => {
-  if (value.trim() === "") return true;
+  if (value.trim() === '') return true;
   const regex = /^[1-9][0-9]*$/;
   return regex.test(value);
 };
 
 export const isValidFloat = (value: string) => {
-  if (value.trim() === "") return true;
+  if (value.trim() === '') return true;
   const regex = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
   return regex.test(value);
 };

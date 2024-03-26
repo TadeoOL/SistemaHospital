@@ -17,26 +17,23 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material";
-import { HeaderModal } from "../../../Account/Modals/SubComponents/HeaderModal";
-import {
-  getProviderQuotePdf,
-  matchArticlesWithProviders,
-} from "../../../../api/api.routes";
-import { useCallback, useState } from "react";
-import { useMatchProvidersAndArticles } from "../../../../store/purchaseStore/matchProvidersAndArticles";
-import { shallow } from "zustand/shallow";
-import { toast } from "react-toastify";
-import { Delete, Info } from "@mui/icons-material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
+} from '@mui/material';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { getProviderQuotePdf, matchArticlesWithProviders } from '../../../../api/api.routes';
+import { useCallback, useState } from 'react';
+import { useMatchProvidersAndArticles } from '../../../../store/purchaseStore/matchProvidersAndArticles';
+import { shallow } from 'zustand/shallow';
+import { toast } from 'react-toastify';
+import { Delete, Info } from '@mui/icons-material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  display: "flex",
-  flexDirection: "column",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  display: 'flex',
+  flexDirection: 'column',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, sm: 600, md: 900, lg: 1200 },
 };
 
@@ -48,35 +45,28 @@ type MatchProvidersAndArticlesProps = {
 const handleOpenPdf = async (quoteId: string) => {
   try {
     const pdfRes = await getProviderQuotePdf(quoteId);
-    const pdfWindow = window.open("", "_blank");
-    pdfWindow?.document.write(
-      "<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>"
-    );
+    const pdfWindow = window.open('', '_blank');
+    pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
   } catch (error) {
     console.log(error);
   }
 };
 
-export const MatchProvidersAndArticles = (
-  props: MatchProvidersAndArticlesProps
-) => {
+export const MatchProvidersAndArticles = (props: MatchProvidersAndArticlesProps) => {
   const { setOpen, folio } = props;
-  const { purchaseRequestData, purchaseOrderMatched, setPurchaseOrderMatched } =
-    useMatchProvidersAndArticles(
-      (state) => ({
-        purchaseRequestData: state.purchaseRequestData,
-        purchaseOrderMatched: state.purchaseOrderMatched,
-        setPurchaseOrderMatched: state.setPurchaseOrderMatched,
-      }),
-      shallow
-    );
-  const [providers, setProviders] = useState<any[] | undefined>(
-    purchaseRequestData?.solicitudProveedor
+  const { purchaseRequestData, purchaseOrderMatched, setPurchaseOrderMatched } = useMatchProvidersAndArticles(
+    (state) => ({
+      purchaseRequestData: state.purchaseRequestData,
+      purchaseOrderMatched: state.purchaseOrderMatched,
+      setPurchaseOrderMatched: state.setPurchaseOrderMatched,
+    }),
+    shallow
   );
+  const [providers, setProviders] = useState<any[] | undefined>(purchaseRequestData?.solicitudProveedor);
   const [articles, setArticles] = useState<any[] | undefined>(
     purchaseRequestData?.solicitudProveedor[0].solicitudCompraArticulos
   );
-  const [providerSelected, setProviderSelected] = useState("");
+  const [providerSelected, setProviderSelected] = useState('');
   const [articlesChecked, setArticlesChecked] = useState<string[]>([]);
 
   const handleChange = useCallback((e: any) => {
@@ -105,75 +95,57 @@ export const MatchProvidersAndArticles = (
   const getProviderNameById = useCallback(
     (providerId: string) => {
       if (!purchaseRequestData) return;
-      const provider = purchaseRequestData.solicitudProveedor.find(
-        (p) => p.proveedor.id_Proveedor === providerId
-      );
-      return provider ? provider.proveedor.nombre : "";
+      const provider = purchaseRequestData.solicitudProveedor.find((p) => p.proveedor.id_Proveedor === providerId);
+      return provider ? provider.proveedor.nombre : '';
     },
     [purchaseRequestData]
   );
 
   const getArticleNameById = (articleId: string) => {
     if (!purchaseRequestData) return;
-    const article =
-      purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
-        (a) => a.articulo.id_Articulo === articleId
-      );
-    return article ? article.articulo.nombre : "";
+    const article = purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
+      (a) => a.articulo.id_Articulo === articleId
+    );
+    return article ? article.articulo.nombre : '';
   };
 
   const handleMatchArticlesAndProviders = () => {
-    if (!providerSelected)
-      return toast.error("Necesitas seleccionar un proveedor!");
-    if (articlesChecked.length === 0)
-      return toast.error("Necesitas seleccionar artículos!");
+    if (!providerSelected) return toast.error('Necesitas seleccionar un proveedor!');
+    if (articlesChecked.length === 0) return toast.error('Necesitas seleccionar artículos!');
 
     const object = {
       providerId: providerSelected,
       article: articlesChecked.map((articleCheck) => {
-        const art = articles?.find(
-          (a) => a.articulo.id_Articulo === articleCheck
-        );
+        const art = articles?.find((a) => a.articulo.id_Articulo === articleCheck);
         return {
-          articleId: art ? art.articulo.id_Articulo : "",
+          articleId: art ? art.articulo.id_Articulo : '',
           purchasePrice: art ? art.precioProveedor : 0,
           amount: art ? art.cantidadCompra : 0,
         };
       }),
     };
 
-    setPurchaseOrderMatched(
-      !purchaseOrderMatched ? [object] : purchaseOrderMatched.concat(object)
-    );
+    setPurchaseOrderMatched(!purchaseOrderMatched ? [object] : purchaseOrderMatched.concat(object));
     setArticles((prevArticles) => {
       if (!prevArticles) return [];
       return prevArticles.filter(
-        (a) =>
-          !articlesChecked.some(
-            (articleCheck) => articleCheck === a.articulo.id_Articulo
-          )
+        (a) => !articlesChecked.some((articleCheck) => articleCheck === a.articulo.id_Articulo)
       );
     });
     setProviders((prev) => {
       return prev?.filter((p) => p.proveedor.id_Proveedor !== providerSelected);
     });
     setArticlesChecked([]);
-    setProviderSelected("");
+    setProviderSelected('');
   };
 
   const handleRemoveProvider = useCallback(
     (providerId: string) => {
       if (!purchaseOrderMatched) return;
-      const orderRemoved = purchaseOrderMatched.find(
-        (p) => p.providerId === providerId
+      const orderRemoved = purchaseOrderMatched.find((p) => p.providerId === providerId);
+      const articleArray = purchaseRequestData?.solicitudProveedor[0].solicitudCompraArticulos.filter((a) =>
+        orderRemoved?.article.some((artR) => artR.articleId === a.articulo.id_Articulo)
       );
-      const articleArray =
-        purchaseRequestData?.solicitudProveedor[0].solicitudCompraArticulos.filter(
-          (a) =>
-            orderRemoved?.article.some(
-              (artR) => artR.articleId === a.articulo.id_Articulo
-            )
-        );
       const provider = purchaseRequestData?.solicitudProveedor.find(
         (p) => p.proveedor.id_Proveedor === orderRemoved?.providerId
       );
@@ -198,9 +170,7 @@ export const MatchProvidersAndArticles = (
         }
       });
 
-      setPurchaseOrderMatched(
-        purchaseOrderMatched.filter((p) => p.providerId !== providerId)
-      );
+      setPurchaseOrderMatched(purchaseOrderMatched.filter((p) => p.providerId !== providerId));
     },
     [purchaseOrderMatched, purchaseRequestData]
   );
@@ -210,13 +180,10 @@ export const MatchProvidersAndArticles = (
       if (!purchaseRequestData) return;
       if (!purchaseOrderMatched) return;
 
-      const article =
-        purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
-          (a) => a.articulo.id_Articulo === articleId
-        );
-      const provider = purchaseRequestData?.solicitudProveedor.find(
-        (p) => p.proveedor.id_Proveedor === providerId
+      const article = purchaseRequestData.solicitudProveedor[0].solicitudCompraArticulos.find(
+        (a) => a.articulo.id_Articulo === articleId
       );
+      const provider = purchaseRequestData?.solicitudProveedor.find((p) => p.proveedor.id_Proveedor === providerId);
 
       setArticles((prev) => {
         if (prev && article) {
@@ -240,9 +207,7 @@ export const MatchProvidersAndArticles = (
 
       const updatedPurchaseOrderMatched = purchaseOrderMatched
         .map((p) => {
-          const updatedArticle = p.article.filter(
-            (a) => a.articleId !== articleId
-          );
+          const updatedArticle = p.article.filter((a) => a.articleId !== articleId);
           if (updatedArticle.length === 0) {
             return null;
           }
@@ -273,13 +238,12 @@ export const MatchProvidersAndArticles = (
     if (!purchaseOrderMatched) return;
     if (!purchaseRequestData) return;
     const ordenCompra = purchaseOrderMatched.map((item) => {
-      const solicitudCompraProveedor =
-        purchaseRequestData.solicitudProveedor.find((p) => {
-          return p.proveedor.id_Proveedor === item.providerId;
-        });
+      const solicitudCompraProveedor = purchaseRequestData.solicitudProveedor.find((p) => {
+        return p.proveedor.id_Proveedor === item.providerId;
+      });
 
       return {
-        Id: solicitudCompraProveedor ? solicitudCompraProveedor.id : "",
+        Id: solicitudCompraProveedor ? solicitudCompraProveedor.id : '',
         Proveedor: {
           Id_Proveedor: item.providerId,
         },
@@ -298,11 +262,11 @@ export const MatchProvidersAndArticles = (
     };
     try {
       await matchArticlesWithProviders(object);
-      toast.success("Operación exitosa artículos agregados!");
+      toast.success('Operación exitosa artículos agregados!');
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error("Error al realizar la operación!");
+      toast.error('Error al realizar la operación!');
     }
   }, [purchaseRequestData, purchaseOrderMatched]);
 
@@ -316,22 +280,22 @@ export const MatchProvidersAndArticles = (
   return (
     <Box sx={style}>
       <HeaderModal setOpen={setOpen} title={folio} />
-      <Box sx={{ overflowY: "auto" }}>
+      <Box sx={{ overflowY: 'auto' }}>
         <Box sx={{ maxHeight: { xs: 500, md: 550, lg: 580, xl: 800 } }}>
           <Stack
             sx={{
               px: 8,
               py: 3,
-              bgcolor: "white",
+              bgcolor: 'white',
               borderBottomLeftRadius: 12,
               borderBottomRightRadius: 12,
-              flexDirection: { md: "column", lg: "row" },
+              flexDirection: { md: 'column', lg: 'row' },
             }}
           >
-            <Stack sx={{ display: "flex", flex: 1, overflowY: "auto" }}>
+            <Stack sx={{ display: 'flex', flex: 1, overflowY: 'auto' }}>
               <Stack spacing={2}>
                 <Typography variant="h6">Cotización de proveedores</Typography>
-                <Box sx={{ display: "flex", flex: 1, columnGap: 2 }}>
+                <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
                   {purchaseRequestData.solicitudProveedor.map((p) => (
                     <Button
                       key={p.id}
@@ -357,18 +321,13 @@ export const MatchProvidersAndArticles = (
                   onChange={handleChange}
                 >
                   {providers?.map((p) => (
-                    <MenuItem
-                      value={p.proveedor.id_Proveedor}
-                      key={p.proveedor.id_Proveedor}
-                    >
+                    <MenuItem value={p.proveedor.id_Proveedor} key={p.proveedor.id_Proveedor}>
                       {p.proveedor.nombre}
                     </MenuItem>
                   ))}
                 </TextField>
-                <Card sx={{ overflowY: "auto" }}>
-                  <TableContainer
-                    sx={{ maxHeight: { xs: 200, sm: 240, md: 270, lg: 290 } }}
-                  >
+                <Card sx={{ overflowY: 'auto' }}>
+                  <TableContainer sx={{ maxHeight: { xs: 200, sm: 240, md: 270, lg: 290 } }}>
                     <Table>
                       <TableHead>
                         <TableRow>
@@ -387,9 +346,7 @@ export const MatchProvidersAndArticles = (
                                 size="small"
                                 value={i.articulo.id_Articulo}
                                 onChange={handleCheckArticle}
-                                checked={handleIsArticlesChecked(
-                                  i.articulo.id_Articulo
-                                )}
+                                checked={handleIsArticlesChecked(i.articulo.id_Articulo)}
                               />
                             </TableCell>
                             <TableCell>{i.articulo.nombre}</TableCell>
@@ -403,11 +360,11 @@ export const MatchProvidersAndArticles = (
               </Stack>
               <Box
                 sx={{
-                  display: "flex",
+                  display: 'flex',
                   flex: 1,
-                  justifyContent: "flex-end",
+                  justifyContent: 'flex-end',
                   mt: 1,
-                  alignItems: "flex-end",
+                  alignItems: 'flex-end',
                 }}
               >
                 <Button
@@ -423,13 +380,8 @@ export const MatchProvidersAndArticles = (
                 </Button>
               </Box>
             </Stack>
-            <Divider
-              orientation="vertical"
-              flexItem
-              variant="middle"
-              sx={{ mx: 1 }}
-            />
-            <Stack sx={{ display: "flex", flex: 1 }}>
+            <Divider orientation="vertical" flexItem variant="middle" sx={{ mx: 1 }} />
+            <Stack sx={{ display: 'flex', flex: 1 }}>
               <Typography variant="h6">Proveedores seleccionados</Typography>
               <Stack spacing={2}>
                 {purchaseOrderMatched && purchaseOrderMatched.length > 0 ? (
@@ -437,27 +389,25 @@ export const MatchProvidersAndArticles = (
                     <Stack key={i.providerId} spacing={1}>
                       <Stack
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           flex: 1,
-                          alignItems: "center",
+                          alignItems: 'center',
                           columnGap: 1,
-                          justifyContent: "space-between",
-                          flexDirection: "row",
+                          justifyContent: 'space-between',
+                          flexDirection: 'row',
                         }}
                       >
                         <Stack
                           sx={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            display: "flex",
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            display: 'flex',
                             flex: 1,
                             columnGap: 1,
                           }}
                         >
                           <Typography variant="overline">Proveedor:</Typography>
-                          <Typography variant="subtitle2">
-                            {getProviderNameById(i.providerId)}
-                          </Typography>
+                          <Typography variant="subtitle2">{getProviderNameById(i.providerId)}</Typography>
                         </Stack>
                         <Button
                           variant="contained"
@@ -484,18 +434,11 @@ export const MatchProvidersAndArticles = (
                             <TableBody>
                               {i.article.map((a) => (
                                 <TableRow key={a.articleId}>
-                                  <TableCell>
-                                    {getArticleNameById(a.articleId)}
-                                  </TableCell>
+                                  <TableCell>{getArticleNameById(a.articleId)}</TableCell>
                                   <TableCell>{a.amount}</TableCell>
                                   <TableCell>
                                     <IconButton
-                                      onClick={() =>
-                                        handleRemoveArticleFromProvider(
-                                          a.articleId,
-                                          i.providerId
-                                        )
-                                      }
+                                      onClick={() => handleRemoveArticleFromProvider(a.articleId, i.providerId)}
                                     >
                                       <Delete />
                                     </IconButton>
@@ -511,14 +454,14 @@ export const MatchProvidersAndArticles = (
                 ) : (
                   <Box
                     sx={{
-                      display: "flex",
+                      display: 'flex',
                       flex: 5,
-                      justifyContent: "center",
-                      alignItems: "center",
+                      justifyContent: 'center',
+                      alignItems: 'center',
                       p: 4,
                     }}
                   >
-                    <Info sx={{ width: 40, height: 40, color: "gray" }} />
+                    <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                     <Typography variant="h5" color="gray">
                       No hay artículos seleccionados
                     </Typography>
@@ -527,17 +470,15 @@ export const MatchProvidersAndArticles = (
               </Stack>
               <Box
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
+                  display: 'flex',
+                  flexDirection: 'column',
                   flex: 1,
-                  alignItems: "flex-end",
-                  justifyContent: "flex-end",
+                  alignItems: 'flex-end',
+                  justifyContent: 'flex-end',
                 }}
               >
                 <Button
-                  disabled={
-                    !purchaseOrderMatched || purchaseOrderMatched.length === 0
-                  }
+                  disabled={!purchaseOrderMatched || purchaseOrderMatched.length === 0}
                   variant="contained"
                   sx={{ mt: 1 }}
                   onClick={() => handleSendAuth()}

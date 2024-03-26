@@ -1,30 +1,24 @@
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import { usePurchaseRequestNav } from "../../../../store/purchaseStore/purchaseRequestNav";
-import { shallow } from "zustand/shallow";
-import { useEffect, useState } from "react";
-import { getCountDashboard } from "../../../../api/api.routes";
-import { usePurchaseOrderPagination } from "../../../../store/purchaseStore/purchaseOrderPagination";
-import { usePurchaseOrderRequestPagination } from "../../../../store/purchaseStore/purchaseOrderRequestPagination";
-import { useShallow } from "zustand/react/shallow";
-import { useArticlesAlertPagination } from "../../../../store/purchaseStore/articlesAlertPagination";
+import AppBar from '@mui/material/AppBar';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import { usePurchaseRequestNav } from '../../../../store/purchaseStore/purchaseRequestNav';
+import { shallow } from 'zustand/shallow';
+import { useEffect, useState } from 'react';
+import { getCountDashboard } from '../../../../api/api.routes';
+import { usePurchaseOrderPagination } from '../../../../store/purchaseStore/purchaseOrderPagination';
+import { usePurchaseOrderRequestPagination } from '../../../../store/purchaseStore/purchaseOrderRequestPagination';
+import { useShallow } from 'zustand/react/shallow';
+import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 
 export const PurchaseTabNav = () => {
   const { tabValue, setTabValue } = usePurchaseRequestNav(
     (state) => ({ tabValue: state.tabValue, setTabValue: state.setTabValue }),
     shallow
   );
-  const dataPurchaseOrder = usePurchaseOrderPagination(
-    useShallow((state) => state.data)
-  );
-  const dataPurchaseOrderRequest = usePurchaseOrderRequestPagination(
-    useShallow((state) => state.data)
-  );
-  const dataPurchaseAuth = useArticlesAlertPagination(
-    useShallow((state) => state.data)
-  );
+  const dataPurchaseOrder = usePurchaseOrderPagination(useShallow((state) => state.data));
+  const dataPurchaseOrderRequest = usePurchaseOrderRequestPagination(useShallow((state) => state.data));
+  const dataPurchaseAuth = useArticlesAlertPagination(useShallow((state) => state.data));
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     event.stopPropagation();
@@ -55,7 +49,7 @@ export const PurchaseTabNav = () => {
   };
 
   return (
-    <Box sx={{ width: "auto" }}>
+    <Box sx={{ width: 'auto' }}>
       <AppBar
         position="static"
         sx={{

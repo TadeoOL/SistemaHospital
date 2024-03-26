@@ -1,53 +1,40 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addArticle } from "../../../../../schema/schemas";
-import { IArticle, IPurchaseConfig } from "../../../../../types/types";
-import { ChangeEvent, useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { useGetSubCategories } from "../../../../../hooks/useGetSubCategories";
-import { useArticlePagination } from "../../../../../store/purchaseStore/articlePagination";
-import {
-  addNewArticle,
-  getPurchaseConfig,
-} from "../../../../../api/api.routes";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addArticle } from '../../../../../schema/schemas';
+import { IArticle, IPurchaseConfig } from '../../../../../types/types';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
+import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
+import { addNewArticle, getPurchaseConfig } from '../../../../../api/api.routes';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 600 },
-  bgcolor: "background.paper",
+  bgcolor: 'background.paper',
   borderRadius: 8,
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  display: "flex",
-  flexDirection: "column",
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
-  overflowY: "auto",
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
@@ -75,15 +62,13 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const { open } = props;
   const { subCategories, isLoading } = useGetSubCategories();
   const config = useGetPurchaseConfig();
-  const [valueState, setValueState] = useState("");
+  const [valueState, setValueState] = useState('');
   const [inputValue, setInputValue] = useState<any>();
-  const [subCategory, setSubCategory] = useState("");
-  const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination(
-    (state) => ({
-      setHandleChangeArticle: state.setHandleChangeArticle,
-      handleChangeArticle: state.handleChangeArticle,
-    })
-  );
+  const [subCategory, setSubCategory] = useState('');
+  const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
+    setHandleChangeArticle: state.setHandleChangeArticle,
+    handleChangeArticle: state.handleChangeArticle,
+  }));
   const {
     register,
     handleSubmit,
@@ -91,15 +76,15 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues: {
-      nombre: "",
-      descripcion: "",
-      codigoBarras: "",
-      id_subcategoria: "",
-      stockAlerta: "",
-      stockMinimo: "",
-      unidadMedida: "",
-      precioCompra: "",
-      precioVenta: "",
+      nombre: '',
+      descripcion: '',
+      codigoBarras: '',
+      id_subcategoria: '',
+      stockAlerta: '',
+      stockMinimo: '',
+      unidadMedida: '',
+      precioCompra: '',
+      precioVenta: '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -111,10 +96,10 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     try {
       await addNewArticle(data);
       setHandleChangeArticle(!handleChangeArticle);
-      toast.success("Articulo creado con éxito!");
+      toast.success('Articulo creado con éxito!');
       open(false);
     } catch (error) {
-      toast.error("Error al crear el articulo!");
+      toast.error('Error al crear el articulo!');
     }
   };
 
@@ -157,12 +142,12 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
-          const precioVentaString = precioVenta.toString();
+          const precioVentaString = precioVenta.toFixed(2).toString();
           setInputValue(precioVentaString);
-          setValue("precioVenta", precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue("0");
-          setValue("precioVenta", "0");
+          setInputValue('0');
+          setValue('precioVenta', '0');
         }
       }
     });
@@ -182,7 +167,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.nombre?.message}
                 size="small"
                 placeholder="Escriba un Nombre"
-                {...register("nombre")}
+                {...register('nombre')}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -193,7 +178,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.unidadMedida?.message}
                 size="small"
                 placeholder="Escriba una presentación"
-                {...register("unidadMedida")}
+                {...register('unidadMedida')}
               />
             </Grid>
             <Grid item xs={12} md={12}>
@@ -203,24 +188,18 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 error={!!errors.descripcion}
                 size="small"
                 placeholder="Escriba una Descripción"
-                {...register("descripcion")}
+                {...register('descripcion')}
                 multiline
                 onChange={handleChangeText}
                 helperText={
                   <Box
                     sx={{
-                      display: "flex",
+                      display: 'flex',
                       flexGrow: 1,
-                      justifyContent: "space-between",
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Box>
-                      {errors
-                        ? errors.descripcion
-                          ? errors.descripcion.message
-                          : null
-                        : null}
-                    </Box>
+                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
                     <Box>{`${valueState.length}/${200}`}</Box>
                   </Box>
                 }
@@ -240,7 +219,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   onInput: (e: any) => handleInputDecimalChange(e),
                 }}
                 placeholder="Escriba un Precio de Compra"
-                {...register("precioCompra")}
+                {...register('precioCompra')}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -266,11 +245,11 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.stockMinimo?.message}
                 size="small"
                 inputProps={{
-                  maxLength: 5,
+                  maxLength: 10,
                   onInput: handleInputNumberChange,
                 }}
                 placeholder="Dígite un Stock Mínimo"
-                {...register("stockMinimo")}
+                {...register('stockMinimo')}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -281,11 +260,11 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.stockAlerta?.message}
                 size="small"
                 inputProps={{
-                  maxLength: 5,
+                  maxLength: 10,
                   onInput: handleInputNumberChange,
                 }}
                 placeholder="Dígite un Stock Alerta"
-                {...register("stockAlerta")}
+                {...register('stockAlerta')}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -296,7 +275,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 helperText={errors?.codigoBarras?.message}
                 size="small"
                 placeholder="Escriba un Código de barras"
-                {...register("codigoBarras")}
+                {...register('codigoBarras')}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -308,7 +287,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 label="Seleccione una Sub Categoria"
                 error={!!errors.id_subcategoria}
                 helperText={errors?.id_subcategoria?.message}
-                {...register("id_subcategoria")}
+                {...register('id_subcategoria')}
                 value={subCategory}
                 onChange={handleChange}
               >
@@ -322,25 +301,16 @@ export const AddArticleModal = (props: IAddArticleModal) => {
           </Grid>
           <Stack
             sx={{
-              flexDirection: "row",
+              flexDirection: 'row',
               columnGap: 2,
-              justifyContent: "space-between",
+              justifyContent: 'space-between',
               pt: 4,
             }}
           >
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CancelIcon />}
-              onClick={() => open(false)}
-            >
+            <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
               Cancelar
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              startIcon={<SaveOutlinedIcon />}
-            >
+            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Stack>

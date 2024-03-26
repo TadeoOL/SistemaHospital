@@ -1,14 +1,12 @@
-import { createWithEqualityFn } from "zustand/traditional";
-import { IPurchaseAuthorization } from "../../types/types";
+import { createWithEqualityFn } from 'zustand/traditional';
+import { IPurchaseAuthorization } from '../../types/types';
 
 export type ProvidersMatched = {
   purchaseRequestId: string;
   purchaseOrder:
     | {
         providerId: string;
-        article:
-          | { articleId: string; purchasePrice: number; amount: number }[]
-          | null;
+        article: { articleId: string; purchasePrice: number; amount: number }[] | null;
       }[]
     | null;
 };
@@ -25,26 +23,16 @@ interface State {
 }
 
 interface Action {
-  setPurchaseRequestData: (
-    purchaseRequestData: IPurchaseAuthorization | null
-  ) => void;
+  setPurchaseRequestData: (purchaseRequestData: IPurchaseAuthorization | null) => void;
   setFormattedData: (formattedData: ProvidersMatched | null) => void;
-  setPurchaseOrderMatched: (
-    purchaseOrderMatched: PurchaseOrder[] | null
-  ) => void;
+  setPurchaseOrderMatched: (purchaseOrderMatched: PurchaseOrder[] | null) => void;
 }
 
-export const useMatchProvidersAndArticles = createWithEqualityFn<
-  State & Action
->((set) => ({
+export const useMatchProvidersAndArticles = createWithEqualityFn<State & Action>((set) => ({
   purchaseRequestData: null,
   formattedData: null,
   purchaseOrderMatched: null,
-  setPurchaseOrderMatched: (purchaseOrderMatched: PurchaseOrder[] | null) =>
-    set({ purchaseOrderMatched }),
-  setFormattedData: (formattedData: ProvidersMatched | null) =>
-    set({ formattedData }),
-  setPurchaseRequestData: (
-    purchaseRequestData: IPurchaseAuthorization | null
-  ) => set({ purchaseRequestData }),
+  setPurchaseOrderMatched: (purchaseOrderMatched: PurchaseOrder[] | null) => set({ purchaseOrderMatched }),
+  setFormattedData: (formattedData: ProvidersMatched | null) => set({ formattedData }),
+  setPurchaseRequestData: (purchaseRequestData: IPurchaseAuthorization | null) => set({ purchaseRequestData }),
 }));

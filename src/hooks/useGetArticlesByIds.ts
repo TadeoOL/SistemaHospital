@@ -1,6 +1,6 @@
-import { getArticlesByIds } from "../api/api.routes";
-import { IArticle } from "../types/types";
-import { useQuery } from "@tanstack/react-query";
+import { getArticlesByIds } from '../api/api.routes';
+import { IArticle } from '../types/types';
+import { useQuery } from '@tanstack/react-query';
 
 export const useGetArticlesByIds = (Ids: string[]) => {
   const {
@@ -8,7 +8,7 @@ export const useGetArticlesByIds = (Ids: string[]) => {
     isError,
     isLoading = true,
   } = useQuery({
-    queryKey: ["ArticlesByIds", Ids],
+    queryKey: ['ArticlesByIds', Ids],
     queryFn: async () => getArticlesByIds(Ids),
   });
 

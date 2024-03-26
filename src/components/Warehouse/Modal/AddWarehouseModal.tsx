@@ -1,39 +1,39 @@
-import { Box, Button, Grid, Stack, TextField } from "@mui/material";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
-import { IWarehouse } from "../../../types/types";
-import { addNewPurchaseWarehouse } from "../../../api/api.routes";
-import { HeaderModal } from "../../Account/Modals/SubComponents/HeaderModal";
-import { addWarehouse } from "../../../schema/schemas";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Box, Button, Grid, Stack, TextField } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
+import { IWarehouse } from '../../../types/types';
+import { addNewPurchaseWarehouse } from '../../../api/api.routes';
+import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+import { addWarehouse } from '../../../schema/schemas';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 600 },
-  bgcolor: "background.paper",
+  bgcolor: 'background.paper',
   borderRadius: 8,
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  display: "flex",
-  flexDirection: "column",
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
-  overflowY: "auto",
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
@@ -41,17 +41,14 @@ interface IAddPurchaseWarehouseModal {
   open: Function;
 }
 
-export const AddPurchaseWarehouseModal = (
-  props: IAddPurchaseWarehouseModal
-) => {
+export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => {
   const { open } = props;
-  const [textValue, setTextValue] = useState("");
+  const [textValue, setTextValue] = useState('');
 
-  const { handleChangeWarehouse, setHandleChangeWarehouse } =
-    useWarehousePagination((state) => ({
-      setHandleChangeWarehouse: state.setHandleChangeWarehouse,
-      handleChangeWarehouse: state.handleChangeWarehouse,
-    }));
+  const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
+    setHandleChangeWarehouse: state.setHandleChangeWarehouse,
+    handleChangeWarehouse: state.handleChangeWarehouse,
+  }));
 
   const {
     register,
@@ -73,10 +70,10 @@ export const AddPurchaseWarehouseModal = (
     try {
       await addNewPurchaseWarehouse(data);
       setHandleChangeWarehouse(!handleChangeWarehouse);
-      toast.success("Almacén modificado con éxito!");
+      toast.success('Almacén modificado con éxito!');
       open(false);
     } catch (error) {
-      toast.error("Error al modificar el almacén!");
+      toast.error('Error al modificar el almacén!');
     }
   };
 
@@ -92,14 +89,14 @@ export const AddPurchaseWarehouseModal = (
                 error={!!errors.nombre}
                 size="small"
                 placeholder="Nombre"
-                {...register("nombre")}
+                {...register('nombre')}
                 helperText={errors.nombre?.message}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                {...register("descripcion")}
+                {...register('descripcion')}
                 error={!!errors.descripcion}
                 size="small"
                 placeholder="Descripción"
@@ -107,18 +104,12 @@ export const AddPurchaseWarehouseModal = (
                 helperText={
                   <Box
                     sx={{
-                      display: "flex",
+                      display: 'flex',
                       flexGrow: 1,
-                      justifyContent: "space-between",
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Box>
-                      {errors
-                        ? errors.descripcion
-                          ? errors.descripcion.message
-                          : null
-                        : null}
-                    </Box>
+                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
                     <Box>{`${textValue?.length}/${200}`}</Box>
                   </Box>
                 }
@@ -130,24 +121,15 @@ export const AddPurchaseWarehouseModal = (
           </Grid>
           <Stack
             sx={{
-              flexDirection: "row",
+              flexDirection: 'row',
               columnGap: 2,
-              justifyContent: "space-between",
+              justifyContent: 'space-between',
             }}
           >
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CancelIcon />}
-              onClick={() => open(false)}
-            >
+            <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
               Cancelar
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              startIcon={<SaveOutlinedIcon />}
-            >
+            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Stack>

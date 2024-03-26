@@ -1,47 +1,40 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { HeaderModal } from "../../../../Account/Modals/SubComponents/HeaderModal";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addCategory } from "../../../../../schema/schemas";
-import { ICategory } from "../../../../../types/types";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { getCategoryById, modifyCategory } from "../../../../../api/api.routes";
-import { useCategoryPagination } from "../../../../../store/purchaseStore/categoryPagination";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Backdrop, Box, Button, CircularProgress, Stack, TextField } from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addCategory } from '../../../../../schema/schemas';
+import { ICategory } from '../../../../../types/types';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { getCategoryById, modifyCategory } from '../../../../../api/api.routes';
+import { useCategoryPagination } from '../../../../../store/purchaseStore/categoryPagination';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, lg: 600 },
   borderRadius: 2,
   boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: 600,
 };
 
 const styleBar = {
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
@@ -74,12 +67,11 @@ const useFetchCategory = (categoryId: string) => {
 export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
   const { open, data } = props;
   const { isLoadingCategory, category } = useFetchCategory(data);
-  const [textValue, setTextValue] = useState("");
-  const { handleChangeCategory, setHandleChangeCategory } =
-    useCategoryPagination((state) => ({
-      handleChangeCategory: state.handleChangeCategory,
-      setHandleChangeCategory: state.setHandleChangeCategory,
-    }));
+  const [textValue, setTextValue] = useState('');
+  const { handleChangeCategory, setHandleChangeCategory } = useCategoryPagination((state) => ({
+    handleChangeCategory: state.handleChangeCategory,
+    setHandleChangeCategory: state.setHandleChangeCategory,
+  }));
 
   const {
     register,
@@ -98,13 +90,13 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
 
   const onSubmit: SubmitHandler<ICategory> = async (data) => {
     try {
-      const idForm = getValues("id");
+      const idForm = getValues('id');
       await modifyCategory({ ...data, id: idForm });
-      toast.success("Categoría modificada con éxito!");
+      toast.success('Categoría modificada con éxito!');
       setHandleChangeCategory(!handleChangeCategory);
       props.open(false);
     } catch (error) {
-      toast.error("Error al modificar la categoría");
+      toast.error('Error al modificar la categoría');
     }
   };
 
@@ -131,22 +123,14 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={open} title="Modificar categoría" />
-      <Stack
-        sx={{ overflowY: "auto", bgcolor: "background.paper", ...styleBar }}
-      >
+      <Stack sx={{ overflowY: 'auto', bgcolor: 'background.paper', ...styleBar }}>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={3} sx={{ p: 4, maxHeight: 600 }}>
             <Stack spacing={2}>
+              <TextField fullWidth {...register('nombre')} size="small" placeholder="Nombre" error={!!errors.nombre} />
               <TextField
                 fullWidth
-                {...register("nombre")}
-                size="small"
-                placeholder="Nombre"
-                error={!!errors.nombre}
-              />
-              <TextField
-                fullWidth
-                {...register("descripcion")}
+                {...register('descripcion')}
                 size="small"
                 placeholder="Descripción"
                 error={!!errors.descripcion}
@@ -154,18 +138,12 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
                 helperText={
                   <Box
                     sx={{
-                      display: "flex",
+                      display: 'flex',
                       flexGrow: 1,
-                      justifyContent: "space-between",
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Box>
-                      {errors
-                        ? errors.descripcion
-                          ? errors.descripcion.message
-                          : null
-                        : null}
-                    </Box>
+                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
                     <Box>{`${textValue?.length}/${200}`}</Box>
                   </Box>
                 }
@@ -176,24 +154,15 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
             </Stack>
             <Stack
               sx={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 columnGap: 2,
-                justifyContent: "space-between",
+                justifyContent: 'space-between',
               }}
             >
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<CancelIcon />}
-                onClick={() => open(false)}
-              >
+              <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
                 Cancelar
               </Button>
-              <Button
-                variant="contained"
-                type="submit"
-                startIcon={<SaveOutlinedIcon />}
-              >
+              <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
                 Guardar
               </Button>
             </Stack>

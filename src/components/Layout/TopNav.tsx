@@ -1,23 +1,16 @@
-import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import {
-  Avatar,
-  Badge,
-  Stack,
-  SvgIcon,
-  Tooltip,
-  useMediaQuery,
-} from "@mui/material";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import HelpIcon from "@mui/icons-material/Help";
-import { alpha, useTheme } from "@mui/material/styles";
-import { useCallback, useRef, useState } from "react";
-import { useAppNavStore } from "../../store/appNav";
-import { AccountPopover } from "./AccountPopover";
-import { useAuthStore } from "../../store/auth";
-import homelogo from "../../assets/homeLogoHSB.svg";
-import RightSideNav from "./RightSideNav";
+import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import { Avatar, Badge, Stack, SvgIcon, Tooltip, useMediaQuery } from '@mui/material';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import HelpIcon from '@mui/icons-material/Help';
+import { alpha, useTheme } from '@mui/material/styles';
+import { useCallback, useRef, useState } from 'react';
+import { useAppNavStore } from '../../store/appNav';
+import { AccountPopover } from './AccountPopover';
+import { useAuthStore } from '../../store/auth';
+import homelogo from '../../assets/homeLogoHSB.svg';
+import RightSideNav from './RightSideNav';
 
 export const TopNav: React.FC<{
   toggleSidebar: () => void;
@@ -41,19 +34,18 @@ export const TopNav: React.FC<{
     setOpen(false);
   }, []);
 
-  const SIDE_NAV_WIDTH = 80;
+  const SIDE_NAV_WIDTH = 70;
   const theme = useTheme();
-  const xlUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const xlUp = useMediaQuery(theme.breakpoints.up('lg'));
 
   return (
     <>
       <Box
         component="header"
         sx={{
-          backdropFilter: "blur(6px)",
-          backgroundColor: (theme) =>
-            alpha(theme.palette.background.default, 0.8),
-          position: "sticky",
+          backdropFilter: 'blur(6px)',
+          backgroundColor: (theme) => alpha(theme.palette.background.default, 0.8),
+          position: 'sticky',
           left: {
             lg: `${SIDE_NAV_WIDTH}px`,
           },
@@ -63,31 +55,31 @@ export const TopNav: React.FC<{
           },
           zIndex: (theme) => theme.zIndex.appBar,
           height: 60,
-          alignItems: "center",
-          display: "flex",
+          alignItems: 'center',
+          display: 'flex',
           flex: 1,
         }}
       >
         <Stack
           sx={{
-            alignItems: "center",
-            marginLeft: !xlUp && isOpen ? 29 : isOpen ? 19 : 0,
-            transition: "margin-left 0.2s ease-in-out",
-            justifyContent: "space-between",
-            flexDirection: "row",
-            display: "flex",
+            alignItems: 'center',
+            marginLeft: !xlUp && isOpen ? 30 : isOpen ? 20 : 0,
+            transition: 'margin-left 0.2s ease-in-out',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            display: 'flex',
             flex: 1,
           }}
         >
-          <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
-            <IconButton size="small" onClick={toggleSidebar}>
+          <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
+            <IconButton size="small" onClick={toggleSidebar} sx={{ ml: 1 }}>
               <MenuIcon />
             </IconButton>
             <Box component="img" src={homelogo} sx={{ height: 30 }} />
           </Stack>
           <Stack
             sx={{
-              flexDirection: "row",
+              flexDirection: 'row',
               columnGap: 2,
               mr: 2,
             }}
@@ -114,7 +106,7 @@ export const TopNav: React.FC<{
               onClick={handleOpen}
               ref={anchorRef}
               sx={{
-                cursor: "pointer",
+                cursor: 'pointer',
                 height: 40,
                 width: 40,
               }}
@@ -123,11 +115,7 @@ export const TopNav: React.FC<{
           </Stack>
         </Stack>
       </Box>
-      <AccountPopover
-        anchorEl={anchorRef.current}
-        open={open}
-        onClose={handleClose}
-      />
+      <AccountPopover anchorEl={anchorRef.current} open={open} onClose={handleClose} />
     </>
   );
 };

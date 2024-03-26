@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import { shallow } from "zustand/shallow";
-import { useSubCategoryPagination } from "../../../../store/purchaseStore/subCategoryPagination";
-import withReactContent from "sweetalert2-react-content";
-import Swal from "sweetalert2";
-import { disableSubCategory } from "../../../../api/api.routes";
-import { ModifySubCategoryModal } from "./Modal/ModifySubCategoryModal";
-import { TableComponent } from "../../../TableComponent";
+import { useEffect } from 'react';
+import { shallow } from 'zustand/shallow';
+import { useSubCategoryPagination } from '../../../../store/purchaseStore/subCategoryPagination';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
+import { disableSubCategory } from '../../../../api/api.routes';
+import { ModifySubCategoryModal } from './Modal/ModifySubCategoryModal';
+import { TableComponent } from '../../../TableComponent';
 
 const useGetAllData = () => {
   const {
@@ -54,28 +54,25 @@ const useGetAllData = () => {
 };
 
 const useDisableSubCategory = () => {
-  const { setHandleChangeSubCategory, enabled, handleChangeSubCategory } =
-    useSubCategoryPagination(
-      (state) => ({
-        setHandleChangeSubCategory: state.setHandleChangeSubCategory,
-        enabled: state.enabled,
-        handleChangeSubCategory: state.handleChangeSubCategory,
-      }),
-      shallow
-    );
+  const { setHandleChangeSubCategory, enabled, handleChangeSubCategory } = useSubCategoryPagination(
+    (state) => ({
+      setHandleChangeSubCategory: state.setHandleChangeSubCategory,
+      enabled: state.enabled,
+      handleChangeSubCategory: state.handleChangeSubCategory,
+    }),
+    shallow
+  );
 
   const disableProviderModal = (categoryId: string) => {
     withReactContent(Swal)
       .fire({
-        title: "Advertencia",
-        text: `Estas a punto de ${
-          enabled ? "deshabilitar" : "habilitar"
-        } una sub categoría`,
-        icon: "warning",
+        title: 'Advertencia',
+        text: `Estas a punto de ${enabled ? 'deshabilitar' : 'habilitar'} una sub categoría`,
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: `Si, ${enabled ? "deshabilitala!" : "habilitala!"}`,
-        confirmButtonColor: "red",
-        cancelButtonText: "No, cancelar!",
+        confirmButtonText: `Si, ${enabled ? 'deshabilitala!' : 'habilitala!'}`,
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
         reverseButtons: true,
       })
       .then(async (result) => {
@@ -84,26 +81,22 @@ const useDisableSubCategory = () => {
             await disableSubCategory(categoryId);
             setHandleChangeSubCategory(!handleChangeSubCategory);
             withReactContent(Swal).fire({
-              title: `${enabled ? "Deshabilitado!" : "Habilitado!"}`,
-              text: `La sub categoría se ha ${
-                enabled ? "deshabilitado" : "habilitado"
-              }`,
-              icon: "success",
+              title: `${enabled ? 'Deshabilitado!' : 'Habilitado!'}`,
+              text: `La sub categoría se ha ${enabled ? 'deshabilitado' : 'habilitado'}`,
+              icon: 'success',
             });
           } catch (error) {
             console.log(error);
             withReactContent(Swal).fire({
-              title: "Error!",
-              text: `No se pudo ${
-                enabled ? "deshabilitar" : "habilitar"
-              } la sub categoría`,
-              icon: "error",
+              title: 'Error!',
+              text: `No se pudo ${enabled ? 'deshabilitar' : 'habilitar'} la sub categoría`,
+              icon: 'error',
             });
           }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           withReactContent(Swal).fire({
-            title: "Cancelado",
-            icon: "error",
+            title: 'Cancelado',
+            icon: 'error',
           });
         }
       });
@@ -119,10 +112,8 @@ export const SubCategoryTable = () => {
     <TableComponent
       disableHook={disableSubCategory}
       fetchDataHook={useGetAllData}
-      modifyModalComponent={(props) => (
-        <ModifySubCategoryModal data={props.data} open={props.open} />
-      )}
-      headers={["Categoría", "Descripción", "Acciones"]}
+      modifyModalComponent={(props) => <ModifySubCategoryModal data={props.data} open={props.open} />}
+      headers={['Categoría', 'Sub Categoría', 'Descripción', 'Acciones']}
     />
   );
 };

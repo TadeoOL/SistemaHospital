@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { IProvider } from "../types/types";
-import { getProviderById } from "../api/api.routes";
+import { useEffect, useState } from 'react';
+import { IProvider } from '../types/types';
+import { getProviderById } from '../api/api.routes';
 
 export const useGetProvider = (id: string) => {
   const [isLoading, setIsLoading] = useState(true);

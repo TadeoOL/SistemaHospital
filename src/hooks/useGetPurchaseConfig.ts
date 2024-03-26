@@ -1,6 +1,6 @@
-import { getPurchaseConfig } from "../api/api.routes";
-import { IPurchaseConfig } from "../types/types";
-import { useQuery } from "@tanstack/react-query";
+import { getPurchaseConfig } from '../api/api.routes';
+import { IPurchaseConfig } from '../types/types';
+import { useQuery } from '@tanstack/react-query';
 
 export const useGetPurchaseConfig = () => {
   const {
@@ -9,7 +9,7 @@ export const useGetPurchaseConfig = () => {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["purchaseConfig"],
+    queryKey: ['purchaseConfig'],
     queryFn: async () => getPurchaseConfig(),
   });
 

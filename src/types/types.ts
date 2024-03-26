@@ -10,6 +10,11 @@ export interface IModuleItems {
   onClick?: () => void;
 }
 
+export interface IModuleItemsList {
+  categoryTitle: string;
+  moduleItems: IModuleItems[];
+}
+
 export interface IUser {
   id: string;
   nombre: string;
@@ -90,6 +95,7 @@ export interface ISubCategory {
   nombre: string;
   descripcion: string;
   id_categoria: string;
+  iva: string;
   categoria: ICategory;
 }
 
@@ -97,7 +103,7 @@ export interface IArticle {
   id: string;
   nombre: string;
   codigoBarras: string;
-  descripcion: string;
+  descripcion: string | null;
   stockMinimo: string;
   stockAlerta: string;
   unidadMedida: string;
@@ -109,16 +115,23 @@ export interface IArticle {
 
 export interface IExistingArticle {
   id: string;
+  cantidad: number;
+  fechaCompra: string;
   precioCompra: number;
   precioVenta: number;
-  fechaCompra: number;
-  fechaCaducidad: number;
-  factor: number;
-  id_articulo: string;
-  id_almacen: string;
-  almacen: IWarehouse;
+  factorAplicado: number;
+  stockActual: number;
+  stockMinimo: number;
+  fechaCaducidad: string;
+  nombre: string;
+  listaArticuloExistente: IExistingArticleList[];
+}
+
+export interface IExistingArticleList {
+  id: string;
+  fechaCompraLote: string;
+  fechaCaducidad: string;
   cantidad: number;
-  articulo: IArticle;
 }
 
 export interface IWarehouse {
@@ -128,15 +141,15 @@ export interface IWarehouse {
 }
 
 export enum StatusPurchaseRequest {
-  "Todas las solicitudes" = -1,
-  "Cancelado" = 0,
-  "Necesita autorización" = 1,
-  "Necesita licitación" = 2,
-  "Necesita elegir proveedor" = 3,
-  "Solicitud a proveedor" = 4,
-  "Selección de productos por proveedor" = 5,
-  "Recibida" = 6,
-  "Solicitud necesita precios" = 7,
+  'Todas las solicitudes' = -1,
+  'Cancelado' = 0,
+  'Necesita autorización' = 1,
+  'Necesita licitación' = 2,
+  'Necesita elegir proveedor' = 3,
+  'Solicitud a proveedor' = 4,
+  'Selección de productos por proveedor' = 5,
+  'Recibida' = 6,
+  'Solicitud necesita precios' = 7,
 }
 
 export interface IPurchase {
@@ -181,7 +194,7 @@ export interface IArticlesAlert {
       precioInventario: number;
       unidadMedida: string;
       id_AlertaCompra: string;
-    }
+    },
   ];
 }
 
@@ -239,8 +252,8 @@ export interface OrdenCompraArticulo {
 }
 
 enum ConceptPayment {
-  "Contado" = 0,
-  "Credito" = 1,
+  'Contado' = 0,
+  'Credito' = 1,
 }
 
 export interface IPurchaseOrder {
@@ -262,9 +275,10 @@ export interface IPurchaseOrder {
 }
 
 export enum StatusPurchaseOrder {
-  "Todas las ordenes" = -1,
-  "Orden de compra cancelada" = 0,
-  "Orden de compra creada" = 1,
+  'Todas las ordenes' = -1,
+  'Orden de compra cancelada' = 0,
+  'Factura subida' = 1,
+  'artículos' = 2,
 }
 
 export interface IWarehouseData {
@@ -278,4 +292,28 @@ export interface IWarehouseData {
   fechaCreacion: string;
   fechaModificacion: string;
   habilitado: boolean;
+}
+
+export interface IWarehousePurchaseOrder {
+  id: string;
+  articulo: string;
+  cantidad: number;
+  precioCompra: number;
+  precioVenta: number;
+  factorAplicado: number;
+}
+
+export interface ISubWarehouse {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  usuarioEncargado: string;
+}
+
+export interface IAddSubWarehouse {
+  nombre: string;
+  descripcion: string;
+  esSubAlmacen: boolean;
+  Id_AlmacenPrincipal: string;
+  Id_UsuarioEncargado: string;
 }

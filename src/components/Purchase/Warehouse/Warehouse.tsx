@@ -1,29 +1,27 @@
-import { Box, Button, Divider, Modal, Stack } from "@mui/material";
-import { useState } from "react";
-import { SearchBar } from "../../Inputs/SearchBar";
-import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
-import { useWarehousePagination } from "../../../store/purchaseStore/warehousePagination";
-import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { AddPurchaseWarehouseModal } from "../../Warehouse/Modal/AddWarehouseModal";
-import { PurchaseWarehouseTable } from "../../Warehouse/WarehouseTable";
+import { Box, Button, Divider, Modal, Stack } from '@mui/material';
+import { useState } from 'react';
+import { SearchBar } from '../../Inputs/SearchBar';
+import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
+import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
+import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
+import { AddPurchaseWarehouseModal } from '../../Warehouse/Modal/AddWarehouseModal';
+import { PurchaseWarehouseTable } from '../../Warehouse/WarehouseTable';
 
 export const Warehouse = () => {
   const [open, setOpen] = useState(false);
-  const { setSearch, enabled, setEnabled } = useWarehousePagination(
-    (state) => ({
-      setSearch: state.setSearch,
-      setEnabled: state.setEnabled,
-      enabled: state.enabled,
-    })
-  );
+  const { setSearch, enabled, setEnabled } = useWarehousePagination((state) => ({
+    setSearch: state.setSearch,
+    setEnabled: state.setEnabled,
+    enabled: state.enabled,
+  }));
   return (
     <>
       <Box
         sx={{
           boxShadow: 10,
           borderRadius: 2,
-          overflowX: "auto",
-          bgcolor: "white",
+          overflowX: 'auto',
+          bgcolor: 'white',
         }}
       >
         <Box
@@ -33,36 +31,30 @@ export const Warehouse = () => {
         >
           <Stack
             sx={{
-              flexDirection: "row",
-              display: "flex",
+              flexDirection: 'row',
+              display: 'flex',
               flexGrow: 1,
-              justifyContent: "space-between",
+              justifyContent: 'space-between',
               p: 1,
               pt: 3,
             }}
           >
-            <SearchBar
-              title="Buscar el almacén..."
-              searchState={setSearch}
-              sx={{ width: "25%" }}
-            />
+            <SearchBar title="Buscar el almacén..." searchState={setSearch} sx={{ width: '25%' }} />
             <Divider sx={{ my: 1 }} />
             {/* <Typography fontWeight={700} fontSize={24}>
               {enabled ? "Almacenes" : "Almacenes deshabilitados"}
             </Typography> */}
-            <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
+            <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
                 startIcon={<WarehouseOutlinedIcon />}
               >
-                {enabled
-                  ? "Mostrar almacenes deshabilitados"
-                  : "Mostrar almacenes habilitados"}
+                {enabled ? 'Mostrar almacenes deshabilitados' : 'Mostrar almacenes habilitados'}
               </Button>
               <Button
-                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
+                sx={{ height: '75%', mt: '8px', marginRight: '20px' }}
                 variant="contained"
                 onClick={() => setOpen(!open)}
                 startIcon={<AddCircleOutlinedIcon />}

@@ -1,14 +1,14 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ProtectedRoute } from "./utils/ProtectedRoute";
-import { ProtectedRouteSupply } from "./utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply";
-import { ProtectedRoutePurchasingDirector } from "./utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector";
-import { ProtectedPurchaseRequest } from "./utils/functions/ProtectedRoutesForRole/ProtectedPurchaseRequest";
-import { LoginView } from "./views/LoginView";
-import { ScheduleView } from "./views/Schedule/ScheduleView";
-import { Layout } from "./components/Layout/Layout";
-import { NotFoundPage } from "./views/404Page";
-import { LoginRoute } from "./utils/LoginRoute";
-import { ToastContainer } from "react-toastify";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ProtectedRoute } from './utils/ProtectedRoute';
+import { ProtectedRouteSupply } from './utils/functions/ProtectedRoutesForRole/ProtectedRouteSupply';
+import { ProtectedRoutePurchasingDirector } from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePurchasingDirector';
+import { ProtectedPurchaseRequest } from './utils/functions/ProtectedRoutesForRole/ProtectedPurchaseRequest';
+import { LoginView } from './views/LoginView';
+import { ScheduleView } from './views/Schedule/ScheduleView';
+import { Layout } from './components/Layout/Layout';
+import { NotFoundPage } from './views/404Page';
+import { LoginRoute } from './utils/LoginRoute';
+import { ToastContainer } from 'react-toastify';
 import {
   Dashboard,
   PurchaseRequest,
@@ -24,7 +24,7 @@ import {
   PurchaseConfigView,
   AccountView,
   WarehouseSelected,
-} from "./utils/LazyRoutes";
+} from './utils/LazyRoutes';
 
 function App() {
   return (
@@ -34,18 +34,12 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
             <Route element={<ProtectedPurchaseRequest />}>
-              <Route
-                path="/compras/solicitud-compras"
-                element={<PurchaseRequest />}
-              />
+              <Route path="/compras/solicitud-compras" element={<PurchaseRequest />} />
             </Route>
             <Route element={<ProtectedRouteSupply />}>
               <Route path="/compras/articulos" element={<ArticleView />}>
                 <Route path="articulo" element={<Article />} />
-                <Route
-                  path="articulo-existente"
-                  element={<ExistingArticle />}
-                />
+                <Route path="articulo-existente" element={<ExistingArticle />} />
               </Route>
               <Route path="/compras/categorias" element={<CategoryView />}>
                 <Route path="categoria" element={<Category />} />
@@ -55,24 +49,12 @@ function App() {
             </Route>
             <Route element={<ProtectedRoutePurchasingDirector />}>
               <Route path="/compras/almacen" element={<WarehouseView />} />
-              <Route
-                path="/compras/autorizacion-compras"
-                element={<PurchaseAuthorizationView />}
-              />
-              <Route
-                path="compras/configuracion-compras"
-                element={<PurchaseConfigView />}
-              />
+              <Route path="/compras/autorizacion-compras" element={<PurchaseAuthorizationView />} />
+              <Route path="compras/configuracion-compras" element={<PurchaseConfigView />} />
               <Route path="/configuracion" element={<AccountView />} />
             </Route>
-            <Route
-              path="/programacion/agenda-quirofano"
-              element={<ScheduleView />}
-            />
-            <Route
-              path="/almacenes/:warehouseId"
-              element={<WarehouseSelected />}
-            />
+            <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
+            <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

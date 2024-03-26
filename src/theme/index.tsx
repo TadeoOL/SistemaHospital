@@ -1,8 +1,8 @@
-import { createTheme as createMuiTheme } from "@mui/material";
-import { createPalette } from "./create-palette";
-import { createShadows } from "./create-shadows";
-import { createTypography } from "./create-typography";
-import { createComponents } from "./create-components";
+import { createTheme as createMuiTheme } from '@mui/material';
+import { createPalette } from './create-palette';
+import { createShadows } from './create-shadows';
+import { createTypography } from './create-typography';
+import { createComponents } from './create-components';
 
 export function createTheme() {
   const palette = createPalette();

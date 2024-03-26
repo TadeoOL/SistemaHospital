@@ -9,59 +9,59 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@mui/material";
-import { HeaderModal } from "./SubComponents/HeaderModal";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addNewUserSchema } from "../../../schema/schemas";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { IAddUser } from "../../../types/types";
-import { useState } from "react";
-import { registerNewUser } from "../../../api/api.routes";
-import { toast } from "react-toastify";
-import { useUserPaginationStore } from "../../../store/userPagination";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import HelpOutlinedIcon from "@mui/icons-material/HelpOutlined";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
+} from '@mui/material';
+import { HeaderModal } from './SubComponents/HeaderModal';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addNewUserSchema } from '../../../schema/schemas';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { IAddUser } from '../../../types/types';
+import { useEffect, useState } from 'react';
+import { getRoles, registerNewUser } from '../../../api/api.routes';
+import { toast } from 'react-toastify';
+import { useUserPaginationStore } from '../../../store/userPagination';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, lg: 600 },
-  bgcolor: "background.paper",
+  bgcolor: 'background.paper',
   borderRadius: 2,
   boxShadow: 24,
-  display: "flex",
-  flexDirection: "column",
-  overflowY: "auto",
+  display: 'flex',
+  flexDirection: 'column',
+  overflowY: 'auto',
   maxHeight: { xs: 600 },
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
 const scrollbarStyle = {
-  "&::-webkit-scrollbar": {
-    width: "0.4em",
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
   },
-  "&::-webkit-scrollbar-track": {
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
-    webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
   },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0,0,0,.1)",
-    outline: "1px solid slategrey",
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
   },
 };
 
@@ -69,21 +69,32 @@ interface IAddUserModal {
   setOpen: Function;
 }
 
-const roles = ["ADMIN", "USER"];
-
 export const AddUserModal = (props: IAddUserModal) => {
   const { setOpen } = props;
   const [values, setValues] = useState<string[]>([]);
   const setNewUser = useUserPaginationStore((state) => state.setNewUser);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [text, setText] = useState<string>("");
+  const [text, setText] = useState<string>('');
+  const [roles, setRoles] = useState<string[]>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getRoles();
+        setRoles(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (event: any) => {
     const {
       target: { value },
     } = event;
-    setValues(typeof value === "string" ? value.split(",") : value);
+    setValues(typeof value === 'string' ? value.split(',') : value);
   };
 
   const {
@@ -92,16 +103,15 @@ export const AddUserModal = (props: IAddUserModal) => {
     formState: { errors },
   } = useForm<IAddUser>({
     defaultValues: {
-      nombre: "",
-      apellidoPaterno: "",
-      apellidoMaterno: "",
-      email: "",
-      telefono: "",
-      imagenURL:
-        "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png",
-      nombreUsuario: "",
-      contrasena: "",
-      confirmarContrasena: "",
+      nombre: '',
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      email: '',
+      telefono: '',
+      imagenURL: 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
+      nombreUsuario: '',
+      contrasena: '',
+      confirmarContrasena: '',
       roles: [],
     },
     resolver: zodResolver(addNewUserSchema),
@@ -115,14 +125,14 @@ export const AddUserModal = (props: IAddUserModal) => {
       setIsLoading(true);
       const user = await registerNewUser(userData);
       setNewUser(user);
-      toast.success("Usuario agregado correctamente!");
+      toast.success('Usuario agregado correctamente!');
       setValues([]);
       setOpen(false);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
-      toast.error("Error al agregar nuevo usuario!");
+      toast.error('Error al agregar nuevo usuario!');
     }
   };
 
@@ -147,7 +157,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.nombre}
                 helperText={errors?.nombre?.message}
-                {...register("nombre")}
+                {...register('nombre')}
                 size="small"
                 placeholder="Nombre"
               />
@@ -157,7 +167,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.apellidoPaterno}
                 helperText={errors?.apellidoPaterno?.message}
-                {...register("apellidoPaterno")}
+                {...register('apellidoPaterno')}
                 size="small"
                 placeholder="Apellido paterno"
               />
@@ -167,7 +177,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.apellidoMaterno}
                 helperText={errors?.apellidoMaterno?.message}
-                {...register("apellidoMaterno")}
+                {...register('apellidoMaterno')}
                 size="small"
                 placeholder="Apellido materno"
               />
@@ -177,7 +187,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.email}
                 helperText={errors?.email?.message}
-                {...register("email")}
+                {...register('email')}
                 size="small"
                 placeholder="Correo electrónico"
               />
@@ -187,7 +197,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.telefono}
                 helperText={errors?.telefono?.message}
-                {...register("telefono")}
+                {...register('telefono')}
                 size="small"
                 placeholder="Telefono"
               />
@@ -205,7 +215,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.nombreUsuario}
                 helperText={errors?.nombreUsuario?.message}
-                {...register("nombreUsuario")}
+                {...register('nombreUsuario')}
                 size="small"
                 placeholder="Nombre de usuario"
               />
@@ -215,8 +225,8 @@ export const AddUserModal = (props: IAddUserModal) => {
                 fullWidth
                 error={!!errors.roles}
                 helperText={errors?.roles?.message}
-                placeholder="Selecciona el rol"
-                {...register("roles")}
+                placeholder="Selecciona los roles"
+                {...register('roles')}
                 name="roles"
                 size="small"
                 onChange={handleChange}
@@ -227,7 +237,7 @@ export const AddUserModal = (props: IAddUserModal) => {
                 select
                 value={values}
               >
-                {roles.map((option) => (
+                {roles?.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -236,28 +246,24 @@ export const AddUserModal = (props: IAddUserModal) => {
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 fullWidth
                 error={!!errors.contrasena}
                 helperText={errors?.contrasena?.message}
-                {...register("contrasena")}
+                {...register('contrasena')}
                 size="small"
                 placeholder="Contraseña"
                 onChange={handlePasswordChange}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      {text.trim() === "" ? null : (
+                      {text.trim() === '' ? null : (
                         <IconButton
                           onClick={() => {
                             setShowPassword(!showPassword);
                           }}
                         >
-                          {showPassword ? (
-                            <VisibilityOffIcon />
-                          ) : (
-                            <VisibilityIcon />
-                          )}
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                         </IconButton>
                       )}
                       <Tooltip title="La contraseña debe contener al menos una letra mayúsculay un número">
@@ -270,28 +276,24 @@ export const AddUserModal = (props: IAddUserModal) => {
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextField
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 fullWidth
                 error={!!errors.confirmarContrasena}
                 helperText={errors?.confirmarContrasena?.message}
-                {...register("confirmarContrasena")}
+                {...register('confirmarContrasena')}
                 size="small"
                 placeholder="Confirmar Contraseña"
                 onChange={handlePasswordChange}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      {text.trim() === "" ? null : (
+                      {text.trim() === '' ? null : (
                         <IconButton
                           onClick={() => {
                             setShowPassword(!showPassword);
                           }}
                         >
-                          {showPassword ? (
-                            <VisibilityOffIcon />
-                          ) : (
-                            <VisibilityIcon />
-                          )}
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                         </IconButton>
                       )}
                     </InputAdornment>
@@ -302,8 +304,8 @@ export const AddUserModal = (props: IAddUserModal) => {
           </Grid>
           <Box
             sx={{
-              justifyContent: "space-between",
-              display: "flex",
+              justifyContent: 'space-between',
+              display: 'flex',
               flex: 1,
               p: 2,
             }}
@@ -317,12 +319,7 @@ export const AddUserModal = (props: IAddUserModal) => {
             >
               Cancelar
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={isLoading}
-              startIcon={<SaveOutlinedIcon />}
-            >
+            <Button variant="contained" type="submit" disabled={isLoading} startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Box>

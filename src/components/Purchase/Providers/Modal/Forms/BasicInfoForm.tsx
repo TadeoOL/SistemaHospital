@@ -1,6 +1,6 @@
-import { Box, Grid, TextField, Typography } from "@mui/material";
-import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IProvider } from "../../../../../types/types";
+import { Box, Grid, TextField, Typography } from '@mui/material';
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { IProvider } from '../../../../../types/types';
 
 interface IBasicInfoForm {
   errors: FieldErrors<IProvider>;
@@ -10,7 +10,7 @@ interface IBasicInfoForm {
 export const BasicInfoForm = (props: IBasicInfoForm) => {
   const { errors, register } = props;
   return (
-    <Box sx={{ rowGap: 2, display: "flex", flexDirection: "column" }}>
+    <Box sx={{ rowGap: 2, display: 'flex', flexDirection: 'column' }}>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
           <Typography variant="subtitle2">Nombre de la compañía</Typography>
@@ -18,7 +18,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             fullWidth
             error={!!errors.nombreCompania}
             helperText={errors?.nombreCompania?.message}
-            {...register("nombreCompania")}
+            {...register('nombreCompania')}
             placeholder="Nombre compañía"
           />
         </Grid>
@@ -28,7 +28,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             fullWidth
             error={!!errors.nombreContacto}
             helperText={errors?.nombreContacto?.message}
-            {...register("nombreContacto")}
+            {...register('nombreContacto')}
             placeholder="Nombre contacto"
           />
         </Grid>
@@ -38,7 +38,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             fullWidth
             error={!!errors.puesto}
             helperText={errors?.puesto?.message}
-            {...register("puesto")}
+            {...register('puesto')}
             placeholder="Puesto"
           />
         </Grid>
@@ -48,7 +48,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             fullWidth
             error={!!errors.direccion}
             helperText={errors?.direccion?.message}
-            {...register("direccion")}
+            {...register('direccion')}
             placeholder="Dirección"
           />
         </Grid>
@@ -58,7 +58,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             fullWidth
             error={!!errors.telefono}
             helperText={errors?.telefono?.message}
-            {...register("telefono")}
+            {...register('telefono')}
             placeholder="Teléfono"
           />
         </Grid>
@@ -68,7 +68,7 @@ export const BasicInfoForm = (props: IBasicInfoForm) => {
             fullWidth
             error={!!errors.correoElectronico}
             helperText={errors?.correoElectronico?.message}
-            {...register("correoElectronico")}
+            {...register('correoElectronico')}
             placeholder="Correo electrónico"
           />
         </Grid>

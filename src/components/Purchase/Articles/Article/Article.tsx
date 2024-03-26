@@ -1,11 +1,11 @@
-import { Box, Button, Divider, Modal, Stack } from "@mui/material";
-import { SearchBar } from "../../../Inputs/SearchBar";
-import { useState } from "react";
-import { ArticleTable } from "./ArticleTable";
-import { AddArticleModal } from "./Modal/AddArticleModal";
-import { useArticlePagination } from "../../../../store/purchaseStore/articlePagination";
-import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
-import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import { Box, Button, Divider, Modal, Stack } from '@mui/material';
+import { SearchBar } from '../../../Inputs/SearchBar';
+import { useState } from 'react';
+import { ArticleTable } from './ArticleTable';
+import { AddArticleModal } from './Modal/AddArticleModal';
+import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
+import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 
 const Article = () => {
   const [open, setOpen] = useState(false);
@@ -22,8 +22,8 @@ const Article = () => {
           boxShadow: 10,
           borderBottomLeftRadius: 10,
           borderBottomRightRadius: 10,
-          overflowX: "auto",
-          bgcolor: "white",
+          overflowX: 'auto',
+          bgcolor: 'white',
         }}
       >
         <Box
@@ -33,34 +33,28 @@ const Article = () => {
         >
           <Stack
             sx={{
-              flexDirection: "row",
-              display: "flex",
+              flexDirection: 'row',
+              display: 'flex',
               flexGrow: 1,
-              justifyContent: "space-between",
-              alignItems: "center",
+              justifyContent: 'space-between',
+              alignItems: 'center',
               p: 1,
               pt: 3,
             }}
           >
-            <SearchBar
-              title="Busca el articulo..."
-              searchState={setSearch}
-              sx={{ width: "30%" }}
-            />
+            <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%' }} />
             <Divider sx={{ my: 1 }} />
-            <Stack sx={{ flexDirection: "row", columnGap: 2 }}>
+            <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
               <Button
                 onClick={() => {
                   setEnabled(!enabled);
                 }}
                 startIcon={<ArticleOutlinedIcon />}
               >
-                {enabled
-                  ? "Mostrar artículos deshabilitados"
-                  : "Mostrar artículos habilitados"}
+                {enabled ? 'Mostrar artículos deshabilitados' : 'Mostrar artículos habilitados'}
               </Button>
               <Button
-                sx={{ height: "75%", mt: "8px", marginRight: "20px" }}
+                sx={{ height: '75%', mt: '8px', marginRight: '20px' }}
                 variant="contained"
                 startIcon={<AddCircleOutlinedIcon />}
                 onClick={() => setOpen(!open)}
