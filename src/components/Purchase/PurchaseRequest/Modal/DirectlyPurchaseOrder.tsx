@@ -47,9 +47,13 @@ import { useGetArticlesBySearch } from '../../../../hooks/useGetArticlesBySearch
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { convertBase64, isValidFloat, isValidInteger } from '../../../../utils/functions/dataUtils';
-import { addDirectlyPurchaseOrder, addPurchaseRequest, getPurchaseConfig } from '../../../../api/api.routes';
+import {
+  addDirectlyPurchaseOrder,
+  addPurchaseRequest,
+  // getProviders,
+  getPurchaseConfig,
+} from '../../../../api/api.routes';
 import { ManyProviders, SingleProvider } from './SelectProviderForDirectlyPurchase';
-import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
 import { useDropzone } from 'react-dropzone';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { usePurchaseOrderPagination } from '../../../../store/purchaseStore/purchaseOrderPagination';
@@ -59,6 +63,8 @@ import { Note } from './Note';
 import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 import { AlertConfigAmount } from './AlertConfigAmount';
 import AnimateButton from '../../../@extended/AnimateButton';
+import { IProvider } from '../../../../types/types';
+import { useGetAllProvidersBySearch } from '../../../../hooks/useGetAllProvidersBySearch';
 
 type Article = {
   id: string;
@@ -77,6 +83,14 @@ const style = {
   flexDirection: 'column',
   maxHeight: { xs: 600 },
 };
+
+const OPTIONS_LIMIT = 5;
+const filterArticleOptions = createFilterOptions<Article>({
+  limit: OPTIONS_LIMIT,
+});
+const filterProviderOptions = createFilterOptions<IProvider>({
+  limit: OPTIONS_LIMIT,
+});
 
 const stepsArray = [
   {
@@ -189,11 +203,6 @@ const BuildOrder = (props: { setOpen: Function }) => {
     setAmountText('');
   };
 
-  const OPTIONS_LIMIT = 5;
-  const filterOptions = createFilterOptions<Article>({
-    limit: OPTIONS_LIMIT,
-  });
-
   if (isLoadingAlmacenes)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 6 }}>
@@ -240,7 +249,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
           <Autocomplete
             disablePortal
             fullWidth
-            filterOptions={filterOptions}
+            filterOptions={filterArticleOptions}
             onChange={(e, val) => {
               e.stopPropagation();
               setArticleSelected(val);
@@ -625,7 +634,6 @@ const StepTwo = () => {
 };
 
 const SelectProviderAndUploadPDF = () => {
-  const { providers, isLoadingProviders } = useGetAllProviders();
   const { step, setStep, pdf, setPdf, setProvider, provider } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       step: state.step,
@@ -640,8 +648,9 @@ const SelectProviderAndUploadPDF = () => {
   const [viewPdf, setViewPdf] = useState(false);
   const [openCollapse, setOpenCollapse] = useState(false);
   const [inputKey, setInputKey] = useState(0);
-  const [providerSelected, setProviderSelected] = useState('');
   const [providerError, setProviderError] = useState(false);
+  const [search, setSearch] = useState('');
+  const { isLoadingProviders, providersFetched } = useGetAllProvidersBySearch(search);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return toast.error('Error: Solo se puede adjuntar 1 archivo .pdf!');
@@ -664,15 +673,6 @@ const SelectProviderAndUploadPDF = () => {
     maxFiles: 1,
   });
 
-  const handleSelectProvider = (e: any) => {
-    setProviderError(false);
-    setProviderSelected(e.target.value);
-    const providerData = providers.find((p) => p.id === e.target.value);
-    if (providerData) {
-      setProvider(providerData);
-    }
-  };
-
   const handleNext = () => {
     if (!provider) {
       setProviderError(true);
@@ -681,37 +681,37 @@ const SelectProviderAndUploadPDF = () => {
     setStep(step + 1);
   };
 
-  if (isLoadingProviders)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 6 }}>
-        <CircularProgress size={40} />
-      </Box>
-    );
   return (
     <>
       <Stack sx={{ mt: 2 }}>
         <Typography variant="subtitle1">Selecciona el proveedor:</Typography>
-        <TextField
-          select
-          size="small"
-          label="Proveedores"
-          value={
-            providerSelected || (provider && !Array.isArray(provider))
-              ? provider instanceof Array
-                ? ''
-                : provider?.id
-              : ''
-          }
-          onChange={handleSelectProvider}
-          error={providerError}
-          helperText={providerError && 'Selecciona un proveedor'}
-        >
-          {providers.map((p) => (
-            <MenuItem key={p.id} value={p.id}>
-              {p.nombreContacto} - {p.nombreCompania}
-            </MenuItem>
-          ))}
-        </TextField>
+        <Autocomplete
+          disablePortal
+          fullWidth
+          filterOptions={filterProviderOptions}
+          onChange={(e, val) => {
+            e.stopPropagation();
+            setProvider(val);
+            setProviderError(false);
+          }}
+          loading={isLoadingProviders && providersFetched.length === 0}
+          getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
+          options={providersFetched}
+          value={null}
+          noOptionsText="No se encontraron proveedores"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              error={providerError}
+              helperText={providerError && 'Selecciona un articulo'}
+              placeholder="Artículos"
+              sx={{ width: '50%' }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+            />
+          )}
+        />
         <Stack spacing={1} sx={{ mt: 4 }}>
           <Stack>
             <Box
