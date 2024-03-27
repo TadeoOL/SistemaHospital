@@ -1,6 +1,7 @@
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Info } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useTheme } from '@mui/material/styles';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import {
   Box,
@@ -94,6 +95,8 @@ export const WarehouseHistory = () => {
     setPageIndex,
     setPageSize,
   } = useGetMovements();
+  // const theme = useTheme();
+  // const smDown = useMediaQuery(theme.breakpoints.('lg'));
 
   return (
     <>
