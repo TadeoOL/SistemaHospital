@@ -61,7 +61,7 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
   fetchWarehouseMovements: async () => {
-    const { pageIndex, enabled, pageSize, search,startDate, endDate } = get();
+    const { pageIndex, enabled, pageSize, search, startDate, endDate } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
