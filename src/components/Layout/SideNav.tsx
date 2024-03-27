@@ -2,7 +2,17 @@ import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { styled, useTheme } from '@mui/material/styles';
-import { Collapse, Drawer, List, Stack, Typography, useMediaQuery } from '@mui/material';
+import {
+  Collapse,
+  Drawer,
+  List,
+  Stack,
+  Tooltip,
+  TooltipProps,
+  Typography,
+  tooltipClasses,
+  useMediaQuery,
+} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Plug from '../../assets/Plug.svg';
 import { useAppNavStore } from '../../store/appNav';
@@ -15,6 +25,18 @@ import { IModuleItems, IModuleItemsList } from '../../types/types';
 import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
 import { getSideBardWarehouse } from '../../api/api.routes';
 import { useSubWarehousePaginationStore } from '../../store/warehouseStore/subWarehousePagination';
+
+const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: 'rgba(0, 0, 0, 0.87)',
+    color: 'rgba(255, 255, 255, 0.87)',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #dadde9',
+  },
+}));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -77,6 +99,30 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
     if (!isOpen) setChildOpen(false);
   }, [isOpen]);
 
+  const iconInSideBar = (
+    <Box
+      sx={{
+        display: 'flex',
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+      }}
+    >
+      <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
+
+      {isOpen ? (
+        <Typography
+          variant="body1"
+          sx={{
+            display: 'inline',
+          }}
+        >
+          {title}
+        </Typography>
+      ) : null}
+    </Box>
+  );
+
   return (
     <>
       <ListItemButton
@@ -106,26 +152,71 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
           justifyContent: 'space-between',
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
-          {isOpen ? (
-            <Typography
-              variant="body1"
-              sx={{
-                display: 'inline',
-              }}
+        {children ? (
+          <>
+            <HtmlTooltip
+              sx={{ visibility: isOpen ? 'hidden' : 'visible' }}
+              title={
+                <React.Fragment>
+                  {children.map((childItem, i) => {
+                    const pathSplit = location.pathname.split('/');
+                    const childSplit = childItem.path.split('/');
+                    const isActive = pathSplit.includes(childSplit[2]);
+                    const uniqueKey = `${childItem.path}-${i}`;
+                    return (
+                      <ListItemButton
+                        key={uniqueKey}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(childItem.path);
+                        }}
+                        sx={{
+                          '&.Mui-selected': {
+                            backgroundColor: '#046DBD',
+                            opacity: 1,
+                          },
+                          '&:hover': {
+                            backgroundColor: '#373b3e',
+                            opacity: 1,
+                          },
+                          '&.Mui-selected:hover': {
+                            backgroundColor: SelectedOptionColor,
+                          },
+                          borderRadius: 1,
+                          mb: 0.5,
+                          opacity: 0.7,
+                        }}
+                      >
+                        <ListItemIcon sx={{ mr: 1 }}>
+                          {React.cloneElement(childItem.icon, {
+                            style: {
+                              color: isActive ? '#046DBD' : 'inherit',
+                            },
+                          })}
+                        </ListItemIcon>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            display: 'inline',
+                            color: isActive ? '#046DBD' : 'inherit',
+                          }}
+                        >
+                          {childItem.title}
+                        </Typography>
+                      </ListItemButton>
+                    );
+                  })}
+                </React.Fragment>
+              }
+              placement="right"
             >
-              {title}
-            </Typography>
-          ) : null}
-        </Box>
+              {iconInSideBar}
+            </HtmlTooltip>
+          </>
+        ) : (
+          <>{iconInSideBar}</>
+        )}
+
         <Box
           sx={{
             justifyContent: 'flex-end',

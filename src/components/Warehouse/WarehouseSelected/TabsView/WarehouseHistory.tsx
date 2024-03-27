@@ -1,3 +1,4 @@
+import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Info } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -16,28 +17,53 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
 import { useWarehouseMovementPaginationStore } from '../../movimientoAlmacenPaginacion';
+import { SearchBar } from '../../../Inputs/SearchBar';
 
 const useGetMovements = () => {
-  const { data, fetchWareHouseMovements, isLoading, pageCount, pageIndex, pageSize, count } =
-    useWarehouseMovementPaginationStore((state) => ({
-      data: state.data,
-      fetchWareHouseMovements: state.fetchWarehouseMovements,
-      isLoading: state.isLoading,
-      pageCount: state.pageCount,
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-    }));
+  const {
+    data,
+    fetchWareHouseMovements,
+    isLoading,
+    pageCount,
+    pageIndex,
+    pageSize,
+    count,
+    setPageIndex,
+    setPageSize,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    setSearch,
+    search,
+  } = useWarehouseMovementPaginationStore((state) => ({
+    data: state.data,
+    fetchWareHouseMovements: state.fetchWarehouseMovements,
+    isLoading: state.isLoading,
+    pageCount: state.pageCount,
+    pageIndex: state.pageIndex,
+    pageSize: state.pageSize,
+    count: state.count,
+    startDate: state.startDate,
+    setStartDate: state.setStartDate,
+    endDate: state.endDate,
+    setEndDate: state.setEndDate,
+    setSearch: state.setSearch,
+    search: state.search,
+    setPageIndex: state.setPageIndex,
+    setPageSize: state.setPageSize,
+  }));
 
   useEffect(() => {
     fetchWareHouseMovements();
-  }, [pageCount, pageSize, pageIndex]);
+  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
   return {
     data,
     isLoading,
@@ -45,13 +71,30 @@ const useGetMovements = () => {
     pageIndex,
     pageSize,
     count,
+    setSearch,
+    setStartDate,
+    setEndDate,
+    setPageIndex,
+    setPageSize,
   };
 };
 
 export const WarehouseHistory = () => {
   const [openModal, setOpenModal] = useState(false);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
-  const { data, count, pageIndex, pageSize, isLoading } = useGetMovements();
+  const {
+    data,
+    count,
+    pageIndex,
+    pageSize,
+    isLoading,
+    setSearch,
+    setStartDate,
+    setEndDate,
+    setPageIndex,
+    setPageSize,
+  } = useGetMovements();
+
   return (
     <>
       <Stack spacing={2} sx={{ py: 0.5 }}>
@@ -66,6 +109,37 @@ export const WarehouseHistory = () => {
           <Typography fontWeight={'bold'} fontSize={16}>
             Historial de movimiento
           </Typography>
+          <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
+            <SearchBar
+              title="Buscar orden de compra..."
+              searchState={setSearch}
+              sx={{ display: 'flex', flex: 2 }}
+              size="small"
+            />
+            <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
+              <TextField
+                label="Fecha inicio"
+                size="small"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                }}
+              />
+              <TextField
+                label=" Fecha final"
+                size="small"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                }}
+              />
+              <IconButton onClick={() => useWarehouseMovementPaginationStore.getState().clearFilters()}>
+                <FilterListOffIcon />
+              </IconButton>
+            </Box>
+          </Box>
         </Box>
         <Card>
           <TableContainer>
@@ -74,6 +148,7 @@ export const WarehouseHistory = () => {
                 <TableRow>
                   <TableCell>Almacén Proveniente</TableCell>
                   <TableCell>Almacén dirigido</TableCell>
+                  <TableCell>Fecha Solicitud</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -106,6 +181,7 @@ export const WarehouseHistory = () => {
                           <Typography>{movimiento.almacenOrigen}</Typography>
                         </TableCell>
                         <TableCell>{movimiento.almacenDestino}</TableCell>
+                        <TableCell>{movimiento.fechaSolicitud}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell colSpan={7} sx={{ p: 0 }}>
@@ -151,7 +227,7 @@ export const WarehouseHistory = () => {
                           <>
                             <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                             <Typography variant="h2" color="gray">
-                              No hay subalmacenes
+                              No hay movimientos
                             </Typography>
                           </>
                         )}
@@ -166,12 +242,10 @@ export const WarehouseHistory = () => {
               count={count}
               onPageChange={(e, value) => {
                 e?.stopPropagation();
-                console.log({ value });
-                // setPageIndex(value);
+                setPageIndex(value);
               }}
               onRowsPerPageChange={(e: any) => {
-                console.log({ e });
-                // setPageSize(e.target.value);
+                setPageSize(e.target.value);
               }}
               page={pageIndex}
               rowsPerPage={pageSize}

@@ -11,6 +11,12 @@ interface State {
   search: string;
   enabled: boolean;
   handleChangeWarehouse: boolean;
+  /*startDate: string;
+  endDate: string;
+  clearFilters: Function;
+  setStartDate: Function;
+  setEndDate: Function;
+  setSearch: Function;*/
 }
 
 interface Action {
@@ -33,14 +39,19 @@ export const useWarehousePagination = createWithEqualityFn<State & Action>((set)
   data: [],
   isLoading: true,
   search: '',
+  //startDate: '',
+  //endDate: '',
   enabled: true,
   handleChangeWarehouse: false,
+  //setEndDate: (endDate: string) => set({ endDate }),
+  //setStartDate: (startDate: string) => set({ startDate }),
   setHandleChangeWarehouse: (handleChangeWarehouse: boolean) => set({ handleChangeWarehouse }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
+//  clearFilters: () => set({ endDate: '', startDate: '' }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
     set(() => ({ isLoading: true }));

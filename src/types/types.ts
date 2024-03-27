@@ -304,6 +304,7 @@ export interface IWarehouseMovementData {
   almacenOrigen: string | null;
   almacenDestino: string | null;
   historialArticulos: IArticleHistory[] | null;
+  fechaSolicitud: string;
   id: string;
 }
 export interface IArticleHistory {

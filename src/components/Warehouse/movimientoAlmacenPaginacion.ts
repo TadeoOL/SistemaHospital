@@ -14,6 +14,12 @@ interface State {
   enabled: boolean;
   handleChangeSubWarehouse: boolean;
   searchUser: string;
+  startDate: string;
+  endDate: string;
+  clearFilters: Function;
+  setStartDate: Function;
+  setEndDate: Function;
+  setSearch: Function;
 }
 
 interface Action {
@@ -38,9 +44,13 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   data: null,
   isLoading: true,
   search: '',
+  startDate: '',
+  endDate: '',
   enabled: true,
   handleChangeSubWarehouse: false,
   searchUser: '',
+  setEndDate: (endDate: string) => set({ endDate }),
+  setStartDate: (startDate: string) => set({ startDate }),
   setSearchUser: (searchUser: string) => set({ searchUser }),
   setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => set({ handleChangeSubWarehouse }),
   setCount: (count: number) => set({ count }),
@@ -49,8 +59,9 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  clearFilters: () => set({ endDate: '', startDate: '' }),
   fetchWarehouseMovements: async () => {
-    const { pageIndex, enabled, pageSize, search } = get();
+    const { pageIndex, enabled, pageSize, search,startDate, endDate } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
@@ -60,7 +71,7 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
           useWarehouseTabsNavStore.getState().warehouseData.id
-        }`
+        }&FechaInicio=${startDate}&FechaFin=${endDate}`
       );
       set(() => ({
         data: res.data,
