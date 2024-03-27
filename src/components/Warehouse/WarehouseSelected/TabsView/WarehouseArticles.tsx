@@ -5,6 +5,7 @@ import {
   Checkbox,
   Collapse,
   IconButton,
+  Modal,
   Stack,
   Table,
   TableBody,
@@ -26,6 +27,7 @@ import { Edit, ExpandLess, ExpandMore, Info } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
+import { ArticlesOutput } from './Modal/ArticlesOutput';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -66,79 +68,90 @@ const useGetExistingArticles = (warehouseId: string) => {
 export const WarehouseArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const { data, setSearch } = useGetExistingArticles(warehouseData.id);
+  const [openModal, setOpenModal] = useState(false);
+
   return (
-    <Stack spacing={2}>
-      <Box
-        sx={{
-          display: 'flex',
-          flex: 1,
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <SearchBar title="Buscar artículos..." sx={{ display: 'flex', flex: 1 }} searchState={setSearch} />
-        <Box sx={{ display: 'flex', flex: 2, justifyContent: 'flex-end' }}>
-          <Button variant="contained">Salida de artículos</Button>
+    <>
+      <Stack spacing={2}>
+        <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <SearchBar title="Buscar artículos..." sx={{ display: 'flex', flex: 1 }} searchState={setSearch} />
+          <Box sx={{ display: 'flex', flex: 2, justifyContent: 'flex-end' }}>
+            <Button variant="contained" onClick={() => setOpenModal(!openModal)}>
+              Salida de artículos
+            </Button>
+          </Box>
         </Box>
-      </Box>
-      <Card>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <Checkbox />
-                </TableCell>
-                <TableCell>Nombre articulo</TableCell>
-                <TableCell>Stock Mínimo</TableCell>
-                <TableCell>Stock</TableCell>
-                <TableCell>Precio de compra</TableCell>
-                <TableCell>Factor aplicado</TableCell>
-                <TableCell>Precio de venta</TableCell>
-                <TableCell>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data && data.map((article) => <TableRowComponent article={article} key={article.id} />)}
-            </TableBody>
-          </Table>
-          {!data ||
-            (data.length === 0 && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  p: 5,
-                  columnGap: 1,
-                }}
-              >
-                <Info sx={{ width: 40, height: 40, color: 'gray' }} />
-                <Typography variant="h2" color="gray">
-                  No hay artículos existentes
-                </Typography>
-              </Box>
-            ))}
-          <TablePagination
-            component="div"
-            count={0}
-            onPageChange={(e, value) => {
-              e?.stopPropagation();
-              // setPageIndex(value);
-              console.log({ value });
-            }}
-            onRowsPerPageChange={(e: any) => {
-              console.log({ e });
-              // setPageSize(e.target.value);
-            }}
-            page={0}
-            rowsPerPage={5}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-          />
-        </TableContainer>
-      </Card>
-    </Stack>
+        <Card>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>Nombre articulo</TableCell>
+                  <TableCell>Stock Mínimo</TableCell>
+                  <TableCell>Stock</TableCell>
+                  <TableCell>Precio de compra</TableCell>
+                  <TableCell>Factor aplicado</TableCell>
+                  <TableCell>Precio de venta</TableCell>
+                  <TableCell>Acciones</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data && data.map((article) => <TableRowComponent article={article} key={article.id} />)}
+              </TableBody>
+            </Table>
+            {!data ||
+              (data.length === 0 && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    p: 5,
+                    columnGap: 1,
+                  }}
+                >
+                  <Info sx={{ width: 40, height: 40, color: 'gray' }} />
+                  <Typography variant="h2" color="gray">
+                    No hay artículos existentes
+                  </Typography>
+                </Box>
+              ))}
+            <TablePagination
+              component="div"
+              count={0}
+              onPageChange={(e, value) => {
+                e?.stopPropagation();
+                // setPageIndex(value);
+                console.log({ value });
+              }}
+              onRowsPerPageChange={(e: any) => {
+                console.log({ e });
+                // setPageSize(e.target.value);
+              }}
+              page={0}
+              rowsPerPage={5}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
+          </TableContainer>
+        </Card>
+      </Stack>
+      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
+        <>
+          <ArticlesOutput setOpen={setOpenModal} />
+        </>
+      </Modal>
+    </>
   );
 };
 
