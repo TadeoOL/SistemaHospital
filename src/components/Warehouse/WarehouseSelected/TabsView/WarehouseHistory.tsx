@@ -23,8 +23,8 @@ import {
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
-import { useWarehouseMovementPaginationStore } from '../../movimientoAlmacenPaginacion';
 import { SearchBar } from '../../../Inputs/SearchBar';
+import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
 
 const useGetMovements = () => {
   const {
@@ -106,40 +106,42 @@ export const WarehouseHistory = () => {
             alignItems: 'center',
           }}
         >
-          <Typography fontWeight={'bold'} fontSize={16}>
-            Historial de movimiento
-          </Typography>
-          <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-            <SearchBar
-              title="Buscar orden de compra..."
-              searchState={setSearch}
-              sx={{ display: 'flex', flex: 2 }}
-              size="small"
-            />
+          <Stack sx={{ display: 'flex', flex: 1 }}>
+            <Typography fontWeight={'bold'} fontSize={16}>
+              Historial de movimiento
+            </Typography>
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-              <TextField
-                label="Fecha inicio"
+              <SearchBar
+                title="Buscar orden de compra..."
+                searchState={setSearch}
+                sx={{ display: 'flex', flex: 1 }}
                 size="small"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                }}
               />
-              <TextField
-                label=" Fecha final"
-                size="small"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                }}
-              />
-              <IconButton onClick={() => useWarehouseMovementPaginationStore.getState().clearFilters()}>
-                <FilterListOffIcon />
-              </IconButton>
+              <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
+                <TextField
+                  label="Fecha inicio"
+                  size="small"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                  }}
+                />
+                <TextField
+                  label=" Fecha final"
+                  size="small"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                  }}
+                />
+                <IconButton onClick={() => useWarehouseMovementPaginationStore.getState().clearFilters()}>
+                  <FilterListOffIcon />
+                </IconButton>
+              </Box>
             </Box>
-          </Box>
+          </Stack>
         </Box>
         <Card>
           <TableContainer>
