@@ -263,22 +263,29 @@ export interface IPurchaseOrder {
   usuarioSolicitado: string;
   fechaSolicitud: string;
   folio_Extension: string;
-  ordenCompraArticulo: {
-    cantidad: number;
-    precioProveedor: number;
-    id_OrdenCompraArticulo: string;
-    id_Articulo: string;
-    nombre: string;
-  }[];
+  ordenCompraArticulo: IPurchaseOrderArticle[];
   precioTotalOrden: number;
   proveedor: { id_Proveedor: string; nombre: string };
+}
+
+export interface IPurchaseOrderArticle {
+  cantidad: number;
+  precioProveedor: number;
+  id_OrdenCompraArticulo: string;
+  id_Articulo: string;
+  nombre: string;
+  precioVenta?: number;
+  factorAplicado?: number;
+  codigoBarras?: string;
+  fechaCaducidad?: string;
 }
 
 export enum StatusPurchaseOrder {
   'Todas las ordenes' = -1,
   'Orden de compra cancelada' = 0,
-  'Factura subida' = 1,
-  'artículos' = 2,
+  'Orden de compra creada' = 1,
+  'Factura subida' = 2,
+  'Alta de artículos' = 3,
 }
 
 export interface IWarehouseData {

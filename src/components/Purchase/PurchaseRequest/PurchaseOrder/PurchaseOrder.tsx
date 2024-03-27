@@ -35,11 +35,12 @@ import { QuoteModal } from './Modal/QuoteModal';
 import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
-import { Info } from '@mui/icons-material';
+import { Assignment, Info } from '@mui/icons-material';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
+import { ArticlesEntry } from './Modal/ArticlesEntry';
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -150,6 +151,8 @@ export const PurchaseOrder = () => {
   const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
   const [openOrderModal, setOpenOrderModal] = useState(false);
+  const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
+  const [orderSelectedId, setOrderSelectedId] = useState('');
   const [providers, setProviders] = useState<any[]>([]);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [orderSelected, setOrderSelected] = useState<{
@@ -179,6 +182,8 @@ export const PurchaseOrder = () => {
     }
     return statusPurchaseOrderValues;
   }, []);
+
+  console.log({ data });
 
   return (
     <>
@@ -318,7 +323,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!isAdminPurchase() && (
+                                  {!isAdminPurchase() && StatusPurchaseOrder[order.estatus] !== 'Factura subida' && (
                                     <Tooltip title="Ver orden de compra">
                                       <IconButton
                                         onClick={() => {
@@ -350,7 +355,8 @@ export const PurchaseOrder = () => {
                                 </>
                               )}
                               {StatusPurchaseOrder[order.estatus] !== 'Orden de compra cancelada' &&
-                                !isAdminPurchase() && (
+                                !isAdminPurchase() &&
+                                StatusPurchaseOrder[order.estatus] !== 'Factura subida' && (
                                   <Tooltip title="Cancelar">
                                     <IconButton
                                       size="small"
@@ -362,6 +368,19 @@ export const PurchaseOrder = () => {
                                     </IconButton>
                                   </Tooltip>
                                 )}
+                              {StatusPurchaseOrder[order.estatus] === 'Factura subida' && !isAdminPurchase() && (
+                                <Tooltip title="Entrada de artículos">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      setOrderSelectedId(order.id_OrdenCompra);
+                                      setOpenArticlesEntry(true);
+                                    }}
+                                  >
+                                    <Assignment />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                             </TableCell>
                           </TableRow>
                           <TableRow>
@@ -447,6 +466,16 @@ export const PurchaseOrder = () => {
       <Modal open={openQuoteModal} onClose={() => setOpenQuoteModal(false)}>
         <>
           <QuoteModal idFolio={orderSelected} open={setOpenQuoteModal} providers={providers} />
+        </>
+      </Modal>
+      <Modal
+        open={openArticlesEntry}
+        onClose={() => {
+          setOpenArticlesEntry(false);
+        }}
+      >
+        <>
+          <ArticlesEntry setOpen={setOpenArticlesEntry} orderId={orderSelectedId} />
         </>
       </Modal>
     </>

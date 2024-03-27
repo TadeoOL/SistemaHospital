@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { addBillQuote, deleteBillQuote, getBillPdf } from '../../../../../api/api.routes';
+import { addBillQuote, changeOrderStatus, deleteBillQuote, getBillPdf } from '../../../../../api/api.routes';
 import { KeyboardArrowUp, CloudUpload, KeyboardArrowDown, Close, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { convertBase64 } from '../../../../../utils/functions/dataUtils';
@@ -22,6 +22,7 @@ import { Provider, SingleProvider } from '../../../../../types/types';
 import { useDropzone } from 'react-dropzone';
 import { useAuthStore } from '../../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
+import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
 
 const style = {
   position: 'absolute',
@@ -132,7 +133,6 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
   const [openCollapse, setOpenCollapse] = useState<{ [key: string]: boolean }>({});
   const [providersClone, setProvidersClone] = useState<typeof providersData>(structuredClone(providersData));
   const [inputKey, setInputKey] = useState(0);
-  // const [isManyProviders, setIsManyProviders] = useState(false);
 
   useEffect(() => {
     if (!providersData) return;
@@ -150,6 +150,8 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
       if (existingFile) {
         try {
           await addBillQuote(providerQuoteRequest, base64);
+          await changeOrderStatus(purchaseRequestId, 2);
+          usePurchaseOrderPagination.getState().fetch();
           setProvidersClone((prev) =>
             prev?.map((file) =>
               file.id === providerQuoteRequest && file.pdf === null ? { ...file, pdf: base64 } : file
@@ -179,6 +181,8 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
       if (!providersClone) return;
       try {
         await deleteBillQuote(idQuote);
+        await changeOrderStatus(purchaseRequestId, 1);
+        usePurchaseOrderPagination.getState().fetch();
         setProvidersClone((prev) => prev?.map((file) => (file.id === idQuote ? { ...file, pdf: null } : file)));
         toast.success('Factura eliminada con éxito!');
       } catch (error) {
@@ -302,7 +306,6 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
           </Stack>
         ))}
       </Stack>
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-start', mt: 4 }}></Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
         <Stack
           sx={{

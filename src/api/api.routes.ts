@@ -262,7 +262,7 @@ export const getAllCategories = async () => {
 };
 
 export const addNewSubCategory = async (data: ISubCategory) => {
-  const { nombre, descripcion, id_categoria, iva, } = data;
+  const { nombre, descripcion, id_categoria, iva } = data;
   const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
     nombre,
     descripcion,
@@ -601,7 +601,7 @@ export const getBillPdf = async (idQuote: string) => {
   return res.data;
 };
 
-export const getOrderRequestPdf = async (idQuote: string) => {
+export const getOrderRequestById = async (idQuote: string) => {
   const res = await axios.get(`/api/Compras/obtener-orden-compra/${idQuote}`);
   return res.data;
 };
