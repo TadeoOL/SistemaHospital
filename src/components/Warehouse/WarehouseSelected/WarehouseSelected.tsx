@@ -7,6 +7,7 @@ import { WarehouseTabs } from './WarehouseTabs';
 import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { WarehouseArticles } from './TabsView/WarehouseArticles';
+import { WarehousePurchases } from './TabsView/WarehousePurchases';
 import { SubWarehouses } from './TabsView/SubWarehouses';
 import { WarehouseHistory } from './TabsView/WarehouseHistory';
 import { NotFoundPage } from '../../../views/404Page';
@@ -18,6 +19,8 @@ const GetWarehouseView: React.FC = () => {
       return <WarehouseArticles />;
     case 1:
       return <SubWarehouses />;
+    case 2:
+      return <WarehousePurchases />;
     case 3:
       return <WarehouseHistory />;
     default:
