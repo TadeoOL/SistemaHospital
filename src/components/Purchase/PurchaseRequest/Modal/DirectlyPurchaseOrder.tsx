@@ -634,17 +634,20 @@ const StepTwo = () => {
 };
 
 const SelectProviderAndUploadPDF = () => {
-  const { step, setStep, pdf, setPdf, setProvider, provider } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      step: state.step,
-      setStep: state.setStep,
-      pdf: state.pdf,
-      setPdf: state.setPdf,
-      provider: state.provider,
-      setProvider: state.setProvider,
-    }),
-    shallow
-  );
+  const { step, setStep, pdf, setPdf, setProvider, provider, setPaymentMethod, paymentMethod } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        step: state.step,
+        setStep: state.setStep,
+        pdf: state.pdf,
+        setPdf: state.setPdf,
+        provider: state.provider,
+        setProvider: state.setProvider,
+        setPaymentMethod: state.setPaymentMethod,
+        paymentMethod: state.paymentMethod,
+      }),
+      shallow
+    );
   const [viewPdf, setViewPdf] = useState(false);
   const [openCollapse, setOpenCollapse] = useState(false);
   const [inputKey, setInputKey] = useState(0);
@@ -678,13 +681,22 @@ const SelectProviderAndUploadPDF = () => {
       setProviderError(true);
       return toast.error('Necesitas seleccionar a un proveedor!');
     }
+    if (isPaymentMethodSelected()) {
+      return toast.error('Necesitas seleccionar un método de pago');
+    }
     setStep(step + 1);
+  };
+  const handlePaymentMethodChange = (method: number) => {
+    setPaymentMethod(method);
+  };
+  const isPaymentMethodSelected = () => {
+    return paymentMethod == 0;
   };
 
   return (
     <>
       <Stack sx={{ mt: 2 }}>
-        <Typography variant="subtitle1">Selecciona el proveedor:</Typography>
+        <Typography variant="subtitle1">Selecciona el proveedor x:</Typography>
         <Autocomplete
           disablePortal
           fullWidth
@@ -704,7 +716,7 @@ const SelectProviderAndUploadPDF = () => {
               {...params}
               error={providerError}
               helperText={providerError && 'Selecciona un articulo'}
-              placeholder="Artículos"
+              placeholder="Proveedores"
               sx={{ width: '50%' }}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -712,6 +724,42 @@ const SelectProviderAndUploadPDF = () => {
             />
           )}
         />
+        <Stack>
+          <Box sx={{ mt: 4 }}>
+            {/* Radio buttons para seleccionar el método de pago
+            Registrar solicitud de compra
+            Registrar orden de compra 
+            Orden directa
+            */}
+            <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
+            <Stack direction="row" spacing={2}>
+              <input
+                type="radio"
+                id="credito"
+                name="paymentMethod"
+                value="credito"
+                onChange={() => handlePaymentMethodChange(1)}
+              />
+              <label htmlFor="credito">Crédito</label>
+              <input
+                type="radio"
+                id="transferencia"
+                name="paymentMethod"
+                value="transferencia"
+                onChange={() => handlePaymentMethodChange(3)}
+              />
+              <label htmlFor="transferencia">Transferencia</label>
+              <input
+                type="radio"
+                id="efectivo"
+                name="paymentMethod"
+                value="efectivo"
+                onChange={() => handlePaymentMethodChange(2)}
+              />
+              <label htmlFor="efectivo">Efectivo</label>
+            </Stack>
+          </Box>
+        </Stack>
         <Stack spacing={1} sx={{ mt: 4 }}>
           <Stack>
             <Box
@@ -886,6 +934,7 @@ const StepThree = (props: { setOpen: Function }) => {
     isDirectlyPurchase,
     needAuth,
     pdf,
+    paymentMethod,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       provider: state.provider,
@@ -897,6 +946,7 @@ const StepThree = (props: { setOpen: Function }) => {
       isManyProviders: state.isManyProviders,
       isDirectlyPurchase: state.isDirectlyPurchase,
       needAuth: state.needAuth,
+      paymentMethod: state.paymentMethod,
       pdf: state.pdf,
     }),
     shallow
@@ -912,6 +962,7 @@ const StepThree = (props: { setOpen: Function }) => {
       const object = {
         Id_Proveedor: provider.id,
         Id_Almacen: warehouseSelected,
+        conceptoPago: paymentMethod,
         PrecioTotalOrden: totalAmountRequest,
         OrdenCompraArticulo: articles.map((a) => {
           return {
@@ -936,6 +987,7 @@ const StepThree = (props: { setOpen: Function }) => {
     } else if (isManyProviders && Array.isArray(provider)) {
       const objectToPurchase = {
         id_proveedor: provider.flatMap((p) => p.id),
+        conceptoPago: paymentMethod,
         Articulos: articles.map((a) => {
           return {
             Id_Articulo: a.id,
@@ -949,6 +1001,7 @@ const StepThree = (props: { setOpen: Function }) => {
       try {
         await addPurchaseRequest(
           objectToPurchase.id_proveedor as string[],
+          objectToPurchase.conceptoPago,
           objectToPurchase.Articulos,
           objectToPurchase.id_almacen,
           objectToPurchase.PrecioTotalInventario
@@ -964,6 +1017,7 @@ const StepThree = (props: { setOpen: Function }) => {
     } else if (needAuth && !Array.isArray(provider)) {
       const objectToPurchase = {
         id_proveedor: [provider.id],
+        conceptoPago: paymentMethod,
         Articulos: articles.map((a) => {
           return {
             Id_Articulo: a.id,
@@ -978,6 +1032,7 @@ const StepThree = (props: { setOpen: Function }) => {
       try {
         await addPurchaseRequest(
           objectToPurchase.id_proveedor,
+          objectToPurchase.conceptoPago,
           objectToPurchase.Articulos,
           objectToPurchase.id_almacen,
           objectToPurchase.PrecioTotalInventario,

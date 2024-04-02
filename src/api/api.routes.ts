@@ -477,6 +477,7 @@ export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
 
 export const addPurchaseRequest = async (
   providerId: string[],
+  conceptoPago: number,
   articles: {
     Id_Articulo: string;
     PrecioProveedor: number;
@@ -493,6 +494,7 @@ export const addPurchaseRequest = async (
     id_almacen: warehouseId,
     PrecioTotalInventario: totalArticlePrice,
     PDFCadena: pdf,
+    conceptoPago: conceptoPago,
   });
   return res.data;
 };
@@ -708,6 +710,7 @@ export const addDirectlyPurchaseOrder = async (OrdenCompra: {
   Id_Proveedor: string;
   Id_Almacen: string;
   PrecioTotalOrden: number;
+  conceptoPago: number;
   OrdenCompraArticulo: {
     Id_Articulo: string;
     Cantidad: number;
