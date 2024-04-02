@@ -7,10 +7,14 @@ import {
   ClickAwayListener,
   Collapse,
   Divider,
+  FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
   Modal,
+  Radio,
+  RadioGroup,
   Stack,
   Step,
   StepLabel,
@@ -686,9 +690,6 @@ const SelectProviderAndUploadPDF = () => {
     }
     setStep(step + 1);
   };
-  const handlePaymentMethodChange = (method: number) => {
-    setPaymentMethod(method);
-  };
   const isPaymentMethodSelected = () => {
     return paymentMethod == 0;
   };
@@ -696,7 +697,7 @@ const SelectProviderAndUploadPDF = () => {
   return (
     <>
       <Stack sx={{ mt: 2 }}>
-        <Typography variant="subtitle1">Selecciona el proveedor x:</Typography>
+        <Typography variant="subtitle1">Selecciona el proveedor:</Typography>
         <Autocomplete
           disablePortal
           fullWidth
@@ -726,37 +727,22 @@ const SelectProviderAndUploadPDF = () => {
         />
         <Stack>
           <Box sx={{ mt: 4 }}>
-            {/* Radio buttons para seleccionar el método de pago
-            Registrar solicitud de compra
-            Registrar orden de compra 
-            Orden directa
-            */}
             <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
             <Stack direction="row" spacing={2}>
-              <input
-                type="radio"
-                id="credito"
-                name="paymentMethod"
-                value="credito"
-                onChange={() => handlePaymentMethodChange(1)}
-              />
-              <label htmlFor="credito">Crédito</label>
-              <input
-                type="radio"
-                id="transferencia"
-                name="paymentMethod"
-                value="transferencia"
-                onChange={() => handlePaymentMethodChange(3)}
-              />
-              <label htmlFor="transferencia">Transferencia</label>
-              <input
-                type="radio"
-                id="efectivo"
-                name="paymentMethod"
-                value="efectivo"
-                onChange={() => handlePaymentMethodChange(2)}
-              />
-              <label htmlFor="efectivo">Efectivo</label>
+              <FormControl component="fieldset" sx={{ width: '100%' }}>
+                <RadioGroup
+                  row
+                  sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
+                  aria-label="paymentMethod"
+                  name="paymentMethod"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                >
+                  <FormControlLabel value={1} control={<Radio />} label="Crédito" />
+                  <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
+                  <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+                </RadioGroup>
+              </FormControl>
             </Stack>
           </Box>
         </Stack>
