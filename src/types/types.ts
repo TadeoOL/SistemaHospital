@@ -313,6 +313,7 @@ export interface IWarehouseData {
   fechaCreacion: string;
   fechaModificacion: string;
   habilitado: boolean;
+  subAlmacenes: IWarehouseData[];
 }
 export interface IWarehouseMovementData {
   almacenOrigen: string | null;
@@ -322,8 +323,8 @@ export interface IWarehouseMovementData {
   id: string;
 }
 export interface IArticleHistory {
-  nombre: string,
-  cantidad: number,
+  nombre: string;
+  cantidad: number;
 }
 
 export interface IWarehousePurchaseOrder {
@@ -336,7 +337,7 @@ export interface IWarehousePurchaseOrder {
 }
 
 export interface ISubWarehouse {
-  id: number;
+  id: string;
   nombre: string;
   descripcion: string;
   usuarioEncargado: string;

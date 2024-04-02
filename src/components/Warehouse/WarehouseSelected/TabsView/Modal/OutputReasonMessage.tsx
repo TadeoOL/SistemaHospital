@@ -7,7 +7,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import WarningIcon from '@mui/icons-material/Warning';
-import { declinePurchaseAuthorization } from '../PurchaseAuthorizationTable';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { obtenerMensajes, crearMensaje, eliminarMensaje, editarMensaje } from '../../../../../api/api.routes';
 import {
@@ -39,7 +38,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 500, md: 600 },
+  width: { xs: 380, sm: 700 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
@@ -62,13 +61,13 @@ const styleBar = {
   },
 };
 
-interface MensajeProps {
+interface OutputReasonMessageProps {
   open: Function;
-  idSolicitudCompra?: string;
   moduleApi: string;
+  setReasonMessage: Function;
 }
 
-export const Mensaje = ({ open, idSolicitudCompra, moduleApi }: MensajeProps) => {
+export const OutputReasonMessage = ({ open, moduleApi, setReasonMessage }: OutputReasonMessageProps) => {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMensaje, setNuevoMensaje] = useState<string>('');
   const [openDialog, setOpenDialog] = useState(false);
@@ -87,26 +86,12 @@ export const Mensaje = ({ open, idSolicitudCompra, moduleApi }: MensajeProps) =>
         setMensajes(res);
       } catch (error: any) {
         console.error('Error al obtener los mensajes:', error);
+        console.log('Código de estado HTTP:', error.response?.status);
       }
     };
 
     fetchData();
   }, []);
-
-  const handleRechazarOrden = async () => {
-    try {
-      if (selectedReason) {
-        if (nuevoMensaje.trim() !== '') {
-          await crearMensaje(nuevoMensaje, moduleApi);
-          setNuevoMensaje('');
-        }
-        await declinePurchaseAuthorization(idSolicitudCompra as string, selectedReason.mensaje);
-        handleCloseModal();
-      }
-    } catch (error) {
-      console.error('Error al rechazar la orden:', error);
-    }
-  };
 
   const agregarNuevoMensaje = async () => {
     try {
@@ -188,8 +173,12 @@ export const Mensaje = ({ open, idSolicitudCompra, moduleApi }: MensajeProps) =>
   };
 
   const handleAceptar = () => {
-    handleRechazarOrden();
-    agregarNuevoMensaje();
+    if (selectedReason) {
+      setReasonMessage(selectedReason.mensaje);
+      open(false);
+    } else {
+      agregarNuevoMensaje();
+    }
   };
 
   const handleSelectMessage = (mensaje: Mensaje) => {
@@ -203,8 +192,8 @@ export const Mensaje = ({ open, idSolicitudCompra, moduleApi }: MensajeProps) =>
   };
 
   return (
-    <Box sx={{ ...style, zIndex: 9999 }}>
-      <HeaderModal setOpen={open} title="Cancelar Solicitud" />
+    <Box sx={{ ...style }}>
+      <HeaderModal setOpen={open} title="Mensaje de salida" />
       <Box
         sx={{
           overflowY: 'auto',
@@ -229,9 +218,9 @@ export const Mensaje = ({ open, idSolicitudCompra, moduleApi }: MensajeProps) =>
             }}
           />
           <>
-            <Typography variant="h5">¿Deseas Cancelar la solicitud de compra?</Typography>
+            <Typography variant="h5">Selecciona un motivo de salida</Typography>
             <Typography variant="h6" sx={{ marginTop: 3 }}>
-              Se cambiará el estatus de la solicitud de compra a orden cancelada!
+              Se seleccionara el motivo de la salida de los articulos
             </Typography>
           </>
         </Box>
@@ -345,7 +334,7 @@ export const Mensaje = ({ open, idSolicitudCompra, moduleApi }: MensajeProps) =>
               marginTop: 5,
             }}
           >
-            <Button sx={{ mr: 2 }} onClick={handleCloseModal}>
+            <Button sx={{ mr: 2 }} onClick={handleCloseModal} variant="outlined" color="error">
               Salir
             </Button>
             <Button

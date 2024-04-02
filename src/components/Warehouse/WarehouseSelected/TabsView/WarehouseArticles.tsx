@@ -27,7 +27,7 @@ import { Edit, ExpandLess, ExpandMore, Info } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
-import { ArticlesOutput } from './Modal/ArticlesOutput';
+import { ArticlesView } from './Modal/ArticlesOutput';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -148,7 +148,7 @@ export const WarehouseArticles = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          <ArticlesOutput setOpen={setOpenModal} />
+          <ArticlesView setOpen={setOpenModal} />
         </>
       </Modal>
     </>

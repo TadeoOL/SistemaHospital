@@ -51,7 +51,6 @@ const useGetWarehouses = () => {
 export const SubWarehouses = () => {
   const { data, count, pageIndex, pageSize, isLoading } = useGetWarehouses();
   const [openModal, setOpenModal] = useState(false);
-  console.log({ data });
   return (
     <>
       <Stack spacing={2} sx={{ py: 0.5 }}>

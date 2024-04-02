@@ -118,7 +118,6 @@ export const ProvidersTable = () => {
   }, []);
 
   useEffect(() => {
-    console.log({ pageIndex });
     fetchProviders(pageIndex, pageSize, search, enabled);
   }, [pageIndex, pageSize, search, enabled, handleChangeProvider]);
 
