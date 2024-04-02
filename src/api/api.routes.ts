@@ -486,7 +486,8 @@ export const addPurchaseRequest = async (
   }[],
   warehouseId: string,
   totalArticlePrice: number,
-  pdf?: string
+  pdf?: string,
+  notas?: string
 ) => {
   const res = await axios.post('/api/Compras/registrar-solicitud-compra', {
     id_proveedor: providerId,
@@ -495,6 +496,7 @@ export const addPurchaseRequest = async (
     PrecioTotalInventario: totalArticlePrice,
     PDFCadena: pdf,
     conceptoPago: conceptoPago,
+    notas: notas,
   });
   return res.data;
 };
@@ -715,6 +717,7 @@ export const addDirectlyPurchaseOrder = async (OrdenCompra: {
     Cantidad: number;
     PrecioProveedor: number;
   }[];
+  notas?: string;
 }) => {
   const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
     OrdenCompra,
