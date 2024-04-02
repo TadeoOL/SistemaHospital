@@ -289,16 +289,19 @@ export const SingleProvider = () => {
 };
 
 export const ManyProviders = () => {
-  const { setStep, step, setProvider, provider, setIsManyProviders } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      setStep: state.setStep,
-      step: state.step,
-      setProvider: state.setProvider,
-      provider: state.provider,
-      setIsManyProviders: state.setIsManyProviders,
-    }),
-    shallow
-  );
+  const { setStep, step, setProvider, provider, setIsManyProviders, setPaymentMethod, paymentMethod } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        setStep: state.setStep,
+        step: state.step,
+        setProvider: state.setProvider,
+        provider: state.provider,
+        setIsManyProviders: state.setIsManyProviders,
+        setPaymentMethod: state.setPaymentMethod,
+        paymentMethod: state.paymentMethod,
+      }),
+      shallow
+    );
   const { providers, isLoadingProviders } = useGetAllProviders();
   const [isLoading, setIsLoading] = useState(false);
   const [providerError, setProviderError] = useState(false);
@@ -314,6 +317,9 @@ export const ManyProviders = () => {
       setProviderError(true);
       return toast.error('Selecciona 3 proveedores');
     }
+    if (isPaymentMethodSelected()) {
+      return toast.error('Necesitas seleccionar un método de pago');
+    }
 
     setIsLoading(true);
     setIsManyProviders(true);
@@ -321,6 +327,14 @@ export const ManyProviders = () => {
     setStep(step + 1);
   };
 
+  const handlePaymentMethodChange = (method: number) => {
+    setPaymentMethod(method);
+  };
+  const isPaymentMethodSelected = () => {
+    return paymentMethod == 0;
+  };
+
+  //QQUUUUAAAAAAAAAA
   return (
     <Stack sx={{ mt: 4 }}>
       <form noValidate onSubmit={handleSubmit}>
@@ -356,6 +370,42 @@ export const ManyProviders = () => {
               />
             )}
           />
+          <Stack>
+            <Box sx={{ mt: 4 }}>
+              {/* Radio buttons para seleccionar el método de pago
+            Registrar solicitud de compra
+            Registrar orden de compra 
+            Orden directa
+            */}
+              <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
+              <Stack direction="row" spacing={2}>
+                <input
+                  type="radio"
+                  id="credito"
+                  name="paymentMethod"
+                  value="credito"
+                  onChange={() => handlePaymentMethodChange(1)}
+                />
+                <label htmlFor="credito">Crédito</label>
+                <input
+                  type="radio"
+                  id="transferencia"
+                  name="paymentMethod"
+                  value="transferencia"
+                  onChange={() => handlePaymentMethodChange(3)}
+                />
+                <label htmlFor="transferencia">Transferencia</label>
+                <input
+                  type="radio"
+                  id="efectivo"
+                  name="paymentMethod"
+                  value="efectivo"
+                  onChange={() => handlePaymentMethodChange(2)}
+                />
+                <label htmlFor="efectivo">Efectivo</label>
+              </Stack>
+            </Box>
+          </Stack>
           {/* <TextField
             fullWidth
             size="small"

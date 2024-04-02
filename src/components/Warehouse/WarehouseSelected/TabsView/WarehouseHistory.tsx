@@ -94,6 +94,8 @@ export const WarehouseHistory = () => {
     setPageIndex,
     setPageSize,
   } = useGetMovements();
+  // const theme = useTheme();
+  // const smDown = useMediaQuery(theme.breakpoints.('lg'));
 
   return (
     <>
