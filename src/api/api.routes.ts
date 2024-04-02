@@ -781,3 +781,19 @@ export const getWareHouseMovementsById = async (paramUrl: string) => {
   const res = await axios.get(`/api/Almacen/paginacion-historial-movimientos?${paramUrl}`);
   return res.data;
 }
+
+export const getPetitionsListByWareHouseId = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-peticion-articulos?${paramUrl}`);
+  return res.data;
+}
+
+export const addMerchandiseEntry = async (merchandisePetition: {
+  Id_AlmacenOrigen: string;
+  Id_AlmacenDestino: string;
+  ListaArticulos: string;
+}) => {
+  const res = await axios.post(`/api/Almacen/registrar-peticion`, {
+    ...merchandisePetition,
+  });
+  return res.data;
+};

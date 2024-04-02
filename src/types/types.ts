@@ -218,6 +218,20 @@ export interface ArticleObject {
   nombre: string;
   idAlmacen: string;
 }
+
+export interface MerchandiseEntry {
+  id: string;
+  almacenOrigen: string;
+  almacenDestino: string;
+  historialArticulos: ArticleObjectInPetition[];
+  fechaSolicitud: string;
+}
+
+export interface ArticleObjectInPetition {
+  cantidad: number;
+  nombre: string;
+}
+
 export interface ICheckedArticles {
   idAlmacen: string;
   idAlerta?: string;
