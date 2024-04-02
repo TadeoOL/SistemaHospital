@@ -1,18 +1,31 @@
-import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { Box, TextField } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 export const Note = () => {
-  const { setNote, note } = useDirectlyPurchaseRequestOrderStore(
-    useShallow((state) => ({ setNote: state.setNote, note: state.note }))
-  );
+  const [localNote, setLocalNote] = useState('');
+  const setNote = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.setNote));
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNote(localNote);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localNote]);
+
+  const handleChange = (e: any) => {
+    setLocalNote(e.target.value);
+  };
+
   return (
     <Box>
       <TextField
-        value={note}
         fullWidth
-        onChange={(e) => setNote(e.target.value)}
         multiline
+        value={localNote}
+        onChange={handleChange}
         rows={5}
         label="Escribe una nota..."
         sx={{

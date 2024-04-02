@@ -700,7 +700,7 @@ const SelectProviderAndUploadPDF = () => {
         <Typography variant="subtitle1">Selecciona el proveedor:</Typography>
         <Autocomplete
           disablePortal
-          fullWidth
+          sx={{ width: '50%' }}
           filterOptions={filterProviderOptions}
           onChange={(e, val) => {
             e.stopPropagation();
@@ -710,7 +710,7 @@ const SelectProviderAndUploadPDF = () => {
           loading={isLoadingProviders && providersFetched.length === 0}
           getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
           options={providersFetched}
-          value={null}
+          value={provider as IProvider}
           noOptionsText="No se encontraron proveedores"
           renderInput={(params) => (
             <TextField
@@ -718,7 +718,6 @@ const SelectProviderAndUploadPDF = () => {
               error={providerError}
               helperText={providerError && 'Selecciona un articulo'}
               placeholder="Proveedores"
-              sx={{ width: '50%' }}
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
@@ -921,6 +920,7 @@ const StepThree = (props: { setOpen: Function }) => {
     needAuth,
     pdf,
     paymentMethod,
+    note,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       provider: state.provider,
@@ -934,6 +934,7 @@ const StepThree = (props: { setOpen: Function }) => {
       needAuth: state.needAuth,
       paymentMethod: state.paymentMethod,
       pdf: state.pdf,
+      note: state.note,
     }),
     shallow
   );
@@ -957,6 +958,7 @@ const StepThree = (props: { setOpen: Function }) => {
             PrecioProveedor: a.price,
           };
         }),
+        notas: note,
       };
 
       try {
@@ -983,6 +985,7 @@ const StepThree = (props: { setOpen: Function }) => {
         }),
         id_almacen: warehouseSelected,
         PrecioTotalInventario: totalAmountRequest,
+        notas: note,
       };
       try {
         await addPurchaseRequest(
@@ -990,7 +993,8 @@ const StepThree = (props: { setOpen: Function }) => {
           objectToPurchase.conceptoPago,
           objectToPurchase.Articulos,
           objectToPurchase.id_almacen,
-          objectToPurchase.PrecioTotalInventario
+          objectToPurchase.PrecioTotalInventario,
+          objectToPurchase.notas
         );
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
@@ -1014,6 +1018,7 @@ const StepThree = (props: { setOpen: Function }) => {
         id_almacen: warehouseSelected,
         PrecioTotalInventario: totalAmountRequest,
         PDFCadena: pdf,
+        notas: note,
       };
       try {
         await addPurchaseRequest(
@@ -1022,7 +1027,8 @@ const StepThree = (props: { setOpen: Function }) => {
           objectToPurchase.Articulos,
           objectToPurchase.id_almacen,
           objectToPurchase.PrecioTotalInventario,
-          objectToPurchase.PDFCadena
+          objectToPurchase.PDFCadena,
+          objectToPurchase.notas
         );
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
