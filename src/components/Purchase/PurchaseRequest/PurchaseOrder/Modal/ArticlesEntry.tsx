@@ -20,10 +20,11 @@ import {
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Add, CheckCircle, Edit, RestorePage } from '@mui/icons-material';
-import { getOrderRequestById } from '../../../../../api/api.routes';
+import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/api.routes';
 import { IPurchaseOrder, IPurchaseOrderArticle, ISubWarehouse } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
+import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
 
 const style = {
   width: { xs: 380, sm: 750, md: 1000, lg: 1200 },
@@ -124,14 +125,31 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     [articles]
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!articleEntryData || !articles) return;
+
+    const articlesFormatted = articles.map((article) => {
+      return {
+        id_articulo: article.id_Articulo,
+        cantidad: article.cantidad,
+        codigoBarras: article.codigoBarras as string,
+        fechaCaducidad: article.fechaCaducidad as string,
+      };
+    });
     const articlesEntryObject = {
-      idAlmacen: articleEntryData.almacen.id,
-      articulos: articles,
-      idOrdenCompra: props.orderId,
+      id_almacen: articleEntryData.almacen.id,
+      articulos: articlesFormatted,
+      id_ordenCompra: props.orderId,
     };
-    console.log({ articlesEntryObject });
+    try {
+      await addArticlesToWarehouse(articlesEntryObject);
+      toast.success('Articulos agregados correctamente!');
+      usePurchaseOrderPagination.getState().fetch();
+      props.setOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error('Error al agregar los articulos!');
+    }
   };
 
   if (isLoadingArticleEntryData && !articles)
@@ -254,7 +272,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
           }}
         >
           <Button variant="contained" disabled={missingSomeEntryData} onClick={() => handleSubmit()}>
-            Siguiente
+            Aceptar
           </Button>
         </Box>
       </Box>

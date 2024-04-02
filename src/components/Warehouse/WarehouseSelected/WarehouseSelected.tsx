@@ -57,7 +57,6 @@ const WarehouseSelected = () => {
   const { isLoadingWarehouse, error } = useGetWarehouseSelected(warehouseId);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
 
-  console.log({ warehouseData });
   if (isLoadingWarehouse) return <LoadingView />;
   if (error) return <NotFoundPage />;
   return (

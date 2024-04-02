@@ -4,7 +4,6 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import Mensaje from './Modal/Mensaje';
 import {
   Box,
   Card,
@@ -35,6 +34,7 @@ import { useMatchProvidersAndArticles } from '../../../../store/purchaseStore/ma
 import { primary, error, warning } from '../../../../theme/colors';
 import { getProviderQuotePdf } from '../../../../api/api.routes';
 import { ProviderNameChip } from '../../PurchaseRequest/ProviderNameChip';
+import { Mensaje } from './Modal/Mensaje';
 
 const useGetAllData = () => {
   const {
@@ -133,7 +133,6 @@ export const declinePurchaseAuthorization = async (Id_SolicitudCompra: string, M
     await changePurchaseStatus(Id_SolicitudCompra, 0, Mensaje);
     const { fetchPurchaseAuthorization } = usePurchaseAuthorizationPagination.getState();
     await fetchPurchaseAuthorization();
-    console.log('Compra rechazada correctamente');
   } catch (error) {
     console.error('Error al rechazar la orden:', error);
   }
@@ -344,7 +343,11 @@ export const PurchaseAuthorizationTable = () => {
       </Modal>
       <Modal open={openMensajeModal} onClose={() => setOpenMensajeModal(false)}>
         <>
-          <Mensaje open={() => setOpenMensajeModal(false)} idSolicitudCompra={purchaseRequestId} />
+          <Mensaje
+            moduleApi="Compras_AutorizacionCancelada"
+            open={() => setOpenMensajeModal(false)}
+            idSolicitudCompra={purchaseRequestId}
+          />
         </>
       </Modal>
     </>

@@ -12,6 +12,7 @@ const initialValues = {
   fechaCreacion: '',
   fechaModificacion: '',
   habilitado: true,
+  subAlmacenes: [],
 };
 
 interface State {

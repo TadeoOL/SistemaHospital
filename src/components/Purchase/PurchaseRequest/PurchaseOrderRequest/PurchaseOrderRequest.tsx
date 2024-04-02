@@ -213,8 +213,6 @@ export const PurchaseOrderRequest = () => {
       });
   }, []);
 
-  console.log({ values });
-
   return (
     <>
       <Stack sx={{ p: 2, overflowY: 'auto' }}>
@@ -386,25 +384,26 @@ export const PurchaseOrderRequest = () => {
                                     </>
                                   )
                                 )}
-                                {auth.solicitudProveedor.length > 1 && (
-                                  <Tooltip title="Subir Cotización">
-                                    <IconButton
-                                      onClick={() => {
-                                        setOrderSelected({
-                                          folio: auth.folio,
-                                          purchaseOrderId: auth.id_SolicitudCompra,
-                                        });
-                                        setProviders(auth.solicitudProveedor);
-                                        setOpenProviderQuote(true);
-                                        usePurchaseOrderRequestModals.setState({
-                                          dataOrderRequest: auth,
-                                        });
-                                      }}
-                                    >
-                                      <UploadFileIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                )}
+                                {auth.solicitudProveedor.length > 1 &&
+                                  StatusPurchaseRequest[auth.estatus] !== 'Cancelado' && (
+                                    <Tooltip title="Subir Cotización">
+                                      <IconButton
+                                        onClick={() => {
+                                          setOrderSelected({
+                                            folio: auth.folio,
+                                            purchaseOrderId: auth.id_SolicitudCompra,
+                                          });
+                                          setProviders(auth.solicitudProveedor);
+                                          setOpenProviderQuote(true);
+                                          usePurchaseOrderRequestModals.setState({
+                                            dataOrderRequest: auth,
+                                          });
+                                        }}
+                                      >
+                                        <UploadFileIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
                                 {StatusPurchaseRequest[auth.estatus] !== 'Selección de productos por proveedor' &&
                                   StatusPurchaseRequest[auth.estatus] !== 'Cancelado' &&
                                   !isAdminPurchase() && (
