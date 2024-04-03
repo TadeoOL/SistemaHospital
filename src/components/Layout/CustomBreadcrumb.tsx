@@ -46,7 +46,6 @@ const CustomBreadcrumb = () => {
   useEffect(() => {
     const partesRuta = location.pathname.split('/');
     const primeraParte = partesRuta[1];
-    console.log(primeraParte);
     const currentModule = messagesByModule[primeraParte] || '';
     setCurrentModule(currentModule);
   }, [location.pathname]);

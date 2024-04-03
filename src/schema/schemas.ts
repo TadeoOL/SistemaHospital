@@ -139,7 +139,7 @@ export const addArticle = z.object({
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
   precioVenta: z
-    .string()
+    .any()
     .nullable() // Permitir valores nulos
     .refine(
       (value) => {

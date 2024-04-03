@@ -2,7 +2,7 @@ import { Backdrop, Box, Button, CircularProgress, Stack, Typography, Modal } fro
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { Download } from '@mui/icons-material';
 import { useState } from 'react';
-import { getOrderRequestPdf } from '../../../../../api/api.routes';
+import { getOrderRequestById } from '../../../../../api/api.routes';
 import { ViewPdf } from '../../../../Inputs/ViewPdf';
 
 const style = {
@@ -30,7 +30,7 @@ export const OrderModal = (props: OrderModaProps) => {
   const pdfFetch = async () => {
     setIsLoading(true);
     try {
-      const res = await getOrderRequestPdf(purchaseData.OrderId);
+      const res = await getOrderRequestById(purchaseData.OrderId);
       setPdf(res.pdfBase64);
     } catch (error) {
       console.log(error);
@@ -54,9 +54,6 @@ export const OrderModal = (props: OrderModaProps) => {
           spacing={4}
         >
           <Stack spacing={2}>
-            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
-              Seleccione los proveedores para enviarle la orden de compra
-            </Typography>
             <Stack
               sx={{
                 display: 'flex',

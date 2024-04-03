@@ -1,28 +1,39 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { toast } from 'react-toastify';
 import { shallow } from 'zustand/shallow';
 import {
+  Autocomplete,
   Box,
   Button,
-  Chip,
   CircularProgress,
   ClickAwayListener,
   Collapse,
+  FormControl,
+  FormControlLabel,
   IconButton,
-  MenuItem,
   Modal,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Tooltip,
   Typography,
+  createFilterOptions,
 } from '@mui/material';
-import { Cancel, Close, CloudUpload, Delete, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { Close, CloudUpload, Delete, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 
 import { useDropzone } from 'react-dropzone';
 import { convertBase64 } from '../../../../utils/functions/dataUtils';
 import { Note } from './Note';
+import { IProvider } from '../../../../types/types';
+import { useGetAllProvidersBySearch } from '../../../../hooks/useGetAllProvidersBySearch';
+
+const OPTIONS_LIMIT = 5;
+const filterProviderOptions = createFilterOptions<IProvider>({
+  limit: OPTIONS_LIMIT,
+});
 
 export const SingleProvider = () => {
   const { step, setStep, pdf, setPdf, registerOrder, setProvider, provider, setNeedAuth } =
@@ -36,13 +47,12 @@ export const SingleProvider = () => {
       provider: state.provider,
       setNeedAuth: state.setNeedAuth,
     }));
-
-  const { isLoadingProviders, providers } = useGetAllProviders();
-  const [error, setError] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<string[] | string>('');
+  const [providerError, setProviderError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [openCollapse, setOpenCollapse] = useState(false);
   const [viewPdf, setViewPdf] = useState(false);
+  const [search, setSearch] = useState('');
+  const { isLoadingProviders, providersFetched } = useGetAllProvidersBySearch(search);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -68,8 +78,7 @@ export const SingleProvider = () => {
   });
 
   const handleSubmit = async () => {
-    if ((selectedProvider.length === 0 && !provider) || (provider instanceof Array && provider.length === 0))
-      return setError(true);
+    if (!provider || (provider instanceof Array && provider.length === 0)) return setProviderError(true);
     setIsLoading(true);
     setNeedAuth(true);
     setIsLoading(false);
@@ -77,38 +86,38 @@ export const SingleProvider = () => {
   };
   const disableButton = pdf.trim() === '' || !provider || (provider instanceof Array && provider.length === 0);
 
-  if (isLoadingProviders)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-        <CircularProgress />
-      </Box>
-    );
   return (
     <>
       <Stack spacing={4} sx={{ mt: 4 }}>
         <Stack spacing={2}>
           <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Selecciona el proveedor:</Typography>
-          <TextField
+          <Autocomplete
+            disablePortal
             fullWidth
-            size="small"
-            select
-            label="Proveedor"
-            value={selectedProvider || (provider && !Array.isArray(provider) ? provider.id : '')}
-            error={error && selectedProvider.length < 1}
-            helperText={error && selectedProvider.length < 1 ? 'Selecciona un proveedor' : null}
-            onChange={(e) => {
-              setSelectedProvider([e.target.value]);
-              const providerData = providers.find((p) => p.id === e.target.value);
-              if (!providerData) return;
-              setProvider(providerData);
+            filterOptions={filterProviderOptions}
+            onChange={(e, val) => {
+              e.stopPropagation();
+              setProvider(val);
+              setProviderError(false);
             }}
-          >
-            {providers?.map((provider) => (
-              <MenuItem value={provider.id} key={provider.id}>
-                {provider.nombreContacto + ' - ' + provider.nombreCompania}
-              </MenuItem>
-            ))}
-          </TextField>
+            loading={isLoadingProviders && providersFetched.length === 0}
+            getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
+            options={providersFetched}
+            value={provider as IProvider}
+            noOptionsText="No se encontraron proveedores"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                error={providerError}
+                helperText={providerError && 'Selecciona un articulo'}
+                placeholder="Artículos"
+                sx={{ width: '50%' }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+              />
+            )}
+          />
         </Stack>
         <Stack>
           <Box
@@ -284,63 +293,105 @@ export const SingleProvider = () => {
 };
 
 export const ManyProviders = () => {
-  const { setStep, step, setProvider, provider, setIsManyProviders } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      setStep: state.setStep,
-      step: state.step,
-      setProvider: state.setProvider,
-      provider: state.provider,
-      setIsManyProviders: state.setIsManyProviders,
-    }),
-    shallow
-  );
-  const { isLoadingProviders, providers } = useGetAllProviders();
-  const [selectedProvider, setSelectedProvider] = useState<string[]>([]);
-  const [providerSelectedId, setProviderSelectedId] = useState('');
+  const { setStep, step, setProvider, provider, setIsManyProviders, setPaymentMethod, paymentMethod } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        setStep: state.setStep,
+        step: state.step,
+        setProvider: state.setProvider,
+        provider: state.provider,
+        setIsManyProviders: state.setIsManyProviders,
+        setPaymentMethod: state.setPaymentMethod,
+        paymentMethod: state.paymentMethod,
+      }),
+      shallow
+    );
+  const { providers, isLoadingProviders } = useGetAllProviders();
   const [isLoading, setIsLoading] = useState(false);
-
-  const providerName = (providerId: string) => {
-    const providerRes = providers.find((item) => item.id === providerId);
-    return providerRes?.nombreContacto + ' - ' + providerRes?.nombreCompania;
-  };
-
-  useEffect(() => {
-    if (!provider) return;
-    if (Array.isArray(provider) && provider.length === 0) return;
-    if (provider instanceof Array) {
-      const providersAlready = provider.flatMap((p) => p.id);
-      setSelectedProvider(providersAlready);
-    }
-  }, [provider]);
-
-  const handleDeleteProvider = (providerId: string) => {
-    const provFilter = selectedProvider.filter((item) => item !== providerId);
-    setSelectedProvider(provFilter);
-  };
+  const [providerError, setProviderError] = useState(false);
 
   const handleSubmit = async () => {
-    if (selectedProvider.length === 0 || selectedProvider.length !== 3) return toast.error('Selecciona 3 proveedores');
+    if (!provider) {
+      setProviderError(true);
+      return toast.error('Selecciona 3 proveedores');
+    }
+
+    const providerArray = provider as IProvider[];
+    if (providerArray.length !== 3) {
+      setProviderError(true);
+      return toast.error('Selecciona 3 proveedores');
+    }
+    if (isPaymentMethodSelected()) {
+      return toast.error('Necesitas seleccionar un método de pago');
+    }
 
     setIsLoading(true);
-    const providersData = providers.filter((p) => selectedProvider.some((sp) => p.id === sp));
-    setProvider(providersData);
     setIsManyProviders(true);
     setIsLoading(false);
     setStep(step + 1);
   };
 
-  if (isLoadingProviders)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-        <CircularProgress />
-      </Box>
-    );
+  const isPaymentMethodSelected = () => {
+    return paymentMethod == 0;
+  };
+
   return (
     <Stack sx={{ mt: 4 }}>
       <form noValidate onSubmit={handleSubmit}>
         <Stack spacing={1}>
           <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Selecciona los proveedores:</Typography>
-          <TextField
+          <Autocomplete
+            disablePortal
+            fullWidth
+            multiple
+            filterOptions={filterProviderOptions}
+            onChange={(e, val) => {
+              e.stopPropagation();
+              console.log({ val });
+              const providerArray = provider ? (provider as IProvider[]) : [];
+              if (providerArray.length === 3 && val.length > 3)
+                return toast.warning('No puedes agregar mas de 3 proveedores');
+              setProvider(val);
+              setProviderError(false);
+            }}
+            loading={isLoadingProviders && providers.length === 0}
+            getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
+            options={providers}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            value={!provider ? [] : (provider as IProvider[])}
+            noOptionsText="No se encontraron proveedores"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                error={providerError}
+                helperText={providerError && 'Selecciona un proveedor'}
+                placeholder="Proveedores"
+                sx={{ width: '50%' }}
+              />
+            )}
+          />
+          <Stack>
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
+              <Stack direction="row" spacing={2}>
+                <FormControl component="fieldset" sx={{ width: '100%' }}>
+                  <RadioGroup
+                    row
+                    sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
+                    aria-label="paymentMethod"
+                    name="paymentMethod"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                  >
+                    <FormControlLabel value={1} control={<Radio />} label="Crédito" />
+                    <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
+                    <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+                  </RadioGroup>
+                </FormControl>
+              </Stack>
+            </Box>
+          </Stack>
+          {/* <TextField
             fullWidth
             size="small"
             select
@@ -382,7 +433,7 @@ export const ManyProviders = () => {
                 {provider.nombreContacto + ' - ' + provider.nombreCompania}
               </MenuItem>
             ))}
-          </TextField>
+          </TextField> */}
           <Box>
             <Note />
           </Box>

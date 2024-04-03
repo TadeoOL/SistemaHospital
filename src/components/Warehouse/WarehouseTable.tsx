@@ -113,6 +113,7 @@ export const PurchaseWarehouseTable = () => {
       <TableComponent
         disableHook={disableArticle}
         fetchDataHook={useGetAllData}
+        navigatingRowsWareHouse
         modifyModalComponent={(props) => <ModifyPurchaseWarehouseModal warehouseId={props.data} open={props.open} />}
         headers={['Nombre', 'Descripción', 'Acciones']}
       />

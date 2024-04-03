@@ -35,11 +35,12 @@ import { QuoteModal } from './Modal/QuoteModal';
 import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
-import { Info } from '@mui/icons-material';
+import { Assignment, Info } from '@mui/icons-material';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
+import { ArticlesEntry } from './Modal/ArticlesEntry';
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -150,6 +151,8 @@ export const PurchaseOrder = () => {
   const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
   const [openOrderModal, setOpenOrderModal] = useState(false);
+  const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
+  const [orderSelectedId, setOrderSelectedId] = useState('');
   const [providers, setProviders] = useState<any[]>([]);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [orderSelected, setOrderSelected] = useState<{
@@ -296,7 +299,7 @@ export const PurchaseOrder = () => {
                             <TableCell>${order.precioTotalOrden}</TableCell>
                             <TableCell>{StatusPurchaseOrder[order.estatus]}</TableCell>
                             <TableCell>
-                              {StatusPurchaseOrder[order.estatus] === 'Necesita elegir proveedor' &&
+                              {StatusPurchaseOrder[order.estatus] === 'Seleccione a los Proveedores' &&
                               !isAdminPurchase() ? (
                                 <Tooltip title="Seleccionar proveedores">
                                   <IconButton
@@ -310,7 +313,7 @@ export const PurchaseOrder = () => {
                                     <PersonAddIcon />
                                   </IconButton>
                                 </Tooltip>
-                              ) : StatusPurchaseOrder[order.estatus] === 'Orden de compra cancelada' ? (
+                              ) : order.estatus === 0 ? (
                                 <Tooltip title="Cancelado">
                                   <IconButton>
                                     <Info />
@@ -318,22 +321,55 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!isAdminPurchase() && (
-                                    <Tooltip title="Ver orden de compra">
-                                      <IconButton
-                                        onClick={() => {
-                                          setOrderSelected({
-                                            folio: order.folio_Extension,
-                                            OrderId: order.id_OrdenCompra,
-                                          });
-                                          setOpenOrderModal(true);
-                                        }}
-                                      >
-                                        <DownloadIcon />
-                                      </IconButton>
-                                    </Tooltip>
+                                  {!isAdminPurchase() && order.estatus === 1 && (
+                                    <>
+                                      <Tooltip title="Ver orden de compra">
+                                        <IconButton
+                                          onClick={() => {
+                                            setOrderSelected({
+                                              folio: order.folio_Extension,
+                                              OrderId: order.id_OrdenCompra,
+                                            });
+                                            setOpenOrderModal(true);
+                                          }}
+                                        >
+                                          <DownloadIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                      <Tooltip title="Subir Factura">
+                                        <IconButton
+                                          onClick={() => {
+                                            setOrderSelected({
+                                              folio: order.folio_Extension,
+                                              OrderId: order.id_OrdenCompra,
+                                            });
+                                            setOpenQuoteModal(true);
+                                            order.proveedor.estatus = order.estatus;
+                                            setProviders([order.proveedor]);
+                                          }}
+                                        >
+                                          <UploadFileIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </>
                                   )}
-                                  <Tooltip title="Subir Factura">
+                                </>
+                              )}
+                              {order.estatus !== 0 && !isAdminPurchase() && order.estatus !== 2 && (
+                                <Tooltip title="Cancelar">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      handleRemoveOrder(order.id_OrdenCompra);
+                                    }}
+                                  >
+                                    <CloseIcon sx={{ color: 'red' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {order.estatus === 2 && !isAdminPurchase() && (
+                                <>
+                                  <Tooltip title="Ver Factura">
                                     <IconButton
                                       onClick={() => {
                                         setOrderSelected({
@@ -341,27 +377,26 @@ export const PurchaseOrder = () => {
                                           OrderId: order.id_OrdenCompra,
                                         });
                                         setOpenQuoteModal(true);
+                                        order.proveedor.estatus = order.estatus;
                                         setProviders([order.proveedor]);
                                       }}
                                     >
                                       <UploadFileIcon />
                                     </IconButton>
                                   </Tooltip>
-                                </>
-                              )}
-                              {StatusPurchaseOrder[order.estatus] !== 'Orden de compra cancelada' &&
-                                !isAdminPurchase() && (
-                                  <Tooltip title="Cancelar">
+                                  <Tooltip title="Entrada de artículos">
                                     <IconButton
                                       size="small"
                                       onClick={() => {
-                                        handleRemoveOrder(order.id_OrdenCompra);
+                                        setOrderSelectedId(order.id_OrdenCompra);
+                                        setOpenArticlesEntry(true);
                                       }}
                                     >
-                                      <CloseIcon sx={{ color: 'red' }} />
+                                      <Assignment />
                                     </IconButton>
                                   </Tooltip>
-                                )}
+                                </>
+                              )}
                             </TableCell>
                           </TableRow>
                           <TableRow>
@@ -447,6 +482,16 @@ export const PurchaseOrder = () => {
       <Modal open={openQuoteModal} onClose={() => setOpenQuoteModal(false)}>
         <>
           <QuoteModal idFolio={orderSelected} open={setOpenQuoteModal} providers={providers} />
+        </>
+      </Modal>
+      <Modal
+        open={openArticlesEntry}
+        onClose={() => {
+          setOpenArticlesEntry(false);
+        }}
+      >
+        <>
+          <ArticlesEntry setOpen={setOpenArticlesEntry} orderId={orderSelectedId} />
         </>
       </Modal>
     </>

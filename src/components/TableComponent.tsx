@@ -18,6 +18,7 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import React, { useCallback, useState } from 'react';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useNavigate } from 'react-router-dom';
 
 interface ITableComponentProps {
   fetchDataHook: () => {
@@ -30,6 +31,7 @@ interface ITableComponentProps {
     setPageIndex: (index: number) => void;
     setPageSize: (size: number) => void;
   };
+  navigatingRowsWareHouse?: boolean;
   disableHook: (id: string) => void;
   modifyModalComponent: (props: { data: string; open: (isOpen: boolean) => void }) => React.ReactElement;
   headers: string[];
@@ -40,9 +42,11 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
   disableHook,
   modifyModalComponent,
   headers,
+  navigatingRowsWareHouse,
 }) => {
   const [dataId, setDataId] = useState('');
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { count, data, enabled, isLoading, pageIndex, pageSize, setPageIndex, setPageSize } = fetchDataHook();
 
@@ -70,7 +74,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
                 : data.map((item: any) => (
                     <React.Fragment key={item.id}>
                       <TableRow
-                        onClick={() => {}}
+                        onClick={navigatingRowsWareHouse ? () => navigate(`/almacenes/${item.id}`) : () => {}}
                         sx={{
                           '&:hover': {
                             cursor: 'pointer',

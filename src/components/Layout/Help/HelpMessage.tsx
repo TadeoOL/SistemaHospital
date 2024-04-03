@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdvertenciaDirecta from '../../../assets/HelpImages/advertencia-autorizacion-orden-de-compra-directa.png';
+import AdvertenciaDirecta from '../../../assets/HelpImages/advertencia-autorizacion-orden-de-compra-directa.webp';
 import AdvertenciaLit from '../../../assets/HelpImages/advertencia-autorizacion-orden-de-compra-por-licitacion-.webp';
 import ModalCero from '../../../assets/HelpImages/modal-0-solicitud-de-compra.webp';
 import ModalUno from '../../../assets/HelpImages/modal-1-listado-de-productos-solicitud-de-compra-.webp';

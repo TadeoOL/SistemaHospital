@@ -262,7 +262,7 @@ export const getAllCategories = async () => {
 };
 
 export const addNewSubCategory = async (data: ISubCategory) => {
-  const { nombre, descripcion, id_categoria, iva, } = data;
+  const { nombre, descripcion, id_categoria, iva } = data;
   const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
     nombre,
     descripcion,
@@ -477,6 +477,7 @@ export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
 
 export const addPurchaseRequest = async (
   providerId: string[],
+  conceptoPago: number,
   articles: {
     Id_Articulo: string;
     PrecioProveedor: number;
@@ -485,7 +486,8 @@ export const addPurchaseRequest = async (
   }[],
   warehouseId: string,
   totalArticlePrice: number,
-  pdf?: string
+  pdf?: string,
+  notas?: string
 ) => {
   const res = await axios.post('/api/Compras/registrar-solicitud-compra', {
     id_proveedor: providerId,
@@ -493,6 +495,8 @@ export const addPurchaseRequest = async (
     id_almacen: warehouseId,
     PrecioTotalInventario: totalArticlePrice,
     PDFCadena: pdf,
+    conceptoPago: conceptoPago,
+    notas: notas,
   });
   return res.data;
 };
@@ -601,7 +605,7 @@ export const getBillPdf = async (idQuote: string) => {
   return res.data;
 };
 
-export const getOrderRequestPdf = async (idQuote: string) => {
+export const getOrderRequestById = async (idQuote: string) => {
   const res = await axios.get(`/api/Compras/obtener-orden-compra/${idQuote}`);
   return res.data;
 };
@@ -618,15 +622,14 @@ export const obtenerMensajes = async (modulo: string) => {
   }
 };
 
-export const crearMensaje = async (nuevoMensaje: string) => {
+export const crearMensaje = async (nuevoMensaje: string, module: string) => {
   try {
-    const modulo = 'Compras_AutorizacionCancelada';
     await axios.post('/api/Sistema/Mensajes/crear-mensaje-alerta', {
       Mensaje: nuevoMensaje,
-      Modulo: modulo,
+      Modulo: module,
     });
 
-    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`);
+    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/${module}`);
 
     return res.data;
   } catch (error) {
@@ -635,11 +638,11 @@ export const crearMensaje = async (nuevoMensaje: string) => {
   }
 };
 
-export const eliminarMensaje = async (mensajeId: string) => {
+export const eliminarMensaje = async (mensajeId: string, module: string) => {
   try {
     await axios.delete(`/api/Sistema/Mensajes/eliminar-mensaje-alerta/${mensajeId}`);
 
-    const res = await axios.get('/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada');
+    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/${module}`);
 
     return res.data;
   } catch (error) {
@@ -664,7 +667,7 @@ export const editarMensaje = async ({
       modulo,
     });
 
-    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/Compras_AutorizacionCancelada`);
+    const res = await axios.get(`/api/Sistema/Mensajes/obtener-mensajes-alerta/${modulo}`);
 
     return res.data;
   } catch (error) {
@@ -708,11 +711,13 @@ export const addDirectlyPurchaseOrder = async (OrdenCompra: {
   Id_Proveedor: string;
   Id_Almacen: string;
   PrecioTotalOrden: number;
+  conceptoPago: number;
   OrdenCompraArticulo: {
     Id_Articulo: string;
     Cantidad: number;
     PrecioProveedor: number;
   }[];
+  notas?: string;
 }) => {
   const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
     OrdenCompra,
@@ -775,4 +780,41 @@ export const addNewSubWarehouse = async (data: IAddSubWarehouse) => {
     nombre,
   });
   return res;
+};
+
+export const getWareHouseMovementsById = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-historial-movimientos?${paramUrl}`);
+  return res.data;
+};
+
+export const addArticlesToWarehouse = async (data: {
+  id_almacen: string;
+  id_ordenCompra: string;
+  articulos: { id_articulo: string; cantidad: number; codigoBarras: string; fechaCaducidad: string }[];
+}) => {
+  const res = await axios.post(`/api/Compras/almacenar-articulos-orden-compra`, { ...data });
+  return res.data;
+};
+
+export const getArticlesByWarehouseIdAndSearch = async (warehouseId: string, search: string) => {
+  const res = await axios.get(
+    `/api/ArticuloExistente/obtener-articulos-existentes?Id_Almacen=${warehouseId}&Search=${search}`
+  );
+  return res.data;
+};
+
+export const getPetitionsListByWareHouseId = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-peticion-articulos?${paramUrl}`);
+  return res.data;
+};
+
+export const addMerchandiseEntry = async (merchandisePetition: {
+  Id_AlmacenOrigen: string;
+  Id_AlmacenDestino: string;
+  ListaArticulos: string;
+}) => {
+  const res = await axios.post(`/api/Almacen/registrar-peticion`, {
+    ...merchandisePetition,
+  });
+  return res.data;
 };

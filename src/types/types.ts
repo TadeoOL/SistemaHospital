@@ -218,6 +218,20 @@ export interface ArticleObject {
   nombre: string;
   idAlmacen: string;
 }
+
+export interface MerchandiseEntry {
+  id: string;
+  almacenOrigen: string;
+  almacenDestino: string;
+  historialArticulos: ArticleObjectInPetition[];
+  fechaSolicitud: string;
+}
+
+export interface ArticleObjectInPetition {
+  cantidad: number;
+  nombre: string;
+}
+
 export interface ICheckedArticles {
   idAlmacen: string;
   idAlerta?: string;
@@ -227,6 +241,7 @@ export interface ICheckedArticles {
 export type SingleProvider = {
   id_Proveedor: string;
   nombre: string;
+  estatus?: number;
 };
 
 export type Provider = {
@@ -263,22 +278,29 @@ export interface IPurchaseOrder {
   usuarioSolicitado: string;
   fechaSolicitud: string;
   folio_Extension: string;
-  ordenCompraArticulo: {
-    cantidad: number;
-    precioProveedor: number;
-    id_OrdenCompraArticulo: string;
-    id_Articulo: string;
-    nombre: string;
-  }[];
+  ordenCompraArticulo: IPurchaseOrderArticle[];
   precioTotalOrden: number;
-  proveedor: { id_Proveedor: string; nombre: string };
+  proveedor: { id_Proveedor: string; nombre: string; estatus?: number | null };
+}
+
+export interface IPurchaseOrderArticle {
+  cantidad: number;
+  precioProveedor: number;
+  id_OrdenCompraArticulo: string;
+  id_Articulo: string;
+  nombre: string;
+  precioVenta?: number;
+  factorAplicado?: number;
+  codigoBarras?: string;
+  fechaCaducidad?: string;
 }
 
 export enum StatusPurchaseOrder {
   'Todas las ordenes' = -1,
-  'Orden de compra cancelada' = 0,
-  'Factura subida' = 1,
-  'artículos' = 2,
+  'Cancelada' = 0,
+  'En espera de Factura' = 1,
+  'Se necesita entrada de artículos' = 2,
+  'Alta de artículos' = 3,
 }
 
 export interface IWarehouseData {
@@ -292,6 +314,18 @@ export interface IWarehouseData {
   fechaCreacion: string;
   fechaModificacion: string;
   habilitado: boolean;
+  subAlmacenes: IWarehouseData[];
+}
+export interface IWarehouseMovementData {
+  almacenOrigen: string | null;
+  almacenDestino: string | null;
+  historialArticulos: IArticleHistory[] | null;
+  fechaSolicitud: string;
+  id: string;
+}
+export interface IArticleHistory {
+  nombre: string;
+  cantidad: number;
 }
 
 export interface IWarehousePurchaseOrder {
@@ -304,7 +338,7 @@ export interface IWarehousePurchaseOrder {
 }
 
 export interface ISubWarehouse {
-  id: number;
+  id: string;
   nombre: string;
   descripcion: string;
   usuarioEncargado: string;
