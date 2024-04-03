@@ -1073,6 +1073,24 @@ const StepThree = (props: { setOpen: Function }) => {
                 <Typography variant="subtitle2">RFC:</Typography>
                 <Typography variant="subtitle2">{provider?.rfc}</Typography>
               </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Typography variant="subtitle2">Metodo de pago:</Typography>
+                <Typography variant="subtitle2">
+                  {(() => {
+                    switch (paymentMethod) {
+                      case 1:
+                        return 'Credito';
+                      case 2:
+                        return 'Efectivo';
+                      case 3:
+                        return 'Transferencia';
+
+                      default:
+                        return '';
+                    }
+                  })()}
+                </Typography>
+              </Grid>
             </>
           ) : (
             provider.map((p, i) => (
