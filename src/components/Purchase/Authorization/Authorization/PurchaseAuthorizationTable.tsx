@@ -285,6 +285,8 @@ export const PurchaseAuthorizationTable = () => {
                               <TableRow>
                                 <TableCell align="center">Articulo</TableCell>
                                 <TableCell align="center">Cantidad</TableCell>
+                                <TableCell align="center">P. Unitario</TableCell>
+                                <TableCell align="center">P. Total</TableCell>
                               </TableRow>
                             </TableHead>
                             {auth.solicitudProveedor[0].solicitudCompraArticulos.map((request) => (
@@ -292,6 +294,11 @@ export const PurchaseAuthorizationTable = () => {
                                 <TableRow>
                                   <TableCell align="center">{request.articulo.nombre}</TableCell>
                                   <TableCell align="center">{request.cantidadCompra}</TableCell>
+                                  <TableCell align="center"> {request.precioProveedor} </TableCell>
+                                  <TableCell align="center">
+                                    {' '}
+                                    {request.cantidadCompra * request.precioProveedor}{' '}
+                                  </TableCell>
                                 </TableRow>
                               </TableBody>
                             ))}
