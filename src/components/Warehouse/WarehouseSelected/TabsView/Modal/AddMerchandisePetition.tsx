@@ -27,13 +27,13 @@ import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { useGetAlmacenes } from '../../../../../hooks/useGetAlmacenes';
-import { useGetArticlesBySearch } from '../../../../../hooks/useGetArticlesBySearch';
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { MerchandiseEntry } from '../../../../../types/types';
-import { addMerchandiseEntry } from '../../../../../api/api.routes';
+import { ArticlesFetched } from './ArticlesOutput';
+import { addMerchandiseEntry, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
 
 type Article = {
   id: string;
@@ -56,9 +56,31 @@ const style = {
   maxHeight: { xs: 600 },
 };
 
+const useFetchPurchaseWarehouse = (warehouseId: string) => {
+  const [isLoadingArticles, setIsLoadingExistingArticle] = useState(true);
+  const [articlesRes, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingExistingArticle(true);
+      try {
+        const data = await getArticlesByWarehouseIdAndSearch(warehouseId, '');
+        setArticlesFetched(data.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingExistingArticle(false);
+      }
+    };
+    fetchData();
+  }, [warehouseId]);
+  return { isLoadingArticles, articlesRes };
+};
+
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch();
+  const { warehouseId } = useParams();
+  const { isLoadingArticles, articlesRes } = useFetchPurchaseWarehouse(warehouseId as string);
   const {
     warehouseSelected,
     setWarehouseSelected,
@@ -79,15 +101,15 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     }),
     shallow
   );
-  const [articleSelected, setArticleSelected] = useState<Article | null>(null);
+  const [articleSelected, setArticleSelected] = useState<ArticlesFetched | null | Article>(null);
   const [amountText, setAmountText] = useState('');
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
-  const { warehouseId } = useParams();
 
   useEffect(() => {
-    setArticlesFetched(articlesRes);
+    if (!(articlesRes && articlesRes?.length > 0)) return;
+    setArticlesFetched(articlesRes.map((art) => ({ id: art.id, nombre: art.nombre, precio: undefined })));
     setArticlesFetched(
       articlesRes.filter((a) => {
         return !articles.some((ar) => ar.id === a.id);
@@ -131,6 +153,10 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
 
   const onSubmit: SubmitHandler<MerchandiseEntry> = async (data) => {
     try {
+      if (!warehouseSelected) {
+        setWarehouseError(true);
+        return toast.warning('Selecciona un almacen!');
+      }
       const object = {
         Id_AlmacenOrigen: warehouseId as string,
         Id_AlmacenDestino: data.almacenDestino,
@@ -201,9 +227,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                 setArticleSelected(val);
                 setArticleError(false);
               }}
-              loading={isLoadingArticles && articlesFetched.length === 0}
+              loading={isLoadingArticles && articlesRes.length === 0}
               getOptionLabel={(option) => option.nombre}
-              options={articlesFetched}
+              options={articlesRes}
               value={articleSelected}
               noOptionsText="No se encontraron artículos"
               renderInput={(params) => (
