@@ -300,7 +300,7 @@ export enum StatusPurchaseOrder {
   'Cancelada' = 0,
   'En espera de Factura' = 1,
   'Se necesita entrada de artículos' = 2,
-  'Alta de artículos' = 3,
+  'Completado' = 3,
 }
 
 export interface IWarehouseData {

@@ -299,10 +299,14 @@ export function createComponents(config: { palette: any }): Components {
           },
         },
         input: {
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: 400,
           lineHeight: '24px',
           padding: '10.5px 14px 10.5px 12px',
+          '&.tableCell': {
+            padding: '5.5px 14px 5.5px 12px',
+            maxWidth: 70,
+          },
         },
         inputMultiline: {
           fontSize: 14,
