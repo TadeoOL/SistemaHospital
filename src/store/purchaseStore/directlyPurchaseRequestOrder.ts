@@ -16,7 +16,7 @@ type ArticleOrder = {
 type Article = {
   id: string;
   nombre: string;
-  precio: number;
+  precio?: number;
 };
 
 interface State {
