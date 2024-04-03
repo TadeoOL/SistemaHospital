@@ -347,7 +347,6 @@ export const ManyProviders = () => {
             filterOptions={filterProviderOptions}
             onChange={(e, val) => {
               e.stopPropagation();
-              console.log({ val });
               const providerArray = provider ? (provider as IProvider[]) : [];
               if (providerArray.length === 3 && val.length > 3)
                 return toast.warning('No puedes agregar mas de 3 proveedores');

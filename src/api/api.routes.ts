@@ -475,28 +475,22 @@ export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
   return resData as IPurchaseConfig;
 };
 
-export const addPurchaseRequest = async (
-  providerId: string[],
-  conceptoPago: number,
-  articles: {
+export const addPurchaseRequest = async (data: {
+  id_proveedor: string[];
+  ConceptoPago: number;
+  Articulos: {
     Id_Articulo: string;
     PrecioProveedor: number;
     CantidadCompra: number;
     Id_AlertaCompra?: string | null;
-  }[],
-  warehouseId: string,
-  totalArticlePrice: number,
-  pdf?: string,
-  notas?: string
-) => {
+  }[];
+  id_almacen: string;
+  PrecioTotalInventario: number;
+  PDFCadena?: string;
+  notas?: string;
+}) => {
   const res = await axios.post('/api/Compras/registrar-solicitud-compra', {
-    id_proveedor: providerId,
-    Articulos: articles,
-    id_almacen: warehouseId,
-    PrecioTotalInventario: totalArticlePrice,
-    PDFCadena: pdf,
-    conceptoPago: conceptoPago,
-    notas: notas,
+    ...data,
   });
   return res.data;
 };
@@ -815,6 +809,17 @@ export const addMerchandiseEntry = async (merchandisePetition: {
 }) => {
   const res = await axios.post(`/api/Almacen/registrar-peticion`, {
     ...merchandisePetition,
+  });
+  return res.data;
+};
+
+export const modifyMinStockExistingArticle = async (data: {
+  id_almacen: string;
+  id_articulo: string;
+  stockMinimo: string;
+}) => {
+  const res = await axios.put(`/api/ArticuloExistente/actualizar-articulo-existente`, {
+    ...data,
   });
   return res.data;
 };

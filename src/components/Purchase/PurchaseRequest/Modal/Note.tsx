@@ -10,7 +10,7 @@ export const Note = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setNote(localNote);
-    }, 500);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, [localNote]);

@@ -158,7 +158,6 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       almacenOrigen: warehouseData.id,
       esSalidaAlmacen: radioSelected === 0 ? true : false,
     };
-    console.log({ object });
   };
   return (
     <Box sx={{ ...style }}>
@@ -331,11 +330,12 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     <>
       <Stack spacing={2}>
         <Stack>
-          <Typography>Búsqueda de artículos</Typography>
+          <Typography>Selección de artículos</Typography>
           <Autocomplete
             disablePortal
             fullWidth
             loading={isLoading}
+            loadingText="Cargando artículos..."
             onChange={(e, val) => {
               e.stopPropagation();
               setArticleSelected(val);
