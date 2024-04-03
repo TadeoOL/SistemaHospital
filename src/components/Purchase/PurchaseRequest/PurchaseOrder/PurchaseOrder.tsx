@@ -183,8 +183,6 @@ export const PurchaseOrder = () => {
     return statusPurchaseOrderValues;
   }, []);
 
-  console.log({ data });
-
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: 'auto' }}>
@@ -301,7 +299,7 @@ export const PurchaseOrder = () => {
                             <TableCell>${order.precioTotalOrden}</TableCell>
                             <TableCell>{StatusPurchaseOrder[order.estatus]}</TableCell>
                             <TableCell>
-                              {StatusPurchaseOrder[order.estatus] === 'Necesita elegir proveedor' &&
+                              {StatusPurchaseOrder[order.estatus] === 'Seleccione a los Proveedores' &&
                               !isAdminPurchase() ? (
                                 <Tooltip title="Seleccionar proveedores">
                                   <IconButton
@@ -315,7 +313,7 @@ export const PurchaseOrder = () => {
                                     <PersonAddIcon />
                                   </IconButton>
                                 </Tooltip>
-                              ) : StatusPurchaseOrder[order.estatus] === 'Orden de compra cancelada' ? (
+                              ) : order.estatus === 0 ? (
                                 <Tooltip title="Cancelado">
                                   <IconButton>
                                     <Info />
@@ -323,22 +321,55 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!isAdminPurchase() && StatusPurchaseOrder[order.estatus] !== 'Factura subida' && (
-                                    <Tooltip title="Ver orden de compra">
-                                      <IconButton
-                                        onClick={() => {
-                                          setOrderSelected({
-                                            folio: order.folio_Extension,
-                                            OrderId: order.id_OrdenCompra,
-                                          });
-                                          setOpenOrderModal(true);
-                                        }}
-                                      >
-                                        <DownloadIcon />
-                                      </IconButton>
-                                    </Tooltip>
+                                  {!isAdminPurchase() && order.estatus === 1 && (
+                                    <>
+                                      <Tooltip title="Ver orden de compra">
+                                        <IconButton
+                                          onClick={() => {
+                                            setOrderSelected({
+                                              folio: order.folio_Extension,
+                                              OrderId: order.id_OrdenCompra,
+                                            });
+                                            setOpenOrderModal(true);
+                                          }}
+                                        >
+                                          <DownloadIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                      <Tooltip title="Subir Factura">
+                                        <IconButton
+                                          onClick={() => {
+                                            setOrderSelected({
+                                              folio: order.folio_Extension,
+                                              OrderId: order.id_OrdenCompra,
+                                            });
+                                            setOpenQuoteModal(true);
+                                            order.proveedor.estatus = order.estatus;
+                                            setProviders([order.proveedor]);
+                                          }}
+                                        >
+                                          <UploadFileIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </>
                                   )}
-                                  <Tooltip title="Subir Factura">
+                                </>
+                              )}
+                              {order.estatus !== 0 && !isAdminPurchase() && order.estatus !== 2 && (
+                                <Tooltip title="Cancelar">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      handleRemoveOrder(order.id_OrdenCompra);
+                                    }}
+                                  >
+                                    <CloseIcon sx={{ color: 'red' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {order.estatus === 2 && !isAdminPurchase() && (
+                                <>
+                                  <Tooltip title="Ver Factura">
                                     <IconButton
                                       onClick={() => {
                                         setOrderSelected({
@@ -346,40 +377,25 @@ export const PurchaseOrder = () => {
                                           OrderId: order.id_OrdenCompra,
                                         });
                                         setOpenQuoteModal(true);
+                                        order.proveedor.estatus = order.estatus;
                                         setProviders([order.proveedor]);
                                       }}
                                     >
                                       <UploadFileIcon />
                                     </IconButton>
                                   </Tooltip>
-                                </>
-                              )}
-                              {StatusPurchaseOrder[order.estatus] !== 'Orden de compra cancelada' &&
-                                !isAdminPurchase() &&
-                                StatusPurchaseOrder[order.estatus] !== 'Factura subida' && (
-                                  <Tooltip title="Cancelar">
+                                  <Tooltip title="Entrada de artículos">
                                     <IconButton
                                       size="small"
                                       onClick={() => {
-                                        handleRemoveOrder(order.id_OrdenCompra);
+                                        setOrderSelectedId(order.id_OrdenCompra);
+                                        setOpenArticlesEntry(true);
                                       }}
                                     >
-                                      <CloseIcon sx={{ color: 'red' }} />
+                                      <Assignment />
                                     </IconButton>
                                   </Tooltip>
-                                )}
-                              {StatusPurchaseOrder[order.estatus] === 'Factura subida' && !isAdminPurchase() && (
-                                <Tooltip title="Entrada de artículos">
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => {
-                                      setOrderSelectedId(order.id_OrdenCompra);
-                                      setOpenArticlesEntry(true);
-                                    }}
-                                  >
-                                    <Assignment />
-                                  </IconButton>
-                                </Tooltip>
+                                </>
                               )}
                             </TableCell>
                           </TableRow>

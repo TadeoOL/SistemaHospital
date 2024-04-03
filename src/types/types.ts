@@ -241,6 +241,7 @@ export interface ICheckedArticles {
 export type SingleProvider = {
   id_Proveedor: string;
   nombre: string;
+  estatus?: number;
 };
 
 export type Provider = {
@@ -279,7 +280,7 @@ export interface IPurchaseOrder {
   folio_Extension: string;
   ordenCompraArticulo: IPurchaseOrderArticle[];
   precioTotalOrden: number;
-  proveedor: { id_Proveedor: string; nombre: string };
+  proveedor: { id_Proveedor: string; nombre: string; estatus?: number | null };
 }
 
 export interface IPurchaseOrderArticle {
@@ -296,9 +297,9 @@ export interface IPurchaseOrderArticle {
 
 export enum StatusPurchaseOrder {
   'Todas las ordenes' = -1,
-  'Orden de compra cancelada' = 0,
-  'Orden de compra creada' = 1,
-  'Factura subida' = 2,
+  'Cancelada' = 0,
+  'En espera de Factura' = 1,
+  'Se necesita entrada de artículos' = 2,
   'Alta de artículos' = 3,
 }
 

@@ -69,14 +69,28 @@ const useFetchPdfProviders = (providers: SingleProvider[], id: string) => {
       for (const provider of providers) {
         try {
           const pdf = await getBillPdf(id);
-          results.push({
-            id: id,
-            proveedor: {
-              id_Proveedor: provider.id_Proveedor,
-              nombre: provider.nombre,
-            },
-            pdf: pdf ? pdf : null,
-          });
+          console.log(provider.estatus);
+          if (provider.estatus === 1) {
+            results.push({
+              id: id,
+              proveedor: {
+                id_Proveedor: provider.id_Proveedor,
+                nombre: provider.nombre,
+                estatus: provider.estatus,
+              },
+              pdf: null,
+            });
+          } else {
+            results.push({
+              id: id,
+              proveedor: {
+                id_Proveedor: provider.id_Proveedor,
+                nombre: provider.nombre,
+                estatus: provider.estatus,
+              },
+              pdf: pdf,
+            });
+          }
         } catch (error) {
           console.log(error);
         } finally {
@@ -196,7 +210,7 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
   if (isLoading)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', m: 4 }}>
-        <CircularProgress />;
+        <CircularProgress />
       </Box>
     );
   return (

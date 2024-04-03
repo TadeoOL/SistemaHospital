@@ -180,7 +180,7 @@ export const AlertArticlesTable = () => {
   if (isLoading)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-        <CircularProgress />;
+        <CircularProgress />
       </Box>
     );
   return (

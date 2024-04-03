@@ -282,7 +282,7 @@ export const ProvidersQuotePdf = (props: { providers: Provider[]; purchaseReques
   if (isLoading)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', m: 4 }}>
-        <CircularProgress />;
+        <CircularProgress />
       </Box>
     );
   return (

@@ -54,9 +54,6 @@ export const OrderModal = (props: OrderModaProps) => {
           spacing={4}
         >
           <Stack spacing={2}>
-            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
-              Seleccione los proveedores para enviarle la orden de compra
-            </Typography>
             <Stack
               sx={{
                 display: 'flex',
