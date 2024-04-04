@@ -33,7 +33,7 @@ export const useProviderPagination = createWithEqualityFn<State & Action>((set) 
   isLoading: true,
   handleChangeProvider: false,
   setPageIndex: (state: number) => set(() => ({ pageIndex: state })),
-  setPageSize: (state: number) => set(() => ({ pageSize: state })),
+  setPageSize: (state: number) => set(() => ({ pageSize: state, pageIndex: 0 })),
   setEnabled: (state: boolean) => set(() => ({ enabled: state })),
   setSearch: (state: string) => set(() => ({ search: state, pageIndex: 0 })),
   setHandleChangeProvider: (state: boolean) => set(() => ({ handleChangeProvider: state })),

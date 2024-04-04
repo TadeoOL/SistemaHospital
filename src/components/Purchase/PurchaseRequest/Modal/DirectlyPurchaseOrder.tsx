@@ -975,7 +975,7 @@ const StepThree = (props: { setOpen: Function }) => {
     } else if (isManyProviders && Array.isArray(provider)) {
       const objectToPurchase = {
         id_proveedor: provider.flatMap((p) => p.id),
-        conceptoPago: paymentMethod,
+        ConceptoPago: paymentMethod,
         Articulos: articles.map((a) => {
           return {
             Id_Articulo: a.id,
@@ -988,14 +988,7 @@ const StepThree = (props: { setOpen: Function }) => {
         notas: note,
       };
       try {
-        await addPurchaseRequest(
-          objectToPurchase.id_proveedor as string[],
-          objectToPurchase.conceptoPago,
-          objectToPurchase.Articulos,
-          objectToPurchase.id_almacen,
-          objectToPurchase.PrecioTotalInventario,
-          objectToPurchase.notas
-        );
+        await addPurchaseRequest(objectToPurchase);
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
       } catch (error) {
@@ -1007,7 +1000,7 @@ const StepThree = (props: { setOpen: Function }) => {
     } else if (needAuth && !Array.isArray(provider)) {
       const objectToPurchase = {
         id_proveedor: [provider.id],
-        conceptoPago: paymentMethod,
+        ConceptoPago: paymentMethod,
         Articulos: articles.map((a) => {
           return {
             Id_Articulo: a.id,
@@ -1021,15 +1014,7 @@ const StepThree = (props: { setOpen: Function }) => {
         notas: note,
       };
       try {
-        await addPurchaseRequest(
-          objectToPurchase.id_proveedor,
-          objectToPurchase.conceptoPago,
-          objectToPurchase.Articulos,
-          objectToPurchase.id_almacen,
-          objectToPurchase.PrecioTotalInventario,
-          objectToPurchase.PDFCadena,
-          objectToPurchase.notas
-        );
+        await addPurchaseRequest(objectToPurchase);
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
       } catch (error) {

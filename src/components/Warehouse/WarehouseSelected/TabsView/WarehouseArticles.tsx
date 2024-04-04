@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   Collapse,
   IconButton,
   Modal,
@@ -14,6 +13,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
   alpha,
   styled,
@@ -21,13 +21,16 @@ import {
 } from '@mui/material';
 import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
-import { Edit, ExpandLess, ExpandMore, Info } from '@mui/icons-material';
+import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
 import { ArticlesView } from './Modal/ArticlesOutput';
+import { toast } from 'react-toastify';
+import { isValidInteger } from '../../../../utils/functions/dataUtils';
+import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,13 +47,33 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const useGetExistingArticles = (warehouseId: string) => {
-  const { data, setSearch, search, fetchExistingArticles, setWarehouseId } = useExistingArticlePagination(
+  const {
+    data,
+    setSearch,
+    search,
+    fetchExistingArticles,
+    setWarehouseId,
+    setStartDate,
+    setEndDate,
+    clearFilters,
+    setPageIndex,
+    setPageSize,
+    startDate,
+    endDate,
+  } = useExistingArticlePagination(
     (state) => ({
       data: state.data,
       setSearch: state.setSearch,
       search: state.search,
       fetchExistingArticles: state.fetchExistingArticles,
       setWarehouseId: state.setWarehouseId,
+      setStartDate: state.setStartDate,
+      setEndDate: state.setEndDate,
+      clearFilters: state.clearFilters,
+      setPageIndex: state.setPageIndex,
+      setPageSize: state.setPageSize,
+      startDate: state.startDate,
+      endDate: state.endDate,
     }),
     shallow
   );
@@ -58,93 +81,119 @@ const useGetExistingArticles = (warehouseId: string) => {
   useEffect(() => {
     setWarehouseId(warehouseId);
     fetchExistingArticles();
-  }, [search]);
+  }, [search, startDate, endDate, clearFilters]);
 
   return {
     data,
     setSearch,
+    setStartDate,
+    setEndDate,
+    clearFilters,
+    setPageIndex,
+    setPageSize,
+    startDate,
+    endDate,
   };
 };
 export const WarehouseArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-  const { data, setSearch } = useGetExistingArticles(warehouseData.id);
+  const { data, setSearch, setEndDate, setStartDate, clearFilters, setPageIndex, setPageSize, startDate, endDate } =
+    useGetExistingArticles(warehouseData.id);
   const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
-      <Stack spacing={2}>
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <SearchBar title="Buscar artículos..." sx={{ display: 'flex', flex: 1 }} searchState={setSearch} />
-          <Box sx={{ display: 'flex', flex: 2, justifyContent: 'flex-end' }}>
-            <Button variant="contained" onClick={() => setOpenModal(!openModal)}>
-              Salida de artículos
-            </Button>
-          </Box>
-        </Box>
-        <Card>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    <Checkbox />
-                  </TableCell>
-                  <TableCell>Nombre articulo</TableCell>
-                  <TableCell>Stock Mínimo</TableCell>
-                  <TableCell>Stock</TableCell>
-                  <TableCell>Precio de compra</TableCell>
-                  <TableCell>Factor aplicado</TableCell>
-                  <TableCell>Precio de venta</TableCell>
-                  <TableCell>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data && data.map((article) => <TableRowComponent article={article} key={article.id} />)}
-              </TableBody>
-            </Table>
-            {!data ||
-              (data.length === 0 && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    p: 5,
-                    columnGap: 1,
-                  }}
-                >
-                  <Info sx={{ width: 40, height: 40, color: 'gray' }} />
-                  <Typography variant="h2" color="gray">
-                    No hay artículos existentes
-                  </Typography>
-                </Box>
-              ))}
-            <TablePagination
-              component="div"
-              count={0}
-              onPageChange={(e, value) => {
-                e?.stopPropagation();
-                // setPageIndex(value);
-                console.log({ value });
-              }}
-              onRowsPerPageChange={(e: any) => {
-                console.log({ e });
-                // setPageSize(e.target.value);
-              }}
-              page={0}
-              rowsPerPage={5}
-              rowsPerPageOptions={[5, 10, 25, 50]}
+      <Stack sx={{ overflowX: 'auto' }}>
+        <Stack spacing={2} sx={{ minWidth: 950 }}>
+          <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
+            <SearchBar
+              title="Buscar orden de compra..."
+              searchState={setSearch}
+              sx={{ display: 'flex', flex: 1 }}
+              size="small"
             />
-          </TableContainer>
-        </Card>
+            <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
+              <TextField
+                label="Fecha inicio"
+                size="small"
+                type="date"
+                value={startDate}
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                }}
+              />
+              <TextField
+                label=" Fecha final"
+                size="small"
+                type="date"
+                value={endDate}
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                }}
+              />
+              <IconButton onClick={() => clearFilters()}>
+                <FilterListOff />
+              </IconButton>
+              <Button variant="contained" onClick={() => setOpenModal(!openModal)}>
+                Salida de artículos
+              </Button>
+            </Box>
+          </Box>
+          <Card>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nombre articulo</TableCell>
+                    <TableCell>Stock Mínimo</TableCell>
+                    <TableCell>Stock</TableCell>
+                    <TableCell>Precio de compra</TableCell>
+                    <TableCell>Factor aplicado</TableCell>
+                    <TableCell>Precio de venta</TableCell>
+                    <TableCell>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data && data.map((article) => <TableRowComponent article={article} key={article.id} />)}
+                </TableBody>
+              </Table>
+              {!data ||
+                (data.length === 0 && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      p: 5,
+                      columnGap: 1,
+                    }}
+                  >
+                    <Info sx={{ width: 40, height: 40, color: 'gray' }} />
+                    <Typography variant="h2" color="gray">
+                      No hay artículos existentes
+                    </Typography>
+                  </Box>
+                ))}
+              <TablePagination
+                component="div"
+                count={0}
+                onPageChange={(e, value) => {
+                  e?.stopPropagation();
+                  setPageIndex(value);
+                }}
+                onRowsPerPageChange={(e: any) => {
+                  setPageSize(e.target.value);
+                }}
+                page={0}
+                rowsPerPage={5}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+              />
+            </TableContainer>
+          </Card>
+        </Stack>
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
@@ -160,13 +209,45 @@ interface TableRowComponentProps {
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
   const [open, setOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const textRef = useRef<HTMLTextAreaElement>();
+  const articlesData = useExistingArticlePagination(useShallow((state) => state.data));
+
+  const handleSaveValue = async () => {
+    if (!textRef.current || textRef.current.value === '') return;
+    if (!isValidInteger(textRef.current.value)) return toast.error('Para guardar el valor escribe un numero valido!');
+    const value = textRef.current.value;
+    const modified = {
+      stockMinimo: value,
+      id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
+      id_articulo: article.id,
+    };
+    try {
+      await modifyMinStockExistingArticle(modified);
+      modifyArticle(value);
+      toast.success('Articulo actualizado con exito!');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const modifyArticle = (stockMin: string) => {
+    const newArticle = {
+      ...article,
+      stockMinimo: parseInt(stockMin),
+    };
+    const newArticlesList = articlesData.map((a) => {
+      if (a.id === newArticle.id) {
+        return { ...newArticle };
+      }
+      return { ...a };
+    });
+    useExistingArticlePagination.setState({ data: newArticlesList });
+  };
 
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell>
-          <Checkbox />
-        </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton onClick={() => setOpen(!open)}>
@@ -179,14 +260,32 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             {article.nombre}
           </Box>
         </TableCell>
-        <TableCell>{article.stockMinimo}</TableCell>
+        <TableCell>
+          {isEditing ? (
+            <TextField
+              inputProps={{ className: 'tableCell' }}
+              className="tableCell"
+              placeholder="stock mínimo"
+              inputRef={textRef}
+            />
+          ) : (
+            article.stockMinimo
+          )}
+        </TableCell>
         <TableCell>{article.stockActual}</TableCell>
         <TableCell>{article.precioCompra}</TableCell>
         <TableCell>{article.factorAplicado}</TableCell>
         <TableCell>{article.precioVenta}</TableCell>
         <TableCell>
-          <IconButton>
-            <Edit />
+          <IconButton
+            onClick={() => {
+              if (isEditing) {
+                handleSaveValue();
+              }
+              setIsEditing(!isEditing);
+            }}
+          >
+            {isEditing ? <Save /> : <Edit />}
           </IconButton>
         </TableCell>
       </TableRow>

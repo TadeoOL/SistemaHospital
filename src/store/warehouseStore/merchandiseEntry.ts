@@ -56,7 +56,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
-  setPageSize: (pageSize: number) => set({ pageSize }),
+  setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
@@ -92,7 +92,6 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
       pageIndex: 0,
       pageSize: 5,
       search: '',
-      data: null,
       isLoading: true,
     }));
   },

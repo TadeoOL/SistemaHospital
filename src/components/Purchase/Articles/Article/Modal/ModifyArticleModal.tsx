@@ -187,7 +187,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   };
 
   const handleInputDecimalChange = (event: any) => {
-    console.log({ event });
     // Validar si el valor ingresado es un número con punto decimal
     let precio = event.target.value;
     const isValidInput = /^\d*\.?\d*$/.test(precio);

@@ -69,7 +69,6 @@ const useFetchPdfProviders = (providers: SingleProvider[], id: string) => {
       for (const provider of providers) {
         try {
           const pdf = await getBillPdf(id);
-          console.log(provider.estatus);
           if (provider.estatus === 1) {
             results.push({
               id: id,
