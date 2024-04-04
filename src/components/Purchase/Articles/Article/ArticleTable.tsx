@@ -169,7 +169,6 @@ export const ArticleTable = () => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Código barras</TableCell>
               <TableCell>Nombre</TableCell>
               <TableCell>Stock mínimo</TableCell>
               <TableCell>Stock alerta</TableCell>
@@ -188,7 +187,6 @@ export const ArticleTable = () => {
                 : data.map((article) => (
                     <React.Fragment key={article.id}>
                       <TableRow>
-                        <TableCell>{article.codigoBarras}</TableCell>
                         <TableCell>{article.nombre}</TableCell>
                         <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>{article.stockMinimo}</TableCell>

@@ -102,7 +102,6 @@ export interface ISubCategory {
 export interface IArticle {
   id: string;
   nombre: string;
-  codigoBarras: string;
   descripcion: string | null;
   stockMinimo: string;
   stockAlerta: string;

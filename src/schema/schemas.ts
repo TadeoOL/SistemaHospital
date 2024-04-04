@@ -97,7 +97,6 @@ export const addCategory = z.object({
 
 export const addArticle = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  codigoBarras: z.string().min(1, 'Escribe un código de barras'),
   stockMinimo: z
     .string()
     .nullable() // Permitir valores nulos
