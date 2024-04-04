@@ -42,7 +42,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     border: 'hidden',
   },
   [`&.${tableCellClasses.root}`]: {
-    width: '33.33%',
+    width: '25%',
   },
 }));
 
@@ -312,6 +312,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
             <StyledTableCell align="center">Fecha de compra de lote</StyledTableCell>
             <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
             <StyledTableCell align="center">Stock</StyledTableCell>
+            <StyledTableCell align="center">Código de barras</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -320,6 +321,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
               <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
               <StyledTableCell align="center">{a.fechaCaducidad}</StyledTableCell>
               <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
+              <StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>
             </TableRow>
           ))}
         </TableBody>

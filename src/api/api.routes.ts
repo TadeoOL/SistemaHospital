@@ -300,23 +300,12 @@ export const getArticles = async (paramUrl: string) => {
 };
 
 export const modifyArticle = async (article: IArticle) => {
-  const {
-    id,
-    nombre,
-    descripcion,
-    codigoBarras,
-    id_subcategoria,
-    stockAlerta,
-    stockMinimo,
-    unidadMedida,
-    precioCompra,
-  } = article;
+  const { id, nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra } = article;
 
   const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
     id,
     nombre,
     descripcion,
-    codigoBarras,
     stockAlerta,
     stockMinimo,
     id_subcategoria,
@@ -327,22 +316,12 @@ export const modifyArticle = async (article: IArticle) => {
 };
 
 export const addNewArticle = async (article: IArticle) => {
-  const {
-    nombre,
-    descripcion,
-    codigoBarras,
-    id_subcategoria,
-    stockAlerta,
-    stockMinimo,
-    unidadMedida,
-    precioCompra,
-    precioVenta,
-  } = article;
+  const { nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra, precioVenta } =
+    article;
 
   const res = await axios.post(`/api/Articulo/registrar-articulo`, {
     nombre,
     descripcion,
-    codigoBarras,
     stockAlerta,
     stockMinimo,
     id_subcategoria,
@@ -832,9 +811,9 @@ export const articlesOutputToWarehouse = async (data: {
     Cantidad: string;
   }[];
   Estatus: number;
-  Id_HistorialMovimiento: string;
+  Id_HistorialMovimiento?: string;
 }) => {
-  const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
+  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
     ...data,
   });
   return res.data;

@@ -1,4 +1,4 @@
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useEffect, useRef, useState } from 'react';
 import { IPurchaseOrderArticle } from '../../../../../types/types';
@@ -37,15 +37,24 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
   const barCodeRef = useRef<InputFieldRef>();
   const [expireDateError, setExpireDateError] = useState(false);
   const [barCodeError, setBarCodeError] = useState(false);
+  const [expireDate, setExpireDate] = useState(false);
 
   useEffect(() => {
     if (barCodeRef.current && articleData.codigoBarras) {
       barCodeRef.current.value = articleData.codigoBarras;
     }
     if (expireDateRef.current && articleData.fechaCaducidad) {
-      expireDateRef.current.value = articleData.fechaCaducidad;
+      expireDateRef.current.value = hasExpireDate(articleData.fechaCaducidad);
     }
   }, [articleData]);
+
+  function hasExpireDate(date: string) {
+    if (date === '4000-01-01') {
+      setExpireDate(true);
+      return '';
+    }
+    return date;
+  }
 
   const handleSubmit = () => {
     if (!barCodeRef.current || barCodeRef.current.value === '') {
@@ -53,13 +62,15 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
       toast.error('Debes llenar todos los datos!');
       return;
     }
-    if (!expireDateRef.current || expireDateRef.current.value === '') {
+
+    if (!expireDate && (!expireDateRef.current || expireDateRef.current.value === '')) {
       setExpireDateError(true);
       toast.error('Debes llenar todos los datos!');
       return;
     }
+
     const barCodeValue = barCodeRef.current.value;
-    const expireDateValue = expireDateRef.current.value;
+    const expireDateValue = !expireDate ? expireDateRef?.current?.value : '4000-01-01';
     const updatedArticlesInOrder = props.articlesInOrder.map((article) => {
       if (article.id_Articulo === articleData.id) {
         return { ...article, codigoBarras: barCodeValue, fechaCaducidad: expireDateValue };
@@ -87,7 +98,7 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
               inputRef={barCodeRef}
               placeholder="Escribe un código de barras..."
               error={barCodeError}
-              helperText={!!barCodeError && 'Escribe un codigo de barras'}
+              helperText={!!barCodeError && 'Escribe un código de barras'}
             />
           </Stack>
           <Stack>
@@ -95,14 +106,27 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
             <TextField
               inputRef={expireDateRef}
               type="date"
+              disabled={expireDate}
               placeholder="Escribe una fecha de caducidad..."
               error={expireDateError}
               helperText={!!expireDateError && 'Selecciona una fecha de caducidad'}
             />
           </Stack>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
+            <Typography>No tiene fecha de caducidad</Typography>
+            <Checkbox
+              checked={expireDate}
+              onChange={() => {
+                setExpireDate(!expireDate);
+                setExpireDateError(false);
+              }}
+            />
+          </Box>
         </Stack>
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-          <Button variant="contained">Regresar</Button>
+          <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
+            Cancelar
+          </Button>
           <Button variant="contained" onClick={() => handleSubmit()}>
             Aceptar
           </Button>
