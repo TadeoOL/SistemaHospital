@@ -823,3 +823,19 @@ export const modifyMinStockExistingArticle = async (data: {
   });
   return res.data;
 };
+
+export const articlesOutputToWarehouse = async (data: {
+  id_almacenOrigen: string;
+  id_almacenDestino: string;
+  Articulos: {
+    Id_ArticuloExistente: string;
+    Cantidad: string;
+  }[];
+  Estatus: number;
+  Id_HistorialMovimiento: string;
+}) => {
+  const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
+    ...data,
+  });
+  return res.data;
+};
