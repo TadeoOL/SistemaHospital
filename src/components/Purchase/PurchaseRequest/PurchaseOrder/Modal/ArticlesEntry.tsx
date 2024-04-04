@@ -152,6 +152,10 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     }
   };
 
+  function hasExpireDate(date: string) {
+    return date === '4000-01-01' ? 'Sin vencimiento' : date;
+  }
+
   if (isLoadingArticleEntryData && !articles)
     return (
       <Backdrop open>
@@ -218,7 +222,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                           <TableCell>{a.precioProveedor}</TableCell>
                           <TableCell>{a.precioVenta}</TableCell>
                           <TableCell>{a.factorAplicado}</TableCell>
-                          <TableCell>{a.fechaCaducidad ? a.fechaCaducidad : 'No tiene aun'}</TableCell>
+                          <TableCell>{a.fechaCaducidad ? hasExpireDate(a.fechaCaducidad) : 'No tiene aun'}</TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', flex: 1 }}>
                               <Tooltip title={articleMissingEntryData(a.id_Articulo) ? 'Entrada' : 'Editar entrada'}>

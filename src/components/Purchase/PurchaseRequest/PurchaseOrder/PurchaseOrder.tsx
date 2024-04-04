@@ -28,7 +28,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { StatusPurchaseOrder } from '../../../../types/types';
 import { changeOrderStatus } from '../../../../api/api.routes';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { usePurchaseOrderPagination } from '../../../../store/purchaseStore/purchaseOrderPagination';
 import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 import { QuoteModal } from './Modal/QuoteModal';

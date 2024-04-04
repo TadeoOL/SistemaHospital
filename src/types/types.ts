@@ -131,6 +131,7 @@ export interface IExistingArticleList {
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;
+  codigoBarras: string;
 }
 
 export interface IWarehouse {
@@ -299,7 +300,7 @@ export enum StatusPurchaseOrder {
   'Cancelada' = 0,
   'En espera de Factura' = 1,
   'Se necesita entrada de artículos' = 2,
-  'Completado' = 3,
+  'Ingresado a inventario' = 3,
 }
 
 export interface IWarehouseData {

@@ -37,14 +37,14 @@ import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { IWarehouseData } from '../../../../../types/types';
-import { getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
+import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 500, md: 600 },
+  width: { xs: 380, sm: 600, md: 800 },
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
@@ -91,7 +91,7 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
 type ArticlesFetched = {
   id: string;
   nombre: string;
-  lote: { stock: number; fechaCaducidad: string }[];
+  lote: { stock: number; fechaCaducidad: string; id: string }[];
   stockActual: string;
   cantidad: string;
 };
@@ -151,13 +151,24 @@ export const ArticlesView = (props: ArticlesViewProps) => {
   const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
 
   const handleSubmit = async () => {
+    const existingArticles = articles
+      .flatMap((article) => article.lote)
+      .map((article) => {
+        return { Id_ArticuloExistente: article.id, Cantidad: article.stock.toString() };
+      });
     const object = {
-      articles: articles,
-      salida: radioSelected === 0 ? subWarehouse?.id : reasonMessage,
-      fechaSalida: new Date().toLocaleDateString('es-ES'),
-      almacenOrigen: warehouseData.id,
-      esSalidaAlmacen: radioSelected === 0 ? true : false,
+      Articulos: existingArticles,
+      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : reasonMessage,
+      id_almacenOrigen: warehouseData.id,
+      Estatus: 2,
+      // esSalidaAlmacen: radioSelected === 0 ? true : false,
     };
+    try {
+      await articlesOutputToWarehouse(object);
+    } catch (error) {
+      console.log(error);
+      toast.error('Error al dar salida a artículos!');
+    }
   };
   return (
     <Box sx={{ ...style }}>
@@ -508,17 +519,19 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   };
 
   const handleEditAmount = (e: string) => {
-    const originalArticle = originalArticlesSelected.find((item) => item.id === article.id);
-    if (!originalArticle) return;
+    const originalArticleIndex = originalArticlesSelected.findIndex((item) => item.id === article.id);
+    if (originalArticleIndex === -1) return;
     if (!isValidInteger(e)) return;
 
     const cantidad = e.trim() === '' || isNaN(parseInt(e)) ? '' : parseInt(e).toString();
-    if (parseInt(cantidad) > parseInt(originalArticle.stockActual)) return toast.error('La cantidad excede el stock!');
+    if (parseInt(cantidad) > parseInt(originalArticlesSelected[originalArticleIndex].stockActual)) {
+      return toast.error('La cantidad excede el stock!');
+    }
 
     const updatedLote = [];
     let remainingAmount = parseInt(cantidad);
     if (parseInt(cantidad) > 0) {
-      for (const item of originalArticle.lote) {
+      for (const item of originalArticlesSelected[originalArticleIndex].lote) {
         const deductedAmount = Math.min(remainingAmount, item.stock);
         updatedLote.push({
           ...item,
@@ -534,8 +547,10 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
       cantidad: cantidad.toString(),
       lote: updatedLote.length === 0 ? article.lote : updatedLote,
     };
-    const articlesFilter = articles.filter((item) => item.id !== article.id).concat(updatedArticle);
-    setArticles(articlesFilter);
+
+    const articlesCopy = [...articles];
+    articlesCopy[originalArticleIndex] = updatedArticle;
+    setArticles(articlesCopy);
   };
 
   return (
@@ -553,6 +568,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           ) : (
             <TextField
               placeholder="Cantidad"
+              inputProps={{ className: 'tableCell' }}
               value={article.cantidad}
               onChange={(e) => handleEditAmount(e.target.value)}
             />
@@ -563,7 +579,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
-                  if (article.stockActual === '' || article.stockActual === '0')
+                  if (article.cantidad === '' || article.cantidad === '0')
                     return toast.error('Para guardar escribe una cantidad valida!');
                   setIsEditing(!isEditing);
                 }}
@@ -602,8 +618,8 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
           </TableRow>
         </TableHead>
         <TableBody>
-          {articles.map((a, i) => (
-            <TableRow key={i}>
+          {articles.map((a) => (
+            <TableRow key={a.id}>
               <NestedTableCell>{a.stock}</NestedTableCell>
               <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
             </TableRow>
