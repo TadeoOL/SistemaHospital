@@ -221,6 +221,8 @@ export interface ArticleObject {
 
 export interface MerchandiseEntry {
   id: string;
+  id_AlmacenOrigen: string;
+  id_AlmacenDestino: string;
   almacenOrigen: string;
   almacenDestino: string;
   historialArticulos: ArticleObjectInPetition[];

@@ -27,17 +27,17 @@ import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { useGetAlmacenes } from '../../../../../hooks/useGetAlmacenes';
-import { useGetArticlesBySearch } from '../../../../../hooks/useGetArticlesBySearch';
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { MerchandiseEntry } from '../../../../../types/types';
-import { addMerchandiseEntry } from '../../../../../api/api.routes';
+import { addMerchandiseEntry, getExistingArticles } from '../../../../../api/api.routes';
 
 type Article = {
   id: string;
   nombre: string;
+  stock: number;
 };
 const OPTIONS_LIMIT = 5;
 const filterArticleOptions = createFilterOptions<Article>({
@@ -58,7 +58,10 @@ const style = {
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch();
+  const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
+  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
+  const [serch, setSerch] = useState('');
+
   const {
     warehouseSelected,
     setWarehouseSelected,
@@ -87,15 +90,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const { warehouseId } = useParams();
 
   useEffect(() => {
-    setArticlesFetched(articlesRes);
-    setArticlesFetched(
-      articlesRes.filter((a) => {
-        return !articles.some((ar) => ar.id === a.id);
-      })
-    );
-  }, [articlesRes]);
-
-  useEffect(() => {
     setWarehouseSelected('');
     setArticleSelected(null);
   }, [props.setOpen]);
@@ -109,17 +103,44 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       setAmountError(true);
       return toast.warning('Agrega una cantidad!');
     }
+    if (Number(amountText) > articleSelected.stock) {
+      setAmountError(true);
+      return toast.warning('La cantidad excede el stock!');
+    }
     const objectArticle = {
       id: articleSelected.id,
       name: articleSelected.nombre,
       amount: parseFloat(amountText),
       price: 0,
+      stock: articleSelected.stock,
     };
     const objectFiltered = articlesFetched.filter((a) => a.id !== objectArticle.id);
     setArticlesFetched(objectFiltered);
     setArticles([...articles, objectArticle]);
+    setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
     setArticleSelected(null);
     setAmountText('');
+  };
+
+  const handleFetchArticlesFromWareHouse = async (wareH: string) => {
+    try {
+      setIsLoadingArticlesWareH(true);
+      const res = await getExistingArticles(
+        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
+      );
+      const transformedData = res.data.map((item: any) => ({
+        id: item.id,
+        nombre: item.nombre,
+        stock: item.stockActual,
+      }));
+      console.log('res.data', res.data);
+
+      setDataWerehouseArticlesSelected(transformedData);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingArticlesWareH(false);
+    }
   };
 
   if (isLoadingAlmacenes)
@@ -132,17 +153,20 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const onSubmit: SubmitHandler<MerchandiseEntry> = async (data) => {
     try {
       const object = {
-        Id_AlmacenOrigen: warehouseId as string,
-        Id_AlmacenDestino: data.almacenDestino,
+        Id_AlmacenOrigen: data.almacenDestino,
+        Id_AlmacenDestino: warehouseId as string,
         ListaArticulos: JSON.stringify(data.historialArticulos),
       };
       await addMerchandiseEntry(object);
+      toast.success('Solicitud aceptada');
       props.refetch();
       props.setOpen(false);
+      setDataWerehouseArticlesSelected([]);
       setWarehouseSelected('');
       setArticleSelected(null);
     } catch (error) {
       console.log(error);
+      toast.error('Algo salio mal');
     }
   };
 
@@ -168,6 +192,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
             onChange={(e) => {
               setWarehouseError(false);
               setWarehouseSelected(e.target.value);
+              handleFetchArticlesFromWareHouse(e.target.value);
+              setArticles([]);
             }}
           >
             {almacenes
@@ -201,9 +227,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                 setArticleSelected(val);
                 setArticleError(false);
               }}
-              loading={isLoadingArticles && articlesFetched.length === 0}
+              loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
               getOptionLabel={(option) => option.nombre}
-              options={articlesFetched}
+              options={dataWerehouseSelectedArticles}
               value={articleSelected}
               noOptionsText="No se encontraron artículos"
               renderInput={(params) => (
@@ -215,6 +241,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   sx={{ width: '50%' }}
                   onChange={(e) => {
                     setSearch(e.target.value);
+                    setSerch(e.target.value);
                   }}
                 />
               )}
@@ -236,6 +263,11 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                 setAmountError(false);
               }}
             />
+            {articleSelected?.id && (
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                Stock Disponible : {articleSelected?.stock}{' '}
+              </Typography>
+            )}
           </Stack>
         </Box>
         <Box
@@ -321,16 +353,26 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
 
   const handleSaveQuantity = (id: string, newQuantity: string) => {
     if (!newQuantity || parseFloat(newQuantity) <= 0) return;
-    const updatedArticles = articles.map((article) => {
-      if (article.id === id) {
-        return {
-          ...article,
-          amount: parseFloat(newQuantity),
-        };
+
+    const articleToUpdate = articles.find((article) => article.id === id);
+
+    if (articleToUpdate) {
+      const newAmount = parseFloat(newQuantity);
+      if (newAmount > articleToUpdate.stock) {
+        toast.warning('La cantidad excede el stock disponible');
+        return;
       }
-      return article;
-    });
-    setArticles(updatedArticles);
+      const updatedArticles = articles.map((article) => {
+        if (article.id === id) {
+          return {
+            ...article,
+            amount: newAmount,
+          };
+        }
+        return article;
+      });
+      setArticles(updatedArticles);
+    }
   };
 
   useEffect(() => {
@@ -353,6 +395,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                 <TableCell>Nombre Articulo</TableCell>
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Acción</TableCell>
+                <TableCell>Stock Disponible</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -364,19 +407,22 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                     <TableCell>{a.name}</TableCell>
                     <TableCell>
                       {editingIds.has(a.id) ? (
-                        <TextField
-                          label="Cantidad"
-                          size="small"
-                          InputLabelProps={{ style: { fontSize: 12 } }}
-                          value={quantity[a.id] || ''}
-                          onChange={(e) => {
-                            if (!isValidInteger(e.target.value)) return;
-                            setQuantity({
-                              ...quantity,
-                              [a.id]: e.target.value,
-                            });
-                          }}
-                        />
+                        <>
+                          <TextField
+                            label="Cantidad"
+                            size="small"
+                            InputLabelProps={{ style: { fontSize: 12 } }}
+                            value={quantity[a.id] || ''}
+                            onChange={(e) => {
+                              if (!isValidInteger(e.target.value)) return;
+                              setQuantity({
+                                ...quantity,
+                                [a.id]: e.target.value,
+                              });
+                            }}
+                          />
+                          <Typography>stack max: {a.stock} </Typography>
+                        </>
                       ) : (
                         a.amount
                       )}

@@ -95,7 +95,8 @@ const renderOutputView = (
   setSubWarehouse: Function,
   originalArticlesSelected: ArticlesFetched[],
   setOriginalArticlesSelected: Function,
-  request: MerchandiseEntry
+  request: MerchandiseEntry,
+  setEditingRow: Function
 ) => {
   switch (step) {
     case 0:
@@ -112,6 +113,7 @@ const renderOutputView = (
           originalArticlesSelected={originalArticlesSelected}
           setOriginalArticlesSelected={setOriginalArticlesSelected}
           request={request}
+          setEditingRow={setEditingRow}
         />
       );
 
@@ -123,6 +125,7 @@ const renderOutputView = (
           radioSelected={radioSelected}
           subWarehouse={subWarehouse}
           request={request}
+          setEditingRow={setEditingRow}
         />
       );
   }
@@ -145,22 +148,25 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
   );
   const [reasonMessage, setReasonMessage] = useState('');
   const [value, setValue] = useState(0);
+  const [editingRow, setEditingRow] = useState(false);
   const [radioSelected, setRadioSelected] = useState(0);
   const [subWarehouse, setSubWarehouse] = useState<IWarehouseData | null>(null);
   const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
 
   const handleSubmit = async () => {
     const object = {
-      id_almacenOrigen: props.request.almacenOrigen,
-      id_almacenDestino: props.request.almacenDestino,
+      id_almacenOrigen: props.request.id_AlmacenOrigen,
+      id_almacenDestino: props.request.id_AlmacenDestino,
       Articulos: articles.map((art) => ({ Id_ArticuloExistente: art.id as string, Cantidad: art.cantidad.toString() })),
       Estatus: 2,
       Id_HistorialMovimiento: props.request.id,
     };
+    console.log(object);
     try {
       await articlesOutputToWarehouse(object);
       props.refetch();
       toast.success('Solicitud aceptada');
+      props.setOpen(false);
     } catch (error) {
       console.log(error);
       toast.error('Error al dar salida a artículos!');
@@ -187,7 +193,8 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
             setSubWarehouse,
             originalArticlesSelected,
             setOriginalArticlesSelected,
-            props.request
+            props.request,
+            setEditingRow
           )}
         </Box>
       </Box>
@@ -216,6 +223,7 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
         </Button>
         <Button
           variant="contained"
+          disabled={editingRow}
           onClick={() => {
             if (articles.length === 0) return toast.error('Agrega artículos!');
             if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === '' || cantidad === '0'))
@@ -242,9 +250,16 @@ interface ArticlesOutputProp {
   originalArticlesSelected: ArticlesFetched[];
   setOriginalArticlesSelected: Function;
   request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 
-const ArticlesOutput: React.FC<ArticlesOutputProp> = ({ articles, setArticles, setReasonMessage, request }) => {
+const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
+  articles,
+  setArticles,
+  setReasonMessage,
+  request,
+  setEditingRow,
+}) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
@@ -292,6 +307,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({ articles, setArticles, s
               isResume={false}
               originalArticlesSelected={articles}
               request={request}
+              setEditingRow={setEditingRow}
             />
           </React.Fragment>
         )}
@@ -311,6 +327,7 @@ interface ArticlesTableProps {
   isResume: boolean;
   originalArticlesSelected?: ArticlesFetched[];
   request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 const ArticlesTable: React.FC<ArticlesTableProps> = ({
   articles,
@@ -318,6 +335,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
   isResume,
   originalArticlesSelected,
   request,
+  setEditingRow,
 }) => {
   return (
     <Card>
@@ -334,6 +352,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
           <TableBody>
             {articles.map((article) => (
               <ArticlesTableRow
+                setEditingRow={setEditingRow}
                 request={request}
                 article={article}
                 key={article.id}
@@ -357,6 +376,7 @@ interface ArticlesTableRowProps {
   isResume: boolean;
   originalArticlesSelected: ArticlesFetched[];
   request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
@@ -364,6 +384,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   articles,
   isResume,
   originalArticlesSelected,
+  setEditingRow,
 }) => {
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -429,6 +450,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                   if (article.stockActual === '' || article.stockActual === '0')
                     return toast.error('Para guardar escribe una cantidad valida!');
                   setIsEditing(!isEditing);
+                  setEditingRow(!isEditing);
                 }}
               >
                 {!isEditing ? <Edit /> : <Save />}
@@ -484,6 +506,7 @@ interface OutputResumeProps {
   radioSelected: number;
   subWarehouse: any;
   request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 
 const OutputResume: React.FC<OutputResumeProps> = ({
@@ -492,6 +515,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({
   radioSelected,
   subWarehouse,
   request,
+  setEditingRow,
 }) => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
   const dateNow = Date.now();
@@ -522,7 +546,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({
           )}
         </Grid>
       </Grid>
-      <ArticlesTable articles={articles} isResume={true} request={request} />
+      <ArticlesTable articles={articles} isResume={true} request={request} setEditingRow={setEditingRow} />
     </Stack>
   );
 };

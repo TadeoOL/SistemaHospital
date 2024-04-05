@@ -149,6 +149,7 @@ export const WarehousePurchases = () => {
                   <TableRow>
                     <TableCell>Petición de Almacén</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>Fecha de solicitud</TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>Estatus</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -178,9 +179,12 @@ export const WarehousePurchases = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            <Typography>{petition.almacenDestino}</Typography>
+                            <Typography>{petition.almacenOrigen}</Typography>
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            {petition.estatus === 1 ? 'Espera' : 'Completado'}
+                          </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={7} sx={{ p: 0 }}>

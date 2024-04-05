@@ -28,6 +28,8 @@ import { merchandiseEntryRequestPagination } from '../../../../store/warehouseSt
 import { AceptWareHouseRequestModal } from './Modal/AcceptWarehouseRequest';
 import CloseIcon from '@mui/icons-material/Close';
 import { MerchandiseEntry } from '../../../../types/types';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const useGetEntries = () => {
   const {
@@ -101,6 +103,48 @@ export const WarehouseRequest = () => {
     fetchEntryRequest,
   } = useGetEntries();
 
+  /* const disableUserModal = (userId: string, stateEnabled: boolean, userDisabled: boolean) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `Estas a punto de ${stateEnabled ? 'deshabilitar' : 'habilitar'} un usuario.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: `${stateEnabled ? 'Deshabilitar' : 'Habilitar'}`,
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await disableUser(userId);
+            setUserDisabled(!userDisabled);
+            withReactContent(Swal).fire({
+              title: `${stateEnabled ? 'Deshabilitado!' : 'Habilitado!'}`,
+              text: `El usuario se ha ${stateEnabled ? 'deshabilitado' : 'habilitado'}`,
+              icon: 'success',
+            });
+          } catch (error) {
+            console.log(error);
+            withReactContent(Swal).fire({
+              title: 'Error!',
+              text: `No se pudo ${stateEnabled ? 'deshabilitar' : 'habilitar'} el usuario`,
+              icon: 'error',
+            });
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          withReactContent(Swal).fire({
+            title: 'Cancelado',
+            icon: 'error',
+          });
+        }
+      });
+  };
+
+  return disableUserModal;
+};*/
+  console.log('data si', data);
   return (
     <React.Fragment>
       <Stack sx={{ overflowX: 'auto' }}>
