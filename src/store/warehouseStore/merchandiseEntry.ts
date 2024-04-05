@@ -69,7 +69,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
       const res = await getPetitionsListByWareHouseId(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${
           useWarehouseTabsNavStore.getState().warehouseData.id
         }&FechaInicio=${startDate}&FechaFin=${endDate}`
       );
