@@ -30,6 +30,7 @@ export const WarehouseTabs = () => {
           <Tab label="Articulos" />
           {!warehouseData.esSubAlmacen && <Tab label="Subalmacenes" />}
           <Tab label="Ingreso de mercancia" />
+          <Tab label="Solicitudes de mercancía" />
           <Tab label="Historial de movimiento" />
         </Tabs>
       </AppBar>

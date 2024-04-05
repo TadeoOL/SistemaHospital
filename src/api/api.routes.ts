@@ -780,6 +780,11 @@ export const getPetitionsListByWareHouseId = async (paramUrl: string) => {
   const res = await axios.get(`/api/Almacen/paginacion-peticion-articulos?${paramUrl}`);
   return res.data;
 };
+export const getRequestListByWareHouseId = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-solicitud-articulos?${paramUrl}`);
+  return res.data;
+};
+
 
 export const addMerchandiseEntry = async (merchandisePetition: {
   Id_AlmacenOrigen: string;
@@ -804,9 +809,9 @@ export const modifyMinStockExistingArticle = async (data: {
 };
 
 export const articlesOutputToWarehouse = async (data: {
-  id_almacenOrigen: string;
-  id_almacenDestino: string;
-  Articulos: {
+  id_almacenOrigen?: string;
+  id_almacenDestino?: string;
+  Articulos?: {
     Id_ArticuloExistente: string;
     Cantidad: string;
   }[];

@@ -225,6 +225,7 @@ export interface MerchandiseEntry {
   almacenDestino: string;
   historialArticulos: ArticleObjectInPetition[];
   fechaSolicitud: string;
+  estatus: number;
 }
 
 export interface ArticleObjectInPetition {
