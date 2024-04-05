@@ -38,6 +38,7 @@ import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/wa
 import { useShallow } from 'zustand/react/shallow';
 import { IWarehouseData } from '../../../../../types/types';
 import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
+import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
 
 const style = {
   position: 'absolute',
@@ -149,8 +150,10 @@ export const ArticlesView = (props: ArticlesViewProps) => {
   const [subWarehouse, setSubWarehouse] = useState<IWarehouseData | null>(null);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     const existingArticles = articles
       .flatMap((article) => article.lote)
       .map((article) => {
@@ -160,14 +163,19 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       Articulos: existingArticles,
       id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : reasonMessage,
       id_almacenOrigen: warehouseData.id,
-      Estatus: 2,
+      Estatus: 1,
       // esSalidaAlmacen: radioSelected === 0 ? true : false,
     };
     try {
       await articlesOutputToWarehouse(object);
+      useExistingArticlePagination.getState().fetchExistingArticles();
+      toast.success('Salida a artículos con éxito!');
+      props.setOpen(false);
     } catch (error) {
       console.log(error);
       toast.error('Error al dar salida a artículos!');
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -206,6 +214,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       >
         <Button
           color="error"
+          disabled={isLoading}
           variant="outlined"
           onClick={() => {
             if (value === 0) {
@@ -219,6 +228,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
         </Button>
         <Button
           variant="contained"
+          disabled={isLoading}
           onClick={() => {
             if (value === 0) {
               if (articles.length === 0) return toast.error('Agrega artículos!');
@@ -295,7 +305,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
       }
     };
     fetch();
-  }, [search, warehouseData]);
+  }, [search, warehouseData, articles]);
 
   const maxAmount = useMemo(() => {
     if (!articleSelected) return '';

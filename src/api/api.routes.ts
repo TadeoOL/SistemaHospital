@@ -763,7 +763,17 @@ export const getWareHouseMovementsById = async (paramUrl: string) => {
 export const addArticlesToWarehouse = async (data: {
   id_almacen: string;
   id_ordenCompra: string;
-  articulos: { id_articulo: string; cantidad: number; codigoBarras: string; fechaCaducidad: string }[];
+  articulos: {
+    id_articulo: string;
+    cantidad: number;
+    codigoBarras: string;
+    fechaCaducidad: string;
+  }[];
+  devolucionCompras?: {
+    Id_OrdenCompraArticulo: string;
+    Motivo: string;
+    CantidadDevuelta: string;
+  }[];
 }) => {
   const res = await axios.post(`/api/Compras/almacenar-articulos-orden-compra`, { ...data });
   return res.data;
