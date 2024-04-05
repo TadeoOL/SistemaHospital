@@ -227,7 +227,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
               )
                 return toast.error('Rellena todas las cantidades');
               if (radioSelected === 0) {
-                if (!subWarehouse) return toast.error('Selecciona un subalmacen');
+                if (!subWarehouse) return toast.error('Selecciona un Sub Almacén');
               } else {
                 if (reasonMessage === '') return toast.error('Agrega un motivo de salida');
               }
@@ -429,13 +429,14 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
             getOptionLabel={(option) => option.nombre}
             options={warehouseData.subAlmacenes}
             value={subWarehouse}
-            noOptionsText="No se encontraron subalmacenes"
+            noOptionsText="                                No existen registros de Sub Almacenes
+            "
             renderInput={(params) => (
               <TextField
                 {...params}
                 // error={providerError}
                 // helperText={providerError && 'Selecciona un subalmacen'}
-                placeholder="Subalmacen..."
+                placeholder="Sub Almacén..."
                 sx={{ width: '50%' }}
               />
             )}

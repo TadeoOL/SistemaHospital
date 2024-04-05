@@ -67,7 +67,7 @@ export const SubWarehouses = () => {
             }}
           >
             <Button variant="contained" onClick={() => setOpenModal(true)}>
-              Nuevo SubAlmacén
+              Nuevo Sub Almacén
             </Button>
           </Box>
           <Card>
@@ -102,7 +102,7 @@ export const SubWarehouses = () => {
                             <>
                               <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                               <Typography variant="h2" color="gray">
-                                No hay subalmacenes
+                                No existen registros de Sub Almacenes
                               </Typography>
                             </>
                           )}

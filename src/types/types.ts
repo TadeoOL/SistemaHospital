@@ -322,6 +322,8 @@ export interface IWarehouseMovementData {
   almacenDestino: string | null;
   historialArticulos: IArticleHistory[] | null;
   fechaSolicitud: string;
+  ingresoMotivo: string;
+  salidaMotivo: string;
   id: string;
 }
 export interface IArticleHistory {

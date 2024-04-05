@@ -68,15 +68,15 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal title="Agregar nuevo SubAlmacén" setOpen={props.setOpen} />
+      <HeaderModal title="Agregar nuevo Sub Almacén" setOpen={props.setOpen} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4} sx={{ bgcolor: 'background.paper', p: 2, pl: 4 }}>
           <Stack spacing={2}>
             <Box>
-              <Typography variant="subtitle1">Nombre del SubAlmacén</Typography>
+              <Typography variant="subtitle1">Nombre del Sub Almacén</Typography>
               <TextField
                 fullWidth
-                placeholder="SubAlmacén"
+                placeholder="Sub Almacén"
                 size="small"
                 sx={{ width: '90%' }}
                 {...register('nombre')}
@@ -97,7 +97,7 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
               />
             </Box>
             <Box>
-              <Typography variant="subtitle1">Encargado de SubAlmacén</Typography>
+              <Typography variant="subtitle1">Encargado de Sub Almacén</Typography>
               <Controller
                 control={control}
                 name="usuarioEncargado"

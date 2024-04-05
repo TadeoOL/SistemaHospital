@@ -97,6 +97,8 @@ export const WarehouseHistory = () => {
   // const theme = useTheme();
   // const smDown = useMediaQuery(theme.breakpoints.('lg'));
 
+  console.log(data);
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -180,9 +182,17 @@ export const WarehouseHistory = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            <Typography>{movimiento.almacenOrigen}</Typography>
+                            <Typography>
+                              {movimiento.almacenOrigen == movimiento.almacenDestino && movimiento.ingresoMotivo != null
+                                ? movimiento.ingresoMotivo
+                                : movimiento.almacenOrigen}
+                            </Typography>
                           </TableCell>
-                          <TableCell>{movimiento.almacenDestino}</TableCell>
+                          <TableCell>
+                            {movimiento.almacenDestino == movimiento.almacenOrigen && movimiento.salidaMotivo != null
+                              ? movimiento.salidaMotivo
+                              : movimiento.almacenDestino}
+                          </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
                         </TableRow>
                         <TableRow>
