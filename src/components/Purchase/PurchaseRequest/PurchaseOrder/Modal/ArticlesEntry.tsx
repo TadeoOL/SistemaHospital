@@ -19,12 +19,13 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Add, CheckCircle, Edit, RestorePage } from '@mui/icons-material';
+import { Add, CheckCircle, DeleteSweep, Edit, RestorePage } from '@mui/icons-material';
 import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/api.routes';
 import { IPurchaseOrder, IPurchaseOrderArticle, ISubWarehouse } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
 import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
+import { ReturnArticle } from './ReturnArticle';
 
 const style = {
   width: { xs: 380, sm: 750, md: 1000, lg: 1200 },
@@ -56,6 +57,7 @@ interface ArticleSelected {
   nombre: string;
   codigoBarras?: string;
   fechaCaducidad: string | null;
+  cantidad?: string;
 }
 interface PurchaseOrder extends IPurchaseOrder {
   notas: string;
@@ -67,6 +69,12 @@ interface ArticlesEntryProps {
   orderId: string;
   setOpen: Function;
 }
+
+type ReturnArticle = {
+  Id_OrdenCompraArticulo: string;
+  Motivo: string;
+  CantidadDevuelta: string;
+};
 
 const useGetArticleEntryData = (orderId: string) => {
   const [isLoadingArticleEntryData, setIsLoadingArticleEntryData] = useState(true);
@@ -95,7 +103,9 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const { isLoadingArticleEntryData, articleEntryData, error } = useGetArticleEntryData(props.orderId);
   const [openModal, setOpenModal] = useState(false);
   const [articleSelected, setArticleSelected] = useState<ArticleSelected>();
-  const [articles, setArticles] = useState<IPurchaseOrderArticle[]>();
+  const [articles, setArticles] = useState<IPurchaseOrderArticle[]>([]);
+  const [openReturnArticle, setOpenReturnArticle] = useState(false);
+  const [returnArticlesArray, setReturnArticlesArray] = useState<ReturnArticle[]>([]);
 
   useEffect(() => {
     if (!articleEntryData) return;
@@ -104,7 +114,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
 
   const missingSomeEntryData = useMemo(() => {
     return articles?.some((article) => {
-      if (!article.fechaCaducidad || !article.codigoBarras) return true;
+      if ((!article.fechaCaducidad || !article.codigoBarras) && article.cantidad !== 0) return true;
       return false;
     });
   }, [articles]);
@@ -128,32 +138,61 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const handleSubmit = async () => {
     if (!articleEntryData || !articles) return;
 
-    const articlesFormatted = articles.map((article) => {
-      return {
-        id_articulo: article.id_Articulo,
-        cantidad: article.cantidad,
-        codigoBarras: article.codigoBarras as string,
-        fechaCaducidad: article.fechaCaducidad as string,
-      };
-    });
+    const articlesFormatted = articles
+      .map((article) => {
+        return {
+          id_articulo: article.id_Articulo,
+          cantidad: article.cantidad,
+          codigoBarras: article.codigoBarras as string,
+          fechaCaducidad: article.fechaCaducidad as string,
+        };
+      })
+      .filter((a) => a.cantidad !== 0);
     const articlesEntryObject = {
       id_almacen: articleEntryData.almacen.id,
       articulos: articlesFormatted,
       id_ordenCompra: props.orderId,
+      devolucionCompras: returnArticlesArray,
     };
     try {
       await addArticlesToWarehouse(articlesEntryObject);
-      toast.success('Articulos agregados correctamente!');
+      toast.success('Artículos agregados correctamente!');
       usePurchaseOrderPagination.getState().fetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error('Error al agregar los articulos!');
+      toast.error('Error al agregar los artículos!');
     }
   };
 
   function hasExpireDate(date: string) {
     return date === '4000-01-01' ? 'Sin vencimiento' : date;
+  }
+
+  function isInReturnArticlesArray(articleId: string) {
+    return returnArticlesArray.some((a) => a.Id_OrdenCompraArticulo === articleId);
+  }
+
+  function findOriginalArticle(articleId: string) {
+    if (!articleEntryData) return;
+    const article = articleEntryData.ordenCompraArticulo.find((a) => a.id_Articulo === articleId);
+    return article as IPurchaseOrderArticle;
+  }
+
+  function handleDeleteArticleFromReturnArray(articleId: string) {
+    const originalArticle = articleEntryData?.ordenCompraArticulo.find((a) => a.id_OrdenCompraArticulo === articleId);
+    const findIndex = articles.findIndex((a) => a.id_OrdenCompraArticulo === articleId);
+    if (findIndex !== -1 && originalArticle) {
+      const updatedArrayArticles = [...articles];
+      updatedArrayArticles[findIndex].cantidad = originalArticle.cantidad;
+      setArticles(updatedArrayArticles);
+    }
+    return setReturnArticlesArray(returnArticlesArray.filter((a) => a.Id_OrdenCompraArticulo !== articleId));
+  }
+
+  function dataCompleted(article: IPurchaseOrderArticle) {
+    if (article.codigoBarras) return true;
+    return false;
   }
 
   if (isLoadingArticleEntryData && !articles)
@@ -218,7 +257,18 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                       return (
                         <TableRow key={a.id_Articulo}>
                           <TableCell>{a.nombre}</TableCell>
-                          <TableCell>{a.cantidad}</TableCell>
+                          <TableCell>
+                            {isInReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
+                              <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>
+                                <Typography className="textoTachado">
+                                  {findOriginalArticle(a.id_Articulo)?.cantidad}
+                                </Typography>
+                                <Typography>{a.cantidad}</Typography>
+                              </Box>
+                            ) : (
+                              a.cantidad
+                            )}
+                          </TableCell>
                           <TableCell>{a.precioProveedor}</TableCell>
                           <TableCell>{a.precioVenta}</TableCell>
                           <TableCell>{a.factorAplicado}</TableCell>
@@ -240,16 +290,40 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                   {articleMissingEntryData(a.id_Articulo) ? <Add /> : <Edit />}
                                 </IconButton>
                               </Tooltip>
-                              {articleMissingEntryData(a.id_Articulo) ? (
-                                <Tooltip title="Devolución">
-                                  <IconButton onClick={() => {}}>
-                                    <RestorePage />
-                                  </IconButton>
-                                </Tooltip>
-                              ) : (
+                              <Tooltip title="Devolución">
+                                <IconButton
+                                  onClick={() => {
+                                    const originalArticle = articleEntryData?.ordenCompraArticulo.find(
+                                      (art) => art.id_Articulo === a.id_Articulo
+                                    );
+                                    setArticleSelected({
+                                      id: originalArticle?.id_OrdenCompraArticulo,
+                                      nombre: originalArticle?.nombre,
+                                      codigoBarras: originalArticle?.codigoBarras,
+                                      fechaCaducidad: originalArticle?.fechaCaducidad,
+                                      cantidad: originalArticle?.cantidad.toString(),
+                                    } as ArticleSelected);
+                                    setOpenReturnArticle(true);
+                                  }}
+                                >
+                                  <RestorePage />
+                                </IconButton>
+                              </Tooltip>
+                              {dataCompleted(a) && (
                                 <Tooltip title="Completado">
                                   <IconButton onClick={() => {}}>
                                     <CheckCircle sx={{ color: 'green' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {isInReturnArticlesArray(a.id_OrdenCompraArticulo) && (
+                                <Tooltip title="Eliminar devolución">
+                                  <IconButton
+                                    onClick={() => {
+                                      handleDeleteArticleFromReturnArray(a.id_OrdenCompraArticulo);
+                                    }}
+                                  >
+                                    <DeleteSweep sx={{ color: 'red' }} />
                                   </IconButton>
                                 </Tooltip>
                               )}
@@ -287,6 +361,18 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
             articleData={articleSelected as ArticleSelected}
             setArticlesInOrder={setArticles}
             articlesInOrder={articles as IPurchaseOrderArticle[]}
+          />
+        </>
+      </Modal>
+      <Modal open={openReturnArticle} onClose={() => setOpenReturnArticle(false)}>
+        <>
+          <ReturnArticle
+            setOpen={setOpenReturnArticle}
+            article={articleSelected as ArticleSelected}
+            returnArticlesArray={returnArticlesArray}
+            setReturnArticlesArray={setReturnArticlesArray}
+            articles={articles}
+            setArticles={setArticles}
           />
         </>
       </Modal>
