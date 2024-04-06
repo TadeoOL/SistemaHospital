@@ -3,13 +3,11 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
-import { ISubWarehouse, IWarehouse } from '../../../types/types';
-import { addNewPurchaseWarehouse } from '../../../api/api.routes';
-import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+import { ISubWarehouse } from '../../../types/types';
 import { addWarehouse } from '../../../schema/schemas';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 
 const style = {
   position: 'absolute',
