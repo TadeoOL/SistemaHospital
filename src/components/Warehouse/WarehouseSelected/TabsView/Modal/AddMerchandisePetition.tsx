@@ -360,7 +360,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
 
     if (articleToUpdate) {
       const newAmount = parseFloat(newQuantity);
-      if (newAmount > articleToUpdate.stock) {
+      if (newAmount > (articleToUpdate.stock as number)) {
         toast.warning('La cantidad excede el stock disponible');
         return;
       }

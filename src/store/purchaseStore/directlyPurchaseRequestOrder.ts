@@ -11,6 +11,7 @@ type ArticleOrder = {
   name: string;
   amount: number;
   price: number;
+  stock?: number;
 };
 
 type Article = {
@@ -34,7 +35,7 @@ interface State {
   needAuth: boolean;
   note: string;
   openPurchaseRequestOrder: boolean;
-  paymentMethod: number
+  paymentMethod: number;
 }
 
 interface Action {
@@ -53,7 +54,7 @@ interface Action {
   setNeedAuth: (needAuth: boolean) => void;
   setNote: (note: string) => void;
   setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => void;
-  setPaymentMethod: (paymentMethod: number) => void
+  setPaymentMethod: (paymentMethod: number) => void;
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State & Action>((set) => ({

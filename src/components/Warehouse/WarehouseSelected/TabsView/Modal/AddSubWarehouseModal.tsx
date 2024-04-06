@@ -69,7 +69,7 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
         descripcion: data.descripcion ? data.descripcion : '',
         Id_UsuarioEncargado: usuarioEncargado as string,
         esSubAlmacen: true,
-        Id_AlmacenPrincipal: warehouseData.id,
+        Id_AlmacenPrincipal: props.edit ? (props.warehouseData?.id as string) : warehouseData.id,
       };
       if (props.edit) {
         await modifyWarehouseById(object);

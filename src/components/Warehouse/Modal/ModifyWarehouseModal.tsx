@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
 import { IWarehouse } from '../../../types/types';
-import { getPurchaseWarehouseById } from '../../../api/api.routes';
+import { getPurchaseWarehouseById, modifyWarehouseById } from '../../../api/api.routes';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { addWarehouse } from '../../../schema/schemas';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
@@ -79,6 +79,7 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<IWarehouse>({
     defaultValues: {
@@ -106,10 +107,10 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
     setTextValue(event.currentTarget.value);
   };
 
-  const onSubmit: SubmitHandler<IWarehouse> = async () => {
+  const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
     try {
-      // const idForm = getValues('id');
-      // await modifyPurchaseWarehouse({ ...data, id: idForm });
+      const idForm = getValues('id');
+      await modifyWarehouseById({ ...data, Id_AlmacenPrincipal: idForm });
       setHandleChangeWarehouse(!handleChangeWarehouse);
       toast.success('Almacén modificado con éxito!');
       open(false);

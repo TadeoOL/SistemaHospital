@@ -387,7 +387,12 @@ export const getPurchaseWarehouseById = async (warehouseId: string) => {
   return res.data;
 };
 
-export const modifyWarehouseById = async (warehouse: IAddSubWarehouse) => {
+export const modifyWarehouseById = async (warehouse: {
+  Id_AlmacenPrincipal: string;
+  Id_UsuarioEncargado?: string;
+  descripcion: string;
+  nombre: string;
+}) => {
   const { Id_AlmacenPrincipal, Id_UsuarioEncargado, descripcion, nombre } = warehouse;
   const res = await axios.put(`/api/Almacen/actualizar-almacen`, {
     id: Id_AlmacenPrincipal,
