@@ -158,6 +158,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
   const [editSubWarehouse, setEditSubWarehouse] = useState(false);
   const setTab = useWarehouseTabsNavStore(useShallow((state) => state.setTabValue));
 
+  console.log(subWarehouse);
+
   const handleDelete = () => {
     Swal.fire({
       title: 'Estas seguro que deseas eliminar el subalmacen?',
