@@ -63,7 +63,13 @@ export const useWarehousePagination = createWithEqualityFn<State & Action>((set)
         }&search=${search}&habilitado=${enabled}`
       );
       set(() => ({
-        data: res.data,
+        data: res.data.map((p: any) => {
+          return {
+            id: p.id,
+            nombre: p.nombre,
+            descripcion: p.descripcion,
+          };
+        }),
         count: res.count,
         pageSize: res.pageSize,
         enabled: res.habilitado,
