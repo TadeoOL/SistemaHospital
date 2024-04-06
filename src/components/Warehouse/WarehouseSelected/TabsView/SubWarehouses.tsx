@@ -23,6 +23,7 @@ import { useSubWarehousePaginationStore } from '../../../../store/warehouseStore
 import { ISubWarehouse } from '../../../../types/types';
 import Swal from 'sweetalert2';
 import { disableWarehouseById } from '../../../../api/api.routes';
+import { useNavigate } from 'react-router-dom';
 
 const useGetWarehouses = () => {
   const { data, fetchSubWarehouse, isLoading, pageCount, pageIndex, pageSize, count, setPageIndex, setPageSize } =
@@ -179,9 +180,14 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
     });
   };
 
+  const navigate = useNavigate();
   return (
     <>
-      <TableRow>
+      <TableRow
+        onClick={() => {
+          navigate(`/almacenes/${subWarehouse.id}`);
+        }}
+      >
         <TableCell>{subWarehouse.nombre}</TableCell>
         <TableCell>{subWarehouse.descripcion}</TableCell>
         <TableCell>{subWarehouse.usuarioEncargado}</TableCell>

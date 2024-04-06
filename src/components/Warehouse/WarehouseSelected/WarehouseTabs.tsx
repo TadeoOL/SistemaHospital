@@ -29,9 +29,9 @@ export const WarehouseTabs = () => {
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
           <Tab label="Artículos" />
           {!warehouseData.esSubAlmacen && <Tab label="Sub Almacenes" />}
-          <Tab label="Peticiones de Mercancía" />
-          <Tab label="Solicitudes de Mercancía" />
-          <Tab label="Historial de Movimiento" />
+          <Tab label="Peticiones de Mercancía" value={2} />
+          <Tab label="Solicitudes de Mercancía" value={3} />
+          <Tab label="Historial de Movimiento" value={4} />
         </Tabs>
       </AppBar>
     </Box>

@@ -439,8 +439,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
             getOptionLabel={(option) => option.nombre}
             options={warehouseData.subAlmacenes}
             value={subWarehouse}
-            noOptionsText="                                No existen registros de Sub Almacenes
-            "
+            noOptionsText="No existen registros de Sub Almacenes"
             renderInput={(params) => (
               <TextField
                 {...params}

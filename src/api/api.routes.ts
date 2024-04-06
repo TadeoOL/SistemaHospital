@@ -818,6 +818,7 @@ export const modifyMinStockExistingArticle = async (data: {
 };
 
 export const articlesOutputToWarehouse = async (data: {
+  solicitudAceptada?: boolean;
   id_almacenOrigen?: string;
   id_almacenDestino?: string;
   Articulos?: {
@@ -827,8 +828,17 @@ export const articlesOutputToWarehouse = async (data: {
   Estatus: number;
   Id_HistorialMovimiento?: string;
 }) => {
-  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
-    ...data,
-  });
-  return res.data;
+  if (data.solicitudAceptada) {
+    const modifiedArticulos = data.Articulos?.map(articulo => ({
+      ...articulo,
+      Id_Articulo: articulo.Id_ArticuloExistente
+    }));
+
+    const res = await axios.post(`/api/Almacen/aceptar-peticion-almacen`, {
+      ...data,
+      Articulos: modifiedArticulos
+    });
+    return res.data;
+  }
+ 
 };

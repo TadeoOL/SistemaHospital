@@ -30,6 +30,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { MerchandiseEntry } from '../../../../types/types';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { articlesOutputToWarehouse } from '../../../../api/api.routes';
 
 const useGetEntries = () => {
   const {
@@ -102,7 +103,45 @@ export const WarehouseRequest = () => {
     setPageSize,
     fetchEntryRequest,
   } = useGetEntries();
-
+  const rejectRequest = (idRequest: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `¿Seguro que deseas cancelar esta solicitud de articulos?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          const object = {
+            Estatus: 0,
+            Id_HistorialMovimiento: idRequest,
+          };
+          console.log(object);
+          try {
+            await articlesOutputToWarehouse(object);
+            fetchEntryRequest();
+            withReactContent(Swal).fire({
+              title: 'Exito!',
+              text: 'Solicitud Cancelada',
+              icon: 'success',
+            });
+          } catch (error) {
+            console.log(error);
+            withReactContent(Swal).fire({
+              title: 'Error!',
+              text: 'Ocurrio un erro en la cancelación',
+              icon: 'error',
+            });
+          }
+        }
+      });
+  };
+  console.log('checar estatus', data);
   /* const disableUserModal = (userId: string, stateEnabled: boolean, userDisabled: boolean) => {
     withReactContent(Swal)
       .fire({
@@ -144,7 +183,6 @@ export const WarehouseRequest = () => {
 
   return disableUserModal;
 };*/
-  console.log('data si', data);
   return (
     <React.Fragment>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -221,7 +259,9 @@ export const WarehouseRequest = () => {
                             <Typography>{petition.almacenDestino}</Typography>
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>{'Pendiente'}</TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            {petition.estatus === 0 ? 'Cancelada' : 'Pendiente'}
+                          </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
                             <Box
                               sx={{
@@ -244,6 +284,7 @@ export const WarehouseRequest = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => {
+                                  rejectRequest(petition.id);
                                   //e.stopPropagation();
                                   //setPurchaseRequestId(auth.id_SolicitudCompra);
                                   //setOpenMensajeModal(true);
@@ -298,7 +339,7 @@ export const WarehouseRequest = () => {
                             <>
                               <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                               <Typography variant="h2" color="gray">
-                                No hay peticiones
+                                No hay solicitudes
                               </Typography>
                             </>
                           )}

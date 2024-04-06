@@ -155,6 +155,7 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
 
   const handleSubmit = async () => {
     const object = {
+      solicitudAceptada: true,
       id_almacenOrigen: props.request.id_AlmacenOrigen,
       id_almacenDestino: props.request.id_AlmacenDestino,
       Articulos: articles.map((art) => ({ Id_ArticuloExistente: art.id as string, Cantidad: art.cantidad.toString() })),
@@ -162,6 +163,7 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
       Id_HistorialMovimiento: props.request.id,
     };
     console.log(object);
+    return;
     try {
       await articlesOutputToWarehouse(object);
       props.refetch();
