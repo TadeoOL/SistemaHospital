@@ -1,4 +1,4 @@
-import { Delete, Info } from '@mui/icons-material';
+import { Delete, Edit, Info } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -14,12 +14,15 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
 import { useSubWarehousePaginationStore } from '../../../../store/warehouseStore/subWarehousePagination';
 import { ISubWarehouse } from '../../../../types/types';
+import Swal from 'sweetalert2';
+import { disableWarehouseById } from '../../../../api/api.routes';
 
 const useGetWarehouses = () => {
   const { data, fetchSubWarehouse, isLoading, pageCount, pageIndex, pageSize, count, setPageIndex, setPageSize } =
@@ -149,16 +152,67 @@ interface TableRowComponentProps {
 }
 
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) => {
+  const [editSubWarehouse, setEditSubWarehouse] = useState(false);
+
+  const handleDelete = () => {
+    Swal.fire({
+      title: 'Estas seguro que deseas eliminar el subalmacen?',
+      text: 'Esta accion eliminara el subalmacen y todos sus registros dentro',
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      showConfirmButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonColor: 'red',
+      confirmButtonColor: '#046CBC',
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await disableWarehouseById(subWarehouse.id);
+        useSubWarehousePaginationStore.getState().fetchSubWarehouse();
+        Swal.fire({
+          title: 'Eliminado!',
+          text: `El almacén se ha eliminado con éxito!`,
+          icon: 'success',
+        });
+      }
+    });
+  };
+
   return (
-    <TableRow>
-      <TableCell>{subWarehouse.nombre}</TableCell>
-      <TableCell>{subWarehouse.descripcion}</TableCell>
-      <TableCell>{subWarehouse.usuarioEncargado}</TableCell>
-      <TableCell>
-        <IconButton>
-          <Delete />
-        </IconButton>
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow>
+        <TableCell>{subWarehouse.nombre}</TableCell>
+        <TableCell>{subWarehouse.descripcion}</TableCell>
+        <TableCell>{subWarehouse.usuarioEncargado}</TableCell>
+        <TableCell>
+          <>
+            <Tooltip title="Editar">
+              <IconButton
+                onClick={() => {
+                  setEditSubWarehouse(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Eliminar">
+              <IconButton
+                onClick={() => {
+                  handleDelete();
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </>
+        </TableCell>
+      </TableRow>
+      <Modal open={editSubWarehouse} onClose={() => setEditSubWarehouse(false)}>
+        <>
+          <AddSubWarehouseModal setOpen={setEditSubWarehouse} edit={true} warehouseData={subWarehouse} />
+        </>
+      </Modal>
+    </>
   );
 };

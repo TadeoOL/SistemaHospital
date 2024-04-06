@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
-import { IWarehouse } from '../../../types/types';
+import { ISubWarehouse, IWarehouse } from '../../../types/types';
 import { addNewPurchaseWarehouse } from '../../../api/api.routes';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { addWarehouse } from '../../../schema/schemas';
@@ -45,16 +45,16 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
   const { open } = props;
   const [textValue, setTextValue] = useState('');
 
-  const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
-    setHandleChangeWarehouse: state.setHandleChangeWarehouse,
-    handleChangeWarehouse: state.handleChangeWarehouse,
-  }));
+  // const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
+  //   setHandleChangeWarehouse: state.setHandleChangeWarehouse,
+  //   handleChangeWarehouse: state.handleChangeWarehouse,
+  // }));
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IWarehouse>({
+  } = useForm<ISubWarehouse>({
     resolver: zodResolver(addWarehouse),
   });
 
@@ -66,12 +66,13 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
     setTextValue(event.currentTarget.value);
   };
 
-  const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
+  const onSubmit: SubmitHandler<ISubWarehouse> = async (data) => {
     try {
-      await addNewPurchaseWarehouse(data);
-      setHandleChangeWarehouse(!handleChangeWarehouse);
-      toast.success('Almacén modificado con éxito!');
-      open(false);
+      console.log({ data });
+      // await addNewPurchaseWarehouse(data);
+      // setHandleChangeWarehouse(!handleChangeWarehouse);
+      // toast.success('Almacén modificado con éxito!');
+      // open(false);
     } catch (error) {
       toast.error('Error al modificar el almacén!');
     }

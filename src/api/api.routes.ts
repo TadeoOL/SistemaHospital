@@ -377,7 +377,7 @@ export const getPurchaseWarehouse = async (paramUrl: string) => {
   return res.data;
 };
 
-export const disablePurchaseWarehouse = async (id: string) => {
+export const disableWarehouseById = async (id: string) => {
   const res = await axios.put(`/api/Almacen/estatus-almacen`, { id });
   return res.data;
 };
@@ -387,13 +387,13 @@ export const getPurchaseWarehouseById = async (warehouseId: string) => {
   return res.data;
 };
 
-export const modifyPurchaseWarehouse = async (warehouse: IWarehouse) => {
-  const { id, nombre, descripcion } = warehouse;
-
+export const modifyWarehouseById = async (warehouse: IAddSubWarehouse) => {
+  const { Id_AlmacenPrincipal, Id_UsuarioEncargado, descripcion, nombre } = warehouse;
   const res = await axios.put(`/api/Almacen/actualizar-almacen`, {
-    id,
-    nombre,
+    id: Id_AlmacenPrincipal,
+    Id_UsuarioEncargado,
     descripcion,
+    nombre,
   });
   return res.data;
 };
@@ -794,7 +794,6 @@ export const getRequestListByWareHouseId = async (paramUrl: string) => {
   const res = await axios.get(`/api/Almacen/paginacion-solicitud-articulos?${paramUrl}`);
   return res.data;
 };
-
 
 export const addMerchandiseEntry = async (merchandisePetition: {
   Id_AlmacenOrigen: string;
