@@ -163,7 +163,6 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
       Id_HistorialMovimiento: props.request.id,
     };
     console.log(object);
-    return;
     try {
       await articlesOutputToWarehouse(object);
       props.refetch();

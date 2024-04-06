@@ -33,6 +33,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { MerchandiseEntry } from '../../../../../types/types';
 import { addMerchandiseEntry, getExistingArticles } from '../../../../../api/api.routes';
+import { useGetWarehouseSelected } from '../../WarehouseSelected';
 
 type Article = {
   id: string;
@@ -58,6 +59,8 @@ const style = {
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
+  const { warehouseId } = useParams();
+  const { isLoadingWarehouse, error } = useGetWarehouseSelected(warehouseId);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
   const [serch, setSerch] = useState('');
@@ -87,7 +90,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
-  const { warehouseId } = useParams();
 
   useEffect(() => {
     setWarehouseSelected('');
