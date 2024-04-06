@@ -24,6 +24,8 @@ import { ISubWarehouse } from '../../../../types/types';
 import Swal from 'sweetalert2';
 import { disableWarehouseById } from '../../../../api/api.routes';
 import { useNavigate } from 'react-router-dom';
+import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
+import { useShallow } from 'zustand/react/shallow';
 
 const useGetWarehouses = () => {
   const { data, fetchSubWarehouse, isLoading, pageCount, pageIndex, pageSize, count, setPageIndex, setPageSize } =
@@ -154,6 +156,7 @@ interface TableRowComponentProps {
 
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) => {
   const [editSubWarehouse, setEditSubWarehouse] = useState(false);
+  const setTab = useWarehouseTabsNavStore(useShallow((state) => state.setTabValue));
 
   const handleDelete = () => {
     Swal.fire({
@@ -184,7 +187,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
   return (
     <>
       <TableRow
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
+          setTab(0);
           navigate(`/almacenes/${subWarehouse.id}`);
         }}
       >
@@ -195,7 +200,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
           <>
             <Tooltip title="Editar">
               <IconButton
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   setEditSubWarehouse(true);
                 }}
               >
@@ -204,7 +210,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
             </Tooltip>
             <Tooltip title="Eliminar">
               <IconButton
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleDelete();
                 }}
               >
