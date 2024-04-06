@@ -73,7 +73,6 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
           useWarehouseTabsNavStore.getState().warehouseData.id
         }&FechaInicio=${startDate}&FechaFin=${endDate}`
       );
-      console.log("res.data desde si",res.data);
       set(() => ({
         data: res.data,
         count: res.count,
