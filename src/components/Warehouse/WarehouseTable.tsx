@@ -3,7 +3,7 @@ import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { useWarehousePagination } from '../../store/purchaseStore/warehousePagination';
-import { disablePurchaseWarehouse } from '../../api/api.routes';
+import { disableWarehouseById } from '../../api/api.routes';
 import { TableComponent } from '../TableComponent';
 import { ModifyPurchaseWarehouseModal } from './Modal/ModifyWarehouseModal';
 
@@ -78,7 +78,7 @@ const useDisableExistingArticle = () => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disablePurchaseWarehouse(articleId);
+            await disableWarehouseById(articleId);
             setHandleChangeWarehouse(!handleChangeWarehouse);
             withReactContent(Swal).fire({
               title: `${enabled ? 'Deshabilitado!' : 'Habilitado!'}`,

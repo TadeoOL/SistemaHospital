@@ -250,10 +250,5 @@ export const addNewFactorSchema = z
 
 export const addNewSubWarehouseSchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  usuarioEncargado: z
-    .string()
-    .nullish()
-    .refine((data) => data !== null && data !== undefined, {
-      message: 'Selecciona un usuario',
-    }),
+  descripcion: z.string().nullable(),
 });
