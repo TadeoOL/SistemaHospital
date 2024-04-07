@@ -6,6 +6,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import GrainIcon from '@mui/icons-material/Grain';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useLocation } from 'react-router-dom';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
 
 function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
   event.preventDefault();
@@ -20,17 +21,19 @@ const messagesByLink: Record<string, string> = {
   '/compras/categorias/subcategoria': 'Sub Categorías',
   '/compras/articulos/articulo': 'Catálogo de Artículos',
   '/compras/articulos/articulo-existente': 'Artículos en Existencia',
-  '/compras/almacen': 'Almacén',
   '/compras/autorizacion-compras': 'Autorización de Ordenes de Compra',
   '/compras/proveedores': 'Proveedores',
   '/compras/configuracion-compras': 'Configuración de Compras',
   '/compras/autorizacion-compras/autorizaciones': 'Autorizaciones',
   '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
+  '/almacenes/dc71b9a9-4691-4da1-ac30-ab7d875cc158': 'Almacén General',
+  '/almacenes/fc6d0fdd-8cfa-49a7-863e-206a7542a5e5': 'Almacén Farmacia',
 };
 
 const messagesByModule: Record<string, string> = {
   '': 'Inicio',
   compras: 'Compras',
+  almacenes: 'Almacen',
 };
 
 const CustomBreadcrumb = () => {
@@ -68,12 +71,13 @@ const CustomBreadcrumb = () => {
           }}
           color="inherit"
         >
-          {currentModule == 'Compras' ? (
+          {currentModule === 'Compras' ? (
             <ShoppingCartIcon sx={{ mr: 0.5, fontSize: '22px' }} fontSize="inherit" />
+          ) : currentModule === 'Almacen' ? (
+            <WarehouseIcon sx={{ mr: 0.5, fontSize: '22px' }} fontSize="inherit" />
           ) : (
             <HomeIcon sx={{ mr: 0.5, fontSize: '22px' }} fontSize="inherit" />
           )}
-
           {currentModule}
         </Typography>
         {currentPageMessage ? (
