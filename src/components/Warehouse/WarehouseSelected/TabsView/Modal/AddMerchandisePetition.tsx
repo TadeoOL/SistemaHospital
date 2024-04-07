@@ -26,13 +26,12 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
-import { useGetAlmacenes } from '../../../../../hooks/useGetAlmacenes';
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { MerchandiseEntry } from '../../../../../types/types';
-import { addMerchandiseEntry, getExistingArticles } from '../../../../../api/api.routes';
+import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
+import { addMerchandiseEntry, getExistingArticles, getWarehouseById } from '../../../../../api/api.routes';
 
 type Article = {
   id: string;
@@ -57,10 +56,40 @@ const style = {
 };
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
-  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
+  const { warehouseId } = useParams();
+  const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
+  const [warehouseData, setWarehouseData] = useState<IWarehouseData[]>([]);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
   const [serch, setSerch] = useState('');
+
+  useEffect(()=>{
+    const fetch = async () => {
+      setIsLoadingWarehouse(true);
+      try {
+        const warehouse = await getWarehouseById(warehouseId as string);
+        if(warehouse?.esSubAlmacen){
+          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal)
+          setWarehouseData([fatherWarehouse]);
+          setWarehouseSelected(fatherWarehouse.id)
+          handleFetchArticlesFromWareHouse(fatherWarehouse.id)
+        }
+        else{
+        setWarehouseData(warehouse.subAlmacenes);
+      }
+      } catch (error) {
+        console.log('error');
+      } finally {
+        setIsLoadingWarehouse(false);
+      }
+    };
+    fetch();
+  }
+  ,[warehouseId])
+  useEffect(()=>{
+    console.log(warehouseData);
+  }
+  ,[warehouseData])
 
   const {
     warehouseSelected,
@@ -87,7 +116,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
-  const { warehouseId } = useParams();
 
   useEffect(() => {
     setWarehouseSelected('');
@@ -126,7 +154,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
+        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
       );
       const transformedData = res.data.map((item: any) => ({
         id: item.id,
@@ -143,7 +171,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     }
   };
 
-  if (isLoadingAlmacenes)
+  if (isLoadingWarehouse)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 6 }}>
         <CircularProgress size={40} />
@@ -182,7 +210,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
         <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
           <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
 
-          <TextField
+        {!isLoadingWarehouse && 
+          (<TextField
             select
             label="Almacén"
             size="small"
@@ -196,14 +225,17 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               setArticles([]);
             }}
           >
-            {almacenes
-              .filter((warehouse) => warehouse.id !== warehouseId)
+            {warehouseData?.length > 0 && 
+              warehouseData.filter((warehouse) => warehouse.id !== warehouseId)
               .map((warehouse) => (
                 <MenuItem key={warehouse.id} value={warehouse.id}>
                   {warehouse.nombre}
                 </MenuItem>
               ))}
           </TextField>
+          )
+        }
+          
         </Stack>
         <Divider sx={{ my: 2 }} />
         <Box

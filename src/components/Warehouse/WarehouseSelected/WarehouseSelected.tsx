@@ -31,7 +31,7 @@ const GetWarehouseView: React.FC = () => {
   }
 };
 
-const useGetWarehouseSelected = (warehouseId: string | undefined) => {
+export const useGetWarehouseSelected = (warehouseId: string | undefined) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [error, setError] = useState(false);
   const setWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.setWarehouseData));

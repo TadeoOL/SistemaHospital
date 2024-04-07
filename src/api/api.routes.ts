@@ -845,5 +845,8 @@ export const articlesOutputToWarehouse = async (data: {
     });
     return res.data;
   }
- 
+  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
+    ...data,
+  });
+  return res.data;
 };
