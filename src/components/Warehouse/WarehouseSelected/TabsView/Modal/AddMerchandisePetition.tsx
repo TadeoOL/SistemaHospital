@@ -183,7 +183,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
         ListaArticulos: JSON.stringify(data.historialArticulos),
       };
       await addMerchandiseEntry(object);
-      toast.success('Solicitud aceptada');
+      toast.success('Solicitud creada');
       props.refetch();
       props.setOpen(false);
       setDataWerehouseArticlesSelected([]);
@@ -418,7 +418,6 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                 <TableCell>Nombre Articulo</TableCell>
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Acción</TableCell>
-                <TableCell>Stock Disponible</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
