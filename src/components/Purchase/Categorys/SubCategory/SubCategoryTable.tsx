@@ -112,7 +112,7 @@ export const SubCategoryTable = () => {
       disableHook={disableSubCategory}
       fetchDataHook={useGetAllData}
       modifyModalComponent={(props) => <ModifySubCategoryModal data={props.data} open={props.open} />}
-      headers={['Categoría', 'Sub Categoría', 'Descripción', 'I.V.A.', 'Acciones']}
+      headers={['Nombre', 'Descripción', 'I.V.A.', 'Categoría', 'Acciones']}
     />
   );
 };

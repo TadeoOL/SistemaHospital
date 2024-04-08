@@ -25,7 +25,7 @@ interface Action {
 export const useProviderPagination = createWithEqualityFn<State & Action>((set) => ({
   count: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   enabled: true,
   search: '',
   data: [],

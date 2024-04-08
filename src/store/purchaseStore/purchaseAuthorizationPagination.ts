@@ -37,7 +37,7 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<State & A
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: [],
   isLoading: true,
   search: '',

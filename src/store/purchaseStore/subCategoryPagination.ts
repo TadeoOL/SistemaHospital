@@ -29,7 +29,7 @@ export const useSubCategoryPagination = createWithEqualityFn<State & Action>((se
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: [],
   isLoading: true,
   search: '',
@@ -51,8 +51,17 @@ export const useSubCategoryPagination = createWithEqualityFn<State & Action>((se
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}`
       );
+      const subCategorias = res.data.map((a: { id: any; nombre: any; descripcion: any; iva: any; categoria: any }) => {
+        return {
+          id: a.id,
+          nombre: a.nombre,
+          descripcion: a.descripcion,
+          iva: a.iva,
+          categoria: a.categoria,
+        };
+      });
       set(() => ({
-        data: res.data,
+        data: subCategorias,
         count: res.count,
         pageSize: res.pageSize,
         enabled: res.habilitado,
