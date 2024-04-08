@@ -71,9 +71,10 @@ interface SideNavItemsProps {
   path: string;
   children?: IModuleItems[];
   warehouses: { id: string; nombre: string }[];
+  roles: string[];
 }
 
-const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses }) => {
+const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses, roles }) => {
   const SelectedOptionColor = '#9ca1a5';
   const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
@@ -81,9 +82,19 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
   const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
   const navigate = useNavigate();
   const [childOpen, setChildOpen] = useState(false);
-  const handleClick = () => {
+  const handleClick = (title: string, roles: string[]) => {
     if (isActive && !children) return;
     if (!children) {
+      if (!roles.includes('ADMIN') && title === 'Almacén') {
+        if (!isOpen) {
+          setIsOpen(true);
+          setChildOpen(true);
+          return;
+        } else {
+          setChildOpen(!childOpen);
+          return;
+        }
+      }
       setIsOpen(false);
       navigate(path);
     } else {
@@ -123,11 +134,12 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
     </Box>
   );
 
+  if (title === 'Almacén' && !warehouses && !roles.includes('ADMIN')) return null;
   return (
     <>
       <ListItemButton
         onClick={(e) => {
-          handleClick();
+          handleClick(title, roles);
           e.stopPropagation();
         }}
         selected={isActive}
@@ -167,6 +179,8 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
                       <ListItemButton
                         key={uniqueKey}
                         onClick={(e) => {
+                          console.log('aa');
+
                           e.stopPropagation();
                           navigate(childItem.path);
                         }}
@@ -457,6 +471,7 @@ export const SideNav = () => {
                         path={item.path}
                         children={item.children}
                         warehouses={warehouses as []}
+                        roles={profile?.roles as string[]}
                       />
                     </React.Fragment>
                   ))}

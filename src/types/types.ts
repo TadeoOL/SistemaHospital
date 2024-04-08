@@ -259,6 +259,7 @@ export interface IRegisterOrderPurchase {
 
 export interface OrdenCompra {
   Id_Proveedor: string;
+  ConceptoPago?:number;
   OrdenCompraArticulo: OrdenCompraArticulo[];
 }
 

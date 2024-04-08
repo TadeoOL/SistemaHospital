@@ -36,7 +36,7 @@ const filterProviderOptions = createFilterOptions<IProvider>({
 });
 
 export const SingleProvider = () => {
-  const { step, setStep, pdf, setPdf, registerOrder, setProvider, provider, setNeedAuth } =
+  const { step, setStep, pdf, setPdf, registerOrder, setProvider, provider, setNeedAuth, setPaymentMethod, paymentMethod } =
     useDirectlyPurchaseRequestOrderStore((state) => ({
       step: state.step,
       setStep: state.setStep,
@@ -46,6 +46,8 @@ export const SingleProvider = () => {
       setProvider: state.setProvider,
       provider: state.provider,
       setNeedAuth: state.setNeedAuth,
+      setPaymentMethod: state.setPaymentMethod,
+      paymentMethod: state.paymentMethod,
     }));
   const [providerError, setProviderError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -119,6 +121,27 @@ export const SingleProvider = () => {
             )}
           />
         </Stack>
+        <Stack>
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
+              <Stack direction="row" spacing={2}>
+                <FormControl component="fieldset" sx={{ width: '100%' }}>
+                  <RadioGroup
+                    row
+                    sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
+                    aria-label="paymentMethod"
+                    name="paymentMethod"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                  >
+                    <FormControlLabel value={1} control={<Radio />} label="Crédito" />
+                    <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
+                    <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+                  </RadioGroup>
+                </FormControl>
+              </Stack>
+            </Box>
+          </Stack>
         <Stack>
           <Box
             sx={{

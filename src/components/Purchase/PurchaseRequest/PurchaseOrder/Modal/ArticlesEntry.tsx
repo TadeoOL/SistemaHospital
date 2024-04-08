@@ -64,7 +64,10 @@ interface PurchaseOrder extends IPurchaseOrder {
   instruccionEntrega: string;
   almacen: ISubWarehouse;
 }
-
+type ArticlesToBox = {
+  id: string;
+  amount: string;
+};
 interface ArticlesEntryProps {
   orderId: string;
   setOpen: Function;
@@ -106,6 +109,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const [articles, setArticles] = useState<IPurchaseOrderArticle[]>([]);
   const [openReturnArticle, setOpenReturnArticle] = useState(false);
   const [returnArticlesArray, setReturnArticlesArray] = useState<ReturnArticle[]>([]);
+  const [articlesToBox, setArticlesToBox] = useState<ArticlesToBox[]>([]);
 
   useEffect(() => {
     if (!articleEntryData) return;
@@ -169,8 +173,16 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     return date === '4000-01-01' ? 'Sin vencimiento' : date;
   }
 
-  function isInReturnArticlesArray(articleId: string) {
-    return returnArticlesArray.some((a) => a.Id_OrdenCompraArticulo === articleId);
+  function findReturnArticlesArray(articleId: string) {
+    return returnArticlesArray.find((a) => a.Id_OrdenCompraArticulo === articleId);
+  }
+
+  // function isInArticlesToBox(articleId: string) {
+  //   return articlesToBox.some((a) => a.id === articleId);
+  // }
+
+  function findArticleInArticleToBox(articleId: string) {
+    return articlesToBox.find((a) => a.id === articleId);
   }
 
   function findOriginalArticle(articleId: string) {
@@ -179,15 +191,20 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     return article as IPurchaseOrderArticle;
   }
 
-  function handleDeleteArticleFromReturnArray(articleId: string) {
-    const originalArticle = articleEntryData?.ordenCompraArticulo.find((a) => a.id_OrdenCompraArticulo === articleId);
-    const findIndex = articles.findIndex((a) => a.id_OrdenCompraArticulo === articleId);
+  function handleDeleteArticleFromReturnArray(orderArticleId: string, articleId: string) {
+    const articleInBox = articlesToBox.find((a) => a.id === articleId);
+    const originalArticle = articleEntryData?.ordenCompraArticulo.find(
+      (a) => a.id_OrdenCompraArticulo === orderArticleId
+    );
+    const findIndex = articles.findIndex((a) => a.id_OrdenCompraArticulo === orderArticleId);
     if (findIndex !== -1 && originalArticle) {
       const updatedArrayArticles = [...articles];
-      updatedArrayArticles[findIndex].cantidad = originalArticle.cantidad;
+      updatedArrayArticles[findIndex].cantidad = articleInBox
+        ? parseInt(articleInBox.amount) * originalArticle.cantidad
+        : originalArticle.cantidad;
       setArticles(updatedArrayArticles);
     }
-    return setReturnArticlesArray(returnArticlesArray.filter((a) => a.Id_OrdenCompraArticulo !== articleId));
+    return setReturnArticlesArray(returnArticlesArray.filter((a) => a.Id_OrdenCompraArticulo !== orderArticleId));
   }
 
   function dataCompleted(article: IPurchaseOrderArticle) {
@@ -195,7 +212,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     return false;
   }
 
-  if (isLoadingArticleEntryData && !articles)
+  if (isLoadingArticleEntryData)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -244,6 +261,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Articulo</TableCell>
+                      <TableCell>Caja/Unidad</TableCell>
                       <TableCell>Cantidad</TableCell>
                       <TableCell>Precio de compra</TableCell>
                       <TableCell>Precio de venta</TableCell>
@@ -258,10 +276,18 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                         <TableRow key={a.id_Articulo}>
                           <TableCell>{a.nombre}</TableCell>
                           <TableCell>
-                            {isInReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
+                            {findArticleInArticleToBox(a.id_Articulo)
+                              ? findArticleInArticleToBox(a.id_Articulo)?.amount
+                              : 0}
+                          </TableCell>
+                          <TableCell>
+                            {findReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
                               <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>
                                 <Typography className="textoTachado">
-                                  {findOriginalArticle(a.id_Articulo)?.cantidad}
+                                  {!findArticleInArticleToBox(a.id_Articulo)
+                                    ? findOriginalArticle(a.id_Articulo)?.cantidad
+                                    : (findOriginalArticle(a.id_Articulo)?.cantidad as number) *
+                                      parseInt(findArticleInArticleToBox(a.id_Articulo)?.amount as string)}
                                 </Typography>
                                 <Typography>{a.cantidad}</Typography>
                               </Box>
@@ -316,11 +342,11 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                   </IconButton>
                                 </Tooltip>
                               )}
-                              {isInReturnArticlesArray(a.id_OrdenCompraArticulo) && (
+                              {findReturnArticlesArray(a.id_OrdenCompraArticulo) && (
                                 <Tooltip title="Eliminar devolución">
                                   <IconButton
                                     onClick={() => {
-                                      handleDeleteArticleFromReturnArray(a.id_OrdenCompraArticulo);
+                                      handleDeleteArticleFromReturnArray(a.id_OrdenCompraArticulo, a.id_Articulo);
                                     }}
                                   >
                                     <DeleteSweep sx={{ color: 'red' }} />
@@ -361,6 +387,11 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
             articleData={articleSelected as ArticleSelected}
             setArticlesInOrder={setArticles}
             articlesInOrder={articles as IPurchaseOrderArticle[]}
+            articlesToBox={articlesToBox}
+            setArticlesToBox={setArticlesToBox}
+            originalArticles={articleEntryData?.ordenCompraArticulo as IPurchaseOrderArticle[]}
+            returnArticlesArray={returnArticlesArray}
+            setReturnArticlesArray={setReturnArticlesArray}
           />
         </>
       </Modal>
@@ -373,6 +404,8 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
             setReturnArticlesArray={setReturnArticlesArray}
             articles={articles}
             setArticles={setArticles}
+            articlesToBox={articlesToBox}
+            originalArticlesArray={articleEntryData?.ordenCompraArticulo as IPurchaseOrderArticle[]}
           />
         </>
       </Modal>

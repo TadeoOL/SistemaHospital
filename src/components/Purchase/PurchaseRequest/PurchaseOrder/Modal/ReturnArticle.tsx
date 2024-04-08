@@ -28,6 +28,10 @@ type ReturnArticle = {
   Motivo: string;
   CantidadDevuelta: string;
 };
+type ArticlesToBox = {
+  id: string;
+  amount: string;
+};
 interface ReturnArticleProps {
   setOpen: Function;
   article: ArticleData;
@@ -35,11 +39,17 @@ interface ReturnArticleProps {
   setArticles: Function;
   returnArticlesArray: ReturnArticle[];
   setReturnArticlesArray: Function;
+  articlesToBox: ArticlesToBox[];
+  originalArticlesArray: IPurchaseOrderArticle[];
 }
 export const ReturnArticle = (props: ReturnArticleProps) => {
   const { setReturnArticlesArray, returnArticlesArray, article, articles, setArticles } = props;
   const amountRef = useRef<HTMLTextAreaElement>();
   const reasonRef = useRef<HTMLTextAreaElement>();
+  const articleInBox = props.articles.find((a) => a.id_OrdenCompraArticulo === props.article.id);
+  const originalArticle = props.originalArticlesArray.find((a) => a.id_Articulo === articleInBox?.id_Articulo);
+  const boxArticle = props.articlesToBox.find((a) => a.id === articleInBox?.id_Articulo);
+  const currentAmount = parseInt(boxArticle?.amount as string) * (originalArticle?.cantidad as number);
 
   useEffect(() => {
     const findArticle = returnArticlesArray.find((a) => a.Id_OrdenCompraArticulo === article.id);
@@ -61,14 +71,20 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
       return toast.error('Rellena todos los valores para continuar!');
     if (isNaN(parseInt(amountRef.current.value)) || amountRef.current.value.includes('.'))
       return toast.error('Ingresa una cantidad valida!');
-    if (parseInt(amountRef.current.value) > parseInt(article.cantidad as string))
+    if (
+      !boxArticle
+        ? parseInt(amountRef.current.value) > parseInt(article.cantidad as string)
+        : parseInt(amountRef.current.value) > currentAmount
+    )
       return toast.error('No puedes devolver mas artículos de los que están disponibles!');
     const foundIndex = returnArticlesArray.findIndex((a) => a.Id_OrdenCompraArticulo === article.id);
     const foundIndexArticles = articles.findIndex((a) => a.id_OrdenCompraArticulo === article.id);
 
     if (foundIndexArticles !== -1) {
       const updatedReturnArticlesArray = [...articles];
-      const restAmount = parseInt(article.cantidad as string) - parseInt(amountRef.current.value);
+      const restAmount = boxArticle
+        ? currentAmount - parseInt(amountRef.current.value)
+        : parseInt(article.cantidad as string) - parseInt(amountRef.current.value);
       updatedReturnArticlesArray[foundIndexArticles].cantidad = restAmount < 0 ? 0 : restAmount;
       setArticles(updatedReturnArticlesArray);
     }
@@ -108,7 +124,7 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
           </Typography>
           <Typography variant="subtitle2">
             <strong> Cantidad disponible para devolver: </strong>
-            {props.article.cantidad}
+            {boxArticle ? currentAmount : props.article.cantidad}
           </Typography>
         </Stack>
         <Stack>
