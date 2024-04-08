@@ -182,7 +182,6 @@ export const PurchaseOrder = () => {
     return statusPurchaseOrderValues;
   }, []);
 
-  console.log({ openArticlesEntry });
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: 'auto' }}>
