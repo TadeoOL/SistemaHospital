@@ -5,8 +5,12 @@ import {
   Card,
   CircularProgress,
   Divider,
+  FormControl,
+  FormControlLabel,
   Grid,
   Modal,
+  Radio,
+  RadioGroup,
   Stack,
   Step,
   StepLabel,
@@ -304,22 +308,36 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
 };
 
 const SecondStep = (props: { setOpen: Function }) => {
-  const { registerOrder, setStep, step, warehouseSelected, articles, totalAmountRequest } =
-    useDirectlyPurchaseRequestOrderStore(
-      (state) => ({
-        registerOrder: state.registerOrder,
-        warehouseSelected: state.warehouseSelected,
-        provider: state.provider,
-        step: state.step,
-        setStep: state.setStep,
-        articles: state.articles,
-        totalAmountRequest: state.totalAmountRequest,
-      }),
-      shallow
-    );
+  const {
+    registerOrder,
+    setStep,
+    step,
+    warehouseSelected,
+    articles,
+    totalAmountRequest,
+    setPaymentMethod,
+    paymentMethod,
+  } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      registerOrder: state.registerOrder,
+      warehouseSelected: state.warehouseSelected,
+      provider: state.provider,
+      step: state.step,
+      setStep: state.setStep,
+      articles: state.articles,
+      totalAmountRequest: state.totalAmountRequest,
+      setPaymentMethod: state.setPaymentMethod,
+      paymentMethod: state.paymentMethod,
+    }),
+    shallow
+  );
   const { isLoading, providerData } = useGetProvider(registerOrder?.OrdenCompra[0].Id_Proveedor as string);
 
   const handleSubmit = async () => {
+    if (paymentMethod === 0) {
+      toast.error('Selecciona un método de pago para continuar!');
+      return;
+    }
     if (!registerOrder) return;
     const modifiedPurchaseOrder = registerOrder.OrdenCompra.map((o) => ({
       ...o,
@@ -327,6 +345,7 @@ const SecondStep = (props: { setOpen: Function }) => {
         const { nombre, ...rest } = a;
         return rest;
       }),
+      ConceptoPago: paymentMethod,
     }));
     const object = {
       Id_SolicitudCompra: registerOrder.Id_SolicitudCompra,
@@ -380,6 +399,27 @@ const SecondStep = (props: { setOpen: Function }) => {
         <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>
           <Typography variant="subtitle2">Nombre:</Typography>
           <Typography variant="subtitle2">{warehouseSelected}</Typography>
+        </Box>
+      </Stack>
+      <Stack>
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="subtitle1">Selecciona el método de pago</Typography>
+          <Stack direction="row" spacing={2}>
+            <FormControl component="fieldset" sx={{ width: '100%' }}>
+              <RadioGroup
+                row
+                sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
+                aria-label="paymentMethod"
+                name="paymentMethod"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(Number(e.target.value))}
+              >
+                <FormControlLabel value={1} control={<Radio />} label="Crédito" />
+                <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
+                <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+              </RadioGroup>
+            </FormControl>
+          </Stack>
         </Box>
       </Stack>
       <Divider sx={{ my: 2 }} />

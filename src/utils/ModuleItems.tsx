@@ -96,7 +96,7 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Almacén',
         path: '/almacenes',
         icon: <WarehouseIcon sx={{ color: '#fff' }} />,
-        protectedRoles: purchaseGlobalRoles,
+        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
       },
     ],
   },

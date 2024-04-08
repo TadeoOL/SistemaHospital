@@ -14,6 +14,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
   alpha,
   styled,
@@ -23,7 +24,7 @@ import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/wareh
 import { useShallow } from 'zustand/react/shallow';
 import React, { useEffect, useRef, useState } from 'react';
 import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
-import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save } from '@mui/icons-material';
+import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
@@ -31,6 +32,7 @@ import { ArticlesView } from './Modal/ArticlesOutput';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
+import { warning } from '../../../../theme/colors';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -269,7 +271,16 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
               inputRef={textRef}
             />
           ) : (
-            article.stockMinimo
+            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
+              <Box>{article.stockMinimo}</Box>
+              <Box>
+                {article.stockActual < article.stockMinimo ? (
+                  <Tooltip title="Stock bajo">
+                    <Warning sx={{ color: warning.main }} />
+                  </Tooltip>
+                ) : null}
+              </Box>
+            </Box>
           )}
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
