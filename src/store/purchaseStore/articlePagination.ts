@@ -30,7 +30,7 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: [],
   isLoading: true,
   search: '',
@@ -66,6 +66,6 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
     }
   },
   cleanArticles: () => {
-    set(() => ({ pageIndex: 0, pageSize: 5, enabled: true, search: '' }));
+    set(() => ({ pageIndex: 0, pageSize: 10, enabled: true, search: '' }));
   },
 }));

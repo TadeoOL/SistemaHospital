@@ -40,7 +40,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: null,
   isLoading: true,
   search: '',
@@ -90,7 +90,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
     set(() => ({
       pageCount: 0,
       pageIndex: 0,
-      pageSize: 5,
+      pageSize: 10,
       search: '',
       isLoading: true,
     }));

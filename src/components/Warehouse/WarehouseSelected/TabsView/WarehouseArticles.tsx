@@ -33,6 +33,7 @@ import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
+import { returnExpireDate } from '../../../../utils/expireDate';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -329,7 +330,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
           {article.map((a) => (
             <TableRow key={a.id}>
               <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
-              <StyledTableCell align="center">{a.fechaCaducidad}</StyledTableCell>
+              <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
               <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
               <StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>
             </TableRow>
