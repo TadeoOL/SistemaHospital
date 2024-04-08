@@ -63,20 +63,19 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
   const [serch, setSerch] = useState('');
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
         const warehouse = await getWarehouseById(warehouseId as string);
-        if(warehouse?.esSubAlmacen){
-          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal)
+        if (warehouse?.esSubAlmacen) {
+          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal);
           setWarehouseData([fatherWarehouse]);
-          setWarehouseSelected(fatherWarehouse.id)
-          handleFetchArticlesFromWareHouse(fatherWarehouse.id)
+          setWarehouseSelected(fatherWarehouse.id);
+          handleFetchArticlesFromWareHouse(fatherWarehouse.id);
+        } else {
+          setWarehouseData(warehouse.subAlmacenes);
         }
-        else{
-        setWarehouseData(warehouse.subAlmacenes);
-      }
       } catch (error) {
         console.log('error');
       } finally {
@@ -84,12 +83,10 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       }
     };
     fetch();
-  }
-  ,[warehouseId])
-  useEffect(()=>{
+  }, [warehouseId]);
+  useEffect(() => {
     console.log(warehouseData);
-  }
-  ,[warehouseData])
+  }, [warehouseData]);
 
   const {
     warehouseSelected,
@@ -200,42 +197,36 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
 
   return (
     <Box sx={style}>
-      <HeaderModal
-        setOpen={() => {
-          props.setOpen();
-        }}
-        title="Petición de almacén"
-      />
+      <HeaderModal setOpen={props.setOpen} title="Petición de almacén" />
       <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
         <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
           <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
 
-        {!isLoadingWarehouse && 
-          (<TextField
-            select
-            label="Almacén"
-            size="small"
-            error={warehouseError}
-            helperText={warehouseError && 'Selecciona un almacén'}
-            value={warehouseSelected}
-            onChange={(e) => {
-              setWarehouseError(false);
-              setWarehouseSelected(e.target.value);
-              handleFetchArticlesFromWareHouse(e.target.value);
-              setArticles([]);
-            }}
-          >
-            {warehouseData?.length > 0 && 
-              warehouseData.filter((warehouse) => warehouse.id !== warehouseId)
-              .map((warehouse) => (
-                <MenuItem key={warehouse.id} value={warehouse.id}>
-                  {warehouse.nombre}
-                </MenuItem>
-              ))}
-          </TextField>
-          )
-        }
-          
+          {!isLoadingWarehouse && (
+            <TextField
+              select
+              label="Almacén"
+              size="small"
+              error={warehouseError}
+              helperText={warehouseError && 'Selecciona un almacén'}
+              value={warehouseSelected}
+              onChange={(e) => {
+                setWarehouseError(false);
+                setWarehouseSelected(e.target.value);
+                handleFetchArticlesFromWareHouse(e.target.value);
+                setArticles([]);
+              }}
+            >
+              {warehouseData?.length > 0 &&
+                warehouseData
+                  .filter((warehouse) => warehouse.id !== warehouseId)
+                  .map((warehouse) => (
+                    <MenuItem key={warehouse.id} value={warehouse.id}>
+                      {warehouse.nombre}
+                    </MenuItem>
+                  ))}
+            </TextField>
+          )}
         </Stack>
         <Divider sx={{ my: 2 }} />
         <Box

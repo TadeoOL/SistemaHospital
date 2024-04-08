@@ -225,12 +225,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal
-          setOpen={() => {
-            props.setOpen();
-          }}
-          title="Entrada de artículos"
-        />
+        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
         <Stack spacing={2} sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto', ...styleBar }}>
           <Box sx={{ maxHeight: 450 }}>
             <Grid container spacing={2}>
