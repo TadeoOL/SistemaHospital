@@ -134,7 +134,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={open} title="Agregar sub categoría" />
+      <HeaderModal setOpen={open} title="Modificar Sub Categoría" />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Stack spacing={2}>
@@ -179,6 +179,31 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
                 </MenuItem>
               ))}
             </TextField>
+            <TextField
+              fullWidth
+              size="small"
+              select
+              label="Categoría"
+              error={!!errors.id_categoria}
+              helperText={errors?.id_categoria?.message}
+              {...register('id_categoria')}
+              value={category}
+              onChange={handleChange}
+            >
+              {categories.map((category) => (
+                <MenuItem value={category.id} key={category.id}>
+                  {category.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              fullWidth
+              size="small"
+              label="I.V.A."
+              error={!!errors.iva}
+              helperText={errors?.iva?.message}
+              {...register('iva')}
+            ></TextField>
           </Stack>
           <Stack
             sx={{

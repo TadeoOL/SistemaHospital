@@ -283,12 +283,13 @@ export const disableSubCategory = async (id: string) => {
 };
 
 export const modifySubCategory = async (subCategory: ISubCategory) => {
-  const { id, nombre, descripcion, id_categoria } = subCategory;
-
+  const { id, nombre, descripcion, id_categoria, iva } = subCategory;
+  console.log(subCategory);
   const res = await axios.put(`/api/SubCategoria/actualizar-subcategoria`, {
     id,
     nombre,
     descripcion,
+    iva,
     id_categoria,
   });
   return res.data;
@@ -834,14 +835,14 @@ export const articlesOutputToWarehouse = async (data: {
   Id_HistorialMovimiento?: string;
 }) => {
   if (data.solicitudAceptada) {
-    const modifiedArticulos = data.Articulos?.map(articulo => ({
+    const modifiedArticulos = data.Articulos?.map((articulo) => ({
       ...articulo,
-      Id_Articulo: articulo.Id_ArticuloExistente
+      Id_Articulo: articulo.Id_ArticuloExistente,
     }));
 
     const res = await axios.post(`/api/Almacen/aceptar-peticion-almacen`, {
       ...data,
-      Articulos: modifiedArticulos
+      Articulos: modifiedArticulos,
     });
     return res.data;
   }

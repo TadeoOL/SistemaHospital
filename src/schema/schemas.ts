@@ -83,7 +83,11 @@ export const addSubCategorySchema = z.object({
     .min(1, 'Debe tener al menos una cifra')
     .refine(
       (value) => {
-        return number.test(value);
+        const parsedValue = parseInt(value);
+        const flag = number.test(value);
+        if (flag) {
+          return parsedValue;
+        }
       },
       {
         message: 'Número no valido.',
