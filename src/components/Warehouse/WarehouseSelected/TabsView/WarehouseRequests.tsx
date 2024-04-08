@@ -141,48 +141,7 @@ export const WarehouseRequest = () => {
         }
       });
   };
-  console.log('checar estatus', data);
-  /* const disableUserModal = (userId: string, stateEnabled: boolean, userDisabled: boolean) => {
-    withReactContent(Swal)
-      .fire({
-        title: 'Advertencia',
-        text: `Estas a punto de ${stateEnabled ? 'deshabilitar' : 'habilitar'} un usuario.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: `${stateEnabled ? 'Deshabilitar' : 'Habilitar'}`,
-        confirmButtonColor: 'red',
-        cancelButtonText: 'No, cancelar!',
-        reverseButtons: true,
-      })
-      .then(async (result) => {
-        if (result.isConfirmed) {
-          try {
-            await disableUser(userId);
-            setUserDisabled(!userDisabled);
-            withReactContent(Swal).fire({
-              title: `${stateEnabled ? 'Deshabilitado!' : 'Habilitado!'}`,
-              text: `El usuario se ha ${stateEnabled ? 'deshabilitado' : 'habilitado'}`,
-              icon: 'success',
-            });
-          } catch (error) {
-            console.log(error);
-            withReactContent(Swal).fire({
-              title: 'Error!',
-              text: `No se pudo ${stateEnabled ? 'deshabilitar' : 'habilitar'} el usuario`,
-              icon: 'error',
-            });
-          }
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          withReactContent(Swal).fire({
-            title: 'Cancelado',
-            icon: 'error',
-          });
-        }
-      });
-  };
 
-  return disableUserModal;
-};*/
   return (
     <React.Fragment>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -275,9 +234,6 @@ export const WarehouseRequest = () => {
                                   onClick={() => {
                                     setRequest(petition);
                                     setOpenModal(true);
-                                    //e.stopPropagation();
-                                    //setPurchaseRequestId(auth.id_SolicitudCompra);
-                                    //setOpenMensajeModal(true);
                                   }}
                                 />
                               </IconButton>
@@ -285,9 +241,6 @@ export const WarehouseRequest = () => {
                                 size="small"
                                 onClick={() => {
                                   rejectRequest(petition.id);
-                                  //e.stopPropagation();
-                                  //setPurchaseRequestId(auth.id_SolicitudCompra);
-                                  //setOpenMensajeModal(true);
                                 }}
                               >
                                 <CloseIcon sx={{ color: 'red' }} />
@@ -362,6 +315,7 @@ export const WarehouseRequest = () => {
                 page={pageIndex}
                 rowsPerPage={pageSize}
                 rowsPerPageOptions={[5, 10, 25, 50]}
+                labelRowsPerPage="Filas por página"
               />
             </TableContainer>
           </Card>
