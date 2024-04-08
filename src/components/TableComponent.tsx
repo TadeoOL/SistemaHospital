@@ -152,6 +152,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
           page={pageIndex}
           rowsPerPage={pageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="Filas por página"
         />
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>
