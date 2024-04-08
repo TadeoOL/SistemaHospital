@@ -36,7 +36,7 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<State & Ac
   count: 0,
   pageCount: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: [],
   isLoading: true,
   search: '',
