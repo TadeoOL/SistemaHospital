@@ -33,7 +33,7 @@ const messagesByLink: Record<string, string> = {
 const messagesByModule: Record<string, string> = {
   '': 'Inicio',
   compras: 'Compras',
-  almacenes: 'Almacen',
+  almacenes: 'Almacén',
 };
 
 const CustomBreadcrumb = () => {

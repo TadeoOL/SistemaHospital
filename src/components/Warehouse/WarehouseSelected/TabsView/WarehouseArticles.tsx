@@ -152,7 +152,6 @@ export const WarehouseArticles = () => {
                     <TableCell>Stock Mínimo</TableCell>
                     <TableCell>Stock</TableCell>
                     <TableCell>Precio de compra</TableCell>
-                    <TableCell>Factor aplicado</TableCell>
                     <TableCell>Precio de venta</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
@@ -285,7 +284,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
         <TableCell>{article.precioCompra}</TableCell>
-        <TableCell>{article.factorAplicado}</TableCell>
         <TableCell>{article.precioVenta}</TableCell>
         <TableCell>
           <IconButton
