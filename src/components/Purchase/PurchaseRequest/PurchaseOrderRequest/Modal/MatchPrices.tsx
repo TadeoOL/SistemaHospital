@@ -101,7 +101,7 @@ export const MatchPrices = (props: { data: IPurchaseAuthorization | null; setOpe
     );
   return (
     <Box sx={style}>
-      <HeaderModal title="Selección de precios" setOpen={() => {}} />
+      <HeaderModal title="Selección de precios" setOpen={props.setOpen} />
       <Stack spacing={3} sx={{ bgcolor: 'white', p: 4 }}>
         <Stepper activeStep={step}>
           {stepsForm.map((step) => (

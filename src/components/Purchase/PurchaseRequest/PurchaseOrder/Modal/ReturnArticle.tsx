@@ -111,12 +111,7 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal
-        title="Devolución de artículos"
-        setOpen={() => {
-          props.setOpen();
-        }}
-      />
+      <HeaderModal title="Devolución de artículos" setOpen={props.setOpen} />
       <Stack spacing={3} sx={{ bgcolor: 'background.paper', p: 2 }}>
         <Stack spacing={1}>
           <Typography variant="subtitle2">
