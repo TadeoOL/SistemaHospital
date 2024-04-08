@@ -167,7 +167,7 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal title="Entrada de articulo" setOpen={() => props.setOpen()} />
+      <HeaderModal title="Entrada de articulo" setOpen={props.setOpen} />
       <Stack
         spacing={6}
         sx={{ bgcolor: 'background.paper', p: 2, borderBottomLeftRadius: 12, WebkitBorderBottomRightRadius: 12 }}
@@ -195,33 +195,39 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
             />
           </Stack>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
-            <Typography>No tiene fecha de caducidad</Typography>
-            <Checkbox
-              checked={expireDate}
-              onChange={() => {
-                setExpireDate(!expireDate);
-                setExpireDateError(false);
-              }}
-            />
+            <Typography sx={{ display: 'flex', flex: 2 }}>No tiene fecha de caducidad</Typography>
+            <Box sx={{ display: 'flex', flex: 1 }}>
+              <Checkbox
+                checked={expireDate}
+                onChange={() => {
+                  setExpireDate(!expireDate);
+                  setExpireDateError(false);
+                }}
+              />
+            </Box>
           </Box>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
-            <Typography>Conversion de Cajas a Unidades</Typography>
-            <Checkbox
-              checked={isBox}
-              onChange={() => {
-                handleChangeIsBox();
-              }}
-            />
+            <Typography sx={{ display: 'flex', flex: 2 }}>Conversion de Cajas a Unidades</Typography>
+            <Box sx={{ display: 'flex', flex: 1 }}>
+              <Checkbox
+                checked={isBox}
+                onChange={() => {
+                  handleChangeIsBox();
+                }}
+              />
+            </Box>
           </Box>
-          <Stack>
-            <TextField
-              inputRef={boxAmountRef}
-              placeholder="Escribe la cantidad de unidades por caja..."
-              error={boxAmountError}
-              disabled={!isBox}
-              helperText={!!boxAmountError && 'Escribe la cantidad de unidades por caja'}
-            />
-          </Stack>
+          {isBox && (
+            <Stack>
+              <TextField
+                inputRef={boxAmountRef}
+                placeholder="Escribe la cantidad de unidades por caja..."
+                error={boxAmountError}
+                disabled={!isBox}
+                helperText={!!boxAmountError && 'Escribe la cantidad de unidades por caja'}
+              />
+            </Stack>
+          )}
         </Stack>
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
           <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>

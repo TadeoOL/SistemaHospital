@@ -127,12 +127,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal
-        setOpen={() => {
-          props.setOpen();
-        }}
-        title="Solicitud de Compra"
-      />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Compra" />
       <Stack sx={{ p: 4, bgcolor: 'white', overflowY: 'auto' }}>
         <Stepper activeStep={step}>
           {stepsArray.map((s) => (
