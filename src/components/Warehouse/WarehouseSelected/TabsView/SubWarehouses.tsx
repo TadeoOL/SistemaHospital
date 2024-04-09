@@ -157,9 +157,7 @@ interface TableRowComponentProps {
 
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) => {
   const [editSubWarehouse, setEditSubWarehouse] = useState(false);
-  const setTab = useWarehouseTabsNavStore(useShallow((state) => state.setTabValue));
-
-  console.log(subWarehouse);
+  const clearWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.clearWarehouseData));
 
   const handleDelete = () => {
     Swal.fire({
@@ -192,7 +190,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
       <TableRow
         onClick={(e) => {
           e.stopPropagation();
-          setTab(0);
+          clearWarehouseData();
           navigate(`/almacenes/${subWarehouse.id}`);
         }}
       >

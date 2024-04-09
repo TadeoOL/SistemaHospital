@@ -30,12 +30,12 @@ interface Action {
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
   clearFilters: () => void;
+  clearAllData: () => void;
 }
 
-export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
+const initialState: State = {
   count: 0,
   pageCount: 0,
-  resultByPage: 0,
   pageIndex: 0,
   pageSize: 10,
   data: [],
@@ -46,6 +46,10 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
   warehouseId: '',
   startDate: '',
   endDate: '',
+};
+
+export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
+  ...initialState,
   setStartDate: (startDate: string) => set({ startDate }),
   setEndDate: (endDate: string) => set({ endDate }),
   setWarehouseId: (warehouseId: string) => set({ warehouseId }),
@@ -61,6 +65,7 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
     const { pageIndex, pageSize, search, enabled, warehouseId, startDate, endDate } = get();
     const page = pageIndex + 1;
     try {
+      if (warehouseId === '') return;
       const res = await getExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
@@ -88,5 +93,8 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
       startDate: '',
       endDate: '',
     });
+  },
+  clearAllData: () => {
+    set(initialState);
   },
 }));

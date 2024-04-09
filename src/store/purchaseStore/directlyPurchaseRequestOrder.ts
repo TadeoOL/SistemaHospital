@@ -26,7 +26,6 @@ interface State {
   pdf: string;
   provider: IProvider | null | IProvider[];
   step: number;
-  search: string;
   articlesFetched: Article[] | [];
   isManyProviders: boolean;
   isDirectlyPurchase: boolean;
@@ -44,7 +43,6 @@ interface Action {
   setPdf: (pdf: string) => void;
   setProvider: (provider: IProvider | IProvider[] | null) => void;
   setStep: (step: number) => void;
-  setSearch: (search: string) => void;
   setArticlesFetched: (articlesFetched: Article[] | []) => void;
   setIsManyProviders: (isManyProviders: boolean) => void;
   setIsDirectlyPurchase: (isDirectlyPurchase: boolean) => void;
@@ -63,7 +61,6 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State &
   provider: null,
   warehouseSelected: '',
   step: 0,
-  search: '',
   articlesFetched: [],
   isManyProviders: false,
   isDirectlyPurchase: true,
@@ -83,7 +80,6 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State &
   setPdf: (pdf: string) => set({ pdf }),
   setProvider: (provider: IProvider | IProvider[] | null) => set({ provider }),
   setStep: (step: number) => set({ step }),
-  setSearch: (search: string) => set({ search }),
   setArticlesFetched: (articlesFetched: Article[]) => set({ articlesFetched }),
   setIsManyProviders: (isManyProviders: boolean) => set({ isManyProviders }),
   setIsDirectlyPurchase: (isDirectlyPurchase: boolean) => set({ isDirectlyPurchase }),
@@ -94,7 +90,6 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State &
       warehouseSelected: '',
       articles: [],
       pdf: '',
-      search: '',
       articlesFetched: [],
       isManyProviders: false,
       isDirectlyPurchase: true,
