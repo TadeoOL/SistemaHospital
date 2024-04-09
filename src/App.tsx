@@ -48,7 +48,7 @@ function App() {
               <Route path="/compras/proveedores" element={<ProvidersView />} />
             </Route>
             <Route element={<ProtectedRoutePurchasingDirector />}>
-              <Route path="/compras/almacen" element={<WarehouseView />} />
+              <Route path="/almacenes" element={<WarehouseView />} />
               <Route path="/compras/autorizacion-compras" element={<PurchaseAuthorizationView />} />
               <Route path="compras/configuracion-compras" element={<PurchaseConfigView />} />
               <Route path="/configuracion" element={<AccountView />} />

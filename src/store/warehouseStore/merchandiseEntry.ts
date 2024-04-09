@@ -40,7 +40,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: null,
   isLoading: true,
   search: '',
@@ -56,7 +56,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
-  setPageSize: (pageSize: number) => set({ pageSize }),
+  setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
@@ -69,7 +69,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
       const res = await getPetitionsListByWareHouseId(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${
           useWarehouseTabsNavStore.getState().warehouseData.id
         }&FechaInicio=${startDate}&FechaFin=${endDate}`
       );
@@ -90,9 +90,8 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
     set(() => ({
       pageCount: 0,
       pageIndex: 0,
-      pageSize: 5,
+      pageSize: 10,
       search: '',
-      data: null,
       isLoading: true,
     }));
   },

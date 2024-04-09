@@ -26,18 +26,18 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
-import { useGetAlmacenes } from '../../../../../hooks/useGetAlmacenes';
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { MerchandiseEntry } from '../../../../../types/types';
-import { ArticlesFetched } from './ArticlesOutput';
-import { addMerchandiseEntry, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
+import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
+import { addMerchandiseEntry, getExistingArticles, getWarehouseById } from '../../../../../api/api.routes';
+
 
 type Article = {
   id: string;
   nombre: string;
+  stock: number;
 };
 const OPTIONS_LIMIT = 5;
 const filterArticleOptions = createFilterOptions<Article>({
@@ -78,9 +78,38 @@ const useFetchPurchaseWarehouse = (warehouseId: string) => {
 };
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
-  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const { warehouseId } = useParams();
-  const { isLoadingArticles, articlesRes } = useFetchPurchaseWarehouse(warehouseId as string);
+  const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
+  const [warehouseData, setWarehouseData] = useState<IWarehouseData[]>([]);
+  const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
+  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
+  const [serch, setSerch] = useState('');
+
+  useEffect(() => {
+    const fetch = async () => {
+      setIsLoadingWarehouse(true);
+      try {
+        const warehouse = await getWarehouseById(warehouseId as string);
+        if (warehouse?.esSubAlmacen) {
+          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal);
+          setWarehouseData([fatherWarehouse]);
+          setWarehouseSelected(fatherWarehouse.id);
+          handleFetchArticlesFromWareHouse(fatherWarehouse.id);
+        } else {
+          setWarehouseData(warehouse.subAlmacenes);
+        }
+      } catch (error) {
+        console.log('error');
+      } finally {
+        setIsLoadingWarehouse(false);
+      }
+    };
+    fetch();
+  }, [warehouseId]);
+  useEffect(() => {
+    console.log(warehouseData);
+  }, [warehouseData]);
+
   const {
     warehouseSelected,
     setWarehouseSelected,
@@ -108,16 +137,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const [amountError, setAmountError] = useState(false);
 
   useEffect(() => {
-    if (!(articlesRes && articlesRes?.length > 0)) return;
-    setArticlesFetched(articlesRes.map((art) => ({ id: art.id, nombre: art.nombre, precio: undefined })));
-    setArticlesFetched(
-      articlesRes.filter((a) => {
-        return !articles.some((ar) => ar.id === a.id);
-      })
-    );
-  }, [articlesRes]);
-
-  useEffect(() => {
     setWarehouseSelected('');
     setArticleSelected(null);
   }, [props.setOpen]);
@@ -131,20 +150,47 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       setAmountError(true);
       return toast.warning('Agrega una cantidad!');
     }
+    if (Number(amountText) > articleSelected.stock) {
+      setAmountError(true);
+      return toast.warning('La cantidad excede el stock!');
+    }
     const objectArticle = {
       id: articleSelected.id,
       name: articleSelected.nombre,
       amount: parseFloat(amountText),
       price: 0,
+      stock: articleSelected.stock,
     };
     const objectFiltered = articlesFetched.filter((a) => a.id !== objectArticle.id);
     setArticlesFetched(objectFiltered);
     setArticles([...articles, objectArticle]);
+    setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
     setArticleSelected(null);
     setAmountText('');
   };
 
-  if (isLoadingAlmacenes)
+  const handleFetchArticlesFromWareHouse = async (wareH: string) => {
+    try {
+      setIsLoadingArticlesWareH(true);
+      const res = await getExistingArticles(
+        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
+      );
+      const transformedData = res.data.map((item: any) => ({
+        id: item.id,
+        nombre: item.nombre,
+        stock: item.stockActual,
+      }));
+      console.log('res.data', res.data);
+
+      setDataWerehouseArticlesSelected(transformedData);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingArticlesWareH(false);
+    }
+  };
+
+  if (isLoadingWarehouse)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 6 }}>
         <CircularProgress size={40} />
@@ -158,52 +204,55 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
         return toast.warning('Selecciona un almacen!');
       }
       const object = {
-        Id_AlmacenOrigen: warehouseId as string,
-        Id_AlmacenDestino: data.almacenDestino,
+        Id_AlmacenOrigen: data.almacenDestino,
+        Id_AlmacenDestino: warehouseId as string,
         ListaArticulos: JSON.stringify(data.historialArticulos),
       };
       await addMerchandiseEntry(object);
+      toast.success('Solicitud creada');
       props.refetch();
       props.setOpen(false);
+      setDataWerehouseArticlesSelected([]);
       setWarehouseSelected('');
       setArticleSelected(null);
     } catch (error) {
       console.log(error);
+      toast.error('Algo salio mal');
     }
   };
 
   return (
     <Box sx={style}>
-      <HeaderModal
-        setOpen={() => {
-          props.setOpen();
-        }}
-        title="Petición de almacén"
-      />
+      <HeaderModal setOpen={props.setOpen} title="Petición de almacén" />
       <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
         <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
           <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
 
-          <TextField
-            select
-            label="Almacén"
-            size="small"
-            error={warehouseError}
-            helperText={warehouseError && 'Selecciona un almacén'}
-            value={warehouseSelected}
-            onChange={(e) => {
-              setWarehouseError(false);
-              setWarehouseSelected(e.target.value);
-            }}
-          >
-            {almacenes
-              .filter((warehouse) => warehouse.id !== warehouseId)
-              .map((warehouse) => (
-                <MenuItem key={warehouse.id} value={warehouse.id}>
-                  {warehouse.nombre}
-                </MenuItem>
-              ))}
-          </TextField>
+          {!isLoadingWarehouse && (
+            <TextField
+              select
+              label="Almacén"
+              size="small"
+              error={warehouseError}
+              helperText={warehouseError && 'Selecciona un almacén'}
+              value={warehouseSelected}
+              onChange={(e) => {
+                setWarehouseError(false);
+                setWarehouseSelected(e.target.value);
+                handleFetchArticlesFromWareHouse(e.target.value);
+                setArticles([]);
+              }}
+            >
+              {warehouseData?.length > 0 &&
+                warehouseData
+                  .filter((warehouse) => warehouse.id !== warehouseId)
+                  .map((warehouse) => (
+                    <MenuItem key={warehouse.id} value={warehouse.id}>
+                      {warehouse.nombre}
+                    </MenuItem>
+                  ))}
+            </TextField>
+          )}
         </Stack>
         <Divider sx={{ my: 2 }} />
         <Box
@@ -227,9 +276,10 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                 setArticleSelected(val);
                 setArticleError(false);
               }}
-              loading={isLoadingArticles && articlesRes.length === 0}
+              loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
               getOptionLabel={(option) => option.nombre}
-              options={articlesRes}
+              options={dataWerehouseSelectedArticles}
+
               value={articleSelected}
               noOptionsText="No se encontraron artículos"
               renderInput={(params) => (
@@ -241,6 +291,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   sx={{ width: '50%' }}
                   onChange={(e) => {
                     setSearch(e.target.value);
+                    setSerch(e.target.value);
                   }}
                 />
               )}
@@ -262,6 +313,11 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                 setAmountError(false);
               }}
             />
+            {articleSelected?.id && (
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                Stock Disponible : {articleSelected?.stock}{' '}
+              </Typography>
+            )}
           </Stack>
         </Box>
         <Box
@@ -347,16 +403,26 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
 
   const handleSaveQuantity = (id: string, newQuantity: string) => {
     if (!newQuantity || parseFloat(newQuantity) <= 0) return;
-    const updatedArticles = articles.map((article) => {
-      if (article.id === id) {
-        return {
-          ...article,
-          amount: parseFloat(newQuantity),
-        };
+
+    const articleToUpdate = articles.find((article) => article.id === id);
+
+    if (articleToUpdate) {
+      const newAmount = parseFloat(newQuantity);
+      if (newAmount > (articleToUpdate.stock as number)) {
+        toast.warning('La cantidad excede el stock disponible');
+        return;
       }
-      return article;
-    });
-    setArticles(updatedArticles);
+      const updatedArticles = articles.map((article) => {
+        if (article.id === id) {
+          return {
+            ...article,
+            amount: newAmount,
+          };
+        }
+        return article;
+      });
+      setArticles(updatedArticles);
+    }
   };
 
   useEffect(() => {
@@ -390,19 +456,22 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                     <TableCell>{a.name}</TableCell>
                     <TableCell>
                       {editingIds.has(a.id) ? (
-                        <TextField
-                          label="Cantidad"
-                          size="small"
-                          InputLabelProps={{ style: { fontSize: 12 } }}
-                          value={quantity[a.id] || ''}
-                          onChange={(e) => {
-                            if (!isValidInteger(e.target.value)) return;
-                            setQuantity({
-                              ...quantity,
-                              [a.id]: e.target.value,
-                            });
-                          }}
-                        />
+                        <>
+                          <TextField
+                            label="Cantidad"
+                            size="small"
+                            InputLabelProps={{ style: { fontSize: 12 } }}
+                            value={quantity[a.id] || ''}
+                            onChange={(e) => {
+                              if (!isValidInteger(e.target.value)) return;
+                              setQuantity({
+                                ...quantity,
+                                [a.id]: e.target.value,
+                              });
+                            }}
+                          />
+                          <Typography>stack max: {a.stock} </Typography>
+                        </>
                       ) : (
                         a.amount
                       )}

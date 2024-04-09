@@ -19,12 +19,13 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Add, CheckCircle, Edit, RestorePage } from '@mui/icons-material';
+import { Add, CheckCircle, DeleteSweep, Edit, RestorePage } from '@mui/icons-material';
 import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/api.routes';
 import { IPurchaseOrder, IPurchaseOrderArticle, ISubWarehouse } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
 import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
+import { ReturnArticle } from './ReturnArticle';
 
 const style = {
   width: { xs: 380, sm: 750, md: 1000, lg: 1200 },
@@ -56,17 +57,27 @@ interface ArticleSelected {
   nombre: string;
   codigoBarras?: string;
   fechaCaducidad: string | null;
+  cantidad?: string;
 }
 interface PurchaseOrder extends IPurchaseOrder {
   notas: string;
   instruccionEntrega: string;
   almacen: ISubWarehouse;
 }
-
+type ArticlesToBox = {
+  id: string;
+  amount: string;
+};
 interface ArticlesEntryProps {
   orderId: string;
   setOpen: Function;
 }
+
+type ReturnArticle = {
+  Id_OrdenCompraArticulo: string;
+  Motivo: string;
+  CantidadDevuelta: string;
+};
 
 const useGetArticleEntryData = (orderId: string) => {
   const [isLoadingArticleEntryData, setIsLoadingArticleEntryData] = useState(true);
@@ -95,7 +106,10 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const { isLoadingArticleEntryData, articleEntryData, error } = useGetArticleEntryData(props.orderId);
   const [openModal, setOpenModal] = useState(false);
   const [articleSelected, setArticleSelected] = useState<ArticleSelected>();
-  const [articles, setArticles] = useState<IPurchaseOrderArticle[]>();
+  const [articles, setArticles] = useState<IPurchaseOrderArticle[]>([]);
+  const [openReturnArticle, setOpenReturnArticle] = useState(false);
+  const [returnArticlesArray, setReturnArticlesArray] = useState<ReturnArticle[]>([]);
+  const [articlesToBox, setArticlesToBox] = useState<ArticlesToBox[]>([]);
 
   useEffect(() => {
     if (!articleEntryData) return;
@@ -104,7 +118,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
 
   const missingSomeEntryData = useMemo(() => {
     return articles?.some((article) => {
-      if (!article.fechaCaducidad || !article.codigoBarras) return true;
+      if ((!article.fechaCaducidad || !article.codigoBarras) && article.cantidad !== 0) return true;
       return false;
     });
   }, [articles]);
@@ -128,31 +142,77 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const handleSubmit = async () => {
     if (!articleEntryData || !articles) return;
 
-    const articlesFormatted = articles.map((article) => {
-      return {
-        id_articulo: article.id_Articulo,
-        cantidad: article.cantidad,
-        codigoBarras: article.codigoBarras as string,
-        fechaCaducidad: article.fechaCaducidad as string,
-      };
-    });
+    const articlesFormatted = articles
+      .map((article) => {
+        return {
+          id_articulo: article.id_Articulo,
+          cantidad: article.cantidad,
+          codigoBarras: article.codigoBarras as string,
+          fechaCaducidad: article.fechaCaducidad as string,
+        };
+      })
+      .filter((a) => a.cantidad !== 0);
     const articlesEntryObject = {
       id_almacen: articleEntryData.almacen.id,
       articulos: articlesFormatted,
       id_ordenCompra: props.orderId,
+      devolucionCompras: returnArticlesArray,
     };
     try {
       await addArticlesToWarehouse(articlesEntryObject);
-      toast.success('Articulos agregados correctamente!');
+      toast.success('Artículos agregados correctamente!');
       usePurchaseOrderPagination.getState().fetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error('Error al agregar los articulos!');
+      toast.error('Error al agregar los artículos!');
     }
   };
 
-  if (isLoadingArticleEntryData && !articles)
+  function hasExpireDate(date: string) {
+    return date === '4000-01-01' ? 'Sin vencimiento' : date;
+  }
+
+  function findReturnArticlesArray(articleId: string) {
+    return returnArticlesArray.find((a) => a.Id_OrdenCompraArticulo === articleId);
+  }
+
+  // function isInArticlesToBox(articleId: string) {
+  //   return articlesToBox.some((a) => a.id === articleId);
+  // }
+
+  function findArticleInArticleToBox(articleId: string) {
+    return articlesToBox.find((a) => a.id === articleId);
+  }
+
+  function findOriginalArticle(articleId: string) {
+    if (!articleEntryData) return;
+    const article = articleEntryData.ordenCompraArticulo.find((a) => a.id_Articulo === articleId);
+    return article as IPurchaseOrderArticle;
+  }
+
+  function handleDeleteArticleFromReturnArray(orderArticleId: string, articleId: string) {
+    const articleInBox = articlesToBox.find((a) => a.id === articleId);
+    const originalArticle = articleEntryData?.ordenCompraArticulo.find(
+      (a) => a.id_OrdenCompraArticulo === orderArticleId
+    );
+    const findIndex = articles.findIndex((a) => a.id_OrdenCompraArticulo === orderArticleId);
+    if (findIndex !== -1 && originalArticle) {
+      const updatedArrayArticles = [...articles];
+      updatedArrayArticles[findIndex].cantidad = articleInBox
+        ? parseInt(articleInBox.amount) * originalArticle.cantidad
+        : originalArticle.cantidad;
+      setArticles(updatedArrayArticles);
+    }
+    return setReturnArticlesArray(returnArticlesArray.filter((a) => a.Id_OrdenCompraArticulo !== orderArticleId));
+  }
+
+  function dataCompleted(article: IPurchaseOrderArticle) {
+    if (article.codigoBarras) return true;
+    return false;
+  }
+
+  if (isLoadingArticleEntryData)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -165,12 +225,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal
-          setOpen={() => {
-            props.setOpen();
-          }}
-          title="Entrada de artículos"
-        />
+        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
         <Stack spacing={2} sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto', ...styleBar }}>
           <Box sx={{ maxHeight: 450 }}>
             <Grid container spacing={2}>
@@ -201,6 +256,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Articulo</TableCell>
+                      <TableCell>Caja/Unidad</TableCell>
                       <TableCell>Cantidad</TableCell>
                       <TableCell>Precio de compra</TableCell>
                       <TableCell>Precio de venta</TableCell>
@@ -214,11 +270,30 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                       return (
                         <TableRow key={a.id_Articulo}>
                           <TableCell>{a.nombre}</TableCell>
-                          <TableCell>{a.cantidad}</TableCell>
+                          <TableCell>
+                            {findArticleInArticleToBox(a.id_Articulo)
+                              ? findArticleInArticleToBox(a.id_Articulo)?.amount
+                              : 0}
+                          </TableCell>
+                          <TableCell>
+                            {findReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
+                              <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>
+                                <Typography className="textoTachado">
+                                  {!findArticleInArticleToBox(a.id_Articulo)
+                                    ? findOriginalArticle(a.id_Articulo)?.cantidad
+                                    : (findOriginalArticle(a.id_Articulo)?.cantidad as number) *
+                                      parseInt(findArticleInArticleToBox(a.id_Articulo)?.amount as string)}
+                                </Typography>
+                                <Typography>{a.cantidad}</Typography>
+                              </Box>
+                            ) : (
+                              a.cantidad
+                            )}
+                          </TableCell>
                           <TableCell>{a.precioProveedor}</TableCell>
                           <TableCell>{a.precioVenta}</TableCell>
                           <TableCell>{a.factorAplicado}</TableCell>
-                          <TableCell>{a.fechaCaducidad ? a.fechaCaducidad : 'No tiene aun'}</TableCell>
+                          <TableCell>{a.fechaCaducidad ? hasExpireDate(a.fechaCaducidad) : 'No tiene aun'}</TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', flex: 1 }}>
                               <Tooltip title={articleMissingEntryData(a.id_Articulo) ? 'Entrada' : 'Editar entrada'}>
@@ -236,16 +311,40 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                   {articleMissingEntryData(a.id_Articulo) ? <Add /> : <Edit />}
                                 </IconButton>
                               </Tooltip>
-                              {articleMissingEntryData(a.id_Articulo) ? (
-                                <Tooltip title="Devolución">
-                                  <IconButton onClick={() => {}}>
-                                    <RestorePage />
-                                  </IconButton>
-                                </Tooltip>
-                              ) : (
+                              <Tooltip title="Devolución">
+                                <IconButton
+                                  onClick={() => {
+                                    const originalArticle = articleEntryData?.ordenCompraArticulo.find(
+                                      (art) => art.id_Articulo === a.id_Articulo
+                                    );
+                                    setArticleSelected({
+                                      id: originalArticle?.id_OrdenCompraArticulo,
+                                      nombre: originalArticle?.nombre,
+                                      codigoBarras: originalArticle?.codigoBarras,
+                                      fechaCaducidad: originalArticle?.fechaCaducidad,
+                                      cantidad: originalArticle?.cantidad.toString(),
+                                    } as ArticleSelected);
+                                    setOpenReturnArticle(true);
+                                  }}
+                                >
+                                  <RestorePage />
+                                </IconButton>
+                              </Tooltip>
+                              {dataCompleted(a) && (
                                 <Tooltip title="Completado">
                                   <IconButton onClick={() => {}}>
                                     <CheckCircle sx={{ color: 'green' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {findReturnArticlesArray(a.id_OrdenCompraArticulo) && (
+                                <Tooltip title="Eliminar devolución">
+                                  <IconButton
+                                    onClick={() => {
+                                      handleDeleteArticleFromReturnArray(a.id_OrdenCompraArticulo, a.id_Articulo);
+                                    }}
+                                  >
+                                    <DeleteSweep sx={{ color: 'red' }} />
                                   </IconButton>
                                 </Tooltip>
                               )}
@@ -283,6 +382,25 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
             articleData={articleSelected as ArticleSelected}
             setArticlesInOrder={setArticles}
             articlesInOrder={articles as IPurchaseOrderArticle[]}
+            articlesToBox={articlesToBox}
+            setArticlesToBox={setArticlesToBox}
+            originalArticles={articleEntryData?.ordenCompraArticulo as IPurchaseOrderArticle[]}
+            returnArticlesArray={returnArticlesArray}
+            setReturnArticlesArray={setReturnArticlesArray}
+          />
+        </>
+      </Modal>
+      <Modal open={openReturnArticle} onClose={() => setOpenReturnArticle(false)}>
+        <>
+          <ReturnArticle
+            setOpen={setOpenReturnArticle}
+            article={articleSelected as ArticleSelected}
+            returnArticlesArray={returnArticlesArray}
+            setReturnArticlesArray={setReturnArticlesArray}
+            articles={articles}
+            setArticles={setArticles}
+            articlesToBox={articlesToBox}
+            originalArticlesArray={articleEntryData?.ordenCompraArticulo as IPurchaseOrderArticle[]}
           />
         </>
       </Modal>

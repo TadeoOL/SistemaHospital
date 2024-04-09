@@ -51,7 +51,7 @@ export const useUserPaginationStore = createWithEqualityFn<State & Action>((set)
   setNewUser: (state: IUser) => set(() => ({ newUser: state })),
   searchPagination: (state: string) => set(() => ({ search: state, pageIndex: 0 })),
   setPageIndex: (state: number) => set(() => ({ pageIndex: state })),
-  setResultByPage: (state: number) => set(() => ({ pageSize: state })),
+  setResultByPage: (state: number) => set(() => ({ pageSize: state, pageIndex: 0 })),
   setUserDisabled: (state: boolean) => set(() => ({ userDisabled: state })),
   fetchData: async (pageSize: number, search: string, enabled: boolean, pageIndex: number) => {
     set(() => ({ loading: true }));

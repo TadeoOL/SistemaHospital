@@ -34,7 +34,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: null,
   isLoading: true,
   search: '',
@@ -46,7 +46,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
-  setPageSize: (pageSize: number) => set({ pageSize }),
+  setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchSubWarehouse: async () => {
@@ -79,7 +79,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
     set(() => ({
       pageCount: 0,
       pageIndex: 0,
-      pageSize: 5,
+      pageSize: 10,
       search: '',
       data: null,
       isLoading: true,

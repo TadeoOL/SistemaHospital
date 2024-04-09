@@ -132,7 +132,7 @@ export const CategoryTable = () => {
         disableHook={disableCategory}
         fetchDataHook={useGetAllData}
         modifyModalComponent={(props) => <ModifyCategoryModal data={props.data} open={props.open} />}
-        headers={['Nombre', 'Descripción', 'Acciones']}
+        headers={['Nombre', 'Descripción','Almacen' ,'Acciones',]}
       />
     </>
   );

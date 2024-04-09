@@ -89,6 +89,7 @@ export interface ICategory {
   id: string;
   nombre: string;
   descripcion: string;
+  id_Almacen: string;
 }
 export interface ISubCategory {
   id: string;
@@ -102,7 +103,6 @@ export interface ISubCategory {
 export interface IArticle {
   id: string;
   nombre: string;
-  codigoBarras: string;
   descripcion: string | null;
   stockMinimo: string;
   stockAlerta: string;
@@ -132,6 +132,7 @@ export interface IExistingArticleList {
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;
+  codigoBarras: string;
 }
 
 export interface IWarehouse {
@@ -221,10 +222,13 @@ export interface ArticleObject {
 
 export interface MerchandiseEntry {
   id: string;
+  id_AlmacenOrigen: string;
+  id_AlmacenDestino: string;
   almacenOrigen: string;
   almacenDestino: string;
   historialArticulos: ArticleObjectInPetition[];
   fechaSolicitud: string;
+  estatus: number;
 }
 
 export interface ArticleObjectInPetition {
@@ -256,6 +260,7 @@ export interface IRegisterOrderPurchase {
 
 export interface OrdenCompra {
   Id_Proveedor: string;
+  ConceptoPago?:number;
   OrdenCompraArticulo: OrdenCompraArticulo[];
 }
 
@@ -300,7 +305,7 @@ export enum StatusPurchaseOrder {
   'Cancelada' = 0,
   'En espera de Factura' = 1,
   'Se necesita entrada de artículos' = 2,
-  'Alta de artículos' = 3,
+  'Ingresado a inventario' = 3,
 }
 
 export interface IWarehouseData {
@@ -321,6 +326,8 @@ export interface IWarehouseMovementData {
   almacenDestino: string | null;
   historialArticulos: IArticleHistory[] | null;
   fechaSolicitud: string;
+  ingresoMotivo: string;
+  salidaMotivo: string;
   id: string;
 }
 export interface IArticleHistory {

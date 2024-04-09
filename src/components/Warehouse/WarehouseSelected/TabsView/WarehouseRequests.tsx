@@ -14,23 +14,28 @@ import {
   TextField,
   IconButton,
   TablePagination,
-  Button,
   Modal,
 } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Info } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
-import { merchandiseEntryPagination } from '../../../../store/warehouseStore/merchandiseEntry';
-import { AddMerchandisePetitionModal } from './Modal/AddMerchandisePetition';
+import { merchandiseEntryRequestPagination } from '../../../../store/warehouseStore/merchandiseEntryRequest';
+import { AceptWareHouseRequestModal } from './Modal/AcceptWarehouseRequest';
+import CloseIcon from '@mui/icons-material/Close';
+import { MerchandiseEntry } from '../../../../types/types';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { articlesOutputToWarehouse } from '../../../../api/api.routes';
 
 const useGetEntries = () => {
   const {
     data,
-    fetchMerchandiseEntries,
+    fetchEntryRequest,
     isLoading,
     pageCount,
     pageIndex,
@@ -44,9 +49,9 @@ const useGetEntries = () => {
     setEndDate,
     setSearch,
     search,
-  } = merchandiseEntryPagination((state) => ({
+  } = merchandiseEntryRequestPagination((state) => ({
     data: state.data,
-    fetchMerchandiseEntries: state.fetchMerchandiseEntries,
+    fetchEntryRequest: state.fetchEntryRequest,
     isLoading: state.isLoading,
     pageCount: state.pageCount,
     pageIndex: state.pageIndex,
@@ -63,7 +68,7 @@ const useGetEntries = () => {
   }));
 
   useEffect(() => {
-    fetchMerchandiseEntries();
+    fetchEntryRequest();
   }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
   return {
     data,
@@ -77,13 +82,14 @@ const useGetEntries = () => {
     setEndDate,
     setPageIndex,
     setPageSize,
-    fetchMerchandiseEntries,
+    fetchEntryRequest,
   };
 };
 
-export const WarehousePurchases = () => {
+export const WarehouseRequest = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [openModal, setOpenModal] = useState(false);
+  const [request, setRequest] = useState<MerchandiseEntry>();
   const {
     data,
     count,
@@ -95,8 +101,46 @@ export const WarehousePurchases = () => {
     setEndDate,
     setPageIndex,
     setPageSize,
-    fetchMerchandiseEntries,
+    fetchEntryRequest,
   } = useGetEntries();
+  const rejectRequest = (idRequest: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `¿Seguro que deseas cancelar esta solicitud de articulos?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          const object = {
+            Estatus: 0,
+            Id_HistorialMovimiento: idRequest,
+          };
+          console.log(object);
+          try {
+            await articlesOutputToWarehouse(object);
+            fetchEntryRequest();
+            withReactContent(Swal).fire({
+              title: 'Exito!',
+              text: 'Solicitud Cancelada',
+              icon: 'success',
+            });
+          } catch (error) {
+            console.log(error);
+            withReactContent(Swal).fire({
+              title: 'Error!',
+              text: 'Ocurrio un erro en la cancelación',
+              icon: 'error',
+            });
+          }
+        }
+      });
+  };
 
   return (
     <React.Fragment>
@@ -104,7 +148,7 @@ export const WarehousePurchases = () => {
         <Stack spacing={2} sx={{ minWidth: 950 }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar petición de almacén..."
+              title="Buscar solicitud de mercancia..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 1 }}
               size="small"
@@ -131,15 +175,6 @@ export const WarehousePurchases = () => {
               <IconButton onClick={() => useWarehouseMovementPaginationStore.getState().clearFilters()}>
                 <FilterListOffIcon />
               </IconButton>
-
-              <Button
-                variant="contained"
-                onClick={() => {
-                  setOpenModal(true);
-                }}
-              >
-                Nueva petición
-              </Button>
             </Box>
           </Box>
           <Card>
@@ -150,6 +185,7 @@ export const WarehousePurchases = () => {
                     <TableCell>Petición de Almacén</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>Fecha de solicitud</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>Estatus</TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>Acción</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -179,11 +215,37 @@ export const WarehousePurchases = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            <Typography>{petition.almacenOrigen}</Typography>
+                            <Typography>{petition.almacenDestino}</Typography>
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
-                            {petition.estatus === 1 ? 'Espera' : 'Completado'}
+                            {petition.estatus === 0 ? 'Cancelada' : 'Pendiente'}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Box
+                              sx={{
+                                flexDirection: 'row',
+                                alignContent: 'center',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <IconButton>
+                                <SettingsIcon
+                                  onClick={() => {
+                                    setRequest(petition);
+                                    setOpenModal(true);
+                                  }}
+                                />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  rejectRequest(petition.id);
+                                }}
+                              >
+                                <CloseIcon sx={{ color: 'red' }} />
+                              </IconButton>
+                            </Box>
                           </TableCell>
                         </TableRow>
                         <TableRow>
@@ -230,7 +292,7 @@ export const WarehousePurchases = () => {
                             <>
                               <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                               <Typography variant="h2" color="gray">
-                                No hay peticiones
+                                No hay solicitudes
                               </Typography>
                             </>
                           )}
@@ -266,7 +328,11 @@ export const WarehousePurchases = () => {
         }}
       >
         <React.Fragment>
-          <AddMerchandisePetitionModal setOpen={setOpenModal} refetch={fetchMerchandiseEntries} />
+          <AceptWareHouseRequestModal
+            setOpen={setOpenModal}
+            refetch={fetchEntryRequest}
+            request={request as MerchandiseEntry}
+          />
         </React.Fragment>
       </Modal>
     </React.Fragment>

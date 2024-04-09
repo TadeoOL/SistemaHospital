@@ -1,6 +1,6 @@
 import { Box, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ISearchBar {
   searchState: Function;
@@ -13,9 +13,16 @@ export const SearchBar = (props: ISearchBar) => {
   const [text, setText] = useState('');
   const handleChange = (event: any) => {
     setText(event.currentTarget.value);
-    searchState(event.currentTarget.value);
     event.preventDefault();
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchState(text);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [text]);
 
   return (
     <Box sx={{ px: 2, ...sx }}>

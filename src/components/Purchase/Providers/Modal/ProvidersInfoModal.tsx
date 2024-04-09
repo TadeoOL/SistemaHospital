@@ -70,7 +70,7 @@ export const ProvidersInfoModal = (props: IProviderInfoModal) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal title="Información del proveedor" setOpen={() => {}} />
+      <HeaderModal title="Información del proveedor" setOpen={props.setOpen} />
       <Stack
         spacing={2}
         sx={{

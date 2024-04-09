@@ -19,6 +19,8 @@ import React, { useCallback, useState } from 'react';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
+import { useWarehouseTabsNavStore } from '../store/warehouseStore/warehouseTabsNav';
+import { useShallow } from 'zustand/react/shallow';
 
 interface ITableComponentProps {
   fetchDataHook: () => {
@@ -47,6 +49,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
   const [dataId, setDataId] = useState('');
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const clearState = useWarehouseTabsNavStore(useShallow((state) => state.clearWarehouseData));
 
   const { count, data, enabled, isLoading, pageIndex, pageSize, setPageIndex, setPageSize } = fetchDataHook();
 
@@ -74,7 +77,14 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
                 : data.map((item: any) => (
                     <React.Fragment key={item.id}>
                       <TableRow
-                        onClick={navigatingRowsWareHouse ? () => navigate(`/almacenes/${item.id}`) : () => {}}
+                        onClick={
+                          navigatingRowsWareHouse
+                            ? () => {
+                                clearState();
+                                navigate(`/almacenes/${item.id}`);
+                              }
+                            : () => {}
+                        }
                         sx={{
                           '&:hover': {
                             cursor: 'pointer',
@@ -152,6 +162,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
           page={pageIndex}
           rowsPerPage={pageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="Filas por página"
         />
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>

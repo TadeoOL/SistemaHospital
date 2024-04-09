@@ -83,7 +83,11 @@ export const addSubCategorySchema = z.object({
     .min(1, 'Debe tener al menos una cifra')
     .refine(
       (value) => {
-        return number.test(value);
+        const parsedValue = parseInt(value);
+        const flag = number.test(value);
+        if (flag) {
+          return parsedValue;
+        }
       },
       {
         message: 'Número no valido.',
@@ -93,11 +97,12 @@ export const addSubCategorySchema = z.object({
 
 export const addCategory = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().min(1, 'Escribe una descripción'),
 });
 
 export const addArticle = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  codigoBarras: z.string().min(1, 'Escribe un código de barras'),
+  descripcion: z.string().nullable(),
   stockMinimo: z
     .string()
     .nullable() // Permitir valores nulos
@@ -203,6 +208,7 @@ export const addExistingArticle = z
 
 export const addWarehouse = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().nullish(),
 });
 
 export const addPurchase = z.object({
@@ -251,10 +257,5 @@ export const addNewFactorSchema = z
 
 export const addNewSubWarehouseSchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
-  usuarioEncargado: z
-    .string()
-    .nullish()
-    .refine((data) => data !== null && data !== undefined, {
-      message: 'Selecciona un usuario',
-    }),
+  descripcion: z.string().nullable(),
 });

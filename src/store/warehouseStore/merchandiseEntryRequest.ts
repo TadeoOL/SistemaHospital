@@ -1,6 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getWareHouseMovementsById } from '../../api/api.routes';
-import { IWarehouseMovementData } from '../../types/types';
+import { getRequestListByWareHouseId } from '../../api/api.routes';
+import { MerchandiseEntry } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 
 interface State {
@@ -8,7 +8,7 @@ interface State {
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IWarehouseMovementData[] | null;
+  data: MerchandiseEntry[] | null;
   isLoading: boolean;
   search: string;
   enabled: boolean;
@@ -30,12 +30,12 @@ interface Action {
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => void;
-  fetchWarehouseMovements: () => Promise<void>;
+  fetchEntryRequest: () => Promise<void>;
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
 }
 
-export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & Action>((set, get) => ({
+export const merchandiseEntryRequestPagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -56,20 +56,20 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
-  setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
+  setPageSize: (pageSize: number) => set({ pageSize }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
-  fetchWarehouseMovements: async () => {
+  fetchEntryRequest: async () => {
     const { pageIndex, enabled, pageSize, search, startDate, endDate } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
     try {
-      const res = await getWareHouseMovementsById(
+      const res = await getRequestListByWareHouseId(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${
           useWarehouseTabsNavStore.getState().warehouseData.id
         }&FechaInicio=${startDate}&FechaFin=${endDate}`
       );

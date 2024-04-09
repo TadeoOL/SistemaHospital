@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
 import { IWarehouse } from '../../../types/types';
-import { getPurchaseWarehouseById, modifyPurchaseWarehouse } from '../../../api/api.routes';
+import { getPurchaseWarehouseById, modifyWarehouseById } from '../../../api/api.routes';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { addWarehouse } from '../../../schema/schemas';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
@@ -78,8 +78,8 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
   const {
     register,
     handleSubmit,
-    getValues,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<IWarehouse>({
     defaultValues: {
@@ -110,7 +110,7 @@ export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
   const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
     try {
       const idForm = getValues('id');
-      await modifyPurchaseWarehouse({ ...data, id: idForm });
+      await modifyWarehouseById({ ...data, Id_AlmacenPrincipal: idForm });
       setHandleChangeWarehouse(!handleChangeWarehouse);
       toast.success('Almacén modificado con éxito!');
       open(false);

@@ -299,10 +299,14 @@ export function createComponents(config: { palette: any }): Components {
           },
         },
         input: {
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: 400,
           lineHeight: '24px',
           padding: '10.5px 14px 10.5px 12px',
+          '&.tableCell': {
+            padding: '5.5px 14px 5.5px 12px',
+            maxWidth: 70,
+          },
         },
         inputMultiline: {
           fontSize: 14,
@@ -506,6 +510,26 @@ export function createComponents(config: { palette: any }): Components {
           width: muiTheme.spacing(3.75),
           height: muiTheme.spacing(3.75),
           fontSize: '0.75rem',
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          '&.textoTachado': {
+            position: 'relative',
+            display: 'inline-block',
+            color: 'red',
+          },
+          '&.textoTachado::after': {
+            content: "''",
+            position: 'absolute',
+            bottom: '0.7em',
+            left: '-40%',
+            width: '190%',
+            borderBottom: '1px solid red',
+            transform: 'rotate(-60deg)',
+          },
         },
       },
     },

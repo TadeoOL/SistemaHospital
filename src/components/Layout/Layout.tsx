@@ -59,7 +59,7 @@ export const Layout: React.FC = () => {
     '/compras/categorias/subcategoria': 'Sub categorías',
     '/compras/articulos/articulo': 'Catálogo de Artículos',
     '/compras/articulos/articulo-existente': 'Productos en Existencia',
-    '/compras/almacen': 'Almacén',
+    '/almacenes': 'Almacén',
     '/compras/autorizacion-compras': 'Autorización de ordenes de compra',
     '/compras/proveedores': 'Proveedores',
     '/compras/configuracion-compras': 'Configuración de compras',

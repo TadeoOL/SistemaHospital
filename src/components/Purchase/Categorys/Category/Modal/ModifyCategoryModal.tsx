@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, CircularProgress, Stack, TextField } from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +10,7 @@ import { getCategoryById, modifyCategory } from '../../../../../api/api.routes';
 import { useCategoryPagination } from '../../../../../store/purchaseStore/categoryPagination';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { useGetAlmacenes } from '../../../../../hooks/useGetAlmacenes';
 
 const style = {
   position: 'absolute',
@@ -67,6 +68,9 @@ const useFetchCategory = (categoryId: string) => {
 export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
   const { open, data } = props;
   const { isLoadingCategory, category } = useFetchCategory(data);
+  const [warehouseError, setWarehouseError] = useState(false);
+  const [warehouseSelected, setWarehouseSelected] = useState('');
+  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const [textValue, setTextValue] = useState('');
   const { handleChangeCategory, setHandleChangeCategory } = useCategoryPagination((state) => ({
     handleChangeCategory: state.handleChangeCategory,
@@ -84,11 +88,17 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
       id: category?.id,
       nombre: category?.nombre,
       descripcion: category?.descripcion,
+      id_Almacen: category?.id_Almacen,
     },
     resolver: zodResolver(addCategory),
   });
 
   const onSubmit: SubmitHandler<ICategory> = async (data) => {
+    if (!warehouseSelected) {
+      setWarehouseError(true);
+      return;
+    }
+    data.id_Almacen = warehouseSelected;
     try {
       const idForm = getValues('id');
       await modifyCategory({ ...data, id: idForm });
@@ -106,6 +116,7 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
       Object.entries(category).forEach(([key, value]) => {
         setValue(key as keyof ICategory, String(value));
       });
+      setWarehouseSelected(category.id_Almacen || '');
     }
   }, [category, setValue]);
 
@@ -113,7 +124,7 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
     setTextValue(event.currentTarget.value);
   };
 
-  if (isLoadingCategory)
+  if (isLoadingCategory || isLoadingAlmacenes)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -128,6 +139,26 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
           <Stack spacing={3} sx={{ p: 4, maxHeight: 600 }}>
             <Stack spacing={2}>
               <TextField fullWidth {...register('nombre')} size="small" placeholder="Nombre" error={!!errors.nombre} />
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar almacén</Typography>
+
+              <TextField
+                select
+                label="Almacén"
+                size="small"
+                error={warehouseError}
+                helperText={warehouseError && 'Selecciona un almacén'}
+                value={warehouseSelected}
+                onChange={(e) => {
+                  setWarehouseError(false);
+                  setWarehouseSelected(e.target.value);
+                }}
+              >
+                {almacenes.map((warehouse) => (
+                  <MenuItem key={warehouse.id} value={warehouse.id}>
+                    {warehouse.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
               <TextField
                 fullWidth
                 {...register('descripcion')}

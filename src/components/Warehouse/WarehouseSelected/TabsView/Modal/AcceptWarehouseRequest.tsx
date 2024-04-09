@@ -1,18 +1,11 @@
 import {
-  Autocomplete,
   Box,
   Button,
   Card,
   Collapse,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   Grid,
   IconButton,
   Modal,
-  Radio,
-  RadioGroup,
   Stack,
   Table,
   TableBody,
@@ -24,28 +17,27 @@ import {
   Tooltip,
   Typography,
   alpha,
-  createFilterOptions,
   styled,
   tableCellClasses,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Delete, Edit, ExpandLess, ExpandMore, Save } from '@mui/icons-material';
 import { OutputReasonMessage } from './OutputReasonMessage';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { IWarehouseData } from '../../../../../types/types';
+import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
 import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
-import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
+import { returnExpireDate } from '../../../../../utils/expireDate';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 600, md: 800 },
+  width: { xs: 380, sm: 500, md: 600 },
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
@@ -64,11 +56,6 @@ const styleBar = {
     outline: '1px solid slategrey',
   },
 };
-
-const OPTIONS_LIMIT = 5;
-const filterSubWarehousesOptions = createFilterOptions<any>({
-  limit: OPTIONS_LIMIT,
-});
 
 const NestedTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -90,10 +77,10 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 export type ArticlesFetched = {
-  id: string;
+  id?: string;
   nombre: string;
-  lote: { stock: number; fechaCaducidad: string; id: string }[];
-  stockActual: string;
+  lote?: { stock: number; fechaCaducidad: string }[];
+  stockActual?: string;
   cantidad: string;
 };
 
@@ -108,7 +95,9 @@ const renderOutputView = (
   subWarehouse: any,
   setSubWarehouse: Function,
   originalArticlesSelected: ArticlesFetched[],
-  setOriginalArticlesSelected: Function
+  setOriginalArticlesSelected: Function,
+  request: MerchandiseEntry,
+  setEditingRow: Function
 ) => {
   switch (step) {
     case 0:
@@ -124,6 +113,8 @@ const renderOutputView = (
           setSubWarehouse={setSubWarehouse}
           originalArticlesSelected={originalArticlesSelected}
           setOriginalArticlesSelected={setOriginalArticlesSelected}
+          request={request}
+          setEditingRow={setEditingRow}
         />
       );
 
@@ -134,53 +125,58 @@ const renderOutputView = (
           reasonMessage={reasonMessage}
           radioSelected={radioSelected}
           subWarehouse={subWarehouse}
+          request={request}
+          setEditingRow={setEditingRow}
         />
       );
   }
 };
 interface ArticlesViewProps {
   setOpen: Function;
+  refetch: Function;
+  request: MerchandiseEntry;
 }
 
-export const ArticlesView = (props: ArticlesViewProps) => {
-  const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
+export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
+  const [articles, setArticles] = useState<ArticlesFetched[]>(
+    props.request.historialArticulos.map((art) => ({
+      nombre: art.nombre,
+      cantidad: art.cantidad.toString(),
+      stockActual: undefined,
+      lote: undefined,
+      id: undefined,
+    }))
+  );
   const [reasonMessage, setReasonMessage] = useState('');
   const [value, setValue] = useState(0);
+  const [editingRow, setEditingRow] = useState(false);
   const [radioSelected, setRadioSelected] = useState(0);
   const [subWarehouse, setSubWarehouse] = useState<IWarehouseData | null>(null);
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    const existingArticles = articles
-      .flatMap((article) => article.lote)
-      .map((article) => {
-        return { Id_ArticuloExistente: article.id, Cantidad: article.stock.toString() };
-      });
     const object = {
-      Articulos: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : reasonMessage,
-      id_almacenOrigen: warehouseData.id,
-      Estatus: 1,
-      // esSalidaAlmacen: radioSelected === 0 ? true : false,
+      solicitudAceptada: true,
+      id_almacenOrigen: props.request.id_AlmacenOrigen,
+      id_almacenDestino: props.request.id_AlmacenDestino,
+      Articulos: articles.map((art) => ({ Id_ArticuloExistente: art.id as string, Cantidad: art.cantidad.toString() })),
+      Estatus: 2,
+      Id_HistorialMovimiento: props.request.id,
     };
+    console.log(object);
     try {
       await articlesOutputToWarehouse(object);
-      useExistingArticlePagination.getState().fetchExistingArticles();
-      toast.success('Salida a artículos con éxito!');
+      props.refetch();
+      toast.success('Solicitud aceptada');
       props.setOpen(false);
     } catch (error) {
       console.log(error);
       toast.error('Error al dar salida a artículos!');
-    } finally {
-      setIsLoading(false);
     }
   };
   return (
     <Box sx={{ ...style }}>
-      <HeaderModal setOpen={props.setOpen} title="Salida de artículos" />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Artículos" />
       <Box sx={{ overflowY: 'auto', ...styleBar, bgcolor: 'background.paper', p: 2 }}>
         <Box
           sx={{
@@ -198,7 +194,9 @@ export const ArticlesView = (props: ArticlesViewProps) => {
             subWarehouse,
             setSubWarehouse,
             originalArticlesSelected,
-            setOriginalArticlesSelected
+            setOriginalArticlesSelected,
+            props.request,
+            setEditingRow
           )}
         </Box>
       </Box>
@@ -214,7 +212,6 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       >
         <Button
           color="error"
-          disabled={isLoading}
           variant="outlined"
           onClick={() => {
             if (value === 0) {
@@ -228,26 +225,15 @@ export const ArticlesView = (props: ArticlesViewProps) => {
         </Button>
         <Button
           variant="contained"
-          disabled={isLoading}
+          disabled={editingRow}
           onClick={() => {
-            if (value === 0) {
-              if (articles.length === 0) return toast.error('Agrega artículos!');
-              if (
-                articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === '' || cantidad === '0')
-              )
-                return toast.error('Rellena todas las cantidades');
-              if (radioSelected === 0) {
-                if (!subWarehouse) return toast.error('Selecciona un Sub Almacén');
-              } else {
-                if (reasonMessage === '') return toast.error('Agrega un motivo de salida');
-              }
-              setValue((prev) => prev + 1);
-            } else {
-              handleSubmit();
-            }
+            if (articles.length === 0) return toast.error('Agrega artículos!');
+            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === '' || cantidad === '0'))
+              return toast.error('Rellena todas las cantidades');
+            handleSubmit();
           }}
         >
-          {value === 0 ? 'Siguiente' : 'Aceptar'}
+          {'Aceptar'}
         </Button>
       </Box>
     </Box>
@@ -265,39 +251,44 @@ interface ArticlesOutputProp {
   setSubWarehouse: Function;
   originalArticlesSelected: ArticlesFetched[];
   setOriginalArticlesSelected: Function;
+  request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 
 const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   articles,
   setArticles,
-  reasonMessage,
   setReasonMessage,
-  radioSelected,
-  setRadioSelected,
-  subWarehouse,
-  setSubWarehouse,
-  originalArticlesSelected,
-  setOriginalArticlesSelected,
+  request,
+  setEditingRow,
 }) => {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-  const [articlesFetched, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
-  const [articleSelected, setArticleSelected] = useState<ArticlesFetched | null>(null);
-  const [amount, setAmount] = useState('');
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await getArticlesByWarehouseIdAndSearch(warehouseData.id, search);
-        setArticlesFetched(
-          res.data
-            .map((a: ArticlesFetched) => {
-              return { ...a, stockActual: a.stockActual.toString() };
-            })
-            .filter((a: ArticlesFetched) => !articles.some((ar) => ar.id === a.id))
+        const res = await getArticlesByWarehouseIdAndSearch(warehouseData.id, '');
+        const filteredData = res.data.filter((dataItem: ArticlesFetched) =>
+          articles.some((article) => article.nombre === dataItem.nombre)
         );
+        const updatedData = filteredData.map((dataItem: ArticlesFetched) => {
+          const correspondingArticle = articles.find((article) => article.nombre === dataItem.nombre);
+          return {
+            ...dataItem,
+            cantidad: correspondingArticle ? correspondingArticle.cantidad : 0,
+            stockActual: dataItem?.stockActual?.toString(),
+          };
+        });
+        const combinedData = [
+          ...articles.filter(
+            (article) => !filteredData.some((dataItem: ArticlesFetched) => dataItem.nombre === article.nombre)
+          ),
+          ...updatedData,
+        ];
+
+        setArticles(combinedData);
       } catch (error) {
         console.log(error);
       } finally {
@@ -305,160 +296,22 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
       }
     };
     fetch();
-  }, [search, warehouseData, articles]);
+  }, [warehouseData]);
 
-  const maxAmount = useMemo(() => {
-    if (!articleSelected) return '';
-    return articleSelected.stockActual.toString();
-  }, [articleSelected]);
-
-  const handleAddArticle = () => {
-    if (!articleSelected) return toast.error('Selecciona un articulo');
-    if (amount === '0' || amount === '') return toast.error('Escribe una cantidad!');
-    if (parseInt(amount) > parseInt(articleSelected.stockActual)) return toast.error('La cantidad excede el stock!');
-
-    const loteFormatted = articleSelected.lote.map((item) => ({
-      ...item,
-      fechaCaducidad: new Date(item.fechaCaducidad).toLocaleDateString(),
-    }));
-    loteFormatted.sort((a, b) => {
-      const dateA = new Date(a.fechaCaducidad).getTime();
-      const dateB = new Date(b.fechaCaducidad).getTime();
-      return dateA - dateB;
-    });
-    let remainingAmount = parseInt(amount);
-    const updatedLote = [];
-    for (const item of loteFormatted) {
-      const deductedAmount = Math.min(remainingAmount, item.stock);
-      updatedLote.push({
-        ...item,
-        stock: deductedAmount,
-      });
-      remainingAmount -= item.stock;
-      if (remainingAmount <= 0) break;
-    }
-    const updatedArticle = {
-      ...articleSelected,
-      cantidad: amount,
-      lote: updatedLote,
-    };
-    setArticles((prev: any) => [...prev, updatedArticle]);
-    setOriginalArticlesSelected((prev: any) => [...prev, articleSelected]);
-    setArticleSelected(null);
-    setAmount('');
-  };
   return (
     <>
       <Stack spacing={2}>
-        <Stack>
-          <Typography>Selección de artículos</Typography>
-          <Autocomplete
-            disablePortal
-            fullWidth
-            loading={isLoading}
-            loadingText="Cargando artículos..."
-            onChange={(e, val) => {
-              e.stopPropagation();
-              setArticleSelected(val);
-            }}
-            getOptionLabel={(option) => option.nombre}
-            options={articlesFetched}
-            value={articleSelected}
-            noOptionsText="No se encontraron artículos"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                // error={providerError}
-                // helperText={providerError && 'Selecciona un subalmacen'}
-                placeholder="Artículos..."
-                sx={{ width: '50%' }}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            )}
-          />
-        </Stack>
-        <Stack>
-          <Typography>Cantidad</Typography>
-          <Box sx={{ alignItems: 'flex-end', display: 'flex', flex: 1, columnGap: 1 }}>
-            <TextField
-              placeholder="Cantidad"
-              value={amount}
-              disabled={!articleSelected}
-              onChange={(e) => {
-                if (!articleSelected) return;
-                if (!isValidInteger(e.target.value)) return;
-                if (parseInt(e.target.value) > parseInt(articleSelected.stockActual)) return;
-                setAmount(e.target.value);
-              }}
-              sx={{ width: '50%' }}
+        {!isLoading && (
+          <React.Fragment>
+            <ArticlesTable
+              articles={articles}
+              setArticles={setArticles}
+              isResume={false}
+              originalArticlesSelected={articles}
+              request={request}
+              setEditingRow={setEditingRow}
             />
-            <Typography variant="caption" color="error">
-              Cantidad maxima: {maxAmount}
-            </Typography>
-          </Box>
-        </Stack>
-        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end', maxWidth: '50%' }}>
-          <Button variant="contained" onClick={() => handleAddArticle()}>
-            Agregar
-          </Button>
-        </Box>
-        <Divider />
-        <ArticlesTable
-          articles={articles}
-          setArticles={setArticles}
-          isResume={false}
-          originalArticlesSelected={originalArticlesSelected}
-        />
-        <Divider />
-        <FormControl>
-          <FormLabel>Tipo de salida</FormLabel>
-          <RadioGroup row value={radioSelected}>
-            <FormControlLabel
-              onChange={(e: any) => setRadioSelected(Number(e.target.value))}
-              value={0}
-              control={<Radio />}
-              label="Almacen"
-            />
-            <FormControlLabel
-              value={1}
-              onChange={(e: any) => setRadioSelected(Number(e.target.value))}
-              control={<Radio />}
-              label="Otro"
-            />
-          </RadioGroup>
-        </FormControl>
-        {radioSelected === 0 ? (
-          <Autocomplete
-            disablePortal
-            fullWidth
-            filterOptions={filterSubWarehousesOptions}
-            onChange={(e, val) => {
-              e.stopPropagation();
-              setSubWarehouse(val);
-            }}
-            getOptionLabel={(option) => option.nombre}
-            options={warehouseData.subAlmacenes}
-            value={subWarehouse}
-            noOptionsText="No existen registros de Sub Almacenes"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                // error={providerError}
-                // helperText={providerError && 'Selecciona un subalmacen'}
-                placeholder="Sub Almacén..."
-                sx={{ width: '50%' }}
-              />
-            )}
-          />
-        ) : (
-          <>
-            <Box>
-              <Button variant="contained" onClick={() => setOpen(true)}>
-                Agregar motivo de salida
-              </Button>
-            </Box>
-            <Typography>Motivo de salida: {reasonMessage}</Typography>
-          </>
+          </React.Fragment>
         )}
       </Stack>
       <Modal open={open} onClose={() => setOpen(!open)}>
@@ -475,8 +328,17 @@ interface ArticlesTableProps {
   setArticles?: Function;
   isResume: boolean;
   originalArticlesSelected?: ArticlesFetched[];
+  request: MerchandiseEntry;
+  setEditingRow: Function;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, originalArticlesSelected }) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({
+  articles,
+  setArticles,
+  isResume,
+  originalArticlesSelected,
+  request,
+  setEditingRow,
+}) => {
   return (
     <Card>
       <TableContainer>
@@ -484,13 +346,16 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, is
           <TableHead>
             <TableRow>
               <TableCell>Nombre del articulo</TableCell>
-              <TableCell>Cantidad</TableCell>
-              {!isResume && <TableCell>Acciones</TableCell>}
+              <TableCell>Cantidad Solicitada</TableCell>
+              <TableCell sx={{ textAlign: 'center' }}>Acción</TableCell>
+              <TableCell>Stock Actual</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {articles.map((article) => (
               <ArticlesTableRow
+                setEditingRow={setEditingRow}
+                request={request}
                 article={article}
                 key={article.id}
                 setArticles={setArticles as Function}
@@ -512,6 +377,8 @@ interface ArticlesTableRowProps {
   setArticles: Function;
   isResume: boolean;
   originalArticlesSelected: ArticlesFetched[];
+  request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
@@ -519,6 +386,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   articles,
   isResume,
   originalArticlesSelected,
+  setEditingRow,
 }) => {
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -529,19 +397,18 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   };
 
   const handleEditAmount = (e: string) => {
-    const originalArticleIndex = originalArticlesSelected.findIndex((item) => item.id === article.id);
-    if (originalArticleIndex === -1) return;
+    const originalArticle = originalArticlesSelected.find((item) => item.id === article.id);
+    if (!originalArticle) return;
     if (!isValidInteger(e)) return;
 
     const cantidad = e.trim() === '' || isNaN(parseInt(e)) ? '' : parseInt(e).toString();
-    if (parseInt(cantidad) > parseInt(originalArticlesSelected[originalArticleIndex].stockActual)) {
+    if (parseInt(cantidad) > parseInt(originalArticle?.stockActual ? originalArticle.stockActual : '0'))
       return toast.error('La cantidad excede el stock!');
-    }
 
     const updatedLote = [];
     let remainingAmount = parseInt(cantidad);
-    if (parseInt(cantidad) > 0) {
-      for (const item of originalArticlesSelected[originalArticleIndex].lote) {
+    if (parseInt(cantidad) > 0 && originalArticle?.lote) {
+      for (const item of originalArticle?.lote) {
         const deductedAmount = Math.min(remainingAmount, item.stock);
         updatedLote.push({
           ...item,
@@ -552,15 +419,9 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
       }
     }
 
-    const updatedArticle = {
-      ...article,
-      cantidad: cantidad.toString(),
-      lote: updatedLote.length === 0 ? article.lote : updatedLote,
-    };
-
-    const articlesCopy = [...articles];
-    articlesCopy[originalArticleIndex] = updatedArticle;
-    setArticles(articlesCopy);
+    const updatedArticle = { ...article, cantidad: e };
+    const updatedArticles = articles.map((a) => (a.id === updatedArticle.id ? updatedArticle : a));
+    setArticles(updatedArticles);
   };
 
   return (
@@ -572,13 +433,12 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             {article.nombre}
           </Box>
         </TableCell>
-        <TableCell>
+        <TableCell sx={{ textAlign: 'center' }}>
           {!isEditing ? (
             article.cantidad
           ) : (
             <TextField
               placeholder="Cantidad"
-              inputProps={{ className: 'tableCell' }}
               value={article.cantidad}
               onChange={(e) => handleEditAmount(e.target.value)}
             />
@@ -589,9 +449,10 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
-                  if (article.cantidad === '' || article.cantidad === '0')
+                  if (article.stockActual === '' || article.stockActual === '0')
                     return toast.error('Para guardar escribe una cantidad valida!');
                   setIsEditing(!isEditing);
+                  setEditingRow(!isEditing);
                 }}
               >
                 {!isEditing ? <Edit /> : <Save />}
@@ -604,9 +465,10 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             </Tooltip>
           </TableCell>
         )}
+        <TableCell sx={{ textAlign: 'center' }}>{article.stockActual}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell colSpan={3} sx={{ padding: 0 }}>
+        <TableCell colSpan={4} sx={{ padding: 0 }}>
           <NestedArticlesTable articles={article.lote} open={open} />
         </TableCell>
       </TableRow>
@@ -628,10 +490,10 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
           </TableRow>
         </TableHead>
         <TableBody>
-          {articles.map((a) => (
-            <TableRow key={a.id}>
+          {articles?.map((a, i) => (
+            <TableRow key={i}>
               <NestedTableCell>{a.stock}</NestedTableCell>
-              <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
+              <NestedTableCell>{returnExpireDate(a.fechaCaducidad)}</NestedTableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -645,9 +507,18 @@ interface OutputResumeProps {
   reasonMessage: string;
   radioSelected: number;
   subWarehouse: any;
+  request: MerchandiseEntry;
+  setEditingRow: Function;
 }
 
-const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, radioSelected, subWarehouse }) => {
+const OutputResume: React.FC<OutputResumeProps> = ({
+  articles,
+  reasonMessage,
+  radioSelected,
+  subWarehouse,
+  request,
+  setEditingRow,
+}) => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
   const dateNow = Date.now();
   const today = new Date(dateNow);
@@ -677,7 +548,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, ra
           )}
         </Grid>
       </Grid>
-      <ArticlesTable articles={articles} isResume={true} />
+      <ArticlesTable articles={articles} isResume={true} request={request} setEditingRow={setEditingRow} />
     </Stack>
   );
 };

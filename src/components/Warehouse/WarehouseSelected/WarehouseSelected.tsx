@@ -8,6 +8,7 @@ import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehous
 import { useShallow } from 'zustand/react/shallow';
 import { WarehouseArticles } from './TabsView/WarehouseArticles';
 import { WarehousePurchases } from './TabsView/WarehousePurchases';
+import { WarehouseRequest } from './TabsView/WarehouseRequests';
 import { SubWarehouses } from './TabsView/SubWarehouses';
 import { WarehouseHistory } from './TabsView/WarehouseHistory';
 import { NotFoundPage } from '../../../views/404Page';
@@ -22,13 +23,15 @@ const GetWarehouseView: React.FC = () => {
     case 2:
       return <WarehousePurchases />;
     case 3:
+      return <WarehouseRequest />;
+    case 4:
       return <WarehouseHistory />;
     default:
       break;
   }
 };
 
-const useGetWarehouseSelected = (warehouseId: string | undefined) => {
+export const useGetWarehouseSelected = (warehouseId: string | undefined) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [error, setError] = useState(false);
   const setWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.setWarehouseData));

@@ -233,6 +233,7 @@ export const PurchaseAuthorizationTable = () => {
         page={pageIndex}
         rowsPerPage={pageSize}
         rowsPerPageOptions={[5, 10, 25, 50]}
+        labelRowsPerPage="Filas por página"
       />
     </>
   );

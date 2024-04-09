@@ -84,7 +84,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const { isLoadingArticle, article } = useFetchArticle(articleId);
   const {
     id,
-    codigoBarras,
     descripcion,
     id_subcategoria,
     nombre,
@@ -117,7 +116,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       id: id,
       nombre: nombre,
       descripcion: descripcion,
-      codigoBarras: codigoBarras,
       id_subcategoria: id_subcategoria,
       stockAlerta: stockAlerta,
       stockMinimo: stockMinimo,
@@ -189,7 +187,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   };
 
   const handleInputDecimalChange = (event: any) => {
-    console.log({ event });
     // Validar si el valor ingresado es un número con punto decimal
     let precio = event.target.value;
     const isValidInput = /^\d*\.?\d*$/.test(precio);
@@ -325,17 +322,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 }}
                 placeholder="Dígite un Stock Alerta"
                 {...register('stockAlerta')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Código de Barras</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.codigoBarras}
-                helperText={errors?.codigoBarras?.message}
-                size="small"
-                placeholder="Escriba un Código de barras"
-                {...register('codigoBarras')}
               />
             </Grid>
             <Grid item xs={12} md={6}>

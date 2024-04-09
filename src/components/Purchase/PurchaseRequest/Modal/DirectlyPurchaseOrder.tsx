@@ -127,12 +127,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal
-        setOpen={() => {
-          props.setOpen();
-        }}
-        title="Solicitud de Compra"
-      />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Compra" />
       <Stack sx={{ p: 4, bgcolor: 'white', overflowY: 'auto' }}>
         <Stepper activeStep={step}>
           {stepsArray.map((s) => (
@@ -149,32 +144,25 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
 
 const BuildOrder = (props: { setOpen: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch();
-  const {
-    warehouseSelected,
-    setWarehouseSelected,
-    setArticles,
-    articles,
-    setArticlesFetched,
-    articlesFetched,
-    setSearch,
-  } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      warehouseSelected: state.warehouseSelected,
-      setWarehouseSelected: state.setWarehouseSelected,
-      setArticles: state.setArticles,
-      articles: state.articles,
-      setArticlesFetched: state.setArticlesFetched,
-      articlesFetched: state.articlesFetched,
-      setSearch: state.setSearch,
-    }),
-    shallow
-  );
+  const { warehouseSelected, setWarehouseSelected, setArticles, articles, setArticlesFetched, articlesFetched } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        warehouseSelected: state.warehouseSelected,
+        setWarehouseSelected: state.setWarehouseSelected,
+        setArticles: state.setArticles,
+        articles: state.articles,
+        setArticlesFetched: state.setArticlesFetched,
+        articlesFetched: state.articlesFetched,
+      }),
+      shallow
+    );
   const [articleSelected, setArticleSelected] = useState<Article | null>(null);
   const [amountText, setAmountText] = useState('');
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
+  const [search, setSearch] = useState('');
+  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(search);
 
   useEffect(() => {
     setArticlesFetched(articlesRes);
@@ -975,7 +963,7 @@ const StepThree = (props: { setOpen: Function }) => {
     } else if (isManyProviders && Array.isArray(provider)) {
       const objectToPurchase = {
         id_proveedor: provider.flatMap((p) => p.id),
-        conceptoPago: paymentMethod,
+        ConceptoPago: paymentMethod,
         Articulos: articles.map((a) => {
           return {
             Id_Articulo: a.id,
@@ -988,14 +976,7 @@ const StepThree = (props: { setOpen: Function }) => {
         notas: note,
       };
       try {
-        await addPurchaseRequest(
-          objectToPurchase.id_proveedor as string[],
-          objectToPurchase.conceptoPago,
-          objectToPurchase.Articulos,
-          objectToPurchase.id_almacen,
-          objectToPurchase.PrecioTotalInventario,
-          objectToPurchase.notas
-        );
+        await addPurchaseRequest(objectToPurchase);
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
       } catch (error) {
@@ -1007,7 +988,7 @@ const StepThree = (props: { setOpen: Function }) => {
     } else if (needAuth && !Array.isArray(provider)) {
       const objectToPurchase = {
         id_proveedor: [provider.id],
-        conceptoPago: paymentMethod,
+        ConceptoPago: paymentMethod,
         Articulos: articles.map((a) => {
           return {
             Id_Articulo: a.id,
@@ -1021,15 +1002,7 @@ const StepThree = (props: { setOpen: Function }) => {
         notas: note,
       };
       try {
-        await addPurchaseRequest(
-          objectToPurchase.id_proveedor,
-          objectToPurchase.conceptoPago,
-          objectToPurchase.Articulos,
-          objectToPurchase.id_almacen,
-          objectToPurchase.PrecioTotalInventario,
-          objectToPurchase.PDFCadena,
-          objectToPurchase.notas
-        );
+        await addPurchaseRequest(objectToPurchase);
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
       } catch (error) {

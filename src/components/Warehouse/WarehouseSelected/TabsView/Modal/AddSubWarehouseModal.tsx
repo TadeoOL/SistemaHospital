@@ -3,12 +3,14 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { useSubWarehousePaginationStore } from '../../../../../store/warehouseStore/subWarehousePagination';
 import { useShallow } from 'zustand/react/shallow';
 import { useGetUsersBySearch } from '../../../../../hooks/useGetUsersBySearch';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { ISubWarehouse } from '../../../../../types/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { addNewSubWarehouseSchema } from '../../../../../schema/schemas';
-import { addNewSubWarehouse } from '../../../../../api/api.routes';
+import { addNewSubWarehouse, modifyWarehouseById } from '../../../../../api/api.routes';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const style = {
   position: 'absolute',
@@ -28,6 +30,8 @@ const filterOptions = createFilterOptions<string>({
 
 interface AddSubWarehouseModalProps {
   setOpen: Function;
+  edit?: boolean;
+  warehouseData?: ISubWarehouse;
 }
 
 export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
@@ -39,44 +43,60 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
   );
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const { isLoadingUsers, usersRes } = useGetUsersBySearch();
+  const userData = usersRes.find((u) => u.nombre === props.warehouseData?.usuarioEncargado);
+  const [usuarioEncargado, setUsuarioEncargado] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!userData) return;
+    setUsuarioEncargado(userData.id);
+  }, [userData]);
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<ISubWarehouse>({
+    defaultValues: {
+      id: props.edit ? props.warehouseData?.id : '',
+      descripcion: props.edit ? (props.warehouseData?.descripcion ? props.warehouseData?.descripcion : '') : '',
+      nombre: props.edit ? props.warehouseData?.nombre : '',
+    },
     resolver: zodResolver(addNewSubWarehouseSchema),
   });
-
   const onSubmit: SubmitHandler<ISubWarehouse> = async (data) => {
     try {
       const object = {
         nombre: data.nombre,
-        descripcion: data.descripcion,
-        Id_UsuarioEncargado: data.usuarioEncargado,
+        descripcion: data.descripcion ? data.descripcion : '',
+        Id_UsuarioEncargado: usuarioEncargado as string,
         esSubAlmacen: true,
-        Id_AlmacenPrincipal: warehouseData.id,
+        Id_AlmacenPrincipal: props.edit ? (props.warehouseData?.id as string) : warehouseData.id,
       };
-      await addNewSubWarehouse(object);
-      fetchSubWarehouse();
+      if (props.edit) {
+        await modifyWarehouseById(object);
+        toast.success('Almacén modificado con éxito!');
+      } else {
+        await addNewSubWarehouse(object);
+        toast.success('Almacén creado con éxito!');
+      }
       props.setOpen(false);
+      fetchSubWarehouse();
     } catch (error) {
+      toast.error('Error!');
       console.log(error);
     }
   };
 
   return (
     <Box sx={style}>
-      <HeaderModal title="Agregar nuevo SubAlmacén" setOpen={props.setOpen} />
+      <HeaderModal title="Agregar nuevo Sub Almacén" setOpen={props.setOpen} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4} sx={{ bgcolor: 'background.paper', p: 2, pl: 4 }}>
           <Stack spacing={2}>
             <Box>
-              <Typography variant="subtitle1">Nombre del SubAlmacén</Typography>
+              <Typography variant="subtitle1">Nombre del Sub Almacén</Typography>
               <TextField
                 fullWidth
-                placeholder="SubAlmacén"
+                placeholder="Sub Almacén"
                 size="small"
                 sx={{ width: '90%' }}
                 {...register('nombre')}
@@ -97,46 +117,38 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
               />
             </Box>
             <Box>
-              <Typography variant="subtitle1">Encargado de SubAlmacén</Typography>
-              <Controller
-                control={control}
-                name="usuarioEncargado"
-                render={({ field: { onChange, value } }) => {
-                  const controlledValue = value !== undefined ? value : null;
-                  return (
-                    <Autocomplete
-                      disablePortal
-                      fullWidth
-                      filterOptions={filterOptions}
-                      onChange={(e, val) => {
-                        e.stopPropagation();
-                        onChange(val);
-                      }}
-                      loading={isLoadingUsers && usersRes.length === 0}
-                      getOptionLabel={(option) => {
-                        const res = usersRes.find((u) => u.id === option)?.nombre;
-                        if (res) return res;
-                        return '';
-                      }}
-                      options={usersRes.flatMap((r) => r.id)}
-                      value={controlledValue}
-                      noOptionsText="No se encontraron usuarios"
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          placeholder="Usuarios"
-                          sx={{ width: '90%' }}
-                          required={false}
-                          error={!!errors.usuarioEncargado}
-                          helperText={errors?.usuarioEncargado?.message}
-                          onChange={(e) => {
-                            setSearchUser(e.target.value);
-                          }}
-                        />
-                      )}
-                    />
-                  );
+              <Typography variant="subtitle1">Encargado de Sub Almacén</Typography>
+
+              <Autocomplete
+                disablePortal
+                fullWidth
+                filterOptions={filterOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setUsuarioEncargado(val);
                 }}
+                loading={isLoadingUsers && usersRes.length === 0}
+                getOptionLabel={(option) => {
+                  const res = usersRes.find((u) => u.id === option)?.nombre;
+                  if (res) return res;
+                  return '';
+                }}
+                options={usersRes.flatMap((r) => r.id)}
+                value={usuarioEncargado ? usuarioEncargado : null}
+                noOptionsText="No se encontraron usuarios"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Usuarios"
+                    sx={{ width: '90%' }}
+                    required={false}
+                    error={!!errors.usuarioEncargado}
+                    helperText={errors?.usuarioEncargado?.message}
+                    onChange={(e) => {
+                      setSearchUser(e.target.value);
+                    }}
+                  />
+                )}
               />
             </Box>
           </Stack>

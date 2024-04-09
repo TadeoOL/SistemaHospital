@@ -33,7 +33,7 @@ const messagesByLink: { [key: string]: any } = {
   '/compras/categorias/subcategoria': <MensajeSubCategorias />,
   '/compras/articulos/articulo': <MensajeArticulos />,
   '/compras/articulos/articulo-existente': <MensajeArticuloExistente />,
-  '/compras/almacen': <MensajeAlmacen />,
+  '/almacenes': <MensajeAlmacen />,
   '/compras/autorizacion-compras/autorizaciones': <MensajeAuthCompras />,
   '/compras/autorizacion-compras/historial-autorizaciones': <MensajeHistorialCompras />,
   '/compras/proveedores': <MensajeProveedores />,

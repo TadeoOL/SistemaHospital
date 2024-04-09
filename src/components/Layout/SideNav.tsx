@@ -25,6 +25,7 @@ import { IModuleItems, IModuleItemsList } from '../../types/types';
 import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
 import { getSideBardWarehouse } from '../../api/api.routes';
 import { useSubWarehousePaginationStore } from '../../store/warehouseStore/subWarehousePagination';
+import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -71,9 +72,11 @@ interface SideNavItemsProps {
   path: string;
   children?: IModuleItems[];
   warehouses: { id: string; nombre: string }[];
+  roles: string[];
 }
 
-const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses }) => {
+const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses, roles }) => {
+  const clearWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.clearWarehouseData));
   const SelectedOptionColor = '#9ca1a5';
   const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
@@ -81,9 +84,22 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
   const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
   const navigate = useNavigate();
   const [childOpen, setChildOpen] = useState(false);
-  const handleClick = () => {
+  const isWarehouse = title === 'Almacén';
+
+  const handleClick = (title: string, roles: string[]) => {
     if (isActive && !children) return;
     if (!children) {
+      if (!roles.includes('ADMIN') && title === 'Almacén') {
+        if (!isOpen) {
+          setIsOpen(true);
+          setChildOpen(true);
+          return;
+        } else {
+          setChildOpen(!childOpen);
+          return;
+        }
+      }
+      clearWarehouseData();
       setIsOpen(false);
       navigate(path);
     } else {
@@ -123,11 +139,12 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
     </Box>
   );
 
+  if (isWarehouse && !warehouses && !roles.includes('ADMIN')) return null;
   return (
     <>
       <ListItemButton
         onClick={(e) => {
-          handleClick();
+          handleClick(title, roles);
           e.stopPropagation();
         }}
         selected={isActive}
@@ -168,6 +185,11 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
                         key={uniqueKey}
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (isWarehouse) {
+                            clearWarehouseData();
+                            navigate(childItem.path);
+                            return;
+                          }
                           navigate(childItem.path);
                         }}
                         sx={{
@@ -457,6 +479,7 @@ export const SideNav = () => {
                         path={item.path}
                         children={item.children}
                         warehouses={warehouses as []}
+                        roles={profile?.roles as string[]}
                       />
                     </React.Fragment>
                   ))}

@@ -78,7 +78,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     defaultValues: {
       nombre: '',
       descripcion: '',
-      codigoBarras: '',
       id_subcategoria: '',
       stockAlerta: '',
       stockMinimo: '',
@@ -265,17 +264,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 }}
                 placeholder="Dígite un Stock Alerta"
                 {...register('stockAlerta')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Código de Barras</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.codigoBarras}
-                helperText={errors?.codigoBarras?.message}
-                size="small"
-                placeholder="Escriba un Código de barras"
-                {...register('codigoBarras')}
               />
             </Grid>
             <Grid item xs={12} md={6}>

@@ -28,14 +28,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { StatusPurchaseOrder } from '../../../../types/types';
 import { changeOrderStatus } from '../../../../api/api.routes';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { usePurchaseOrderPagination } from '../../../../store/purchaseStore/purchaseOrderPagination';
 import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 import { QuoteModal } from './Modal/QuoteModal';
 import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
-import { Assignment, Info } from '@mui/icons-material';
+import { Assignment, CheckCircle, Info } from '@mui/icons-material';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
@@ -299,21 +298,7 @@ export const PurchaseOrder = () => {
                             <TableCell>${order.precioTotalOrden}</TableCell>
                             <TableCell>{StatusPurchaseOrder[order.estatus]}</TableCell>
                             <TableCell>
-                              {StatusPurchaseOrder[order.estatus] === 'Seleccione a los Proveedores' &&
-                              !isAdminPurchase() ? (
-                                <Tooltip title="Seleccionar proveedores">
-                                  <IconButton
-                                    onClick={() => {
-                                      setOrderSelected({
-                                        folio: order.folio_Extension,
-                                        OrderId: order.id_OrdenCompra,
-                                      });
-                                    }}
-                                  >
-                                    <PersonAddIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              ) : order.estatus === 0 ? (
+                              {order.estatus === 0 ? (
                                 <Tooltip title="Cancelado">
                                   <IconButton>
                                     <Info />
@@ -355,7 +340,7 @@ export const PurchaseOrder = () => {
                                   )}
                                 </>
                               )}
-                              {order.estatus !== 0 && !isAdminPurchase() && order.estatus !== 2 && (
+                              {order.estatus === 1 && !isAdminPurchase() && (
                                 <Tooltip title="Cancelar">
                                   <IconButton
                                     size="small"
@@ -396,6 +381,11 @@ export const PurchaseOrder = () => {
                                     </IconButton>
                                   </Tooltip>
                                 </>
+                              )}
+                              {order.estatus === 3 && (
+                                <Tooltip title="Artículos dados de alta en almacen">
+                                  <CheckCircle sx={{ color: 'green' }} />
+                                </Tooltip>
                               )}
                             </TableCell>
                           </TableRow>
@@ -469,6 +459,7 @@ export const PurchaseOrder = () => {
               page={pageIndex}
               rowsPerPage={pageSize}
               rowsPerPageOptions={[5, 10, 25, 50]}
+              labelRowsPerPage="Filas por página"
             />
           </TableContainer>
         </Card>

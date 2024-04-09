@@ -29,7 +29,7 @@ export const useArticleProviderPagination = createWithEqualityFn<State & Action>
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
   data: [],
   isLoading: true,
   search: '',
@@ -39,7 +39,7 @@ export const useArticleProviderPagination = createWithEqualityFn<State & Action>
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
-  setPageSize: (pageSize: number) => set({ pageSize }),
+  setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchArticlesProvider: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
