@@ -30,6 +30,7 @@ import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/wa
 import { useShallow } from 'zustand/react/shallow';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
 import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
+import { returnExpireDate } from '../../../../../utils/expireDate';
 
 const style = {
   position: 'absolute',
@@ -467,7 +468,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
         <TableCell sx={{ textAlign: 'center' }}>{article.stockActual}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell colSpan={3} sx={{ padding: 0 }}>
+        <TableCell colSpan={4} sx={{ padding: 0 }}>
           <NestedArticlesTable articles={article.lote} open={open} />
         </TableCell>
       </TableRow>
@@ -492,7 +493,7 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
           {articles?.map((a, i) => (
             <TableRow key={i}>
               <NestedTableCell>{a.stock}</NestedTableCell>
-              <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
+              <NestedTableCell>{returnExpireDate(a.fechaCaducidad)}</NestedTableCell>
             </TableRow>
           ))}
         </TableBody>
