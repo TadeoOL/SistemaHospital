@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Collapse,
   IconButton,
   Modal,
@@ -63,6 +64,8 @@ const useGetExistingArticles = (warehouseId: string) => {
     setPageSize,
     startDate,
     endDate,
+    clearAllData,
+    isLoading,
   } = useExistingArticlePagination(
     (state) => ({
       data: state.data,
@@ -77,9 +80,15 @@ const useGetExistingArticles = (warehouseId: string) => {
       setPageSize: state.setPageSize,
       startDate: state.startDate,
       endDate: state.endDate,
+      clearAllData: state.clearAllData,
+      isLoading: state.isLoading,
     }),
     shallow
   );
+
+  useEffect(() => {
+    clearAllData();
+  }, [warehouseId]);
 
   useEffect(() => {
     setWarehouseId(warehouseId);
@@ -96,14 +105,31 @@ const useGetExistingArticles = (warehouseId: string) => {
     setPageSize,
     startDate,
     endDate,
+    isLoading,
   };
 };
 export const WarehouseArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-  const { data, setSearch, setEndDate, setStartDate, clearFilters, setPageIndex, setPageSize, startDate, endDate } =
-    useGetExistingArticles(warehouseData.id);
+  const {
+    data,
+    setSearch,
+    setEndDate,
+    setStartDate,
+    clearFilters,
+    setPageIndex,
+    setPageSize,
+    startDate,
+    endDate,
+    isLoading,
+  } = useGetExistingArticles(warehouseData.id);
   const [openModal, setOpenModal] = useState(false);
 
+  if (isLoading)
+    return (
+      <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
+        <CircularProgress size={30} />
+      </Box>
+    );
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>

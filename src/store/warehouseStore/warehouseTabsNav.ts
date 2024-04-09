@@ -1,7 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { IWarehouseData } from '../../types/types';
 
-const initialValues = {
+const initialValuesWarehouseData = {
   nombre: '',
   descripcion: '',
   esSubAlmacen: false,
@@ -23,11 +23,19 @@ interface State {
 interface Action {
   setTabValue: (tabValue: number) => void;
   setWarehouseData: (warehouseData: IWarehouseData) => void;
+  clearWarehouseData: () => void;
 }
 
-export const useWarehouseTabsNavStore = createWithEqualityFn<State & Action>((set) => ({
+const initialState: State = {
   tabValue: 0,
-  warehouseData: { ...initialValues },
+  warehouseData: initialValuesWarehouseData,
+};
+
+export const useWarehouseTabsNavStore = createWithEqualityFn<State & Action>((set) => ({
+  ...initialState,
   setTabValue: (tabValue: number) => set({ tabValue }),
   setWarehouseData: (warehouseData: IWarehouseData) => set({ warehouseData }),
+  clearWarehouseData: () => {
+    set(initialState);
+  },
 }));

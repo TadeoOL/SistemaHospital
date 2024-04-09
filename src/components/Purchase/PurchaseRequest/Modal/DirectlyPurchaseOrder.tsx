@@ -144,32 +144,25 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
 
 const BuildOrder = (props: { setOpen: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch();
-  const {
-    warehouseSelected,
-    setWarehouseSelected,
-    setArticles,
-    articles,
-    setArticlesFetched,
-    articlesFetched,
-    setSearch,
-  } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      warehouseSelected: state.warehouseSelected,
-      setWarehouseSelected: state.setWarehouseSelected,
-      setArticles: state.setArticles,
-      articles: state.articles,
-      setArticlesFetched: state.setArticlesFetched,
-      articlesFetched: state.articlesFetched,
-      setSearch: state.setSearch,
-    }),
-    shallow
-  );
+  const { warehouseSelected, setWarehouseSelected, setArticles, articles, setArticlesFetched, articlesFetched } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        warehouseSelected: state.warehouseSelected,
+        setWarehouseSelected: state.setWarehouseSelected,
+        setArticles: state.setArticles,
+        articles: state.articles,
+        setArticlesFetched: state.setArticlesFetched,
+        articlesFetched: state.articlesFetched,
+      }),
+      shallow
+    );
   const [articleSelected, setArticleSelected] = useState<Article | null>(null);
   const [amountText, setAmountText] = useState('');
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
+  const [search, setSearch] = useState('');
+  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(search);
 
   useEffect(() => {
     setArticlesFetched(articlesRes);

@@ -8,10 +8,9 @@ type Article = {
   nombre: string;
   precio: number;
 };
-export const useGetArticlesBySearch = () => {
+export const useGetArticlesBySearch = (search: string) => {
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
   const [articlesRes, setArticles] = useState<Article[]>([]);
-  const search = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.search));
   const warehouseSelected = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.warehouseSelected));
 
   useEffect(() => {
@@ -27,6 +26,6 @@ export const useGetArticlesBySearch = () => {
       }
     };
     fetchData();
-  }, [search,warehouseSelected]);
+  }, [search, warehouseSelected]);
   return { isLoadingArticles, articlesRes };
 };

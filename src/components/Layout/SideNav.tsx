@@ -25,6 +25,7 @@ import { IModuleItems, IModuleItemsList } from '../../types/types';
 import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
 import { getSideBardWarehouse } from '../../api/api.routes';
 import { useSubWarehousePaginationStore } from '../../store/warehouseStore/subWarehousePagination';
+import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -75,6 +76,7 @@ interface SideNavItemsProps {
 }
 
 const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses, roles }) => {
+  const clearWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.clearWarehouseData));
   const SelectedOptionColor = '#9ca1a5';
   const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
@@ -82,6 +84,8 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
   const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
   const navigate = useNavigate();
   const [childOpen, setChildOpen] = useState(false);
+  const isWarehouse = title === 'Almacén';
+
   const handleClick = (title: string, roles: string[]) => {
     if (isActive && !children) return;
     if (!children) {
@@ -95,6 +99,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
           return;
         }
       }
+      clearWarehouseData();
       setIsOpen(false);
       navigate(path);
     } else {
@@ -134,7 +139,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
     </Box>
   );
 
-  if (title === 'Almacén' && !warehouses && !roles.includes('ADMIN')) return null;
+  if (isWarehouse && !warehouses && !roles.includes('ADMIN')) return null;
   return (
     <>
       <ListItemButton
@@ -179,9 +184,12 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
                       <ListItemButton
                         key={uniqueKey}
                         onClick={(e) => {
-                          console.log('aa');
-
                           e.stopPropagation();
+                          if (isWarehouse) {
+                            clearWarehouseData();
+                            navigate(childItem.path);
+                            return;
+                          }
                           navigate(childItem.path);
                         }}
                         sx={{
