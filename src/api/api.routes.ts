@@ -227,10 +227,11 @@ export const disableProvider = async (id: string) => {
 };
 
 export const addNewCategory = async (data: ICategory) => {
-  const { nombre, descripcion } = data;
+  const { nombre, descripcion, id_Almacen } = data;
   const res = await axios.post(`/api/Categoria/registrar-categoria`, {
     Nombre: nombre,
     Descripcion: descripcion,
+    id_Almacen: id_Almacen,
   });
   return res.data;
 };
@@ -241,12 +242,13 @@ export const getCategories = async (paramUrl: string) => {
 };
 
 export const modifyCategory = async (category: ICategory) => {
-  const { id, nombre, descripcion } = category;
+  const { id, nombre, descripcion, id_Almacen } = category;
 
   const res = await axios.put(`/api/Categoria/actualizar-categoria`, {
     id: id,
     Nombre: nombre,
     Descripcion: descripcion,
+    id_Almacen: id_Almacen,
   });
   return res.data;
 };
@@ -415,6 +417,7 @@ export const addNewPurchaseWarehouse = async (data: IWarehouse) => {
 
 export const getCategoryById = async (categoryId: string) => {
   const res = await axios.get(`/api/Categoria/${categoryId}`);
+  console.log(res.data);
   return res.data;
 };
 
@@ -676,8 +679,8 @@ export const getPurchaseOrder = async (paramUrl: string) => {
   return res.data;
 };
 
-export const getArticlesBySearch = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Articulo/busqueda-articulo?Search=${paramUrl}`);
+export const getArticlesBySearch = async (paramUrl: string, warehouseSelected?: string) => {
+  const res = await axios.get(`/api/Articulo/busqueda-articulo?Search=${paramUrl}&Id_Almacen=${warehouseSelected|| ""}`);
   return res.data;
 };
 

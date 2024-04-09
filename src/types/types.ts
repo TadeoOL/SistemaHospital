@@ -89,6 +89,7 @@ export interface ICategory {
   id: string;
   nombre: string;
   descripcion: string;
+  id_Almacen: string;
 }
 export interface ISubCategory {
   id: string;

@@ -97,6 +97,7 @@ export const addSubCategorySchema = z.object({
 
 export const addCategory = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().min(1, 'Escribe una descripción'),
 });
 
 export const addArticle = z.object({
