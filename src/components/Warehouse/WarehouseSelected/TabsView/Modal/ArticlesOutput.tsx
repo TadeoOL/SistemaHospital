@@ -89,7 +89,7 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-type ArticlesFetched = {
+export type ArticlesFetched = {
   id: string;
   nombre: string;
   lote: { stock: number; fechaCaducidad: string; id: string }[];
