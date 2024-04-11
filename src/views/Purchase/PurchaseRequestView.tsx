@@ -34,6 +34,7 @@ const PurchaseRequestView = () => {
     }),
     shallow
   );
+  const userProfile = useAuthStore((state) => state.profile);
   const tabValue = usePurchaseRequestNav((state) => state.tabValue);
   const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
 
@@ -54,14 +55,17 @@ const PurchaseRequestView = () => {
               mb: 1,
             }}
           >
-            <Button
-              size="large"
-              variant="contained"
-              onClick={() => setOpenPurchaseRequestOrder(true)}
-              startIcon={<RequestPageIcon />}
-            >
-              Solicitud de Compra
-            </Button>
+            {userProfile?.roles.includes('ABASTECIMIENTO') ||
+              (userProfile?.roles.includes('ADMIN') && (
+                <Button
+                  size="large"
+                  variant="contained"
+                  onClick={() => setOpenPurchaseRequestOrder(true)}
+                  startIcon={<RequestPageIcon />}
+                >
+                  Solicitud de Compra
+                </Button>
+              ))}
           </Box>
         )}
         <PurchaseTabNav />

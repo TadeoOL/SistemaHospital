@@ -74,6 +74,7 @@ const useGetEntries = () => {
     count,
     setSearch,
     setStartDate,
+    startDate,
     setEndDate,
     setPageIndex,
     setPageSize,
@@ -92,6 +93,7 @@ export const WarehousePurchases = () => {
     isLoading,
     setSearch,
     setStartDate,
+    startDate,
     setEndDate,
     setPageIndex,
     setPageSize,
@@ -114,6 +116,7 @@ export const WarehousePurchases = () => {
                 label="Fecha inicio"
                 size="small"
                 type="date"
+                value={startDate}
                 InputLabelProps={{ shrink: true }}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -147,9 +150,15 @@ export const WarehousePurchases = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Petición de Almacén</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>Fecha de solicitud</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>Estatus</TableCell>
+                    <TableCell align="center">Folio</TableCell>
+                    <TableCell align="center">Petición de Almacén</TableCell>
+                    <TableCell align="center">Solicitado por</TableCell>
+                    <TableCell align="center" sx={{ textAlign: 'center' }}>
+                      Fecha de solicitud
+                    </TableCell>
+                    <TableCell align="center" sx={{ textAlign: 'center' }}>
+                      Estatus
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -179,8 +188,10 @@ export const WarehousePurchases = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            <Typography>{petition.almacenOrigen}</Typography>
+                            <Typography>{petition.folio}</Typography>
                           </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>{petition.almacenOrigen}</TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>{petition.solicitadoPor}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
                             {petition.estatus === 1 ? 'Espera' : 'Completado'}
@@ -214,7 +225,7 @@ export const WarehousePurchases = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4}>
+                      <TableCell align="center" colSpan={5}>
                         <Box
                           sx={{
                             display: 'flex',

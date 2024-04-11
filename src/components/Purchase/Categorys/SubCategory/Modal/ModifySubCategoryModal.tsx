@@ -52,6 +52,7 @@ const useFetchSubCategory = (categoryId: string) => {
       setIsLoadingSubCategory(true);
       try {
         const data = await getSubCategoryById(categoryId);
+        if (data.descripcion === null) data.descripcion = '';
         setSubCategory(data);
       } catch (error) {
         console.log(error);
@@ -93,7 +94,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
       const idForm = getValues('id');
-      await modifySubCategory({ ...data, id: idForm });
+      if (data.iva === '0') await modifySubCategory({ ...data, id: idForm });
       toast.success('La sub categoría ha sido modificada con éxito!');
       props.open(false);
       setHandleChangeSubCategory(!handleChangeSubCategory);

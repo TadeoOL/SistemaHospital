@@ -6,14 +6,17 @@ import { PurchaseWarehouseTable } from './WarehouseTable';
 import { useWarehousePagination } from '../../store/purchaseStore/warehousePagination';
 import { AddPurchaseWarehouseModal } from './Modal/AddWarehouseModal';
 import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
+import { useAuthStore } from '../../store/auth';
 
 export const Warehouse = () => {
   const [open, setOpen] = useState(false);
+  const user = useAuthStore((state) => state.profile);
   const { setSearch, enabled, setEnabled } = useWarehousePagination((state) => ({
     setSearch: state.setSearch,
     setEnabled: state.setEnabled,
     enabled: state.enabled,
   }));
+  console.log('hu?', user?.roles);
   return (
     <>
       <Box
@@ -52,14 +55,16 @@ export const Warehouse = () => {
               >
                 {enabled ? 'Mostrar almacenes deshabilitados' : 'Mostrar almacenes habilitados'}
               </Button>
-              <Button
-                sx={{ height: '75%', mt: '8px', marginRight: '8px' }}
-                variant="contained"
-                onClick={() => setOpen(!open)}
-                startIcon={<AddCircleOutlinedIcon />}
-              >
-                Agregar
-              </Button>
+              {user?.roles.includes('ADMIN') && (
+                <Button
+                  sx={{ height: '75%', mt: '8px', marginRight: '8px' }}
+                  variant="contained"
+                  onClick={() => setOpen(!open)}
+                  startIcon={<AddCircleOutlinedIcon />}
+                >
+                  Agregar
+                </Button>
+              )}
             </Stack>
           </Stack>
           <PurchaseWarehouseTable />

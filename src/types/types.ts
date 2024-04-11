@@ -232,6 +232,9 @@ export interface MerchandiseEntry {
   historialArticulos: ArticleObjectInPetition[];
   fechaSolicitud: string;
   estatus: number;
+  solicitadoPor?: string;
+  autorizadoPor?: string;
+  folio: string;
 }
 
 export interface ArticleObjectInPetition {
@@ -332,6 +335,10 @@ export interface IWarehouseMovementData {
   ingresoMotivo: string;
   salidaMotivo: string;
   id: string;
+  solicitadoPor?: string;
+  autorizadoPor?: string;
+  estatus?: number;
+  folio: string;
 }
 export interface IArticleHistory {
   nombre: string;

@@ -73,6 +73,7 @@ const useGetMovements = () => {
     count,
     setSearch,
     setStartDate,
+    startDate,
     setEndDate,
     setPageIndex,
     setPageSize,
@@ -91,6 +92,7 @@ export const WarehouseHistory = () => {
     setSearch,
     setStartDate,
     setEndDate,
+    startDate,
     setPageIndex,
     setPageSize,
   } = useGetMovements();
@@ -124,6 +126,7 @@ export const WarehouseHistory = () => {
                     label="Fecha inicio"
                     size="small"
                     type="date"
+                    value={startDate}
                     InputLabelProps={{ shrink: true }}
                     onChange={(e) => {
                       setStartDate(e.target.value);
@@ -150,9 +153,13 @@ export const WarehouseHistory = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell align="center">Folio</TableCell>
                     <TableCell>Almacén Proveniente</TableCell>
+                    <TableCell>Solicitado por</TableCell>
+                    <TableCell>Autorizado por</TableCell>
                     <TableCell>Almacén dirigido</TableCell>
                     <TableCell>Fecha Solicitud</TableCell>
+                    <TableCell>Estatus</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -182,18 +189,28 @@ export const WarehouseHistory = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            <Typography>
-                              {movimiento.almacenOrigen == movimiento.almacenDestino && movimiento.ingresoMotivo != null
-                                ? movimiento.ingresoMotivo
-                                : movimiento.almacenOrigen}
-                            </Typography>
+                            <Typography> {movimiento.folio} </Typography>
                           </TableCell>
+                          <TableCell>
+                            {movimiento.almacenOrigen == movimiento.almacenDestino && movimiento.ingresoMotivo != null
+                              ? movimiento.ingresoMotivo
+                              : movimiento.almacenOrigen}
+                          </TableCell>
+                          <TableCell> {movimiento.solicitadoPor} </TableCell>
+                          <TableCell> {movimiento.autorizadoPor} </TableCell>
                           <TableCell>
                             {movimiento.almacenDestino == movimiento.almacenOrigen && movimiento.salidaMotivo != null
                               ? movimiento.salidaMotivo
                               : movimiento.almacenDestino}
                           </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
+                          <TableCell>
+                            {movimiento.estatus === 0
+                              ? 'Cancelada'
+                              : movimiento.estatus === 2
+                                ? 'Aceptada'
+                                : 'en espera'}
+                          </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={7} sx={{ p: 0 }}>
@@ -223,7 +240,7 @@ export const WarehouseHistory = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4}>
+                      <TableCell align="center" colSpan={7}>
                         <Box
                           sx={{
                             display: 'flex',

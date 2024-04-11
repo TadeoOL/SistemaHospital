@@ -35,3 +35,11 @@ export const isValidFloat = (value: string) => {
   const regex = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
   return regex.test(value);
 };
+
+export const getFirstDayOfTheMonth = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const firstday = '01';
+  return `${year}-${month}-${firstday}`;
+}

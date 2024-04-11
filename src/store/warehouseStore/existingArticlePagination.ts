@@ -1,6 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { getExistingArticles } from '../../api/api.routes';
 import { IExistingArticle } from '../../types/types';
+import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -44,7 +45,7 @@ const initialState: State = {
   enabled: true,
   handleChangeExistingArticle: false,
   warehouseId: '',
-  startDate: '',
+  startDate: getFirstDayOfTheMonth(),
   endDate: '',
 };
 

@@ -19,7 +19,7 @@ import {
   MenuItem,
   createFilterOptions,
 } from '@mui/material';
-import { ArrowForward, Cancel, Delete, Edit, Info, Save } from '@mui/icons-material';
+import { Cancel, Delete, Edit, Info, Save } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -180,7 +180,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
         nombre: item.nombre,
         stock: item.stockActual,
       }));
-      console.log('res.data', res.data);
 
       setDataWerehouseArticlesSelected(transformedData);
     } catch (error) {
@@ -534,7 +533,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
         </Button>
         <Button
           variant="contained"
-          endIcon={<ArrowForward />}
+          endIcon={<Save />}
           disabled={editingIds.size > 0 || articles.length === 0}
           onClick={() => {
             props.submitData({

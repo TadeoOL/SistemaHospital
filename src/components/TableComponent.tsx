@@ -34,6 +34,7 @@ interface ITableComponentProps {
     setPageSize: (size: number) => void;
   };
   navigatingRowsWareHouse?: boolean;
+  hasPrices?: number[];
   disableHook: (id: string) => void;
   modifyModalComponent: (props: { data: string; open: (isOpen: boolean) => void }) => React.ReactElement;
   headers: string[];
@@ -45,6 +46,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
   modifyModalComponent,
   headers,
   navigatingRowsWareHouse,
+  hasPrices,
 }) => {
   const [dataId, setDataId] = useState('');
   const [open, setOpen] = useState(false);
@@ -93,7 +95,13 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
                         }}
                       >
                         {Object.keys(item).map(
-                          (key, index) => key !== 'id' && <TableCell key={index}>{item[key]}</TableCell>
+                          (key, index) =>
+                            key !== 'id' && (
+                              <TableCell key={index}>
+                                {hasPrices?.includes(index) ? '$' : ''}
+                                {item[key]}
+                              </TableCell>
+                            )
                         )}
                         <TableCell>
                           <Tooltip title="Editar">
