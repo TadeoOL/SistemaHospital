@@ -22,10 +22,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import { useAuthStore } from '../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import { IModuleItems, IModuleItemsList, ISideBarWarehouse } from '../../types/types';
-import { ExpandLess, ExpandMore, Warehouse } from '@mui/icons-material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { getSideBardWarehouse } from '../../api/api.routes';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
-import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import { SideNavWarehouses } from './SideNavWarehouses';
 
 const SelectedOptionColor = '#9ca1a5';
@@ -192,10 +191,79 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
             },
             padding: 1,
             '&.Mui-selected:hover': { backgroundColor: SelectedOptionColor },
-            // margin: 0,
           }}
         >
-          {iconInSideBar}
+          {children && children.length !== 0 ? (
+            <>
+              <HtmlTooltip
+                sx={{ visibility: childOpen ? 'hidden' : 'visible' }}
+                title={
+                  <React.Fragment>
+                    {children.map((childItem, i) => {
+                      const pathSplit = location.pathname.split('/');
+                      const childSplit = childItem.path.split('/');
+                      const isActive = pathSplit.includes(childSplit[2]);
+                      const uniqueKey = `${childItem.path}-${i}`;
+                      return (
+                        <ListItemButton
+                          key={uniqueKey}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isWarehouse) {
+                              clearWarehouseData();
+                              navigate(childItem.path);
+                              return;
+                            }
+                            navigate(childItem.path);
+                          }}
+                          sx={{
+                            '&.Mui-selected': {
+                              backgroundColor: '#046DBD',
+                              opacity: 1,
+                            },
+                            '&:hover': {
+                              backgroundColor: '#373b3e',
+                              opacity: 1,
+                            },
+                            '&.Mui-selected:hover': {
+                              backgroundColor: SelectedOptionColor,
+                            },
+                            borderRadius: 1,
+                            mb: 0.5,
+                            opacity: 0.7,
+                          }}
+                        >
+                          {childItem.icon && (
+                            <ListItemIcon sx={{ mr: 1 }}>
+                              {React.cloneElement(childItem.icon, {
+                                style: {
+                                  color: isActive ? '#046DBD' : 'inherit',
+                                },
+                              })}
+                            </ListItemIcon>
+                          )}
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              display: 'inline',
+                              color: isActive ? '#046DBD' : 'inherit',
+                            }}
+                          >
+                            {childItem.title}
+                          </Typography>
+                        </ListItemButton>
+                      );
+                    })}
+                  </React.Fragment>
+                }
+                placement="right"
+              >
+                {iconInSideBar}
+              </HtmlTooltip>
+            </>
+          ) : (
+            <>{iconInSideBar}</>
+          )}
           <Box
             sx={{
               justifyContent: 'flex-end',
@@ -230,7 +298,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
               const uniqueKey = `${childItem.path}-${i}`;
 
               return (
-                <List component="div" disablePadding key={uniqueKey}>
+                <List component="div" disablePadding key={uniqueKey} sx={{ display: 'flex', flex: 1, pl: 2 }}>
                   <ListItemButton
                     onClick={(e) => {
                       e.stopPropagation();
@@ -251,7 +319,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
                         backgroundColor: SelectedOptionColor,
                       },
                       borderRadius: 1,
-                      mb: 0.5,
+                      my: 0.5,
                       opacity: 0.7,
                     }}
                   >
@@ -436,7 +504,12 @@ export const SideNav = () => {
                 const isWarehouseModule = list.categoryTitle === 'Almacen';
                 const isActive = location.pathname.split('/')[1] === list.path;
 
-                if (isWarehouseModule && warehouses?.every((w) => w.subAlmacenes.length === 0)) return null;
+                if (
+                  isWarehouseModule &&
+                  warehouses?.every((w) => w.subAlmacenes.length === 0) &&
+                  !profile?.roles.includes('ADMIN')
+                )
+                  return null;
 
                 if (list.categoryTitle === 'Dashboard') {
                   return (
