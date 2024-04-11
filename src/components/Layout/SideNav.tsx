@@ -21,12 +21,13 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { useAuthStore } from '../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
-import { IModuleItems, IModuleItemsList } from '../../types/types';
-import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
+import { IModuleItems, IModuleItemsList, ISideBarWarehouse } from '../../types/types';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { getSideBardWarehouse } from '../../api/api.routes';
-import { useSubWarehousePaginationStore } from '../../store/warehouseStore/subWarehousePagination';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
+import { SideNavWarehouses } from './SideNavWarehouses';
 
+const SelectedOptionColor = '#9ca1a5';
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -48,7 +49,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const useGetWarehouses = () => {
-  const [warehouses, setWarehouses] = useState<any[]>();
+  const [warehouses, setWarehouses] = useState<ISideBarWarehouse[]>();
   const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(true);
   useEffect(() => {
     const fetch = async () => {
@@ -67,24 +68,28 @@ const useGetWarehouses = () => {
 };
 
 interface SideNavItemsProps {
-  icon: React.ReactNode;
+  icon: React.ReactNode | null;
   title: string;
   path: string;
   children?: IModuleItems[];
-  warehouses: { id: string; nombre: string }[];
+  warehouses: ISideBarWarehouse[];
   roles: string[];
+  id?: string;
 }
 
-const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses, roles }) => {
+export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children, warehouses, roles, id }) => {
   const clearWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.clearWarehouseData));
-  const SelectedOptionColor = '#9ca1a5';
   const location = useLocation();
   const isOpen = useAppNavStore(useShallow((state) => state.open));
   const setIsOpen = useAppNavStore(useShallow((state) => state.setOpen));
-  const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
   const navigate = useNavigate();
   const [childOpen, setChildOpen] = useState(false);
   const isWarehouse = title === 'Almacén';
+  const warehousesNames = warehouses ? warehouses.flatMap((w) => w.nombre) : [];
+  const pathSplit = location.pathname.split('/');
+  const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
+  const someWarehouseActive = id && pathSplit[2] === id;
+  const isDashboard = title === 'Inicio';
 
   const handleClick = (title: string, roles: string[]) => {
     if (isActive && !children) return;
@@ -103,6 +108,13 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
       setIsOpen(false);
       navigate(path);
     } else {
+      if (isOpen && warehousesNames.includes(title) && roles.includes('ADMIN')) {
+        const findId = warehouses.find((w) => w.nombre === title);
+        navigate(`almacenes/${findId?.id}`);
+        clearWarehouseData();
+        setIsOpen(false);
+        return;
+      }
       if (!isOpen) {
         setIsOpen(true);
         setChildOpen(true);
@@ -124,8 +136,7 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
         justifyContent: 'flex-start',
       }}
     >
-      <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon>
-
+      {icon ? <ListItemIcon sx={{ mr: 1 }}>{icon}</ListItemIcon> : null}
       {isOpen ? (
         <Typography
           variant="body1"
@@ -140,194 +151,196 @@ const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, children
   );
 
   if (isWarehouse && !warehouses && !roles.includes('ADMIN')) return null;
+  if (isWarehouse && warehouses) return <SideNavWarehouses warehouses={warehouses} roles={roles} />;
   return (
-    <>
-      <ListItemButton
-        onClick={(e) => {
-          handleClick(title, roles);
-          e.stopPropagation();
-        }}
-        selected={isActive}
-        sx={{
-          '&.Mui-selected': {
-            backgroundColor: '#046DBD',
-            width: isOpen ? '100%' : '40px',
-          },
-          '&:hover': {
-            backgroundColor: '#373b3e',
-            opacity: 10,
-            width: isOpen ? '100%' : '40px',
-          },
-          '&.Mui-selected:hover': { backgroundColor: SelectedOptionColor },
-          borderRadius: 1,
-          mb: 1,
-          p: 1,
-          width: '100%',
-          display: 'flex',
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        {children ? (
-          <>
-            <HtmlTooltip
-              sx={{ visibility: isOpen ? 'hidden' : 'visible' }}
-              title={
-                <React.Fragment>
-                  {children.map((childItem, i) => {
-                    const pathSplit = location.pathname.split('/');
-                    const childSplit = childItem.path.split('/');
-                    const isActive = pathSplit.includes(childSplit[2]);
-                    const uniqueKey = `${childItem.path}-${i}`;
-                    return (
-                      <ListItemButton
-                        key={uniqueKey}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isWarehouse) {
-                            clearWarehouseData();
-                            navigate(childItem.path);
-                            return;
-                          }
-                          navigate(childItem.path);
-                        }}
-                        sx={{
-                          '&.Mui-selected': {
-                            backgroundColor: '#046DBD',
-                            opacity: 1,
-                          },
-                          '&:hover': {
-                            backgroundColor: '#373b3e',
-                            opacity: 1,
-                          },
-                          '&.Mui-selected:hover': {
-                            backgroundColor: SelectedOptionColor,
-                          },
-                          borderRadius: 1,
-                          mb: 0.5,
-                          opacity: 0.7,
-                        }}
-                      >
-                        <ListItemIcon sx={{ mr: 1 }}>
-                          {React.cloneElement(childItem.icon, {
-                            style: {
-                              color: isActive ? '#046DBD' : 'inherit',
-                            },
-                          })}
-                        </ListItemIcon>
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            display: 'inline',
-                            color: isActive ? '#046DBD' : 'inherit',
-                          }}
-                        >
-                          {childItem.title}
-                        </Typography>
-                      </ListItemButton>
-                    );
-                  })}
-                </React.Fragment>
-              }
-              placement="right"
-            >
-              {iconInSideBar}
-            </HtmlTooltip>
-          </>
-        ) : (
-          <>{iconInSideBar}</>
-        )}
-
-        <Box
+    <ListItemButton
+      onClick={(e) => {
+        handleClick(title, roles);
+        e.stopPropagation();
+      }}
+      sx={{
+        opacity: 0.7,
+        borderRadius: 1,
+        width: '100%',
+        display: 'flex',
+        flex: 1,
+        p: 0,
+        pl: isDashboard ? 0 : 2,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        '&:first-of-type': {
+          mt: 0.5,
+        },
+        '&:hover': {
+          backgroundColor: isOpen ? null : '#373b3e',
+          width: isOpen ? '100%' : '40px',
+          opacity: 1,
+        },
+      }}
+    >
+      <Stack sx={{ display: 'flex', flex: 1 }}>
+        <ListItemButton
+          selected={isActive || (someWarehouseActive as boolean)}
           sx={{
-            justifyContent: 'flex-end',
+            display: 'flex',
+            flex: 1,
+            '&.Mui-selected': {
+              backgroundColor: '#046DBD',
+              width: isOpen ? '100%' : '40px',
+              opacity: 1,
+            },
+            padding: 1,
+            '&.Mui-selected:hover': { backgroundColor: SelectedOptionColor },
           }}
         >
-          {(children && isOpen) || (title === 'Almacén' && isOpen) ? (
-            <ListItemButton
-              sx={{
-                justifyContent: 'center',
-                '&:hover': { backgroundColor: 'transparent' },
-                p: 0,
-                width: 40,
-                height: 22,
-              }}
-              onClick={(e) => {
-                setChildOpen(!childOpen);
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-            >
-              {childOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-          ) : null}
-        </Box>
-      </ListItemButton>
-      <Collapse in={childOpen} unmountOnExit>
-        {title === 'Almacén' &&
-          warehouses &&
-          warehouses.map((w) => (
-            <ListItemButton
-              key={w.id}
-              onClick={() => {
-                useSubWarehousePaginationStore.getState().clearData();
-                navigate(`/almacenes/${w.id}`);
-              }}
-            >
-              <ListItemIcon>
-                <Info />
-              </ListItemIcon>
-              <Typography>{w.nombre}</Typography>
-            </ListItemButton>
-          ))}
-        {children &&
-          children.map((childItem, i) => {
-            const pathSplit = location.pathname.split('/');
-            const childSplit = childItem.path.split('/');
-            const isActive = pathSplit.includes(childSplit[2]);
-            const uniqueKey = `${childItem.path}-${i}`;
-            return (
+          {children && children.length !== 0 ? (
+            <>
+              <HtmlTooltip
+                sx={{ visibility: childOpen ? 'hidden' : 'visible' }}
+                title={
+                  <React.Fragment>
+                    {children.map((childItem, i) => {
+                      const pathSplit = location.pathname.split('/');
+                      const childSplit = childItem.path.split('/');
+                      const isActive = pathSplit.includes(childSplit[2]);
+                      const uniqueKey = `${childItem.path}-${i}`;
+                      return (
+                        <ListItemButton
+                          key={uniqueKey}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isWarehouse) {
+                              clearWarehouseData();
+                              navigate(childItem.path);
+                              return;
+                            }
+                            navigate(childItem.path);
+                          }}
+                          sx={{
+                            '&.Mui-selected': {
+                              backgroundColor: '#046DBD',
+                              opacity: 1,
+                            },
+                            '&:hover': {
+                              backgroundColor: '#373b3e',
+                              opacity: 1,
+                            },
+                            '&.Mui-selected:hover': {
+                              backgroundColor: SelectedOptionColor,
+                            },
+                            borderRadius: 1,
+                            mb: 0.5,
+                            opacity: 0.7,
+                          }}
+                        >
+                          {childItem.icon && (
+                            <ListItemIcon sx={{ mr: 1 }}>
+                              {React.cloneElement(childItem.icon, {
+                                style: {
+                                  color: isActive ? '#046DBD' : 'inherit',
+                                },
+                              })}
+                            </ListItemIcon>
+                          )}
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              display: 'inline',
+                              color: isActive ? '#046DBD' : 'inherit',
+                            }}
+                          >
+                            {childItem.title}
+                          </Typography>
+                        </ListItemButton>
+                      );
+                    })}
+                  </React.Fragment>
+                }
+                placement="right"
+              >
+                {iconInSideBar}
+              </HtmlTooltip>
+            </>
+          ) : (
+            <>{iconInSideBar}</>
+          )}
+          <Box
+            sx={{
+              justifyContent: 'flex-end',
+            }}
+          >
+            {(children && isOpen) || (title === 'Almacén' && isOpen) ? (
               <ListItemButton
-                key={uniqueKey}
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate(childItem.path);
-                }}
-                selected={isActive}
                 sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: '#046DBD',
-                    opacity: 1,
-                  },
-                  '&:hover': {
-                    backgroundColor: '#373b3e',
-                    opacity: 1,
-                  },
-                  '&.Mui-selected:hover': {
-                    backgroundColor: SelectedOptionColor,
-                  },
-                  borderRadius: 1,
-                  mb: 0.5,
-                  opacity: 0.7,
+                  justifyContent: 'center',
+                  '&:hover': { backgroundColor: 'transparent' },
+                  p: 0,
+                  width: 40,
+                  height: 22,
+                }}
+                onClick={(e) => {
+                  setChildOpen(!childOpen);
+                  e.stopPropagation();
+                  e.preventDefault();
                 }}
               >
-                <ListItemIcon sx={{ mr: 1 }}>{childItem.icon}</ListItemIcon>
-                {isOpen ? (
-                  <Typography
-                    variant="body1"
+                {childOpen ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+            ) : null}
+          </Box>
+        </ListItemButton>
+        <Collapse in={childOpen} unmountOnExit>
+          {children &&
+            children.map((childItem, i) => {
+              const pathSplit = location.pathname.split('/');
+              const childSplit = childItem.path.split('/');
+              const isActive = pathSplit.includes(childSplit[2] || childSplit[1]);
+              const uniqueKey = `${childItem.path}-${i}`;
+
+              return (
+                <List component="div" disablePadding key={uniqueKey} sx={{ display: 'flex', flex: 1, pl: 2 }}>
+                  <ListItemButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsOpen(false);
+                      navigate(childItem.path);
+                    }}
+                    selected={isActive}
                     sx={{
-                      display: 'inline',
+                      '&.Mui-selected': {
+                        backgroundColor: '#046DBD',
+                        opacity: 1,
+                      },
+                      '&:hover': {
+                        backgroundColor: '#373b3e',
+                        opacity: 1,
+                      },
+                      '&.Mui-selected:hover': {
+                        backgroundColor: SelectedOptionColor,
+                      },
+                      borderRadius: 1,
+                      my: 0.5,
+                      opacity: 0.7,
                     }}
                   >
-                    {childItem.title}
-                  </Typography>
-                ) : null}
-              </ListItemButton>
-            );
-          })}
-      </Collapse>
-    </>
+                    {childItem.icon && <ListItemIcon sx={{ mr: 1 }}>{childItem.icon}</ListItemIcon>}
+                    {isOpen ? (
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          display: 'inline',
+                        }}
+                      >
+                        {childItem.title}
+                      </Typography>
+                    ) : null}
+                  </ListItemButton>
+                </List>
+              );
+            })}
+        </Collapse>
+      </Stack>
+    </ListItemButton>
   );
 };
 
@@ -339,6 +352,12 @@ export const SideNav = () => {
   const xlUp = useMediaQuery(theme.breakpoints.up('lg'));
   const navigate = useNavigate();
   const profile = useAuthStore(useShallow((state) => state.profile));
+  const [open, setOpen] = useState<{ [key: string]: boolean }>({});
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isOpen) return setOpen({});
+  }, [isOpen]);
 
   const filteredItems: IModuleItemsList[] = ModuleList.reduce(
     (accumulator: IModuleItemsList[], list: IModuleItemsList) => {
@@ -385,6 +404,19 @@ export const SideNav = () => {
       (!item.protectedRoles || item.protectedRoles.some((role) => profile?.roles.includes(role)))
     );
   });*/
+  const handleOpen = (key: string) => {
+    if (!isOpen) {
+      setIsOpen(true);
+      setOpen({ [key]: true });
+      return;
+    }
+    setOpen({ [key]: !open[key] });
+  };
+
+  const handleClick = (isWarehouseModule: boolean, module: string) => {
+    if (isWarehouseModule && profile?.roles.includes('ADMIN')) return navigate('almacenes');
+    return handleOpen(module);
+  };
 
   return (
     <>
@@ -468,23 +500,142 @@ export const SideNav = () => {
             }}
           >
             <List component="div" disablePadding>
-              {filteredItems.map((list: IModuleItemsList) => (
-                <React.Fragment key={list.categoryTitle}>
-                  {isOpen && <Typography fontSize={12}>{list.categoryTitle}</Typography>}
-                  {list.moduleItems.map((item, i) => (
-                    <React.Fragment key={`${item.path}-${i}`}>
-                      <SideNavItems
-                        icon={item.icon}
-                        title={item.title}
-                        path={item.path}
-                        children={item.children}
-                        warehouses={warehouses as []}
-                        roles={profile?.roles as string[]}
-                      />
-                    </React.Fragment>
-                  ))}
-                </React.Fragment>
-              ))}
+              {filteredItems.map((list: IModuleItemsList) => {
+                const isWarehouseModule = list.categoryTitle === 'Almacen';
+                const isActive = location.pathname.split('/')[1] === list.path;
+
+                if (
+                  isWarehouseModule &&
+                  warehouses?.every((w) => w.subAlmacenes.length === 0) &&
+                  !profile?.roles.includes('ADMIN')
+                )
+                  return null;
+
+                if (list.categoryTitle === 'Dashboard') {
+                  return (
+                    <Box key={list.categoryTitle}>
+                      {isOpen && (
+                        <Typography
+                          sx={{
+                            '&.Mui-selected': {
+                              backgroundColor: '#046DBD',
+                              opacity: 1,
+                            },
+                            borderRadius: 1,
+                            mb: 0.5,
+                            opacity: 0.7,
+                            fontSize: 12,
+                          }}
+                        >
+                          {list.categoryTitle}
+                        </Typography>
+                      )}
+                      {list.moduleItems.map((item, i) => (
+                        <SideNavItems
+                          icon={item.icon}
+                          title={item.title}
+                          path={item.path}
+                          children={item.children}
+                          warehouses={warehouses as []}
+                          roles={profile?.roles as string[]}
+                          key={`${item.path}-${i}`}
+                        />
+                      ))}
+                    </Box>
+                  );
+                }
+
+                return (
+                  <ListItemButton
+                    key={list.path}
+                    sx={{
+                      mt: 1,
+                      mb: 1,
+                      p: 0,
+                      width: '100%',
+                      display: 'flex',
+                      flex: 1,
+                      alignItems: 'center',
+                      borderRadius: 1,
+                      opacity: 0.7,
+                      '&.Mui-selected': {
+                        backgroundColor: '#046DBD',
+                        opacity: 1,
+                      },
+                      '&:hover': {
+                        backgroundColor: !isOpen || (!open[list.categoryTitle] && isOpen) ? '#373b3e' : null,
+                        opacity: !isOpen || (!open[list.categoryTitle] && isOpen) ? 1 : null,
+                      },
+                    }}
+                    selected={isActive && !isOpen}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClick(isWarehouseModule, list.categoryTitle);
+                    }}
+                  >
+                    <Stack sx={{ display: 'flex', flex: 1 }}>
+                      <ListItemButton
+                        selected={isActive && isOpen}
+                        sx={{
+                          display: 'flex',
+                          flex: 1,
+                          padding: 1,
+                          margin: 0,
+                          justifyContent: 'space-between',
+                          '&.Mui-selected': {
+                            backgroundColor: '#046DBD',
+                            opacity: 1,
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', flex: 1, alignItems: 'flex-start', columnGap: 1 }}>
+                          <ListItemIcon sx={{ color: '#fff' }}>{list.icon}</ListItemIcon>
+                          {isOpen && (
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                display: 'inline',
+                              }}
+                            >
+                              {list.categoryTitle}
+                            </Typography>
+                          )}
+                        </Box>
+                        <Box>
+                          <ListItemButton
+                            sx={{
+                              justifyContent: 'center',
+                              '&:hover': { backgroundColor: 'transparent' },
+                              p: 0,
+                              width: 40,
+                              height: 22,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpen(list.categoryTitle);
+                            }}
+                          >
+                            {isOpen && (open[list.categoryTitle] ? <ExpandLess /> : <ExpandMore />)}
+                          </ListItemButton>
+                        </Box>
+                      </ListItemButton>
+                      <Collapse in={open[list.categoryTitle]} sx={{ padding: 0 }}>
+                        {list.moduleItems.map((item, i) => (
+                          <SideNavItems
+                            icon={item.icon}
+                            title={item.title}
+                            path={item.path}
+                            children={item.children}
+                            warehouses={warehouses as []}
+                            roles={profile?.roles as string[]}
+                            key={`${item.path}-${i}`}
+                          />
+                        ))}
+                      </Collapse>
+                    </Stack>
+                  </ListItemButton>
+                );
+              })}
             </List>
           </Stack>
         </Box>

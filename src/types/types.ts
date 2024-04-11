@@ -3,7 +3,7 @@ export interface IModuleItems {
   path: string;
   children?: IModuleItems[];
   childrenItems?: string[] | [] | undefined;
-  icon: React.ReactElement;
+  icon: React.ReactElement | null;
   protectedRoles?: string[];
   mainDashboard?: string[];
   topLevel?: boolean;
@@ -13,6 +13,9 @@ export interface IModuleItems {
 export interface IModuleItemsList {
   categoryTitle: string;
   moduleItems: IModuleItems[];
+  icon?: React.ReactElement;
+  id?: string;
+  path?:string
 }
 
 export interface IUser {
@@ -260,7 +263,7 @@ export interface IRegisterOrderPurchase {
 
 export interface OrdenCompra {
   Id_Proveedor: string;
-  ConceptoPago?:number;
+  ConceptoPago?: number;
   OrdenCompraArticulo: OrdenCompraArticulo[];
 }
 
@@ -357,4 +360,10 @@ export interface IAddSubWarehouse {
   esSubAlmacen: boolean;
   Id_AlmacenPrincipal: string;
   Id_UsuarioEncargado: string;
+}
+
+export interface ISideBarWarehouse {
+  id: string;
+  nombre: string;
+  subAlmacenes: { id: string; nombre: string }[];
 }
