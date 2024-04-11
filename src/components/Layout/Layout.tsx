@@ -66,6 +66,7 @@ export const Layout: React.FC = () => {
     '/compras/autorizacion-compras/autorizaciones': 'Autorizaciones',
     '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
     '/compras/solicitud-compras': 'Compras',
+    '/almacenes/fc6d0fdd-8cfa-49a7-863e-206a7542a5e5': 'xd',
   };
 
   useEffect(() => {

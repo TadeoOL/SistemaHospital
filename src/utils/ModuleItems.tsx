@@ -9,6 +9,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import { purchaseGlobalRoles, purchasingDirector, supplyRoles } from './dataRoles';
+import { ShoppingBasket, Warehouse } from '@mui/icons-material';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -23,6 +24,8 @@ export const ModuleList: IModuleItemsList[] = [
   },
   {
     categoryTitle: 'Compras',
+    icon: <ShoppingBasket />,
+    path: 'compras',
     moduleItems: [
       {
         title: 'Compras',
@@ -91,6 +94,7 @@ export const ModuleList: IModuleItemsList[] = [
   // },
   {
     categoryTitle: 'Almacen',
+    icon: <WarehouseIcon />,
     moduleItems: [
       {
         title: 'Almacén',
@@ -99,6 +103,7 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
       },
     ],
+    path: 'almacenes',
   },
 
   // {
