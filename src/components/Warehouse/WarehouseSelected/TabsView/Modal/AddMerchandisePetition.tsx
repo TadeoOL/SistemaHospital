@@ -33,6 +33,7 @@ import { useParams } from 'react-router-dom';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
 import { addMerchandiseEntry, getExistingArticles, getWarehouseById } from '../../../../../api/api.routes';
 
+
 type Article = {
   id: string;
   nombre: string;
@@ -53,6 +54,27 @@ const style = {
   display: 'flex',
   flexDirection: 'column',
   maxHeight: { xs: 600 },
+};
+
+const useFetchPurchaseWarehouse = (warehouseId: string) => {
+  const [isLoadingArticles, setIsLoadingExistingArticle] = useState(true);
+  const [articlesRes, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingExistingArticle(true);
+      try {
+        const data = await getArticlesByWarehouseIdAndSearch(warehouseId, '');
+        setArticlesFetched(data.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingExistingArticle(false);
+      }
+    };
+    fetchData();
+  }, [warehouseId]);
+  return { isLoadingArticles, articlesRes };
 };
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
@@ -108,7 +130,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     }),
     shallow
   );
-  const [articleSelected, setArticleSelected] = useState<Article | null>(null);
+  const [articleSelected, setArticleSelected] = useState<ArticlesFetched | null | Article>(null);
   const [amountText, setAmountText] = useState('');
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
@@ -177,6 +199,10 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
 
   const onSubmit: SubmitHandler<MerchandiseEntry> = async (data) => {
     try {
+      if (!warehouseSelected) {
+        setWarehouseError(true);
+        return toast.warning('Selecciona un almacen!');
+      }
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
         Id_AlmacenDestino: warehouseId as string,
@@ -253,6 +279,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
               getOptionLabel={(option) => option.nombre}
               options={dataWerehouseSelectedArticles}
+
               value={articleSelected}
               noOptionsText="No se encontraron artículos"
               renderInput={(params) => (
