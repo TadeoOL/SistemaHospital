@@ -2,6 +2,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { getRequestListByWareHouseId } from '../../api/api.routes';
 import { MerchandiseEntry } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
+import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -44,7 +45,7 @@ export const merchandiseEntryRequestPagination = createWithEqualityFn<State & Ac
   data: null,
   isLoading: true,
   search: '',
-  startDate: '',
+  startDate: getFirstDayOfTheMonth(),
   endDate: '',
   enabled: true,
   handleChangeSubWarehouse: false,

@@ -1,6 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { getPurchaseOrderRequest } from '../../api/api.routes';
 import { IPurchaseAuthorization } from '../../types/types';
+import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -43,7 +44,7 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<State & Ac
   enabled: true,
   handleChange: false,
   status: '-1',
-  startDate: '',
+  startDate: getFirstDayOfTheMonth(),
   endDate: '',
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),

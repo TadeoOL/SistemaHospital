@@ -1,6 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { getPurchaseAuthorizationHistory } from '../../api/api.routes';
 import { IPurchaseAuthorization } from '../../types/types';
+import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -45,7 +46,7 @@ export const usePurchaseAuthorizationHistoryPagination = createWithEqualityFn<St
   handleChangePurchaseAuthorization: false,
   status: '-1',
   endDate: '',
-  startDate: '',
+  startDate: getFirstDayOfTheMonth(),
   setStartDate: (startDate: string) => set({ startDate }),
   setEndDate: (endDate: string) => set({ endDate }),
   setStatus: (status: string) => set({ status }),

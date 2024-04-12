@@ -128,7 +128,9 @@ const useGetAllData = () => {
     status,
     setStatus,
     setStartDate,
+    startDate,
     setEndDate,
+    endDate,
   };
 };
 
@@ -145,7 +147,9 @@ export const PurchaseOrder = () => {
     status,
     setStatus,
     setStartDate,
+    startDate,
     setEndDate,
+    endDate,
   } = useGetAllData();
   const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
@@ -197,8 +201,10 @@ export const PurchaseOrder = () => {
               label="Fecha inicio"
               size="small"
               type="date"
+              value={startDate}
               InputLabelProps={{ shrink: true }}
               onChange={(e) => {
+                console.log(e.target.value);
                 setStartDate(e.target.value);
               }}
             />
@@ -206,6 +212,7 @@ export const PurchaseOrder = () => {
               label=" Fecha final"
               size="small"
               type="date"
+              value={endDate}
               InputLabelProps={{ shrink: true }}
               onChange={(e) => {
                 setEndDate(e.target.value);

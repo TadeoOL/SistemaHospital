@@ -113,6 +113,7 @@ export const ExistingArticleTable = () => {
       <TableComponent
         disableHook={disableArticle}
         fetchDataHook={useGetAllData}
+        hasPrices={[3, 2]}
         modifyModalComponent={(props) => (
           <ModifyExistingArticleModal existingArticleId={props.data} open={props.open} />
         )}

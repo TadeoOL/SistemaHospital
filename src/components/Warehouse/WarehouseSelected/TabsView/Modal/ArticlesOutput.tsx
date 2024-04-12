@@ -30,7 +30,7 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Delete, Edit, ExpandLess, ExpandMore, Save } from '@mui/icons-material';
+import { Delete, Edit, ExpandLess, ExpandMore, Save, ArrowForward } from '@mui/icons-material';
 import { OutputReasonMessage } from './OutputReasonMessage';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
@@ -39,6 +39,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { IWarehouseData } from '../../../../../types/types';
 import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const style = {
   position: 'absolute',
@@ -161,10 +162,10 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       });
     const object = {
       Articulos: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : reasonMessage,
+      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : warehouseData.id,
       id_almacenOrigen: warehouseData.id,
       Estatus: 1,
-      // esSalidaAlmacen: radioSelected === 0 ? true : false,
+      Mensaje: radioSelected === 1 ? reasonMessage : undefined,
     };
     try {
       await articlesOutputToWarehouse(object);
@@ -229,6 +230,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
         <Button
           variant="contained"
           disabled={isLoading}
+          endIcon={value === 0 ? <ArrowForward /> : <Save />}
           onClick={() => {
             if (value === 0) {
               if (articles.length === 0) return toast.error('Agrega artículos!');
@@ -247,7 +249,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
             }
           }}
         >
-          {value === 0 ? 'Siguiente' : 'Aceptar'}
+          {value === 0 ? 'Siguiente' : 'Guardar'}
         </Button>
       </Box>
     </Box>
@@ -347,62 +349,74 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     setArticleSelected(null);
     setAmount('');
   };
+
+  const radioOptions = [
+    'Quirofano',
+    'Hospitalizacion',
+    'Caduco',
+    'Empaque dañado',
+    'Producto defectuoso',
+    'Robo o perdida',
+  ];
+
   return (
     <>
       <Stack spacing={2}>
-        <Stack>
-          <Typography>Selección de artículos</Typography>
-          <Autocomplete
-            disablePortal
-            fullWidth
-            loading={isLoading}
-            loadingText="Cargando artículos..."
-            onChange={(e, val) => {
-              e.stopPropagation();
-              setArticleSelected(val);
-            }}
-            getOptionLabel={(option) => option.nombre}
-            options={articlesFetched}
-            value={articleSelected}
-            noOptionsText="No se encontraron artículos"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                // error={providerError}
-                // helperText={providerError && 'Selecciona un subalmacen'}
-                placeholder="Artículos..."
-                sx={{ width: '50%' }}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            )}
-          />
-        </Stack>
-        <Stack>
-          <Typography>Cantidad</Typography>
-          <Box sx={{ alignItems: 'flex-end', display: 'flex', flex: 1, columnGap: 1 }}>
-            <TextField
-              placeholder="Cantidad"
-              value={amount}
-              disabled={!articleSelected}
-              onChange={(e) => {
-                if (!articleSelected) return;
-                if (!isValidInteger(e.target.value)) return;
-                if (parseInt(e.target.value) > parseInt(articleSelected.stockActual)) return;
-                setAmount(e.target.value);
+        <Stack flexDirection={'row'} display={'flex'} alignItems={'center'}>
+          <Stack width={'50%'} mb={2}>
+            <Typography>Selección de artículos</Typography>
+            <Autocomplete
+              disablePortal
+              fullWidth
+              loading={isLoading}
+              loadingText="Cargando artículos..."
+              onChange={(e, val) => {
+                e.stopPropagation();
+                setArticleSelected(val);
               }}
-              sx={{ width: '50%' }}
+              getOptionLabel={(option) => option.nombre}
+              options={articlesFetched}
+              value={articleSelected}
+              noOptionsText="No se encontraron artículos"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  // error={providerError}
+                  // helperText={providerError && 'Selecciona un subalmacen'}
+                  placeholder="Artículos..."
+                  sx={{ width: '50%' }}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              )}
             />
-            <Typography variant="caption" color="error">
-              Cantidad maxima: {maxAmount}
-            </Typography>
+          </Stack>
+          <Stack flexDirection={'column'} width={'50%'}>
+            <Typography>Cantidad</Typography>
+            <Box sx={{ display: 'flex', flex: 1, columnGap: 1, flexDirection: 'column' }}>
+              <TextField
+                placeholder="Cantidad"
+                value={amount}
+                disabled={!articleSelected}
+                onChange={(e) => {
+                  if (!articleSelected) return;
+                  if (!isValidInteger(e.target.value)) return;
+                  if (parseInt(e.target.value) > parseInt(articleSelected.stockActual)) return;
+                  setAmount(e.target.value);
+                }}
+                sx={{ width: '50%' }}
+              />
+              <Typography variant="caption" color="error">
+                Cantidad maxima: {maxAmount}
+              </Typography>
+            </Box>
+          </Stack>
+          <Box sx={{ heigth: 25 }}>
+            <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticle()}>
+              Agregar
+            </Button>
           </Box>
         </Stack>
-        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end', maxWidth: '50%' }}>
-          <Button variant="contained" onClick={() => handleAddArticle()}>
-            Agregar
-          </Button>
-        </Box>
-        <Divider />
+
         <ArticlesTable
           articles={articles}
           setArticles={setArticles}
@@ -410,56 +424,92 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           originalArticlesSelected={originalArticlesSelected}
         />
         <Divider />
-        <FormControl>
-          <FormLabel>Tipo de salida</FormLabel>
-          <RadioGroup row value={radioSelected}>
-            <FormControlLabel
-              onChange={(e: any) => setRadioSelected(Number(e.target.value))}
-              value={0}
-              control={<Radio />}
-              label="Almacen"
-            />
-            <FormControlLabel
-              value={1}
-              onChange={(e: any) => setRadioSelected(Number(e.target.value))}
-              control={<Radio />}
-              label="Otro"
-            />
-          </RadioGroup>
-        </FormControl>
-        {radioSelected === 0 ? (
-          <Autocomplete
-            disablePortal
-            fullWidth
-            filterOptions={filterSubWarehousesOptions}
-            onChange={(e, val) => {
-              e.stopPropagation();
-              setSubWarehouse(val);
-            }}
-            getOptionLabel={(option) => option.nombre}
-            options={warehouseData.subAlmacenes}
-            value={subWarehouse}
-            noOptionsText="No existen registros de Sub Almacenes"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                // error={providerError}
-                // helperText={providerError && 'Selecciona un subalmacen'}
-                placeholder="Sub Almacén..."
-                sx={{ width: '50%' }}
+        <Stack flexDirection={'row'}>
+          <Box>
+            <FormControl>
+              <FormLabel>Tipo de salida</FormLabel>
+              <RadioGroup row value={radioSelected}>
+                <FormControlLabel
+                  onChange={(e: any) => setRadioSelected(Number(e.target.value))}
+                  value={0}
+                  control={<Radio />}
+                  label="Almacen"
+                />
+                <FormControlLabel
+                  value={1}
+                  onChange={(e: any) => setRadioSelected(Number(e.target.value))}
+                  control={<Radio />}
+                  label="Otro"
+                />
+              </RadioGroup>
+            </FormControl>
+            {radioSelected === 0 ? (
+              <Autocomplete
+                disablePortal
+                sx={{ width: 200 }}
+                filterOptions={filterSubWarehousesOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setSubWarehouse(val);
+                }}
+                getOptionLabel={(option) => option.nombre}
+                options={warehouseData.subAlmacenes}
+                value={subWarehouse}
+                noOptionsText="No existen registros de Sub Almacenes"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    // error={providerError}
+                    // helperText={providerError && 'Selecciona un subalmacen'}
+                    placeholder="Sub Almacén..."
+                    fullWidth
+                  />
+                )}
               />
+            ) : (
+              <>
+                <Box>
+                  <Button variant="contained" onClick={() => setOpen(true)}>
+                    Agregar motivo de salida
+                  </Button>
+                </Box>
+              </>
             )}
-          />
-        ) : (
-          <>
-            <Box>
-              <Button variant="contained" onClick={() => setOpen(true)}>
-                Agregar motivo de salida
-              </Button>
-            </Box>
-            <Typography>Motivo de salida: {reasonMessage}</Typography>
-          </>
-        )}
+          </Box>
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              visibility: radioSelected === 0 ? 'hidden' : 'visible',
+            }}
+          >
+            <Typography textAlign={'center'}>Motivos de salida:</Typography>
+
+            <RadioGroup
+              sx={{
+                mx: '10%',
+                flex: 1,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 1,
+              }}
+              value={reasonMessage}
+              onChange={(e) => setReasonMessage(e.target.value)}
+            >
+              {radioOptions.map((option) => (
+                <FormControlLabel
+                  key={option}
+                  value={option} // Valor asociado al radio button
+                  control={<Radio />} // Componente de radio button
+                  label={option} // Etiqueta del radio button
+                />
+              ))}
+            </RadioGroup>
+          </Box>
+        </Stack>
+        <Typography>Motivo de salida seleccionado: {reasonMessage}</Typography>
       </Stack>
       <Modal open={open} onClose={() => setOpen(!open)}>
         <>

@@ -80,6 +80,7 @@ const useGetEntries = () => {
     setSearch,
     setStartDate,
     setEndDate,
+    startDate,
     setPageIndex,
     setPageSize,
     fetchEntryRequest,
@@ -98,6 +99,7 @@ export const WarehouseRequest = () => {
     isLoading,
     setSearch,
     setStartDate,
+    startDate,
     setEndDate,
     setPageIndex,
     setPageSize,
@@ -117,25 +119,38 @@ export const WarehouseRequest = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          const object = {
-            Estatus: 0,
-            Id_HistorialMovimiento: idRequest,
-          };
-          console.log(object);
-          try {
-            await articlesOutputToWarehouse(object);
+          const { value: reason } = await withReactContent(Swal).fire({
+            title: 'Ingresa un motivo de cancelación:',
+            input: 'textarea',
+            inputPlaceholder: 'Escribe aquí...',
+            inputAttributes: {
+              'aria-label': 'Ingresa un motivo de cancelación',
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: (inputReason) => {
+              return articlesOutputToWarehouse({
+                Estatus: 0,
+                Id_HistorialMovimiento: idRequest,
+                Mensaje: inputReason as string,
+              });
+            },
+            allowOutsideClick: () => !Swal.isLoading(),
+          });
+          if (reason) {
             fetchEntryRequest();
             withReactContent(Swal).fire({
-              title: 'Exito!',
+              title: 'Éxito!',
               text: 'Solicitud Cancelada',
               icon: 'success',
             });
-          } catch (error) {
-            console.log(error);
+          } else {
             withReactContent(Swal).fire({
-              title: 'Error!',
-              text: 'Ocurrio un erro en la cancelación',
-              icon: 'error',
+              title: 'Operación Cancelada',
+              text: 'No se proporcionó un motivo de cancelación.',
+              icon: 'info',
             });
           }
         }
@@ -158,6 +173,7 @@ export const WarehouseRequest = () => {
                 label="Fecha inicio"
                 size="small"
                 type="date"
+                value={startDate}
                 InputLabelProps={{ shrink: true }}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -182,10 +198,20 @@ export const WarehouseRequest = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Petición de Almacén</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>Fecha de solicitud</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>Estatus</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>Acción</TableCell>
+                    <TableCell align="center">Folio</TableCell>
+                    <TableCell align="center">Petición de Almacén</TableCell>
+                    <TableCell align="center" sx={{ textAlign: 'center' }}>
+                      Solicitado Por
+                    </TableCell>
+                    <TableCell align="center" sx={{ textAlign: 'center' }}>
+                      Fecha de solicitud
+                    </TableCell>
+                    <TableCell align="center" sx={{ textAlign: 'center' }}>
+                      Estatus
+                    </TableCell>
+                    <TableCell align="center" sx={{ textAlign: 'center' }}>
+                      Acción
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -215,8 +241,10 @@ export const WarehouseRequest = () => {
                                 <ExpandLessIcon />
                               </IconButton>
                             )}
-                            <Typography>{petition.almacenDestino}</Typography>
+                            <Typography>{petition.folio}</Typography>
                           </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>{petition.almacenDestino}</TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>{petition.solicitadoPor}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
                             {petition.estatus === 0 ? 'Cancelada' : 'Pendiente'}
@@ -276,7 +304,7 @@ export const WarehouseRequest = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4}>
+                      <TableCell align="center" colSpan={6}>
                         <Box
                           sx={{
                             display: 'flex',

@@ -11,6 +11,7 @@ import { addNewSubWarehouseSchema } from '../../../../../schema/schemas';
 import { addNewSubWarehouse, modifyWarehouseById } from '../../../../../api/api.routes';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { Cancel, Save } from '@mui/icons-material';
 
 const style = {
   position: 'absolute',
@@ -160,10 +161,10 @@ export const AddSubWarehouseModal = (props: AddSubWarehouseModalProps) => {
               alignItems: 'center',
             }}
           >
-            <Button variant="outlined" color="error">
+            <Button variant="outlined" color="error" startIcon={<Cancel />}>
               Cancelar
             </Button>
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" startIcon={<Save />}>
               Aceptar
             </Button>
           </Box>

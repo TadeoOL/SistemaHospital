@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/);
 
-const number = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
+//onst number = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
+
+const positiveNumber = /^[+]?(0*[1-9][0-9]*([.][0-9]*)?|0*[.][0-9]+|0+)$/;
 
 export const loginSchema = z.object({
   userName: z.string().min(3, 'Escribe un nombre de usuario valido'),
@@ -77,17 +79,22 @@ export const addNewProviderSchema = z.object({
 
 export const addSubCategorySchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().nullable().optional(),
   id_categoria: z.string().min(1, 'Selecciona una categoría'),
   iva: z
     .string()
     .min(1, 'Debe tener al menos una cifra')
     .refine(
       (value) => {
+        if(value === '0'){
+          return '0'
+        }
         const parsedValue = parseInt(value);
-        const flag = number.test(value);
-        if (flag) {
+        const flag = positiveNumber.test(value);
+        if (flag ) {
           return parsedValue;
         }
+       
       },
       {
         message: 'Número no valido.',

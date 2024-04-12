@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import React, { useEffect, useState } from 'react';
-import { Delete, Edit, ExpandLess, ExpandMore, Save } from '@mui/icons-material';
+import { Cancel, Delete, Edit, ExpandLess, ExpandMore, Save, Check } from '@mui/icons-material';
 import { OutputReasonMessage } from './OutputReasonMessage';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
@@ -220,6 +220,7 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
               setValue((prev) => prev - 1);
             }
           }}
+          startIcon={<Cancel />}
         >
           {value === 0 ? 'Cancelar' : 'Regresar'}
         </Button>
@@ -232,6 +233,7 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
               return toast.error('Rellena todas las cantidades');
             handleSubmit();
           }}
+          startIcon={<Check />}
         >
           {'Aceptar'}
         </Button>

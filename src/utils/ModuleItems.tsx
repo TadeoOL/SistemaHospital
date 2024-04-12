@@ -9,7 +9,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import { purchaseGlobalRoles, purchasingDirector, supplyRoles } from './dataRoles';
-import { ShoppingBasket, Warehouse } from '@mui/icons-material';
+import { ShoppingBasket } from '@mui/icons-material';
 
 export const ModuleList: IModuleItemsList[] = [
   {

@@ -249,7 +249,7 @@ const BuildOrder = (props: { setOpen: Function }) => {
             }}
             loading={isLoadingArticles && articlesFetched.length === 0}
             getOptionLabel={(option) => option.nombre}
-            options={articlesFetched}
+            options={articlesFetched as Article[]}
             value={articleSelected}
             noOptionsText="No se encontraron artículos"
             renderInput={(params) => (

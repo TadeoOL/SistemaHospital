@@ -2,6 +2,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { getWareHouseMovementsById } from '../../api/api.routes';
 import { IWarehouseMovementData } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
+import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -44,7 +45,7 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   data: null,
   isLoading: true,
   search: '',
-  startDate: '',
+  startDate: getFirstDayOfTheMonth(),
   endDate: '',
   enabled: true,
   handleChangeSubWarehouse: false,
@@ -73,6 +74,7 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
           useWarehouseTabsNavStore.getState().warehouseData.id
         }&FechaInicio=${startDate}&FechaFin=${endDate}`
       );
+      console.log("qlnv faaa",res.data);
       set(() => ({
         data: res.data,
         count: res.count,

@@ -35,7 +35,6 @@ import { IPurchaseAuthorization, StatusPurchaseRequest } from '../../../../types
 import { usePurchaseOrderRequestModals } from '../../../../store/purchaseStore/purchaseOrderRequestModals';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { AddMoreProviders } from './Modal/AddMoreProviders';
-import { primary, error } from '../../../../theme/colors';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import { MatchPrices } from './Modal/MatchPrices';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
@@ -49,35 +48,46 @@ const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
   Swal.fire({
     title: 'Advertencia',
-    text: '¿Desea cancelar la solicitud de compra seleccionada?.',
+    text: '¿Desea cancelar la solicitud de compra seleccionada?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: primary.main,
-    cancelButtonColor: error.main,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí',
     cancelButtonText: 'Cancelar',
-    confirmButtonText: 'Aceptar',
-    reverseButtons: true,
-    customClass: {
-      container: 'swal-container',
-    },
-  }).then(async (result) => {
+  }).then((result) => {
     if (result.isConfirmed) {
-      try {
-        await changePurchaseStatus(idOrdenCompra, 0, 'Cancelada');
-        fetch();
-        Swal.fire({
-          title: 'Operación Exitosa',
-          text: 'Tu orden de compra ha sido cancelada.',
-          icon: 'success',
-        });
-      } catch (error) {
-        console.log(error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Error al cancelar la compra, consulte con su administrador.',
-          icon: 'error',
-        });
-      }
+      Swal.fire({
+        title: 'Ingrese el motivo de la cancelación:',
+        input: 'textarea',
+        inputPlaceholder: 'Motivo de la cancelación',
+        inputAttributes: {
+          'aria-label': 'Motivo de la cancelación',
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: async (Mensaje) => {
+          try {
+            await changePurchaseStatus(idOrdenCompra, 0, Mensaje);
+            fetch();
+            Swal.fire({
+              title: 'Operación Exitosa',
+              text: 'Tu orden de compra ha sido cancelada.',
+              icon: 'success',
+            });
+          } catch (error) {
+            console.error(error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al cancelar la compra, consulte con su administrador.',
+              icon: 'error',
+            });
+          }
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      });
     }
   });
 };
@@ -219,7 +229,7 @@ export const PurchaseOrderRequest = () => {
         <Stack spacing={2} sx={{ minWidth: { xs: 950, xl: 0 } }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar solicitud de compra..."
+              title="Buscar solicitud de compraxxx..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 2 }}
             />

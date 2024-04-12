@@ -25,6 +25,7 @@ import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/wareh
 import { useShallow } from 'zustand/react/shallow';
 import React, { useEffect, useRef, useState } from 'react';
 import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
@@ -165,7 +166,12 @@ export const WarehouseArticles = () => {
               <IconButton onClick={() => clearFilters()}>
                 <FilterListOff />
               </IconButton>
-              <Button variant="contained" onClick={() => setOpenModal(!openModal)}>
+              <Button
+                sx={{ minWidth: 180 }}
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => setOpenModal(!openModal)}
+              >
                 Salida de artículos
               </Button>
             </Box>
@@ -179,7 +185,6 @@ export const WarehouseArticles = () => {
                     <TableCell>Stock Mínimo</TableCell>
                     <TableCell>Stock</TableCell>
                     <TableCell>Precio de compra</TableCell>
-                    <TableCell>Precio de venta</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
@@ -311,8 +316,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           )}
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
-        <TableCell>{article.precioCompra}</TableCell>
-        <TableCell>{article.precioVenta}</TableCell>
+        <TableCell>$ {article.precioCompra}</TableCell>
         <TableCell>
           <IconButton
             onClick={() => {
