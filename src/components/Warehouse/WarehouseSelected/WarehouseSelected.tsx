@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getWarehouseById } from '../../../api/api.routes';
 import LoadingView from '../../../views/LoadingView/LoadingView';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { WarehouseTabs } from './WarehouseTabs';
 import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
@@ -58,13 +58,11 @@ export const useGetWarehouseSelected = (warehouseId: string | undefined) => {
 const WarehouseSelected = () => {
   const { warehouseId } = useParams();
   const { isLoadingWarehouse, error } = useGetWarehouseSelected(warehouseId);
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
 
   if (isLoadingWarehouse) return <LoadingView />;
   if (error) return <NotFoundPage />;
   return (
     <Stack>
-      <Typography variant="h2">Almacén {warehouseData.nombre}</Typography>
       <Stack sx={{ bgcolor: 'background.paper' }}>
         <WarehouseTabs />
         <Box sx={{ p: 2 }}>

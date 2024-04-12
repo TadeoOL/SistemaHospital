@@ -32,13 +32,8 @@ const messagesByLink: Record<string, string> = {
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
-  const isSubWarehouse = warehouseData.esSubAlmacen;
   const isInsideSomeWarehouse = location.split('/').filter((ruta) => ruta !== '').length > 1;
-  return isInsideSomeWarehouse
-    ? isSubWarehouse
-      ? `SubAlmacen ${'/'} ${warehouseData.nombre}`
-      : warehouseData.nombre
-    : '';
+  return isInsideSomeWarehouse ? warehouseData.nombre : '';
 };
 
 interface TsxByModuleProps {
