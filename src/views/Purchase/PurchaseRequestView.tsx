@@ -42,7 +42,7 @@ const PurchaseRequestView = () => {
     if (openPurchaseRequestOrder) return;
     clearStates();
   }, [openPurchaseRequestOrder]);
-
+  console.log(userProfile);
   return (
     <>
       <Box>
@@ -55,17 +55,18 @@ const PurchaseRequestView = () => {
               mb: 1,
             }}
           >
-            {userProfile?.roles.includes('ABASTECIMIENTO') ||
-              (userProfile?.roles.includes('ADMIN') && (
-                <Button
-                  size="large"
-                  variant="contained"
-                  onClick={() => setOpenPurchaseRequestOrder(true)}
-                  startIcon={<RequestPageIcon />}
-                >
-                  Solicitud de Compra
-                </Button>
-              ))}
+            {userProfile?.roles.includes('ABASTECIMIENTO') || userProfile?.roles.includes('ADMIN') ? (
+              <Button
+                size="large"
+                variant="contained"
+                onClick={() => setOpenPurchaseRequestOrder(true)}
+                startIcon={<RequestPageIcon />}
+              >
+                Solicitud de Compra
+              </Button>
+            ) : (
+              <></>
+            )}
           </Box>
         )}
         <PurchaseTabNav />
