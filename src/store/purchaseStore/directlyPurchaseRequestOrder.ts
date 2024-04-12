@@ -35,6 +35,7 @@ interface State {
   note: string;
   openPurchaseRequestOrder: boolean;
   paymentMethod: number;
+  search: string;
 }
 
 interface Action {
@@ -53,6 +54,7 @@ interface Action {
   setNote: (note: string) => void;
   setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => void;
   setPaymentMethod: (paymentMethod: number) => void;
+  setSearch: (search: string) => void;
 }
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State & Action>((set) => ({
@@ -69,6 +71,8 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State &
   needAuth: false,
   note: '',
   paymentMethod: 0,
+  search: '',
+  setSearch: (search: string) => set({ search }),
   setPaymentMethod: (paymentMethod: number) => set({ paymentMethod }),
   openPurchaseRequestOrder: false,
   setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => set({ openPurchaseRequestOrder }),
