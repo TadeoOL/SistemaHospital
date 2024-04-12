@@ -31,8 +31,12 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
-import { addMerchandiseEntry, getExistingArticles, getWarehouseById } from '../../../../../api/api.routes';
-
+import {
+  addMerchandiseEntry,
+  // getArticlesByWarehouseIdAndSearch,
+  getExistingArticles,
+  getWarehouseById,
+} from '../../../../../api/api.routes';
 
 type Article = {
   id: string;
@@ -56,26 +60,26 @@ const style = {
   maxHeight: { xs: 600 },
 };
 
-const useFetchPurchaseWarehouse = (warehouseId: string) => {
-  const [isLoadingArticles, setIsLoadingExistingArticle] = useState(true);
-  const [articlesRes, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
+// const useFetchPurchaseWarehouse = (warehouseId: string) => {
+//   const [isLoadingArticles, setIsLoadingExistingArticle] = useState(true);
+//   const [articlesRes, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoadingExistingArticle(true);
-      try {
-        const data = await getArticlesByWarehouseIdAndSearch(warehouseId, '');
-        setArticlesFetched(data.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoadingExistingArticle(false);
-      }
-    };
-    fetchData();
-  }, [warehouseId]);
-  return { isLoadingArticles, articlesRes };
-};
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setIsLoadingExistingArticle(true);
+//       try {
+//         const data = await getArticlesByWarehouseIdAndSearch(warehouseId, '');
+//         setArticlesFetched(data.data);
+//       } catch (error) {
+//         console.log(error);
+//       } finally {
+//         setIsLoadingExistingArticle(false);
+//       }
+//     };
+//     fetchData();
+//   }, [warehouseId]);
+//   return { isLoadingArticles, articlesRes };
+// };
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
   const { warehouseId } = useParams();
@@ -110,27 +114,19 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     console.log(warehouseData);
   }, [warehouseData]);
 
-  const {
-    warehouseSelected,
-    setWarehouseSelected,
-    setArticles,
-    articles,
-    setArticlesFetched,
-    articlesFetched,
-    setSearch,
-  } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      warehouseSelected: state.warehouseSelected,
-      setWarehouseSelected: state.setWarehouseSelected,
-      setArticles: state.setArticles,
-      articles: state.articles,
-      setArticlesFetched: state.setArticlesFetched,
-      articlesFetched: state.articlesFetched,
-      setSearch: state.setSearch,
-    }),
-    shallow
-  );
-  const [articleSelected, setArticleSelected] = useState<ArticlesFetched | null | Article>(null);
+  const { warehouseSelected, setWarehouseSelected, setArticles, articles, setArticlesFetched, articlesFetched } =
+    useDirectlyPurchaseRequestOrderStore(
+      (state) => ({
+        warehouseSelected: state.warehouseSelected,
+        setWarehouseSelected: state.setWarehouseSelected,
+        setArticles: state.setArticles,
+        articles: state.articles,
+        setArticlesFetched: state.setArticlesFetched,
+        articlesFetched: state.articlesFetched,
+      }),
+      shallow
+    );
+  const [articleSelected, setArticleSelected] = useState<null | Article>(null);
   const [amountText, setAmountText] = useState('');
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
@@ -278,7 +274,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
               getOptionLabel={(option) => option.nombre}
               options={dataWerehouseSelectedArticles}
-
               value={articleSelected}
               noOptionsText="No se encontraron artículos"
               renderInput={(params) => (
@@ -289,7 +284,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   placeholder="Artículos"
                   sx={{ width: '50%' }}
                   onChange={(e) => {
-                    setSearch(e.target.value);
                     setSerch(e.target.value);
                   }}
                 />
