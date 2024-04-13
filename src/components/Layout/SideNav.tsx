@@ -414,7 +414,10 @@ export const SideNav = () => {
   };
 
   const handleClick = (isWarehouseModule: boolean, module: string) => {
-    if (isWarehouseModule && profile?.roles.includes('ADMIN')) return navigate('almacenes');
+    if (isWarehouseModule && profile?.roles.includes('ADMIN')) {
+      handleOpen(module);
+      return navigate('almacenes');
+    }
     return handleOpen(module);
   };
 
@@ -576,6 +579,7 @@ export const SideNav = () => {
                     <Stack sx={{ display: 'flex', flex: 1 }}>
                       <ListItemButton
                         selected={isActive && isOpen}
+                        disabled={!isOpen}
                         sx={{
                           display: 'flex',
                           flex: 1,
@@ -584,6 +588,9 @@ export const SideNav = () => {
                           justifyContent: 'space-between',
                           '&.Mui-selected': {
                             backgroundColor: '#046DBD',
+                            opacity: 1,
+                          },
+                          '&.Mui-disabled': {
                             opacity: 1,
                           },
                         }}
