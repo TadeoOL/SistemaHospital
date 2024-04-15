@@ -176,16 +176,18 @@ export const ArticleTable = () => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell className={'encabezadoConSort'}>
-                Nombre
-                {sortComponent('nombre', setSort)}
+              <TableCell  >
+                <Box sx={{ flexDirection:'row', display:'flex' }}>
+                {sortComponent('Nombre','nombre', setSort)}
+                </Box>
               </TableCell>
-              <TableCell>Stock mínimo {sortComponent('nombre', setSort)}</TableCell>
-              <TableCell>Stock alerta {sortComponent('stockMinimo', setSort)}</TableCell>
-              <TableCell>Precio Compra {sortComponent('stockAlerta', setSort)}</TableCell>
-              <TableCell>Precio Venta {sortComponent('precioCompra', setSort)}</TableCell>
-              <TableCell>Presentación {sortComponent('precioVenta', setSort)}</TableCell>
-              <TableCell>Sub categoría {sortComponent('subCategoria', setSort)}</TableCell>
+              <TableCell> {sortComponent('Stock mínimo ','nombre', setSort)}</TableCell>
+              <TableCell> {sortComponent('Stock alerta','stockMinimo', setSort)}</TableCell>
+              <TableCell> {sortComponent('Precio Compra','stockAlerta', setSort)}</TableCell>
+              <TableCell> {sortComponent('Precio Venta','precioCompra', setSort)}</TableCell>
+              <TableCell> {sortComponent('Presentación','precioVenta', setSort)}</TableCell>
+              <TableCell> {sortComponent('Sub categoría','subCategoria', setSort)}</TableCell>
+              <TableCell> Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -452,24 +452,6 @@ export function createComponents(config: { palette: any }): Components {
         root: {
           borderBottomColor: palette.divider,
           padding: '15px 16px',
-          '&.encabezadoConSort': {
-            backgroundColor: 'red',
-            display: 'flex',
-            flexDirection: 'row',
-            bgcolor: 'green',
-            alignItems: 'center',
-          },
-        },
-      },
-    },
-    MuiTableRow: {
-      styleOverrides: {
-        root: {
-          '&.encabezadoConSort': {
-            backgroundColor: 'green',
-            display: 'table-header-group',
-            alignItems: 'inherit',
-          },
         },
       },
     },
