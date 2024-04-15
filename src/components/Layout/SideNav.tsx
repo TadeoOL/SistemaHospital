@@ -94,7 +94,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
   const handleClick = (title: string, roles: string[]) => {
     if (isActive && !children) return;
     if (!children) {
-      if (!roles.includes('ADMIN') && title === 'Almacén') {
+      if (!(roles.includes('ADMIN') || (!roles.includes('DIRECTORCOMPRAS') && title === 'Almacén'))) {
         if (!isOpen) {
           setIsOpen(true);
           setChildOpen(true);
@@ -108,7 +108,11 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
       setIsOpen(false);
       navigate(path);
     } else {
-      if (isOpen && warehousesNames.includes(title) && roles.includes('ADMIN')) {
+      if (
+        isOpen &&
+        warehousesNames.includes(title) &&
+        (roles.includes('ADMIN') || !roles.includes('DIRECTORCOMPRAS'))
+      ) {
         const findId = warehouses.find((w) => w.nombre === title);
         navigate(`almacenes/${findId?.id}`);
         clearWarehouseData();
@@ -414,7 +418,8 @@ export const SideNav = () => {
   };
 
   const handleClick = (isWarehouseModule: boolean, module: string) => {
-    if (isWarehouseModule && profile?.roles.includes('ADMIN')) return navigate('almacenes');
+    if ((isWarehouseModule && profile?.roles.includes('ADMIN')) || profile?.roles.includes('DIRECTORCOMPRAS'))
+      return navigate('almacenes');
     return handleOpen(module);
   };
 
@@ -507,7 +512,7 @@ export const SideNav = () => {
                 if (
                   isWarehouseModule &&
                   warehouses?.every((w) => w.subAlmacenes.length === 0) &&
-                  !profile?.roles.includes('ADMIN')
+                  !(profile?.roles.includes('ADMIN') || profile?.roles.includes('DIRECTORCOMPRAS'))
                 )
                   return null;
 

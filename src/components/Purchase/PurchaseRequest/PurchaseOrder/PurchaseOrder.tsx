@@ -35,8 +35,8 @@ import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Assignment, CheckCircle, Info } from '@mui/icons-material';
-import { useAuthStore } from '../../../../store/auth';
-import { useShallow } from 'zustand/react/shallow';
+// import { useAuthStore } from '../../../../store/auth';
+// import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
@@ -151,7 +151,7 @@ export const PurchaseOrder = () => {
     setEndDate,
     endDate,
   } = useGetAllData();
-  const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
+  // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
   const [openOrderModal, setOpenOrderModal] = useState(false);
   const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
@@ -313,7 +313,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!isAdminPurchase() && order.estatus === 1 && (
+                                  {order.estatus === 1 && (
                                     <>
                                       <Tooltip title="Ver orden de compra">
                                         <IconButton
@@ -347,7 +347,7 @@ export const PurchaseOrder = () => {
                                   )}
                                 </>
                               )}
-                              {order.estatus === 1 && !isAdminPurchase() && (
+                              {order.estatus === 1 && (
                                 <Tooltip title="Cancelar">
                                   <IconButton
                                     size="small"
@@ -359,7 +359,7 @@ export const PurchaseOrder = () => {
                                   </IconButton>
                                 </Tooltip>
                               )}
-                              {order.estatus === 2 && !isAdminPurchase() && (
+                              {order.estatus === 2 && (
                                 <>
                                   <Tooltip title="Ver Factura">
                                     <IconButton
