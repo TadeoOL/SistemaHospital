@@ -9,6 +9,7 @@ interface State {
   data: any[];
   isLoading: boolean;
   search: string;
+  sort: string
   enabled: boolean;
   handleChangeArticle: boolean;
 }
@@ -19,6 +20,7 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeArticle: (handleChangeArticle: boolean) => void;
   fetchArticles: () => Promise<void>;
@@ -34,6 +36,7 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   data: [],
   isLoading: true,
   search: '',
+  sort:'',
   enabled: true,
   handleChangeArticle: false,
   setHandleChangeArticle: (handleChangeArticle: boolean) => set({ handleChangeArticle }),
@@ -42,16 +45,17 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setSort: (sort: string) => set ({ sort }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchArticles: async () => {
-    const { pageIndex, pageSize, enabled, search } = get();
+    const { pageIndex, pageSize, enabled, search, sort } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&sort=${sort}&habilitado=${enabled}`
       );
       set(() => ({
         data: res.data,
