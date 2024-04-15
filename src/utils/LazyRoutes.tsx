@@ -19,3 +19,4 @@ export const PurchaseConfigView = lazy(() => import('../views/Purchase/PurchaseC
 export const AccountView = lazy(() => import('../views/AccountView'));
 export const WarehouseSelected = lazy(() => import('../components/Warehouse/WarehouseSelected/WarehouseSelected'));
 export const PointOfSaleView = lazy(() => import('../views/Pharmacy/PointOfSaleView'));
+export const PackageCatalogueView = lazy(() => import('../views/Pharmacy/PackageCatalogueView'));

@@ -374,3 +374,17 @@ export interface ISideBarWarehouse {
   nombre: string;
   subAlmacenes: { id: string; nombre: string }[];
 }
+
+export interface IArticlesPackage{
+  id: string;
+  nombre: string;
+  contenido: {
+    articulos_contenidos:{
+      id_articulo: string;
+      nombre?: string;
+      cantidad: number;
+    }[]; 
+    proceso_destinado:string;
+  }
+}
+
