@@ -242,7 +242,7 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
                 ) : (
                   <IconButton
                     onClick={() => {
-                      if (isAdminPurchase() && !quoteRequest.pdf) return;
+                      if (!quoteRequest.pdf) return;
                       setOpenCollapse({
                         [quoteRequest.id]: !openCollapse[quoteRequest.id],
                       });
