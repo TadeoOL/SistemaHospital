@@ -1,3 +1,5 @@
-export const PharmacyView = () => {
+const PharmacyView = () => {
   return <div>PharmacyView</div>;
 };
+
+export default PharmacyView;

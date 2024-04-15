@@ -9,7 +9,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import { purchaseGlobalRoles, purchasingDirector, supplyRoles } from './dataRoles';
-import { ShoppingBasket } from '@mui/icons-material';
+import { LocalPharmacy, PointOfSale, ShoppingBasket } from '@mui/icons-material';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -104,6 +104,25 @@ export const ModuleList: IModuleItemsList[] = [
       },
     ],
     path: 'almacenes',
+  },
+  {
+    categoryTitle: 'Farmacia',
+    icon: <LocalPharmacy />,
+    moduleItems: [
+      {
+        title: 'Punto de venta',
+        path: '/farmacia/punto-venta',
+        icon: <PointOfSale sx={{ color: '#fff' }} />,
+        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+      },
+      {
+        title: 'Configuración',
+        path: '/farmacia/configuracion-farmacia',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+      },
+    ],
+    path: 'farmacia',
   },
 
   // {
