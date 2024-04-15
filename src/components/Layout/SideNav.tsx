@@ -92,9 +92,10 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
   const isDashboard = title === 'Inicio';
 
   const handleClick = (title: string, roles: string[]) => {
+    console.log('clic');
     if (isActive && !children) return;
     if (!children) {
-      if (!(roles.includes('ADMIN') || (!roles.includes('DIRECTORCOMPRAS') && title === 'Almacén'))) {
+      if (!roles.includes('ADMIN') && title === 'Almacén') {
         if (!isOpen) {
           setIsOpen(true);
           setChildOpen(true);
@@ -108,17 +109,17 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
       setIsOpen(false);
       navigate(path);
     } else {
-      if (
-        isOpen &&
-        warehousesNames.includes(title) &&
-        (roles.includes('ADMIN') || !roles.includes('DIRECTORCOMPRAS'))
-      ) {
+      if (isOpen && warehousesNames.includes(title) && roles.includes('ADMIN')) {
+        console.log({ isOpen });
+        console.log({ title });
+        console.log({ roles });
         const findId = warehouses.find((w) => w.nombre === title);
         navigate(`almacenes/${findId?.id}`);
         clearWarehouseData();
         setIsOpen(false);
         return;
       }
+      console.log('Leggo acaaaa');
       if (!isOpen) {
         setIsOpen(true);
         setChildOpen(true);
@@ -418,8 +419,7 @@ export const SideNav = () => {
   };
 
   const handleClick = (isWarehouseModule: boolean, module: string) => {
-    if ((isWarehouseModule && profile?.roles.includes('ADMIN')) || profile?.roles.includes('DIRECTORCOMPRAS'))
-      return navigate('almacenes');
+    if (isWarehouseModule && profile?.roles.includes('ADMIN')) return navigate('almacenes');
     return handleOpen(module);
   };
 
@@ -512,7 +512,7 @@ export const SideNav = () => {
                 if (
                   isWarehouseModule &&
                   warehouses?.every((w) => w.subAlmacenes.length === 0) &&
-                  !(profile?.roles.includes('ADMIN') || profile?.roles.includes('DIRECTORCOMPRAS'))
+                  !profile?.roles.includes('ADMIN')
                 )
                   return null;
 
