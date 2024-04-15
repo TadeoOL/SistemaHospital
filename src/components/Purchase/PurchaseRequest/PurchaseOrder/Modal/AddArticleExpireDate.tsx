@@ -207,7 +207,7 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
             </Box>
           </Box>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
-            <Typography sx={{ display: 'flex', flex: 2 }}>Conversion de Cajas a Unidades</Typography>
+            <Typography sx={{ display: 'flex', flex: 2 }}>Conversion de Presentación a Unidades</Typography>
             <Box sx={{ display: 'flex', flex: 1 }}>
               <Checkbox
                 checked={isBox}
@@ -221,10 +221,10 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
             <Stack>
               <TextField
                 inputRef={boxAmountRef}
-                placeholder="Escribe la cantidad de unidades por caja..."
+                placeholder="Escribe la conversión de unidades..."
                 error={boxAmountError}
                 disabled={!isBox}
-                helperText={!!boxAmountError && 'Escribe la cantidad de unidades por caja'}
+                helperText={!!boxAmountError && 'Escribe la cantidad de unidades por presentación'}
               />
             </Stack>
           )}

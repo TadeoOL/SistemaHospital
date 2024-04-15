@@ -25,6 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { IArticle } from '../../../../types/types';
+import { sortComponent } from '../../../../components/Commons/sortComponent.tsx';
 
 const useGetAllData = () => {
   const {
@@ -36,6 +37,8 @@ const useGetAllData = () => {
     pageIndex,
     pageSize,
     search,
+    sort,
+    setSort,
     setPageIndex,
     setPageSize,
     handleChangeArticle,
@@ -54,13 +57,15 @@ const useGetAllData = () => {
       isLoading: state.isLoading,
       handleChangeArticle: state.handleChangeArticle,
       cleanArticles: state.cleanArticles,
+      sort: state.sort,
+      setSort: state.setSort,
     }),
     shallow
   );
 
   useEffect(() => {
     fetchArticles();
-  }, [pageIndex, pageSize, search, enabled, handleChangeArticle]);
+  }, [pageIndex, pageSize, search, sort, enabled, handleChangeArticle]);
 
   return {
     isLoading,
@@ -69,9 +74,11 @@ const useGetAllData = () => {
     count,
     pageIndex,
     pageSize,
+    sort,
     setPageIndex,
     setPageSize,
     cleanArticles,
+    setSort,
   };
 };
 
@@ -129,7 +136,7 @@ const useDisableArticle = () => {
 
 export const ArticleTable = () => {
   const disableArticle = useDisableArticle();
-  const { data, isLoading, enabled, count, pageIndex, pageSize, setPageIndex, setPageSize, cleanArticles } =
+  const { data, isLoading, enabled, count, pageIndex, pageSize, setSort, setPageIndex, setPageSize, cleanArticles } =
     useGetAllData();
   const [openEditModal, setOpenEditModal] = useState(false);
   const [articleId, setArticleId] = useState('');
@@ -169,14 +176,16 @@ export const ArticleTable = () => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Stock mínimo</TableCell>
-              <TableCell>Stock alerta</TableCell>
-              <TableCell>Precio Compra</TableCell>
-              <TableCell>Precio Venta</TableCell>
-              <TableCell>Presentación</TableCell>
-              <TableCell>Sub categoría</TableCell>
-              <TableCell />
+              <TableCell className={'encabezadoConSort'}>
+                Nombre
+                {sortComponent('nombre', setSort)}
+              </TableCell>
+              <TableCell>Stock mínimo {sortComponent('nombre', setSort)}</TableCell>
+              <TableCell>Stock alerta {sortComponent('stockMinimo', setSort)}</TableCell>
+              <TableCell>Precio Compra {sortComponent('stockAlerta', setSort)}</TableCell>
+              <TableCell>Precio Venta {sortComponent('precioCompra', setSort)}</TableCell>
+              <TableCell>Presentación {sortComponent('precioVenta', setSort)}</TableCell>
+              <TableCell>Sub categoría {sortComponent('subCategoria', setSort)}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

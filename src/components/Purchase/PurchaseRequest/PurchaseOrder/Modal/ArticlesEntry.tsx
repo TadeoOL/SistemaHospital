@@ -256,7 +256,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Articulo</TableCell>
-                      <TableCell>Caja/Unidad</TableCell>
+                      <TableCell>Presentación/Unidad</TableCell>
                       <TableCell>Cantidad</TableCell>
                       <TableCell>Precio de compra</TableCell>
                       <TableCell>Precio de venta</TableCell>
