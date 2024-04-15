@@ -1,4 +1,4 @@
-import { Box, Button, Divider, MenuItem, Modal, Stack, TextField } from '@mui/material';
+import { Box, Button, Divider, Modal, Stack } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useState } from 'react';
 import { ArticleTable } from './ArticleTable';
@@ -6,13 +6,13 @@ import { AddArticleModal } from './Modal/AddArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
+// import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
 
 const Article = () => {
   const [open, setOpen] = useState(false);
-  const [warehouseSelected, setWarehouseSelected] = useState('');
+  // const [warehouseSelected, setWarehouseSelected] = useState('');
   //const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { almacenes } = useGetAlmacenes();
+  // const { almacenes } = useGetAlmacenes();
   const { enabled, setEnabled, setSearch } = useArticlePagination((state) => ({
     enabled: state.enabled,
     setEnabled: state.setEnabled,
@@ -47,7 +47,7 @@ const Article = () => {
             }}
           >
             <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%' }} />
-            <TextField
+            {/* <TextField
               sx={{ width: 200 }}
               select
               label="Seleciona un almacén"
@@ -62,7 +62,7 @@ const Article = () => {
                   {warehouse.nombre}
                 </MenuItem>
               ))}
-            </TextField>
+            </TextField> */}
             <Divider sx={{ my: 1 }} />
             <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
               <Button
