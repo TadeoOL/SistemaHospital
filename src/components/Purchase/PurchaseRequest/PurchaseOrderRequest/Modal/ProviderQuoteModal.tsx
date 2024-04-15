@@ -315,7 +315,7 @@ export const ProvidersQuotePdf = (props: { providers: Provider[]; purchaseReques
                 ) : (
                   <IconButton
                     onClick={() => {
-                      if (isAdminPurchase() && !quoteRequest.pdf) return;
+                      if (!quoteRequest.pdf) return;
                       setOpenCollapse({
                         [quoteRequest.id]: !openCollapse[quoteRequest.id],
                       });
