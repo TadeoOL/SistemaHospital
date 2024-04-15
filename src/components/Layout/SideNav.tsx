@@ -581,6 +581,7 @@ export const SideNav = () => {
                     <Stack sx={{ display: 'flex', flex: 1 }}>
                       <ListItemButton
                         selected={isActive && isOpen}
+                        disabled={!isOpen}
                         sx={{
                           display: 'flex',
                           flex: 1,
@@ -589,6 +590,9 @@ export const SideNav = () => {
                           justifyContent: 'space-between',
                           '&.Mui-selected': {
                             backgroundColor: '#046DBD',
+                            opacity: 1,
+                          },
+                          '&.Mui-disabled': {
                             opacity: 1,
                           },
                         }}
