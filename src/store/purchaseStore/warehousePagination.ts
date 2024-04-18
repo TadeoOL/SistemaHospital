@@ -11,6 +11,7 @@ interface State {
   search: string;
   enabled: boolean;
   handleChangeWarehouse: boolean;
+  sort: string;
   /*startDate: string;
   endDate: string;
   clearFilters: Function;
@@ -25,12 +26,13 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeWarehouse: (handleChangeWarehouse: boolean) => void;
-  fetchExistingArticles: (pageIndex: number, pageSize: number, search: string, enabled: boolean) => Promise<void>;
+  fetchExistingArticles: () => Promise<void>;
 }
 
-export const useWarehousePagination = createWithEqualityFn<State & Action>((set) => ({
+export const useWarehousePagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -39,6 +41,7 @@ export const useWarehousePagination = createWithEqualityFn<State & Action>((set)
   data: [],
   isLoading: true,
   search: '',
+  sort: '',
   //startDate: '',
   //endDate: '',
   enabled: true,
@@ -49,18 +52,20 @@ export const useWarehousePagination = createWithEqualityFn<State & Action>((set)
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
+  setSort: (sort: string) => set({ sort }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   //  clearFilters: () => set({ endDate: '', startDate: '' }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchExistingArticles: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
+  fetchExistingArticles: async () => {
+    const { pageIndex, pageSize, search, sort, enabled } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseWarehouse(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&Sort=${sort}`
       );
       set(() => ({
         data: res.data.map((p: any) => {

@@ -2,11 +2,11 @@ import { Box, Button, Divider, Modal, Stack } from '@mui/material';
 import { useState } from 'react';
 import { SearchBar } from '../Inputs/SearchBar';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
-import { PurchaseWarehouseTable } from './WarehouseTable';
 import { useWarehousePagination } from '../../store/purchaseStore/warehousePagination';
 import { AddPurchaseWarehouseModal } from './Modal/AddWarehouseModal';
 import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
 import { useAuthStore } from '../../store/auth';
+import { WarehouseTable } from './WarehouseTable';
 
 export const Warehouse = () => {
   const [open, setOpen] = useState(false);
@@ -67,7 +67,7 @@ export const Warehouse = () => {
               )}
             </Stack>
           </Stack>
-          <PurchaseWarehouseTable />
+          <WarehouseTable />
         </Box>
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>

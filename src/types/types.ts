@@ -15,7 +15,7 @@ export interface IModuleItemsList {
   moduleItems: IModuleItems[];
   icon?: React.ReactElement;
   id?: string;
-  path?:string
+  path?: string;
 }
 
 export interface IUser {
@@ -93,6 +93,7 @@ export interface ICategory {
   nombre: string;
   descripcion: string;
   id_Almacen: string;
+  almacen: string;
 }
 export interface ISubCategory {
   id: string;

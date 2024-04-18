@@ -37,7 +37,7 @@ interface ITableComponentProps {
   hasPrices?: number[];
   disableHook: (id: string) => void;
   modifyModalComponent: (props: { data: string; open: (isOpen: boolean) => void }) => React.ReactElement;
-  headers: string[];
+  headers: any;
 }
 
 export const TableComponent: React.FC<ITableComponentProps> = ({
@@ -66,9 +66,11 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {headers.map((header, i) => (
-                <TableCell key={i}>{header}</TableCell>
-              ))}
+              {headers?.lenght > 0 ? (
+                headers.map((header: any, i: any) => <TableCell key={i}>{header}</TableCell>)
+              ) : (
+                <></>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>

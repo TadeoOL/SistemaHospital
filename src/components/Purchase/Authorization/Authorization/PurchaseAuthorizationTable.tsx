@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckIcon from '@mui/icons-material/Check';
@@ -35,52 +35,7 @@ import { primary, error, warning } from '../../../../theme/colors';
 import { getProviderQuotePdf } from '../../../../api/api.routes';
 import { ProviderNameChip } from '../../PurchaseRequest/ProviderNameChip';
 import { Mensaje } from './Modal/Mensaje';
-
-const useGetAllData = () => {
-  const {
-    isLoading,
-    count,
-    data,
-    enabled,
-    fetchPurchaseAuthorization,
-    pageIndex,
-    pageSize,
-    search,
-    setPageIndex,
-    setPageSize,
-    handleChangePurchaseAuthorization,
-  } = usePurchaseAuthorizationPagination(
-    (state) => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-      fetchPurchaseAuthorization: state.fetchPurchaseAuthorization,
-      search: state.search,
-      enabled: state.enabled,
-      data: state.data,
-      setPageSize: state.setPageSize,
-      setPageIndex: state.setPageIndex,
-      isLoading: state.isLoading,
-      handleChangePurchaseAuthorization: state.handleChangePurchaseAuthorization,
-    }),
-    shallow
-  );
-
-  useEffect(() => {
-    fetchPurchaseAuthorization();
-  }, [pageIndex, pageSize, search, enabled, handleChangePurchaseAuthorization]);
-
-  return {
-    isLoading,
-    data,
-    enabled,
-    count,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-  };
-};
+import { sortComponent } from '../../../Commons/sortComponent';
 
 const handleOpenPdf = async (quoteId: string) => {
   try {
@@ -139,12 +94,52 @@ export const declinePurchaseAuthorization = async (Id_SolicitudCompra: string, M
 };
 
 export const PurchaseAuthorizationTable = () => {
-  const { data, count, isLoading, pageIndex, pageSize, setPageSize } = useGetAllData();
   const [openModal, setOpenModal] = useState(false);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [folio, setFolio] = useState('');
   const [openMensajeModal, setOpenMensajeModal] = useState(false);
   const [purchaseRequestId, setPurchaseRequestId] = useState('');
+  const {
+    isLoading,
+    count,
+    data,
+    enabled,
+    fetchPurchaseAuthorization,
+    pageIndex,
+    pageSize,
+    search,
+    setPageIndex,
+    setPageSize,
+    handleChangePurchaseAuthorization,
+    setSort,
+    sort,
+  } = usePurchaseAuthorizationPagination(
+    (state) => ({
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+      fetchPurchaseAuthorization: state.fetchPurchaseAuthorization,
+      search: state.search,
+      enabled: state.enabled,
+      data: state.data,
+      setPageSize: state.setPageSize,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.isLoading,
+      handleChangePurchaseAuthorization: state.handleChangePurchaseAuthorization,
+      setSort: state.setSort,
+      sort: state.sort,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    fetchPurchaseAuthorization();
+  }, [pageIndex, pageSize, search, enabled, handleChangePurchaseAuthorization, sort]);
+
+  const handlePageChange = useCallback((event: any, value: any) => {
+    event.stopPropagation();
+    setPageIndex(value);
+  }, []);
 
   useEffect(() => {
     if (openModal) return;
@@ -160,12 +155,14 @@ export const PurchaseAuthorizationTable = () => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Solicitud de Compra</TableCell>
-              <TableCell>Creado por</TableCell>
-              <TableCell>Proveedor</TableCell>
-              <TableCell>Fecha de Solicitud</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Estatus</TableCell>
+              <TableCell key={'folio'}>{sortComponent('Folio de Solicitud', 'folio', setSort)}</TableCell>
+              <TableCell key={'nombreUsuario'}>{sortComponent('Solicitado Por', 'nombreUsuario', setSort)}</TableCell>
+              <TableCell key={'proveedor'}>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
+              <TableCell key={'fechaSolicitud'}>
+                {sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}
+              </TableCell>
+              <TableCell key={'total'}>{sortComponent('Total', 'total', setSort)}</TableCell>
+              <TableCell key={'estatus'}>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -335,7 +332,7 @@ export const PurchaseAuthorizationTable = () => {
       <TablePagination
         component="div"
         count={count}
-        onPageChange={() => {}}
+        onPageChange={handlePageChange}
         onRowsPerPageChange={(e: any) => {
           setPageSize(e.target.value);
         }}

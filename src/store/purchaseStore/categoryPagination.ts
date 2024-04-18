@@ -9,6 +9,7 @@ interface State {
   data: any[];
   isLoading: boolean;
   search: string;
+  sort: string;
   enabled: boolean;
   handleChangeCategory: boolean;
 }
@@ -19,12 +20,13 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeCategory: (handleChangeCategory: boolean) => void;
-  fetchCategories: (pageIndex: number, pageSize: number, search: string, enabled: boolean) => Promise<void>;
+  fetchCategories: () => Promise<void>;
 }
 
-export const useCategoryPagination = createWithEqualityFn<State & Action>((set) => ({
+export const useCategoryPagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -33,23 +35,26 @@ export const useCategoryPagination = createWithEqualityFn<State & Action>((set) 
   data: [],
   isLoading: true,
   search: '',
+  sort: '',
   enabled: true,
   handleChangeCategory: false,
   setHandleChangeCategory: (handleChangeCategory: boolean) => set({ handleChangeCategory }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
+  setSort: (sort: string) => set({ sort }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchCategories: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
+  fetchCategories: async () => {
+    const { pageIndex, pageSize, search, sort, enabled } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getCategories(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&Sort=${sort}`
       );
       set(() => ({
         data: res.data,

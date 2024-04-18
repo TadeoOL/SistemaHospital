@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
@@ -24,8 +24,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getProviderQuotePdf } from '../../../../api/api.routes';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { toast } from 'react-toastify';
+import { sortComponent } from '../../../Commons/sortComponent';
 
-const useGetAllData = () => {
+export const PurchaseAuthorizationTable = () => {
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const {
     isLoading,
     count,
@@ -41,6 +43,8 @@ const useGetAllData = () => {
     endDate,
     status,
     handleChangePurchaseAuthorization,
+    setSort,
+    sort,
   } = usePurchaseAuthorizationHistoryPagination(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -57,54 +61,33 @@ const useGetAllData = () => {
       startDate: state.startDate,
       endDate: state.endDate,
       status: state.status,
+      setSort: state.setSort,
+      sort: state.sort,
     }),
     shallow
   );
 
   useEffect(() => {
     fetchPurchaseAuthorization();
-  }, [pageIndex, pageSize, search, enabled, handleChangePurchaseAuthorization, startDate, endDate, status]);
+  }, [pageIndex, pageSize, search, enabled, handleChangePurchaseAuthorization, startDate, endDate, status, sort]);
 
-  return {
-    isLoading,
-    data,
-    enabled,
-    count,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-  };
-};
-
-const handleOpenPdf = async (quoteId: string) => {
-  try {
-    const pdfRes = await getProviderQuotePdf(quoteId);
-    if (pdfRes === '') return toast.warning('Esta orden no cuenta con cotización');
-    const pdfWindow = window.open('', '_blank');
-    pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const PurchaseAuthorizationTable = () => {
-  const { data, count, isLoading, pageIndex, pageSize, setPageSize } = useGetAllData();
-  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const handlePageChange = useCallback((event: any, value: any) => {
+    event.stopPropagation();
+    setPageIndex(value);
+  }, []);
 
   return (
     <>
       <TableContainer component={Paper} sx={{ overflowX: 'hidden' }}>
-        <Table>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Solicitud de Compra</TableCell>
-              <TableCell>Creado por</TableCell>
-              <TableCell>Proveedor</TableCell>
-              <TableCell>Fecha de Solicitud</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Fecha de Autorización</TableCell>
-              <TableCell>Estado</TableCell>
+              <TableCell>{sortComponent('Folio de Solicitud', 'folio', setSort)}</TableCell>
+              <TableCell>{sortComponent('Solicitado Por', 'nombreUsuario', setSort)}</TableCell>
+              <TableCell>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
+              <TableCell>{sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}</TableCell>
+              <TableCell>{sortComponent('Total', 'total', setSort)}</TableCell>
+              <TableCell>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -226,7 +209,7 @@ export const PurchaseAuthorizationTable = () => {
       <TablePagination
         component="div"
         count={count}
-        onPageChange={() => {}}
+        onPageChange={handlePageChange}
         onRowsPerPageChange={(e: any) => {
           setPageSize(e.target.value);
         }}
@@ -237,4 +220,15 @@ export const PurchaseAuthorizationTable = () => {
       />
     </>
   );
+};
+
+const handleOpenPdf = async (quoteId: string) => {
+  try {
+    const pdfRes = await getProviderQuotePdf(quoteId);
+    if (pdfRes === '') return toast.warning('Esta orden no cuenta con cotización');
+    const pdfWindow = window.open('', '_blank');
+    pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
+  } catch (error) {
+    console.log(error);
+  }
 };
