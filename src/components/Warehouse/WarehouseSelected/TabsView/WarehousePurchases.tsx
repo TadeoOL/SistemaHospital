@@ -26,8 +26,11 @@ import React, { useEffect, useState } from 'react';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
 import { merchandiseEntryPagination } from '../../../../store/warehouseStore/merchandiseEntry';
 import { AddMerchandisePetitionModal } from './Modal/AddMerchandisePetition';
+import { sortComponent } from '../../../Commons/sortComponent';
 
-const useGetEntries = () => {
+export const WarehousePurchases = () => {
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const [openModal, setOpenModal] = useState(false);
   const {
     data,
     fetchMerchandiseEntries,
@@ -44,6 +47,8 @@ const useGetEntries = () => {
     setEndDate,
     setSearch,
     search,
+    setSort,
+    sort,
   } = merchandiseEntryPagination((state) => ({
     data: state.data,
     fetchMerchandiseEntries: state.fetchMerchandiseEntries,
@@ -60,45 +65,13 @@ const useGetEntries = () => {
     search: state.search,
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
+    setSort: state.setSort,
+    sort: state.sort,
   }));
 
   useEffect(() => {
     fetchMerchandiseEntries();
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
-  return {
-    data,
-    isLoading,
-    pageCount,
-    pageIndex,
-    pageSize,
-    count,
-    setSearch,
-    setStartDate,
-    startDate,
-    setEndDate,
-    setPageIndex,
-    setPageSize,
-    fetchMerchandiseEntries,
-  };
-};
-
-export const WarehousePurchases = () => {
-  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
-  const [openModal, setOpenModal] = useState(false);
-  const {
-    data,
-    count,
-    pageIndex,
-    pageSize,
-    isLoading,
-    setSearch,
-    setStartDate,
-    startDate,
-    setEndDate,
-    setPageIndex,
-    setPageSize,
-    fetchMerchandiseEntries,
-  } = useGetEntries();
+  }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
 
   return (
     <React.Fragment>
@@ -150,15 +123,11 @@ export const WarehousePurchases = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">Folio</TableCell>
-                    <TableCell align="center">Petición de Almacén</TableCell>
-                    <TableCell align="center">Solicitado por</TableCell>
-                    <TableCell align="center" sx={{ textAlign: 'center' }}>
-                      Fecha de solicitud
-                    </TableCell>
-                    <TableCell align="center" sx={{ textAlign: 'center' }}>
-                      Estatus
-                    </TableCell>
+                    <TableCell>{sortComponent('Folio de Solicitud', 'folio', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Almacén Solicitando', 'almacenProveniente', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Solicitado Por', 'solicitadoPor', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

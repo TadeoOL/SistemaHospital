@@ -125,8 +125,8 @@ export const WarehouseTable = () => {
 
   return (
     <>
-      <Card>
-        <Table stickyHeader>
+      <Card sx={{ m: 2 }}>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>

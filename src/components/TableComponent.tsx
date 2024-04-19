@@ -63,7 +63,7 @@ export const TableComponent: React.FC<ITableComponentProps> = ({
   return (
     <>
       <Card sx={{ m: 2 }}>
-        <Table stickyHeader>
+        <Table>
           <TableHead>
             <TableRow>
               {headers?.lenght > 0 ? (

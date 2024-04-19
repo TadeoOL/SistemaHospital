@@ -151,196 +151,198 @@ export const PurchaseAuthorizationTable = () => {
 
   return (
     <>
-      <TableContainer component={Paper} sx={{ overflow: 'hidden' }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell key={'folio'}>{sortComponent('Folio de Solicitud', 'folio', setSort)}</TableCell>
-              <TableCell key={'nombreUsuario'}>{sortComponent('Solicitado Por', 'nombreUsuario', setSort)}</TableCell>
-              <TableCell key={'proveedor'}>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
-              <TableCell key={'fechaSolicitud'}>
-                {sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}
-              </TableCell>
-              <TableCell key={'total'}>{sortComponent('Total', 'total', setSort)}</TableCell>
-              <TableCell key={'estatus'}>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
-              <TableCell>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.length === 0
-              ? null
-              : isLoading
+      <Card sx={{ m: 2 }}>
+        <TableContainer component={Paper} sx={{ overflow: 'hidden' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell key={'folio'}>{sortComponent('Folio de Solicitud', 'folio', setSort)}</TableCell>
+                <TableCell key={'nombreUsuario'}>{sortComponent('Solicitado Por', 'nombreUsuario', setSort)}</TableCell>
+                <TableCell key={'proveedor'}>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
+                <TableCell key={'fechaSolicitud'}>
+                  {sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}
+                </TableCell>
+                <TableCell key={'total'}>{sortComponent('Total', 'total', setSort)}</TableCell>
+                <TableCell key={'estatus'}>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
+                <TableCell>Acciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.length === 0
                 ? null
-                : data.map((auth) => (
-                    <React.Fragment key={auth.id_SolicitudCompra}>
-                      <TableRow>
-                        <TableCell>
-                          {!viewArticles[auth.id_SolicitudCompra] ? (
-                            <IconButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setViewArticles({
-                                  [auth.id_SolicitudCompra]: !viewArticles[auth.id_SolicitudCompra],
-                                });
-                              }}
-                            >
-                              <ExpandMoreIcon />
-                            </IconButton>
-                          ) : (
-                            <IconButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setViewArticles({
-                                  [auth.id_SolicitudCompra]: !viewArticles[auth.id_SolicitudCompra],
-                                });
-                              }}
-                            >
-                              <ExpandLessIcon />
-                            </IconButton>
-                          )}
-                          {auth.folio}
-                        </TableCell>
-                        <TableCell>{auth.usuarioSolicitado}</TableCell>
-                        <TableCell>
-                          <ProviderNameChip
-                            provider={auth.solicitudProveedor.map((p) => {
-                              return {
-                                id: p.proveedor.id_Proveedor,
-                                name: p.proveedor.nombre,
-                              };
-                            })}
-                          />
-                        </TableCell>
-                        <TableCell>{auth.fechaSolicitud.split('T')[0]}</TableCell>
-                        <TableCell>${auth.precioSolicitud}</TableCell>
-                        <TableCell>{StatusPurchaseRequest[auth.estatus]}</TableCell>
-                        <TableCell>
-                          {StatusPurchaseRequest[auth.estatus] === 'Cancelado' ? (
-                            <Tooltip title={<Typography variant="body1">{auth.notas}</Typography>}>
-                              <Info sx={{ color: 'gray' }} />
-                            </Tooltip>
-                          ) : StatusPurchaseRequest[auth.estatus] === 'Selección de productos por proveedor' ? (
-                            <Tooltip title="Seleccionar los productos con el proveedor">
+                : isLoading
+                  ? null
+                  : data.map((auth) => (
+                      <React.Fragment key={auth.id_SolicitudCompra}>
+                        <TableRow>
+                          <TableCell>
+                            {!viewArticles[auth.id_SolicitudCompra] ? (
                               <IconButton
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  useMatchProvidersAndArticles.setState({
-                                    purchaseRequestData: auth,
+                                  setViewArticles({
+                                    [auth.id_SolicitudCompra]: !viewArticles[auth.id_SolicitudCompra],
                                   });
-                                  setFolio(auth.folio);
-                                  setOpenModal(true);
                                 }}
                               >
-                                <Checklist />
+                                <ExpandMoreIcon />
                               </IconButton>
-                            </Tooltip>
-                          ) : (
-                            <>
-                              <Tooltip title="Ver Cotización">
-                                <IconButton
-                                  size="small"
-                                  sx={{ color: 'neutral.700' }}
-                                  onClick={() => {
-                                    handleOpenPdf(auth.solicitudProveedor[0].id);
-                                  }}
-                                >
-                                  <RemoveRedEyeIcon />
-                                </IconButton>
+                            ) : (
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setViewArticles({
+                                    [auth.id_SolicitudCompra]: !viewArticles[auth.id_SolicitudCompra],
+                                  });
+                                }}
+                              >
+                                <ExpandLessIcon />
+                              </IconButton>
+                            )}
+                            {auth.folio}
+                          </TableCell>
+                          <TableCell>{auth.usuarioSolicitado}</TableCell>
+                          <TableCell>
+                            <ProviderNameChip
+                              provider={auth.solicitudProveedor.map((p) => {
+                                return {
+                                  id: p.proveedor.id_Proveedor,
+                                  name: p.proveedor.nombre,
+                                };
+                              })}
+                            />
+                          </TableCell>
+                          <TableCell>{auth.fechaSolicitud.split('T')[0]}</TableCell>
+                          <TableCell>${auth.precioSolicitud}</TableCell>
+                          <TableCell>{StatusPurchaseRequest[auth.estatus]}</TableCell>
+                          <TableCell>
+                            {StatusPurchaseRequest[auth.estatus] === 'Cancelado' ? (
+                              <Tooltip title={<Typography variant="body1">{auth.notas}</Typography>}>
+                                <Info sx={{ color: 'gray' }} />
                               </Tooltip>
-                              <Tooltip title="Aceptar">
+                            ) : StatusPurchaseRequest[auth.estatus] === 'Selección de productos por proveedor' ? (
+                              <Tooltip title="Seleccionar los productos con el proveedor">
                                 <IconButton
-                                  size="small"
-                                  sx={{ color: 'neutral.700' }}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    acceptPurchaseAuthorization(auth.id_SolicitudCompra);
+                                    useMatchProvidersAndArticles.setState({
+                                      purchaseRequestData: auth,
+                                    });
+                                    setFolio(auth.folio);
+                                    setOpenModal(true);
                                   }}
                                 >
-                                  <CheckIcon sx={{ color: 'green' }} />
+                                  <Checklist />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Rechazar">
-                                <IconButton
-                                  size="small"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPurchaseRequestId(auth.id_SolicitudCompra);
-                                    setOpenMensajeModal(true);
-                                  }}
-                                >
-                                  <CloseIcon sx={{ color: 'red' }} />
-                                </IconButton>
-                              </Tooltip>
-                            </>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                      <TableCell colSpan={7} sx={{ p: 0 }}>
-                        <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell align="center">Articulo</TableCell>
-                                <TableCell align="center">Cantidad</TableCell>
-                                <TableCell align="center">P. Unitario</TableCell>
-                                <TableCell align="center">P. Total</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            {auth.solicitudProveedor[0].solicitudCompraArticulos.map((request) => (
-                              <TableBody key={request.id}>
+                            ) : (
+                              <>
+                                <Tooltip title="Ver Cotización">
+                                  <IconButton
+                                    size="small"
+                                    sx={{ color: 'neutral.700' }}
+                                    onClick={() => {
+                                      handleOpenPdf(auth.solicitudProveedor[0].id);
+                                    }}
+                                  >
+                                    <RemoveRedEyeIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Aceptar">
+                                  <IconButton
+                                    size="small"
+                                    sx={{ color: 'neutral.700' }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      acceptPurchaseAuthorization(auth.id_SolicitudCompra);
+                                    }}
+                                  >
+                                    <CheckIcon sx={{ color: 'green' }} />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Rechazar">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPurchaseRequestId(auth.id_SolicitudCompra);
+                                      setOpenMensajeModal(true);
+                                    }}
+                                  >
+                                    <CloseIcon sx={{ color: 'red' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              </>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        <TableCell colSpan={7} sx={{ p: 0 }}>
+                          <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
+                            <Table>
+                              <TableHead>
                                 <TableRow>
-                                  <TableCell align="center">{request.articulo.nombre}</TableCell>
-                                  <TableCell align="center">{request.cantidadCompra}</TableCell>
-                                  <TableCell align="center"> {request.precioProveedor} </TableCell>
-                                  <TableCell align="center">
-                                    {' '}
-                                    {request.cantidadCompra * request.precioProveedor}{' '}
-                                  </TableCell>
+                                  <TableCell align="center">Articulo</TableCell>
+                                  <TableCell align="center">Cantidad</TableCell>
+                                  <TableCell align="center">P. Unitario</TableCell>
+                                  <TableCell align="center">P. Total</TableCell>
                                 </TableRow>
-                              </TableBody>
-                            ))}
-                          </Table>
-                        </Collapse>
-                      </TableCell>
-                    </React.Fragment>
-                  ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {isLoading && (
-        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {data.length === 0 && !isLoading && (
-        <Card
-          sx={{
-            display: 'flex',
-            flexGrow: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            p: 2,
-            columnGap: 1,
+                              </TableHead>
+                              {auth.solicitudProveedor[0].solicitudCompraArticulos.map((request) => (
+                                <TableBody key={request.id}>
+                                  <TableRow>
+                                    <TableCell align="center">{request.articulo.nombre}</TableCell>
+                                    <TableCell align="center">{request.cantidadCompra}</TableCell>
+                                    <TableCell align="center"> {request.precioProveedor} </TableCell>
+                                    <TableCell align="center">
+                                      {' '}
+                                      {request.cantidadCompra * request.precioProveedor}{' '}
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              ))}
+                            </Table>
+                          </Collapse>
+                        </TableCell>
+                      </React.Fragment>
+                    ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {isLoading && (
+          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+        {data.length === 0 && !isLoading && (
+          <Card
+            sx={{
+              display: 'flex',
+              flexGrow: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              p: 2,
+              columnGap: 1,
+            }}
+          >
+            <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
+            <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
+              No existen registros
+            </Typography>
+          </Card>
+        )}
+        <TablePagination
+          component="div"
+          count={count}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={(e: any) => {
+            setPageSize(e.target.value);
           }}
-        >
-          <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
-          <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
-            No existen registros
-          </Typography>
-        </Card>
-      )}
-      <TablePagination
-        component="div"
-        count={count}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={(e: any) => {
-          setPageSize(e.target.value);
-        }}
-        page={pageIndex}
-        rowsPerPage={pageSize}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage="Filas por página"
-      />
+          page={pageIndex}
+          rowsPerPage={pageSize}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="Filas por página"
+        />
+      </Card>
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <div>
           <MatchProvidersAndArticles setOpen={setOpenModal} folio={folio} />

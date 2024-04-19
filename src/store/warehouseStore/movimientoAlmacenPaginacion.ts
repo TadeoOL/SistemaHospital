@@ -21,6 +21,7 @@ interface State {
   setStartDate: Function;
   setEndDate: Function;
   setSearch: Function;
+  sort: string;
 }
 
 interface Action {
@@ -34,6 +35,7 @@ interface Action {
   fetchWarehouseMovements: () => Promise<void>;
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
+  setSort: (sort: string) => void;
 }
 
 export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & Action>((set, get) => ({
@@ -50,6 +52,8 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   enabled: true,
   handleChangeSubWarehouse: false,
   searchUser: '',
+  sort: '',
+  setSort: (sort: string) => set({ sort }),
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
   setSearchUser: (searchUser: string) => set({ searchUser }),
@@ -62,7 +66,7 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
   fetchWarehouseMovements: async () => {
-    const { pageIndex, enabled, pageSize, search, startDate, endDate } = get();
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
@@ -72,9 +76,9 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
           useWarehouseTabsNavStore.getState().warehouseData.id
-        }&FechaInicio=${startDate}&FechaFin=${endDate}`
+        }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
       );
-      console.log("qlnv faaa",res.data);
+      console.log('qlnv faaa', res.data);
       set(() => ({
         data: res.data,
         count: res.count,

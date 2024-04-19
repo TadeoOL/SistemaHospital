@@ -14,6 +14,7 @@ interface State {
   enabled: boolean;
   handleChangeSubWarehouse: boolean;
   searchUser: string;
+  sort: string;
 }
 
 interface Action {
@@ -27,6 +28,7 @@ interface Action {
   fetchSubWarehouse: () => Promise<void>;
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
+  setSort: (sort: string) => void;
 }
 
 export const useSubWarehousePaginationStore = createWithEqualityFn<State & Action>((set, get) => ({
@@ -41,6 +43,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
   enabled: true,
   handleChangeSubWarehouse: false,
   searchUser: '',
+  sort: '',
   setSearchUser: (searchUser: string) => set({ searchUser }),
   setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => set({ handleChangeSubWarehouse }),
   setCount: (count: number) => set({ count }),
@@ -49,8 +52,9 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  setSort: (sort: string) => set({ sort }),
   fetchSubWarehouse: async () => {
-    const { pageIndex, enabled, pageSize, search } = get();
+    const { pageIndex, enabled, pageSize, search, sort } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
@@ -58,7 +62,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
       const res = await getSubWarehouses(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_AlmacenPrincipal=${
+        }&search=${search}&habilitado=${enabled}&sort=${sort}&Id_AlmacenPrincipal=${
           useWarehouseTabsNavStore.getState().warehouseData.id
         }`
       );

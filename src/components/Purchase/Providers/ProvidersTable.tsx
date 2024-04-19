@@ -129,7 +129,7 @@ export const ProvidersTable = () => {
   return (
     <>
       <Card sx={{ m: 2 }}>
-        <Table stickyHeader>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>{sortComponent('Nombre de la Compañia ', 'nombreCompania', setSort)}</TableCell>

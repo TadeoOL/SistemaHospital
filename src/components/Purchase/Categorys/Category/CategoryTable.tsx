@@ -129,7 +129,7 @@ export const CategoryTable = () => {
   return (
     <>
       <Card sx={{ m: 2 }}>
-        <Table stickyHeader>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>

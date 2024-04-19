@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   Card,
-  CircularProgress,
+  // CircularProgress,
   Collapse,
   IconButton,
   Modal,
@@ -36,6 +36,7 @@ import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
 import { returnExpireDate } from '../../../../utils/expireDate';
+import { sortComponent } from '../../../Commons/sortComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -51,7 +52,9 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const useGetExistingArticles = (warehouseId: string) => {
+export const WarehouseArticles = () => {
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+  const [openModal, setOpenModal] = useState(false);
   const {
     data,
     setSearch,
@@ -66,7 +69,9 @@ const useGetExistingArticles = (warehouseId: string) => {
     startDate,
     endDate,
     clearAllData,
-    isLoading,
+    // isLoading,
+    setSort,
+    sort,
   } = useExistingArticlePagination(
     (state) => ({
       data: state.data,
@@ -83,54 +88,28 @@ const useGetExistingArticles = (warehouseId: string) => {
       endDate: state.endDate,
       clearAllData: state.clearAllData,
       isLoading: state.isLoading,
+      sort: state.sort,
+      setSort: state.setSort,
     }),
     shallow
   );
 
   useEffect(() => {
     clearAllData();
-  }, [warehouseId]);
+  }, [warehouseData.id]);
 
   useEffect(() => {
-    setWarehouseId(warehouseId);
+    setWarehouseId(warehouseData.id);
     fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters]);
+  }, [search, startDate, endDate, clearFilters, sort]);
 
-  return {
-    data,
-    setSearch,
-    setStartDate,
-    setEndDate,
-    clearFilters,
-    setPageIndex,
-    setPageSize,
-    startDate,
-    endDate,
-    isLoading,
-  };
-};
-export const WarehouseArticles = () => {
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-  const {
-    data,
-    setSearch,
-    setEndDate,
-    setStartDate,
-    clearFilters,
-    setPageIndex,
-    setPageSize,
-    startDate,
-    endDate,
-    isLoading,
-  } = useGetExistingArticles(warehouseData.id);
-  const [openModal, setOpenModal] = useState(false);
+  // if (isLoading)
+  //   return (
+  //     <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
+  //       <CircularProgress size={30} />
+  //     </Box>
+  //   );
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
-        <CircularProgress size={30} />
-      </Box>
-    );
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -181,10 +160,10 @@ export const WarehouseArticles = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Nombre articulo</TableCell>
-                    <TableCell>Stock Mínimo</TableCell>
-                    <TableCell>Stock</TableCell>
-                    <TableCell>Precio de compra</TableCell>
+                    <TableCell>{sortComponent('Nombre del Artículo', 'nombre', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Stock Mínimo', 'stockMinimo', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Stock Actual', 'stock', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Precio de Compra', 'precioCompra', setSort)}</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
