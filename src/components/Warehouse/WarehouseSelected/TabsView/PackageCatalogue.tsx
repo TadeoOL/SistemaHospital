@@ -1,18 +1,16 @@
 import { Box, Button, Divider, Modal, Stack } from '@mui/material';
 import { useState } from 'react';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
-import { SearchBar } from '../../Inputs/SearchBar';
-import { useArticlePagination } from '../../../store/purchaseStore/articlePagination';//QUITAR CAMBIAR
+import { SearchBar } from '../../../Inputs/SearchBar';
+import { usePackagePaginationStore } from '../../../../store/warehouseStore/packagesPagination'; //QUITAR CAMBIAR
 import { PackageCatalogueTable } from './PackageCatalogueTable';
-import { PackageModal } from './PackageModal';
+import { PackageModal } from './Modal/PackageModal';
 
 const PackageCatalogue = () => {
   const [open, setOpen] = useState(false);
-  const { enabled, setEnabled, setSearch } = useArticlePagination((state) => ({
-    enabled: state.enabled,
-    setEnabled: state.setEnabled,
+  const { setSearch } = usePackagePaginationStore((state) => ({
     setSearch: state.setSearch,
-  }))
+  }));
 
   return (
     <>
@@ -60,7 +58,7 @@ const PackageCatalogue = () => {
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <PackageModal open={setOpen} refetch={()=>{}} />
+          <PackageModal setOpen={setOpen} />
         </>
       </Modal>
     </>

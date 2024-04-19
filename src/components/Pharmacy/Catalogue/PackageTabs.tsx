@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { shallow } from 'zustand/shallow';
 
 export const PackageTabs = () => {
-  const { tabValue, setTabValue, warehouseData } = useWarehouseTabsNavStore(
+  const { tabValue, setTabValue } = useWarehouseTabsNavStore(
     (state) => ({
       tabValue: state.tabValue,
       setTabValue: state.setTabValue,
@@ -27,8 +27,8 @@ export const PackageTabs = () => {
         }}
       >
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
-          <Tab label="Catalogo" value={0}/>
-          <Tab label="Artículos" value={1}/>
+          <Tab label="Artículos" value={0} />
+          <Tab label="Movimientos" value={1} />
         </Tabs>
       </AppBar>
     </Box>

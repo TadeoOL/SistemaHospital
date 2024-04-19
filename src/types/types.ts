@@ -376,15 +376,15 @@ export interface ISideBarWarehouse {
 }
 
 export interface IArticlesPackage{
+  id_PaqueteArticulo: string;
+  nombre: string;
+  descripcion?: string;
+  contenido: Articulos_contenidos[];
+  id_Almacen: string;
+  almacen?:string;
+}
+export interface Articulos_contenidos {
   id: string;
   nombre: string;
-  contenido: {
-    articulos_contenidos:{
-      id_articulo: string;
-      nombre?: string;
-      cantidad: number;
-    }[]; 
-    proceso_destinado:string;
-  }
+  cantidad: number;
 }
-

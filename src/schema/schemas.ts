@@ -266,3 +266,8 @@ export const addNewSubWarehouseSchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().nullable(),
 });
+
+export const addNewArticlesPackage = z.object({
+  nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().nullable(),
+});

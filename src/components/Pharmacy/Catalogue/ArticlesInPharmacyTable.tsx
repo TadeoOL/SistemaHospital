@@ -1,11 +1,9 @@
 import {
   Box,
-  Button,
   Card,
   CircularProgress,
   Collapse,
   IconButton,
-  Modal,
   Stack,
   Table,
   TableBody,
@@ -21,21 +19,14 @@ import {
   styled,
   tableCellClasses,
 } from '@mui/material';
-import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
-import { useShallow } from 'zustand/react/shallow';
-import React, { useEffect, useRef, useState } from 'react';
-import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
-import { SearchBar } from '../../../Inputs/SearchBar';
-import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
+import React, { useEffect, useState } from 'react';
+import { ExpandLess, ExpandMore, FilterListOff, Info, Warning } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
-import { ArticlesView } from './Modal/ArticlesOutput';
-import { toast } from 'react-toastify';
-import { isValidInteger } from '../../../../utils/functions/dataUtils';
-import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
-import { warning } from '../../../../theme/colors';
-import { returnExpireDate } from '../../../../utils/expireDate';
+import { warning } from '../../../theme/colors';
+import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
+import { SearchBar } from '../../Inputs/SearchBar';
+import { IExistingArticle, IExistingArticleList } from '../../../types/types';
+import { returnExpireDate } from '../../../utils/expireDate';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -109,8 +100,7 @@ const useGetExistingArticles = (warehouseId: string) => {
     isLoading,
   };
 };
-export const WarehouseArticles = () => {
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+export const ArticlesPharmacyTable = () => {
   const {
     data,
     setSearch,
@@ -122,8 +112,7 @@ export const WarehouseArticles = () => {
     startDate,
     endDate,
     isLoading,
-  } = useGetExistingArticles(warehouseData.id);
-  const [openModal, setOpenModal] = useState(false);
+  } = useGetExistingArticles('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5'); //hardcodeo tranqui
 
   if (isLoading && data.length === 0)
     return (
@@ -137,7 +126,7 @@ export const WarehouseArticles = () => {
         <Stack spacing={2} sx={{ minWidth: 950 }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar orden de compra..."
+              title="Buscar articulo en farmacia..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 1 }}
               size="small"
@@ -166,14 +155,6 @@ export const WarehouseArticles = () => {
               <IconButton onClick={() => clearFilters()}>
                 <FilterListOff />
               </IconButton>
-              <Button
-                sx={{ minWidth: 180 }}
-                variant="contained"
-                startIcon={<AddCircleIcon />}
-                onClick={() => setOpenModal(!openModal)}
-              >
-                Salida de artículos
-              </Button>
             </Box>
           </Box>
           <Card>
@@ -185,7 +166,6 @@ export const WarehouseArticles = () => {
                     <TableCell>Stock Mínimo</TableCell>
                     <TableCell>Stock</TableCell>
                     <TableCell>Precio de compra</TableCell>
-                    <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -229,11 +209,6 @@ export const WarehouseArticles = () => {
           </Card>
         </Stack>
       </Stack>
-      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
-        <>
-          <ArticlesView setOpen={setOpenModal} />
-        </>
-      </Modal>
     </>
   );
 };
@@ -243,41 +218,6 @@ interface TableRowComponentProps {
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
   const [open, setOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const textRef = useRef<HTMLTextAreaElement>();
-  const articlesData = useExistingArticlePagination(useShallow((state) => state.data));
-
-  const handleSaveValue = async () => {
-    if (!textRef.current || textRef.current.value === '') return;
-    if (!isValidInteger(textRef.current.value)) return toast.error('Para guardar el valor escribe un numero valido!');
-    const value = textRef.current.value;
-    const modified = {
-      stockMinimo: value,
-      id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
-      id_articulo: article.id,
-    };
-    try {
-      await modifyMinStockExistingArticle(modified);
-      modifyArticle(value);
-      toast.success('Articulo actualizado con exito!');
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const modifyArticle = (stockMin: string) => {
-    const newArticle = {
-      ...article,
-      stockMinimo: parseInt(stockMin),
-    };
-    const newArticlesList = articlesData.map((a) => {
-      if (a.id === newArticle.id) {
-        return { ...newArticle };
-      }
-      return { ...a };
-    });
-    useExistingArticlePagination.setState({ data: newArticlesList });
-  };
 
   return (
     <React.Fragment>
@@ -295,40 +235,19 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           </Box>
         </TableCell>
         <TableCell>
-          {isEditing ? (
-            <TextField
-              inputProps={{ className: 'tableCell' }}
-              className="tableCell"
-              placeholder="stock mínimo"
-              inputRef={textRef}
-            />
-          ) : (
-            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
-              <Box>{article.stockMinimo}</Box>
-              <Box>
-                {article.stockActual < article.stockMinimo ? (
-                  <Tooltip title="Stock bajo">
-                    <Warning sx={{ color: warning.main }} />
-                  </Tooltip>
-                ) : null}
-              </Box>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
+            <Box>{article.stockMinimo}</Box>
+            <Box>
+              {article.stockActual < article.stockMinimo ? (
+                <Tooltip title="Stock bajo">
+                  <Warning sx={{ color: warning.main }} />
+                </Tooltip>
+              ) : null}
             </Box>
-          )}
+          </Box>
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
-        <TableCell>
-          <IconButton
-            onClick={() => {
-              if (isEditing) {
-                handleSaveValue();
-              }
-              setIsEditing(!isEditing);
-            }}
-          >
-            {isEditing ? <Save /> : <Edit />}
-          </IconButton>
-        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={8} sx={{ padding: 0 }}>

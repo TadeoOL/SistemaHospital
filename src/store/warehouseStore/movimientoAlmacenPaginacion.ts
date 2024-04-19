@@ -31,7 +31,7 @@ interface Action {
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => void;
-  fetchWarehouseMovements: () => Promise<void>;
+  fetchWarehouseMovements: (specificWarehouseId?: string | undefined) => Promise<void>;
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
 }
@@ -61,20 +61,31 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
-  fetchWarehouseMovements: async () => {
+  fetchWarehouseMovements: async (specificWarehouseId?: string) => {
     const { pageIndex, enabled, pageSize, search, startDate, endDate } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
     try {
-      const res = await getWareHouseMovementsById(
-        `${page === 0 ? '' : 'pageIndex=' + page}&${
-          pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
-          useWarehouseTabsNavStore.getState().warehouseData.id
-        }&FechaInicio=${startDate}&FechaFin=${endDate}`
-      );
-      console.log("qlnv faaa",res.data);
+      let res: any;
+      if(specificWarehouseId !== undefined){
+        res = await getWareHouseMovementsById(
+          `${page === 0 ? '' : 'pageIndex=' + page}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+            specificWarehouseId
+          }&FechaInicio=${startDate}&FechaFin=${endDate}`
+        );
+      }
+      else{
+        res = await getWareHouseMovementsById(
+          `${page === 0 ? '' : 'pageIndex=' + page}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+            useWarehouseTabsNavStore.getState().warehouseData.id
+          }&FechaInicio=${startDate}&FechaFin=${endDate}`
+        );
+      }
       set(() => ({
         data: res.data,
         count: res.count,
