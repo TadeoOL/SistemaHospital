@@ -1,19 +1,23 @@
-import { Box, Card, Grid, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, Grid, Stack, Typography, alpha } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
-import { primary } from '../../../theme/colors';
+import { neutral, primary } from '../../../theme/colors';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getCategoriesForPOS } from '../../../api/api.routes';
+import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 
-const categoriesArray = [
-  { id: 1, name: 'Analgesico' },
-  { id: 2, name: 'Farmacia' },
-  { id: 3, name: 'Penesito' },
-  { id: 4, name: 'Obo' },
-];
 interface CategoriesProps {
   sx?: any;
 }
 export const Categories = (props: CategoriesProps) => {
   const [value, setValue] = useState(0);
+  const warehouseId = usePosArticlesPaginationStore((state) => state.warehouseId);
+  const { data } = useQuery({
+    queryKey: ['categoriesForPOS'],
+    queryFn: async () => getCategoriesForPOS(warehouseId),
+  });
+  const setSubCategoryId = usePosArticlesPaginationStore((state) => state.setSubCategoryId);
+
   return (
     <Box sx={{ ...props.sx }}>
       <Stack sx={{ display: 'flex', flex: 1 }}>
@@ -25,34 +29,55 @@ export const Categories = (props: CategoriesProps) => {
                 sx={{
                   p: 1,
                   borderRadius: 4,
-                  ':hover': { cursor: 'pointer' },
-                  bgcolor: value === 0 ? primary.light : null,
+                  '&:hover': {
+                    cursor: 'pointer',
+                    backgroundColor: value === 0 ? alpha(primary.main, 0.9) : neutral[50],
+                    transform: 'scale(1.03)',
+                    transition: '0.3 ease-in-out',
+                  },
+                  bgcolor: value === 0 ? alpha(primary.main, 0.7) : null,
                 }}
-                onClick={() => setValue(0)}
+                onClick={() => {
+                  setValue(0);
+                  setSubCategoryId('');
+                }}
               >
                 <Typography variant="body1">Todos los artículos</Typography>
               </Card>
             </AnimateButton>
           </Grid>
-          {categoriesArray.map((category, i) => (
-            <Grid key={category.id} item xs={4} md={3} lg={2}>
+          {data?.map((category, i) => (
+            <Grid key={category.id + 1} item xs={4} md={3} lg={2}>
               <AnimateButton>
                 <Card
                   sx={{
                     p: 1,
                     borderRadius: 4,
-                    ':hover': { cursor: 'pointer' },
-                    bgcolor: value === i + 1 ? primary.light : null,
+                    bgcolor: value === i + 1 ? alpha(primary.main, 0.7) : null,
+                    '&:hover': {
+                      cursor: 'pointer',
+                      backgroundColor: value === i + 1 ? alpha(primary.main, 0.9) : neutral[50],
+                      transform: 'scale(1.03)',
+                      transition: '0.3 ease-in-out',
+                    },
                   }}
-                  onClick={() => setValue(i + 1)}
+                  onClick={() => {
+                    setValue(i + 1);
+                    setSubCategoryId(category.id);
+                  }}
                 >
-                  <Typography variant="body1">{category.name}</Typography>
+                  <Typography variant="body1">{category.nombre}</Typography>
                 </Card>
               </AnimateButton>
             </Grid>
           ))}
         </Grid>
       </Stack>
+      <Box>
+        <Button variant="contained" color="error">
+          Cerrar caja
+        </Button>
+      </Box>
     </Box>
   );
 };

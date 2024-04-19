@@ -15,7 +15,7 @@ export interface IModuleItemsList {
   moduleItems: IModuleItems[];
   icon?: React.ReactElement;
   id?: string;
-  path?:string
+  path?: string;
 }
 
 export interface IUser {
@@ -373,4 +373,37 @@ export interface ISideBarWarehouse {
   id: string;
   nombre: string;
   subAlmacenes: { id: string; nombre: string }[];
+}
+
+export interface IPosArticle {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  cantidad: number;
+  codigoBarras: string;
+  precio: number;
+  iva: number;
+  fechaCaducidad: string;
+}
+
+export interface IRegisterSale {
+  id_Caja: string;
+  tipoPago: number;
+  montoPago: number;
+  totalVenta: number;
+  articulos: {
+    id: string;
+    cantidad: number;
+    precioUnitario: number;
+  }[];
+}
+
+export interface IUserSalesRegister {
+  id: string;
+  dineroAlCorte: number | null;
+  diaHoraCorte: string | null;
+  fechaCreacion: string;
+  cerrada: boolean;
+  pasoSuJornada: boolean;
+  tieneCaja: boolean;
 }

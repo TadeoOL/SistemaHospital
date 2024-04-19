@@ -1,107 +1,91 @@
-import { AddCircleOutlineRounded, Delete, RemoveCircleOutlineRounded } from '@mui/icons-material';
-import { Box, Card, Divider, IconButton, Stack, Typography, alpha } from '@mui/material';
-import { neutral } from '../../../theme/colors';
+import { Box, Button, Divider, Modal, Stack, Typography, alpha } from '@mui/material';
+import { ResumeSaleModal } from './Modal/ResumeSaleModal';
+import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
+import { useEffect, useState, useCallback } from 'react';
+import { primary } from '../../../theme/colors';
+import { toast } from 'react-toastify';
 
-const items = [
-  { id: '1', name: 'Burgir', price: '100', amount: 2 },
-  { id: '2', name: 'Burgir', price: '100', amount: 2 },
-  { id: '3', name: 'Burgir', price: '100', amount: 2 },
-  { id: '4', name: 'Burgir', price: '100', amount: 2 },
-  { id: '5', name: 'Burgir', price: '100', amount: 2 },
-  { id: '6', name: 'Burgir', price: '100', amount: 2 },
-  { id: '7', name: 'Burgir', price: '100', amount: 2 },
-  { id: '8', name: 'Burgir', price: '100', amount: 2 },
-  { id: '9', name: 'Burgir', price: '100', amount: 2 },
-];
+export const ResumeSale = () => {
+  const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
+  const setPaymentMethod = usePosOrderArticlesStore((state) => state.setPaymentMethod);
+  const setSubTotal = usePosOrderArticlesStore((state) => state.setSubTotal);
+  const setIva = usePosOrderArticlesStore((state) => state.setIva);
+  const setTotal = usePosOrderArticlesStore((state) => state.setTotal);
+  const [open, setOpen] = useState(false);
+  const { subTotal, iva } = articlesOnBasket.reduce(
+    (acc, article) => {
+      const precioConIva = article.iva > 0 ? article.iva * 0.01 * article.precio : article.precio;
+      const precioTotal = article.cantidad * precioConIva;
+      const ivaArticulo = article.iva > 0 ? precioTotal - article.cantidad * article.precio : 0;
 
-interface ResumeSaleProps {
-  sx?: any;
-}
-interface CardItemsProps {
-  id: string;
-  name: string;
-  price: string;
-  amount: number;
-}
-interface AddAndRemoveButtonsProps {
-  amount: number;
-  id: string;
-}
-interface TotalPriceProps {}
-
-export const ResumeSale = (props: ResumeSaleProps) => {
-  return (
-    <Stack sx={{ ...props.sx }}>
-      <Typography variant="h3" sx={{ my: 2 }}>
-        Orden Actual
-      </Typography>
-      <Stack sx={{ overflowY: 'auto' }}>
-        <Stack spacing={2} sx={{ maxHeight: '500px', p: 1.5 }}>
-          {items.map((item) => (
-            <CardItems key={item.id} amount={item.amount} id={item.id} name={item.name} price={item.price} />
-          ))}
-        </Stack>
-      </Stack>
-      <Divider sx={{ my: 2 }} />
-      <TotalPrice />
-    </Stack>
+      return {
+        subTotal: acc.subTotal + precioTotal,
+        iva: acc.iva + ivaArticulo,
+      };
+    },
+    { subTotal: 0, iva: 0 }
   );
-};
+  const total = subTotal + iva;
 
-const CardItems = (props: CardItemsProps) => {
+  const handleOpen = useCallback(() => {
+    if (articlesOnBasket.length === 0) return toast.warning('No hay artículos en la canasta');
+    return setOpen(true);
+  }, [articlesOnBasket]);
+
+  useEffect(() => {
+    setSubTotal(subTotal);
+    setIva(iva);
+    setTotal(total);
+  }, [subTotal, iva, total]);
+
   return (
-    <Card sx={{ position: 'relative', p: 1, bgcolor: alpha(neutral[200], 0.45), overflow: 'visible' }}>
-      <IconButton sx={{ position: 'absolute', top: -10, right: -10, zIndex: 100 }}>
-        <Delete color="error" />
-      </IconButton>
-      <Stack sx={{ display: 'flex' }}>
-        <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{props.name}</Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="caption">${props.price}</Typography>
-          <AddAndRemoveButtons amount={props.amount} id={props.id} />
+    <>
+      <Stack
+        sx={{
+          marginTop: 'auto',
+          display: 'flex',
+          flex: 1,
+          p: 2,
+          bgcolor: alpha(primary.main, 0.7),
+          borderBottomLeftRadius: 12,
+          borderBottomRightRadius: 12,
+        }}
+      >
+        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+          <Typography sx={{ color: 'white', fontSize: 14, fontWeight: 600 }}>Sub Total</Typography>
+          <Typography sx={{ color: 'white' }}>${subTotal}</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+          <Typography sx={{ color: 'white', fontSize: 14, fontWeight: 600 }}>IVA</Typography>
+          <Typography sx={{ color: 'white' }}>${iva}</Typography>
+        </Box>
+        <Divider sx={{ my: 0.5 }} />
+        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+          <Typography sx={{ color: 'white', fontSize: 14, fontWeight: 600 }}>Total</Typography>
+          <Typography sx={{ color: 'white' }}>${total}</Typography>
+        </Box>
+        <Box sx={{ mt: 2, display: 'flex', flex: 1 }}>
+          <Button
+            variant="contained"
+            sx={{ color: 'white', bgcolor: primary.main }}
+            fullWidth
+            onClick={() => handleOpen()}
+          >
+            Realizar compra
+          </Button>
         </Box>
       </Stack>
-    </Card>
-  );
-};
-
-const AddAndRemoveButtons = (props: AddAndRemoveButtonsProps) => {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', columnGap: 0.5 }}>
-      <IconButton>
-        <RemoveCircleOutlineRounded />
-      </IconButton>
-      {props.amount}
-      <IconButton sx={{ color: '#046DBD' }}>
-        <AddCircleOutlineRounded />
-      </IconButton>
-    </Box>
-  );
-};
-
-const TotalPrice = (props: TotalPriceProps) => {
-  return (
-    <Stack sx={{ marginTop: 'auto' }}>
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-        <Typography variant="h5">Sub Total</Typography>
-        <Typography>$123123</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-        <Typography variant="h5">IVA 16%</Typography>
-        <Typography>$43</Typography>
-      </Box>
-      <Divider sx={{ my: 0.5 }} />
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-        <Typography variant="h5">Total</Typography>
-        <Typography>$3231</Typography>
-      </Box>
-    </Stack>
+      <Modal
+        open={open}
+        onClose={() => {
+          setPaymentMethod(0);
+          setOpen(false);
+        }}
+      >
+        <>
+          <ResumeSaleModal setOpen={setOpen} />
+        </>
+      </Modal>
+    </>
   );
 };
