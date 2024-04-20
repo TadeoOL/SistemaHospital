@@ -12,6 +12,7 @@ import { WarehouseRequest } from './TabsView/WarehouseRequests';
 import { SubWarehouses } from './TabsView/SubWarehouses';
 import { WarehouseHistory } from './TabsView/WarehouseHistory';
 import { NotFoundPage } from '../../../views/404Page';
+import PackageCatalogue from './TabsView/PackageCatalogue';
 
 const GetWarehouseView: React.FC = () => {
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
@@ -26,6 +27,8 @@ const GetWarehouseView: React.FC = () => {
       return <WarehouseRequest />;
     case 4:
       return <WarehouseHistory />;
+    case 5:
+      return <PackageCatalogue />;
     default:
       break;
   }

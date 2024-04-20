@@ -121,6 +121,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
       },
+      {
+        title: 'Artículos',
+        path: '/farmacia/catalogo',
+        icon: <ArticleIcon sx={{ color: '#fff' }} />,
+        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+      },
     ],
     path: 'farmacia',
   },

@@ -10,7 +10,7 @@ type ArticleOrder = {
   id: string;
   name: string;
   amount: number;
-  price: number;
+  price?: number;
   stock?: number;
 };
 

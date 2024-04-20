@@ -3,8 +3,8 @@ import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehous
 import { useCallback } from 'react';
 import { shallow } from 'zustand/shallow';
 
-export const WarehouseTabs = () => {
-  const { tabValue, setTabValue, warehouseData } = useWarehouseTabsNavStore(
+export const PackageTabs = () => {
+  const { tabValue, setTabValue } = useWarehouseTabsNavStore(
     (state) => ({
       tabValue: state.tabValue,
       setTabValue: state.setTabValue,
@@ -27,12 +27,8 @@ export const WarehouseTabs = () => {
         }}
       >
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
-          <Tab label="Artículos" />
-          {!warehouseData.esSubAlmacen && <Tab label="Sub Almacenes" />}
-          <Tab label="Solicitud de Productos" value={2} />
-          <Tab label="Autorización de Salidas" value={3} />
-          <Tab label="Historial de Movimiento" value={4} />
-          <Tab label="Paquete de Artículos" value={5} />
+          <Tab label="Artículos" value={0} />
+          <Tab label="Movimientos" value={1} />
         </Tabs>
       </AppBar>
     </Box>
