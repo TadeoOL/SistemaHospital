@@ -16,6 +16,7 @@ interface State {
   status: string;
   startDate: string;
   endDate: string;
+  sort: string;
 }
 
 interface Action {
@@ -31,6 +32,7 @@ interface Action {
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
   clearFilters: () => void;
+  setSort: (sort: string) => void;
 }
 
 export const usePurchaseOrderPagination = createWithEqualityFn<State & Action>()((set, get) => ({
@@ -46,6 +48,7 @@ export const usePurchaseOrderPagination = createWithEqualityFn<State & Action>()
   status: '-1',
   startDate: getFirstDayOfTheMonth(),
   endDate: '',
+  sort: '',
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
   setStatus: (status: string) => set({ status, pageIndex: 0 }),
@@ -56,10 +59,11 @@ export const usePurchaseOrderPagination = createWithEqualityFn<State & Action>()
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  setSort: (sort: string) => set({ sort }),
   clearFilters: () => set({ endDate: '', startDate: '', status: '-1' }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, status, startDate, endDate } = get();
+    const { pageIndex, pageSize, search, enabled, status, startDate, endDate, sort } = get();
     const page = pageIndex + 1;
     try {
       const res = await getPurchaseOrder(
@@ -67,7 +71,7 @@ export const usePurchaseOrderPagination = createWithEqualityFn<State & Action>()
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&estatus=${
           parseInt(status) > -1 ? status : ''
-        }&fechaInicio=${startDate}&fechaFin=${endDate}`
+        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
       );
       set(() => ({
         data: res.data,

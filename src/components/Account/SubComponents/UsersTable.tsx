@@ -122,7 +122,7 @@ export const UsersTable = () => {
   return (
     <>
       <Card sx={{ m: 2 }}>
-        <Table stickyHeader>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>Nombre de usuario</TableCell>

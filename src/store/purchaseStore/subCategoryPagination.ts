@@ -10,6 +10,7 @@ interface State {
   isLoading: boolean;
   search: string;
   enabled: boolean;
+  sort: string;
   handleChangeSubCategory: boolean;
 }
 
@@ -20,11 +21,12 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
+  setSort: (sort: string) => void;
   setHandleChangeSubCategory: (handleChangeSubCategory: boolean) => void;
-  fetchCategories: (pageIndex: number, pageSize: number, search: string, enabled: boolean) => Promise<void>;
+  fetchCategories: () => Promise<void>;
 }
 
-export const useSubCategoryPagination = createWithEqualityFn<State & Action>((set) => ({
+export const useSubCategoryPagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -33,6 +35,7 @@ export const useSubCategoryPagination = createWithEqualityFn<State & Action>((se
   data: [],
   isLoading: true,
   search: '',
+  sort: '',
   enabled: true,
   handleChangeSubCategory: false,
   setHandleChangeSubCategory: (handleChangeSubCategory: boolean) => set({ handleChangeSubCategory }),
@@ -40,16 +43,18 @@ export const useSubCategoryPagination = createWithEqualityFn<State & Action>((se
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
+  setSort: (sort: string) => set({ sort }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchCategories: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
+  fetchCategories: async () => {
+    const { pageIndex, pageSize, search, sort, enabled } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getSubCategories(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&Sort=${sort}`
       );
       const subCategorias = res.data.map((a: { id: any; nombre: any; descripcion: any; iva: any; categoria: any }) => {
         return {

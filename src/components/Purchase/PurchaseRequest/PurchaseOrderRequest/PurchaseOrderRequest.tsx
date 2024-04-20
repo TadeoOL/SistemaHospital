@@ -43,6 +43,7 @@ import { Info } from '@mui/icons-material';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import { ProviderNameChip } from '../ProviderNameChip';
+import { sortComponent } from '../../../Commons/sortComponent';
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();
@@ -92,7 +93,19 @@ const handleRemoveOrder = async (idOrdenCompra: string) => {
   });
 };
 
-const useGetAllData = () => {
+export const PurchaseOrderRequest = () => {
+  const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const [openPurchaseOrder, setOpenPurchaseOrder] = useState(false);
+  const [openProviderQuote, setOpenProviderQuote] = useState(false);
+  const [openAddMoreProviders, setOpenAddMoreProviders] = useState(false);
+  const [orderSelected, setOrderSelected] = useState<{
+    folio: string;
+    purchaseOrderId: string;
+  }>({ folio: '', purchaseOrderId: '' });
+  const [providers, setProviders] = useState<any[]>([]);
+  const [openMatchPrices, setOpenMatchPrices] = useState(false);
+  const [orderData, setOrderData] = useState<IPurchaseAuthorization | null>(null);
   const {
     isLoading,
     data,
@@ -111,6 +124,8 @@ const useGetAllData = () => {
     setStatus,
     setEndDate,
     setStartDate,
+    setSort,
+    sort,
   } = usePurchaseOrderRequestPagination((state) => ({
     isLoading: state.isLoading,
     data: state.data,
@@ -129,58 +144,9 @@ const useGetAllData = () => {
     setStatus: state.setStatus,
     setEndDate: state.setEndDate,
     setStartDate: state.setStartDate,
+    sort: state.sort,
+    setSort: state.setSort,
   }));
-  useEffect(() => {
-    fetch();
-  }, [pageIndex, pageSize, search, handleChange, status, startDate, endDate]);
-  return {
-    isLoading,
-    data,
-    count,
-    setPageIndex,
-    setPageSize,
-    search,
-    pageIndex,
-    pageSize,
-    setSearch,
-    status,
-    startDate,
-    endDate,
-    setStatus,
-    setEndDate,
-    setStartDate,
-  };
-};
-
-export const PurchaseOrderRequest = () => {
-  const {
-    count,
-    data,
-    isLoading,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-    setSearch,
-    status,
-    startDate,
-    endDate,
-    setStatus,
-    setStartDate,
-    setEndDate,
-  } = useGetAllData();
-  const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
-  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
-  const [openPurchaseOrder, setOpenPurchaseOrder] = useState(false);
-  const [openProviderQuote, setOpenProviderQuote] = useState(false);
-  const [openAddMoreProviders, setOpenAddMoreProviders] = useState(false);
-  const [orderSelected, setOrderSelected] = useState<{
-    folio: string;
-    purchaseOrderId: string;
-  }>({ folio: '', purchaseOrderId: '' });
-  const [providers, setProviders] = useState<any[]>([]);
-  const [openMatchPrices, setOpenMatchPrices] = useState(false);
-  const [orderData, setOrderData] = useState<IPurchaseAuthorization | null>(null);
 
   useEffect(() => {
     if (openProviderQuote) return;
@@ -222,6 +188,10 @@ export const PurchaseOrderRequest = () => {
         };
       });
   }, []);
+
+  useEffect(() => {
+    fetch();
+  }, [pageIndex, pageSize, search, handleChange, status, startDate, endDate, sort]);
 
   return (
     <>
@@ -285,12 +255,12 @@ export const PurchaseOrderRequest = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Solicitud de Compra</TableCell>
-                    <TableCell>Creado por</TableCell>
-                    <TableCell>Proveedor</TableCell>
-                    <TableCell>Fecha de solicitud</TableCell>
-                    <TableCell>Total</TableCell>
-                    <TableCell>Estatus</TableCell>
+                    <TableCell>{sortComponent('Solicitud de Compra', 'folio', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Creado por', 'creadoPor', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Total', 'total', setSort)}</TableCell>
+                    <TableCell>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>

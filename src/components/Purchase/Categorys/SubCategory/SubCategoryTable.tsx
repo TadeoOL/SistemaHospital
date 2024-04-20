@@ -1,57 +1,31 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import { useSubCategoryPagination } from '../../../../store/purchaseStore/subCategoryPagination';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { disableSubCategory } from '../../../../api/api.routes';
+import EditIcon from '@mui/icons-material/Edit';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckIcon from '@mui/icons-material/Check';
 import { ModifySubCategoryModal } from './Modal/ModifySubCategoryModal';
-import { TableComponent } from '../../../TableComponent';
-
-const useGetAllData = () => {
-  const {
-    isLoading,
-    count,
-    data,
-    enabled,
-    fetchCategories,
-    pageIndex,
-    pageSize,
-    search,
-    setPageIndex,
-    setPageSize,
-    handleChangeSubCategory,
-  } = useSubCategoryPagination(
-    (state) => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-      fetchCategories: state.fetchCategories,
-      search: state.search,
-      enabled: state.enabled,
-      data: state.data,
-      setPageSize: state.setPageSize,
-      setPageIndex: state.setPageIndex,
-      isLoading: state.isLoading,
-      handleChangeSubCategory: state.handleChangeSubCategory,
-    }),
-    shallow
-  );
-
-  useEffect(() => {
-    fetchCategories(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeSubCategory]);
-
-  return {
-    isLoading,
-    data,
-    enabled,
-    count,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-  };
-};
+import {
+  Box,
+  Card,
+  CircularProgress,
+  IconButton,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { sortComponent } from '../../../Commons/sortComponent';
+import { SubCategoryInfoModal } from './Modal/SubCategoryInfoModal';
 
 const useDisableSubCategory = () => {
   const { setHandleChangeSubCategory, enabled, handleChangeSubCategory } = useSubCategoryPagination(
@@ -106,13 +80,173 @@ const useDisableSubCategory = () => {
 };
 
 export const SubCategoryTable = () => {
-  const disableSubCategory = useDisableSubCategory();
+  const disableCategory = useDisableSubCategory();
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [openInfoModal, setOpenInfoModal] = useState(false);
+  const {
+    isLoading,
+    count,
+    data,
+    enabled,
+    fetchCategories,
+    pageIndex,
+    pageSize,
+    search,
+    setPageIndex,
+    setPageSize,
+    handleChangeSubCategory,
+    setSort,
+    sort,
+  } = useSubCategoryPagination(
+    (state) => ({
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      count: state.count,
+      fetchCategories: state.fetchCategories,
+      search: state.search,
+      enabled: state.enabled,
+      data: state.data,
+      setPageSize: state.setPageSize,
+      setPageIndex: state.setPageIndex,
+      isLoading: state.isLoading,
+      handleChangeSubCategory: state.handleChangeSubCategory,
+      setSort: state.setSort,
+      sort: state.sort,
+    }),
+    shallow
+  );
+
+  const handlePageChange = useCallback((event: any, value: any) => {
+    event.stopPropagation();
+    setPageIndex(value);
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [pageIndex, pageSize, search, enabled, handleChangeSubCategory, sort]);
+
   return (
-    <TableComponent
-      disableHook={disableSubCategory}
-      fetchDataHook={useGetAllData}
-      modifyModalComponent={(props) => <ModifySubCategoryModal data={props.data} open={props.open} />}
-      headers={['Nombre', 'Descripción', 'I.V.A.', 'Categoría', 'Acciones']}
-    />
+    <>
+      <Card sx={{ m: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>
+              <TableCell>{sortComponent('Descripcion', 'descripcion', setSort)}</TableCell>
+              <TableCell>{sortComponent('IVA', 'iva', setSort)}</TableCell>
+              <TableCell>{sortComponent('Categoria', 'categoria', setSort)}</TableCell>
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.length === 0
+              ? null
+              : isLoading
+                ? null
+                : data.map((category) => {
+                    const { id, nombre, descripcion, iva, categoria } = category;
+
+                    return (
+                      <TableRow
+                        key={id}
+                        onClick={() => {
+                          setOpenInfoModal(true);
+                          setCategoryId(category.id);
+                        }}
+                        sx={{
+                          '&:hover': {
+                            cursor: 'pointer',
+                            bgcolor: 'whitesmoke',
+                          },
+                        }}
+                      >
+                        <TableCell>{nombre}</TableCell>
+                        <TableCell>{descripcion}</TableCell>
+                        <TableCell>{iva} %</TableCell>
+                        <TableCell>{categoria}</TableCell>
+                        <TableCell>
+                          <Tooltip title="Editar">
+                            <IconButton
+                              size="small"
+                              sx={{ color: 'neutral.700' }}
+                              onClick={(e) => {
+                                setCategoryId(category.id);
+                                setOpenEditModal(true);
+                                e.stopPropagation();
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                disableCategory(category.id);
+                                e.stopPropagation();
+                              }}
+                            >
+                              {enabled ? (
+                                <RemoveCircleIcon sx={{ color: 'red' }} />
+                              ) : (
+                                <CheckIcon sx={{ color: 'green' }} />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+          </TableBody>
+        </Table>
+        {isLoading && (
+          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+        {data.length === 0 && !isLoading && (
+          <Card
+            sx={{
+              display: 'flex',
+              flexGrow: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              p: 2,
+              columnGap: 1,
+            }}
+          >
+            <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
+            <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
+              No existen registros
+            </Typography>
+          </Card>
+        )}
+        {
+          <TablePagination
+            component="div"
+            count={count}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={(e: any) => {
+              setPageSize(e.target.value);
+            }}
+            page={pageIndex}
+            rowsPerPage={pageSize}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            labelRowsPerPage="Filas por página"
+          />
+        }
+      </Card>
+      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+        <div>
+          <ModifySubCategoryModal data={categoryId} open={setOpenEditModal} />
+        </div>
+      </Modal>
+      <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
+        <div>
+          <SubCategoryInfoModal setOpen={setOpenInfoModal} id={categoryId} />
+        </div>
+      </Modal>
+    </>
   );
 };

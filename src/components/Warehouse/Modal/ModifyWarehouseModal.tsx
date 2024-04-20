@@ -64,7 +64,7 @@ const useFetchPurchaseWarehouse = (warehouseId: string) => {
   return { isLoadingWarehouse, warehouse };
 };
 
-export const ModifyPurchaseWarehouseModal = (props: IModifyCategoryModal) => {
+export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
   const { open, warehouseId } = props;
   const { isLoadingWarehouse, warehouse } = useFetchPurchaseWarehouse(warehouseId);
   const { id, nombre, descripcion } = warehouse ?? {};
