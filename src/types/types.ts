@@ -376,16 +376,49 @@ export interface ISideBarWarehouse {
   subAlmacenes: { id: string; nombre: string }[];
 }
 
-export interface IArticlesPackage{
+export interface IArticlesPackage {
   id_PaqueteArticulo: string;
   nombre: string;
   descripcion?: string;
   contenido: Articulos_contenidos[];
   id_Almacen: string;
-  almacen?:string;
+  almacen?: string;
 }
 export interface Articulos_contenidos {
   id: string;
   nombre: string;
   cantidad: number;
+}
+
+export interface IPosArticle {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  cantidad: number;
+  codigoBarras: string;
+  precio: number;
+  iva: number;
+  fechaCaducidad: string;
+}
+
+export interface IRegisterSale {
+  id_Caja: string;
+  tipoPago: number;
+  montoPago: number;
+  totalVenta: number;
+  articulos: {
+    id: string;
+    cantidad: number;
+    precioUnitario: number;
+  }[];
+}
+
+export interface IUserSalesRegister {
+  id: string;
+  dineroAlCorte: number | null;
+  diaHoraCorte: string | null;
+  fechaCreacion: string;
+  cerrada: boolean;
+  pasoSuJornada: boolean;
+  tieneCaja: boolean;
 }

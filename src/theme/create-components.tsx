@@ -492,6 +492,9 @@ export function createComponents(config: { palette: any }): Components {
       },
     },
     MuiIconButton: {
+      defaultProps: {
+        size: 'small',
+      },
       styleOverrides: {
         root: {
           borderRadius: 4,
