@@ -72,7 +72,7 @@ const useGetAllData = () => {
 };
 
 export const PackageCatalogueTable = () => {
-  const { data, count, isLoading, pageIndex, pageSize, setPageIndex, setPageSize } = useGetAllData();
+  const { data, count, pageIndex, pageSize, setPageIndex, setPageSize } = useGetAllData();
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const handleDelete = () => {
     console.log('no hace nada en hd');
