@@ -295,6 +295,7 @@ export const modifySubCategory = async (subCategory: ISubCategory) => {
     iva,
     id_categoria,
   });
+
   return res.data;
 };
 
@@ -882,6 +883,42 @@ export const getUserSalesRegister = async (userId: string) => {
 export const createUserSalesRegister = async (userId: string) => {
   const res = await axios.post(`/api/PuntoVenta/registrar-caja`, {
     Id_Usuario: userId,
+  });
+  return res.data;
+};
+
+export const addArticlesPackage = async (packagePost: {
+  Contenido: string;
+  Nombre: string;
+  Descripcion: string;
+  Id_Almacen: string;
+}) => {
+  console.log(packagePost);
+  const res = await axios.post(`/api/Almacen/registrar-paquete`, {
+    ...packagePost,
+  });
+  return res.data;
+};
+
+export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-paquete?&${paramUrl}`);
+  return res.data;
+};
+
+export const getPackageById = async (packageId: string) => {
+  const res = await axios.get(`/api/Almacen/paquete-articulo?Id=${packageId}`);
+  return res.data;
+};
+
+export const modifyPackage = async (data: {
+  Id: string;
+  Contenido: string;
+  Nombre: string;
+  Descripcion: string;
+  Id_Almacen: string;
+}) => {
+  const res = await axios.put(`/api/Almacen/actualizar-paquete`, {
+    ...data,
   });
   return res.data;
 };

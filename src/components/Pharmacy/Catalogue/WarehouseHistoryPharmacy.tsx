@@ -22,14 +22,11 @@ import {
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
-import { SearchBar } from '../../../Inputs/SearchBar';
-import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
-import { sortComponent } from '../../../Commons/sortComponent';
+import { useWarehouseMovementPaginationStore } from '../../../store/warehouseStore/movimientoAlmacenPaginacion';
+import { SearchBar } from '../../Inputs/SearchBar';
+import { AddSubWarehouseModal } from '../../Warehouse/WarehouseSelected/TabsView/Modal/AddSubWarehouseModal';
 
-export const WarehouseHistory = () => {
-  const [openModal, setOpenModal] = useState(false);
-  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+const useGetMovements = () => {
   const {
     data,
     fetchWareHouseMovements,
@@ -46,8 +43,6 @@ export const WarehouseHistory = () => {
     setEndDate,
     setSearch,
     search,
-    setSort,
-    sort,
   } = useWarehouseMovementPaginationStore((state) => ({
     data: state.data,
     fetchWareHouseMovements: state.fetchWarehouseMovements,
@@ -64,13 +59,43 @@ export const WarehouseHistory = () => {
     search: state.search,
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
-    setSort: state.setSort,
-    sort: state.sort,
   }));
 
   useEffect(() => {
-    fetchWareHouseMovements();
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
+    fetchWareHouseMovements('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5');
+  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
+  return {
+    data,
+    isLoading,
+    pageCount,
+    pageIndex,
+    pageSize,
+    count,
+    setSearch,
+    setStartDate,
+    startDate,
+    setEndDate,
+    setPageIndex,
+    setPageSize,
+  };
+};
+
+export const WarehouseHistoryPharmacy = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const {
+    data,
+    count,
+    pageIndex,
+    pageSize,
+    isLoading,
+    setSearch,
+    setStartDate,
+    setEndDate,
+    startDate,
+    setPageIndex,
+    setPageSize,
+  } = useGetMovements();
 
   return (
     <>
@@ -124,13 +149,13 @@ export const WarehouseHistory = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{sortComponent('Folio', 'folio', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Almacén Proveniente', 'almacenProveniente', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Solicitado Por', 'solicitadoPor', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Autorizado Por', 'autorizadoPor', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Almacén Dirigido', 'almacenDirigido', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Estado', 'estado', setSort)}</TableCell>
+                    <TableCell align="center">Folio</TableCell>
+                    <TableCell>Almacén Proveniente</TableCell>
+                    <TableCell>Solicitado por</TableCell>
+                    <TableCell>Autorizado por</TableCell>
+                    <TableCell>Almacén dirigido</TableCell>
+                    <TableCell>Fecha Solicitud</TableCell>
+                    <TableCell>Estatus</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

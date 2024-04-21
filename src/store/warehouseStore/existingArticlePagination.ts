@@ -16,6 +16,7 @@ interface State {
   warehouseId: string;
   startDate: string;
   endDate: string;
+  sort: string;
 }
 
 interface Action {
@@ -32,6 +33,7 @@ interface Action {
   setEndDate: (endDate: string) => void;
   clearFilters: () => void;
   clearAllData: () => void;
+  setSort: (sort: string) => void;
 }
 
 const initialState: State = {
@@ -47,6 +49,7 @@ const initialState: State = {
   warehouseId: '',
   startDate: getFirstDayOfTheMonth(),
   endDate: '',
+  sort: '',
 };
 
 export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
@@ -58,19 +61,20 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
+  setSort: (sort: string) => set({ sort }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, warehouseId, startDate, endDate } = get();
+    const { pageIndex, pageSize, search, enabled, warehouseId, startDate, endDate, sort } = get();
     const page = pageIndex + 1;
     try {
       if (warehouseId === '') return;
       const res = await getExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}`
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
       );
       set(() => ({
         data: res.data,

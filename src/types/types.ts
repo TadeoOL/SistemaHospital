@@ -93,6 +93,7 @@ export interface ICategory {
   nombre: string;
   descripcion: string;
   id_Almacen: string;
+  almacen: string;
 }
 export interface ISubCategory {
   id: string;
@@ -373,6 +374,20 @@ export interface ISideBarWarehouse {
   id: string;
   nombre: string;
   subAlmacenes: { id: string; nombre: string }[];
+}
+
+export interface IArticlesPackage {
+  id_PaqueteArticulo: string;
+  nombre: string;
+  descripcion?: string;
+  contenido: Articulos_contenidos[];
+  id_Almacen: string;
+  almacen?: string;
+}
+export interface Articulos_contenidos {
+  id: string;
+  nombre: string;
+  cantidad: number;
 }
 
 export interface IPosArticle {

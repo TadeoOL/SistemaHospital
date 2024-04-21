@@ -57,11 +57,10 @@ export const Layout: React.FC = () => {
     '/compras/solicitud-compras/ordenes-compra': 'Ordenes de Compra',
     '/compras/solicitud-compras/productos-solicitados-orden-compra': 'Solcitudes en Proceso',
     '/compras/solicitud-compras/productos-stock-bajo': 'Alerta de Productos',
-    '/compras/categorias/categoria': 'Categorías',
-    '/compras/categorias/subcategoria': 'Sub categorías',
+    '/compras/categorias/categoria': 'Categorías y Sub Categorias',
     '/compras/articulos/articulo': 'Catálogo de Artículos',
     '/compras/articulos/articulo-existente': 'Productos en Existencia',
-    '/compras/autorizacion-compras': 'Autorización de ordenes de compra',
+    '/compras/autorizacion-compras': 'Autorización de Ordenes de Compra',
     '/compras/proveedores': 'Proveedores',
     '/compras/configuracion-compras': 'Configuración de compras',
     '/compras/autorizacion-compras/autorizaciones': 'Autorizaciones',
@@ -88,12 +87,14 @@ export const Layout: React.FC = () => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
 
   useEffect(() => {
-    const isInWarehouse = location.pathname.split('/')[1] === 'almacenes';
-    const currentMessage = isInWarehouse
-      ? warehouseMessages(warehouseData, location.pathname)
-      : messagesByLink[location.pathname] || '';
-
-    setCurrentPageMessage(currentMessage);
+    if (location.pathname.includes('/almacenes')) {
+      const pathSegments = location.pathname.split('/');
+      const currentMessage =
+        pathSegments.length > 2 ? warehouseMessages(warehouseData, location.pathname) : 'Almacenes Principales';
+      setCurrentPageMessage(currentMessage);
+    } else {
+      setCurrentPageMessage(messagesByLink[location.pathname]);
+    }
   }, [location.pathname, warehouseData]);
 
   if (!profile) return;

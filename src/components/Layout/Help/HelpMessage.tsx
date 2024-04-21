@@ -552,7 +552,7 @@ export const MensajeAlmacen: React.FC = () => {
 export const MensajeAuthCompras: React.FC = () => {
   return (
     <div>
-      <h3>Autorización de ordenes de compras</h3>
+      <h3>Autorización de Ordenes de Compras</h3>
       <Divider />
       <p>Contenido </p>
     </div>

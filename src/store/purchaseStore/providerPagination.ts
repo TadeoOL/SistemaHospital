@@ -5,6 +5,7 @@ interface State {
   pageSize: number;
   pageIndex: number;
   search: string;
+  sort: string;
   enabled: boolean;
   count: number;
   data: any[];
@@ -17,12 +18,13 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setPageIndex: (pageIndex: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
   setEnabled: (enabled: boolean) => void;
-  fetchProviders: (pageIndex: number, pageSize: number, search: string, enabled: boolean) => Promise<void>;
+  fetchProviders: () => Promise<void>;
   setHandleChangeProvider: (handleChangeProvider: boolean) => void;
 }
 
-export const useProviderPagination = createWithEqualityFn<State & Action>((set) => ({
+export const useProviderPagination = createWithEqualityFn<State & Action>((set, get) => ({
   count: 0,
   pageIndex: 0,
   pageSize: 10,
@@ -30,21 +32,24 @@ export const useProviderPagination = createWithEqualityFn<State & Action>((set) 
   search: '',
   data: [],
   pageCount: 0,
+  sort: '',
   isLoading: true,
   handleChangeProvider: false,
   setPageIndex: (state: number) => set(() => ({ pageIndex: state })),
   setPageSize: (state: number) => set(() => ({ pageSize: state, pageIndex: 0 })),
   setEnabled: (state: boolean) => set(() => ({ enabled: state })),
   setSearch: (state: string) => set(() => ({ search: state, pageIndex: 0 })),
+  setSort: (sort: string) => set({ sort }),
   setHandleChangeProvider: (state: boolean) => set(() => ({ handleChangeProvider: state })),
-  fetchProviders: async (pageIndex: number, pageSize: number, search: string, enabled: boolean) => {
+  fetchProviders: async () => {
+    const { pageIndex, pageSize, search, sort, enabled } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getProviders(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}`
+        }&search=${search}&habilitado=${enabled}&Sort=${sort}`
       );
       set(() => ({
         data: res.data,
