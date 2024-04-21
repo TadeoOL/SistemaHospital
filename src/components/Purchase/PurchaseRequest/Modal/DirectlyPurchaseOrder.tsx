@@ -337,7 +337,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     const newPrices: any = {};
     const newQuantity: any = {};
     articles.forEach((article) => {
-      newPrices[article.id] = article.price.toString();
+      newPrices[article.id] = (article.price as number).toString();
       newQuantity[article.id] = article.amount.toString();
     });
     setQuantity(newQuantity);
@@ -938,7 +938,7 @@ const StepThree = (props: { setOpen: Function }) => {
           return {
             Id_Articulo: a.id,
             Cantidad: a.amount,
-            PrecioProveedor: a.price,
+            PrecioProveedor: a.price as number,
           };
         }),
         notas: note,
@@ -963,7 +963,7 @@ const StepThree = (props: { setOpen: Function }) => {
           return {
             Id_Articulo: a.id,
             CantidadCompra: a.amount,
-            PrecioProveedor: a.price,
+            PrecioProveedor: a.price as number,
           };
         }),
         id_almacen: warehouseSelected,
@@ -988,7 +988,7 @@ const StepThree = (props: { setOpen: Function }) => {
           return {
             Id_Articulo: a.id,
             CantidadCompra: a.amount,
-            PrecioProveedor: a.price,
+            PrecioProveedor: a.price as number,
           };
         }),
         id_almacen: warehouseSelected,

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   // CircularProgress,
   Collapse,
   IconButton,
@@ -52,9 +53,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export const WarehouseArticles = () => {
+export const useGetExistingArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-  const [openModal, setOpenModal] = useState(false);
   const {
     data,
     setSearch,
@@ -69,7 +69,7 @@ export const WarehouseArticles = () => {
     startDate,
     endDate,
     clearAllData,
-    // isLoading,
+    isLoading,
     setSort,
     sort,
   } = useExistingArticlePagination(
@@ -114,10 +114,11 @@ export const WarehouseArticles = () => {
     startDate,
     endDate,
     isLoading,
+    setSort,
   };
 };
 export const WarehouseArticles = () => {
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+  // const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const {
     data,
     setSearch,
@@ -129,7 +130,8 @@ export const WarehouseArticles = () => {
     startDate,
     endDate,
     isLoading,
-  } = useGetExistingArticles(warehouseData.id);
+    setSort,
+  } = useGetExistingArticles();
   const [openModal, setOpenModal] = useState(false);
 
   if (isLoading && data.length === 0)
