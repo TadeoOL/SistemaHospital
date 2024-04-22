@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { IArticle } from '../../../../types/types';
-import { sortComponent } from '../../../../components/Commons/sortComponent.tsx';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const useGetAllData = () => {
   const {
@@ -176,13 +176,27 @@ export const ArticleTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>
-              <TableCell>{sortComponent('Stock mínimo ', 'nombre', setSort)}</TableCell>
-              <TableCell>{sortComponent('Stock alerta', 'stockMinimo', setSort)}</TableCell>
-              <TableCell>{sortComponent('Precio Compra', 'stockAlerta', setSort)}</TableCell>
-              <TableCell>{sortComponent('Precio Venta', 'precioCompra', setSort)}</TableCell>
-              <TableCell>{sortComponent('Presentación', 'precioVenta', setSort)}</TableCell>
-              <TableCell>{sortComponent('Sub categoría', 'subCategoria', setSort)}</TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Stock mínimo" headerName="stockMinimo" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Stock alerta" headerName="stockAlerta" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Precio Compra" headerName="precioCompra" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Precio Venta" headerName="precioVenta" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Presentacion" headerName="presentacion" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Sub categoria" headerName="subCategoria" setSortFunction={setSort} />
+              </TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>

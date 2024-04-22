@@ -3,7 +3,14 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 
-export const sortComponent = (tableCellLabel: string, headerName: string, setSortFunction: Function) => {
+interface SortComponentProps {
+  tableCellLabel: string;
+  headerName: string;
+  setSortFunction: Function;
+}
+
+export const SortComponent = (props: SortComponentProps) => {
+  const { tableCellLabel, headerName, setSortFunction } = props;
   const [sortDirection, setSortDirection] = useState(''); // Estado local para la dirección de ordenamiento
 
   const handleSortClick = () => {

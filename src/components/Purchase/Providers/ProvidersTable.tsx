@@ -25,7 +25,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { disableProvider } from '../../../api/api.routes';
-import { sortComponent } from '../../Commons/sortComponent';
+import { SortComponent } from '../../Commons/SortComponent';
 
 const useDisableProvider = () => {
   const { setHandleChangeProvider, enabled, handleChangeProvider } = useProviderPagination(
@@ -132,10 +132,31 @@ export const ProvidersTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{sortComponent('Nombre de la Compañia ', 'nombreCompania', setSort)}</TableCell>
-              <TableCell>{sortComponent('Nombre del Contacto ', 'nombreContacto', setSort)}</TableCell>
-              <TableCell>{sortComponent('Teléfono ', 'telefono', setSort)}</TableCell>
-              <TableCell>{sortComponent('Correo Eletrónico ', 'correoElectronico', setSort)}</TableCell>
+              <TableCell>
+                <SortComponent
+                  tableCellLabel="Nombre de la Compañía"
+                  headerName="nombreCompania"
+                  setSortFunction={setSort}
+                />
+              </TableCell>
+              <TableCell>
+                <SortComponent
+                  tableCellLabel="Nombre del Contacto"
+                  headerName="nombreContacto"
+                  setSortFunction={setSort}
+                />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Teléfono" headerName="telefono" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent
+                  tableCellLabel="Correo Electrónico"
+                  headerName="correoElectronico"
+                  setSortFunction={setSort}
+                />
+              </TableCell>
+
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>

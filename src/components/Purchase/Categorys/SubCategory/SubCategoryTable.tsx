@@ -24,8 +24,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { sortComponent } from '../../../Commons/sortComponent';
 import { SubCategoryInfoModal } from './Modal/SubCategoryInfoModal';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const useDisableSubCategory = () => {
   const { setHandleChangeSubCategory, enabled, handleChangeSubCategory } = useSubCategoryPagination(
@@ -132,10 +132,18 @@ export const SubCategoryTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>
-              <TableCell>{sortComponent('Descripcion', 'descripcion', setSort)}</TableCell>
-              <TableCell>{sortComponent('IVA', 'iva', setSort)}</TableCell>
-              <TableCell>{sortComponent('Categoria', 'categoria', setSort)}</TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="IVA" headerName="iva" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Categoría" headerName="categoria" setSortFunction={setSort} />
+              </TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>

@@ -25,7 +25,8 @@ import { useState } from 'react';
 import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
-import { sortComponent } from '../../../Commons/sortComponent';
+import { SortComponent } from '../../../Commons/SortComponent';
+// import { sortComponent } from '../../../Commons/sortComponent';
 
 export const WarehouseHistory = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -124,13 +125,47 @@ export const WarehouseHistory = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{sortComponent('Folio', 'folio', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Almacén Proveniente', 'almacenProveniente', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Solicitado Por', 'solicitadoPor', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Autorizado Por', 'autorizadoPor', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Almacén Dirigido', 'almacenDirigido', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Estado', 'estado', setSort)}</TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Almacén Proveniente"
+                        headerName="almacenProveniente"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Solicitado Por"
+                        headerName="solicitadoPor"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Autorizado Por"
+                        headerName="autorizadoPor"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Almacén Dirigido"
+                        headerName="almacenDirigido"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Fecha de Solicitud"
+                        headerName="fechaSolicitud"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Estado" headerName="estado" setSortFunction={setSort} />
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

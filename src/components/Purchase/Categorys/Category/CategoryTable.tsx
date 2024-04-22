@@ -24,8 +24,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { sortComponent } from '../../../Commons/sortComponent';
 import { CategoryInfoModal } from './Modal/CategoryInfoModal';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const useDisableCategory = () => {
   const { setHandleChangeCategory, enabled, handleChangeCategory } = useCategoryPagination(
@@ -132,9 +132,16 @@ export const CategoryTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>
-              <TableCell>{sortComponent('Descripcion', 'descripcion', setSort)}</TableCell>
-              <TableCell>{sortComponent('Almacén', 'almacen', setSort)}</TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Almacén" headerName="almacen" setSortFunction={setSort} />
+              </TableCell>
+
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>

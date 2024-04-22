@@ -40,7 +40,7 @@ import { Assignment, CheckCircle, Info } from '@mui/icons-material';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
-import { sortComponent } from '../../../Commons/sortComponent';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -219,12 +219,29 @@ export const PurchaseOrder = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>{sortComponent('Orden de Compra', 'folio', setSort)}</TableCell>
-                  <TableCell>{sortComponent('Creado por', 'creadoPor', setSort)}</TableCell>
-                  <TableCell>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
-                  <TableCell>{sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}</TableCell>
-                  <TableCell>{sortComponent('Total', 'total', setSort)}</TableCell>
-                  <TableCell>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Orden de Compra" headerName="folio" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Creado por" headerName="creadoPor" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Proveedor" headerName="proveedor" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent
+                      tableCellLabel="Fecha de Solicitud"
+                      headerName="fechaSolicitud"
+                      setSortFunction={setSort}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Total" headerName="total" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
+                  </TableCell>
+
                   <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>

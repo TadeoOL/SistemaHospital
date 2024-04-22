@@ -37,7 +37,7 @@ import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
 import { returnExpireDate } from '../../../../utils/expireDate';
-import { sortComponent } from '../../../Commons/sortComponent';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -190,10 +190,26 @@ export const WarehouseArticles = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{sortComponent('Nombre del Artículo', 'nombre', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Stock Mínimo', 'stockMinimo', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Stock Actual', 'stock', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Precio de Compra', 'precioCompra', setSort)}</TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Nombre del Articulo"
+                        headerName="articulo"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock Minimo" headerName="stockMinimo" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock Actual" headerName="stockActual" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Precio de compra"
+                        headerName="precioCompra"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
