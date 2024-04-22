@@ -26,7 +26,8 @@ import { disableWarehouseById } from '../../../../api/api.routes';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { sortComponent } from '../../../Commons/sortComponent';
+import { SortComponent } from '../../../Commons/SortComponent';
+// import { sortComponent } from '../../../Commons/sortComponent';
 
 export const SubWarehouses = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -81,9 +82,23 @@ export const SubWarehouses = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{sortComponent('Nombre del Sub Almacén', 'nombre', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Descripción', 'descripcion', setSort)}</TableCell>
-                    <TableCell>{sortComponent('Encargado del Sub Almacén', 'encargado', setSort)}</TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Nombre del Sub Almacén"
+                        headerName="nombre"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Encargado del Sub Almacén"
+                        headerName="encargado"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>

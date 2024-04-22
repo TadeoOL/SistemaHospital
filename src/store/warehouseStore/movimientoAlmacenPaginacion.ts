@@ -72,22 +72,19 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
     const page = pageIndex + 1;
     try {
       let res: any;
-      if(specificWarehouseId !== undefined){
+      if (specificWarehouseId !== undefined) {
         res = await getWareHouseMovementsById(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
-            specificWarehouseId
-          }&FechaInicio=${startDate}&FechaFin=${endDate}$Sort${sort}`
+          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}$Sort${sort}`
         );
-      }
-      else{
+      } else {
         res = await getWareHouseMovementsById(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
             useWarehouseTabsNavStore.getState().warehouseData.id
-          }&FechaInicio=${startDate}&FechaFin=${endDate}$Sort${sort}`
+          }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
         );
       }
       set(() => ({

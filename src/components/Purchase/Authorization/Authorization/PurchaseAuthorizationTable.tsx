@@ -35,7 +35,7 @@ import { primary, error, warning } from '../../../../theme/colors';
 import { getProviderQuotePdf } from '../../../../api/api.routes';
 import { ProviderNameChip } from '../../PurchaseRequest/ProviderNameChip';
 import { Mensaje } from './Modal/Mensaje';
-import { sortComponent } from '../../../Commons/sortComponent';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const handleOpenPdf = async (quoteId: string) => {
   try {
@@ -156,14 +156,28 @@ export const PurchaseAuthorizationTable = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell key={'folio'}>{sortComponent('Folio de Solicitud', 'folio', setSort)}</TableCell>
-                <TableCell key={'nombreUsuario'}>{sortComponent('Solicitado Por', 'nombreUsuario', setSort)}</TableCell>
-                <TableCell key={'proveedor'}>{sortComponent('Proveedor', 'proveedor', setSort)}</TableCell>
-                <TableCell key={'fechaSolicitud'}>
-                  {sortComponent('Fecha de Solicitud', 'fechaSolicitud', setSort)}
+                <TableCell>
+                  <SortComponent tableCellLabel="Folio de Solicitud" headerName="folio" setSortFunction={setSort} />
                 </TableCell>
-                <TableCell key={'total'}>{sortComponent('Total', 'total', setSort)}</TableCell>
-                <TableCell key={'estatus'}>{sortComponent('Estatus', 'estatus', setSort)}</TableCell>
+                <TableCell>
+                  <SortComponent tableCellLabel="Solicitado Por" headerName="nombreUsuario" setSortFunction={setSort} />
+                </TableCell>
+                <TableCell>
+                  <SortComponent tableCellLabel="Proveedor" headerName="proveedor" setSortFunction={setSort} />
+                </TableCell>
+                <TableCell>
+                  <SortComponent
+                    tableCellLabel="Fecha de Solicitud"
+                    headerName="fechaSolicitud"
+                    setSortFunction={setSort}
+                  />
+                </TableCell>
+                <TableCell>
+                  <SortComponent tableCellLabel="Total" headerName="total" setSortFunction={setSort} />
+                </TableCell>
+                <TableCell>
+                  <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
+                </TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>

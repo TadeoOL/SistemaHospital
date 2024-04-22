@@ -3,7 +3,6 @@ import { shallow } from 'zustand/shallow';
 import EditIcon from '@mui/icons-material/Edit';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useWarehousePagination } from '../../store/purchaseStore/warehousePagination';
-import { sortComponent } from '../Commons/sortComponent';
 import {
   Box,
   Card,
@@ -23,6 +22,7 @@ import { ModifyWarehouseModal } from './Modal/ModifyWarehouseModal';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
+import { SortComponent } from '../Commons/SortComponent';
 
 // const useDisableExistingArticle = () => {
 //   const { setHandleChangeWarehouse, enabled, handleChangeWarehouse } = useWarehousePagination(
@@ -129,8 +129,12 @@ export const WarehouseTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{sortComponent('Nombre', 'nombre', setSort)}</TableCell>
-              <TableCell>{sortComponent('Descripcion', 'descripcion', setSort)}</TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
+              </TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
