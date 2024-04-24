@@ -422,3 +422,21 @@ export interface IUserSalesRegister {
   pasoSuJornada: boolean;
   tieneCaja: boolean;
 }
+
+export interface ISell {
+  id: string;
+  id_Caja: string;
+  totalVenta: number;
+  montoPago: number;
+  estadoVenta: number;
+  tipoPago: number;
+  folio: string;
+  articulosVendidos: IArticleSell[];
+}
+
+export interface IArticleSell {
+  id: string;
+  cantidad: number;
+  precioUnitario: number;
+  nombre: string;
+}

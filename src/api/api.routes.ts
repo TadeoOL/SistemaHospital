@@ -7,10 +7,8 @@ import {
   IProvider,
   IPurchaseConfig,
   IRegisterOrderPurchase,
-  IRegisterSale,
   ISubCategory,
   IUpdateUsers,
-  IUserSalesRegister,
   IWarehouse,
 } from '../types/types';
 import { AxiosError } from 'axios';
@@ -856,33 +854,6 @@ export const articlesOutputToWarehouse = async (data: {
   }
   const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
     ...data,
-  });
-  return res.data;
-};
-
-export const getArticlesToSaleOnPOS = async (paramUrl: string) => {
-  const res = await axios.get(`/api/PuntoVenta/obtener-articulos-venta?${paramUrl}`);
-  return res.data;
-};
-
-export const getCategoriesForPOS = async (warehouseId: string) => {
-  const res = await axios.get(`/api/PuntoVenta/obtener-subCategorias-puntoVenta/almacen/${warehouseId}`);
-  return res.data as any[];
-};
-
-export const registerSale = async (data: IRegisterSale) => {
-  const res = await axios.post(`/api/PuntoVenta/registrar-venta`, data);
-  return res.data;
-};
-
-export const getUserSalesRegister = async (userId: string) => {
-  const res = await axios.get(`/api/PuntoVenta/obtener-caja/usuario/${userId}`);
-  return res.data as IUserSalesRegister;
-};
-
-export const createUserSalesRegister = async (userId: string) => {
-  const res = await axios.post(`/api/PuntoVenta/registrar-caja`, {
-    Id_Usuario: userId,
   });
   return res.data;
 };

@@ -22,7 +22,7 @@ import AnimateButton from '../../../@extended/AnimateButton';
 import { neutral, primary } from '../../../../theme/colors';
 import { usePosArticlesPaginationStore } from '../../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { toast } from 'react-toastify';
-import { registerSale } from '../../../../api/api.routes';
+import { registerSale } from '../../../../services/pharmacy/pointOfSaleService';
 
 const style = {
   position: 'absolute',
