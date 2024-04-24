@@ -4,13 +4,15 @@ import {
   Button,
   Card,
   CircularProgress,
-  Grid,
+  Radio,
   IconButton,
   Stack,
   Table,
   TableBody,
+  FormControlLabel,
   TableCell,
   TableContainer,
+  RadioGroup,
   TableHead,
   TableRow,
   TextField,
@@ -18,25 +20,31 @@ import {
   Typography,
   createFilterOptions,
 } from '@mui/material';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { IArticle, IArticlesPackage } from '../../../../../types/types';
-import { addArticlesPackage, getExistingArticles } from '../../../../../api/api.routes';
-import { addNewArticlesPackage } from '../../../../../schema/schemas';
-import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { isValidInteger } from '../../../../../utils/functions/dataUtils';
-import AnimateButton from '../../../../@extended/AnimateButton';
-import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
+import {
+  articlesOutputToWarehouse,
+  getArticlesByWarehouseIdAndSearch,
+  getPackagesByWarehouseId,
+} from '../../../../api/api.routes';
+import { addNewArticlesPackage } from '../../../../schema/schemas';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { isValidInteger } from '../../../../utils/functions/dataUtils';
+import AnimateButton from '../../../@extended/AnimateButton';
+import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { shallow } from 'zustand/shallow';
 import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
-import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
+import { IArticle, IArticlesPackage } from '../../../../types/types';
+import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
 
 const OPTIONS_LIMIT = 5;
 const filterArticleOptions = createFilterOptions<IArticle>({
+  limit: OPTIONS_LIMIT,
+});
+const filterPackageOptions = createFilterOptions<IArticlesPackage>({
   limit: OPTIONS_LIMIT,
 });
 const style = {
@@ -65,19 +73,29 @@ const style = {
   },
 };
 
-export const PackageModal = (props: { setOpen: Function }) => {
+export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
+  const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
-  const [serch, setSerch] = useState('');
-  const [valueState, setValueState] = useState('');
-  const { warehouseId } = useParams();
-
+  const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<IArticle[]>([]);
+  const textFieldRef = useRef<HTMLInputElement | null>(null);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [reasonMessage, setReasonMessage] = useState('');
+  const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
+  const [articlesFetchedAM, setArticlesFetchedAM] = useState<ArticlesFetched[] | []>([]);
   useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        const res = await getArticlesByWarehouseIdAndSearch(props.warehouseId, '');
+        setArticlesFetchedAM(
+          res.data.map((a: ArticlesFetched) => {
+            return { ...a, stockActual: a.stockActual.toString() };
+          })
+        );
+        handleFetchArticlesFromWareHouse();
+        handleFetchArticlesPackagesFromWareHouse(props.warehouseId);
       } catch (error) {
         console.log('error');
       } finally {
@@ -98,15 +116,9 @@ export const PackageModal = (props: { setOpen: Function }) => {
     }),
     shallow
   );
-  const { fetchWarehousePackages } = usePackagePaginationStore(
-    (state) => ({ fetchWarehousePackages: state.fetchWarehousePackages }),
-    shallow
-  );
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
-  const [amountText, setAmountText] = useState('');
   const [articleError, setArticleError] = useState(false);
-  const [amountError, setAmountError] = useState(false);
 
   useEffect(() => {
     setArticleSelected(null);
@@ -117,36 +129,64 @@ export const PackageModal = (props: { setOpen: Function }) => {
       setArticleError(true);
       return toast.warning('Selecciona un articulo!');
     }
-    if (amountText.trim() === '') {
-      setAmountError(true);
-      return toast.warning('Agrega una cantidad!');
-    }
     const objectArticle = {
       id: articleSelected.id,
       name: articleSelected.nombre,
-      amount: parseFloat(amountText),
+      amount: 1,
       price: 0,
+      stock: Number(articlesFetchedAM.find((art) => art.id === articleSelected.id)?.stockActual) || 0,
+      lote: articlesFetchedAM
+        .find((f) => f.id === articleSelected.id)
+        ?.lote?.sort((a, b) => {
+          return new Date(b.fechaCaducidad).getTime() - new Date(a.fechaCaducidad).getTime();
+        }),
     };
     const objectFiltered = articlesFetched.filter((a) => a.id !== objectArticle.id);
     setArticlesFetched(objectFiltered);
     setArticles([...articles, objectArticle]);
     setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
     setArticleSelected(null);
-    setAmountText('');
   };
 
-  const handleFetchArticlesFromWareHouse = async (wareH: string) => {
+  const handleAddArticlesFromPackage = (packageL: IArticlesPackage) => {
+    let objectFiltered = articlesFetched;
+    let dataArticlesState = dataWerehouseSelectedArticles;
+    packageL.contenido.forEach((articulo) => {
+      objectFiltered = objectFiltered.filter((a) => a.id !== articulo.id);
+      dataArticlesState = dataArticlesState.filter((a) => a.id !== articulo.id);
+    });
+
+    setArticlesFetched(objectFiltered);
+    setDataWerehouseArticlesSelected(dataArticlesState);
+    setArticles(
+      packageL.contenido.map((art) => ({
+        name: art.nombre,
+        amount: art.cantidad,
+        id: art.id,
+        stock: Number(articlesFetchedAM.find((f) => f.id === art.id)?.stockActual) || 0,
+        lote: articlesFetchedAM
+          .find((f) => f.id === art.id)
+          ?.lote?.sort((a, b) => {
+            return new Date(b.fechaCaducidad).getTime() - new Date(a.fechaCaducidad).getTime();
+          }),
+      }))
+    );
+    setArticleSelected(null);
+  };
+
+  const handleFetchArticlesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
-      );
+      const res = await getArticlesByWarehouseIdAndSearch(props.warehouseId, '');
       const transformedData = res.data.map((item: any) => ({
         id: item.id,
         nombre: item.nombre,
         stock: item.stockActual,
+        lote: item.lote,
       }));
-
+      if (dataWerehouseSelectedArticlesInitial?.length < 1) {
+        setDataWerehouseArticlesSelectedInitial(transformedData);
+      }
       setDataWerehouseArticlesSelected(transformedData);
     } catch (error) {
       console.log(error);
@@ -154,11 +194,20 @@ export const PackageModal = (props: { setOpen: Function }) => {
       setIsLoadingArticlesWareH(false);
     }
   };
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IArticlesPackage>({
+
+  const handleFetchArticlesPackagesFromWareHouse = async (wareH: string) => {
+    try {
+      setIsLoadingArticlesWareH(true);
+      const res = await getPackagesByWarehouseId(wareH);
+      setDataWerehousePackagesSelected(res);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingArticlesWareH(false);
+    }
+  };
+
+  const { handleSubmit } = useForm<IArticlesPackage>({
     defaultValues: {
       nombre: '',
       descripcion: '',
@@ -171,75 +220,91 @@ export const PackageModal = (props: { setOpen: Function }) => {
         <CircularProgress size={40} />
       </Box>
     );
-
-  const onSubmit: SubmitHandler<any> = async (data) => {
-    data.historialArticulos = articles.map((art) => ({ id: art.id, cantidad: art.amount }));
+  const validateAmount = (art: any) => {
+    for (let i = 0; i < art.length; i++) {
+      const articulo = art[i];
+      if (articulo.amount > articulo.stock) {
+        toast.error(`La cantidad de salida del articulo ${art.name} esta superando la existencias actuales! `);
+        return false;
+      }
+    }
+    return true;
+  };
+  const onSubmit = async () => {
+    if ((reasonMessage === 'Otro' && textFieldRef.current?.value === '') || reasonMessage === '') {
+      toast.error('Selecciona un motivo de salida');
+      return;
+    }
     try {
+      if (!validateAmount) return;
+      setLoadingSubmit(true);
+      let articlesArticlesExit: any = [];
+      (articles as any).forEach((article: any) => {
+        let amountArt = article.amount;
+        article.lote.forEach((loteA: any) => {
+          if (amountArt > loteA.stock) {
+            articlesArticlesExit.push({
+              Id_ArticuloExistente: loteA.id,
+              Cantidad: loteA.stock.toString(),
+            });
+            amountArt = amountArt - loteA.stock;
+          } else if (amountArt > 0) {
+            articlesArticlesExit.push({
+              Id_ArticuloExistente: loteA.id,
+              Cantidad: amountArt.toString(),
+            });
+            amountArt = 0;
+          }
+        });
+      });
       const object = {
-        Nombre: data.nombre,
-        Descripcion: data.descripcion,
-        Id_Almacen: warehouseId as string,
-        Contenido: JSON.stringify(data.historialArticulos),
+        Articulos: articlesArticlesExit,
+        id_almacenDestino: props.warehouseId,
+        id_almacenOrigen: props.warehouseId,
+        Estatus: 1,
+        Mensaje: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
       };
-      await addArticlesPackage(object);
-      toast.success('Paquete creado');
-      fetchWarehousePackages();
+      await articlesOutputToWarehouse(object);
+      toast.success('Salida a artículos con éxito!');
+      setLoadingSubmit(false);
       props.setOpen(false);
       setDataWerehouseArticlesSelected([]);
       setArticleSelected(null);
     } catch (error) {
       console.log(error);
+      setLoadingSubmit(false);
       toast.error('Algo salio mal');
     }
   };
-  const handleChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValueState(event.currentTarget.value);
-  };
+
+  const radioOptions = ['Quirofano', 'Hospitalizacion', 'Otro'];
 
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Agregar paquete de artículos" />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-          <Grid component="span" container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography>Nombre</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.nombre}
-                helperText={errors?.nombre?.message}
-                size="small"
-                placeholder="Escriba un Nombre"
-                {...register('nombre')}
-              />
-            </Grid>
-            <Grid item xs={12} md={12}>
-              <Typography>Descripción</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.descripcion}
-                size="small"
-                placeholder="Escriba una Descripción"
-                {...register('descripcion')}
-                multiline
-                onChange={handleChangeText}
-                helperText={
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexGrow: 1,
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
-                    <Box>{`${valueState.length}/${200}`}</Box>
-                  </Box>
-                }
-                maxRows={3}
-                inputProps={{ maxLength: 200 }}
-              />
-            </Grid>
-          </Grid>
+          <Stack sx={{ display: 'flex', flex: 1 }}>
+            <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
+            <Autocomplete
+              disablePortal
+              fullWidth
+              filterOptions={filterPackageOptions}
+              onChange={(e, val) => {
+                e.stopPropagation();
+                setPackageSelected(val);
+                handleAddArticlesFromPackage(val as IArticlesPackage);
+              }}
+              loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
+              getOptionLabel={(option) => option.nombre}
+              options={dataWerehouseSelectedPackages}
+              value={packageSelected}
+              noOptionsText="No se encontraron paquetes"
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
+              )}
+            />
+          </Stack>
           <Box
             sx={{
               display: 'flex',
@@ -251,7 +316,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
             }}
           >
             <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
               <Autocomplete
                 disablePortal
                 fullWidth
@@ -273,58 +338,99 @@ export const PackageModal = (props: { setOpen: Function }) => {
                     helperText={articleError && 'Selecciona un articulo'}
                     placeholder="Artículos"
                     sx={{ width: '50%' }}
-                    onChange={(e) => {
-                      setSerch(e.target.value);
-                    }}
                   />
                 )}
               />
             </Stack>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                mt: 2,
+              }}
+            >
+              <AnimateButton>
+                <Button
+                  size="medium"
+                  variant="contained"
+                  startIcon={<AddCircleIcon />}
+                  onClick={() => handleAddArticles()}
+                >
+                  Agregar
+                </Button>
+              </AnimateButton>
+            </Box>
+          </Box>
+          <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} initialData={articlesFetchedAM} />
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography textAlign={'center'}>Motivos de salida:</Typography>
+
+            <RadioGroup
+              sx={{
+                mx: 'auto',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'row',
+              }}
+              value={reasonMessage}
+              onChange={(e) => setReasonMessage(e.target.value)}
+            >
+              {radioOptions.map((option) => (
+                <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
+              ))}
               <TextField
-                sx={{ width: '60%' }}
-                size="small"
-                fullWidth
-                placeholder="Cantidad"
-                value={amountText}
-                error={amountError}
-                helperText={amountError && 'Agrega una cantidad'}
-                onChange={(e) => {
-                  if (!isValidInteger(e.target.value)) return;
-                  setAmountText(e.target.value);
-                  setAmountError(false);
+                inputRef={textFieldRef}
+                label={'Razón de salida'}
+                error={true}
+                sx={{
+                  visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
                 }}
               />
-            </Stack>
+            </RadioGroup>
           </Box>
           <Box
             sx={{
               display: 'flex',
               flex: 1,
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
               mt: 2,
+              bottom: 0,
             }}
           >
-            <AnimateButton>
-              <Button
-                size="medium"
-                variant="contained"
-                startIcon={<AddCircleIcon />}
-                onClick={() => handleAddArticles()}
-              >
-                Agregar
-              </Button>
-            </AnimateButton>
+            <Button
+              variant="outlined"
+              startIcon={<Cancel />}
+              color="error"
+              onClick={() => {
+                props.setOpen(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="contained"
+              endIcon={<Save />}
+              disabled={articles.length === 0 || loadingSubmit}
+              onClick={() => {
+                onSubmit();
+              }}
+            >
+              Guardar
+            </Button>
           </Box>
-          <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} />
         </Stack>
       </form>
     </Box>
   );
 };
 
-const ArticlesTable = (props: { setOpen: Function; submitData: Function }) => {
+const ArticlesTable = (props: { setOpen: Function; submitData: Function; initialData: ArticlesFetched[] }) => {
   const { articles, articlesFetched, setArticlesFetched, setArticles, step, setProvider } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
@@ -387,11 +493,11 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function }) => {
   const handleSaveQuantity = (id: string, newQuantity: string) => {
     if (!newQuantity || parseFloat(newQuantity) <= 0) return;
 
-    const articleToUpdate = articles.find((article) => article.id === id);
-
+    const articleToUpdate = props.initialData.find((article) => article.id === id);
     if (articleToUpdate) {
       const newAmount = parseFloat(newQuantity);
-      if (newAmount > (articleToUpdate.stock as number)) {
+      const articleStock = articleToUpdate.stockActual ? parseFloat(articleToUpdate.stockActual) : 0;
+      if (newAmount > articleStock) {
         toast.warning('La cantidad excede el stock disponible');
         return;
       }
@@ -453,6 +559,7 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function }) => {
                               });
                             }}
                           />
+                          <Typography>stock max: {a.stock} </Typography>
                         </>
                       ) : (
                         a.amount
@@ -495,34 +602,6 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function }) => {
           </Box>
         )}
       </Card>
-      <Box
-        sx={{
-          display: 'flex',
-          flex: 1,
-          justifyContent: 'space-between',
-          mt: 2,
-          bottom: 0,
-        }}
-      >
-        <Button
-          variant="outlined"
-          startIcon={<Cancel />}
-          color="error"
-          onClick={() => {
-            props.setOpen(false);
-          }}
-        >
-          Cancelar
-        </Button>
-        <Button
-          variant="contained"
-          endIcon={<Save />}
-          disabled={editingIds.size > 0 || articles.length === 0}
-          type="submit"
-        >
-          Guardar
-        </Button>
-      </Box>
     </>
   );
 };

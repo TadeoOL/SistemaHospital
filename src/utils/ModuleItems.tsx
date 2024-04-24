@@ -122,7 +122,7 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
       },
       {
-        title: 'Artículos',
+        title: 'Salidas y existencias',
         path: '/farmacia/catalogo',
         icon: <ArticleIcon sx={{ color: '#fff' }} />,
         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],

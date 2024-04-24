@@ -15,6 +15,7 @@ import {
   IconButton,
   Tooltip,
   Modal,
+  CircularProgress,
 } from '@mui/material';
 import { IArticlesPackage } from '../../../../types/types';
 import React, { useState, useEffect } from 'react';
@@ -23,6 +24,10 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { usePackagePaginationStore } from '../../../../store/warehouseStore/packagesPagination';
 import { shallow } from 'zustand/shallow';
 import { UpdatePackageModal } from './Modal/UpdatePackageModal';
+import { SortComponent } from '../../../Commons/SortComponent';
+import Swal from 'sweetalert2';
+import { disablePackage } from '../../../../api/api.routes';
+
 const useGetAllData = () => {
   const {
     isLoading,
@@ -37,6 +42,8 @@ const useGetAllData = () => {
     fetchWarehousePackages,
     startDate,
     endDate,
+    setSort,
+    sort,
   } = usePackagePaginationStore(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -51,13 +58,15 @@ const useGetAllData = () => {
       startDate: state.startDate,
       endDate: state.endDate,
       fetchWarehousePackages: state.fetchWarehousePackages,
+      setSort: state.setSort,
+      sort: state.sort,
     }),
     shallow
   );
 
   useEffect(() => {
     fetchWarehousePackages();
-  }, [pageIndex, pageSize, search, enabled, startDate, endDate]);
+  }, [pageIndex, pageSize, search, enabled, startDate, endDate, sort]);
 
   return {
     isLoading,
@@ -68,15 +77,16 @@ const useGetAllData = () => {
     pageSize,
     setPageIndex,
     setPageSize,
+    setSort,
+    fetchWarehousePackages,
   };
 };
 
 export const PackageCatalogueTable = () => {
-  const { data, count, pageIndex, pageSize, setPageIndex, setPageSize } = useGetAllData();
+  const { data, count, pageIndex, pageSize, isLoading, setSort, setPageIndex, setPageSize, fetchWarehousePackages } =
+    useGetAllData();
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
-  const handleDelete = () => {
-    console.log('no hace nada en hd');
-  };
+
   const [open, setOpen] = useState(false);
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage>({
     id_Almacen: '',
@@ -85,6 +95,46 @@ export const PackageCatalogueTable = () => {
     id_PaqueteArticulo: '',
     nombre: '',
   });
+
+  const handleRemovePackage = async (Id_package: string) => {
+    Swal.fire({
+      title: 'Advertencia',
+      text: '¿Desea deshabilitar el paquete de articulos?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: 'Salir',
+      confirmButtonText: 'Aceptar',
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await disablePackage({ id: Id_package });
+          fetchWarehousePackages();
+          Swal.fire({
+            title: 'Cancelada!',
+            text: 'Paquete deshabilitado',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.log(error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'Error al deshabilitar paquete!',
+            icon: 'error',
+          });
+        }
+      }
+    });
+  };
+
+  if (isLoading || data === null || (data && data.length === 0))
+    return (
+      <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
+        <CircularProgress size={30} />
+      </Box>
+    );
 
   return (
     <>
@@ -95,7 +145,9 @@ export const PackageCatalogueTable = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ pl: 4 }}>Nombre paquete</TableCell>
+                    <TableCell sx={{ pl: 4 }}>
+                      <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+                    </TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
@@ -142,7 +194,6 @@ export const PackageCatalogueTable = () => {
                             <Tooltip title="Editar">
                               <IconButton
                                 onClick={() => {
-                                  console.log('Paquete a editar', pack);
                                   setPackageSelected(pack);
                                   setOpen(true);
                                 }}
@@ -151,7 +202,12 @@ export const PackageCatalogueTable = () => {
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Eliminar">
-                              <IconButton onClick={() => handleDelete()}>
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation;
+                                  handleRemovePackage(pack.id_PaqueteArticulo);
+                                }}
+                              >
                                 <Delete />
                               </IconButton>
                             </Tooltip>

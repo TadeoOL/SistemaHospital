@@ -169,7 +169,7 @@ export const ArticleTable = () => {
     event?.stopPropagation();
     setPageIndex(value);
   }, []);
-
+  //:´v
   return (
     <>
       <Card sx={{ m: 2 }}>

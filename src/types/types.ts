@@ -115,6 +115,8 @@ export interface IArticle {
   precioVenta: string;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
+  stockActual?: string;
+  lote?: IExistingArticleList[];
 }
 
 export interface IExistingArticle {
