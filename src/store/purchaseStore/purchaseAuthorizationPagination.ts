@@ -16,6 +16,7 @@ interface State {
   endDate: string;
   startDate: string;
   status: string;
+  sort: string;
 }
 
 interface Action {
@@ -31,6 +32,7 @@ interface Action {
   setEndDate: (endDate: string) => void;
   setStatus: (status: string) => void;
   clearFilters: () => void;
+  setSort: (sort: string) => void;
 }
 
 export const usePurchaseAuthorizationPagination = createWithEqualityFn<State & Action>((set, get) => ({
@@ -47,11 +49,13 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<State & A
   startDate: getFirstDayOfTheMonth(),
   endDate: '',
   status: '-1',
+  sort: '',
   setStatus: (status: string) => set({ status }),
   setStartDate: (startDate: string) => set({ startDate }),
   setEndDate: (endDate: string) => set({ endDate }),
   setHandleChangePurchaseAuthorization: (handleChangePurchaseAuthorization: boolean) =>
     set({ handleChangePurchaseAuthorization }),
+  setSort: (sort: string) => set({ sort }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
@@ -59,7 +63,7 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<State & A
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchPurchaseAuthorization: async () => {
-    const { pageIndex, enabled, pageSize, search, status, startDate, endDate } = get();
+    const { pageIndex, enabled, pageSize, search, status, startDate, endDate, sort } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
@@ -68,7 +72,7 @@ export const usePurchaseAuthorizationPagination = createWithEqualityFn<State & A
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&estatus=${
           parseInt(status) > -1 ? status : ''
-        }&fechaInicio=${startDate}&fechaFin=${endDate}`
+        }&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}`
       );
       set(() => ({
         data: res.data,

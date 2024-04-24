@@ -25,6 +25,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { disableProvider } from '../../../api/api.routes';
+import { SortComponent } from '../../Commons/SortComponent';
 
 const useDisableProvider = () => {
   const { setHandleChangeProvider, enabled, handleChangeProvider } = useProviderPagination(
@@ -95,6 +96,8 @@ export const ProvidersTable = () => {
     setPageIndex,
     isLoading,
     handleChangeProvider,
+    setSort,
+    sort,
   } = useProviderPagination(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -108,6 +111,8 @@ export const ProvidersTable = () => {
       setPageIndex: state.setPageIndex,
       isLoading: state.isLoading,
       handleChangeProvider: state.handleChangeProvider,
+      setSort: state.setSort,
+      sort: state.sort,
     }),
     shallow
   );
@@ -118,21 +123,41 @@ export const ProvidersTable = () => {
   }, []);
 
   useEffect(() => {
-    fetchProviders(pageIndex, pageSize, search, enabled);
-  }, [pageIndex, pageSize, search, enabled, handleChangeProvider]);
+    fetchProviders();
+  }, [pageIndex, pageSize, search, enabled, handleChangeProvider, sort]);
 
   return (
     <>
       <Card sx={{ m: 2 }}>
-        <Table stickyHeader>
+        <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Nombre compañía</TableCell>
-              <TableCell>Nombre contacto</TableCell>
-              <TableCell>Teléfono</TableCell>
-              <TableCell>Correo electrónico</TableCell>
-              <TableCell></TableCell>
-              {/* <TableCell /> */}
+              <TableCell>
+                <SortComponent
+                  tableCellLabel="Nombre de la Compañía"
+                  headerName="nombreCompania"
+                  setSortFunction={setSort}
+                />
+              </TableCell>
+              <TableCell>
+                <SortComponent
+                  tableCellLabel="Nombre del Contacto"
+                  headerName="nombreContacto"
+                  setSortFunction={setSort}
+                />
+              </TableCell>
+              <TableCell>
+                <SortComponent tableCellLabel="Teléfono" headerName="telefono" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
+                <SortComponent
+                  tableCellLabel="Correo Electrónico"
+                  headerName="correoElectronico"
+                  setSortFunction={setSort}
+                />
+              </TableCell>
+
+              <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

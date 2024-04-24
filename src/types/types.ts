@@ -15,7 +15,7 @@ export interface IModuleItemsList {
   moduleItems: IModuleItems[];
   icon?: React.ReactElement;
   id?: string;
-  path?:string
+  path?: string;
 }
 
 export interface IUser {
@@ -93,6 +93,7 @@ export interface ICategory {
   nombre: string;
   descripcion: string;
   id_Almacen: string;
+  almacen: string;
 }
 export interface ISubCategory {
   id: string;
@@ -373,4 +374,69 @@ export interface ISideBarWarehouse {
   id: string;
   nombre: string;
   subAlmacenes: { id: string; nombre: string }[];
+}
+
+export interface IArticlesPackage {
+  id_PaqueteArticulo: string;
+  nombre: string;
+  descripcion?: string;
+  contenido: Articulos_contenidos[];
+  id_Almacen: string;
+  almacen?: string;
+}
+export interface Articulos_contenidos {
+  id: string;
+  nombre: string;
+  cantidad: number;
+}
+
+export interface IPosArticle {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  cantidad: number;
+  codigoBarras: string;
+  precio: number;
+  iva: number;
+  fechaCaducidad: string;
+}
+
+export interface IRegisterSale {
+  id_Caja: string;
+  tipoPago: number;
+  montoPago: number;
+  totalVenta: number;
+  articulos: {
+    id: string;
+    cantidad: number;
+    precioUnitario: number;
+  }[];
+}
+
+export interface IUserSalesRegister {
+  id: string;
+  dineroAlCorte: number | null;
+  diaHoraCorte: string | null;
+  fechaCreacion: string;
+  cerrada: boolean;
+  pasoSuJornada: boolean;
+  tieneCaja: boolean;
+}
+
+export interface ISell {
+  id: string;
+  id_Caja: string;
+  totalVenta: number;
+  montoPago: number;
+  estadoVenta: number;
+  tipoPago: number;
+  folio: string;
+  articulosVendidos: IArticleSell[];
+}
+
+export interface IArticleSell {
+  id: string;
+  cantidad: number;
+  precioUnitario: number;
+  nombre: string;
 }

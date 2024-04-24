@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CircularProgress,
+  // CircularProgress,
   Collapse,
   IconButton,
   Modal,
@@ -36,6 +37,7 @@ import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
 import { returnExpireDate } from '../../../../utils/expireDate';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -51,7 +53,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const useGetExistingArticles = (warehouseId: string) => {
+export const useGetExistingArticles = () => {
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const {
     data,
     setSearch,
@@ -67,6 +70,8 @@ const useGetExistingArticles = (warehouseId: string) => {
     endDate,
     clearAllData,
     isLoading,
+    setSort,
+    sort,
   } = useExistingArticlePagination(
     (state) => ({
       data: state.data,
@@ -83,18 +88,20 @@ const useGetExistingArticles = (warehouseId: string) => {
       endDate: state.endDate,
       clearAllData: state.clearAllData,
       isLoading: state.isLoading,
+      sort: state.sort,
+      setSort: state.setSort,
     }),
     shallow
   );
 
   useEffect(() => {
     clearAllData();
-  }, [warehouseId]);
+  }, [warehouseData.id]);
 
   useEffect(() => {
-    setWarehouseId(warehouseId);
+    setWarehouseId(warehouseData.id);
     fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters]);
+  }, [search, startDate, endDate, clearFilters, sort]);
 
   return {
     data,
@@ -107,10 +114,11 @@ const useGetExistingArticles = (warehouseId: string) => {
     startDate,
     endDate,
     isLoading,
+    setSort,
   };
 };
 export const WarehouseArticles = () => {
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+  // const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const {
     data,
     setSearch,
@@ -122,10 +130,11 @@ export const WarehouseArticles = () => {
     startDate,
     endDate,
     isLoading,
-  } = useGetExistingArticles(warehouseData.id);
+    setSort,
+  } = useGetExistingArticles();
   const [openModal, setOpenModal] = useState(false);
 
-  if (isLoading)
+  if (isLoading && data.length === 0)
     return (
       <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
         <CircularProgress size={30} />
@@ -181,10 +190,26 @@ export const WarehouseArticles = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Nombre articulo</TableCell>
-                    <TableCell>Stock Mínimo</TableCell>
-                    <TableCell>Stock</TableCell>
-                    <TableCell>Precio de compra</TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Nombre del Articulo"
+                        headerName="articulo"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock Minimo" headerName="stockMinimo" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock Actual" headerName="stockActual" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Precio de compra"
+                        headerName="precioCompra"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>

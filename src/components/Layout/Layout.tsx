@@ -10,6 +10,8 @@ import { Box, Typography, Container } from '@mui/material';
 import { useAuthStore } from '../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import LoadingView from '../../views/LoadingView/LoadingView';
+import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
+import { IWarehouseData } from '../../types/types';
 
 const SIDE_NAV_WIDTH = 110;
 
@@ -55,18 +57,22 @@ export const Layout: React.FC = () => {
     '/compras/solicitud-compras/ordenes-compra': 'Ordenes de Compra',
     '/compras/solicitud-compras/productos-solicitados-orden-compra': 'Solcitudes en Proceso',
     '/compras/solicitud-compras/productos-stock-bajo': 'Alerta de Productos',
-    '/compras/categorias/categoria': 'Categorías',
-    '/compras/categorias/subcategoria': 'Sub categorías',
+    '/compras/categorias/categoria': 'Categorías y Sub Categorias',
     '/compras/articulos/articulo': 'Catálogo de Artículos',
     '/compras/articulos/articulo-existente': 'Productos en Existencia',
-    '/almacenes': 'Almacén',
-    '/compras/autorizacion-compras': 'Autorización de ordenes de compra',
+    '/compras/autorizacion-compras': 'Autorización de Ordenes de Compra',
     '/compras/proveedores': 'Proveedores',
     '/compras/configuracion-compras': 'Configuración de compras',
     '/compras/autorizacion-compras/autorizaciones': 'Autorizaciones',
     '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
     '/compras/solicitud-compras': 'Compras',
-    '/almacenes/fc6d0fdd-8cfa-49a7-863e-206a7542a5e5': 'xd',
+    '/almacenes': 'Almacén',
+  };
+
+  const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
+    const isInsideSomeWarehouse = location.split('/').filter((ruta) => ruta !== '').length > 1;
+    if (warehouseData.esSubAlmacen) return isInsideSomeWarehouse ? 'Sub Almacén ' + warehouseData.nombre : '';
+    else return isInsideSomeWarehouse ? 'Almacén ' + warehouseData.nombre : '';
   };
 
   useEffect(() => {
@@ -78,11 +84,18 @@ export const Layout: React.FC = () => {
   };
 
   const [currentPageMessage, setCurrentPageMessage] = useState<string>('');
+  const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
 
   useEffect(() => {
-    const currentMessage = messagesByLink[location.pathname] || '';
-    setCurrentPageMessage(currentMessage);
-  }, [location.pathname]);
+    if (location.pathname.includes('/almacenes')) {
+      const pathSegments = location.pathname.split('/');
+      const currentMessage =
+        pathSegments.length > 2 ? warehouseMessages(warehouseData, location.pathname) : 'Almacenes Principales';
+      setCurrentPageMessage(currentMessage);
+    } else {
+      setCurrentPageMessage(messagesByLink[location.pathname]);
+    }
+  }, [location.pathname, warehouseData]);
 
   if (!profile) return;
   return (

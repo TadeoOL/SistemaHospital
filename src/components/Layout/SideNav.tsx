@@ -92,6 +92,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
   const isDashboard = title === 'Inicio';
 
   const handleClick = (title: string, roles: string[]) => {
+    console.log('clic');
     if (isActive && !children) return;
     if (!children) {
       if (!roles.includes('ADMIN') && title === 'Almacén') {
@@ -109,12 +110,16 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
       navigate(path);
     } else {
       if (isOpen && warehousesNames.includes(title) && roles.includes('ADMIN')) {
+        console.log({ isOpen });
+        console.log({ title });
+        console.log({ roles });
         const findId = warehouses.find((w) => w.nombre === title);
         navigate(`almacenes/${findId?.id}`);
         clearWarehouseData();
         setIsOpen(false);
         return;
       }
+      console.log('Leggo acaaaa');
       if (!isOpen) {
         setIsOpen(true);
         setChildOpen(true);
@@ -576,6 +581,7 @@ export const SideNav = () => {
                     <Stack sx={{ display: 'flex', flex: 1 }}>
                       <ListItemButton
                         selected={isActive && isOpen}
+                        disabled={!isOpen}
                         sx={{
                           display: 'flex',
                           flex: 1,
@@ -584,6 +590,9 @@ export const SideNav = () => {
                           justifyContent: 'space-between',
                           '&.Mui-selected': {
                             backgroundColor: '#046DBD',
+                            opacity: 1,
+                          },
+                          '&.Mui-disabled': {
                             opacity: 1,
                           },
                         }}

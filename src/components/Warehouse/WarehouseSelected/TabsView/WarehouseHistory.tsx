@@ -25,8 +25,12 @@ import { useState } from 'react';
 import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
+import { SortComponent } from '../../../Commons/SortComponent';
+// import { sortComponent } from '../../../Commons/sortComponent';
 
-const useGetMovements = () => {
+export const WarehouseHistory = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const {
     data,
     fetchWareHouseMovements,
@@ -43,6 +47,8 @@ const useGetMovements = () => {
     setEndDate,
     setSearch,
     search,
+    setSort,
+    sort,
   } = useWarehouseMovementPaginationStore((state) => ({
     data: state.data,
     fetchWareHouseMovements: state.fetchWarehouseMovements,
@@ -59,47 +65,13 @@ const useGetMovements = () => {
     search: state.search,
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
+    setSort: state.setSort,
+    sort: state.sort,
   }));
 
   useEffect(() => {
     fetchWareHouseMovements();
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
-  return {
-    data,
-    isLoading,
-    pageCount,
-    pageIndex,
-    pageSize,
-    count,
-    setSearch,
-    setStartDate,
-    startDate,
-    setEndDate,
-    setPageIndex,
-    setPageSize,
-  };
-};
-
-export const WarehouseHistory = () => {
-  const [openModal, setOpenModal] = useState(false);
-  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
-  const {
-    data,
-    count,
-    pageIndex,
-    pageSize,
-    isLoading,
-    setSearch,
-    setStartDate,
-    setEndDate,
-    startDate,
-    setPageIndex,
-    setPageSize,
-  } = useGetMovements();
-  // const theme = useTheme();
-  // const smDown = useMediaQuery(theme.breakpoints.('lg'));
-
-  console.log(data);
+  }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
 
   return (
     <>
@@ -153,13 +125,47 @@ export const WarehouseHistory = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">Folio</TableCell>
-                    <TableCell>Almacén Proveniente</TableCell>
-                    <TableCell>Solicitado por</TableCell>
-                    <TableCell>Autorizado por</TableCell>
-                    <TableCell>Almacén dirigido</TableCell>
-                    <TableCell>Fecha Solicitud</TableCell>
-                    <TableCell>Estatus</TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Almacén Proveniente"
+                        headerName="almacenProveniente"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Solicitado Por"
+                        headerName="solicitadoPor"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Autorizado Por"
+                        headerName="autorizadoPor"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Almacén Dirigido"
+                        headerName="almacenDirigido"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Fecha de Solicitud"
+                        headerName="fechaSolicitud"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Estado" headerName="estado" setSortFunction={setSort} />
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

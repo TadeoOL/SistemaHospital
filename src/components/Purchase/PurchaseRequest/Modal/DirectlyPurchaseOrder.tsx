@@ -144,25 +144,20 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
 
 const BuildOrder = (props: { setOpen: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { warehouseSelected, setWarehouseSelected, setArticles, articles, setArticlesFetched, articlesFetched } =
-    useDirectlyPurchaseRequestOrderStore(
-      (state) => ({
-        warehouseSelected: state.warehouseSelected,
-        setWarehouseSelected: state.setWarehouseSelected,
-        setArticles: state.setArticles,
-        articles: state.articles,
-        setArticlesFetched: state.setArticlesFetched,
-        articlesFetched: state.articlesFetched,
-      }),
-      shallow
-    );
+  const warehouseSelected = useDirectlyPurchaseRequestOrderStore((state) => state.warehouseSelected);
+  const setWarehouseSelected = useDirectlyPurchaseRequestOrderStore((state) => state.setWarehouseSelected);
+  const setArticles = useDirectlyPurchaseRequestOrderStore((state) => state.setArticles);
+  const articles = useDirectlyPurchaseRequestOrderStore((state) => state.articles);
+  const setArticlesFetched = useDirectlyPurchaseRequestOrderStore((state) => state.setArticlesFetched);
+  const articlesFetched = useDirectlyPurchaseRequestOrderStore((state) => state.articlesFetched);
+  const setSearch = useDirectlyPurchaseRequestOrderStore((state) => state.setSearch);
   const [articleSelected, setArticleSelected] = useState<Article | null>(null);
   const [amountText, setAmountText] = useState('');
   const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
-  const [search, setSearch] = useState('');
-  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(search);
+  // const [search, setSearch] = useState('');
+  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch();
 
   useEffect(() => {
     setArticlesFetched(articlesRes);
@@ -342,7 +337,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     const newPrices: any = {};
     const newQuantity: any = {};
     articles.forEach((article) => {
-      newPrices[article.id] = article.price.toString();
+      newPrices[article.id] = (article.price as number).toString();
       newQuantity[article.id] = article.amount.toString();
     });
     setQuantity(newQuantity);
@@ -943,7 +938,7 @@ const StepThree = (props: { setOpen: Function }) => {
           return {
             Id_Articulo: a.id,
             Cantidad: a.amount,
-            PrecioProveedor: a.price,
+            PrecioProveedor: a.price as number,
           };
         }),
         notas: note,
@@ -968,7 +963,7 @@ const StepThree = (props: { setOpen: Function }) => {
           return {
             Id_Articulo: a.id,
             CantidadCompra: a.amount,
-            PrecioProveedor: a.price,
+            PrecioProveedor: a.price as number,
           };
         }),
         id_almacen: warehouseSelected,
@@ -993,7 +988,7 @@ const StepThree = (props: { setOpen: Function }) => {
           return {
             Id_Articulo: a.id,
             CantidadCompra: a.amount,
-            PrecioProveedor: a.price,
+            PrecioProveedor: a.price as number,
           };
         }),
         id_almacen: warehouseSelected,

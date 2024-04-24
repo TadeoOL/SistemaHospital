@@ -164,7 +164,7 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
     const newPrices: typeof prices = {};
     for (const iterator of articlesData) {
       newPrices[iterator.id] = {
-        price: iterator.price.toString() || '',
+        price: (iterator.price as number).toString() || '',
         amount: iterator.amount || 0,
       };
     }

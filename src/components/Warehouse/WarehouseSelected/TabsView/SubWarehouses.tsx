@@ -26,40 +26,41 @@ import { disableWarehouseById } from '../../../../api/api.routes';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
+import { SortComponent } from '../../../Commons/SortComponent';
+// import { sortComponent } from '../../../Commons/sortComponent';
 
-const useGetWarehouses = () => {
-  const { data, fetchSubWarehouse, isLoading, pageCount, pageIndex, pageSize, count, setPageIndex, setPageSize } =
-    useSubWarehousePaginationStore((state) => ({
-      data: state.data,
-      fetchSubWarehouse: state.fetchSubWarehouse,
-      isLoading: state.isLoading,
-      pageCount: state.pageCount,
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      count: state.count,
-      setPageIndex: state.setPageIndex,
-      setPageSize: state.setPageSize,
-    }));
-
-  useEffect(() => {
-    fetchSubWarehouse();
-  }, [pageCount, pageSize, pageIndex]);
-
-  return {
+export const SubWarehouses = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const {
     data,
+    fetchSubWarehouse,
     isLoading,
     pageCount,
     pageIndex,
+    setSort,
+    sort,
     pageSize,
     count,
     setPageIndex,
     setPageSize,
-  };
-};
+  } = useSubWarehousePaginationStore((state) => ({
+    data: state.data,
+    fetchSubWarehouse: state.fetchSubWarehouse,
+    isLoading: state.isLoading,
+    pageCount: state.pageCount,
+    pageIndex: state.pageIndex,
+    pageSize: state.pageSize,
+    count: state.count,
+    setPageIndex: state.setPageIndex,
+    setPageSize: state.setPageSize,
+    sort: state.sort,
+    setSort: state.setSort,
+  }));
 
-export const SubWarehouses = () => {
-  const { data, count, pageIndex, pageSize, isLoading, setPageIndex, setPageSize } = useGetWarehouses();
-  const [openModal, setOpenModal] = useState(false);
+  useEffect(() => {
+    fetchSubWarehouse();
+  }, [pageCount, pageSize, pageIndex, sort]);
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -81,9 +82,23 @@ export const SubWarehouses = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Nombre</TableCell>
-                    <TableCell>Descripción</TableCell>
-                    <TableCell>Encargado de almacén</TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Nombre del Sub Almacén"
+                        headerName="nombre"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Encargado del Sub Almacén"
+                        headerName="encargado"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>

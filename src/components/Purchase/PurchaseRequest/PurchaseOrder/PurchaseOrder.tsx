@@ -35,11 +35,12 @@ import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Assignment, CheckCircle, Info } from '@mui/icons-material';
-import { useAuthStore } from '../../../../store/auth';
-import { useShallow } from 'zustand/react/shallow';
+// import { useAuthStore } from '../../../../store/auth';
+// import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -74,7 +75,22 @@ const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   });
 };
 
-const useGetAllData = () => {
+export const PurchaseOrder = () => {
+  // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
+  const [openQuoteModal, setOpenQuoteModal] = useState(false);
+  const [openOrderModal, setOpenOrderModal] = useState(false);
+  const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
+  const [orderSelectedId, setOrderSelectedId] = useState('');
+  const [providers, setProviders] = useState<any[]>([]);
+  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const [orderSelected, setOrderSelected] = useState<{
+    folio: string;
+    OrderId: string;
+  }>({ folio: '', OrderId: '' });
+
+  const { openPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore((state) => ({
+    openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+  }));
   const {
     isLoading,
     data,
@@ -93,6 +109,8 @@ const useGetAllData = () => {
     setStartDate,
     endDate,
     setEndDate,
+    setSort,
+    sort,
   } = usePurchaseOrderPagination((state) => ({
     isLoading: state.isLoading,
     data: state.data,
@@ -111,60 +129,8 @@ const useGetAllData = () => {
     setStartDate: state.setStartDate,
     endDate: state.endDate,
     setEndDate: state.setEndDate,
-  }));
-  useEffect(() => {
-    fetch();
-  }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate]);
-  return {
-    isLoading,
-    data,
-    count,
-    setPageIndex,
-    setPageSize,
-    search,
-    pageIndex,
-    pageSize,
-    setSearch,
-    status,
-    setStatus,
-    setStartDate,
-    startDate,
-    setEndDate,
-    endDate,
-  };
-};
-
-export const PurchaseOrder = () => {
-  const {
-    count,
-    data,
-    isLoading,
-    pageIndex,
-    pageSize,
-    setPageIndex,
-    setPageSize,
-    setSearch,
-    status,
-    setStatus,
-    setStartDate,
-    startDate,
-    setEndDate,
-    endDate,
-  } = useGetAllData();
-  const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
-  const [openQuoteModal, setOpenQuoteModal] = useState(false);
-  const [openOrderModal, setOpenOrderModal] = useState(false);
-  const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
-  const [orderSelectedId, setOrderSelectedId] = useState('');
-  const [providers, setProviders] = useState<any[]>([]);
-  const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
-  const [orderSelected, setOrderSelected] = useState<{
-    folio: string;
-    OrderId: string;
-  }>({ folio: '', OrderId: '' });
-
-  const { openPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+    sort: state.sort,
+    setSort: state.setSort,
   }));
 
   useEffect(() => {
@@ -185,6 +151,10 @@ export const PurchaseOrder = () => {
     }
     return statusPurchaseOrderValues;
   }, []);
+
+  useEffect(() => {
+    fetch();
+  }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate, sort]);
 
   return (
     <>
@@ -249,12 +219,29 @@ export const PurchaseOrder = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Orden de compra</TableCell>
-                  <TableCell>Creado por</TableCell>
-                  <TableCell>Proveedor</TableCell>
-                  <TableCell>Fecha de solicitud</TableCell>
-                  <TableCell>Total</TableCell>
-                  <TableCell>Estatus</TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Orden de Compra" headerName="folio" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Creado por" headerName="creadoPor" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Proveedor" headerName="proveedor" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent
+                      tableCellLabel="Fecha de Solicitud"
+                      headerName="fechaSolicitud"
+                      setSortFunction={setSort}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Total" headerName="total" setSortFunction={setSort} />
+                  </TableCell>
+                  <TableCell>
+                    <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
+                  </TableCell>
+
                   <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -313,7 +300,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!isAdminPurchase() && order.estatus === 1 && (
+                                  {order.estatus === 1 && (
                                     <>
                                       <Tooltip title="Ver orden de compra">
                                         <IconButton
@@ -347,7 +334,7 @@ export const PurchaseOrder = () => {
                                   )}
                                 </>
                               )}
-                              {order.estatus === 1 && !isAdminPurchase() && (
+                              {order.estatus === 1 && (
                                 <Tooltip title="Cancelar">
                                   <IconButton
                                     size="small"
@@ -359,7 +346,7 @@ export const PurchaseOrder = () => {
                                   </IconButton>
                                 </Tooltip>
                               )}
-                              {order.estatus === 2 && !isAdminPurchase() && (
+                              {order.estatus === 2 && (
                                 <>
                                   <Tooltip title="Ver Factura">
                                     <IconButton

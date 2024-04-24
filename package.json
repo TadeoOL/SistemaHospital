@@ -21,6 +21,7 @@
     "@types/react-dropzone": "^5.1.0",
     "axios": "^1.6.7",
     "framer-motion": "^11.0.14",
+    "immer": "^10.0.4",
     "jwt-decode": "^4.0.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.2",

@@ -8,7 +8,7 @@ import { PurchaseRequestCard } from '../../components/Purchase/PurchaseRequest/P
 import { usePurchaseRequestNav } from '../../store/purchaseStore/purchaseRequestNav';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import { useAuthStore } from '../../store/auth';
-import { useShallow } from 'zustand/react/shallow';
+// import { useShallow } from 'zustand/react/shallow';
 import { shallow } from 'zustand/shallow';
 import { DirectlyPurchaseOrder } from '../../components/Purchase/PurchaseRequest/Modal/DirectlyPurchaseOrder';
 
@@ -36,38 +36,39 @@ const PurchaseRequestView = () => {
   );
   const userProfile = useAuthStore((state) => state.profile);
   const tabValue = usePurchaseRequestNav((state) => state.tabValue);
-  const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
+  // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
 
   useEffect(() => {
     if (openPurchaseRequestOrder) return;
     clearStates();
   }, [openPurchaseRequestOrder]);
-
+  console.log(userProfile);
   return (
     <>
       <Box>
-        {!isAdminPurchase() && (
-          <Box
-            sx={{
-              display: 'flex',
-              flex: 1,
-              justifyContent: 'flex-end',
-              mb: 1,
-            }}
-          >
-            {userProfile?.roles.includes('ABASTECIMIENTO') ||
-              (userProfile?.roles.includes('ADMIN') && (
-                <Button
-                  size="large"
-                  variant="contained"
-                  onClick={() => setOpenPurchaseRequestOrder(true)}
-                  startIcon={<RequestPageIcon />}
-                >
-                  Solicitud de Compra
-                </Button>
-              ))}
-          </Box>
-        )}
+        <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            justifyContent: 'flex-end',
+            mb: 1,
+          }}
+        >
+          {userProfile?.roles.includes('DIRECTORCOMPRAS') ||
+          userProfile?.roles.includes('ABASTECIMIENTO') ||
+          userProfile?.roles.includes('ADMIN') ? (
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => setOpenPurchaseRequestOrder(true)}
+              startIcon={<RequestPageIcon />}
+            >
+              Solicitud de Compra
+            </Button>
+          ) : (
+            <></>
+          )}
+        </Box>
         <PurchaseTabNav />
         <Box
           sx={{

@@ -21,6 +21,7 @@ interface State {
   setStartDate: Function;
   setEndDate: Function;
   setSearch: Function;
+  sort: string;
 }
 
 interface Action {
@@ -31,9 +32,10 @@ interface Action {
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => void;
-  fetchWarehouseMovements: () => Promise<void>;
+  fetchWarehouseMovements: (specificWarehouseId?: string | undefined) => Promise<void>;
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
+  setSort: (sort: string) => void;
 }
 
 export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & Action>((set, get) => ({
@@ -50,6 +52,8 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   enabled: true,
   handleChangeSubWarehouse: false,
   searchUser: '',
+  sort: '',
+  setSort: (sort: string) => set({ sort }),
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
   setSearchUser: (searchUser: string) => set({ searchUser }),
@@ -61,20 +65,28 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
-  fetchWarehouseMovements: async () => {
-    const { pageIndex, enabled, pageSize, search, startDate, endDate } = get();
+  fetchWarehouseMovements: async (specificWarehouseId?: string) => {
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
     try {
-      const res = await getWareHouseMovementsById(
-        `${page === 0 ? '' : 'pageIndex=' + page}&${
-          pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
-          useWarehouseTabsNavStore.getState().warehouseData.id
-        }&FechaInicio=${startDate}&FechaFin=${endDate}`
-      );
-      console.log("qlnv faaa",res.data);
+      let res: any;
+      if (specificWarehouseId !== undefined) {
+        res = await getWareHouseMovementsById(
+          `${page === 0 ? '' : 'pageIndex=' + page}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}$Sort${sort}`
+        );
+      } else {
+        res = await getWareHouseMovementsById(
+          `${page === 0 ? '' : 'pageIndex=' + page}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+            useWarehouseTabsNavStore.getState().warehouseData.id
+          }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
+        );
+      }
       set(() => ({
         data: res.data,
         count: res.count,

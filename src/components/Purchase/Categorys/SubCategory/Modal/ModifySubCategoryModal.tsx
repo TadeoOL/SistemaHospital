@@ -94,7 +94,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
       const idForm = getValues('id');
-      if (data.iva === '0') await modifySubCategory({ ...data, id: idForm });
+      await modifySubCategory({ ...data, id: idForm });
       toast.success('La sub categoría ha sido modificada con éxito!');
       props.open(false);
       setHandleChangeSubCategory(!handleChangeSubCategory);
@@ -163,23 +163,6 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               onChange={handleChangeText}
               inputProps={{ maxLength: 200 }}
             />
-            <TextField
-              fullWidth
-              size="small"
-              select
-              label="Categoría"
-              error={!!errors.id_categoria}
-              helperText={errors?.id_categoria?.message}
-              {...register('id_categoria')}
-              value={category}
-              onChange={handleChange}
-            >
-              {categories.map((category) => (
-                <MenuItem value={category.id} key={category.id}>
-                  {category.nombre}
-                </MenuItem>
-              ))}
-            </TextField>
             <TextField
               fullWidth
               size="small"

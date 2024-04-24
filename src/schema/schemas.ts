@@ -83,18 +83,18 @@ export const addSubCategorySchema = z.object({
   id_categoria: z.string().min(1, 'Selecciona una categoría'),
   iva: z
     .string()
-    .min(1, 'Debe tener al menos una cifra')
+    .min(1, 'El campo IVA se encuentra vacío')
     .refine(
       (value) => {
-        if(value === '0'){
-          return '0'
+        if (value === '0') {
+          return '0';
         }
+        console.log(value);
         const parsedValue = parseInt(value);
         const flag = positiveNumber.test(value);
-        if (flag ) {
+        if (flag) {
           return parsedValue;
         }
-       
       },
       {
         message: 'Número no valido.',
@@ -263,6 +263,11 @@ export const addNewFactorSchema = z
   });
 
 export const addNewSubWarehouseSchema = z.object({
+  nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().nullable(),
+});
+
+export const addNewArticlesPackage = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().nullable(),
 });
