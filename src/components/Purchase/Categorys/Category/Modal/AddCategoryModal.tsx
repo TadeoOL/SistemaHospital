@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -106,26 +106,6 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
                 placeholder="Nombre"
                 {...register('nombre')}
               />
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar almacén</Typography>
-
-              <TextField
-                select
-                label="Almacén"
-                size="small"
-                error={warehouseError}
-                helperText={warehouseError && 'Selecciona un almacén'}
-                value={warehouseSelected}
-                onChange={(e) => {
-                  setWarehouseError(false);
-                  setWarehouseSelected(e.target.value);
-                }}
-              >
-                {almacenes.map((warehouse) => (
-                  <MenuItem key={warehouse.id} value={warehouse.id}>
-                    {warehouse.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
               <TextField
                 fullWidth
                 error={!!errors.descripcion}
@@ -149,6 +129,24 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
                 onChange={handleChange}
                 inputProps={{ maxLength: 200 }}
               />
+              <TextField
+                select
+                label="Almacén"
+                size="small"
+                error={warehouseError}
+                helperText={warehouseError && 'Selecciona un almacén'}
+                value={warehouseSelected}
+                onChange={(e) => {
+                  setWarehouseError(false);
+                  setWarehouseSelected(e.target.value);
+                }}
+              >
+                {almacenes.map((warehouse) => (
+                  <MenuItem key={warehouse.id} value={warehouse.id}>
+                    {warehouse.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Stack>
             <Stack
               sx={{
