@@ -8,81 +8,15 @@ import { Search } from '@mui/icons-material';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
 import { toast } from 'react-toastify';
 import { ResumeSale } from './ResumeSale';
-import Swal from 'sweetalert2';
-import { createUserSalesRegister, getUserSalesRegister } from '../../../api/api.routes';
-import { useAuthStore } from '../../../store/auth';
-import { error, primary } from '../../../theme/colors';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
-import { IUserSalesRegister } from '../../../types/types';
-
-const alert = (userId: string, navigate: NavigateFunction, userData: IUserSalesRegister) => {
-  Swal.fire({
-    title: 'Advertencia',
-    text: `Para poder acceder al punto de venta es necesario crear una caja. Al hacer click en el botón aceptar automáticamente se creara una caja, en caso de rechazar sera redireccionado al inicio`,
-    icon: 'warning',
-    confirmButtonText: 'Aceptar',
-    confirmButtonColor: primary.main,
-    cancelButtonText: 'Rechazar',
-    cancelButtonColor: error.main,
-    showCancelButton: true,
-    reverseButtons: true,
-  }).then(async (res) => {
-    if (res.isDenied || res.dismiss) return navigate('/');
-    if (res.isConfirmed) {
-      try {
-        const res = await createUserSalesRegister(userId);
-        usePosOrderArticlesStore.setState({ userSalesRegisterData: { ...userData, id: res.id } });
-        Swal.fire({
-          icon: 'success',
-          title: 'Éxito!',
-          text: 'Se ha creado la caja correctamente!',
-        });
-      } catch (error) {
-        console.log(error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Se ha generado un error al crear la caja!',
-        }).then((res) => {
-          if (res.dismiss || res.isConfirmed) return navigate('/');
-        });
-      }
-    }
-  });
-};
-
-const useGetUserSalesRegister = (userId: string, navigate: NavigateFunction) => {
-  const setUserSalesRegisterData = usePosOrderArticlesStore((state) => state.setUserSalesRegisterData);
-  const userSalesRegisterData = usePosOrderArticlesStore((state) => state.userSalesRegisterData);
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await getUserSalesRegister(userId);
-      setUserSalesRegisterData(res);
-      if (!res.tieneCaja) return alert(userId, navigate, userSalesRegisterData);
-      try {
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, []);
-};
+import { neutral } from '../../../theme/colors';
 
 export const PointOfSale = () => {
-  const navigate = useNavigate();
-  const profile = useAuthStore((state) => state.profile);
-  useGetUserSalesRegister(profile?.id as string, navigate);
   const setSearch = usePosArticlesPaginationStore((state) => state.setSearch);
-  const clearData = usePosOrderArticlesStore((state) => state.clearData);
-  useEffect(() => {
-    return () => {
-      clearData();
-    };
-  }, []);
+
   return (
     <Box sx={{ overflowX: 'auto' }}>
       <Card sx={{ display: 'flex', flex: 1, minWidth: 700 }}>
-        <Stack sx={{ display: 'flex', flex: 5 }}>
+        <Stack sx={{ display: 'flex', flex: 5, bgcolor: neutral[50] }}>
           <Categories sx={{ display: 'flex', columnGap: 1.5, p: 2 }} />
           <SearchBar title="Buscar el articulo..." searchState={setSearch} sx={{ bgcolor: 'transparent' }} />
           <ArticlesToSale sx={{ p: 2 }} />

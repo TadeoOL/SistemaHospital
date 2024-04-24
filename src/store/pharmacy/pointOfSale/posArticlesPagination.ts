@@ -1,6 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getArticlesToSaleOnPOS } from '../../../api/api.routes';
 import { IPosArticle } from '../../../types/types';
+import { getArticlesToSaleOnPOS } from '../../../services/pharmacy/pointOfSaleService';
 
 interface State {
   count: number;
