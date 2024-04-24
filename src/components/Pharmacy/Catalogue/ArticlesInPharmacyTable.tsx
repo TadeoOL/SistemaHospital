@@ -1,9 +1,11 @@
 import {
   Box,
+  Button,
   Card,
   CircularProgress,
   Collapse,
   IconButton,
+  Modal,
   Stack,
   Table,
   TableBody,
@@ -24,9 +26,12 @@ import { ExpandLess, ExpandMore, FilterListOff, Info, Warning } from '@mui/icons
 import { shallow } from 'zustand/shallow';
 import { warning } from '../../../theme/colors';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { IExistingArticle, IExistingArticleList } from '../../../types/types';
 import { returnExpireDate } from '../../../utils/expireDate';
+import { ArticlesExitModal } from './Modal/ArticlesExitModal';
+import { SortComponent } from '../../Commons/SortComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -58,6 +63,8 @@ const useGetExistingArticles = (warehouseId: string) => {
     endDate,
     clearAllData,
     isLoading,
+    setSort,
+    sort,
   } = useExistingArticlePagination(
     (state) => ({
       data: state.data,
@@ -74,6 +81,8 @@ const useGetExistingArticles = (warehouseId: string) => {
       endDate: state.endDate,
       clearAllData: state.clearAllData,
       isLoading: state.isLoading,
+      sort: state.sort,
+      setSort: state.setSort,
     }),
     shallow
   );
@@ -85,7 +94,7 @@ const useGetExistingArticles = (warehouseId: string) => {
   useEffect(() => {
     setWarehouseId(warehouseId);
     fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters]);
+  }, [search, startDate, endDate, clearFilters, sort]);
 
   return {
     data,
@@ -98,6 +107,7 @@ const useGetExistingArticles = (warehouseId: string) => {
     startDate,
     endDate,
     isLoading,
+    setSort,
   };
 };
 export const ArticlesPharmacyTable = () => {
@@ -109,10 +119,12 @@ export const ArticlesPharmacyTable = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSort,
     startDate,
     endDate,
     isLoading,
   } = useGetExistingArticles('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5'); //hardcodeo tranqui
+  const [openModal, setOpenModal] = useState(false);
 
   if (isLoading && data.length === 0)
     return (
@@ -155,6 +167,14 @@ export const ArticlesPharmacyTable = () => {
               <IconButton onClick={() => clearFilters()}>
                 <FilterListOff />
               </IconButton>
+              <Button
+                sx={{ minWidth: 180 }}
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => setOpenModal(!openModal)}
+              >
+                Salida de artículos
+              </Button>
             </Box>
           </Box>
           <Card>
@@ -162,10 +182,22 @@ export const ArticlesPharmacyTable = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Nombre articulo</TableCell>
-                    <TableCell>Stock Mínimo</TableCell>
-                    <TableCell>Stock</TableCell>
-                    <TableCell>Precio de compra</TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock mínimo" headerName="stockMinimo" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock" headerName="stockActual" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Precio Compra"
+                        headerName="precioCompra"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -209,6 +241,14 @@ export const ArticlesPharmacyTable = () => {
           </Card>
         </Stack>
       </Stack>
+      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
+        <>
+          <ArticlesExitModal
+            setOpen={setOpenModal}
+            warehouseId={'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5'} //hardcodeo criminal
+          />
+        </>
+      </Modal>
     </>
   );
 };

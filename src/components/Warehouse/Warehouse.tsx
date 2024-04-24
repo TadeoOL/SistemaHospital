@@ -16,7 +16,6 @@ export const Warehouse = () => {
     setEnabled: state.setEnabled,
     enabled: state.enabled,
   }));
-  console.log('hu?', user?.roles);
   return (
     <>
       <Box

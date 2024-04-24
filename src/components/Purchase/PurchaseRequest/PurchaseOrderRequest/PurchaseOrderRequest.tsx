@@ -43,7 +43,7 @@ import { Info } from '@mui/icons-material';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import { ProviderNameChip } from '../ProviderNameChip';
-import { SortComponent } from '../../../Commons/sortComponent';
+import { SortComponent } from '../../../Commons/SortComponent';
 
 const handleRemoveOrder = async (idOrdenCompra: string) => {
   const { fetch } = usePurchaseOrderRequestPagination.getState();

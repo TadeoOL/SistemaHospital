@@ -876,6 +876,11 @@ export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
   return res.data;
 };
 
+export const getPackagesByWarehouseId = async (id: string) => {
+  const res = await axios.get(`/api/Almacen/obtener-paquetes?Id=${id}`);
+  return res.data;
+};
+
 export const getPackageById = async (packageId: string) => {
   const res = await axios.get(`/api/Almacen/paquete-articulo?Id=${packageId}`);
   return res.data;
@@ -889,6 +894,15 @@ export const modifyPackage = async (data: {
   Id_Almacen: string;
 }) => {
   const res = await axios.put(`/api/Almacen/actualizar-paquete`, {
+    ...data,
+  });
+  return res.data;
+};
+
+export const disablePackage = async (data: {
+  id: string;
+}) => {
+  const res = await axios.put(`/api/Almacen/estatus-paquete`, {
     ...data,
   });
   return res.data;

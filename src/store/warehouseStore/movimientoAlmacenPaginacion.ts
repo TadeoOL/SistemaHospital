@@ -76,7 +76,7 @@ export const useWarehouseMovementPaginationStore = createWithEqualityFn<State & 
         res = await getWareHouseMovementsById(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}$Sort${sort}`
+          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
         );
       } else {
         res = await getWareHouseMovementsById(
