@@ -90,7 +90,7 @@ const ArticlesSoldTable = (props: ArticlesSoldTableProps) => {
         component="div"
         count={3}
         onPageChange={() => {}}
-        onRowsPerPageChange={(e: any) => {}}
+        onRowsPerPageChange={() => {}}
         page={1}
         rowsPerPage={2}
         rowsPerPageOptions={[5, 10, 25, 50]}
