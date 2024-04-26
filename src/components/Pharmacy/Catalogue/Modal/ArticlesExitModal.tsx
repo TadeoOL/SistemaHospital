@@ -261,7 +261,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         Articulos: articlesArticlesExit,
         id_almacenDestino: props.warehouseId,
         id_almacenOrigen: props.warehouseId,
-        Estatus: 1,
+        Estatus: 2,
         Mensaje: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
       };
       await articlesOutputToWarehouse(object);

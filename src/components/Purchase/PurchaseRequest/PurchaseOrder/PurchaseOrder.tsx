@@ -41,6 +41,8 @@ import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchase
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
 import { SortComponent } from '../../../Commons/SortComponent';
+import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrder copy';
+import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -79,6 +81,7 @@ export const PurchaseOrder = () => {
   // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
   const [openOrderModal, setOpenOrderModal] = useState(false);
+  const [openUpdateOrderModal, setOpenUpdateOrderModal] = useState(false);
   const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
   const [orderSelectedId, setOrderSelectedId] = useState('');
   const [providers, setProviders] = useState<any[]>([]);
@@ -87,10 +90,12 @@ export const PurchaseOrder = () => {
     folio: string;
     OrderId: string;
   }>({ folio: '', OrderId: '' });
-
+  const [providersForEdition, setProvidersForEdition] = useState<string[]>([]);
+  const [articlesForEdition, setArticlesForEdition] = useState<any>([]);
   const { openPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore((state) => ({
     openPurchaseRequestOrder: state.openPurchaseRequestOrder,
   }));
+
   const {
     isLoading,
     data,
@@ -140,6 +145,8 @@ export const PurchaseOrder = () => {
       checkedArticles: [],
     });
   }, [openPurchaseRequestOrder]);
+  useEffect(() => {}, []);
+  useGetAllProviders();
 
   const values = useMemo(() => {
     const statusPurchaseOrderValues: string[] = [];
@@ -300,6 +307,35 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
+                                  {order.precioTotalOrden < 5000 && (
+                                    <Tooltip title="Editar">
+                                      <IconButton
+                                        onClick={() => {
+                                          setOrderSelected({
+                                            folio: order.folio_Extension,
+                                            OrderId: order.id_OrdenCompra,
+                                          });
+                                          console.log(order);
+                                          console.log(providers);
+                                          setOpenUpdateOrderModal(true);
+                                          order.proveedor.estatus = order.estatus;
+                                          setProviders([order.proveedor]);
+                                          setProvidersForEdition([order.proveedor.id_Proveedor]);
+                                          setArticlesForEdition(
+                                            order.ordenCompraArticulo.map((art) => ({
+                                              id: art.id_Articulo,
+                                              name: art.nombre,
+                                              amount: art.cantidad,
+                                              price: art.precioProveedor,
+                                              stock: undefined,
+                                            }))
+                                          );
+                                        }}
+                                      >
+                                        <UploadFileIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
                                   {order.estatus === 1 && (
                                     <>
                                       <Tooltip title="Ver orden de compra">
@@ -477,6 +513,15 @@ export const PurchaseOrder = () => {
       >
         <>
           <ArticlesEntry setOpen={setOpenArticlesEntry} orderId={orderSelectedId} />
+        </>
+      </Modal>
+      <Modal open={openUpdateOrderModal} onClose={() => setOpenUpdateOrderModal(false)}>
+        <>
+          <UpdateDirectlyPurchaseOrder
+            setOpen={setOpenUpdateOrderModal}
+            initialProvidersFromOrder={providersForEdition}
+            initialArticles={articlesForEdition}
+          />
         </>
       </Modal>
     </>

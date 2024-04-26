@@ -177,6 +177,7 @@ export interface IPurchaseAuthorization {
   precioSolicitud: number;
   solicitudProveedor: {
     id: string;
+    pdfBase64?: string;
     proveedor: { id_Proveedor: string; nombre: string };
     solicitudCompraArticulos: {
       articulo: { id_Articulo: string; nombre: string };

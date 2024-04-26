@@ -374,6 +374,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
 
   useEffect(() => {
     setProvider(null);
+    setArticlesFetched([]);
   }, []);
 
   function totalValue() {
@@ -589,7 +590,14 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
           bottom: 0,
         }}
       >
-        <Button variant="outlined" startIcon={<Cancel />} color="error" onClick={() => props.setOpen(false)}>
+        <Button
+          variant="outlined"
+          startIcon={<Cancel />}
+          color="error"
+          onClick={() => {
+            props.setOpen(false);
+          }}
+        >
           Cancelar
         </Button>
         <Button
@@ -943,11 +951,9 @@ const StepThree = (props: { setOpen: Function }) => {
         }),
         notas: note,
       };
-
       try {
         await addDirectlyPurchaseOrder(object);
         toast.success('Orden de compra realizada con éxito!');
-
         props.setOpen(false);
       } catch (error) {
         console.log(error);
