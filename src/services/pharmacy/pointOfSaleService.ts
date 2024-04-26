@@ -4,9 +4,11 @@ import { IRegisterSale, ISell, IUserSalesRegister } from '../../types/types';
 
 const apiPos = '/api/PuntoVenta';
 
-export const getSoldResume = async (checkoutId: string, sellStates: number[]) => {
+export const getSoldResume = async (checkoutId: string, sellStates: number[], cancelToken?: CancelToken) => {
   const estadosVenta = sellStates.join('&estadosVenta=');
-  const res = await axios.get(`${apiPos}/obtener-resumen-venta/caja/${checkoutId}?estadosVenta=${estadosVenta}`);
+  const res = await axios.get(`${apiPos}/obtener-resumen-venta/caja/${checkoutId}?estadosVenta=${estadosVenta}`, {
+    cancelToken: cancelToken,
+  });
   return res.data as ISell[];
 };
 
@@ -48,6 +50,13 @@ export const changeSellStatus = async (checkoutId: string, status: number) => {
 export const getSellsHistory = async (paramUrl: string, cancelToken?: CancelToken) => {
   const res = await axios.get(`${apiPos}/obtener-historial-ventas?${paramUrl}`, {
     cancelToken: cancelToken,
+  });
+  return res.data;
+};
+
+export const closeCheckout = async (checkoutId: string) => {
+  const res = await axios.put(`${apiPos}/cerrar-caja`, {
+    id_Caja: checkoutId,
   });
   return res.data;
 };

@@ -442,3 +442,11 @@ export interface IArticleSell {
   precioUnitario: number;
   nombre: string;
 }
+
+export interface IPharmacyConfig {
+  id: string;
+  factorVenta: number;
+  id_Almacen: string;
+  fechaCreacion: string;
+  fechaModificacion: string;
+}

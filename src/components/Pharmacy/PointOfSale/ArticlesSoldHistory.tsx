@@ -8,6 +8,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableFooter,
   TableHead,
   TablePagination,
   TableRow,
@@ -18,7 +19,7 @@ import {
 } from '@mui/material';
 import { IArticleSell, ISell } from '../../../types/types';
 import { ExpandLess, ExpandMore, Info } from '@mui/icons-material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getSellStatus, getSellType } from '../../../utils/pointOfSaleUtils';
 import { useGetSellsHistory } from '../../../hooks/useGetSellsHistory';
 import { SearchBar } from '../../Inputs/SearchBar';
@@ -73,6 +74,7 @@ export const ArticlesSoldHistory = () => {
       clearData();
     };
   }, []);
+
   return (
     <Box sx={{ bgcolor: 'background.paper', p: 4, rowGap: 2, display: 'flex', flexDirection: 'column' }}>
       <SearchBar searchState={setSearch} title="Buscar ventas..." />
@@ -98,20 +100,15 @@ export const ArticlesSoldHistory = () => {
   );
 };
 
-const SellsTable = (props: SellsTableProps) => {
-  const count = usePosSellsHistoryDataStore((state) => state.count);
-  const pageIndex = usePosSellsHistoryDataStore((state) => state.pageIndex);
-  const pageSize = usePosSellsHistoryDataStore((state) => state.pageSize);
-  const setPageIndex = usePosSellsHistoryDataStore((state) => state.setPageIndex);
-  const setPageSize = usePosSellsHistoryDataStore((state) => state.setPageSize);
-
+export const SellsTable = (props: SellsTableProps) => {
   return (
-    <React.Fragment>
+    <>
       <Card>
         <TableContainer>
           <Table>
             <SellTableHead />
             <SellTableBody sells={props.sells} />
+            {props.sells.length > 0 && <SellTableFooter />}
           </Table>
         </TableContainer>
         {props.sells.length === 0 && (
@@ -123,21 +120,7 @@ const SellsTable = (props: SellsTableProps) => {
           </Box>
         )}
       </Card>
-      <TablePagination
-        count={count}
-        onPageChange={(e, value) => {
-          e?.stopPropagation();
-          setPageIndex(value);
-        }}
-        onRowsPerPageChange={(e: any) => {
-          setPageSize(e.target.value);
-        }}
-        page={pageIndex}
-        rowsPerPage={pageSize}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage="Filas por página"
-      />
-    </React.Fragment>
+    </>
   );
 };
 
@@ -161,6 +144,34 @@ const SellTableBody = (props: SellTableBodyProps) => {
         <SellRow sell={sell} key={sell.id} />
       ))}
     </TableBody>
+  );
+};
+
+const SellTableFooter = () => {
+  const count = usePosSellsHistoryDataStore((state) => state.count);
+  const pageIndex = usePosSellsHistoryDataStore((state) => state.pageIndex);
+  const pageSize = usePosSellsHistoryDataStore((state) => state.pageSize);
+  const setPageIndex = usePosSellsHistoryDataStore((state) => state.setPageIndex);
+  const setPageSize = usePosSellsHistoryDataStore((state) => state.setPageSize);
+  return (
+    <TableFooter>
+      <TableRow>
+        <TablePagination
+          count={count}
+          onPageChange={(e, value) => {
+            e?.stopPropagation();
+            setPageIndex(value);
+          }}
+          onRowsPerPageChange={(e: any) => {
+            setPageSize(e.target.value);
+          }}
+          page={pageIndex}
+          rowsPerPage={pageSize}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="Filas por página"
+        />
+      </TableRow>
+    </TableFooter>
   );
 };
 
