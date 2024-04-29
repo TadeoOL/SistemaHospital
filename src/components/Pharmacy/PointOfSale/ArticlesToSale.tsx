@@ -59,6 +59,8 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
     return pageIndex < pageCount;
   }, [pageIndex, pageCount]);
 
+  console.log({ pageIndex });
+  console.log({ pageCount });
   const handleAddArticleToBasket = (article: IPosArticle) => {
     if (articlesOnBasket.some((a) => a.id === article.id)) return;
     const articleModified = data

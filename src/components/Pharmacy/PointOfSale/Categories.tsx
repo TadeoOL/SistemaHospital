@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { CloseSaleRegisterModal } from './Modal/CloseSaleRegisterModal';
 import { getCategoriesForPOS } from '../../../services/pharmacy/pointOfSaleService';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 interface CategoriesProps {
   sx?: any;
@@ -13,7 +14,7 @@ interface CategoriesProps {
 export const Categories = (props: CategoriesProps) => {
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
-  const warehouseId = usePosArticlesPaginationStore((state) => state.warehouseId);
+  const warehouseId = usePosTabNavStore((state) => state.warehouseId);
   const { data } = useQuery({
     queryKey: ['categoriesForPOS'],
     queryFn: async () => getCategoriesForPOS(warehouseId),

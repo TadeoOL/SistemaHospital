@@ -444,9 +444,5 @@ export interface IArticleSell {
 }
 
 export interface IPharmacyConfig {
-  id: string;
-  factorVenta: number;
   id_Almacen: string;
-  fechaCreacion: string;
-  fechaModificacion: string;
 }
