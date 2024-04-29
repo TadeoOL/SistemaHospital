@@ -84,34 +84,34 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
     return date;
   }
 
-  function handleChangeIsBox() {
-    const newArticlesToBox = props.articlesToBox.filter((a) => a.id !== articleData.id);
-    const originalArticle = props.originalArticles.find((a) => a.id_Articulo === articleData.id);
-    const findIndex = props.articlesInOrder.findIndex((a) => a.id_Articulo === originalArticle?.id_Articulo);
-    const filterArticles = props.returnArticlesArray.filter(
-      (a) => a.Id_OrdenCompraArticulo !== originalArticle?.id_OrdenCompraArticulo
-    );
-    props.setReturnArticlesArray(filterArticles);
-    const findIndexArticleInOrder = props.articlesInOrder.findIndex(
-      (a) => a.id_Articulo === originalArticle?.id_Articulo
-    );
-    if (findIndexArticleInOrder !== -1) {
-      const updatedArticlesInOrder = [...props.articlesInOrder];
-      updatedArticlesInOrder[findIndexArticleInOrder] = originalArticle as IPurchaseOrderArticle;
-      props.setArticlesInOrder(updatedArticlesInOrder);
-    }
-    if (isBox) {
-      if (findIndex !== -1) {
-        const updatedArrayArticles = [...props.articlesInOrder];
-        updatedArrayArticles[findIndex].cantidad = originalArticle?.cantidad as number;
-        props.setArticlesInOrder(updatedArrayArticles);
-      }
-      props.setArticlesToBox(newArticlesToBox);
-      return setIsBox(false);
-    } else {
-      setIsBox(true);
-    }
-  }
+  // function handleChangeIsBox() {
+  //   const newArticlesToBox = props.articlesToBox.filter((a) => a.id !== articleData.id);
+  //   const originalArticle = props.originalArticles.find((a) => a.id_Articulo === articleData.id);
+  //   const findIndex = props.articlesInOrder.findIndex((a) => a.id_Articulo === originalArticle?.id_Articulo);
+  //   const filterArticles = props.returnArticlesArray.filter(
+  //     (a) => a.Id_OrdenCompraArticulo !== originalArticle?.id_OrdenCompraArticulo
+  //   );
+  //   props.setReturnArticlesArray(filterArticles);
+  //   const findIndexArticleInOrder = props.articlesInOrder.findIndex(
+  //     (a) => a.id_Articulo === originalArticle?.id_Articulo
+  //   );
+  //   if (findIndexArticleInOrder !== -1) {
+  //     const updatedArticlesInOrder = [...props.articlesInOrder];
+  //     updatedArticlesInOrder[findIndexArticleInOrder] = originalArticle as IPurchaseOrderArticle;
+  //     props.setArticlesInOrder(updatedArticlesInOrder);
+  //   }
+  //   if (isBox) {
+  //     if (findIndex !== -1) {
+  //       const updatedArrayArticles = [...props.articlesInOrder];
+  //       updatedArrayArticles[findIndex].cantidad = originalArticle?.cantidad as number;
+  //       props.setArticlesInOrder(updatedArrayArticles);
+  //     }
+  //     props.setArticlesToBox(newArticlesToBox);
+  //     return setIsBox(false);
+  //   } else {
+  //     setIsBox(true);
+  //   }
+  // }
 
   const handleSubmit = () => {
     if (
@@ -206,7 +206,7 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
               />
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
+          {/* <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
             <Typography sx={{ display: 'flex', flex: 2 }}>Conversion de Presentación a Unidades</Typography>
             <Box sx={{ display: 'flex', flex: 1 }}>
               <Checkbox
@@ -216,7 +216,7 @@ export const AddArticleExpireDate = (props: AddArticleExpireDateProps) => {
                 }}
               />
             </Box>
-          </Box>
+          </Box> */}
           {isBox && (
             <Stack>
               <TextField
