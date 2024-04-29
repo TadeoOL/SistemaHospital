@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { ArticlesPharmacyTable } from './ArticlesInPharmacyTable';
 import { PackageTabs } from './PackageTabs';
 import { WarehouseHistoryPharmacy } from './WarehouseHistoryPharmacy';
+import { WaitingPackages } from './WaitingPackages';
 
 const GetWarehouseView: React.FC = () => {
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
@@ -11,6 +12,8 @@ const GetWarehouseView: React.FC = () => {
     case 0:
       return <ArticlesPharmacyTable />;
     case 1:
+      return <WaitingPackages />;
+    case 2:
       return <WarehouseHistoryPharmacy />;
     default:
       break;

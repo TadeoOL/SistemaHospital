@@ -129,7 +129,7 @@ export const PackageCatalogueTable = () => {
     });
   };
 
-  if (isLoading || data === null || (data && data.length === 0))
+  if (isLoading || data === null)
     return (
       <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
         <CircularProgress size={30} />

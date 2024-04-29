@@ -899,3 +899,18 @@ export const disablePackage = async (data: { id: string }) => {
   });
   return res.data;
 };
+
+export const getWaitingPackagesByWarehouse = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/paginacion-historial-movimientos-paquetes?${paramUrl}`);
+  return res.data;
+};
+
+export const articlesPackageOutputToWarehouse = async (data: {
+  Estatus: number;
+  Id_HistorialMovimiento?: string;
+}) => {
+    const res = await axios.put(`/api/Almacen/modificar-estatus-paquete`, {
+      ...data,
+    });
+    return res.data;
+};

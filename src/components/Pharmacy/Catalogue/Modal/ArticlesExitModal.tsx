@@ -261,10 +261,11 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         Articulos: articlesArticlesExit,
         id_almacenDestino: props.warehouseId,
         id_almacenOrigen: props.warehouseId,
-        Estatus: 1,
+        Estatus: 3,
         Mensaje: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
       };
-      await articlesOutputToWarehouse(object);
+      const faaak = await articlesOutputToWarehouse(object);
+      console.log(faaak);
       toast.success('Salida a artículos con éxito!');
       setLoadingSubmit(false);
       props.setOpen(false);

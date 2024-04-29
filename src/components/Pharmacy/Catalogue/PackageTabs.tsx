@@ -28,7 +28,8 @@ export const PackageTabs = () => {
       >
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
           <Tab label="Artículos" value={0} />
-          <Tab label="Movimientos" value={1} />
+          <Tab label="Paquetes en espera" value={1} />
+          <Tab label="Movimientos" value={2} />
         </Tabs>
       </AppBar>
     </Box>
