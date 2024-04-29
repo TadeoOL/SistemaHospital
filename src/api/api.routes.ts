@@ -448,19 +448,13 @@ export const getPurchaseConfig = async () => {
   return res.data as IPurchaseConfig;
 };
 
-export const modifyPurchaseConfig = async (data: IPurchaseConfig) => {
-  const { cantidadOrdenDirecta, factor, cantidadLicitacionDirecta, activarLicitacion } = data;
-  const res = await axios.put('/api/Compras/actualizar-configuracion-compras', {
-    factor: JSON.stringify(factor),
-    cantidadOrdenDirecta,
-    cantidadLicitacionDirecta,
-    activarLicitacion,
-  });
-  const resData = {
-    factor: JSON.parse(res.data.factor),
-    cantidadOrdenDirecta: res.data.cantidadOrdenDirecta,
+export const modifyModuleConfig = async (config: any, module: string) => {
+  const object = {
+    modulo: module,
+    configuracion: JSON.stringify(config),
   };
-  return resData as IPurchaseConfig;
+  const res = await axios.put('/api/Sistema/actualizar-configuracion-modulo', object);
+  return res.data;
 };
 
 export const addPurchaseRequest = async (data: {
@@ -899,9 +893,7 @@ export const modifyPackage = async (data: {
   return res.data;
 };
 
-export const disablePackage = async (data: {
-  id: string;
-}) => {
+export const disablePackage = async (data: { id: string }) => {
   const res = await axios.put(`/api/Almacen/estatus-paquete`, {
     ...data,
   });

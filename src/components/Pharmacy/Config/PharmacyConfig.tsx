@@ -1,12 +1,39 @@
-import { Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useGetAlmacenes } from '../../../hooks/useGetAlmacenes';
 import { useState } from 'react';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { modifyModuleConfig } from '../../../api/api.routes';
+import { toast } from 'react-toastify';
 
 export const PharmacyConfig = () => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const [warehouseError, setWarehouseError] = useState(false);
-  const [warehouseSelected, setWarehouseSelected] = useState();
+  const warehouseId = usePosTabNavStore((state) => state.warehouseId);
+  const [warehouseSelected, setWarehouseSelected] = useState<string>(warehouseId);
+  const setWarehouseId = usePosTabNavStore((state) => state.setWarehouseId);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const handleSubmit = async () => {
+    if (!warehouseSelected) {
+      setWarehouseError(true);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const obj = {
+        id_Almacen: warehouseSelected,
+      };
+      await modifyModuleConfig(obj, 'Farmacia');
+      setWarehouseId(warehouseSelected);
+      toast.success('Almacén configurado exitosamente!');
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoadingAlmacenes) return <CircularProgress />;
   return (
     <Box
       sx={{
@@ -29,8 +56,8 @@ export const PharmacyConfig = () => {
           helperText={warehouseError && 'Selecciona un almacén'}
           value={warehouseSelected}
           onChange={(e) => {
-            // setWarehouseError(false);
-            // setWarehouseSelected(e.target.value);
+            setWarehouseError(false);
+            setWarehouseSelected(e.target.value);
           }}
         >
           {almacenes.map((warehouse) => (
@@ -40,17 +67,10 @@ export const PharmacyConfig = () => {
           ))}
         </TextField>
       </Stack>
-      <Stack>
-        <Typography>Factor de venta:</Typography>
-        <TextField
-          label="Escribe un factor de venta..."
-          size="small"
-          error={warehouseError}
-          helperText={warehouseError && 'Selecciona un almacén'}
-        />
-      </Stack>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained">Guardar</Button>
+        <Button variant="contained" onClick={handleSubmit} disabled={isLoading}>
+          Guardar
+        </Button>
       </Box>
     </Box>
   );
