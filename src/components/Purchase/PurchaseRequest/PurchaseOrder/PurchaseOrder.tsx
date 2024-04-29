@@ -41,7 +41,7 @@ import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchase
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
 import { SortComponent } from '../../../Commons/SortComponent';
-import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrder copy';
+import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrderPackage';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
