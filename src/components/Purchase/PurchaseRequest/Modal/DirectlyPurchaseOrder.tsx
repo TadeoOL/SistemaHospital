@@ -454,13 +454,13 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     setTotalAmountRequest(totalPrice);
     try {
       const { cantidadOrdenDirecta, cantidadLicitacionDirecta, activarLicitacion } = await getPurchaseConfig();
+      console.log({ cantidadOrdenDirecta });
+      console.log({ cantidadLicitacionDirecta });
+      console.log({ activarLicitacion });
       if (totalPrice >= cantidadLicitacionDirecta && activarLicitacion) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
         setIsDirectlyPurchase(false);
-      } else if (
-        totalPrice >= cantidadOrdenDirecta ||
-        (totalPrice >= cantidadLicitacionDirecta && !activarLicitacion)
-      ) {
+      } else if (totalPrice >= cantidadOrdenDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders, false);
         setIsDirectlyPurchase(false);
       } else {

@@ -52,22 +52,25 @@ const PurchaseRequestView = () => {
             flex: 1,
             justifyContent: 'flex-end',
             mb: 1,
+            columnGap: 1,
           }}
         >
-          {userProfile?.roles.includes('DIRECTORCOMPRAS') ||
-          userProfile?.roles.includes('ABASTECIMIENTO') ||
-          userProfile?.roles.includes('ADMIN') ? (
-            <Button
-              size="large"
-              variant="contained"
-              onClick={() => setOpenPurchaseRequestOrder(true)}
-              startIcon={<RequestPageIcon />}
-            >
-              Solicitud de Compra
-            </Button>
-          ) : (
-            <></>
-          )}
+          <Button
+            size="large"
+            variant="contained"
+            onClick={() => setOpenPurchaseRequestOrder(true)}
+            startIcon={<RequestPageIcon />}
+          >
+            Solicitud sin proveedor
+          </Button>
+          <Button
+            size="large"
+            variant="contained"
+            onClick={() => setOpenPurchaseRequestOrder(true)}
+            startIcon={<RequestPageIcon />}
+          >
+            Orden de compra
+          </Button>
         </Box>
         <PurchaseTabNav />
         <Box
