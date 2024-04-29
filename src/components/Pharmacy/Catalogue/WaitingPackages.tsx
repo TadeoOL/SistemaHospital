@@ -168,6 +168,7 @@ export const WaitingPackages = () => {
           });
         } else {
           withReactContent(Swal).fire({
+            //truena
             title: 'Operación Cancelada',
             text: 'La salida no fue aceptada.',
             icon: 'info',
