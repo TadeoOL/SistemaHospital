@@ -1,5 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { IPosArticle, IUserSalesRegister } from '../../../types/types';
+import { devtools } from 'zustand/middleware';
 
 const initialValuesUserSalesData: IUserSalesRegister = {
   cerrada: false,
@@ -38,16 +39,18 @@ interface Action {
   clearData: () => void;
 }
 
-export const usePosOrderArticlesStore = createWithEqualityFn<State & Action>((set) => ({
-  ...initialValues,
-  userSalesRegisterData: initialValuesUserSalesData,
-  setPaymentMethod: (paymentMethod: number) => set({ paymentMethod }),
-  setArticlesOnBasket: (articlesOnBasket: IPosArticle[]) => set({ articlesOnBasket }),
-  setSubTotal: (subTotal: number) => set({ subTotal }),
-  setIva: (iva: number) => set({ iva }),
-  setTotal: (total: number) => set({ total }),
-  setUserSalesRegisterData: (userSalesRegisterData: IUserSalesRegister) => set({ userSalesRegisterData }),
-  clearData: () => {
-    set(initialValues);
-  },
-}));
+export const usePosOrderArticlesStore = createWithEqualityFn<State & Action>()(
+  devtools((set) => ({
+    ...initialValues,
+    userSalesRegisterData: initialValuesUserSalesData,
+    setPaymentMethod: (paymentMethod: number) => set({ paymentMethod }),
+    setArticlesOnBasket: (articlesOnBasket: IPosArticle[]) => set({ articlesOnBasket }),
+    setSubTotal: (subTotal: number) => set({ subTotal }),
+    setIva: (iva: number) => set({ iva }),
+    setTotal: (total: number) => set({ total }),
+    setUserSalesRegisterData: (userSalesRegisterData: IUserSalesRegister) => set({ userSalesRegisterData }),
+    clearData: () => {
+      set(initialValues);
+    },
+  }))
+);
