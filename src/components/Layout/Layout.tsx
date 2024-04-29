@@ -67,6 +67,7 @@ export const Layout: React.FC = () => {
     '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
     '/compras/solicitud-compras': 'Compras',
     '/almacenes': 'Almacén',
+    '/farmacia/configuracion-farmacia': 'Configuración de farmacia',
   };
 
   const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

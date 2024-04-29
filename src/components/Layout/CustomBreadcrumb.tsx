@@ -29,6 +29,7 @@ const messagesByLink: Record<string, string> = {
   '/compras/configuracion-compras': 'Configuración de Compras',
   '/compras/autorizacion-compras/autorizaciones': 'Autorizaciones',
   '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
+  '/farmacia/configuracion': 'Configuracion de farmacia',
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

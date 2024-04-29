@@ -1,7 +1,7 @@
 import { Box, Button, Card, CircularProgress, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
 import { IPosArticle } from '../../../types/types';
 import { neutral } from '../../../theme/colors';
@@ -50,10 +50,14 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
   const { data, loading, pageIndex, pageCount, setPageIndex, setFetchPagination } = useGetAllData();
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
-  const articlesToSale = data.filter(
-    (article) => !articlesOnBasket.some((articleBasket) => articleBasket.id === article.id)
+
+  const articlesToSale = useMemo(
+    () => data.filter((article) => !articlesOnBasket.some((articleBasket) => articleBasket.id === article.id)),
+    [articlesOnBasket, data]
   );
-  const hasMorePages = pageIndex < pageCount;
+  const hasMorePages = useMemo(() => {
+    return pageIndex < pageCount;
+  }, [pageIndex, pageCount]);
 
   const handleAddArticleToBasket = (article: IPosArticle) => {
     if (articlesOnBasket.some((a) => a.id === article.id)) return;

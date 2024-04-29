@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/auth';
 import { createUserSalesRegister, getUserSalesRegister } from '../../services/pharmacy/pointOfSaleService';
 import { ArticlesSoldHistory } from '../../components/Pharmacy/PointOfSale/ArticlesSoldHistory';
+import { useShallow } from 'zustand/react/shallow';
 
 const alert = (userId: string, navigate: NavigateFunction, userData: IUserSalesRegister, setIsLoading: Function) => {
   Swal.fire({
@@ -50,6 +51,16 @@ const alert = (userId: string, navigate: NavigateFunction, userData: IUserSalesR
   });
 };
 
+const closeCheckoutAlert = () => {
+  Swal.fire({
+    title: 'Advertencia',
+    text: `Su jornada laboral ya paso, favor de cerrar la caja y imprimir el ticket para realizar nuevas compras`,
+    icon: 'warning',
+    confirmButtonText: 'Aceptar',
+    confirmButtonColor: primary.main,
+  });
+};
+
 const useGetUserSalesRegister = (userId: string, navigate: NavigateFunction) => {
   const [isLoading, setIsLoading] = useState(true);
   const setUserSalesRegisterData = usePosOrderArticlesStore((state) => state.setUserSalesRegisterData);
@@ -59,8 +70,8 @@ const useGetUserSalesRegister = (userId: string, navigate: NavigateFunction) => 
     setIsLoading(true);
     const fetchData = async () => {
       const res = await getUserSalesRegister(userId);
+      if (!res.tieneCaja || res.cerrada) return alert(userId, navigate, userSalesRegisterData, setIsLoading);
       setUserSalesRegisterData(res);
-      if (!res.tieneCaja) return alert(userId, navigate, userSalesRegisterData, setIsLoading);
       try {
       } catch (error) {
         console.log(error);
@@ -92,6 +103,7 @@ const PointOfSaleView = () => {
   const profile = useAuthStore((state) => state.profile);
   const isLoading = useGetUserSalesRegister(profile?.id as string, navigate);
   const clearData = usePosOrderArticlesStore((state) => state.clearData);
+  const data = usePosOrderArticlesStore(useShallow((state) => state.userSalesRegisterData));
 
   useEffect(() => {
     return () => {
@@ -99,10 +111,20 @@ const PointOfSaleView = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const checkJornadaLaboral = () => {
+      if (data.pasoSuJornada) {
+        closeCheckoutAlert();
+      }
+    };
+    checkJornadaLaboral();
+    const intervalId = setInterval(checkJornadaLaboral, 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, [data]);
+
   return (
     <Stack sx={{ display: 'flex', flex: 1 }}>
       <PointOfSaleTabs />
-
       {isLoading ? <Backdrop open /> : returnPosView(tabValue)}
     </Stack>
   );

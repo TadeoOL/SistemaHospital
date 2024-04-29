@@ -1,12 +1,10 @@
 import { ISell } from '../../../types/types';
 import { usePosOrderArticlesStore } from './posOrderArticles';
 import { getSellsHistory } from '../../../services/pharmacy/pointOfSaleService';
-import { immer } from 'zustand/middleware/immer';
 import { create } from 'zustand';
 import axios, { CancelTokenSource } from 'axios';
 
 const initialValues = {
-  sellStates: [],
   count: 0,
   pageCount: 0,
   resultByPage: 0,
@@ -44,49 +42,55 @@ interface Action {
   clearData: () => void;
 }
 
-export const usePosSellsHistoryDataStore = create<State & Action>()(
-  immer((set, get) => ({
-    ...initialValues,
-    setSells: (sellsHistory: ISell[]) => set({ sellsHistory }),
-    setSellStates: (sellStates: number[]) => set({ sellStates }),
-    setSearch: (search: string) => set({ search, pageIndex: 0 }),
-    setPageCount: (pageCount: number) => set({ pageCount }),
-    setPageIndex: (pageIndex: number) => set({ pageIndex }),
-    setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
-    fetchSellsHistory: async () => {
-      set({ isLoading: true });
-      const { enabled, pageIndex, pageSize, sellStates, search } = get();
-      const checkoutId = usePosOrderArticlesStore.getState().userSalesRegisterData.id;
-      const estadosVenta = sellStates.join('&estadosVenta=');
-      const cancelToken = axios.CancelToken.source();
-      const index = pageIndex + 1;
-      if (get().cancelToken) {
-        get().cancelToken?.cancel();
+export const usePosSellsHistoryDataStore = create<State & Action>()((set, get) => ({
+  ...initialValues,
+  sellStates: [],
+  setSells: (sellsHistory: ISell[]) => set({ sellsHistory }),
+  setSellStates: (sellStates: number[]) => set({ sellStates }),
+  setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setPageCount: (pageCount: number) => set({ pageCount }),
+  setPageIndex: (pageIndex: number) => set({ pageIndex }),
+  setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
+  fetchSellsHistory: async () => {
+    set({ isLoading: true });
+    const { enabled, pageIndex, pageSize, sellStates, search } = get();
+    const checkoutId = usePosOrderArticlesStore.getState().userSalesRegisterData.id;
+    const estadosVenta = sellStates.join('&estadosVenta=');
+    const cancelToken = axios.CancelToken.source();
+    const index = pageIndex + 1;
+    if (get().cancelToken) {
+      get().cancelToken?.cancel();
+    }
+    set({ cancelToken: cancelToken });
+    try {
+      const res = await getSellsHistory(
+        `estadosVenta=${estadosVenta}&pageIndex=${index}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
+        }&search=${search}&habilitado=${enabled}&id_Caja=${checkoutId}`,
+        cancelToken.token
+      );
+      set({
+        sellsHistory: res.data as ISell[],
+        pageSize: res.pageSize,
+        count: res.count,
+      });
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        null;
+      } else {
+        console.log('Error:', error);
       }
-      set({ cancelToken: cancelToken });
-      try {
-        const res = await getSellsHistory(
-          `estadosVenta=${estadosVenta}&${pageIndex === 0 ? '' : 'pageIndex=' + index}&${
-            pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&id_Caja=${checkoutId}`,
-          cancelToken.token
-        );
-        set((state) => {
-          state.sellsHistory = res.data as ISell[];
-          (state.pageSize = res.pageSize), (state.count = res.count);
-        });
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          null;
-        } else {
-          console.log('Error:', error);
-        }
-      } finally {
+    } finally {
+      if (!cancelToken.token.reason || cancelToken.token.reason.message !== 'Componente desmontado') {
         set({ isLoading: false });
       }
-    },
-    clearData: () => {
-      set(initialValues);
-    },
-  }))
-);
+    }
+  },
+  clearData: () => {
+    const { cancelToken } = get();
+    if (cancelToken) {
+      cancelToken.cancel('Componente desmontado');
+    }
+    set(initialValues);
+  },
+}));

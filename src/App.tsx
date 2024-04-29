@@ -26,7 +26,9 @@ import {
   WarehouseSelected,
   PointOfSaleView,
   PackageCatalogueView,
+  PharmacyConfigView,
 } from './utils/LazyRoutes';
+import { PharmacyRoute } from './utils/PharmacyRoute';
 
 function App() {
   return (
@@ -56,8 +58,11 @@ function App() {
               <Route path="/configuracion" element={<AccountView />} />
             </Route>
             <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
-            <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
-            <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+            <Route element={<PharmacyRoute />}>
+              <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
+              <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+              <Route path="/farmacia/configuracion-farmacia" element={<PharmacyConfigView />} />
+            </Route>
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
           </Route>
         </Route>
