@@ -42,4 +42,29 @@ export const getFirstDayOfTheMonth = () => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const firstday = '01';
   return `${year}-${month}-${firstday}`;
-}
+};
+
+export const openBase64InNewTab = (base64String: string) => {
+  const byteCharacters = atob(base64String);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+};
+
+export const wasAuth = (value: number) => {
+  switch (value) {
+    case 0:
+      return '';
+    case 1:
+      return false;
+    case 2:
+      return true;
+    default:
+      break;
+  }
+};

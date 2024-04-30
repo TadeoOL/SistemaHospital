@@ -128,7 +128,7 @@ export const ArticlesPharmacyTable = () => {
 
   if (isLoading && data.length === 0)
     return (
-      <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
+      <Box sx={{ display: 'flex', flex: 1, p: 4, justifyContent: 'center' }}>
         <CircularProgress size={30} />
       </Box>
     );

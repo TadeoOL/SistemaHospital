@@ -221,8 +221,8 @@ export const WarehouseHistoryPharmacy = () => {
                                 <TableBody>
                                   {movimiento?.historialArticulos &&
                                     movimiento?.historialArticulos?.length > 0 &&
-                                    movimiento.historialArticulos.map((movimientoArticuclo) => (
-                                      <TableRow key={movimientoArticuclo.nombre}>
+                                    movimiento.historialArticulos.map((movimientoArticuclo, i) => (
+                                      <TableRow key={i}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
                                       </TableRow>

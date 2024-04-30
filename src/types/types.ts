@@ -447,3 +447,11 @@ export interface IArticleSell {
 export interface IPharmacyConfig {
   id_Almacen: string;
 }
+
+export interface IPurchaseWithoutProvider {
+  articulos: {
+    id_Articulo: string;
+    cantidadCompra: number;
+  }[];
+  notas: string;
+}
