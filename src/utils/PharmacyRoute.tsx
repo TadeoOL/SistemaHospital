@@ -15,7 +15,7 @@ export const PharmacyRoute = (props: PharmacyRouteProps) => {
 
   if (isLoading) return <LoadingView />;
 
-  if (data.id_Almacen || data.id_Almacen !== '') {
+  if (data.id_Almacen) {
     setWarehouseIdConfig(data.id_Almacen);
     return children ? <>{children}</> : <Outlet />;
   } else {

@@ -18,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { Edit } from '@mui/icons-material';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -35,14 +36,24 @@ import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Assignment, CheckCircle, Info } from '@mui/icons-material';
-// import { useAuthStore } from '../../../../store/auth';
-// import { useShallow } from 'zustand/react/shallow';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
 import { SortComponent } from '../../../Commons/SortComponent';
 import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrderPackage';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
+
+enum authFilter {
+  'Todas las ordenes' = 0,
+  'Compra directa' = 1,
+  'Compra autorizada' = 2,
+}
+
+const arrayAuth = [
+  { id: 0, name: 'Todas las Ordenes', value: null },
+  { id: 1, name: 'Sin autorizar', value: false },
+  { id: 2, name: 'Autorizada', value: true },
+];
 
 const handleRemoveOrder = async (Id_OrdenCompra: string) => {
   Swal.fire({
@@ -92,9 +103,16 @@ export const PurchaseOrder = () => {
   }>({ folio: '', OrderId: '' });
   const [providersForEdition, setProvidersForEdition] = useState<string[]>([]);
   const [articlesForEdition, setArticlesForEdition] = useState<any>([]);
-  const { openPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    openPurchaseRequestOrder: state.openPurchaseRequestOrder,
-  }));
+  const [purchaseWarehouseId, setPurchaseWarehouseId] = useState('');
+  const [purchaseOrderId, setPurchaseOrderId] = useState('');
+  const { openPurchaseRequestOrder, setPaymentMethod, setNote, clearAllStates } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+      setPaymentMethod: state.setPaymentMethod,
+      setNote: state.setNote,
+      clearAllStates: state.clearAllStates,
+    })
+  );
 
   const {
     isLoading,
@@ -116,6 +134,8 @@ export const PurchaseOrder = () => {
     setEndDate,
     setSort,
     sort,
+    requiredAuth,
+    setRequiredAuth,
   } = usePurchaseOrderPagination((state) => ({
     isLoading: state.isLoading,
     data: state.data,
@@ -136,6 +156,8 @@ export const PurchaseOrder = () => {
     setEndDate: state.setEndDate,
     sort: state.sort,
     setSort: state.setSort,
+    requiredAuth: state.requiredAuth,
+    setRequiredAuth: state.setRequiredAuth,
   }));
 
   useEffect(() => {
@@ -145,7 +167,18 @@ export const PurchaseOrder = () => {
       checkedArticles: [],
     });
   }, [openPurchaseRequestOrder]);
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (!openUpdateOrderModal) {
+      clearAllStates();
+    }
+  }, [openUpdateOrderModal]);
+  const handleRefetchAndClearStates = () => {
+    fetch();
+    setPurchaseOrderId('');
+    setPurchaseWarehouseId('');
+    setArticlesForEdition([]);
+  };
+
   useGetAllProviders();
 
   const values = useMemo(() => {
@@ -161,7 +194,7 @@ export const PurchaseOrder = () => {
 
   useEffect(() => {
     fetch();
-  }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate, sort]);
+  }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate, sort, requiredAuth]);
 
   return (
     <>
@@ -181,7 +214,6 @@ export const PurchaseOrder = () => {
               value={startDate}
               InputLabelProps={{ shrink: true }}
               onChange={(e) => {
-                console.log(e.target.value);
                 setStartDate(e.target.value);
               }}
             />
@@ -195,6 +227,23 @@ export const PurchaseOrder = () => {
                 setEndDate(e.target.value);
               }}
             />
+          </Box>
+          <Box sx={{ display: 'flex', flex: 1, maxWidth: 150 }}>
+            <TextField
+              fullWidth
+              select
+              label="Autorización?"
+              value={requiredAuth}
+              onChange={(e: any) => {
+                setRequiredAuth(e.target.value);
+              }}
+            >
+              {arrayAuth.map((a) => (
+                <MenuItem key={a.id} value={a.id}>
+                  {authFilter[a.id]}
+                </MenuItem>
+              ))}
+            </TextField>
           </Box>
           <Box sx={{ display: 'flex', flex: 1 }}>
             <TextField
@@ -307,7 +356,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {order.precioTotalOrden < 5000 && (
+                                  {!order.fueAutorizada && (
                                     <Tooltip title="Editar">
                                       <IconButton
                                         onClick={() => {
@@ -315,8 +364,10 @@ export const PurchaseOrder = () => {
                                             folio: order.folio_Extension,
                                             OrderId: order.id_OrdenCompra,
                                           });
-                                          console.log(order);
-                                          console.log(providers);
+                                          setPaymentMethod(order.conceptoPago);
+                                          setNote(order.notas || '');
+                                          setPurchaseOrderId(order.id_OrdenCompra);
+                                          setPurchaseWarehouseId(order.id_Almacen);
                                           setOpenUpdateOrderModal(true);
                                           order.proveedor.estatus = order.estatus;
                                           setProviders([order.proveedor]);
@@ -332,7 +383,7 @@ export const PurchaseOrder = () => {
                                           );
                                         }}
                                       >
-                                        <UploadFileIcon />
+                                        <Edit />
                                       </IconButton>
                                     </Tooltip>
                                   )}
@@ -521,6 +572,9 @@ export const PurchaseOrder = () => {
             setOpen={setOpenUpdateOrderModal}
             initialProvidersFromOrder={providersForEdition}
             initialArticles={articlesForEdition}
+            purcharseOrderWarehouseId={purchaseWarehouseId}
+            purcharseOrderId={purchaseOrderId}
+            clearData={handleRefetchAndClearStates}
           />
         </>
       </Modal>

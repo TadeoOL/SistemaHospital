@@ -19,7 +19,7 @@ export const SearchBar = (props: ISearchBar) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       searchState(text);
-    }, 50);
+    }, 350);
 
     return () => clearTimeout(timer);
   }, [text]);

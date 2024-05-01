@@ -5,9 +5,12 @@ import {
   Card,
   CircularProgress,
   Divider,
-  Grid,
   IconButton,
   Stack,
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
   Table,
   TableBody,
   TableCell,
@@ -22,19 +25,18 @@ import {
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useDirectlyPurchaseRequestOrderStore as useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
-import { ArrowForward, Cancel, Close, Delete, Edit, Info, Save } from '@mui/icons-material';
-import React, { useEffect, useState } from 'react';
+import { Cancel, Delete, Edit, Info, Save } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
 import { useGetArticlesBySearch } from '../../../../hooks/useGetArticlesBySearch';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { isValidFloat, isValidInteger } from '../../../../utils/functions/dataUtils';
-import { getPurchaseConfig } from '../../../../api/api.routes';
+import { getPurchaseConfig, modifyDirectOrderPurcharse } from '../../../../api/api.routes';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
-import { AlertConfigAmount } from './AlertConfigAmount';
 import AnimateButton from '../../../@extended/AnimateButton';
 import { IProvider } from '../../../../types/types';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
+import { Note } from './Note';
 
 type Article = {
   id: string;
@@ -71,10 +73,12 @@ export const UpdateDirectlyPurchaseOrder = (props: {
     price?: number;
     stock?: number;
   }[];
+  purcharseOrderWarehouseId: string;
+  purcharseOrderId: string;
+  clearData: Function;
 }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  const { warehouseSelected, setProvider } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    warehouseSelected: state.warehouseSelected,
+  const { setProvider } = useDirectlyPurchaseRequestOrderStore((state) => ({
     setProvider: state.setProvider,
   }));
   const setArticles = useDirectlyPurchaseRequestOrderStore((state) => state.setArticles);
@@ -84,13 +88,13 @@ export const UpdateDirectlyPurchaseOrder = (props: {
   const setSearch = useDirectlyPurchaseRequestOrderStore((state) => state.setSearch);
   const [articleSelected, setArticleSelected] = useState<Article | null>(null);
   const [amountText, setAmountText] = useState('');
-  const [warehouseError, setWarehouseError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
   const { providers } = useGetAllProviders();
-  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5'); //cambiar por prop
+  const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(props.purcharseOrderWarehouseId);
   useEffect(() => {
     setArticles(props.initialArticles);
+    console.log(props.purcharseOrderWarehouseId);
   }, []);
   useEffect(() => {
     setArticlesFetched(
@@ -136,7 +140,14 @@ export const UpdateDirectlyPurchaseOrder = (props: {
       <Stack sx={{ p: 4, bgcolor: 'white', overflowY: 'auto' }}>
         <Stack sx={{ display: 'flex', flex: 1, mt: 2 }}>
           <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 14 }}>aqui poner almacen no c cambia{}</Typography>
+            <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+              <b> Almacen : </b>
+              {
+                almacenes.find((wh) => {
+                  return wh.id === props.purcharseOrderWarehouseId;
+                })?.nombre
+              }
+            </Typography>
           </Stack>
           <Divider sx={{ my: 2 }} />
           <Box
@@ -217,8 +228,9 @@ export const UpdateDirectlyPurchaseOrder = (props: {
             </AnimateButton>
           </Box>
           <ArticlesTable
-            setWarehouseError={setWarehouseError}
+            clearData={props.clearData}
             setOpen={props.setOpen}
+            purcharseOrderId={props.purcharseOrderId}
             initialProvidersFromOrder={props.initialProvidersFromOrder}
           />
         </Stack>
@@ -228,9 +240,10 @@ export const UpdateDirectlyPurchaseOrder = (props: {
 };
 
 const ArticlesTable = (props: {
+  clearData: Function;
   setOpen: Function;
-  setWarehouseError: Function;
   initialProvidersFromOrder: string[];
+  purcharseOrderId: string;
 }) => {
   const {
     articles,
@@ -239,12 +252,11 @@ const ArticlesTable = (props: {
     setArticles,
     step,
     provider,
-    setStep,
-    setIsManyProviders,
-    setIsDirectlyPurchase,
+    note,
     setTotalAmountRequest,
-    warehouseSelected,
     setProvider,
+    setPaymentMethod,
+    paymentMethod,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -256,9 +268,11 @@ const ArticlesTable = (props: {
       setIsManyProviders: state.setIsManyProviders,
       setIsDirectlyPurchase: state.setIsDirectlyPurchase,
       setTotalAmountRequest: state.setTotalAmountRequest,
-      warehouseSelected: state.warehouseSelected,
-      setProvider: state.setProvider,
+      setProvider: state.setProvider as any,
       provider: state.provider,
+      setPaymentMethod: state.setPaymentMethod,
+      paymentMethod: state.paymentMethod,
+      note: state.note,
     }),
     shallow
   );
@@ -383,37 +397,31 @@ const ArticlesTable = (props: {
     setArticles(articleData);
     setTotalAmountRequest(totalPrice);
     try {
-      const { cantidadOrdenDirecta, cantidadLicitacionDirecta, activarLicitacion } = await getPurchaseConfig();
-      if (totalPrice >= cantidadLicitacionDirecta && activarLicitacion) {
-        AlertConfigAmount(setStep, step, setIsManyProviders, true);
-        setIsDirectlyPurchase(false);
-      } else if (
-        totalPrice >= cantidadOrdenDirecta ||
-        (totalPrice >= cantidadLicitacionDirecta && !activarLicitacion)
-      ) {
-        AlertConfigAmount(setStep, step, setIsManyProviders, false);
-        setIsDirectlyPurchase(false);
-      } else {
-        setIsDirectlyPurchase(true);
-        setStep(step + 1);
+      const { cantidadOrdenDirecta } = await getPurchaseConfig();
+      if (totalPrice > cantidadOrdenDirecta) {
+        return toast.error(`El total de la orden no debe superar los ${cantidadOrdenDirecta}`);
       }
-      console.log('prov', provider);
       const object = {
-        //Id_Proveedor: provider.id,
-        /*Id_Proveedor:
-          (provider as []).length > 1 ? (provider as IProvider[]).map((prov) => prov.id) : (provider as IProvider).id,*/
-        Id_Proveedor: (provider as IProvider[]).map((prov) => prov.id),
-        Id_Almacen: warehouseSelected,
-        PrecioTotalOrden: totalPrice,
-        OrdenCompraArticulo: articles.map((a) => {
-          return {
-            Id_Articulo: a.id,
-            Cantidad: a.amount,
-            PrecioProveedor: a.price as number,
-          };
-        }),
+        OrdenCompra: {
+          Id_OrdenCompra: props.purcharseOrderId,
+          Id_Proveedor: (provider as IProvider[]).at(0)?.id as string,
+          conceptoPago: paymentMethod,
+          notas: note,
+          //PrecioTotalOrden: totalPrice,
+          OrdenCompraArticulo: articles.map((a) => {
+            return {
+              Id_Articulo: a.id,
+              Cantidad: a.amount,
+              PrecioProveedor: a.price as number,
+            };
+          }),
+        },
       };
       console.log(object);
+      await modifyDirectOrderPurcharse(object);
+      toast.success('Orden de compra exitosa!');
+      props.clearData();
+      props.setOpen(false);
     } catch (error) {
       console.log(error);
       toast.error('Error al editar la compra');
@@ -532,25 +540,17 @@ const ArticlesTable = (props: {
       <Autocomplete
         disablePortal
         fullWidth
-        multiple
         filterOptions={filterProviderOptions}
         onChange={(e, val) => {
           e.stopPropagation();
-          const providerArray = provider ? (provider as IProvider[]) : [];
-          if (totalValue() < 5000 && val.length > 1) {
-            return toast.warning('Solo puedes seleccionar 1 proveedor');
-          }
-          if (providerArray.length === 3 && val.length > 3) {
-            return toast.warning('No puedes agregar mas de 3 proveedores');
-          }
-          setProvider(val);
+          setProvider([val]);
           setProviderError(false);
         }}
         loading={isLoadingProviders && providers.length === 0}
         getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
         options={providers}
         isOptionEqualToValue={(option, value) => option.id === value.id}
-        value={!provider ? [] : (provider as IProvider[])}
+        value={(provider as IProvider[])[0] ? (provider as IProvider[]).at(0) : undefined}
         noOptionsText="No se encontraron proveedores"
         renderInput={(params) => (
           <TextField
@@ -562,6 +562,26 @@ const ArticlesTable = (props: {
           />
         )}
       />
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
+        <Stack direction="row" spacing={2}>
+          <FormControl component="fieldset" sx={{ width: '100%' }}>
+            <RadioGroup
+              row
+              sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
+              aria-label="paymentMethod"
+              name="paymentMethod"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(Number(e.target.value))}
+            >
+              <FormControlLabel value={1} control={<Radio />} label="Crédito" />
+              <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
+              <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+            </RadioGroup>
+          </FormControl>
+        </Stack>
+      </Box>
+      <Note />
       <Box
         sx={{
           display: 'flex',
@@ -571,12 +591,19 @@ const ArticlesTable = (props: {
           bottom: 0,
         }}
       >
-        <Button variant="outlined" startIcon={<Cancel />} color="error" onClick={() => props.setOpen(false)}>
+        <Button
+          variant="outlined"
+          startIcon={<Cancel />}
+          color="error"
+          onClick={() => {
+            props.setOpen(false);
+          }}
+        >
           Cancelar
         </Button>
         <Button
           variant="contained"
-          endIcon={<ArrowForward />}
+          endIcon={<Save />}
           disabled={editingIds.size > 0 || articles.length === 0}
           onClick={() => handleNextStep()}
         >

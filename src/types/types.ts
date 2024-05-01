@@ -296,6 +296,9 @@ export interface IPurchaseOrder {
   ordenCompraArticulo: IPurchaseOrderArticle[];
   precioTotalOrden: number;
   proveedor: { id_Proveedor: string; nombre: string; estatus?: number | null };
+  id_Almacen: string;
+  fueAutorizada: boolean;
+  notas?: string;
 }
 
 export interface IPurchaseOrderArticle {
@@ -446,4 +449,23 @@ export interface IArticleSell {
 
 export interface IPharmacyConfig {
   id_Almacen: string;
+}
+
+export interface IPurchaseWithoutProvider {
+  articulos: {
+    id_Articulo: string;
+    cantidadCompra: number;
+  }[];
+  notas: string;
+}
+
+export interface ICheckoutHistory {
+  id: string;
+  nombreUsuario: string;
+  efectivo: number;
+  transferencia: number;
+  debito: number;
+  credito: number;
+  ventaTotal: number;
+  diaCorte: string;
 }

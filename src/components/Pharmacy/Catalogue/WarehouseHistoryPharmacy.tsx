@@ -25,6 +25,7 @@ import { useState } from 'react';
 import { useWarehouseMovementPaginationStore } from '../../../store/warehouseStore/movimientoAlmacenPaginacion';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { AddSubWarehouseModal } from '../../Warehouse/WarehouseSelected/TabsView/Modal/AddSubWarehouseModal';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const useGetMovements = () => {
   const {
@@ -60,9 +61,10 @@ const useGetMovements = () => {
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
   }));
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
 
   useEffect(() => {
-    fetchWareHouseMovements('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5');
+    fetchWareHouseMovements(warehouseIdSeted);
   }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
   return {
     data,
@@ -221,8 +223,8 @@ export const WarehouseHistoryPharmacy = () => {
                                 <TableBody>
                                   {movimiento?.historialArticulos &&
                                     movimiento?.historialArticulos?.length > 0 &&
-                                    movimiento.historialArticulos.map((movimientoArticuclo) => (
-                                      <TableRow key={movimientoArticuclo.nombre}>
+                                    movimiento.historialArticulos.map((movimientoArticuclo, i) => (
+                                      <TableRow key={i}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
                                       </TableRow>

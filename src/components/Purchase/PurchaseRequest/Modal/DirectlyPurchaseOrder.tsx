@@ -124,6 +124,13 @@ const stepsView = (step: number, setOpen: Function) => {
 
 export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
   const step = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.step));
+  const clearData = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.clearAllStates));
+
+  useEffect(() => {
+    return () => {
+      clearData();
+    };
+  }, []);
 
   return (
     <Box sx={style}>
@@ -142,7 +149,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
   );
 };
 
-const BuildOrder = (props: { setOpen: Function }) => {
+export const BuildOrder = (props: { setOpen: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const warehouseSelected = useDirectlyPurchaseRequestOrderStore((state) => state.warehouseSelected);
   const setWarehouseSelected = useDirectlyPurchaseRequestOrderStore((state) => state.setWarehouseSelected);
@@ -311,6 +318,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     setTotalAmountRequest,
     warehouseSelected,
     setProvider,
+    hasProvider,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -324,6 +332,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
       setTotalAmountRequest: state.setTotalAmountRequest,
       warehouseSelected: state.warehouseSelected,
       setProvider: state.setProvider,
+      hasProvider: state.hasProvider,
     }),
     shallow
   );
@@ -453,10 +462,8 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     setArticles(articleData);
     setTotalAmountRequest(totalPrice);
     try {
+      if (!hasProvider) return setStep(step + 1);
       const { cantidadOrdenDirecta, cantidadLicitacionDirecta, activarLicitacion } = await getPurchaseConfig();
-      console.log({ cantidadOrdenDirecta });
-      console.log({ cantidadLicitacionDirecta });
-      console.log({ activarLicitacion });
       if (totalPrice >= cantidadLicitacionDirecta && activarLicitacion) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
         setIsDirectlyPurchase(false);

@@ -28,8 +28,10 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
 import { articlesOutputToWarehouse } from '../../../api/api.routes';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const useGetMovements = () => {
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const {
     data,
     fetchWareHouseMovements,
@@ -65,7 +67,7 @@ const useGetMovements = () => {
   }));
 
   useEffect(() => {
-    fetchWareHouseMovements('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5');
+    fetchWareHouseMovements(warehouseIdSeted);
   }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
   return {
     data,
@@ -100,6 +102,7 @@ export const WaitingPackages = () => {
     setPageSize,
     fetchWareHouseMovements,
   } = useGetMovements();
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
 
   const rejectRequest = (idRequest: string) => {
     withReactContent(Swal)
@@ -114,16 +117,19 @@ export const WaitingPackages = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return articlesOutputToWarehouse({
-            Estatus: 0,
-            Id_HistorialMovimiento: idRequest,
-          });
+          return articlesOutputToWarehouse(
+            {
+              Estatus: 0,
+              Id_HistorialMovimiento: idRequest,
+            },
+            true
+          );
         },
         allowOutsideClick: () => !Swal.isLoading(),
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchWareHouseMovements();
+          fetchWareHouseMovements(warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Salida cancelada',
@@ -161,6 +167,7 @@ export const WaitingPackages = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
+          fetchWareHouseMovements(warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Salida Aceptada',
@@ -168,7 +175,6 @@ export const WaitingPackages = () => {
           });
         } else {
           withReactContent(Swal).fire({
-            //truena
             title: 'Operación Cancelada',
             text: 'La salida no fue aceptada.',
             icon: 'info',

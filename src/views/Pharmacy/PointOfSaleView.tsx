@@ -7,14 +7,14 @@ import { useEffect, useState } from 'react';
 import { usePosOrderArticlesStore } from '../../store/pharmacy/pointOfSale/posOrderArticles';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { error, primary } from '../../theme/colors';
-import { IUserSalesRegister } from '../../types/types';
+import { IUser, IUserSalesRegister } from '../../types/types';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/auth';
 import { createUserSalesRegister, getUserSalesRegister } from '../../services/pharmacy/pointOfSaleService';
 import { ArticlesSoldHistory } from '../../components/Pharmacy/PointOfSale/ArticlesSoldHistory';
 import { useShallow } from 'zustand/react/shallow';
 
-const alert = (userId: string, navigate: NavigateFunction, userData: IUserSalesRegister, setIsLoading: Function) => {
+const alert = (navigate: NavigateFunction, userData: IUserSalesRegister, setIsLoading: Function) => {
   Swal.fire({
     title: 'Advertencia',
     text: `Para poder acceder al punto de venta es necesario crear una caja. Al hacer click en el botón aceptar automáticamente se creara una caja, en caso de rechazar sera redireccionado al inicio`,
@@ -29,7 +29,7 @@ const alert = (userId: string, navigate: NavigateFunction, userData: IUserSalesR
     if (res.isDenied || res.dismiss) return navigate('/');
     if (res.isConfirmed) {
       try {
-        const res = await createUserSalesRegister(userId);
+        const res = await createUserSalesRegister();
         usePosOrderArticlesStore.setState({ userSalesRegisterData: { ...userData, id: res.id } });
         Swal.fire({
           icon: 'success',
@@ -61,16 +61,17 @@ const closeCheckoutAlert = () => {
   });
 };
 
-const useGetUserSalesRegister = (userId: string, navigate: NavigateFunction) => {
+const useGetUserSalesRegister = (navigate: NavigateFunction) => {
   const [isLoading, setIsLoading] = useState(true);
   const setUserSalesRegisterData = usePosOrderArticlesStore((state) => state.setUserSalesRegisterData);
   const userSalesRegisterData = usePosOrderArticlesStore((state) => state.userSalesRegisterData);
+  const profile = useAuthStore((state) => state.profile) as IUser;
 
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
-      const res = await getUserSalesRegister(userId);
-      if (!res.tieneCaja || res.cerrada) return alert(userId, navigate, userSalesRegisterData, setIsLoading);
+      const res = await getUserSalesRegister(profile.id);
+      if (!res.tieneCaja || res.cerrada) return alert(navigate, userSalesRegisterData, setIsLoading);
       setUserSalesRegisterData(res);
       try {
       } catch (error) {
@@ -100,8 +101,8 @@ const returnPosView = (tabValue: number) => {
 const PointOfSaleView = () => {
   const tabValue = usePosTabNavStore((state) => state.tabValue);
   const navigate = useNavigate();
-  const profile = useAuthStore((state) => state.profile);
-  const isLoading = useGetUserSalesRegister(profile?.id as string, navigate);
+  // const profile = useAuthStore((state) => state.profile);
+  const isLoading = useGetUserSalesRegister(navigate);
   const clearData = usePosOrderArticlesStore((state) => state.clearData);
   const data = usePosOrderArticlesStore(useShallow((state) => state.userSalesRegisterData));
 
