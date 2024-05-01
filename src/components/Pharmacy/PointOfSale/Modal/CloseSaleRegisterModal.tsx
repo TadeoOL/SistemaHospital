@@ -1,12 +1,13 @@
 import { Backdrop, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useEffect } from 'react';
-import { SellsTable } from '../ArticlesSoldHistory';
 import { useGetSellsHistory } from '../../../../hooks/useGetSellsHistory';
 import { usePosSellsHistoryDataStore } from '../../../../store/pharmacy/pointOfSale/posSellsHistoryData';
 import { toast } from 'react-toastify';
 import { usePosOrderArticlesStore } from '../../../../store/pharmacy/pointOfSale/posOrderArticles';
 import { closeCheckout } from '../../../../services/pharmacy/pointOfSaleService';
+import { SellsTable } from '../../ArticlesSoldHistoryTableComponent';
+import { getPaymentsData, getTotalAmount } from '../../../../utils/pointOfSaleUtils';
 
 const style = {
   position: 'absolute',
@@ -40,6 +41,11 @@ interface CloseSaleRegisterModalProps {
 }
 
 export const CloseSaleRegisterModal = (props: CloseSaleRegisterModalProps) => {
+  const count = usePosSellsHistoryDataStore((state) => state.count);
+  const pageIndex = usePosSellsHistoryDataStore((state) => state.pageIndex);
+  const pageSize = usePosSellsHistoryDataStore((state) => state.pageSize);
+  const setPageIndex = usePosSellsHistoryDataStore((state) => state.setPageIndex);
+  const setPageSize = usePosSellsHistoryDataStore((state) => state.setPageSize);
   const clearData = usePosSellsHistoryDataStore((state) => state.clearData);
   const checkoutId = usePosOrderArticlesStore((state) => state.userSalesRegisterData).id;
   const sellsStates = [2];
@@ -53,7 +59,18 @@ export const CloseSaleRegisterModal = (props: CloseSaleRegisterModalProps) => {
 
   const handleCloseCheckout = async () => {
     try {
-      await closeCheckout(checkoutId);
+      const totalAmount = getTotalAmount(sellsHistory.flatMap((s) => s.totalVenta));
+      const payments = getPaymentsData(sellsHistory);
+      const object = {
+        checkoutId,
+        debit: payments.debito,
+        credit: payments.credito,
+        transfer: payments.transferencia,
+        cash: payments.efectivo,
+        totalAmount,
+      };
+      console.log({ object });
+      await closeCheckout(object);
       window.location.reload();
     } catch (error) {
       console.log('error');
@@ -72,7 +89,14 @@ export const CloseSaleRegisterModal = (props: CloseSaleRegisterModalProps) => {
       <HeaderModal title="Cierre de caja" setOpen={props.setOpen} />
       <Stack sx={{ bgcolor: 'background.paper', p: 4 }}>
         <Typography variant="h4">Resumen de articulos vendidos</Typography>
-        <SellsTable sells={sellsHistory} />
+        <SellsTable
+          sells={sellsHistory}
+          count={count}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          setPageIndex={setPageIndex}
+          setPageSize={setPageSize}
+        />
       </Stack>
       <Box
         sx={{

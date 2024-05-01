@@ -7,7 +7,6 @@ import { PurchaseOrder } from '../../components/Purchase/PurchaseRequest/Purchas
 import { PurchaseRequestCard } from '../../components/Purchase/PurchaseRequest/PurchaseRequestCard';
 import { usePurchaseRequestNav } from '../../store/purchaseStore/purchaseRequestNav';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
-// import { useShallow } from 'zustand/react/shallow';
 import { shallow } from 'zustand/shallow';
 import { DirectlyPurchaseOrder } from '../../components/Purchase/PurchaseRequest/Modal/DirectlyPurchaseOrder';
 import { PurchaseWithoutProvider } from '../../components/Purchase/PurchaseRequest/Modal/PurchaseWithoutProvider';

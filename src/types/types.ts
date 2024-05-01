@@ -458,3 +458,14 @@ export interface IPurchaseWithoutProvider {
   }[];
   notas: string;
 }
+
+export interface ICheckoutHistory {
+  id: string;
+  nombreUsuario: string;
+  efectivo: number;
+  transferencia: number;
+  debito: number;
+  credito: number;
+  ventaTotal: number;
+  diaCorte: string;
+}
