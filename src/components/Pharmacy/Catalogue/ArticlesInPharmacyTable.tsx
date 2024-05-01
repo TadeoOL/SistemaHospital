@@ -32,6 +32,7 @@ import { IExistingArticle, IExistingArticleList } from '../../../types/types';
 import { returnExpireDate } from '../../../utils/expireDate';
 import { ArticlesExitModal } from './Modal/ArticlesExitModal';
 import { SortComponent } from '../../Commons/SortComponent';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -108,9 +109,11 @@ const useGetExistingArticles = (warehouseId: string) => {
     endDate,
     isLoading,
     setSort,
+    fetchExistingArticles,
   };
 };
 export const ArticlesPharmacyTable = () => {
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const {
     data,
     setSearch,
@@ -120,10 +123,11 @@ export const ArticlesPharmacyTable = () => {
     setPageIndex,
     setPageSize,
     setSort,
+    fetchExistingArticles,
     startDate,
     endDate,
     isLoading,
-  } = useGetExistingArticles('fc6d0fdd-8cfa-49a7-863e-206a7542a5e5'); //hardcodeo tranqui
+  } = useGetExistingArticles(warehouseIdSeted);
   const [openModal, setOpenModal] = useState(false);
 
   if (isLoading && data.length === 0)
@@ -243,10 +247,7 @@ export const ArticlesPharmacyTable = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          <ArticlesExitModal
-            setOpen={setOpenModal}
-            warehouseId={'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5'} //hardcodeo criminal
-          />
+          <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
         </>
       </Modal>
     </>

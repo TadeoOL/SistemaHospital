@@ -10,6 +10,7 @@ import {
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
+  OrdenCompraArticulo,
 } from '../types/types';
 import { AxiosError } from 'axios';
 
@@ -822,7 +823,8 @@ export const modifyMinStockExistingArticle = async (data: {
   return res.data;
 };
 
-export const articlesOutputToWarehouse = async (data: {
+export const articlesOutputToWarehouse = async (
+  data: {
   solicitudAceptada?: boolean;
   id_almacenOrigen?: string;
   id_almacenDestino?: string;
@@ -833,7 +835,9 @@ export const articlesOutputToWarehouse = async (data: {
   Estatus: number;
   Id_HistorialMovimiento?: string;
   Mensaje?: string;
-}) => {
+},
+  paqueteCancelado?: boolean 
+) => {
   if (data.solicitudAceptada) {
     const modifiedArticulos = data.Articulos?.map((articulo) => ({
       ...articulo,
@@ -843,6 +847,13 @@ export const articlesOutputToWarehouse = async (data: {
     const res = await axios.post(`/api/Almacen/aceptar-peticion-almacen`, {
       ...data,
       Articulos: modifiedArticulos,
+    });
+    return res.data;
+  }
+  if(paqueteCancelado){
+    const res = await axios.post(`/api/Almacen/aceptar-peticion-almacen`, {
+      ...data,
+      PaqueteCancelado: true,
     });
     return res.data;
   }
@@ -910,6 +921,20 @@ export const articlesPackageOutputToWarehouse = async (data: {
   Id_HistorialMovimiento?: string;
 }) => {
     const res = await axios.put(`/api/Almacen/modificar-estatus-paquete`, {
+      ...data,
+    });
+    return res.data;
+};
+
+export const modifyDirectOrderPurcharse = async (data: {
+  OrdenCompra: {
+    Id_OrdenCompra: string;
+    Id_Proveedor: string;
+    conceptoPago?: number;
+    notas: string;
+    OrdenCompraArticulo: OrdenCompraArticulo[];}
+}) => {
+    const res = await axios.put(`/api/Compras/modificar-orden-compra-directa`, {
       ...data,
     });
     return res.data;
