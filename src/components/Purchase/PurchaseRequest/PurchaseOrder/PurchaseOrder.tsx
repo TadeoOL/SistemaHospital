@@ -18,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { Edit } from '@mui/icons-material';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -102,9 +103,16 @@ export const PurchaseOrder = () => {
   }>({ folio: '', OrderId: '' });
   const [providersForEdition, setProvidersForEdition] = useState<string[]>([]);
   const [articlesForEdition, setArticlesForEdition] = useState<any>([]);
-  const { openPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    openPurchaseRequestOrder: state.openPurchaseRequestOrder,
-  }));
+  const [purchaseWarehouseId, setPurchaseWarehouseId] = useState('');
+  const [purchaseOrderId, setPurchaseOrderId] = useState('');
+  const { openPurchaseRequestOrder, setPaymentMethod, setNote, clearAllStates } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+      setPaymentMethod: state.setPaymentMethod,
+      setNote: state.setNote,
+      clearAllStates: state.clearAllStates,
+    })
+  );
 
   const {
     isLoading,
@@ -159,7 +167,18 @@ export const PurchaseOrder = () => {
       checkedArticles: [],
     });
   }, [openPurchaseRequestOrder]);
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (!openUpdateOrderModal) {
+      clearAllStates();
+    }
+  }, [openUpdateOrderModal]);
+  const handleRefetchAndClearStates = () => {
+    fetch();
+    setPurchaseOrderId('');
+    setPurchaseWarehouseId('');
+    setArticlesForEdition([]);
+  };
+
   useGetAllProviders();
 
   const values = useMemo(() => {
@@ -337,7 +356,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {order.precioTotalOrden < 5000 && (
+                                  {!order.fueAutorizada && (
                                     <Tooltip title="Editar">
                                       <IconButton
                                         onClick={() => {
@@ -345,6 +364,10 @@ export const PurchaseOrder = () => {
                                             folio: order.folio_Extension,
                                             OrderId: order.id_OrdenCompra,
                                           });
+                                          setPaymentMethod(order.conceptoPago);
+                                          setNote(order.notas || '');
+                                          setPurchaseOrderId(order.id_OrdenCompra);
+                                          setPurchaseWarehouseId(order.id_Almacen);
                                           setOpenUpdateOrderModal(true);
                                           order.proveedor.estatus = order.estatus;
                                           setProviders([order.proveedor]);
@@ -360,7 +383,7 @@ export const PurchaseOrder = () => {
                                           );
                                         }}
                                       >
-                                        <UploadFileIcon />
+                                        <Edit />
                                       </IconButton>
                                     </Tooltip>
                                   )}
@@ -549,6 +572,9 @@ export const PurchaseOrder = () => {
             setOpen={setOpenUpdateOrderModal}
             initialProvidersFromOrder={providersForEdition}
             initialArticles={articlesForEdition}
+            purcharseOrderWarehouseId={purchaseWarehouseId}
+            purcharseOrderId={purchaseOrderId}
+            clearData={handleRefetchAndClearStates}
           />
         </>
       </Modal>

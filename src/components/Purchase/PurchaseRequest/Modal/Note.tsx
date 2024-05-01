@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export const Note = () => {
-  const [localNote, setLocalNote] = useState('');
+  const note = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.note));
+  const [localNote, setLocalNote] = useState(note ? note : '');
   const setNote = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.setNote));
 
   useEffect(() => {

@@ -73,7 +73,7 @@ const style = {
   },
 };
 
-export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string }) => {
+export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
@@ -264,8 +264,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         Estatus: 3,
         Mensaje: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
       };
-      const faaak = await articlesOutputToWarehouse(object);
-      console.log(faaak);
+      await articlesOutputToWarehouse(object);
+      props.refetch();
       toast.success('Salida a artículos con éxito!');
       setLoadingSubmit(false);
       props.setOpen(false);
@@ -282,7 +282,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Agregar paquete de artículos" />
+      <HeaderModal setOpen={props.setOpen} title="Salida paquete de artículos" />
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
           <Stack sx={{ display: 'flex', flex: 1 }}>
