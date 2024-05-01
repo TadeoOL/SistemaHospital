@@ -296,6 +296,9 @@ export interface IPurchaseOrder {
   ordenCompraArticulo: IPurchaseOrderArticle[];
   precioTotalOrden: number;
   proveedor: { id_Proveedor: string; nombre: string; estatus?: number | null };
+  id_Almacen: string;
+  fueAutorizada: boolean;
+  notas?: string;
 }
 
 export interface IPurchaseOrderArticle {
