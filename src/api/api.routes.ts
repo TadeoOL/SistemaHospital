@@ -835,6 +835,7 @@ export const articlesOutputToWarehouse = async (
   Estatus: number;
   Id_HistorialMovimiento?: string;
   Mensaje?: string;
+  SolicitadoPor?: string;
 },
   paqueteCancelado?: boolean 
 ) => {
@@ -938,4 +939,9 @@ export const modifyDirectOrderPurcharse = async (data: {
       ...data,
     });
     return res.data;
+};
+
+export const getNursesUsers = async () => {
+  const res = await axios.get(`/api/ConfiguracionFarmacia/obtener-enfermeros`);
+  return res.data;
 };
