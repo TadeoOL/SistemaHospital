@@ -834,7 +834,7 @@ export const articlesOutputToWarehouse = async (
   }[];
   Estatus: number;
   Id_HistorialMovimiento?: string;
-  Mensaje?: string;
+  SalidaMotivo?: string;
   SolicitadoPor?: string;
 },
   paqueteCancelado?: boolean 
