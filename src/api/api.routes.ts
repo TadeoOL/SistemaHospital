@@ -836,6 +836,7 @@ export const articlesOutputToWarehouse = async (
   Id_HistorialMovimiento?: string;
   SalidaMotivo?: string;
   SolicitadoPor?: string;
+  Mensaje?: string;
 },
   paqueteCancelado?: boolean 
 ) => {
