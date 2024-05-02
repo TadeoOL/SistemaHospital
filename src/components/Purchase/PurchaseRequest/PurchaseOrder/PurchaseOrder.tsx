@@ -356,7 +356,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!order.fueAutorizada && (
+                                  {(!order.fueAutorizada && order.estatus === 1) && (
                                     <Tooltip title="Editar">
                                       <IconButton
                                         onClick={() => {
