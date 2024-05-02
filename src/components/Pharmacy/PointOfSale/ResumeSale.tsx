@@ -25,7 +25,10 @@ export const ResumeSale = () => {
     },
     { subTotal: 0, iva: 0 }
   );
-  const total = subTotal + iva;
+  const subTotalFixed = parseFloat(subTotal.toFixed(2));
+  const ivaFixed = parseFloat(iva.toFixed(2));
+  const total = subTotalFixed + ivaFixed;
+  const totalFixed = parseFloat(total.toFixed(2));
 
   const handleOpen = useCallback(() => {
     if (articlesOnBasket.length === 0) return toast.warning('No hay artículos en la canasta');
@@ -53,16 +56,16 @@ export const ResumeSale = () => {
       >
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
           <Typography sx={{ color: 'white', fontSize: 14, fontWeight: 600 }}>Sub Total</Typography>
-          <Typography sx={{ color: 'white' }}>${subTotal}</Typography>
+          <Typography sx={{ color: 'white' }}>${subTotalFixed}</Typography>
         </Box>
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
           <Typography sx={{ color: 'white', fontSize: 14, fontWeight: 600 }}>IVA</Typography>
-          <Typography sx={{ color: 'white' }}>${iva}</Typography>
+          <Typography sx={{ color: 'white' }}>${ivaFixed}</Typography>
         </Box>
         <Divider sx={{ my: 0.5 }} />
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
           <Typography sx={{ color: 'white', fontSize: 14, fontWeight: 600 }}>Total</Typography>
-          <Typography sx={{ color: 'white' }}>${total}</Typography>
+          <Typography sx={{ color: 'white' }}>${totalFixed}</Typography>
         </Box>
         <Box sx={{ mt: 2, display: 'flex', flex: 1 }}>
           <Button
