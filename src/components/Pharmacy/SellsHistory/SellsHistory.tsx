@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useSellsHistoryPaginationStore } from '../../../store/pharmacy/sellsHistory/sellsHistoryPagination';
 import { ArticlesSoldHistoryTableComponent } from '../ArticlesSoldHistoryTableComponent';
 
+const headersChildren = ['Nombre', 'Cantidad', 'Precio Unitario'];
+const headers = ['', 'Venta Total', 'Monto Total', 'Estado Venta', 'Tipo Pago', 'Folio', 'Artículos Vendidos'];
 export const SellsHistory = () => {
   const setSearch = useSellsHistoryPaginationStore((state) => state.setSearch);
   const search = useSellsHistoryPaginationStore((state) => state.search);
@@ -30,6 +32,9 @@ export const SellsHistory = () => {
       setPageIndex={setPageIndex}
       setPageSize={setPageSize}
       setSearch={setSearch}
+      hasReport={true}
+      headersChildren={headersChildren}
+      headers={headers}
     />
   );
 };

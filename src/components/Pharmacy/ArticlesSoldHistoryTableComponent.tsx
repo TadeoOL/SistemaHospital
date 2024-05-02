@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { IArticleSell, ISell } from '../../types/types';
 import { SearchBar } from '../Inputs/SearchBar';
 import { getSellStatus, getSellType } from '../../utils/pointOfSaleUtils';
+import { Report } from '../Commons/Report/Report';
 // import { useGetSellsHistory } from '../../../hooks/useGetSellsHistory';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -75,6 +76,9 @@ interface ArticlesSoldTableComponentProps extends PaginationProps {
   setSearch: Function;
   data: any[];
   isLoading: boolean;
+  hasReport?: boolean;
+  headers?: string[];
+  headersChildren?: string[];
 }
 
 export const ArticlesSoldHistoryTableComponent = (props: ArticlesSoldTableComponentProps) => {
@@ -116,6 +120,14 @@ export const ArticlesSoldHistoryTableComponent = (props: ArticlesSoldTableCompon
             // }}
           />
         </Box> */}
+        {props.hasReport && (
+          <Report
+            data={data}
+            headers={props.headers as string[]}
+            hasChildren={true}
+            headersChildren={props.headersChildren}
+          />
+        )}
       </Box>
       {isLoading && data.length === 0 ? (
         <Box

@@ -19,8 +19,7 @@ import { useCheckoutHistoryPaginationStore } from '../../../store/pharmacy/sells
 import { SellTableFooter } from '../ArticlesSoldHistoryTableComponent';
 import { ICheckoutHistory } from '../../../types/types';
 import { formatDate } from '../../../utils/pointOfSaleUtils';
-
-const isLoading = false;
+import { Report } from '../../Commons/Report/Report';
 
 interface Pagination {
   count: number;
@@ -40,6 +39,16 @@ interface CheckoutHistoryTableProps extends Pagination {
 interface CheckoutHistoryRowProps {
   checkout: ICheckoutHistory;
 }
+
+const reportHeaders = [
+  'Nombre de usuario',
+  'Efectivo',
+  'Transferencia',
+  'Débito',
+  'Crédito',
+  'Venta Total',
+  'Dia corte',
+];
 const useGetAllData = () => {
   const fetchData = useCheckoutHistoryPaginationStore((state) => state.fetchData);
   const startDate = useCheckoutHistoryPaginationStore((state) => state.startDate);
@@ -59,6 +68,7 @@ const useGetAllData = () => {
   const setSellValue = useCheckoutHistoryPaginationStore((state) => state.setSellValue);
   const minValue = useCheckoutHistoryPaginationStore((state) => state.minValue);
   const maxValue = useCheckoutHistoryPaginationStore((state) => state.maxValue);
+  const isLoading = useCheckoutHistoryPaginationStore((state) => state.loading);
 
   useEffect(() => {
     fetchData();
@@ -83,6 +93,7 @@ const useGetAllData = () => {
     maxValue,
   };
 };
+
 export const CheckoutCloseHistory = () => {
   const {
     data,
@@ -92,6 +103,7 @@ export const CheckoutCloseHistory = () => {
     pageSize,
     pageIndex,
     clearData,
+    isLoading,
     // setStartDate,
     // setEndDate,
     // startDate,
@@ -149,6 +161,7 @@ export const CheckoutCloseHistory = () => {
             max={maxValue}
           />
         </Box> */}
+        <Report data={data} headers={reportHeaders} />
       </Box>
       {isLoading && data.length === 0 ? (
         <Box
