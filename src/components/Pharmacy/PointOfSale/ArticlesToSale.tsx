@@ -106,7 +106,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                         <Typography sx={{ fontSize: 9, fontWeight: 500, mb: 0.5 }}>
                           Codigo: {article.codigoBarras}
                         </Typography>
-                        {article.descripcion.length > 100 ? (
+                        {article.descripcion && article.descripcion.length > 100 ? (
                           <Tooltip title={article.descripcion}>
                             <Typography>{article.descripcion.substring(0, 80).concat('...')}</Typography>
                           </Tooltip>
