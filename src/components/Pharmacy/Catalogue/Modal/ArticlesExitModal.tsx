@@ -28,6 +28,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {
   articlesOutputToWarehouse,
   getArticlesByWarehouseIdAndSearch,
+  getNursesUsers,
   getPackagesByWarehouseId,
 } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
@@ -79,6 +80,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
   const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<IArticle[]>([]);
+  const [nursesData, setNursesData] = useState<string[]>([]);
   const textFieldRef = useRef<HTMLInputElement | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
@@ -118,6 +120,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   );
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
+  const [nurseSelected, setNurseSelected] = useState<string>();
   const [articleError, setArticleError] = useState(false);
 
   useEffect(() => {
@@ -200,6 +203,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       setIsLoadingArticlesWareH(true);
       const res = await getPackagesByWarehouseId(wareH);
       setDataWerehousePackagesSelected(res);
+      const resNurses = await getNursesUsers();
+      setNursesData(resNurses);
     } catch (error) {
       console.log(error);
     } finally {
@@ -214,12 +219,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     },
     resolver: zodResolver(addNewArticlesPackage),
   });
-  if (isLoadingWarehouse)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 6 }}>
-        <CircularProgress size={40} />
-      </Box>
-    );
   const validateAmount = (art: any) => {
     for (let i = 0; i < art.length; i++) {
       const articulo = art[i];
@@ -235,12 +234,23 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       toast.error('Selecciona un motivo de salida');
       return;
     }
+    if (!nurseSelected) {
+      toast.error('Selecciona enfermero');
+      return;
+    }
     try {
       if (!validateAmount) return;
       setLoadingSubmit(true);
+
       let articlesArticlesExit: any = [];
-      (articles as any).forEach((article: any) => {
+      for (const article of articles as any) {
+        //(articles as any).forEach((article: any) => {
         let amountArt = article.amount;
+        if (amountArt > article.stock) {
+          toast.error(`La cantidad de salida del articulo ${article.name} esta superando la existencias actuales! `);
+          setLoadingSubmit(false);
+          return;
+        }
         article.lote.forEach((loteA: any) => {
           if (amountArt > loteA.stock) {
             articlesArticlesExit.push({
@@ -256,13 +266,14 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
             amountArt = 0;
           }
         });
-      });
+      }
       const object = {
         Articulos: articlesArticlesExit,
         id_almacenDestino: props.warehouseId,
         id_almacenOrigen: props.warehouseId,
         Estatus: 3,
         Mensaje: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
+        SolicitadoPor: nurseSelected,
       };
       await articlesOutputToWarehouse(object);
       props.refetch();
@@ -283,61 +294,145 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Salida paquete de artículos" />
-      <form noValidate onSubmit={handleSubmit(onSubmit)}>
-        <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-          <Stack sx={{ display: 'flex', flex: 1 }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
-            <Autocomplete
-              disablePortal
-              fullWidth
-              filterOptions={filterPackageOptions}
-              onChange={(e, val) => {
-                e.stopPropagation();
-                setPackageSelected(val);
-                handleAddArticlesFromPackage(val as IArticlesPackage);
-              }}
-              loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
-              getOptionLabel={(option) => option.nombre}
-              options={dataWerehouseSelectedPackages}
-              value={packageSelected}
-              noOptionsText="No se encontraron paquetes"
-              renderInput={(params) => (
-                <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
-              )}
-            />
-          </Stack>
-          <Box
-            sx={{
-              display: 'flex',
-              flex: 1,
-              justifyContent: 'space-between',
-              columnGap: 2,
-              flexDirection: { xs: 'column', sm: 'row' },
-              rowGap: { xs: 2, sm: 0 },
-            }}
-          >
+      {isLoadingWarehouse ? (
+        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
+          <CircularProgress size={40} />
+        </Box>
+      ) : (
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+          <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
             <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
               <Autocomplete
                 disablePortal
                 fullWidth
-                filterOptions={filterArticleOptions}
+                filterOptions={filterPackageOptions}
                 onChange={(e, val) => {
                   e.stopPropagation();
-                  setArticleSelected(val);
-                  setArticleError(false);
+                  setPackageSelected(val);
+                  handleAddArticlesFromPackage(val as IArticlesPackage);
                 }}
-                loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
                 getOptionLabel={(option) => option.nombre}
-                options={dataWerehouseSelectedArticles}
-                value={articleSelected}
-                noOptionsText="No se encontraron artículos"
+                options={dataWerehouseSelectedPackages}
+                value={packageSelected}
+                noOptionsText="No se encontraron paquetes"
+                renderInput={(params) => (
+                  <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
+                )}
+              />
+            </Stack>
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 1,
+                justifyContent: 'space-between',
+                columnGap: 2,
+                flexDirection: { xs: 'column', sm: 'row' },
+                rowGap: { xs: 2, sm: 0 },
+              }}
+            >
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterArticleOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setArticleSelected(val);
+                    setArticleError(false);
+                  }}
+                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  getOptionLabel={(option) => option.nombre}
+                  options={dataWerehouseSelectedArticles}
+                  value={articleSelected}
+                  noOptionsText="No se encontraron artículos"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={articleError}
+                      helperText={articleError && 'Selecciona un articulo'}
+                      placeholder="Artículos"
+                      sx={{ width: '50%' }}
+                    />
+                  )}
+                />
+              </Stack>
+              <Box
+                sx={{
+                  display: 'flex',
+                  mt: 2,
+                }}
+              >
+                <AnimateButton>
+                  <Button
+                    size="medium"
+                    variant="contained"
+                    startIcon={<AddCircleIcon />}
+                    onClick={() => handleAddArticles()}
+                  >
+                    Agregar
+                  </Button>
+                </AnimateButton>
+              </Box>
+            </Box>
+            <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} initialData={articlesFetchedAM} />
+            <Box
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography textAlign={'center'}>Motivos de salida:</Typography>
+
+              <RadioGroup
+                sx={{
+                  mx: 'auto',
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'row',
+                }}
+                value={reasonMessage}
+                onChange={(e) => setReasonMessage(e.target.value)}
+              >
+                {radioOptions.map((option) => (
+                  <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
+                ))}
+                <TextField
+                  inputRef={textFieldRef}
+                  label={'Razón de salida'}
+                  error={true}
+                  sx={{
+                    visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
+                  }}
+                />
+              </RadioGroup>
+            </Box>
+            <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
+              <Autocomplete
+                disablePortal
+                fullWidth
+                //filterOptions={filterArticleOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setNurseSelected(val as string);
+                  setArticleError(false); //cambiar
+                }}
+                loading={isLoadingArticlesWareH}
+                //getOptionLabel={(option) => option.nombre}
+                options={nursesData}
+                value={nurseSelected}
+                noOptionsText="No se encontraron enfermeros"
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     error={articleError}
-                    helperText={articleError && 'Selecciona un articulo'}
-                    placeholder="Artículos"
+                    helperText={articleError && 'Selecciona un enfermero'}
+                    placeholder="Enfermeros"
                     sx={{ width: '50%' }}
                   />
                 )}
@@ -346,87 +441,36 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
             <Box
               sx={{
                 display: 'flex',
-                mt: 2,
-              }}
-            >
-              <AnimateButton>
-                <Button
-                  size="medium"
-                  variant="contained"
-                  startIcon={<AddCircleIcon />}
-                  onClick={() => handleAddArticles()}
-                >
-                  Agregar
-                </Button>
-              </AnimateButton>
-            </Box>
-          </Box>
-          <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} initialData={articlesFetchedAM} />
-          <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography textAlign={'center'}>Motivos de salida:</Typography>
-
-            <RadioGroup
-              sx={{
-                mx: 'auto',
                 flex: 1,
-                display: 'flex',
-                flexDirection: 'row',
+                justifyContent: 'space-between',
+                mt: 2,
+                bottom: 0,
               }}
-              value={reasonMessage}
-              onChange={(e) => setReasonMessage(e.target.value)}
             >
-              {radioOptions.map((option) => (
-                <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
-              ))}
-              <TextField
-                inputRef={textFieldRef}
-                label={'Razón de salida'}
-                error={true}
-                sx={{
-                  visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
+              <Button
+                variant="outlined"
+                startIcon={<Cancel />}
+                color="error"
+                onClick={() => {
+                  props.setOpen(false);
                 }}
-              />
-            </RadioGroup>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              flex: 1,
-              justifyContent: 'space-between',
-              mt: 2,
-              bottom: 0,
-            }}
-          >
-            <Button
-              variant="outlined"
-              startIcon={<Cancel />}
-              color="error"
-              onClick={() => {
-                props.setOpen(false);
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="contained"
-              endIcon={<Save />}
-              disabled={articles.length === 0 || loadingSubmit}
-              onClick={() => {
-                onSubmit();
-              }}
-            >
-              Guardar
-            </Button>
-          </Box>
-        </Stack>
-      </form>
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="contained"
+                endIcon={<Save />}
+                disabled={articles.length === 0 || loadingSubmit}
+                onClick={() => {
+                  onSubmit();
+                }}
+              >
+                Guardar
+              </Button>
+            </Box>
+          </Stack>
+        </form>
+      )}
     </Box>
   );
 };
@@ -502,6 +546,7 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function; initial
         toast.warning('La cantidad excede el stock disponible');
         return;
       }
+
       const updatedArticles = articles.map((article) => {
         if (article.id === id) {
           return {
