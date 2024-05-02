@@ -325,7 +325,6 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            :vVVVVv
             <IconButton onClick={() => setViewPdf(false)}>
               <Close />
             </IconButton>

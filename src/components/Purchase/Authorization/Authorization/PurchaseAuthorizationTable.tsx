@@ -10,6 +10,8 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  ClickAwayListener,
+  Stack,
   Modal,
   Paper,
   Table,
@@ -36,16 +38,8 @@ import { getProviderQuotePdf } from '../../../../api/api.routes';
 import { ProviderNameChip } from '../../PurchaseRequest/ProviderNameChip';
 import { Mensaje } from './Modal/Mensaje';
 import { SortComponent } from '../../../Commons/SortComponent';
-
-const handleOpenPdf = async (quoteId: string) => {
-  try {
-    const pdfRes = await getProviderQuotePdf(quoteId);
-    const pdfWindow = window.open('', '_blank');
-    pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { Close } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 const acceptPurchaseAuthorization = (Id_SolicitudCompra: string, Mensaje: string = 'Aceptada') => {
   const { fetchPurchaseAuthorization } = usePurchaseAuthorizationPagination.getState();
@@ -97,6 +91,8 @@ export const PurchaseAuthorizationTable = () => {
   const [openModal, setOpenModal] = useState(false);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [folio, setFolio] = useState('');
+  const [viewPdf, setViewPdf] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState('');
   const [openMensajeModal, setOpenMensajeModal] = useState(false);
   const [purchaseRequestId, setPurchaseRequestId] = useState('');
   const {
@@ -148,6 +144,17 @@ export const PurchaseAuthorizationTable = () => {
       purchaseOrderMatched: null,
     });
   }, [openModal]);
+
+  const handleOpenPdf = async (quoteId: string) => {
+    try {
+      const pdfRes = await getProviderQuotePdf(quoteId);
+      if (pdfRes === '') return toast.warning('Esta orden no cuenta con cotización');
+      setPdfOpen(pdfRes as string);
+      setViewPdf(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -370,6 +377,41 @@ export const PurchaseAuthorizationTable = () => {
             idSolicitudCompra={purchaseRequestId}
           />
         </>
+      </Modal>
+      <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
+        <Stack
+          sx={{
+            display: 'flex',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={() => setViewPdf(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+          <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 10,
+                mx: 7,
+                mb: 3,
+              }}
+            >
+              <embed
+                src={pdfOpen}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                }}
+              />
+            </Box>
+          </ClickAwayListener>
+        </Stack>
       </Modal>
     </>
   );
