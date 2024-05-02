@@ -380,6 +380,7 @@ export function createComponents(config: { palette: any }): Components {
               fontWeight: 400,
               transition: 'all 0.2s ease-in-out',
               background: '#FFFFFF',
+              display:"none"
             },
             [`&.${inputLabelClasses.outlined}`]: {
               transform: 'translate(14px, -9px) scale(0.85)',

@@ -20,8 +20,8 @@ export const SellsHistoryTabs = () => {
         }}
       >
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
-          <Tab label="Historial de cortes de caja" value={1} />
-          <Tab label="Historial de ventas" value={2} />
+          <Tab label="Cortes de Caja" value={1} />
+          <Tab label="Ventas" value={2} />
         </Tabs>
       </AppBar>
     </Box>

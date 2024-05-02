@@ -130,7 +130,7 @@ export const ArticlesSoldHistoryTableComponent = (props: ArticlesSoldTableCompon
           }}
         >
           <Typography variant="h4">Cargando ventas...</Typography>
-          <CircularProgress size={30} />;
+          <CircularProgress size={30} />
         </Box>
       ) : (
         <SellsTable
@@ -261,7 +261,7 @@ const ArticlesSoldTable = (props: ArticlesSoldTableProps) => {
         <TableRow>
           <StyledTableCell>Nombre</StyledTableCell>
           <StyledTableCell>Cantidad</StyledTableCell>
-          <StyledTableCell>precioUnitario</StyledTableCell>
+          <StyledTableCell>Precio Unitario</StyledTableCell>
         </TableRow>
       </TableHead>
       <ArticlesSoldTableBody articles={props.articles} />

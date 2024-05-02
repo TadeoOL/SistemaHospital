@@ -67,7 +67,9 @@ export const Layout: React.FC = () => {
     '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
     '/compras/solicitud-compras': 'Compras',
     '/almacenes': 'Almacén',
-    '/farmacia/configuracion-farmacia': 'Configuración de farmacia',
+    '/farmacia/configuracion-farmacia': 'Configuración de Farmacia',
+    '/farmacia/punto-venta' : 'Punto de Venta',
+    '/farmacia/historial-ventas': 'Historial de Ventas',
     '/farmacia/catalogo': 'Salidas y Existencias',
 
   };
