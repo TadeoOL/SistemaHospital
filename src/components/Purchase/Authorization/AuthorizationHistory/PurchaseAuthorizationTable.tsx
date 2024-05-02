@@ -8,6 +8,9 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  Modal,
+  Stack,
+  ClickAwayListener,
   Paper,
   Table,
   TableBody,
@@ -25,9 +28,11 @@ import { getProviderQuotePdf } from '../../../../api/api.routes';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { toast } from 'react-toastify';
 import { SortComponent } from '../../../Commons/SortComponent';
-
+import { Close } from '@mui/icons-material';
 export const PurchaseAuthorizationTable = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const [viewPdf, setViewPdf] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState('');
   const {
     isLoading,
     count,
@@ -75,6 +80,19 @@ export const PurchaseAuthorizationTable = () => {
     event.stopPropagation();
     setPageIndex(value);
   }, []);
+
+  const handleOpenPdf = async (quoteId: string) => {
+    try {
+      const pdfRes = await getProviderQuotePdf(quoteId);
+      if (pdfRes === '') return toast.warning('Esta orden no cuenta con cotización');
+      setPdfOpen(pdfRes as string);
+      setViewPdf(true);
+      //const pdfWindow = window.open('', '_blank');
+      //pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -165,9 +183,9 @@ export const PurchaseAuthorizationTable = () => {
                             {auth.habilitado == true ? 'Solicitud Autorizada' : 'Solicitud Rechazada'}
                           </TableCell>
                           <TableCell>
-                            <Tooltip title="Ver Cotización">
+                            <Tooltip title="Ver Cotización xxx">
                               <IconButton
-                                size="small"
+                                size="small" //Cambiar aca
                                 sx={{ color: 'neutral.700' }}
                                 onClick={() => {
                                   handleOpenPdf(auth.solicitudProveedor[0].id);
@@ -244,17 +262,41 @@ export const PurchaseAuthorizationTable = () => {
           labelRowsPerPage="Filas por página"
         />
       </Card>
+      <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
+        <Stack
+          sx={{
+            display: 'flex',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={() => setViewPdf(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+          <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 10,
+                mx: 7,
+                mb: 3,
+              }}
+            >
+              <embed
+                src={pdfOpen}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                }}
+              />
+            </Box>
+          </ClickAwayListener>
+        </Stack>
+      </Modal>
     </>
   );
-};
-
-const handleOpenPdf = async (quoteId: string) => {
-  try {
-    const pdfRes = await getProviderQuotePdf(quoteId);
-    if (pdfRes === '') return toast.warning('Esta orden no cuenta con cotización');
-    const pdfWindow = window.open('', '_blank');
-    pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
-  } catch (error) {
-    console.log(error);
-  }
 };
