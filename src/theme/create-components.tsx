@@ -359,9 +359,12 @@ export function createComponents(config: { palette: any }): Components {
           padding: '11px 14px 10.5px 13px',
           [`&.${inputLabelClasses.filled}`]: {
             transform: 'translate(0,0) scale(1)',
+            padding: '11px 14px 10.5px 13px',
             color: alpha('#808080', 0.5),
+            transition: 'all 0.2s ease-in-out',
             [`&.${selectClasses.select}`]: {
               transform: 'translate(20px,0) scale(1)',
+              padding: '11px 14px 10.5px 13px',
               color: alpha('#808080', 0.5),
             },
           },
@@ -370,7 +373,14 @@ export function createComponents(config: { palette: any }): Components {
               transform: 'translate(0,0) scale(0.85)',
             },
             [`&.${inputLabelClasses.filled}`]: {
-              display: 'none',
+              top: '-20%',
+              left: '10%',
+              padding: '0 .3em',
+              fontSize: 11,
+              fontWeight: 400,
+              transition: 'all 0.2s ease-in-out',
+              background: '#FFFFFF',
+              display:"none"
             },
             [`&.${inputLabelClasses.outlined}`]: {
               transform: 'translate(14px, -9px) scale(0.85)',
@@ -390,7 +400,6 @@ export function createComponents(config: { palette: any }): Components {
             padding: '0 8px',
             marginLeft: -6,
             lineHeight: '1.4375em',
-            color: 'red',
           },
         },
         filled: {

@@ -9,7 +9,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import { purchaseGlobalRoles, purchasingDirector, supplyRoles } from './dataRoles';
-import { LocalPharmacy, PointOfSale, ShoppingBasket } from '@mui/icons-material';
+import { History, LocalPharmacy, PointOfSale, ShoppingBasket } from '@mui/icons-material';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -122,9 +122,15 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
       },
       {
-        title: 'Artículos',
+        title: 'Salidas y existencias',
         path: '/farmacia/catalogo',
         icon: <ArticleIcon sx={{ color: '#fff' }} />,
+        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+      },
+      {
+        title: 'Historial de ventas',
+        path: '/farmacia/historial-ventas',
+        icon: <History sx={{ color: '#fff' }} />,
         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
       },
     ],

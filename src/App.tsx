@@ -9,6 +9,7 @@ import { Layout } from './components/Layout/Layout';
 import { NotFoundPage } from './views/404Page';
 import { LoginRoute } from './utils/LoginRoute';
 import { ToastContainer } from 'react-toastify';
+import { PharmacyRoute } from './utils/PharmacyRoute';
 import {
   Dashboard,
   PurchaseRequest,
@@ -26,6 +27,8 @@ import {
   WarehouseSelected,
   PointOfSaleView,
   PackageCatalogueView,
+  PharmacyConfigView,
+  SellsHistoryView,
 } from './utils/LazyRoutes';
 
 function App() {
@@ -56,8 +59,12 @@ function App() {
               <Route path="/configuracion" element={<AccountView />} />
             </Route>
             <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
-            <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
-            <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+            <Route element={<PharmacyRoute />}>
+              <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
+              <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+              <Route path="/farmacia/configuracion-farmacia" element={<PharmacyConfigView />} />
+              <Route path="/farmacia/historial-ventas" element={<SellsHistoryView />} />
+            </Route>
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
           </Route>
         </Route>

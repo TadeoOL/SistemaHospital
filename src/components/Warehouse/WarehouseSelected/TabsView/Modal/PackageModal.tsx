@@ -453,7 +453,6 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function }) => {
                               });
                             }}
                           />
-                          <Typography>stack max: {a.stock} </Typography>
                         </>
                       ) : (
                         a.amount

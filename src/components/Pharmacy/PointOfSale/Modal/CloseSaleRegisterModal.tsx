@@ -1,18 +1,13 @@
-import {
-  Box,
-  Button,
-  Card,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { useEffect } from 'react';
+import { useGetSellsHistory } from '../../../../hooks/useGetSellsHistory';
+import { usePosSellsHistoryDataStore } from '../../../../store/pharmacy/pointOfSale/posSellsHistoryData';
+import { toast } from 'react-toastify';
+import { usePosOrderArticlesStore } from '../../../../store/pharmacy/pointOfSale/posOrderArticles';
+import { closeCheckout } from '../../../../services/pharmacy/pointOfSaleService';
+import { SellsTable } from '../../ArticlesSoldHistoryTableComponent';
+import { getPaymentsData, getTotalAmount } from '../../../../utils/pointOfSaleUtils';
 
 const style = {
   position: 'absolute',
@@ -41,17 +36,67 @@ const style = {
 //   },
 // };
 
-const articles = [{ id: 1, nombre: 'pene', cantidad: 2, codigoBarras: '12312', fechaCaducidad: '12-12-2090' }];
 interface CloseSaleRegisterModalProps {
   setOpen: Function;
 }
+
 export const CloseSaleRegisterModal = (props: CloseSaleRegisterModalProps) => {
+  const count = usePosSellsHistoryDataStore((state) => state.count);
+  const pageIndex = usePosSellsHistoryDataStore((state) => state.pageIndex);
+  const pageSize = usePosSellsHistoryDataStore((state) => state.pageSize);
+  const setPageIndex = usePosSellsHistoryDataStore((state) => state.setPageIndex);
+  const setPageSize = usePosSellsHistoryDataStore((state) => state.setPageSize);
+  const clearData = usePosSellsHistoryDataStore((state) => state.clearData);
+  const checkoutId = usePosOrderArticlesStore((state) => state.userSalesRegisterData).id;
+  const sellsStates = [2];
+  const { isLoading, sellsHistory } = useGetSellsHistory(sellsStates);
+
+  useEffect(() => {
+    return () => {
+      clearData();
+    };
+  }, []);
+
+  const handleCloseCheckout = async () => {
+    try {
+      const totalAmount = getTotalAmount(sellsHistory.flatMap((s) => s.totalVenta));
+      const payments = getPaymentsData(sellsHistory);
+      const object = {
+        checkoutId,
+        debit: payments.debito,
+        credit: payments.credito,
+        transfer: payments.transferencia,
+        cash: payments.efectivo,
+        totalAmount,
+      };
+      console.log({ object });
+      await closeCheckout(object);
+      window.location.reload();
+    } catch (error) {
+      console.log('error');
+      toast.error('Error al cerrar la caja!');
+    }
+  };
+
+  if (isLoading && sellsHistory.length === 0)
+    return (
+      <Backdrop open>
+        <CircularProgress />
+      </Backdrop>
+    );
   return (
     <Box sx={style}>
       <HeaderModal title="Cierre de caja" setOpen={props.setOpen} />
       <Stack sx={{ bgcolor: 'background.paper', p: 4 }}>
-        <Typography>Artículos vendidos</Typography>
-        <ArticlesSoldTable articles={articles} />
+        <Typography variant="h4">Resumen de articulos vendidos</Typography>
+        <SellsTable
+          sells={sellsHistory}
+          count={count}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          setPageIndex={setPageIndex}
+          setPageSize={setPageSize}
+        />
       </Stack>
       <Box
         sx={{
@@ -68,74 +113,10 @@ export const CloseSaleRegisterModal = (props: CloseSaleRegisterModalProps) => {
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cancelar
         </Button>
-        <Button variant="contained">Aceptar</Button>
+        <Button variant="contained" onClick={() => handleCloseCheckout()}>
+          Aceptar y cerrar caja
+        </Button>
       </Box>
     </Box>
-  );
-};
-
-interface ArticlesSoldTableProps {
-  articles: any[];
-}
-const ArticlesSoldTable = (props: ArticlesSoldTableProps) => {
-  return (
-    <Card>
-      <TableContainer>
-        <Table>
-          <ArticlesSoldTableHead />
-          <ArticlesSoldTableBody articles={props.articles} />
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={3}
-        onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
-        page={1}
-        rowsPerPage={2}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage="Filas por página"
-      />
-    </Card>
-  );
-};
-
-const ArticlesSoldTableHead = () => {
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell>Nombre</TableCell>
-        <TableCell>Cantidad</TableCell>
-        <TableCell>Codigo de barras</TableCell>
-        <TableCell>Fecha de caducidad</TableCell>
-      </TableRow>
-    </TableHead>
-  );
-};
-interface ArticlesSoldTableBodyProps {
-  articles: any[];
-}
-const ArticlesSoldTableBody = (props: ArticlesSoldTableBodyProps) => {
-  return (
-    <TableBody>
-      {props.articles.map((article) => (
-        <ArticlesSoldRow key={article.id} article={article} />
-      ))}
-    </TableBody>
-  );
-};
-
-interface ArticlesSoldRowProps {
-  article: any;
-}
-const ArticlesSoldRow = (props: ArticlesSoldRowProps) => {
-  const { article } = props;
-  return (
-    <TableRow>
-      <TableCell>{article.nombre}</TableCell>
-      <TableCell>{article.cantidad}</TableCell>
-      <TableCell>{article.codigoBarras}</TableCell>
-      <TableCell>{article.fechaCaducidad}</TableCell>
-    </TableRow>
   );
 };

@@ -5,9 +5,11 @@ import {
   Card,
   Checkbox,
   CircularProgress,
+  ClickAwayListener,
   Divider,
   IconButton,
   MenuItem,
+  Modal,
   Stack,
   Table,
   TableBody,
@@ -19,12 +21,12 @@ import {
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { getProviderQuotePdf, matchArticlesWithProviders } from '../../../../../api/api.routes';
+import { matchArticlesWithProviders } from '../../../../../api/api.routes';
 import { useCallback, useState } from 'react';
 import { useMatchProvidersAndArticles } from '../../../../../store/purchaseStore/matchProvidersAndArticles';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
-import { Delete, Info } from '@mui/icons-material';
+import { Close, Delete, Info } from '@mui/icons-material';
 import { usePurchaseAuthorizationPagination } from '../../../../../store/purchaseStore/purchaseAuthorizationPagination';
 
 const style = {
@@ -42,18 +44,11 @@ type MatchProvidersAndArticlesProps = {
   folio: string;
 };
 
-const handleOpenPdf = async (quoteId: string) => {
-  try {
-    const pdfRes = await getProviderQuotePdf(quoteId);
-    const pdfWindow = window.open('', '_blank');
-    pdfWindow?.document.write("<embed width='100%' height='100%' src='" + encodeURI(pdfRes) + "'/>");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const MatchProvidersAndArticles = (props: MatchProvidersAndArticlesProps) => {
   const { setOpen, folio } = props;
+  const [viewPdf, setViewPdf] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState('');
+
   const { purchaseRequestData, purchaseOrderMatched, setPurchaseOrderMatched } = useMatchProvidersAndArticles(
     (state) => ({
       purchaseRequestData: state.purchaseRequestData,
@@ -302,213 +297,255 @@ export const MatchProvidersAndArticles = (props: MatchProvidersAndArticlesProps)
     );
 
   return (
-    <Box sx={style}>
-      <HeaderModal setOpen={setOpen} title={folio} />
-      <Box sx={{ overflowY: 'auto' }}>
-        <Box sx={{ maxHeight: { xs: 500, md: 550, lg: 580, xl: 800 } }}>
-          <Stack
-            sx={{
-              px: 8,
-              py: 3,
-              bgcolor: 'white',
-              borderBottomLeftRadius: 12,
-              borderBottomRightRadius: 12,
-              flexDirection: { md: 'column', lg: 'row' },
-            }}
-          >
-            <Stack sx={{ display: 'flex', flex: 1, overflowY: 'auto' }}>
-              <Stack spacing={2}>
-                <Typography variant="h6">Cotización de proveedores</Typography>
-                <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-                  {purchaseRequestData.solicitudProveedor.map((p) => (
-                    <Button
-                      key={p.id}
-                      size="small"
-                      variant="contained"
-                      onClick={() => {
-                        handleOpenPdf(p.id);
-                      }}
-                    >
-                      {p.proveedor.nombre}
-                    </Button>
-                  ))}
-                </Box>
-              </Stack>
-              <Divider sx={{ my: 1 }} />
-              <Stack spacing={2}>
-                <TextField
-                  sx={{ maxWidth: 300 }}
-                  size="small"
-                  select
-                  placeholder="Proveedor"
-                  value={providerSelected}
-                  onChange={handleChange}
-                >
-                  {providers?.map((p) => (
-                    <MenuItem value={p.proveedor.id_Proveedor} key={p.proveedor.id_Proveedor}>
-                      {p.proveedor.nombre}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <Card sx={{ overflowY: 'auto' }}>
-                  <TableContainer sx={{ maxHeight: { xs: 200, sm: 240, md: 270, lg: 290 } }}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>{/* <Checkbox size="small" /> */}</TableCell>
-                          <TableCell>Nombre</TableCell>
-                          <TableCell>Cantidad</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {articles?.map((i) => (
-                          <TableRow key={i.articulo.id_Articulo}>
-                            <TableCell>
-                              <Checkbox
-                                size="small"
-                                value={i.articulo.id_Articulo}
-                                onChange={handleCheckArticle}
-                                checked={handleIsArticlesChecked(i.articulo.id_Articulo)}
-                              />
-                            </TableCell>
-                            <TableCell>{i.articulo.nombre}</TableCell>
-                            <TableCell>{i.cantidadCompra}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Card>
-              </Stack>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flex: 1,
-                  justifyContent: 'flex-end',
-                  mt: 1,
-                  alignItems: 'flex-end',
-                }}
-              >
-                <Button
-                  variant="contained"
-                  disabled={articles?.length === 0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleMatchArticlesAndProviders();
-                  }}
-                >
-                  Agregar artículos
-                </Button>
-              </Box>
-            </Stack>
-            <Divider orientation="vertical" flexItem variant="middle" sx={{ mx: 1 }} />
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography variant="h6">Proveedores seleccionados</Typography>
-              <Stack spacing={2}>
-                {purchaseOrderMatched && purchaseOrderMatched.length > 0 ? (
-                  purchaseOrderMatched.map((i) => (
-                    <Stack key={i.providerId} spacing={1}>
-                      <Stack
-                        sx={{
-                          display: 'flex',
-                          flex: 1,
-                          alignItems: 'center',
-                          columnGap: 1,
-                          justifyContent: 'space-between',
-                          flexDirection: 'row',
+    <>
+      <Box sx={style}>
+        <HeaderModal setOpen={setOpen} title={folio} />
+        <Box sx={{ overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: { xs: 500, md: 550, lg: 580, xl: 800 } }}>
+            <Stack
+              sx={{
+                px: 8,
+                py: 3,
+                bgcolor: 'white',
+                borderBottomLeftRadius: 12,
+                borderBottomRightRadius: 12,
+                flexDirection: { md: 'column', lg: 'row' },
+              }}
+            >
+              <Stack sx={{ display: 'flex', flex: 1, overflowY: 'auto' }}>
+                <Stack spacing={2}>
+                  <Typography variant="h6">Cotización de proveedores</Typography>
+                  <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
+                    {purchaseRequestData.solicitudProveedor.map((p) => (
+                      <Button
+                        key={p.id}
+                        size="small"
+                        variant="contained"
+                        onClick={() => {
+                          console.log(purchaseRequestData);
+                          console.log(p.pdfBase64);
+                          //handleOpenPdf(p.id);
+                          setPdfOpen(p.pdfBase64 as string);
+                          setViewPdf(true);
                         }}
                       >
-                        <Stack
-                          sx={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            display: 'flex',
-                            flex: 1,
-                            columnGap: 1,
-                          }}
-                        >
-                          <Typography variant="overline">Proveedor:</Typography>
-                          <Typography variant="subtitle2">{getProviderNameById(i.providerId)}</Typography>
-                        </Stack>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveProvider(i.providerId);
-                          }}
-                          sx={{ p: 0.5 }}
-                        >
-                          Quitar
-                        </Button>
-                      </Stack>
-                      <Card>
-                        <TableContainer>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Nombre</TableCell>
-                                <TableCell>Cantidad</TableCell>
-                                <TableCell />
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {i.article.map((a) => (
-                                <TableRow key={a.articleId}>
-                                  <TableCell>{getArticleNameById(a.articleId)}</TableCell>
-                                  <TableCell>{a.amount}</TableCell>
-                                  <TableCell>
-                                    <IconButton onClick={() => handleRemoveArticleFromProvider(a.articleId)}>
-                                      <Delete />
-                                    </IconButton>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Card>
-                    </Stack>
-                  ))
-                ) : (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flex: 5,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      p: 4,
+                        {p.proveedor.nombre}
+                      </Button>
+                    ))}
+                  </Box>
+                </Stack>
+                <Divider sx={{ my: 1 }} />
+                <Stack spacing={2}>
+                  <TextField
+                    sx={{ maxWidth: 300 }}
+                    size="small"
+                    select
+                    placeholder="Proveedor"
+                    value={providerSelected}
+                    onChange={handleChange}
+                  >
+                    {providers?.map((p) => (
+                      <MenuItem value={p.proveedor.id_Proveedor} key={p.proveedor.id_Proveedor}>
+                        {p.proveedor.nombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <Card sx={{ overflowY: 'auto' }}>
+                    <TableContainer sx={{ maxHeight: { xs: 200, sm: 240, md: 270, lg: 290 } }}>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>{/* <Checkbox size="small" /> */}</TableCell>
+                            <TableCell>Nombre</TableCell>
+                            <TableCell>Cantidad</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {articles?.map((i) => (
+                            <TableRow key={i.articulo.id_Articulo}>
+                              <TableCell>
+                                <Checkbox
+                                  size="small"
+                                  value={i.articulo.id_Articulo}
+                                  onChange={handleCheckArticle}
+                                  checked={handleIsArticlesChecked(i.articulo.id_Articulo)}
+                                />
+                              </TableCell>
+                              <TableCell>{i.articulo.nombre}</TableCell>
+                              <TableCell>{i.cantidadCompra}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Card>
+                </Stack>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flex: 1,
+                    justifyContent: 'flex-end',
+                    mt: 1,
+                    alignItems: 'flex-end',
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    disabled={articles?.length === 0}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMatchArticlesAndProviders();
                     }}
                   >
-                    <Info sx={{ width: 40, height: 40, color: 'gray' }} />
-                    <Typography variant="h5" color="gray">
-                      No hay artículos seleccionados
-                    </Typography>
-                  </Box>
-                )}
+                    Agregar artículos
+                  </Button>
+                </Box>
               </Stack>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  flex: 1,
-                  alignItems: 'flex-end',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <Button
-                  disabled={!purchaseOrderMatched || purchaseOrderMatched.length === 0}
-                  variant="contained"
-                  sx={{ mt: 1 }}
-                  onClick={() => handleSendAuth()}
+              <Divider orientation="vertical" flexItem variant="middle" sx={{ mx: 1 }} />
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography variant="h6">Proveedores seleccionados</Typography>
+                <Stack spacing={2}>
+                  {purchaseOrderMatched && purchaseOrderMatched.length > 0 ? (
+                    purchaseOrderMatched.map((i) => (
+                      <Stack key={i.providerId} spacing={1}>
+                        <Stack
+                          sx={{
+                            display: 'flex',
+                            flex: 1,
+                            alignItems: 'center',
+                            columnGap: 1,
+                            justifyContent: 'space-between',
+                            flexDirection: 'row',
+                          }}
+                        >
+                          <Stack
+                            sx={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              display: 'flex',
+                              flex: 1,
+                              columnGap: 1,
+                            }}
+                          >
+                            <Typography variant="overline">Proveedor:</Typography>
+                            <Typography variant="subtitle2">{getProviderNameById(i.providerId)}</Typography>
+                          </Stack>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveProvider(i.providerId);
+                            }}
+                            sx={{ p: 0.5 }}
+                          >
+                            Quitar
+                          </Button>
+                        </Stack>
+                        <Card>
+                          <TableContainer>
+                            <Table>
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Nombre</TableCell>
+                                  <TableCell>Cantidad</TableCell>
+                                  <TableCell />
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {i.article.map((a) => (
+                                  <TableRow key={a.articleId}>
+                                    <TableCell>{getArticleNameById(a.articleId)}</TableCell>
+                                    <TableCell>{a.amount}</TableCell>
+                                    <TableCell>
+                                      <IconButton onClick={() => handleRemoveArticleFromProvider(a.articleId)}>
+                                        <Delete />
+                                      </IconButton>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </Card>
+                      </Stack>
+                    ))
+                  ) : (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flex: 5,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        p: 4,
+                      }}
+                    >
+                      <Info sx={{ width: 40, height: 40, color: 'gray' }} />
+                      <Typography variant="h5" color="gray">
+                        No hay artículos seleccionados
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flex: 1,
+                    alignItems: 'flex-end',
+                    justifyContent: 'flex-end',
+                  }}
                 >
-                  Enviar
-                </Button>
-              </Box>
+                  <Button
+                    disabled={!purchaseOrderMatched || purchaseOrderMatched.length === 0}
+                    variant="contained"
+                    sx={{ mt: 1 }}
+                    onClick={() => handleSendAuth()}
+                  >
+                    Enviar
+                  </Button>
+                </Box>
+              </Stack>
             </Stack>
-          </Stack>
+          </Box>
         </Box>
       </Box>
-    </Box>
+      <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
+        <Stack
+          sx={{
+            display: 'flex',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            :vVVVVv
+            <IconButton onClick={() => setViewPdf(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+          <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 10,
+                mx: 7,
+                mb: 3,
+              }}
+            >
+              <embed
+                src={pdfOpen}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                }}
+              />
+            </Box>
+          </ClickAwayListener>
+        </Stack>
+      </Modal>
+    </>
   );
 };

@@ -115,6 +115,8 @@ export interface IArticle {
   precioVenta: string;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
+  stockActual?: string;
+  lote?: IExistingArticleList[];
 }
 
 export interface IExistingArticle {
@@ -175,6 +177,7 @@ export interface IPurchaseAuthorization {
   precioSolicitud: number;
   solicitudProveedor: {
     id: string;
+    pdfBase64?: string;
     proveedor: { id_Proveedor: string; nombre: string };
     solicitudCompraArticulos: {
       articulo: { id_Articulo: string; nombre: string };
@@ -293,6 +296,9 @@ export interface IPurchaseOrder {
   ordenCompraArticulo: IPurchaseOrderArticle[];
   precioTotalOrden: number;
   proveedor: { id_Proveedor: string; nombre: string; estatus?: number | null };
+  id_Almacen: string;
+  fueAutorizada: boolean;
+  notas?: string;
 }
 
 export interface IPurchaseOrderArticle {
@@ -439,4 +445,27 @@ export interface IArticleSell {
   cantidad: number;
   precioUnitario: number;
   nombre: string;
+}
+
+export interface IPharmacyConfig {
+  id_Almacen: string;
+}
+
+export interface IPurchaseWithoutProvider {
+  articulos: {
+    id_Articulo: string;
+    cantidadCompra: number;
+  }[];
+  notas: string;
+}
+
+export interface ICheckoutHistory {
+  id: string;
+  nombreUsuario: string;
+  efectivo: number;
+  transferencia: number;
+  debito: number;
+  credito: number;
+  ventaTotal: number;
+  diaCorte: string;
 }

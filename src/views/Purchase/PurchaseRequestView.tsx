@@ -1,16 +1,15 @@
 import { Box, Button, Modal } from '@mui/material';
 import { PurchaseTabNav } from '../../components/Purchase/PurchaseRequest/SubComponents/PurchaseTabNav';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDirectlyPurchaseRequestOrderStore } from '../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { PurchaseOrderRequest } from '../../components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest';
 import { PurchaseOrder } from '../../components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder';
 import { PurchaseRequestCard } from '../../components/Purchase/PurchaseRequest/PurchaseRequestCard';
 import { usePurchaseRequestNav } from '../../store/purchaseStore/purchaseRequestNav';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
-import { useAuthStore } from '../../store/auth';
-// import { useShallow } from 'zustand/react/shallow';
 import { shallow } from 'zustand/shallow';
 import { DirectlyPurchaseOrder } from '../../components/Purchase/PurchaseRequest/Modal/DirectlyPurchaseOrder';
+import { PurchaseWithoutProvider } from '../../components/Purchase/PurchaseRequest/Modal/PurchaseWithoutProvider';
 
 const getTabView = (value: number) => {
   switch (value) {
@@ -34,15 +33,14 @@ const PurchaseRequestView = () => {
     }),
     shallow
   );
-  const userProfile = useAuthStore((state) => state.profile);
   const tabValue = usePurchaseRequestNav((state) => state.tabValue);
+  const [openPurchaseWithoutProvider, setOpenPurchaseWithoutProvider] = useState(false);
   // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
 
   useEffect(() => {
     if (openPurchaseRequestOrder) return;
     clearStates();
   }, [openPurchaseRequestOrder]);
-  console.log(userProfile);
   return (
     <>
       <Box>
@@ -52,22 +50,25 @@ const PurchaseRequestView = () => {
             flex: 1,
             justifyContent: 'flex-end',
             mb: 1,
+            columnGap: 1,
           }}
         >
-          {userProfile?.roles.includes('DIRECTORCOMPRAS') ||
-          userProfile?.roles.includes('ABASTECIMIENTO') ||
-          userProfile?.roles.includes('ADMIN') ? (
-            <Button
-              size="large"
-              variant="contained"
-              onClick={() => setOpenPurchaseRequestOrder(true)}
-              startIcon={<RequestPageIcon />}
-            >
-              Solicitud de Compra
-            </Button>
-          ) : (
-            <></>
-          )}
+          <Button
+            size="large"
+            variant="contained"
+            onClick={() => setOpenPurchaseWithoutProvider(true)}
+            startIcon={<RequestPageIcon />}
+          >
+            Solicitud sin proveedor
+          </Button>
+          <Button
+            size="large"
+            variant="contained"
+            onClick={() => setOpenPurchaseRequestOrder(true)}
+            startIcon={<RequestPageIcon />}
+          >
+            Orden de compra
+          </Button>
         </Box>
         <PurchaseTabNav />
         <Box
@@ -90,6 +91,16 @@ const PurchaseRequestView = () => {
       >
         <>
           <DirectlyPurchaseOrder setOpen={setOpenPurchaseRequestOrder} />
+        </>
+      </Modal>
+      <Modal
+        open={openPurchaseWithoutProvider}
+        onClose={() => {
+          setOpenPurchaseWithoutProvider(false);
+        }}
+      >
+        <>
+          <PurchaseWithoutProvider setOpen={setOpenPurchaseWithoutProvider} />
         </>
       </Modal>
     </>

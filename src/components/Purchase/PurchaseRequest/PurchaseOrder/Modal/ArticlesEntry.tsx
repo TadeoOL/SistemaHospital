@@ -256,12 +256,12 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Articulo</TableCell>
-                      <TableCell>Presentación/Unidad</TableCell>
+                      {/* <TableCell>Presentación/Unidad</TableCell> */}
                       <TableCell>Cantidad</TableCell>
-                      <TableCell>Precio de compra</TableCell>
-                      <TableCell>Precio de venta</TableCell>
-                      <TableCell>Factor aplicado</TableCell>
-                      <TableCell>Fecha caducidad</TableCell>
+                      <TableCell>Precio de Compra</TableCell>
+                      <TableCell>Precio de Venta</TableCell>
+                      <TableCell>Factor Aplicado</TableCell>
+                      <TableCell>Fecha Caducidad</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
@@ -270,11 +270,11 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                       return (
                         <TableRow key={a.id_Articulo}>
                           <TableCell>{a.nombre}</TableCell>
-                          <TableCell>
+                          {/* <TableCell>
                             {findArticleInArticleToBox(a.id_Articulo)
                               ? findArticleInArticleToBox(a.id_Articulo)?.amount
                               : 0}
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell>
                             {findReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
                               <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>

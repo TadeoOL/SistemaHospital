@@ -4,9 +4,11 @@ import { IRegisterSale, ISell, IUserSalesRegister } from '../../types/types';
 
 const apiPos = '/api/PuntoVenta';
 
-export const getSoldResume = async (checkoutId: string, sellStates: number[]) => {
+export const getSoldResume = async (checkoutId: string, sellStates: number[], cancelToken?: CancelToken) => {
   const estadosVenta = sellStates.join('&estadosVenta=');
-  const res = await axios.get(`${apiPos}/obtener-resumen-venta/caja/${checkoutId}?estadosVenta=${estadosVenta}`);
+  const res = await axios.get(`${apiPos}/obtener-resumen-venta/caja/${checkoutId}?estadosVenta=${estadosVenta}`, {
+    cancelToken: cancelToken,
+  });
   return res.data as ISell[];
 };
 
@@ -30,10 +32,8 @@ export const getUserSalesRegister = async (userId: string) => {
   return res.data as IUserSalesRegister;
 };
 
-export const createUserSalesRegister = async (userId: string) => {
-  const res = await axios.post(`${apiPos}/registrar-caja`, {
-    Id_Usuario: userId,
-  });
+export const createUserSalesRegister = async () => {
+  const res = await axios.post(`${apiPos}/registrar-caja`, {});
   return res.data;
 };
 
@@ -47,6 +47,40 @@ export const changeSellStatus = async (checkoutId: string, status: number) => {
 
 export const getSellsHistory = async (paramUrl: string, cancelToken?: CancelToken) => {
   const res = await axios.get(`${apiPos}/obtener-historial-ventas?${paramUrl}`, {
+    cancelToken: cancelToken,
+  });
+  return res.data;
+};
+
+export const closeCheckout = async (checkoutData: {
+  checkoutId: string;
+  debit: number;
+  credit: number;
+  transfer: number;
+  cash: number;
+  totalAmount: number;
+}) => {
+  const { checkoutId, debit, credit, transfer, totalAmount, cash } = checkoutData;
+  const res = await axios.put(`${apiPos}/cerrar-caja`, {
+    id_Caja: checkoutId,
+    debito: debit,
+    credito: credit,
+    transferencia: transfer,
+    efectivo: cash,
+    ventaTotal: totalAmount,
+  });
+  return res.data;
+};
+
+export const getAllSellsHistory = async (paramUrl: string, cancelToken?: CancelToken) => {
+  const res = await axios.get(`${apiPos}/obtener-historial-total-ventas?${paramUrl}`, {
+    cancelToken: cancelToken,
+  });
+  return res.data;
+};
+
+export const getCheckoutHistory = async (paramUrl: string, cancelToken?: CancelToken) => {
+  const res = await axios.get(`${apiPos}/obtener-historial-corte-cajas?${paramUrl}`, {
     cancelToken: cancelToken,
   });
   return res.data;

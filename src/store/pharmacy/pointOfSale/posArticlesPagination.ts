@@ -1,6 +1,8 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { IPosArticle } from '../../../types/types';
 import { getArticlesToSaleOnPOS } from '../../../services/pharmacy/pointOfSaleService';
+import axios, { CancelTokenSource } from 'axios';
+import { usePosTabNavStore } from './posTabNav';
 
 interface State {
   count: number;
@@ -12,9 +14,9 @@ interface State {
   loading: boolean;
   search: string;
   enabled: boolean;
-  warehouseId: string;
   subCategoryId: string;
   fetchPagination: boolean;
+  cancelToken: CancelTokenSource | null;
 }
 
 interface Action {
@@ -24,7 +26,6 @@ interface Action {
   setSearch: (search: string) => void;
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
-  setWarehouseId: (warehouseId: string) => void;
   setSubCategoryId: (subCategoryId: string) => void;
   setFetchPagination: (fetchPagination: boolean) => void;
 }
@@ -33,15 +34,15 @@ const initialValues = {
   count: 0,
   pageCount: 0,
   resultByPage: 0,
-  pageIndex: 0,
+  pageIndex: 1,
   pageSize: 30,
   data: [],
   loading: false,
   enabled: true,
   search: '',
-  warehouseId: 'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5',
   subCategoryId: '',
   fetchPagination: false,
+  cancelToken: null as CancelTokenSource | null,
 };
 
 export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action>((set, get) => ({
@@ -52,32 +53,47 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 1 }),
   setSubCategoryId: (subCategoryId: string) => set({ subCategoryId, pageIndex: 1 }),
-  setWarehouseId: (warehouseId: string) => set({ warehouseId }),
   setFetchPagination: (fetchPagination: boolean) => set({ fetchPagination }),
   fetchData: async () => {
+    const { enabled, search, pageIndex, pageSize, subCategoryId, fetchPagination, data } = get();
+    const warehouseId = usePosTabNavStore.getState().warehouseId;
+
     set({ loading: true });
-    const { enabled, search, pageIndex, pageSize, warehouseId, subCategoryId, fetchPagination, data } = get();
+    // const index = pageIndex + 1;
+    console.log({ pageIndex });
+
+    const cancelToken = axios.CancelToken.source();
+    if (get().cancelToken) {
+      get().cancelToken?.cancel();
+    }
+    set({ cancelToken: cancelToken });
+
     try {
       if (fetchPagination) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       const res = await getArticlesToSaleOnPOS(
-        `${pageIndex === 0 ? '' : 'pageIndex=' + pageIndex}&${
+        `&pageIndex=${pageIndex}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&id_Almacen=${warehouseId}&id_SubCategoria=${subCategoryId}`
       );
 
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
-        pageCount: res.pageCount,
-        pageIndex: res.pageIndex,
         pageSize: res.pageSize,
         count: res.count,
+        pageCount: res.pageCount,
       });
     } catch (error) {
-      console.log(error);
+      if (axios.isCancel(error)) {
+        console.log('cancelado', error);
+      } else {
+        console.log(error);
+      }
     } finally {
-      set({ loading: false, fetchPagination: false });
+      if (!cancelToken.token.reason) {
+        set({ loading: false, fetchPagination: false });
+      }
     }
   },
 }));

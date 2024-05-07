@@ -124,6 +124,13 @@ const stepsView = (step: number, setOpen: Function) => {
 
 export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
   const step = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.step));
+  const clearData = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.clearAllStates));
+
+  useEffect(() => {
+    return () => {
+      clearData();
+    };
+  }, []);
 
   return (
     <Box sx={style}>
@@ -142,7 +149,7 @@ export const DirectlyPurchaseOrder = (props: { setOpen: Function }) => {
   );
 };
 
-const BuildOrder = (props: { setOpen: Function }) => {
+export const BuildOrder = (props: { setOpen: Function }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const warehouseSelected = useDirectlyPurchaseRequestOrderStore((state) => state.warehouseSelected);
   const setWarehouseSelected = useDirectlyPurchaseRequestOrderStore((state) => state.setWarehouseSelected);
@@ -311,6 +318,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     setTotalAmountRequest,
     warehouseSelected,
     setProvider,
+    hasProvider,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -324,6 +332,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
       setTotalAmountRequest: state.setTotalAmountRequest,
       warehouseSelected: state.warehouseSelected,
       setProvider: state.setProvider,
+      hasProvider: state.hasProvider,
     }),
     shallow
   );
@@ -374,6 +383,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
 
   useEffect(() => {
     setProvider(null);
+    setArticlesFetched([]);
   }, []);
 
   function totalValue() {
@@ -452,14 +462,12 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     setArticles(articleData);
     setTotalAmountRequest(totalPrice);
     try {
+      if (!hasProvider) return setStep(step + 1);
       const { cantidadOrdenDirecta, cantidadLicitacionDirecta, activarLicitacion } = await getPurchaseConfig();
       if (totalPrice >= cantidadLicitacionDirecta && activarLicitacion) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
         setIsDirectlyPurchase(false);
-      } else if (
-        totalPrice >= cantidadOrdenDirecta ||
-        (totalPrice >= cantidadLicitacionDirecta && !activarLicitacion)
-      ) {
+      } else if (totalPrice >= cantidadOrdenDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders, false);
         setIsDirectlyPurchase(false);
       } else {
@@ -589,7 +597,14 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
           bottom: 0,
         }}
       >
-        <Button variant="outlined" startIcon={<Cancel />} color="error" onClick={() => props.setOpen(false)}>
+        <Button
+          variant="outlined"
+          startIcon={<Cancel />}
+          color="error"
+          onClick={() => {
+            props.setOpen(false);
+          }}
+        >
           Cancelar
         </Button>
         <Button
@@ -943,11 +958,9 @@ const StepThree = (props: { setOpen: Function }) => {
         }),
         notas: note,
       };
-
       try {
         await addDirectlyPurchaseOrder(object);
         toast.success('Orden de compra realizada con éxito!');
-
         props.setOpen(false);
       } catch (error) {
         console.log(error);

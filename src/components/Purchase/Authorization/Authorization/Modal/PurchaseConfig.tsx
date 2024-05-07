@@ -26,11 +26,11 @@ import { toast } from 'react-toastify';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addNewFactorSchema } from '../../../../../schema/schemas';
-import { modifyPurchaseConfig } from '../../../../../api/api.routes';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { modifyModuleConfig } from '../../../../../api/api.routes';
 
 const styleInput = {
   paddingTop: '0.4rem',
@@ -107,14 +107,13 @@ export const PurchaseConfig = () => {
     setIsLoading(true);
     if (!configPurchase) return;
     try {
-      const object: IPurchaseConfig = {
+      const object = {
         cantidadOrdenDirecta: parseFloat(value),
         factor: configPurchase.factor,
         cantidadLicitacionDirecta: parseFloat(directlyTender),
         activarLicitacion: isChecked,
       };
-
-      await modifyPurchaseConfig(object);
+      await modifyModuleConfig(object, 'Compras');
       toast.success('Configuración modificada con éxito!');
       refetch();
       setHasChanges(false);

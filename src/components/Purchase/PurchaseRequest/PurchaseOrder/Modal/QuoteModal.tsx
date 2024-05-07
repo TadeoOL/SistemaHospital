@@ -268,6 +268,7 @@ export const QuotePdf = (props: { providers: SingleProvider[]; purchaseRequestId
                 >
                   <Button
                     onClick={() => {
+                      //codigo a copiar
                       setPdfOpen(quoteRequest.pdf as string);
                       setViewPdf(true);
                     }}

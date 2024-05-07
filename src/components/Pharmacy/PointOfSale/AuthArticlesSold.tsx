@@ -82,7 +82,7 @@ export const AuthArticlesSold = () => {
         }}
       >
         <Typography variant="h4">Cargando ventas...</Typography>
-        <CircularProgress size={30} />;
+        <CircularProgress size={30} />
       </Box>
     );
   return (

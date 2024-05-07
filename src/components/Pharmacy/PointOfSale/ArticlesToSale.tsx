@@ -1,7 +1,7 @@
 import { Box, Button, Card, CircularProgress, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
 import { IPosArticle } from '../../../types/types';
 import { neutral } from '../../../theme/colors';
@@ -50,11 +50,17 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
   const { data, loading, pageIndex, pageCount, setPageIndex, setFetchPagination } = useGetAllData();
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
-  const articlesToSale = data.filter(
-    (article) => !articlesOnBasket.some((articleBasket) => articleBasket.id === article.id)
-  );
-  const hasMorePages = pageIndex < pageCount;
 
+  const articlesToSale = useMemo(
+    () => data.filter((article) => !articlesOnBasket.some((articleBasket) => articleBasket.id === article.id)),
+    [articlesOnBasket, data]
+  );
+  const hasMorePages = useMemo(() => {
+    return pageIndex < pageCount;
+  }, [pageIndex, pageCount]);
+
+  console.log({ pageIndex });
+  console.log({ pageCount });
   const handleAddArticleToBasket = (article: IPosArticle) => {
     if (articlesOnBasket.some((a) => a.id === article.id)) return;
     const articleModified = data
@@ -100,7 +106,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                         <Typography sx={{ fontSize: 9, fontWeight: 500, mb: 0.5 }}>
                           Codigo: {article.codigoBarras}
                         </Typography>
-                        {article.descripcion.length > 100 ? (
+                        {article.descripcion && article.descripcion.length > 100 ? (
                           <Tooltip title={article.descripcion}>
                             <Typography>{article.descripcion.substring(0, 80).concat('...')}</Typography>
                           </Tooltip>

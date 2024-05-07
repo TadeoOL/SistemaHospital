@@ -94,6 +94,7 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         precioUnitario: article.precio,
       };
     });
+    console.log({ userSalesRegisterData });
     const saleObject = {
       id_Caja: userSalesRegisterData.id,
       tipoPago: paymentMethod,

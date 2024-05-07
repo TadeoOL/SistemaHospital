@@ -13,6 +13,10 @@ import { neutral } from '../../../theme/colors';
 export const PointOfSale = () => {
   const setSearch = usePosArticlesPaginationStore((state) => state.setSearch);
 
+  useEffect(() => {
+    return () => usePosArticlesPaginationStore.setState({ search: '', data: [], pageIndex: 1 });
+  }, []);
+
   return (
     <Box sx={{ overflowX: 'auto' }}>
       <Card sx={{ display: 'flex', flex: 1, minWidth: 700 }}>
