@@ -26,17 +26,24 @@ import { useShallow } from 'zustand/react/shallow';
 import React, { useEffect, useRef, useState } from 'react';
 import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
+import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning, Delete, Cancel } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
 import { ArticlesView } from './Modal/ArticlesOutput';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
-import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
+import {
+  addArticlesToWarehouse,
+  modifyMinStockExistingArticle,
+  articlesLoteUpdate,
+  articlesLoteDelete,
+} from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
 import { returnExpireDate } from '../../../../utils/expireDate';
 import { SortComponent } from '../../../Commons/SortComponent';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -48,7 +55,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     border: 'hidden',
   },
   [`&.${tableCellClasses.root}`]: {
-    width: '25%',
+    width: '20%',
   },
 }));
 
@@ -267,7 +274,9 @@ interface TableRowComponentProps {
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
   const [open, setOpen] = useState(false);
+  const [openNewLote, setOpenNewLote] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingSubRow, setIsEditingSubRow] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>();
   const articlesData = useExistingArticlePagination(useShallow((state) => state.data));
 
@@ -342,22 +351,46 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
         <TableCell>{article.stockActual}</TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
         <TableCell>
-          <IconButton
-            onClick={() => {
-              if (isEditing) {
-                handleSaveValue();
-              }
-              setIsEditing(!isEditing);
-            }}
-          >
-            {isEditing ? <Save /> : <Edit />}
-          </IconButton>
+          <Tooltip title={isEditing ? 'Guardar' : 'Editar stock mínimo'}>
+            <IconButton
+              onClick={() => {
+                if (isEditing) {
+                  handleSaveValue();
+                }
+                setIsEditing(!isEditing);
+                setIsEditingSubRow(!isEditingSubRow);
+              }}
+              disabled={openNewLote || (isEditingSubRow && !isEditing)}
+            >
+              {isEditing ? <Save /> : <Edit />}
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Añadir lote">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setOpenNewLote(true);
+                setIsEditingSubRow(true);
+              }}
+              disabled={openNewLote || isEditing || isEditingSubRow}
+            >
+              <AddCircleIcon />
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={8} sx={{ padding: 0 }}>
           <Collapse in={open} unmountOnExit>
-            <SubItemsTable article={article.listaArticuloExistente} />
+            <SubItemsTable
+              article={article.listaArticuloExistente}
+              setOpenNewLote={setOpenNewLote}
+              isEditingSubRow={isEditingSubRow}
+              setIsEditingSubRow={setIsEditingSubRow}
+              openNewLote={openNewLote}
+              idArticle={article.id}
+            />
           </Collapse>
         </TableCell>
       </TableRow>
@@ -367,8 +400,87 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
 
 interface SubItemsTableProps {
   article: IExistingArticleList[];
+  idArticle: string;
+  setOpenNewLote: Function;
+  openNewLote: boolean;
+  isEditingSubRow: boolean;
+  setIsEditingSubRow: Function;
 }
-const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
+const SubItemsTable: React.FC<SubItemsTableProps> = ({
+  idArticle,
+  article,
+  openNewLote,
+  setOpenNewLote,
+  isEditingSubRow,
+  setIsEditingSubRow,
+}) => {
+  const textLoteDateRef = useRef<HTMLTextAreaElement>();
+  const textStockRef = useRef<HTMLTextAreaElement>();
+  const textCodeRef = useRef<HTMLTextAreaElement>();
+  const dateNow = Date.now();
+  const today = new Date(dateNow);
+  const year = today.getFullYear();
+  let month = (today.getMonth() + 1).toString().padStart(2, '0');
+  let day = today.getDate().toString().padStart(2, '0');
+  const todayFormatted = `${year}/${month}/${day}`;
+  const expireDate = article.at(0)?.fechaCaducidad === '01/01/4000';
+  const [isLoadingLote, setIsLoadingLote] = useState(false);
+  const [amountError, setAmountError] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  const { fetchExistingArticles } = useExistingArticlePagination(
+    (state) => ({
+      fetchExistingArticles: state.fetchExistingArticles,
+    }),
+    shallow
+  );
+
+  const handleTextFieldChange = () => {
+    const areAllFieldsFilled =
+      //textEntryDateRef.current?.value &&
+      (textLoteDateRef.current?.value || expireDate) && textStockRef.current?.value && textCodeRef.current?.value;
+    setIsButtonDisabled(!areAllFieldsFilled);
+  };
+
+  const isValidNumber = (value: string): boolean => {
+    const numericValue = parseFloat(value);
+    return !isNaN(numericValue);
+  };
+  const handleSubmitNewLote = async () => {
+    setIsLoadingLote(true);
+    const stockValue = textStockRef.current?.value || '';
+    if (!isValidNumber(stockValue)) {
+      setAmountError(true);
+      toast.error('Cantidad no valida');
+      return;
+    }
+    setAmountError(false);
+    const barCodeValue = textCodeRef.current?.value || '';
+    const expireDateValue = expireDate ? textLoteDateRef?.current?.value : '4000-01-01';
+    const newLoteObject = {
+      id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
+      id_ordenCompra: null,
+      articulos: [
+        {
+          id_articulo: idArticle,
+          fechaCaducidad: expireDateValue as string,
+          cantidad: Number(stockValue),
+          codigoBarras: barCodeValue,
+        },
+      ],
+    };
+    try {
+      await addArticlesToWarehouse(newLoteObject);
+      toast.success('Lote agregado con éxito!');
+      fetchExistingArticles();
+      setOpenNewLote(false);
+    } catch (error) {
+      toast.error('Algo salio mal!');
+    } finally {
+      setIsLoadingLote(false);
+    }
+  };
+
   return (
     <TableContainer>
       <Table>
@@ -378,19 +490,280 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
             <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
             <StyledTableCell align="center">Stock</StyledTableCell>
             <StyledTableCell align="center">Código de barras</StyledTableCell>
+            <StyledTableCell align="center"></StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {article.map((a) => (
-            <TableRow key={a.id}>
-              <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
-              <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
-              <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
-              <StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>
-            </TableRow>
+            <SubItemsTableRow
+              articleR={a}
+              key={a.id}
+              idArticle={idArticle}
+              isEditingSubRow={isEditingSubRow}
+              setIsEditingSubRow={setIsEditingSubRow}
+            />
           ))}
         </TableBody>
       </Table>
+      {openNewLote && (
+        <Stack sx={{ display: 'flex', width: '100%' }} key={`artEd${article.at(0)?.id}`}>
+          <TableRow key={`artEdr${article.at(0)?.id}`}>
+            <TableCell align="center">Nuevo Lote:</TableCell>
+            <TableCell width={'20%'} align="center">
+              <Typography variant="subtitle2">Fecha de caducidad</Typography>
+              <Stack flexDirection={'row'}>
+                <TextField
+                  onChange={handleTextFieldChange}
+                  disabled={expireDate}
+                  type="date"
+                  placeholder="Fecha de caducidad"
+                  inputRef={textLoteDateRef}
+                  inputProps={{ min: todayFormatted }}
+                />
+              </Stack>
+            </TableCell>
+            <TableCell width={'20%'} align="center">
+              <Typography variant="subtitle2">Cantidad</Typography>
+              <TextField
+                onChange={handleTextFieldChange}
+                placeholder="Cantidad Entrada"
+                inputRef={textStockRef}
+                error={amountError}
+                helperText={!!amountError && 'Escribe una cantidad correcta'}
+              />
+            </TableCell>
+            <TableCell width={'20%'} align="center">
+              <Typography variant="subtitle2">Código de barras</Typography>
+              <TextField onChange={handleTextFieldChange} placeholder="Código de Barras" inputRef={textCodeRef} />
+            </TableCell>
+            <TableCell width={'12%'} align="center">
+              {isLoadingLote ? (
+                <CircularProgress />
+              ) : (
+                <Tooltip title="Guardar">
+                  <IconButton
+                    onClick={() => {
+                      handleSubmitNewLote();
+                      setIsEditingSubRow(false);
+                    }}
+                    disabled={isButtonDisabled!}
+                  >
+                    <Save />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              <Tooltip title="Cancelar">
+                <IconButton
+                  onClick={() => {
+                    setOpenNewLote(false);
+                    setIsEditingSubRow(false);
+                  }}
+                >
+                  <Cancel />
+                </IconButton>
+              </Tooltip>
+            </TableCell>
+          </TableRow>
+        </Stack>
+      )}
     </TableContainer>
+  );
+};
+interface SubItemsTableRowProps {
+  articleR: IExistingArticleList;
+  idArticle: string;
+  isEditingSubRow: boolean;
+  setIsEditingSubRow: Function;
+}
+const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
+  articleR,
+  idArticle,
+  isEditingSubRow,
+  setIsEditingSubRow,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const textLoteDateRef = useRef<HTMLTextAreaElement>();
+  const textStockRef = useRef<HTMLTextAreaElement>();
+  const textCodeRef = useRef<HTMLTextAreaElement>();
+  const dateNow = Date.now();
+  const today = new Date(dateNow);
+  const year = today.getFullYear();
+  let month = (today.getMonth() + 1).toString().padStart(2, '0');
+  let day = today.getDate().toString().padStart(2, '0');
+  const todayFormatted = `${year}/${month}/${day}`;
+  const expireDate = articleR.fechaCaducidad === '01/01/4000';
+  const [isLoadingLote, setIsLoadingLote] = useState(false);
+
+  const { fetchExistingArticles } = useExistingArticlePagination(
+    (state) => ({
+      fetchExistingArticles: state.fetchExistingArticles,
+    }),
+    shallow
+  );
+
+  const deleteLote = (loteId: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `¿Seguro que deseas eliminar este lote de articulos?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return articlesLoteDelete({
+            Id_Articulo_Lote: loteId,
+            Id_Almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
+            Id_Articulo: idArticle,
+          });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          fetchExistingArticles();
+          withReactContent(Swal).fire({
+            title: 'Éxito!',
+            text: 'Lote eliminado',
+            icon: 'success',
+          });
+        } else {
+          withReactContent(Swal).fire({
+            title: 'Operación cancelada',
+            icon: 'info',
+          });
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      if (textLoteDateRef.current) {
+        if (articleR.fechaCaducidad !== '01/01/4000') {
+          const dateArray = articleR.fechaCaducidad.split('/');
+          const dayL = dateArray[0];
+          const monthL = dateArray[1];
+          const yearL = dateArray[2];
+          const fechaNueva = `${yearL}/${monthL.padStart(2, '0')}/${dayL.padStart(2, '0')}`;
+          textLoteDateRef.current.value = fechaNueva;
+        }
+      }
+      if (textStockRef.current) {
+        textStockRef.current.value = articleR.cantidad.toString();
+      }
+      if (textCodeRef.current) {
+        textCodeRef.current.value = articleR.codigoBarras;
+      }
+    }
+  }, [isEditing]);
+
+  const handleSaveValue = async () => {
+    setIsLoadingLote(true);
+    //if (!textStockRef.current || textStockRef.current.value === '') return;
+    if (textStockRef.current?.value !== '' && !isValidInteger(textStockRef.current?.value as string))
+      return toast.error('Para guardar el valor escribe un numero valido!');
+    const value = textStockRef.current?.value || null;
+    const loteModified = {
+      Stock: Number(value) || undefined,
+      Id_Almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
+      Id_Articulo_Lote: articleR.id,
+      Id_Articulo: idArticle,
+      CodigoBarras: textCodeRef.current?.value || undefined,
+      FechaCaducidad: textLoteDateRef.current?.value || undefined,
+    };
+    try {
+      console.log(loteModified);
+      await articlesLoteUpdate(loteModified);
+      toast.success('Lote actualizado con exito!');
+      setIsEditing(false);
+      setIsEditingSubRow(false);
+      fetchExistingArticles();
+    } catch (error) {
+      console.log(error);
+      return toast.error('Algo salio mal');
+    }
+    setIsLoadingLote(false);
+  };
+
+  return (
+    <TableRow key={articleR.id}>
+      <StyledTableCell align="center">{articleR.fechaCompraLote}</StyledTableCell>
+      {isEditing ? (
+        <>
+          <StyledTableCell width={'20%'} align="center">
+            <Typography variant="subtitle2">Fecha de caducidad</Typography>
+            <Stack flexDirection={'row'}>
+              <TextField
+                disabled={expireDate}
+                type="date"
+                placeholder="Fecha de caducidad"
+                inputRef={textLoteDateRef}
+                inputProps={{ min: todayFormatted }}
+              />
+            </Stack>
+          </StyledTableCell>
+          <StyledTableCell width={'20%'} align="center">
+            <Typography variant="subtitle2">Cantidad</Typography>
+            <TextField placeholder="Cantidad Entrada" inputRef={textStockRef} />
+          </StyledTableCell>
+          <StyledTableCell width={'20%'} align="center">
+            <Typography variant="subtitle2">Código de barras</Typography>
+            <TextField placeholder="Código de Barras" inputRef={textCodeRef} />
+          </StyledTableCell>
+        </>
+      ) : (
+        <>
+          <StyledTableCell align="center">{returnExpireDate(articleR.fechaCaducidad)}</StyledTableCell>
+          <StyledTableCell align="center">{articleR.cantidad}</StyledTableCell>
+          <StyledTableCell align="center">{articleR.codigoBarras}</StyledTableCell>
+        </>
+      )}
+      <StyledTableCell align="center">
+        {isLoadingLote ? (
+          <CircularProgress />
+        ) : (
+          <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
+            <IconButton
+              onClick={() => {
+                if (isEditing) {
+                  handleSaveValue();
+                }
+                setIsEditing(!isEditing);
+                setIsEditingSubRow(true);
+              }}
+              disabled={isEditingSubRow && !isEditing}
+            >
+              {isEditing ? <Save /> : <Edit />}
+            </IconButton>
+          </Tooltip>
+        )}
+
+        {isEditing && (
+          <Tooltip title="Cancelar">
+            <IconButton
+              onClick={() => {
+                setIsEditing(false);
+                setIsEditingSubRow(false);
+              }}
+            >
+              <Cancel />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title="Eliminar">
+          <IconButton
+            onClick={() => {
+              deleteLote(articleR.id);
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </Tooltip>
+      </StyledTableCell>
+    </TableRow>
   );
 };

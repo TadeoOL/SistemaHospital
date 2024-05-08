@@ -27,6 +27,7 @@ import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {
   articlesOutputToWarehouse,
+  articlesEntryToWarehouse,
   getArticlesByWarehouseIdAndSearch,
   getNursesUsers,
   getPackagesByWarehouseId,
@@ -74,7 +75,12 @@ const style = {
   },
 };
 
-export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
+export const ArticlesExitModal = (props: {
+  setOpen: Function;
+  warehouseId: string;
+  refetch: Function;
+  articlesExit: boolean;
+}) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
@@ -275,7 +281,12 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
         SolicitadoPor: nurseSelected,
       };
-      await articlesOutputToWarehouse(object);
+      if (props.articlesExit) {
+        await articlesOutputToWarehouse(object);
+      } else {
+        await articlesEntryToWarehouse(object);
+      }
+
       props.refetch();
       toast.success('Salida a artículos con éxito!');
       setLoadingSubmit(false);
