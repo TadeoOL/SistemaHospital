@@ -768,7 +768,7 @@ export const getWareHouseMovementsById = async (paramUrl: string) => {
 
 export const addArticlesToWarehouse = async (data: {
   id_almacen: string;
-  id_ordenCompra: string;
+  id_ordenCompra: string | null;
   articulos: {
     id_articulo: string;
     cantidad: number;
@@ -944,5 +944,51 @@ export const modifyDirectOrderPurcharse = async (data: {
 
 export const getNursesUsers = async () => {
   const res = await axios.get(`/api/ConfiguracionFarmacia/obtener-enfermeros`);
+  return res.data;
+};
+
+export const articlesEntryToWarehouse = async (
+  data: {
+  id_almacenOrigen?: string;
+  id_almacenDestino?: string;
+  Articulos?: {
+    Id_ArticuloExistente: string;
+    Cantidad: string;
+  }[];
+  SalidaMotivo?: string;
+  SolicitadoPor?: string;
+},
+) => {
+  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
+    ...data,
+  });
+  return res.data;
+};
+
+export const articlesLoteUpdate = async (
+  data: {
+  Id_Almacen: string,
+  Id_Articulo: string,
+  Id_Articulo_Lote: string,
+  Stock?: number,
+  CodigoBarras?: string,
+  FechaCaducidad?: string,
+},
+) => {
+  const res = await axios.put(`/api/ArticuloExistente/actualizar-lote-existente`, {
+    ...data,
+  });
+  return res.data;
+};
+export const articlesLoteDelete = async (
+  data: {
+  Id_Almacen: string,
+  Id_Articulo_Lote: string,
+  Id_Articulo: string,
+},
+) => {
+  const res = await axios.put(`/api/ArticuloExistente/inhabilitar-lote-existente`, {
+    ...data,
+  });
   return res.data;
 };
