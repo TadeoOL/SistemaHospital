@@ -117,6 +117,8 @@ export interface IArticle {
   subCategoria: ISubCategory | string;
   stockActual?: string;
   lote?: IExistingArticleList[];
+  esCaja?: boolean;
+  unidadesPorCaja?: string;
 }
 
 export interface IExistingArticle {
@@ -311,6 +313,8 @@ export interface IPurchaseOrderArticle {
   factorAplicado?: number;
   codigoBarras?: string;
   fechaCaducidad?: string;
+  unidadesPorCaja?: number;
+  unidadesTotal?: number;
 }
 
 export enum StatusPurchaseOrder {

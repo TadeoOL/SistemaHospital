@@ -58,6 +58,7 @@ interface ArticleSelected {
   codigoBarras?: string;
   fechaCaducidad: string | null;
   cantidad?: string;
+  unidadesTotal: number;
 }
 interface PurchaseOrder extends IPurchaseOrder {
   notas: string;
@@ -67,6 +68,7 @@ interface PurchaseOrder extends IPurchaseOrder {
 type ArticlesToBox = {
   id: string;
   amount: string;
+  unidadesTotal: number;
 };
 interface ArticlesEntryProps {
   orderId: string;
@@ -89,6 +91,10 @@ const useGetArticleEntryData = (orderId: string) => {
       setIsLoadingArticleEntryData(true);
       try {
         const data = await getOrderRequestById(orderId);
+        data.ordenCompraArticulo = data.ordenCompraArticulo.map((art: any) => {
+          art.unidadesTotal = art.cantidad * (art?.unidadesPorCaja || 1);
+          return art;
+        });
         setArticleEntryData(data);
       } catch (error) {
         console.log(error);
@@ -146,7 +152,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
       .map((article) => {
         return {
           id_articulo: article.id_Articulo,
-          cantidad: article.cantidad,
+          cantidad: article?.unidadesTotal || article.cantidad,
           codigoBarras: article.codigoBarras as string,
           fechaCaducidad: article.fechaCaducidad as string,
         };
@@ -256,8 +262,9 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Articulo</TableCell>
-                      {/* <TableCell>Presentación/Unidad</TableCell> */}
+                      <TableCell>Presentación/Unidad</TableCell>
                       <TableCell>Cantidad</TableCell>
+                      <TableCell>Cantidad Total</TableCell>
                       <TableCell>Precio de Compra</TableCell>
                       <TableCell>Precio de Venta</TableCell>
                       <TableCell>Factor Aplicado</TableCell>
@@ -270,24 +277,21 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                       return (
                         <TableRow key={a.id_Articulo}>
                           <TableCell>{a.nombre}</TableCell>
-                          {/* <TableCell>
-                            {findArticleInArticleToBox(a.id_Articulo)
-                              ? findArticleInArticleToBox(a.id_Articulo)?.amount
-                              : 0}
-                          </TableCell> */}
+                          <TableCell align={'center'}>{a.unidadesPorCaja}</TableCell>
+                          <TableCell>{a.cantidad}</TableCell>
                           <TableCell>
                             {findReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
                               <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>
                                 <Typography className="textoTachado">
                                   {!findArticleInArticleToBox(a.id_Articulo)
-                                    ? findOriginalArticle(a.id_Articulo)?.cantidad
-                                    : (findOriginalArticle(a.id_Articulo)?.cantidad as number) *
-                                      parseInt(findArticleInArticleToBox(a.id_Articulo)?.amount as string)}
+                                    ? (a?.unidadesTotal || a.cantidad) -
+                                      (findOriginalArticle(a.id_Articulo)?.unidadesTotal as number)
+                                    : findOriginalArticle(a.id_Articulo)?.unidadesTotal}
                                 </Typography>
-                                <Typography>{a.cantidad}</Typography>
+                                <Typography>{a.unidadesTotal}</Typography>
                               </Box>
                             ) : (
-                              a.cantidad
+                              a.unidadesTotal
                             )}
                           </TableCell>
                           <TableCell>{a.precioProveedor}</TableCell>
@@ -304,6 +308,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                       nombre: a.nombre,
                                       codigoBarras: a.codigoBarras,
                                       fechaCaducidad: a.fechaCaducidad ? a.fechaCaducidad : null,
+                                      unidadesTotal: a.unidadesTotal || a.cantidad,
                                     });
                                     setOpenModal(true);
                                   }}
@@ -322,7 +327,9 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                       nombre: originalArticle?.nombre,
                                       codigoBarras: originalArticle?.codigoBarras,
                                       fechaCaducidad: originalArticle?.fechaCaducidad,
-                                      cantidad: originalArticle?.cantidad.toString(),
+                                      cantidad: (
+                                        (originalArticle?.cantidad || 1) * (originalArticle?.unidadesPorCaja || 1)
+                                      ).toString(),
                                     } as ArticleSelected);
                                     setOpenReturnArticle(true);
                                   }}

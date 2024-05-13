@@ -2,7 +2,7 @@ import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextFie
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addArticle } from '../../../../../schema/schemas';
+import { addArticle, addArticleBox } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig, ISubCategory } from '../../../../../types/types';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -52,7 +52,7 @@ const useFetchArticle = (articleId: string) => {
       setIsLoadingArticle(true);
       try {
         const data = await getArticleById(articleId);
-        setArticle(data);
+        setArticle({ ...data, unidadesPorCaja: data?.unidadesPorCaja?.toString() });
       } catch (error) {
         console.log(error);
       } finally {
@@ -92,6 +92,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    unidadesPorCaja,
+    esCaja,
   } = article ?? {};
 
   const { subCategories, isLoading } = useGetSubCategories();
@@ -122,12 +124,15 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       unidadMedida: unidadMedida,
       precioCompra: precioCompra,
       precioVenta: precioVenta,
+      unidadesPorCaja: unidadesPorCaja,
+      esCaja: esCaja,
     },
-    resolver: zodResolver(addArticle),
+    resolver: zodResolver(article?.esCaja ? addArticleBox : addArticle),
   });
 
   useEffect(() => {
     if (article) {
+      console.log(article);
       const subCate = article.subCategoria as ISubCategory;
       if (article.descripcion == null) article.descripcion = '';
       if (textValue.trim() === '') setTextValue(article.descripcion);
@@ -149,7 +154,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
       const idForm = getValues('id');
-      await modifyArticle({ ...data, id: idForm });
+      await modifyArticle({ ...data, id: idForm, esCaja: esCaja });
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo modificado con éxito!');
       open(false);
@@ -344,6 +349,23 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 ))}
               </TextField>
             </Grid>
+            {article && article.esCaja && (
+              <Grid item xs={12} md={6}>
+                <Typography>Unidades por caja</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors?.unidadesPorCaja}
+                  helperText={errors?.unidadesPorCaja?.message}
+                  size="small"
+                  inputProps={{
+                    maxLength: 5,
+                    onInput: handleInputNumberChange,
+                  }}
+                  placeholder="Dígite un número de unidades"
+                  {...register('unidadesPorCaja')}
+                />
+              </Grid>
+            )}
           </Grid>
           <Stack
             sx={{

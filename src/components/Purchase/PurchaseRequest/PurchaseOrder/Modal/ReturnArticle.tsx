@@ -22,6 +22,8 @@ type ArticleData = {
   codigoBarras?: string;
   fechaCaducidad: string | null;
   cantidad?: string;
+  unidadesPorCaja?: number;
+  unidadesTotal: number;
 };
 type ReturnArticle = {
   Id_OrdenCompraArticulo: string;
@@ -31,6 +33,7 @@ type ReturnArticle = {
 type ArticlesToBox = {
   id: string;
   amount: string;
+  unidadesTotal: number;
 };
 interface ReturnArticleProps {
   setOpen: Function;
@@ -47,9 +50,9 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
   const amountRef = useRef<HTMLTextAreaElement>();
   const reasonRef = useRef<HTMLTextAreaElement>();
   const articleInBox = props.articles.find((a) => a.id_OrdenCompraArticulo === props.article.id);
-  const originalArticle = props.originalArticlesArray.find((a) => a.id_Articulo === articleInBox?.id_Articulo);
+  //const originalArticle = props.originalArticlesArray.find((a) => a.id_Articulo === articleInBox?.id_Articulo);
   const boxArticle = props.articlesToBox.find((a) => a.id === articleInBox?.id_Articulo);
-  const currentAmount = parseInt(boxArticle?.amount as string) * (originalArticle?.cantidad as number);
+  const currentAmount = boxArticle?.unidadesTotal || 0;
 
   useEffect(() => {
     const findArticle = returnArticlesArray.find((a) => a.Id_OrdenCompraArticulo === article.id);
@@ -73,7 +76,7 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
       return toast.error('Ingresa una cantidad valida!');
     if (
       !boxArticle
-        ? parseInt(amountRef.current.value) > parseInt(article.cantidad as string)
+        ? parseInt(amountRef.current.value) > article.unidadesTotal
         : parseInt(amountRef.current.value) > currentAmount
     )
       return toast.error('No puedes devolver mas artículos de los que están disponibles!');
@@ -85,7 +88,8 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
       const restAmount = boxArticle
         ? currentAmount - parseInt(amountRef.current.value)
         : parseInt(article.cantidad as string) - parseInt(amountRef.current.value);
-      updatedReturnArticlesArray[foundIndexArticles].cantidad = restAmount < 0 ? 0 : restAmount;
+      updatedReturnArticlesArray[foundIndexArticles].unidadesTotal = restAmount < 0 ? 0 : restAmount;
+
       setArticles(updatedReturnArticlesArray);
     }
 

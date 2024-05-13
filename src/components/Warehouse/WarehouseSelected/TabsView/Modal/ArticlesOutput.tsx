@@ -10,7 +10,6 @@ import {
   FormLabel,
   Grid,
   IconButton,
-  Modal,
   Radio,
   RadioGroup,
   Stack,
@@ -29,9 +28,8 @@ import {
   tableCellClasses,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Delete, Edit, ExpandLess, ExpandMore, Save, ArrowForward } from '@mui/icons-material';
-import { OutputReasonMessage } from './OutputReasonMessage';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
@@ -281,13 +279,14 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   originalArticlesSelected,
   setOriginalArticlesSelected,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [anotherReason, setAnotherReason] = useState(false);
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [articlesFetched, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
   const [articleSelected, setArticleSelected] = useState<ArticlesFetched | null>(null);
   const [amount, setAmount] = useState('');
+  const ExitReasonRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -348,6 +347,10 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     setOriginalArticlesSelected((prev: any) => [...prev, articleSelected]);
     setArticleSelected(null);
     setAmount('');
+  };
+
+  const handleOtherReassonChangeText = (event: any) => {
+    setReasonMessage(event.target.value);
   };
 
   const radioOptions = [
@@ -469,10 +472,21 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
             ) : (
               <>
                 <Box>
-                  <Button variant="contained" onClick={() => setOpen(true)}>
+                  <Button variant="contained" onClick={() => setAnotherReason(true)}>
                     Agregar motivo de salida
                   </Button>
                 </Box>
+                {anotherReason && (
+                  <TextField
+                    sx={{ mt: 1 }}
+                    inputRef={ExitReasonRef}
+                    onChange={(e) => {
+                      handleOtherReassonChangeText(e);
+                    }}
+                    placeholder="Motivo de salida"
+                    fullWidth
+                  />
+                )}
               </>
             )}
           </Box>
@@ -511,11 +525,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
         </Stack>
         <Typography>Motivo de salida seleccionado: {reasonMessage}</Typography>
       </Stack>
-      <Modal open={open} onClose={() => setOpen(!open)}>
-        <>
-          <OutputReasonMessage moduleApi="Almacen_MotivoSalida" open={setOpen} setReasonMessage={setReasonMessage} />
-        </>
-      </Modal>
     </>
   );
 };

@@ -209,8 +209,8 @@ export const ArticleTable = () => {
                     <React.Fragment key={article.id}>
                       <TableRow>
                         <TableCell>{article.nombre}</TableCell>
-                        <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>{article.stockMinimo}</TableCell>
+                        <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>$ {article.precioCompra}</TableCell>
                         <TableCell>$ {article.precioVenta}</TableCell>
                         <TableCell>{article.unidadMedida}</TableCell>

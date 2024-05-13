@@ -12,6 +12,7 @@ type ArticleOrder = {
   amount: number;
   price?: number;
   stock?: number;
+  sellPrice?: number;
 };
 
 type Article = {

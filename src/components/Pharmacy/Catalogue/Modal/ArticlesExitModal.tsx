@@ -92,6 +92,27 @@ export const ArticlesExitModal = (props: {
   const [reasonMessage, setReasonMessage] = useState('');
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
   const [articlesFetchedAM, setArticlesFetchedAM] = useState<ArticlesFetched[] | []>([]);
+
+  const defaultRoomsQuirofano = ['C-1', 'C-2', 'C-3', 'C-4', 'EndoPro', 'LPR'];
+  const defaultRoomsHospitalizacion = [
+    'C-104',
+    'C-105',
+    'C-201',
+    'C-202',
+    'C-203',
+    'C-204',
+    'C-205',
+    'C-206',
+    'C-207',
+    'C-208',
+    'C-209',
+    'C-210',
+    'C-211',
+    'c-212',
+    'C-213',
+    'C-214',
+  ];
+
   useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
@@ -127,6 +148,8 @@ export const ArticlesExitModal = (props: {
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
   const [nurseSelected, setNurseSelected] = useState<string>();
+  const [roomSelected, setRoomSelected] = useState<string | null>();
+  const [roomError, setRoomError] = useState(false);
   const [articleError, setArticleError] = useState(false);
 
   useEffect(() => {
@@ -240,6 +263,11 @@ export const ArticlesExitModal = (props: {
       toast.error('Selecciona un motivo de salida');
       return;
     }
+    if ((reasonMessage === 'Quirofano' || reasonMessage === 'Hospitalizacion') && !roomSelected) {
+      setRoomError(true);
+      toast.error('Selecciona un cuarto');
+      return;
+    }
     if (!nurseSelected) {
       toast.error('Selecciona enfermero');
       return;
@@ -278,7 +306,7 @@ export const ArticlesExitModal = (props: {
         id_almacenDestino: props.warehouseId,
         id_almacenOrigen: props.warehouseId,
         Estatus: 3,
-        SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : reasonMessage,
+        SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : `${reasonMessage} ${roomSelected}`,
         SolicitadoPor: nurseSelected,
       };
       if (props.articlesExit) {
@@ -286,7 +314,6 @@ export const ArticlesExitModal = (props: {
       } else {
         await articlesEntryToWarehouse(object);
       }
-
       props.refetch();
       toast.success('Salida a artículos con éxito!');
       setLoadingSubmit(false);
@@ -300,7 +327,7 @@ export const ArticlesExitModal = (props: {
     }
   };
 
-  const radioOptions = ['Quirofano', 'Hospitalizacion', 'Otro'];
+  const radioOptions = ['Quirofano', 'Hospitalizacion', 'Uso interno', 'Otro'];
 
   return (
     <Box sx={style}>
@@ -407,7 +434,10 @@ export const ArticlesExitModal = (props: {
                   flexDirection: 'row',
                 }}
                 value={reasonMessage}
-                onChange={(e) => setReasonMessage(e.target.value)}
+                onChange={(e) => {
+                  setReasonMessage(e.target.value);
+                  setRoomSelected(null);
+                }}
               >
                 {radioOptions.map((option) => (
                   <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
@@ -422,6 +452,56 @@ export const ArticlesExitModal = (props: {
                 />
               </RadioGroup>
             </Box>
+            {(reasonMessage === 'Quirofano' || reasonMessage === 'Hospitalizacion') && (
+              <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccion de cuarto</Typography>
+                {reasonMessage === 'Quirofano' ? (
+                  <Autocomplete
+                    disablePortal
+                    fullWidth
+                    onChange={(e, val) => {
+                      e.stopPropagation();
+                      setRoomSelected(val as string);
+                      setRoomError(false); //cambiar
+                    }}
+                    options={defaultRoomsQuirofano}
+                    value={roomSelected}
+                    noOptionsText="No se encontraron enfermeros"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={roomError}
+                        helperText={roomError && 'Selecciona un cuarto'}
+                        placeholder="Cuartos"
+                        sx={{ width: '50%' }}
+                      />
+                    )}
+                  />
+                ) : (
+                  <Autocomplete
+                    disablePortal
+                    fullWidth
+                    onChange={(e, val) => {
+                      e.stopPropagation();
+                      setRoomSelected(val as string);
+                      setRoomError(false);
+                    }}
+                    options={defaultRoomsHospitalizacion}
+                    value={roomSelected}
+                    noOptionsText="No se encontraron enfermeros"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={roomError}
+                        helperText={roomError && 'Selecciona un cuarto'}
+                        placeholder="Cuartos"
+                        sx={{ width: '50%' }}
+                      />
+                    )}
+                  />
+                )}
+              </Stack>
+            )}
             <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
               <Autocomplete
