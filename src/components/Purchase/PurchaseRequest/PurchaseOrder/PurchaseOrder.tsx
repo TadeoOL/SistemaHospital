@@ -356,39 +356,37 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {!order.fueAutorizada &&
-                                    order.estatus ===
-                                      1(
-                                        <Tooltip title="Editar">
-                                          <IconButton
-                                            onClick={() => {
-                                              setOrderSelected({
-                                                folio: order.folio_Extension,
-                                                OrderId: order.id_OrdenCompra,
-                                              });
-                                              setPaymentMethod(order.conceptoPago);
-                                              setNote(order.notas || '');
-                                              setPurchaseOrderId(order.id_OrdenCompra);
-                                              setPurchaseWarehouseId(order.id_Almacen);
-                                              setOpenUpdateOrderModal(true);
-                                              order.proveedor.estatus = order.estatus;
-                                              setProviders([order.proveedor]);
-                                              setProvidersForEdition([order.proveedor.id_Proveedor]);
-                                              setArticlesForEdition(
-                                                order.ordenCompraArticulo.map((art) => ({
-                                                  id: art.id_Articulo,
-                                                  name: art.nombre,
-                                                  amount: art.cantidad,
-                                                  price: art.precioProveedor,
-                                                  stock: undefined,
-                                                }))
-                                              );
-                                            }}
-                                          >
-                                            <Edit />
-                                          </IconButton>
-                                        </Tooltip>
-                                      )}
+                                  {(!order.fueAutorizada && order.estatus === 1) && (
+                                    <Tooltip title="Editar">
+                                      <IconButton
+                                        onClick={() => {
+                                          setOrderSelected({
+                                            folio: order.folio_Extension,
+                                            OrderId: order.id_OrdenCompra,
+                                          });
+                                          setPaymentMethod(order.conceptoPago);
+                                          setNote(order.notas || '');
+                                          setPurchaseOrderId(order.id_OrdenCompra);
+                                          setPurchaseWarehouseId(order.id_Almacen);
+                                          setOpenUpdateOrderModal(true);
+                                          order.proveedor.estatus = order.estatus;
+                                          setProviders([order.proveedor]);
+                                          setProvidersForEdition([order.proveedor.id_Proveedor]);
+                                          setArticlesForEdition(
+                                            order.ordenCompraArticulo.map((art) => ({
+                                              id: art.id_Articulo,
+                                              name: art.nombre,
+                                              amount: art.cantidad,
+                                              price: art.precioProveedor,
+                                              stock: undefined,
+                                            }))
+                                          );
+                                        }}
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
                                   {order.estatus === 1 && (
                                     <>
                                       <Tooltip title="Ver orden de compra">
@@ -469,7 +467,7 @@ export const PurchaseOrder = () => {
                                 <>
                                 <Tooltip title="Artículos dados de alta en almacen">
                                   <IconButton>
-                                    <DoneAll sx={{ color: 'green' }} />
+                                   <DoneAll sx={{ color: 'green' }} />
                                   </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Ver Factura">
