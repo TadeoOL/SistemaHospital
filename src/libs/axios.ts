@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth';
 
-const API_ENV =
+export const API_ENV =
   import.meta.env.MODE === 'production'
     ? import.meta.env.VITE_PRODUCTION_API
     : import.meta.env.MODE === 'development'
