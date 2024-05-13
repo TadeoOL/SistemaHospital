@@ -29,7 +29,15 @@ import {
   PackageCatalogueView,
   PharmacyConfigView,
   SellsHistoryView,
+  PointOfSaleCheckoutView,
+  ReceiptEmitterView,
+  ConfigEmitterUsersView,
 } from './utils/LazyRoutes';
+import {
+  ProtectedRoutePharmacyDirector,
+  ProtectedRoutePharmacyManager,
+} from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePharmacy';
+import { CheckoutRoute } from './utils/CheckoutRoute';
 
 function App() {
   return (
@@ -60,10 +68,19 @@ function App() {
             </Route>
             <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
             <Route element={<PharmacyRoute />}>
-              <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
-              <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
-              <Route path="/farmacia/configuracion-farmacia" element={<PharmacyConfigView />} />
-              <Route path="/farmacia/historial-ventas" element={<SellsHistoryView />} />
+              <Route element={<ProtectedRoutePharmacyDirector />}>
+                <Route path="/farmacia/historial-ventas" element={<SellsHistoryView />} />
+                <Route path="/farmacia/configuracion-farmacia" element={<PharmacyConfigView />} />
+              </Route>
+              <Route element={<ProtectedRoutePharmacyManager />}>
+                <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
+                <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+              </Route>
+            </Route>
+            <Route element={<CheckoutRoute />}>
+              <Route path="ventas/caja" element={<PointOfSaleCheckoutView />} />
+              <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
+              <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
             </Route>
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
           </Route>

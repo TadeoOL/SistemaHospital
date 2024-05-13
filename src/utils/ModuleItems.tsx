@@ -8,7 +8,15 @@ import RuleIcon from '@mui/icons-material/Rule';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
-import { purchaseGlobalRoles, purchasingDirector, supplyRoles } from './dataRoles';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import {
+  checkoutSell,
+  pharmacyDirectorRole,
+  pharmacyManager,
+  purchaseGlobalRoles,
+  purchasingDirector,
+  supplyRoles,
+} from './dataRoles';
 import { History, LocalPharmacy, PointOfSale, ShoppingBasket } from '@mui/icons-material';
 
 export const ModuleList: IModuleItemsList[] = [
@@ -45,6 +53,7 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Catálogos',
         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
         path: '#',
+        protectedRoles: supplyRoles,
         topLevel: true,
         children: [
           {
@@ -113,28 +122,53 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Punto de venta',
         path: '/farmacia/punto-venta',
         icon: <PointOfSale sx={{ color: '#fff' }} />,
-        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+        protectedRoles: pharmacyManager,
       },
       {
         title: 'Configuración',
         path: '/farmacia/configuracion-farmacia',
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
-        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+        protectedRoles: pharmacyDirectorRole,
       },
       {
         title: 'Salidas y existencias',
         path: '/farmacia/catalogo',
         icon: <ArticleIcon sx={{ color: '#fff' }} />,
-        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+        protectedRoles: pharmacyManager,
       },
       {
         title: 'Historial de ventas',
         path: '/farmacia/historial-ventas',
         icon: <History sx={{ color: '#fff' }} />,
-        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+        protectedRoles: pharmacyDirectorRole,
       },
     ],
     path: 'farmacia',
+  },
+  {
+    categoryTitle: 'Ventas',
+    icon: <PointOfSale />,
+    moduleItems: [
+      {
+        title: 'Caja',
+        path: '/ventas/caja',
+        icon: <PointOfSale sx={{ color: '#fff' }} />,
+        protectedRoles: checkoutSell,
+      },
+      {
+        title: 'Emitir recibo',
+        path: '/ventas/emitir-recibo',
+        icon: <ReceiptLongIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkoutSell,
+      },
+      {
+        title: 'Configuración',
+        path: '/ventas/configuracion-usuarios',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkoutSell,
+      },
+    ],
+    path: 'ventas',
   },
 
   // {

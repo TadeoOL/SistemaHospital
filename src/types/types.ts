@@ -473,3 +473,19 @@ export interface ICheckoutHistory {
   ventaTotal: number;
   diaCorte: string;
 }
+
+export interface ICheckoutSell {
+  id_VentaPrincipal: string;
+  folio: string;
+  moduloProveniente: string;
+  paciente: string;
+  totalVenta: number;
+  tipoPago: number;
+  estatus: number;
+}
+
+export interface IConfigEmitterUsers {
+  id_Usuario: string;
+  nombre: string;
+  departamento: string[];
+}
