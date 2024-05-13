@@ -1,10 +1,21 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Grid,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig } from '../../../../../types/types';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
@@ -65,10 +76,14 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const [valueState, setValueState] = useState('');
   const [inputValue, setInputValue] = useState<any>();
   const [subCategory, setSubCategory] = useState('');
+  const textQuantityRef = useRef<HTMLTextAreaElement>();
+
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
     handleChangeArticle: state.handleChangeArticle,
   }));
+  const [isBox, setIsBox] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -93,6 +108,17 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   };
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
+      if (isBox && !textQuantityRef.current?.value) {
+        toast.error('escribe un número de unidades por caja');
+        return;
+      }
+      const numberQuantity = Number(textQuantityRef.current?.value);
+      if (isNaN(numberQuantity)) {
+        toast.error('No es un valor numerico entero');
+        return;
+      }
+      data.esCaja = isBox;
+      data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
       await addNewArticle(data);
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo creado con éxito!');
@@ -285,6 +311,31 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   </MenuItem>
                 ))}
               </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                <Box>
+                  <Typography>Es caja</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Unidades por caja"
+                    disabled={!isBox}
+                    inputRef={textQuantityRef}
+                    inputProps={{
+                      type: 'number',
+                      pattern: '[0-9]*',
+                      inputMode: 'numeric',
+                    }}
+                  />
+                </Box>
+                <Checkbox
+                  checked={isBox}
+                  onChange={() => {
+                    setIsBox(!isBox);
+                  }}
+                />
+              </Box>
             </Grid>
           </Grid>
           <Stack

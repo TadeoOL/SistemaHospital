@@ -463,7 +463,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({
       articulos: [
         {
           id_articulo: idArticle,
-          fechaCaducidad: expireDateValue as string,
+          fechaCaducidad: expireDateValue || '4000-01-01',
           cantidad: Number(stockValue),
           codigoBarras: barCodeValue,
         },
