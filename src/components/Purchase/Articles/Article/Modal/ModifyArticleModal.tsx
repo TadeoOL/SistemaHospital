@@ -199,8 +199,20 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima) {
+       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima&& (article?.esCaja == null || article?.esCaja == false)) {
         const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setInputValue(precioVentaString);
+        } else {
+          setInputValue('0');
+        }
+      }
+      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && article?.esCaja) {
+        const unidadesPorCaja = article?.unidadesPorCaja ?? "1";
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {

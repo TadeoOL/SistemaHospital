@@ -162,17 +162,27 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima) {
+       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
           setInputValue(precioVentaString);
-          setValue('precioVenta', precioVentaString);
         } else {
           setInputValue('0');
-          setValue('precioVenta', '0');
+        }
+      }
+      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+        const unidadesPorCaja = textQuantityRef.current?.value as string ?? "1";
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setInputValue(precioVentaString);
+        } else {
+          setInputValue('0');
         }
       }
     });
@@ -231,6 +241,52 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 maxRows={3}
                 inputProps={{ maxLength: 200 }}
               />
+            </Grid>
+              <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                  <Typography>Es un Paquete</Typography>
+                  <Checkbox
+                  checked={isBox}
+                  onChange={() => {
+                    setIsBox(!isBox);
+                  }}
+                />
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Unidades por Paquete"
+                    disabled={!isBox}
+                    inputRef={textQuantityRef}
+                    inputProps={{
+                      type: 'number',
+                      pattern: '[0-9]*',
+                      inputMode: 'numeric',
+                    }}
+                  />
+                </Box>
+                
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography>Sub Categoría</Typography>
+              <TextField
+                fullWidth
+                size="small"
+                select
+                label="Seleccione una Sub Categoria"
+                error={!!errors.id_subcategoria}
+                helperText={errors?.id_subcategoria?.message}
+                {...register('id_subcategoria')}
+                value={subCategory}
+                onChange={handleChange}
+              >
+                {subCategories.map((data) => (
+                  <MenuItem value={data.id} key={data.id}>
+                    {data.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography>Precio de Compra</Typography>
@@ -292,51 +348,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 {...register('stockAlerta')}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Sub Categoría</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                label="Seleccione una Sub Categoria"
-                error={!!errors.id_subcategoria}
-                helperText={errors?.id_subcategoria?.message}
-                {...register('id_subcategoria')}
-                value={subCategory}
-                onChange={handleChange}
-              >
-                {subCategories.map((data) => (
-                  <MenuItem value={data.id} key={data.id}>
-                    {data.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                <Box>
-                  <Typography>Es caja</Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Unidades por caja"
-                    disabled={!isBox}
-                    inputRef={textQuantityRef}
-                    inputProps={{
-                      type: 'number',
-                      pattern: '[0-9]*',
-                      inputMode: 'numeric',
-                    }}
-                  />
-                </Box>
-                <Checkbox
-                  checked={isBox}
-                  onChange={() => {
-                    setIsBox(!isBox);
-                  }}
-                />
-              </Box>
-            </Grid>
+            
           </Grid>
           <Stack
             sx={{
