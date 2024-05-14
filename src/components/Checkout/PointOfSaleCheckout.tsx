@@ -30,7 +30,7 @@ export const PointOfSaleCheckout = () => {
               Cerrar caja
             </Button>
           </Box>
-          <CheckoutTableComponent data={data} />
+          <CheckoutTableComponent data={data} admin={true} />
         </Stack>
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>
