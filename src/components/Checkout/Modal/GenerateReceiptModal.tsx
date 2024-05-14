@@ -89,7 +89,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
     );
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Generar recibo" />
+      <HeaderModal setOpen={props.setOpen} title="Generar pase a caja" />
       <Box
         sx={{
           display: 'flex',
@@ -171,7 +171,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         }}
       >
         <Button variant="contained" onClick={() => handleSubmit()}>
-          Generar recibo
+          Generar pase a caja
         </Button>
       </Box>
     </Box>

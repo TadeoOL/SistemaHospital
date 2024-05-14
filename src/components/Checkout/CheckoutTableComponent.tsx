@@ -116,7 +116,7 @@ const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, da
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `¿Seguro que deseas cancelar esta venta?`,
+        text: `¿Seguro que deseas cancelar este pase a caja?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -141,12 +141,12 @@ const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, da
           fetch();
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Venta cancelada',
+            text: 'Pase a caja canceladd',
             icon: 'success',
           });
         } else {
           withReactContent(Swal).fire({
-            title: 'No se cancelo la venta',
+            title: 'No se cancelo el pase a caja',
             icon: 'info',
           });
         }
