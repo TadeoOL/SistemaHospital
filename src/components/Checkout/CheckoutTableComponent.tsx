@@ -29,7 +29,6 @@ import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 const headTitles = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo de pago', 'Estatus', 'Acciones'];
 
 interface CheckoutTableComponentProps {
-  onClickFunction?: Function;
   data: ICheckoutSell[];
   admin: boolean;
 }
@@ -39,13 +38,11 @@ interface CheckoutTableProps {
 }
 
 interface CheckoutTableBodyProps {
-  onClickFunction?: Function;
   data: ICheckoutSell[];
   admin: boolean;
 }
 
 interface CheckoutTableRowProps {
-  onClickFunction: Function;
   data: ICheckoutSell;
   admin: boolean;
 }
@@ -62,11 +59,7 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
       <TableContainer>
         <Table>
           <CheckoutTableHeader heads={headTitles} />
-          <CheckoutTableBody
-            data={props.data}
-            onClickFunction={props?.onClickFunction || undefined}
-            admin={props.admin}
-          />
+          <CheckoutTableBody data={props.data} admin={props.admin} />
           {props.data.length > 0 && (
             <SellTableFooter
               count={count}
@@ -104,18 +97,14 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((data) => (
-        <CheckoutTableRow
-          key={data.id_VentaPrincipal}
-          data={data}
-          onClickFunction={props?.onClickFunction || (() => {})}
-          admin={props.admin}
-        />
+        <CheckoutTableRow key={data.id_VentaPrincipal} data={data} admin={props.admin} />
       ))}
     </TableBody>
   );
 };
 
-const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, data, admin }) => {
+const CheckoutTableRow = (props: CheckoutTableRowProps) => {
+  const { data, admin } = props;
   const [open, setOpen] = useState(false);
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const fetch = useCheckoutPaginationStore((state) => state.fetchData);
@@ -132,8 +121,8 @@ const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, da
         cancelButtonText: 'No, cancelar!',
         reverseButtons: true,
         showLoaderOnConfirm: true,
-        preConfirm: () => {
-          return changePrincipalSellStatus({
+        preConfirm: async () => {
+          return await changePrincipalSellStatus({
             id_VentaPrincipal: data.id_VentaPrincipal,
             estatus: 0,
             id_CajaPrincipal: checkoutId as string,
@@ -183,8 +172,6 @@ const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, da
               <Tooltip title="Cancelar">
                 <IconButton
                   onClick={() => {
-                    //console.log(data);
-                    //onClickFunction();
                     rejectRequest();
                   }}
                 >
@@ -192,19 +179,6 @@ const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, da
                 </IconButton>
               </Tooltip>
             )}
-            {/*
-              {data.estatus !== 0 && (<Tooltip title="Cancelar">
-              <IconButton
-                onClick={() => {
-                  //console.log(data);
-                  //onClickFunction();
-                  rejectRequest();
-                }}
-              >
-                <Visibility />
-              </IconButton>
-            </Tooltip>)}
-              */}
           </Box>
         </TableCell>
       </TableRow>
