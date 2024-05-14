@@ -76,7 +76,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
       setTotalAmountError(false);
       personNameRef.current.value = '';
       totalAmountRef.current.value = '';
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   };

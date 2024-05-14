@@ -8,7 +8,7 @@ import { getCheckoutUsers } from '../../services/checkout/checkoutService';
 import { IConfigEmitterUsers } from '../../types/types';
 import LoadingView from '../../views/LoadingView/LoadingView';
 import { useGetCheckoutConfig } from '../../hooks/useGetCheckoutConfig';
-const leaveConcepts = ['Consulta Sami', 'Radiografias', 'Farmacia'];
+import { leaveConcepts } from '../../utils/checkoutUtils';
 
 const useGetUsers = () => {
   const [hashTableUsers, setHashTableUsers] = useState<{ [key: string]: string }>({});
@@ -40,7 +40,7 @@ export const ConfigEmitterUsers = () => {
   const [depError, setDepError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [addNewUser, setAddNewUser] = useState(false);
-  const { config, loadingConfig } = useGetCheckoutConfig(addNewUser);
+  const { config } = useGetCheckoutConfig(addNewUser);
   const { loadingUsers, users } = useGetUsers();
 
   console.log({ config });

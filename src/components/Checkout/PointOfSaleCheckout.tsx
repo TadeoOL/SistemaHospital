@@ -11,7 +11,6 @@ const useGetData = () => {
   const search = useCheckoutPaginationStore((state) => state.search);
 
   useEffect(() => {
-    console.log(pageIndex);
     fetch();
   }, [pageIndex, pageSize, search]);
 };
