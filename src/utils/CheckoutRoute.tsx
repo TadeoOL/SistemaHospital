@@ -24,7 +24,7 @@ const useJoinRoom = (conn: HubConnection | null, setConn: Function, updateData: 
           .build();
         conn.on('JoinSpecificChatRoom', () => {});
 
-        conn.on('ReceiveSpecificSell', (userName: string, sell: any) => {
+        conn.on('ReceiveSpecificSell', (sell: any) => {
           const sellObject = {
             estatus: sell.estadoVenta,
             folio: sell.folio,
