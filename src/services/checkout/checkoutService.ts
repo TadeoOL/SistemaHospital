@@ -4,8 +4,9 @@ const apiCheckout = '/api/CorteCaja';
 
 export interface CheckoutResume {
   efectivo: number;
-  tarjeta: number;
   transferencia: number;
+  credito: number;
+  debito: number;
   resumenVenta: SaleResume[];
 }
 
@@ -20,6 +21,7 @@ export interface SaleResume {
 }
 
 export const getSells = async (param: string) => {
+  console.log(param);
   const res = await axios.get(`${apiCheckout}/paginacion-ventas?${param}`);
   return res.data;
 };
@@ -64,4 +66,16 @@ export const getCheckoutUsers = async () => {
 export const getCheckoutResume = async (checkoutId: string) => {
   const res = await axios.get(`${apiCheckout}/resumen-corte-caja/${checkoutId}`);
   return res.data as CheckoutResume;
+};
+
+export const closePrincipalCheckout = async (data: {
+  debito: number;
+  credito: number;
+  transferencia: number;
+  efectivo: number;
+  ventaTotal: number;
+  dineroAlCorte: number;
+}) => {
+  const res = await axios.put(`${apiCheckout}/cerrar-caja`, data);
+  return res.data;
 };

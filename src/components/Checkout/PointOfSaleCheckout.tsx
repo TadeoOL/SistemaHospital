@@ -11,7 +11,6 @@ const useGetData = () => {
   const search = useCheckoutPaginationStore((state) => state.search);
 
   useEffect(() => {
-    console.log(pageIndex);
     fetch();
   }, [pageIndex, pageSize, search]);
 };
@@ -31,7 +30,7 @@ export const PointOfSaleCheckout = () => {
               Cerrar caja
             </Button>
           </Box>
-          <CheckoutTableComponent data={data} />
+          <CheckoutTableComponent data={data} admin={true} />
         </Stack>
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>

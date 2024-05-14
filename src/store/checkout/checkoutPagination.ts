@@ -2,6 +2,7 @@ import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { type ICheckoutSell } from '../../types/types';
 import { getSells } from '../../services/checkout/checkoutService';
+import { useCheckoutDataStore } from './checkoutData';
 
 const initialValues = {
   count: 0,
@@ -15,6 +16,7 @@ const initialValues = {
   search: '',
   fetchPagination: false,
   cancelToken: null as CancelTokenSource | null,
+  checkoutId: '',
 };
 
 interface Action {
@@ -40,6 +42,7 @@ interface State {
   enabled: boolean;
   fetchPagination: boolean;
   cancelToken: CancelTokenSource | null;
+  checkoutId: string;
 }
 
 export const useCheckoutPaginationStore = create<State & Action>((set, get) => ({
@@ -63,12 +66,13 @@ export const useCheckoutPaginationStore = create<State & Action>((set, get) => (
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setFetchPagination: (fetchPagination: boolean) => set({ fetchPagination }),
+
   fetchData: async () => {
     const { enabled, search, pageIndex, pageSize, fetchPagination, data } = get();
 
     set({ loading: true });
     const index = pageIndex + 1;
-    console.log({ pageIndex });
+    const checkoutId = useCheckoutDataStore.getState().id;
 
     const cancelToken = axios.CancelToken.source();
     if (get().cancelToken) {
@@ -81,9 +85,8 @@ export const useCheckoutPaginationStore = create<State & Action>((set, get) => (
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       const res = await getSells(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}`
       );
-
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
         pageSize: res.pageSize,

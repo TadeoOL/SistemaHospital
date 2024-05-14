@@ -1,4 +1,5 @@
-import { CheckCircle, Info, Visibility } from '@mui/icons-material';
+import { CheckCircle, Info } from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Card,
@@ -20,11 +21,17 @@ import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPaginat
 import { hashEstatusToString, hashPaymentsToString } from '../../utils/checkoutUtils';
 import { CloseSaleModal } from './Modal/CloseSaleModal';
 import { useState } from 'react';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
+import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
+import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 
 const headTitles = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo de pago', 'Estatus', 'Acciones'];
 
 interface CheckoutTableComponentProps {
+  onClickFunction?: Function;
   data: ICheckoutSell[];
+  admin: boolean;
 }
 
 interface CheckoutTableProps {
@@ -32,11 +39,15 @@ interface CheckoutTableProps {
 }
 
 interface CheckoutTableBodyProps {
+  onClickFunction?: Function;
   data: ICheckoutSell[];
+  admin: boolean;
 }
 
 interface CheckoutTableRowProps {
+  onClickFunction: Function;
   data: ICheckoutSell;
+  admin: boolean;
 }
 
 export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
@@ -51,7 +62,11 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
       <TableContainer>
         <Table>
           <CheckoutTableHeader heads={headTitles} />
-          <CheckoutTableBody data={props.data} />
+          <CheckoutTableBody
+            data={props.data}
+            onClickFunction={props?.onClickFunction || undefined}
+            admin={props.admin}
+          />
           {props.data.length > 0 && (
             <SellTableFooter
               count={count}
@@ -89,15 +104,62 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((data) => (
-        <CheckoutTableRow key={data.id_VentaPrincipal} data={data} />
+        <CheckoutTableRow
+          key={data.id_VentaPrincipal}
+          data={data}
+          onClickFunction={props?.onClickFunction || (() => {})}
+          admin={props.admin}
+        />
       ))}
     </TableBody>
   );
 };
 
-const CheckoutTableRow = (props: CheckoutTableRowProps) => {
+const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, data, admin }) => {
   const [open, setOpen] = useState(false);
-  const { data } = props;
+  const checkoutId = useCheckoutDataStore((state) => state.id);
+  const fetch = useCheckoutPaginationStore((state) => state.fetchData);
+
+  const rejectRequest = () => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `¿Seguro que deseas cancelar este pase a caja?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return changePrincipalSellStatus({
+            id_VentaPrincipal: data.id_VentaPrincipal,
+            estatus: 0,
+            id_CajaPrincipal: checkoutId as string,
+            tieneIva: false,
+            tipoPago: data.tipoPago,
+            montoPago: data.totalVenta,
+          });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          fetch();
+          withReactContent(Swal).fire({
+            title: 'Éxito!',
+            text: 'Pase a caja canceladd',
+            icon: 'success',
+          });
+        } else {
+          withReactContent(Swal).fire({
+            title: 'No se cancelo el pase a caja',
+            icon: 'info',
+          });
+        }
+      });
+  };
 
   return (
     <>
@@ -110,18 +172,39 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.estatus === 1 && (
+            {data.estatus === 1 && admin && (
               <Tooltip title="Aceptar">
                 <IconButton onClick={() => setOpen(true)}>
                   <CheckCircle sx={{ color: success.main }} />
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Ver">
-              <IconButton onClick={() => {}}>
+            {data.estatus !== 0 && (
+              <Tooltip title="Cancelar">
+                <IconButton
+                  onClick={() => {
+                    //console.log(data);
+                    //onClickFunction();
+                    rejectRequest();
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            {/*
+              {data.estatus !== 0 && (<Tooltip title="Cancelar">
+              <IconButton
+                onClick={() => {
+                  //console.log(data);
+                  //onClickFunction();
+                  rejectRequest();
+                }}
+              >
                 <Visibility />
               </IconButton>
-            </Tooltip>
+            </Tooltip>)}
+              */}
           </Box>
         </TableCell>
       </TableRow>
