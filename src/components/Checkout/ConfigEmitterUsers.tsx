@@ -43,7 +43,6 @@ export const ConfigEmitterUsers = () => {
   const { config } = useGetCheckoutConfig(addNewUser);
   const { loadingUsers, users } = useGetUsers();
 
-  console.log({ config });
   const handleEdit = (id: string) => {
     setUserSelected(id);
     const userLeaves = config.find((c) => c.id_Usuario === id);
@@ -62,7 +61,6 @@ export const ConfigEmitterUsers = () => {
     }
   };
 
-  console.log({ userSelected });
   const handleSaveUser = async () => {
     if (!userSelected || userSelected.trim() === '') {
       toast.warning('Debes de llenar todos los datos para poder agregar un nuevo usuario');
