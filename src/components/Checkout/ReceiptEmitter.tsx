@@ -30,7 +30,7 @@ export const ReceiptEmitter = () => {
               Generar pase a caja
             </Button>
           </Box>
-          <CheckoutTableComponent data={data} />
+          <CheckoutTableComponent data={data} admin={false} />
         </Stack>
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>

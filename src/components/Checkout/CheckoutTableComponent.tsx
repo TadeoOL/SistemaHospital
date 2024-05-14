@@ -31,6 +31,7 @@ const headTitles = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo 
 interface CheckoutTableComponentProps {
   onClickFunction?: Function;
   data: ICheckoutSell[];
+  admin: boolean;
 }
 
 interface CheckoutTableProps {
@@ -40,11 +41,13 @@ interface CheckoutTableProps {
 interface CheckoutTableBodyProps {
   onClickFunction?: Function;
   data: ICheckoutSell[];
+  admin: boolean;
 }
 
 interface CheckoutTableRowProps {
   onClickFunction: Function;
   data: ICheckoutSell;
+  admin: boolean;
 }
 
 export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
@@ -59,7 +62,11 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
       <TableContainer>
         <Table>
           <CheckoutTableHeader heads={headTitles} />
-          <CheckoutTableBody data={props.data} onClickFunction={props?.onClickFunction || undefined} />
+          <CheckoutTableBody
+            data={props.data}
+            onClickFunction={props?.onClickFunction || undefined}
+            admin={props.admin}
+          />
           {props.data.length > 0 && (
             <SellTableFooter
               count={count}
@@ -101,13 +108,14 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
           key={data.id_VentaPrincipal}
           data={data}
           onClickFunction={props?.onClickFunction || (() => {})}
+          admin={props.admin}
         />
       ))}
     </TableBody>
   );
 };
 
-const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, data }) => {
+const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, data, admin }) => {
   const [open, setOpen] = useState(false);
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const fetch = useCheckoutPaginationStore((state) => state.fetchData);
@@ -164,7 +172,7 @@ const CheckoutTableRow: React.FC<CheckoutTableRowProps> = ({ onClickFunction, da
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.estatus === 1 && (
+            {data.estatus === 1 && admin && (
               <Tooltip title="Aceptar">
                 <IconButton onClick={() => setOpen(true)}>
                   <CheckCircle sx={{ color: success.main }} />
