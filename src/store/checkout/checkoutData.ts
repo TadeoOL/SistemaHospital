@@ -9,6 +9,7 @@ const initialValues = {
   cerrada: false,
   pasoSuJornada: false,
   tieneCaja: false,
+  conceptoSalidaSeleccionado: 'Todos',
 };
 
 interface State {
@@ -20,10 +21,12 @@ interface State {
   cerrada: boolean;
   pasoSuJornada: boolean;
   tieneCaja: boolean;
+  conceptoSalidaSeleccionado: string;
 }
 
 interface Action {
   setData: (data: State) => void;
+  setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => void;
 }
 
 export const useCheckoutDataStore = create<State & Action>((set) => ({
@@ -39,4 +42,5 @@ export const useCheckoutDataStore = create<State & Action>((set) => ({
       pasoSuJornada: data.pasoSuJornada,
       tieneCaja: data.tieneCaja,
     }),
+  setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => set({ conceptoSalidaSeleccionado }),
 }));

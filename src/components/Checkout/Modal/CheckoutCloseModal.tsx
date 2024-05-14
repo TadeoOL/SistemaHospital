@@ -1,19 +1,38 @@
-import { Backdrop, Box, Button, CircularProgress, Divider, Stack, Typography } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { error, primary } from '../../../theme/colors';
-import { useEffect, useState } from 'react';
-import { CheckoutResume, SaleResume, getCheckoutResume } from '../../../services/checkout/checkoutService';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CheckoutResume,
+  SaleResume,
+  closePrincipalCheckout,
+  getCheckoutResume,
+} from '../../../services/checkout/checkoutService';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
-import { hashPaymentsToNumber } from '../../../utils/checkoutUtils';
+import { hashPaymentsToNumber, leaveConcepts } from '../../../utils/checkoutUtils';
+import { CollapseTablesPayment } from './CollapseTablesPayment';
+import { isValidFloat } from '../../../utils/functions/dataUtils';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550 },
+  width: { xs: 380, sm: 550, md: 800 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
@@ -39,17 +58,20 @@ interface CheckoutCloseModalProps {
   setOpen: Function;
 }
 
-const useFormatData = (data: SaleResume[] | undefined) => {
-  if (!data) {
-    return {
-      efectivo: [],
-      transferencia: [],
-      credito: [],
-      debito: [],
-    };
-  }
+const useFormatData = (data: SaleResume[] | undefined): any => {
+  const [filteredData, setFilteredData] = useState<SaleResume[]>([]);
+  const leaveConceptSelected = useCheckoutDataStore((state) => state.conceptoSalidaSeleccionado);
 
-  const groupedSales = data.reduce(
+  useEffect(() => {
+    if (data && leaveConceptSelected !== 'Todos') {
+      const newData = data.filter((sale) => sale.moduloProveniente === leaveConceptSelected);
+      setFilteredData(newData);
+    } else {
+      setFilteredData(data || []);
+    }
+  }, [data, leaveConceptSelected]);
+
+  const groupedSales = filteredData.reduce(
     (acc, sale) => {
       switch (sale.tipoPago) {
         case hashPaymentsToNumber['Efectivo']:
@@ -84,6 +106,7 @@ const useGetCheckoutResume = () => {
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const [data, setData] = useState<CheckoutResume>();
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     setIsLoading(true);
     const fetch = async () => {
@@ -102,15 +125,30 @@ const useGetCheckoutResume = () => {
 };
 
 export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
+  const navigate = useNavigate();
   const { data, isLoading } = useGetCheckoutResume();
   const dataFormatted = useFormatData(data?.resumenVenta);
-
-  console.log({ dataFormatted });
-
+  const leaveConceptSelected = useCheckoutDataStore((state) => state.conceptoSalidaSeleccionado);
+  const setLeaveConceptSelected = useCheckoutDataStore((state) => state.setConceptoSalidaSeleccionado);
   const date = new Date();
   const hour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
   const day = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  const totalAmount = useMemo(() => {
+    if (!data) return 0;
+    return data?.efectivo + data?.transferencia + data?.credito + data.debito;
+  }, [data]);
+  const cashRef = useRef<HTMLTextAreaElement | null>();
+  const [cashError, setCashError] = useState(false);
+  const [isLoadingClose, setIsLoadingClose] = useState(false);
+
   const handleCloseCheckout = () => {
+    if (!data) return;
+    if (!cashRef.current) return;
+    if (cashRef.current.value.trim() === '' || !isValidFloat(cashRef.current.value.trim())) {
+      setCashError(true);
+      toast.warning('Por favor llena todos los datos antes de realizar el corte de caja.');
+      return;
+    }
     withReactContent(Swal)
       .fire({
         icon: 'warning',
@@ -123,7 +161,35 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
         cancelButtonText: 'Cancelar',
         reverseButtons: true,
       })
-      .then((result) => {});
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          setIsLoadingClose(true);
+          try {
+            const obj = {
+              debito: data.debito,
+              credito: data.credito,
+              efectivo: data.efectivo,
+              transferencia: data.transferencia,
+              ventaTotal: totalAmount,
+              dineroAlCorte: parseFloat(cashRef.current?.value as string),
+            };
+            await closePrincipalCheckout(obj);
+            props.setOpen(false);
+            navigate('/');
+            Swal.fire({
+              icon: 'success',
+              title: 'Completado',
+              text: 'La caja se ha cerrado correctamente.',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
+          } catch (error) {
+            console.log(error);
+            toast.error('Error al cerrar la caja.');
+          }
+        }
+      });
   };
 
   if (isLoading)
@@ -137,22 +203,70 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Cerrar caja" />
       <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
-        <Typography sx={{ fontSize: 20, fontWeight: 500 }}>Resumen de las ventas</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 500, flex: 1 }}>Resumen de las ventas</Typography>
+          <TextField
+            select
+            label="Conceptos de salida"
+            fullWidth
+            sx={{ flex: 1 }}
+            value={leaveConceptSelected}
+            onChange={(e) => setLeaveConceptSelected(e.target.value)}
+          >
+            <MenuItem value="Todos" key={''}>
+              Todos
+            </MenuItem>
+            {leaveConcepts.map((lc) => (
+              <MenuItem key={lc} value={lc}>
+                {lc}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
         <Divider sx={{ my: 1 }} />
-        <Stack>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-            <Typography sx={{ fontSize: 15, fontWeight: 500 }}>Efectivo</Typography>
-            <Typography>100</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-            <Typography sx={{ fontSize: 15, fontWeight: 500 }}>Tarjeta</Typography>
-            <Typography>100</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-            <Typography sx={{ fontSize: 15, fontWeight: 500 }}>Transferencia</Typography>
-            <Typography>100</Typography>
-          </Box>
+        <Stack spacing={0.5}>
+          <CollapseTablesPayment paymentType="Efectivo" data={dataFormatted.efectivo} />
+          <CollapseTablesPayment paymentType="Transferencia" data={dataFormatted.transferencia} />
+          <CollapseTablesPayment paymentType="Crédito" data={dataFormatted.credito} />
+          <CollapseTablesPayment paymentType="Débito" data={dataFormatted.debito} />
         </Stack>
+        <Divider sx={{ my: 1 }} />
+        <Box sx={{ display: 'flex', columnGap: 4, backgroundColor: '#F9F9F9', p: 2, borderRadius: 4 }}>
+          <Stack sx={{ flex: 1, justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Efectivo</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.efectivo}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Débito</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.debito}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Crédito</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.credito}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Transferencia</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.transferencia}</Typography>
+            </Box>
+            <Divider />
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Total</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${totalAmount}</Typography>
+            </Box>
+          </Stack>
+          <Stack sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Dinero en caja al corte</Typography>
+            <TextField
+              placeholder="Dinero en caja..."
+              inputRef={cashRef}
+              error={cashError}
+              helperText={cashError && 'Escribe una cantidad valida'}
+              onChange={() => setCashError(false)}
+              sx={{ bgcolor: 'white' }}
+            />
+          </Stack>
+        </Box>
       </Box>
       <Box
         sx={{
@@ -165,8 +279,8 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
           borderBottomRightRadius: 12,
         }}
       >
-        <Button variant="contained" onClick={handleCloseCheckout}>
-          Realizar corte
+        <Button variant="contained" onClick={handleCloseCheckout} disabled={isLoadingClose}>
+          {isLoadingClose ? <CircularProgress size={12} /> : 'Realizar corte'}
         </Button>
       </Box>
     </Box>
