@@ -83,7 +83,6 @@ export const useCheckoutPaginationStore = create<State & Action>((set, get) => (
       const res = await getSells(
         `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}`
       );
-
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
         pageSize: res.pageSize,
