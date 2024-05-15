@@ -6,4 +6,7 @@ export const purchasingDirector = [...purchaseGlobalRoles, 'DIRECTORCOMPRAS'];
 export const pharmacyDirectorRole = [...purchaseGlobalRoles, 'DIRECTORCFARMACIA'];
 export const nurseRole = [...pharmacyDirectorRole, 'ENFERMERO'];
 export const pharmacyManager = [...pharmacyDirectorRole, 'ENCARGADOFARMACIA'];
-export const checkoutSell = [...pharmacyDirectorRole, 'VENTAS'];
+//Roles para Venta
+export const checkoutAdmin = [...purchaseGlobalRoles, 'ADMINISTRADORCAJA'];
+export const checkoutSell = [...purchaseGlobalRoles, 'PASECAJA'];
+export const checkout = [...purchaseGlobalRoles, 'CAJA'];
