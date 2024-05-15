@@ -482,6 +482,7 @@ export interface ICheckoutSell {
   totalVenta: number;
   tipoPago: number;
   estatus: number;
+  id_UsuarioPase: string;
 }
 
 export interface IConfigEmitterUsers {

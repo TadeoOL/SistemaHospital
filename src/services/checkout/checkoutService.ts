@@ -21,7 +21,6 @@ export interface SaleResume {
 }
 
 export const getSells = async (param: string) => {
-  console.log(param);
   const res = await axios.get(`${apiCheckout}/paginacion-ventas?${param}`);
   return res.data;
 };
@@ -77,5 +76,10 @@ export const closePrincipalCheckout = async (data: {
   dineroAlCorte: number;
 }) => {
   const res = await axios.put(`${apiCheckout}/cerrar-caja`, data);
+  return res.data;
+};
+
+export const getUserEmitterSells = async (param: string) => {
+  const res = await axios.get(`${apiCheckout}/paginacion-ventas-emisor?${param}`);
   return res.data;
 };
