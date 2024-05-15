@@ -5,6 +5,7 @@ import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPaginat
 import { useNavigate } from 'react-router-dom';
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 import { Report } from '../Commons/Report/Report';
+import { hashPaymentsToString } from '../../utils/checkoutUtils';
 
 const useGetData = () => {
   const fetch = useCheckoutPaginationStore((state) => state.fetchData);
@@ -28,6 +29,17 @@ export const CloseCheckout = () => {
   const setPageSize = useCheckoutPaginationStore((state) => state.setPageSize);
   const setIdCaja = useCheckoutDataStore((state) => state.setIdCaja);
 
+  const formatData = (info: any) => {
+    const formatedData = info.map((obj: any) => ({
+      folio: obj.folio,
+      modulo: obj.moduloProveniente,
+      paciente: obj.paciente,
+      tipoPago: hashPaymentsToString[obj.tipoPago] || 'Sin tipo de pago',
+      totalVenta: obj.totalVenta,
+    }));
+    return formatedData;
+  };
+
   return (
     <>
       <Card sx={{ p: 3 }}>
@@ -46,10 +58,7 @@ export const CloseCheckout = () => {
               </Button>
               <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del dia</Typography>
             </Box>
-            <Report
-              data={data}
-              headers={['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo de pago', 'Estatus', 'Acciones']}
-            />
+            <Report data={formatData(data)} headers={['Folio', 'Modulo', 'Paciente', 'Tipo de pago', 'Total venta']} />
           </Box>
           <CheckoutTableComponent
             data={data}
