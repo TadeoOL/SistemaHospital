@@ -5,6 +5,7 @@ import { registerSell } from '../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { useGetCheckoutConfig } from '../../../hooks/useGetCheckoutConfig';
 import { useAuthStore } from '../../../store/auth';
+import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
 
 const style = {
   position: 'absolute',
@@ -35,7 +36,6 @@ const style = {
 
 interface GenerateReceiptModalProps {
   setOpen: Function;
-  from: string;
 }
 export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
   const profile = useAuthStore((state) => state.profile);
@@ -48,6 +48,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
   const [conceptError, setConceptError] = useState(false);
   const conn = useConnectionSocket((state) => state.conn);
   const concepts = getConcepts(config, profile?.id as string);
+  const refetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
 
   function getConcepts(configData: typeof config, userId: string) {
     const configFound = configData.find((c) => c.id_Usuario === userId);
@@ -71,7 +72,18 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         moduloProveniente: conceptSelected,
       };
       const res = await registerSell(object);
-      conn.invoke('SendSell', res);
+      const resObj = {
+        estatus: res.estadoVenta,
+        folio: res.folio,
+        id_VentaPrincipal: res.id,
+        moduloProveniente: res.moduloProveniente,
+        paciente: res.paciente,
+        totalVenta: res.totalVenta,
+        tipoPago: res.tipoPago,
+        id_UsuarioPase: res.id_UsuarioPase,
+      };
+      conn.invoke('SendSell', resObj);
+      refetch();
       props.setOpen(false);
       setTotalAmountError(false);
       personNameRef.current.value = '';
@@ -102,9 +114,6 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
           <Typography sx={{ fontSize: 24, fontWeight: 500 }}>Nuevo recibo</Typography>
         </Box>
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-          <Grid item xs={12}>
-            <Typography>{props.from}</Typography>
-          </Grid>
           <Grid item xs={3}>
             <Typography>Concepto de salida:</Typography>
           </Grid>

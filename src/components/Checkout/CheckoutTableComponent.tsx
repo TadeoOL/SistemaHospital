@@ -25,12 +25,18 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
+import { useConnectionSocket } from '../../store/checkout/connectionSocket';
 
 const headTitles = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo de pago', 'Estatus', 'Acciones'];
 
 interface CheckoutTableComponentProps {
   data: ICheckoutSell[];
   admin: boolean;
+  count: number;
+  pageIndex: number;
+  pageSize: number;
+  setPageIndex: Function;
+  setPageSize: Function;
 }
 
 interface CheckoutTableProps {
@@ -48,12 +54,6 @@ interface CheckoutTableRowProps {
 }
 
 export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
-  const count = useCheckoutPaginationStore((state) => state.count);
-  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
-  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
-  const setPageIndex = useCheckoutPaginationStore((state) => state.setPageIndex);
-  const setPageSize = useCheckoutPaginationStore((state) => state.setPageSize);
-
   return (
     <Card>
       <TableContainer>
@@ -62,11 +62,11 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
           <CheckoutTableBody data={props.data} admin={props.admin} />
           {props.data.length > 0 && (
             <SellTableFooter
-              count={count}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              setPageIndex={setPageIndex}
-              setPageSize={setPageSize}
+              count={props.count}
+              pageIndex={props.pageIndex}
+              pageSize={props.pageSize}
+              setPageIndex={props.setPageIndex}
+              setPageSize={props.setPageSize}
             />
           )}
         </Table>
@@ -108,6 +108,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   const [open, setOpen] = useState(false);
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const fetch = useCheckoutPaginationStore((state) => state.fetchData);
+  const conn = useConnectionSocket((state) => state.conn);
 
   const rejectRequest = () => {
     withReactContent(Swal)
@@ -122,14 +123,18 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: async () => {
-          return await changePrincipalSellStatus({
+          const objSell = {
             id_VentaPrincipal: data.id_VentaPrincipal,
             estatus: 0,
             id_CajaPrincipal: checkoutId as string,
             tieneIva: false,
             tipoPago: data.tipoPago,
             montoPago: data.totalVenta,
-          });
+            id_UsuarioPase: data.id_UsuarioPase,
+          };
+          await changePrincipalSellStatus(objSell);
+          conn?.invoke('UpdateSell', objSell);
+          return;
         },
         allowOutsideClick: () => !Swal.isLoading(),
       })
@@ -138,7 +143,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
           fetch();
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Pase a caja canceladd',
+            text: 'Pase a caja cancelado',
             icon: 'success',
           });
         } else {
@@ -156,7 +161,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>{data.folio}</TableCell>
         <TableCell>{data.moduloProveniente}</TableCell>
         <TableCell>{data.paciente}</TableCell>
-        <TableCell>{data.totalVenta}</TableCell>
+        <TableCell>${data.totalVenta}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
         <TableCell>
@@ -168,7 +173,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                 </IconButton>
               </Tooltip>
             )}
-            {data.estatus !== 0 && (
+            {data.estatus === 1 && (
               <Tooltip title="Cancelar">
                 <IconButton
                   onClick={() => {
@@ -179,12 +184,17 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                 </IconButton>
               </Tooltip>
             )}
+            {data.estatus === 2 && (
+              <Tooltip title="Pagado">
+                <Info color="primary" />
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <CloseSaleModal setOpen={setOpen} sellId={data.id_VentaPrincipal} totalAmount={data.totalVenta} />
+          <CloseSaleModal setOpen={setOpen} sellData={data} />
         </>
       </Modal>
     </>
