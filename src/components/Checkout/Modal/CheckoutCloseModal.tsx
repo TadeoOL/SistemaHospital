@@ -37,22 +37,22 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 800 },
 };
 
-// const scrollBarStyle = {
-//   '&::-webkit-scrollbar': {
-//     width: '0.4em',
-//   },
-//   '&::-webkit-scrollbar-track': {
-//     boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-//     webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-//   },
-//   '&::-webkit-scrollbar-thumb': {
-//     backgroundColor: 'rgba(0,0,0,.1)',
-//     outline: '1px solid slategrey',
-//   },
-// };
+const scrollBarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
+};
 
 interface CheckoutCloseModalProps {
   setOpen: Function;
@@ -202,7 +202,7 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Cerrar caja" />
-      <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
+      <Box sx={{ backgroundColor: 'background.paper', p: 3, overflowY: 'auto', ...scrollBarStyle }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography sx={{ fontSize: 20, fontWeight: 500, flex: 1 }}>Resumen de las ventas</Typography>
           <TextField

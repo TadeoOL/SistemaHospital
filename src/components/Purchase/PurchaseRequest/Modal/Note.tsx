@@ -1,12 +1,13 @@
-import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { Box, TextField } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { useShallow } from 'zustand/react/shallow';
-
-export const Note = () => {
-  const note = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.note));
+interface NoteProps {
+  note: string;
+  setNote: Function;
+  sx?: any;
+}
+export const Note = (props: NoteProps) => {
+  const { note, setNote } = props;
   const [localNote, setLocalNote] = useState(note ? note : '');
-  const setNote = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.setNote));
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,7 +22,7 @@ export const Note = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flex: 1, height: 500 }}>
       <TextField
         fullWidth
         multiline
@@ -36,15 +37,18 @@ export const Note = () => {
             transition: 'all 0.2s ease-in',
             padding: 1,
           },
+          '& .MuiInputBase-root': {
+            height: 150,
+          },
         }}
         InputProps={{
           sx: {
-            padding: 1,
+            paddingTop: -1,
           },
         }}
         InputLabelProps={{
           sx: {
-            margin: -0.5,
+            margin: -0.1,
           },
         }}
       />

@@ -640,7 +640,7 @@ const StepTwo = () => {
 };
 
 const SelectProviderAndUploadPDF = () => {
-  const { step, setStep, pdf, setPdf, setProvider, provider, setPaymentMethod, paymentMethod } =
+  const { step, setStep, pdf, setPdf, setProvider, provider, setPaymentMethod, paymentMethod, note, setNote } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
         step: state.step,
@@ -651,6 +651,8 @@ const SelectProviderAndUploadPDF = () => {
         setProvider: state.setProvider,
         setPaymentMethod: state.setPaymentMethod,
         paymentMethod: state.paymentMethod,
+        note: state.note,
+        setNote: state.setNote,
       }),
       shallow
     );
@@ -850,7 +852,7 @@ const SelectProviderAndUploadPDF = () => {
             </Collapse>
           </Stack>
           <Box>
-            <Note />
+            <Note note={note} setNote={setNote} />
           </Box>
         </Stack>
         <Box
