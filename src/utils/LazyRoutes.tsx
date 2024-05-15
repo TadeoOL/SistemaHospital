@@ -21,3 +21,5 @@ export const SellsHistoryView = lazy(() => import('../views/Pharmacy/SellsHistor
 export const PointOfSaleCheckoutView = lazy(() => import('../views/Checkout/PointOfSaleCheckoutView'));
 export const ReceiptEmitterView = lazy(() => import('../views/Checkout/ReceiptEmitterView'));
 export const ConfigEmitterUsersView = lazy(() => import('../views/Checkout/ConfigEmitterUsersView'));
+export const CloseCheckoutHistoryView = lazy(() => import('../views/Checkout/CloseCheckoutHistoryView'));
+export const CloseCheckoutView = lazy(() => import('../views/Checkout/CloseCheckoutView'));

@@ -474,6 +474,19 @@ export interface ICheckoutHistory {
   diaCorte: string;
 }
 
+export interface ICheckoutCloseHistory {
+  id_CajaPrincipal: string;
+  nombreUsuario: string;
+  efectivo: number;
+  transferencia: number;
+  debito: number;
+  credito: number;
+  ventaTotal: number;
+  diaHoraCorte: string;
+  dineroAlCorte: number;
+  dineroInicial: number;
+}
+
 export interface ICheckoutSell {
   id_VentaPrincipal: string;
   folio: string;
@@ -483,6 +496,8 @@ export interface ICheckoutSell {
   tipoPago: number;
   estatus: number;
   id_UsuarioPase: string;
+  notas?: string;
+  pdfCadena?: string;
 }
 
 export interface IConfigEmitterUsers {

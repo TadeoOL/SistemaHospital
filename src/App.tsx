@@ -32,6 +32,8 @@ import {
   PointOfSaleCheckoutView,
   ReceiptEmitterView,
   ConfigEmitterUsersView,
+  CloseCheckoutHistoryView,
+  CloseCheckoutView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -81,6 +83,8 @@ function App() {
               <Route path="ventas/caja" element={<PointOfSaleCheckoutView />} />
               <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
+              <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
+              <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
             </Route>
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
           </Route>

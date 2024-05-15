@@ -257,6 +257,7 @@ const ArticlesTable = (props: {
     setProvider,
     setPaymentMethod,
     paymentMethod,
+    setNote,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -273,6 +274,7 @@ const ArticlesTable = (props: {
       setPaymentMethod: state.setPaymentMethod,
       paymentMethod: state.paymentMethod,
       note: state.note,
+      setNote: state.setNote,
     }),
     shallow
   );
@@ -581,7 +583,7 @@ const ArticlesTable = (props: {
           </FormControl>
         </Stack>
       </Box>
-      <Note />
+      <Note note={note} setNote={setNote} />
       <Box
         sx={{
           display: 'flex',

@@ -25,6 +25,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontWeight: 'bold',
     fontSize: 12,
     height: 2,
+    ':last-child': {
+      borderTopRightRadius: 10,
+    },
+    ':first-of-type': {
+      borderTopLeftRadius: 10,
+    },
   },
   [`&.${tableCellClasses.body}`]: {
     border: 'hidden',
@@ -54,7 +60,7 @@ export const CollapseTablesPayment = (props: CollapseTablesPaymentProps) => {
         <IconButton onClick={() => setOpenCollapse(!openCollapse)}>
           {openCollapse ? <ExpandLess /> : <ExpandMore />}
         </IconButton>
-        <Typography>{props.paymentType}</Typography>
+        <Typography sx={{ fontSize: 17, fontWeight: 500 }}>{props.paymentType}</Typography>
       </Card>
       <Collapse in={openCollapse}>
         <TableForPayment data={props.data} />
@@ -65,7 +71,7 @@ export const CollapseTablesPayment = (props: CollapseTablesPaymentProps) => {
 
 const TableForPayment = (props: TableForPaymentProps) => {
   return (
-    <Card>
+    <Card sx={{ p: 2 }}>
       <TableContainer>
         <Table>
           <TableHeadPayment />

@@ -25,7 +25,13 @@ export const getSells = async (param: string) => {
   return res.data;
 };
 
-export const registerSell = async (data: { paciente: string; totalVenta: number; moduloProveniente: string }) => {
+export const registerSell = async (data: {
+  paciente: string;
+  totalVenta: number;
+  moduloProveniente: string;
+  notas?: string;
+  pdfCadena?: string;
+}) => {
   const res = await axios.post(`${apiCheckout}/registrar-venta`, data);
   return res.data;
 };
@@ -44,6 +50,11 @@ export const changePrincipalSellStatus = async (data: {
 
 export const getCheckout = async () => {
   const res = await axios.get(`${apiCheckout}/obtener-caja-principal`);
+  return res.data;
+};
+
+export const getCheckoutCloses = async (param: string) => {
+  const res = await axios.get(`${apiCheckout}/paginacion-cajas?${param}`);
   return res.data;
 };
 

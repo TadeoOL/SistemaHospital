@@ -10,6 +10,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import {
+  checkout,
+  checkoutAdmin,
   checkoutSell,
   pharmacyDirectorRole,
   pharmacyManager,
@@ -153,7 +155,7 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Caja',
         path: '/ventas/caja',
         icon: <PointOfSale sx={{ color: '#fff' }} />,
-        protectedRoles: checkoutSell,
+        protectedRoles: checkout,
       },
       {
         title: 'Emitir Pase a Caja',
@@ -164,6 +166,12 @@ export const ModuleList: IModuleItemsList[] = [
       {
         title: 'Configuración',
         path: '/ventas/configuracion-usuarios',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkoutAdmin,
+      },
+      {
+        title: 'Historial de cortes',
+        path: '/ventas/historial-cortes',
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkoutSell,
       },

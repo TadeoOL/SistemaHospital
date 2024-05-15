@@ -25,6 +25,7 @@ interface State {
 }
 
 interface Action {
+  setIdCaja: (id: string) => void,
   setData: (data: State) => void;
   setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => void;
 }
@@ -43,4 +44,5 @@ export const useCheckoutDataStore = create<State & Action>((set) => ({
       tieneCaja: data.tieneCaja,
     }),
   setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => set({ conceptoSalidaSeleccionado }),
+  setIdCaja: (id: string) => set({ id }),
 }));
