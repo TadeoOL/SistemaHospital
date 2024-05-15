@@ -169,6 +169,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkoutAdmin,
       },
+      {
+        title: 'Historial de cortes',
+        path: '/ventas/historial-cortes',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkoutSell,
+      },
     ],
     path: 'ventas',
   },
