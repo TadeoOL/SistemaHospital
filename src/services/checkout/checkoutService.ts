@@ -47,6 +47,11 @@ export const getCheckout = async () => {
   return res.data;
 };
 
+export const getCheckoutCloses = async (param: string) => {
+  const res = await axios.get(`${apiCheckout}/paginacion-cajas?${param}`);
+  return res.data;
+};
+
 export const openCheckout = async (initialValue: number) => {
   const res = await axios.post(`${apiCheckout}/abrir-caja`, { dineroInicial: initialValue });
   return res.data;

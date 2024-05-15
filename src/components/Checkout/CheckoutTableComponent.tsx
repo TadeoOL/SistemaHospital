@@ -37,19 +37,23 @@ interface CheckoutTableComponentProps {
   pageSize: number;
   setPageIndex: Function;
   setPageSize: Function;
+  hideActions?: boolean;
 }
 
 interface CheckoutTableProps {
   heads: string[];
+  hideActions: boolean;
 }
 
 interface CheckoutTableBodyProps {
   data: ICheckoutSell[];
+  hideActions: boolean;
   admin: boolean;
 }
 
 interface CheckoutTableRowProps {
   data: ICheckoutSell;
+  hideActions: boolean;
   admin: boolean;
 }
 
@@ -58,8 +62,8 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
     <Card>
       <TableContainer>
         <Table>
-          <CheckoutTableHeader heads={headTitles} />
-          <CheckoutTableBody data={props.data} admin={props.admin} />
+          <CheckoutTableHeader heads={headTitles} hideActions={props?.hideActions || false} />
+          <CheckoutTableBody data={props.data} admin={props.admin} hideActions={props?.hideActions || false} />
           {props.data.length > 0 && (
             <SellTableFooter
               count={props.count}
@@ -85,9 +89,9 @@ const CheckoutTableHeader = (props: CheckoutTableProps) => {
   return (
     <TableHead>
       <TableRow>
-        {props.heads.map((title, i) => (
-          <TableCell key={i + title}>{title}</TableCell>
-        ))}
+        {props.hideActions
+          ? props.heads.slice(0, -1).map((title, i) => <TableCell key={i + title}>{title}</TableCell>)
+          : props.heads.map((title, i) => <TableCell key={i + title}>{title}</TableCell>)}
       </TableRow>
     </TableHead>
   );
@@ -97,7 +101,12 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((data) => (
-        <CheckoutTableRow key={data.id_VentaPrincipal} data={data} admin={props.admin} />
+        <CheckoutTableRow
+          key={data.id_VentaPrincipal}
+          data={data}
+          admin={props.admin}
+          hideActions={props.hideActions}
+        />
       ))}
     </TableBody>
   );
@@ -164,33 +173,35 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>${data.totalVenta}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
-        <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.estatus === 1 && admin && (
-              <Tooltip title="Aceptar">
-                <IconButton onClick={() => setOpen(true)}>
-                  <CheckCircle sx={{ color: success.main }} />
-                </IconButton>
-              </Tooltip>
-            )}
-            {data.estatus === 1 && (
-              <Tooltip title="Cancelar">
-                <IconButton
-                  onClick={() => {
-                    rejectRequest();
-                  }}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            {data.estatus === 2 && (
-              <Tooltip title="Pagado">
-                <Info color="primary" />
-              </Tooltip>
-            )}
-          </Box>
-        </TableCell>
+        {!props.hideActions && (
+          <TableCell>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {data.estatus === 1 && admin && (
+                <Tooltip title="Aceptar">
+                  <IconButton onClick={() => setOpen(true)}>
+                    <CheckCircle sx={{ color: success.main }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {data.estatus === 1 && (
+                <Tooltip title="Cancelar">
+                  <IconButton
+                    onClick={() => {
+                      rejectRequest();
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {data.estatus === 2 && (
+                <Tooltip title="Pagado">
+                  <Info color="primary" />
+                </Tooltip>
+              )}
+            </Box>
+          </TableCell>
+        )}
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
