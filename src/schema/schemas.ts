@@ -150,19 +150,21 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  precioVenta: z
-    .any()
-    .nullable() // Permitir valores nulos
-    .refine(
-      (value) => {
-        if (value === null) {
-          return false; // Rechazar valores nulos
-        }
-        const parsedValue = parseFloat(value);
-        return !isNaN(parsedValue) && parsedValue > 0;
-      },
-      { message: 'Escribe una cantidad válida y mayor que cero' }
-    ),
+  // precioVenta: z
+  //   .any()
+  //   .nullable() // Permitir valores nulos
+  //   .refine(
+  //     (value) => {
+  //       console.log(value)
+  //       if (value === null) {
+
+  //         return false; // Rechazar valores nulos
+  //       }
+  //       const parsedValue = parseFloat(value);
+  //       return !isNaN(parsedValue) && parsedValue > 0;
+  //     },
+  //     { message: 'Escribe una cantidad válida y mayor que cero' }
+  //   ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
 });
 
@@ -221,19 +223,19 @@ export const addArticleBox= z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  precioVenta: z
-    .any()
-    .nullable() // Permitir valores nulos
-    .refine(
-      (value) => {
-        if (value === null) {
-          return false; // Rechazar valores nulos
-        }
-        const parsedValue = parseFloat(value);
-        return !isNaN(parsedValue) && parsedValue > 0;
-      },
-      { message: 'Escribe una cantidad válida y mayor que cero' }
-    ),
+  // precioVenta: z
+  //   .any()
+  //   .nullable() // Permitir valores nulos
+  //   .refine(
+  //     (value) => {
+  //       if (value === null) {
+  //         return false; // Rechazar valores nulos
+  //       }
+  //       const parsedValue = parseFloat(value);
+  //       return !isNaN(parsedValue) && parsedValue > 0;
+  //     },
+  //     { message: 'Escribe una cantidad válida y mayor que cero' }
+  //   ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
 });
 

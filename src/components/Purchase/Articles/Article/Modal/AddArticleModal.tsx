@@ -74,7 +74,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const { subCategories, isLoading } = useGetSubCategories();
   const config = useGetPurchaseConfig();
   const [valueState, setValueState] = useState('');
-  const [inputValue, setInputValue] = useState<any>();
+  const [inputValue, setInputValue] = useState<string>('');
   const [subCategory, setSubCategory] = useState('');
   const textQuantityRef = useRef<HTMLTextAreaElement>();
 
@@ -87,7 +87,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const {
     register,
     handleSubmit,
-    setValue,
+    //setValue,
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues: {
@@ -168,6 +168,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
+          console.log(precioVentaString);
           setInputValue(precioVentaString);
         } else {
           setInputValue('0');
@@ -314,7 +315,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 inputProps={{
                   maxLength: 10,
                 }}
-                // onChange={(e: any) => handleInputDecimalChange(e)}
                 placeholder="Escriba un Precio de Venta"
               />
             </Grid>

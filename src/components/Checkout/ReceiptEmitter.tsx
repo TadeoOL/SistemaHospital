@@ -32,7 +32,7 @@ export const ReceiptEmitter = () => {
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Departamento</Typography>
             <Button variant="contained" onClick={() => setOpen(true)}>
-              Generar pase a caja
+              Generar Pase a Caja
             </Button>
           </Box>
           <CheckoutTableComponent

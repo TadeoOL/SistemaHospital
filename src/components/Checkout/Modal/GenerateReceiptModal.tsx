@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useRef, useState } from 'react';
 import { registerSell } from '../../../services/checkout/checkoutService';
@@ -6,6 +6,7 @@ import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { useGetCheckoutConfig } from '../../../hooks/useGetCheckoutConfig';
 import { useAuthStore } from '../../../store/auth';
 import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
+import { CloudUpload } from '@mui/icons-material';
 
 const style = {
   position: 'absolute',
@@ -101,7 +102,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
     );
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Generar pase a caja" />
+      <HeaderModal setOpen={props.setOpen} title="Generar Pase a Caja" />
       <Box
         sx={{
           display: 'flex',
@@ -110,14 +111,11 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
           p: 2,
         }}
       >
-        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', pb: 2 }}>
-          <Typography sx={{ fontSize: 24, fontWeight: 500 }}>Nuevo recibo</Typography>
-        </Box>
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Typography>Concepto de salida:</Typography>
           </Grid>
-          <Grid item xs={9}>
+          <Grid item xs={8}>
             <TextField
               label="Conceptos"
               fullWidth
@@ -138,10 +136,10 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Typography>Nombre del paciente:</Typography>
           </Grid>
-          <Grid item xs={9}>
+          <Grid item xs={8}>
             <TextField
               placeholder="Nombre"
               inputRef={personNameRef}
@@ -150,10 +148,10 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               helperText={personNameError && 'Escribe un nombre...'}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Typography>Total:</Typography>
           </Grid>
-          <Grid item xs={9}>
+          <Grid item xs={8}>
             <TextField
               placeholder="Total"
               inputRef={totalAmountRef}
@@ -162,10 +160,37 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               helperText={totalAmountError && 'Escribe una cantidad...'}
             />
           </Grid>
-          {/* <Grid item xs={12}>
+          <Grid item xs={12}>
             <Typography>Notas:</Typography>
             <TextField multiline placeholder="Escribe una nota..." fullWidth />
-          </Grid> */}
+          </Grid>
+            <Grid item xs={12}>
+            <Typography>Anexar PDF:</Typography>
+              <Stack
+                  sx={{
+                    my: 1,
+                    p: 4,
+                    border: '1px #B4B4B8 dashed',
+                    borderRadius: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  // {...getRootProps({ className: 'dropzone' })}
+                >
+                  <CloudUpload sx={{ width: 40, height: 40, color: 'Gray' }} />
+                  {/* <input key={inputKey} {...getInputProps()} /> */}
+                  <Typography
+                    sx={{
+                      color: '#B4B4B8',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Arrastra y suelta tus archivos aquí para subirlos
+                  </Typography>
+                </Stack>
+          </Grid>
         </Grid>
       </Box>
       <Box
@@ -180,7 +205,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         }}
       >
         <Button variant="contained" onClick={() => handleSubmit()}>
-          Generar pase a caja
+          Generar Pase a Caja
         </Button>
       </Box>
     </Box>

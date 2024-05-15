@@ -156,7 +156,7 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: checkoutSell,
       },
       {
-        title: 'Emitir recibo',
+        title: 'Emitir Pase a Caja',
         path: '/ventas/emitir-recibo',
         icon: <ReceiptLongIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkoutSell,

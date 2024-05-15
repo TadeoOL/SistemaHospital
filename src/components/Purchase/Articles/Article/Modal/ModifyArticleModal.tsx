@@ -225,6 +225,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     });
   };
 
+
   return (
     <Box sx={style}>
       <HeaderModal setOpen={open} title="Modificar articulo" />
