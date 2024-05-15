@@ -496,6 +496,8 @@ export interface ICheckoutSell {
   tipoPago: number;
   estatus: number;
   id_UsuarioPase: string;
+  notas?: string;
+  pdfCadena?: string;
 }
 
 export interface IConfigEmitterUsers {

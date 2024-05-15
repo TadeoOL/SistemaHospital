@@ -25,7 +25,13 @@ export const getSells = async (param: string) => {
   return res.data;
 };
 
-export const registerSell = async (data: { paciente: string; totalVenta: number; moduloProveniente: string }) => {
+export const registerSell = async (data: {
+  paciente: string;
+  totalVenta: number;
+  moduloProveniente: string;
+  notas?: string;
+  pdfCadena?: string;
+}) => {
   const res = await axios.post(`${apiCheckout}/registrar-venta`, data);
   return res.data;
 };

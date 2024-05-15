@@ -36,19 +36,33 @@ const filterProviderOptions = createFilterOptions<IProvider>({
 });
 
 export const SingleProvider = () => {
-  const { step, setStep, pdf, setPdf, registerOrder, setProvider, provider, setNeedAuth, setPaymentMethod, paymentMethod } =
-    useDirectlyPurchaseRequestOrderStore((state) => ({
-      step: state.step,
-      setStep: state.setStep,
-      pdf: state.pdf,
-      setPdf: state.setPdf,
-      registerOrder: state.registerOrder,
-      setProvider: state.setProvider,
-      provider: state.provider,
-      setNeedAuth: state.setNeedAuth,
-      setPaymentMethod: state.setPaymentMethod,
-      paymentMethod: state.paymentMethod,
-    }));
+  const {
+    step,
+    setStep,
+    pdf,
+    setPdf,
+    registerOrder,
+    setProvider,
+    provider,
+    setNeedAuth,
+    setPaymentMethod,
+    paymentMethod,
+    note,
+    setNote,
+  } = useDirectlyPurchaseRequestOrderStore((state) => ({
+    step: state.step,
+    setStep: state.setStep,
+    pdf: state.pdf,
+    setPdf: state.setPdf,
+    registerOrder: state.registerOrder,
+    setProvider: state.setProvider,
+    provider: state.provider,
+    setNeedAuth: state.setNeedAuth,
+    setPaymentMethod: state.setPaymentMethod,
+    paymentMethod: state.paymentMethod,
+    note: state.note,
+    setNote: state.setNote,
+  }));
   const [providerError, setProviderError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [openCollapse, setOpenCollapse] = useState(false);
@@ -122,26 +136,26 @@ export const SingleProvider = () => {
           />
         </Stack>
         <Stack>
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
-              <Stack direction="row" spacing={2}>
-                <FormControl component="fieldset" sx={{ width: '100%' }}>
-                  <RadioGroup
-                    row
-                    sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
-                    aria-label="paymentMethod"
-                    name="paymentMethod"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(Number(e.target.value))}
-                  >
-                    <FormControlLabel value={1} control={<Radio />} label="Crédito" />
-                    <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
-                    <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
-                  </RadioGroup>
-                </FormControl>
-              </Stack>
-            </Box>
-          </Stack>
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
+            <Stack direction="row" spacing={2}>
+              <FormControl component="fieldset" sx={{ width: '100%' }}>
+                <RadioGroup
+                  row
+                  sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
+                  aria-label="paymentMethod"
+                  name="paymentMethod"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                >
+                  <FormControlLabel value={1} control={<Radio />} label="Crédito" />
+                  <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
+                  <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+                </RadioGroup>
+              </FormControl>
+            </Stack>
+          </Box>
+        </Stack>
         <Stack>
           <Box
             sx={{
@@ -242,7 +256,7 @@ export const SingleProvider = () => {
             )}
           </Collapse>
           <Box sx={{ mt: 1 }}>
-            <Note />
+            <Note note={note} setNote={setNote} />
           </Box>
         </Stack>
         <Stack
@@ -316,7 +330,7 @@ export const SingleProvider = () => {
 };
 
 export const ManyProviders = () => {
-  const { setStep, step, setProvider, provider, setIsManyProviders, setPaymentMethod, paymentMethod } =
+  const { setStep, step, setProvider, provider, setIsManyProviders, setPaymentMethod, paymentMethod, note, setNote } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
         setStep: state.setStep,
@@ -326,6 +340,8 @@ export const ManyProviders = () => {
         setIsManyProviders: state.setIsManyProviders,
         setPaymentMethod: state.setPaymentMethod,
         paymentMethod: state.paymentMethod,
+        note: state.note,
+        setNote: state.setNote,
       }),
       shallow
     );
@@ -457,7 +473,7 @@ export const ManyProviders = () => {
             ))}
           </TextField> */}
           <Box>
-            <Note />
+            <Note note={note} setNote={setNote} />
           </Box>
         </Stack>
       </form>

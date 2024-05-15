@@ -1,4 +1,4 @@
-import { CheckCircle, Info } from '@mui/icons-material';
+import { CheckCircle, Info, Visibility } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
@@ -26,6 +26,7 @@ import Swal from 'sweetalert2';
 import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 import { useConnectionSocket } from '../../store/checkout/connectionSocket';
+import { CheckoutDetailsModal } from './Modal/CheckoutDetailsModal';
 
 const headTitles = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo de pago', 'Estatus', 'Acciones'];
 
@@ -118,6 +119,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const fetch = useCheckoutPaginationStore((state) => state.fetchData);
   const conn = useConnectionSocket((state) => state.conn);
+  const [openDetails, setOpenDetails] = useState(false);
 
   const rejectRequest = () => {
     withReactContent(Swal)
@@ -183,6 +185,13 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                   </IconButton>
                 </Tooltip>
               )}
+              {(data.notas || data.pdfCadena) && (
+                <Tooltip title="Ver detalles">
+                  <IconButton onClick={() => setOpenDetails(true)}>
+                    <Visibility color="primary" />
+                  </IconButton>
+                </Tooltip>
+              )}
               {data.estatus === 1 && (
                 <Tooltip title="Cancelar">
                   <IconButton
@@ -206,6 +215,11 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
           <CloseSaleModal setOpen={setOpen} sellData={data} />
+        </>
+      </Modal>
+      <Modal open={openDetails} onClose={() => setOpenDetails(false)}>
+        <>
+          <CheckoutDetailsModal setOpen={setOpenDetails} sellData={data} />
         </>
       </Modal>
     </>

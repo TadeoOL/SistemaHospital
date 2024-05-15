@@ -6,6 +6,9 @@ import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { useGetCheckoutConfig } from '../../../hooks/useGetCheckoutConfig';
 import { useAuthStore } from '../../../store/auth';
 import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
+import { Note } from '../../Purchase/PurchaseRequest/Modal/Note';
+import { UploadFile } from '../../Commons/UploadFile';
+import { toast } from 'react-toastify';
 
 const style = {
   position: 'absolute',
@@ -20,19 +23,19 @@ const style = {
   maxHeight: { xs: 900 },
 };
 
-// const scrollBarStyle = {
-//   '&::-webkit-scrollbar': {
-//     width: '0.4em',
-//   },
-//   '&::-webkit-scrollbar-track': {
-//     boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-//     webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-//   },
-//   '&::-webkit-scrollbar-thumb': {
-//     backgroundColor: 'rgba(0,0,0,.1)',
-//     outline: '1px solid slategrey',
-//   },
-// };
+const scrollBarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
+};
 
 interface GenerateReceiptModalProps {
   setOpen: Function;
@@ -49,6 +52,8 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
   const conn = useConnectionSocket((state) => state.conn);
   const concepts = getConcepts(config, profile?.id as string);
   const refetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
+  const [note, setNote] = useState('');
+  const [pdf, setPdf] = useState('');
 
   function getConcepts(configData: typeof config, userId: string) {
     const configFound = configData.find((c) => c.id_Usuario === userId);
@@ -70,6 +75,8 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         paciente: personNameRef.current.value,
         totalVenta: parseFloat(totalAmountRef.current.value),
         moduloProveniente: conceptSelected,
+        notas: note.trim() === '' ? undefined : note,
+        pdfCadena: pdf.trim() === '' ? undefined : pdf,
       };
       const res = await registerSell(object);
       const resObj = {
@@ -84,6 +91,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
       };
       conn.invoke('SendSell', resObj);
       refetch();
+      toast.success('');
       props.setOpen(false);
       setTotalAmountError(false);
       personNameRef.current.value = '';
@@ -108,6 +116,8 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
           flexDirection: 'column',
           bgcolor: 'background.paper',
           p: 2,
+          overflowY: 'auto',
+          ...scrollBarStyle,
         }}
       >
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', pb: 2 }}>
@@ -162,10 +172,13 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               helperText={totalAmountError && 'Escribe una cantidad...'}
             />
           </Grid>
-          {/* <Grid item xs={12}>
+          <Grid item xs={12}>
             <Typography>Notas:</Typography>
-            <TextField multiline placeholder="Escribe una nota..." fullWidth />
-          </Grid> */}
+            <Note note={note} setNote={setNote} />
+          </Grid>
+          <Grid item xs={12}>
+            <UploadFile pdf={pdf} setPdf={setPdf} title="Pruebaa" />
+          </Grid>
         </Grid>
       </Box>
       <Box
