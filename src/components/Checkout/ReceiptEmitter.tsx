@@ -48,7 +48,7 @@ export const ReceiptEmitter = () => {
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <GenerateReceiptModal setOpen={setOpen} from="toluca" />
+          <GenerateReceiptModal setOpen={setOpen} />
         </>
       </Modal>
     </>
