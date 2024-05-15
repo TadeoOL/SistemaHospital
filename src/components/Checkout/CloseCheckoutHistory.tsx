@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { CheckoutClosesTableComponent } from './CheckoutCloseTableComponent';
 import { useCheckoutClosePaginationStore } from '../../store/checkout/checkoutClosePagination';
 import { Report } from '../Commons/Report/Report';
+import { formatDate } from '../../utils/pointOfSaleUtils';
 
 const useGetData = () => {
   const fetch = useCheckoutClosePaginationStore((state) => state.fetchData);
@@ -19,6 +20,21 @@ export const CloseCheckoutHistory = () => {
   useGetData();
   const data = useCheckoutClosePaginationStore((state) => state.data);
 
+  const formatData = (info: any) => {
+    const formatedData = info.map((obj: any) => ({
+      usuario: obj.nombreUsuario,
+      dineroInicial: obj.dineroInicial,
+      debito: obj.debito,
+      credito: obj.credito,
+      transferencia: obj.transferencia,
+      efectivo: obj.efectivo,
+      totalVenta: obj.ventaTotal,
+      dineroC: obj.dineroAlCorte,
+      fechaC: formatDate(obj.diaHoraCorte),
+    }));
+    return formatedData;
+  };
+
   return (
     <>
       <Card sx={{ p: 3 }}>
@@ -26,7 +42,7 @@ export const CloseCheckoutHistory = () => {
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Historial de cortes</Typography>
             <Report
-              data={data}
+              data={formatData(data)}
               headers={[
                 'Usuario',
                 'Dinero Inicial',
