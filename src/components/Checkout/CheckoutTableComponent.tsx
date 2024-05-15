@@ -161,7 +161,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>{data.folio}</TableCell>
         <TableCell>{data.moduloProveniente}</TableCell>
         <TableCell>{data.paciente}</TableCell>
-        <TableCell>{data.totalVenta}</TableCell>
+        <TableCell>${data.totalVenta}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
         <TableCell>

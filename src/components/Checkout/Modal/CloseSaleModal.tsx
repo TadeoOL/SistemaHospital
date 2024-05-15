@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { hashPaymentsToNumber } from '../../../utils/checkoutUtils';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
@@ -45,7 +45,6 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const refetch = useCheckoutPaginationStore((state) => state.fetchData);
   const handleClose = () => props.setOpen(false);
-  const [hasIva, setHasIva] = useState(false);
   const [paymentSelected, setPaymentSelected] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentAmountRefError, setPaymentAmountRefError] = useState(false);
@@ -65,7 +64,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
         id_VentaPrincipal: sellData.id_VentaPrincipal,
         estatus: 2,
         id_CajaPrincipal: checkoutId as string,
-        tieneIva: hasIva,
+        tieneIva: false,
         tipoPago: hashPaymentsToNumber[paymentSelected],
         montoPago: parseFloat(paymentAmount),
         id_UsuarioPase: sellData.id_UsuarioPase,
@@ -125,11 +124,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
             </TextField>
           </Stack>
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-            <Stack sx={{ display: 'flex', flex: 2, alignItems: 'flex-start' }}>
-              <Typography>Tiene IVA</Typography>
-              <Checkbox checked={hasIva} onChange={(e) => setHasIva(e.target.checked)} />
-            </Stack>
-            <Stack sx={{ display: 'flex', flex: 3 }}>
+            <Stack sx={{ display: 'flex', flex: 1 }}>
               <Typography sx={{ fontSize: 12, fontWeight: 600 }}>Cambio</Typography>
               <Typography sx={{ fontSize: 14, fontWeight: 600 }}>${change}</Typography>
             </Stack>
