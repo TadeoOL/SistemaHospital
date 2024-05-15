@@ -22,7 +22,7 @@ export const Note = (props: NoteProps) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flex: 1, height: 500 }}>
+    <Box>
       <TextField
         fullWidth
         multiline

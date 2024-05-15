@@ -90,7 +90,7 @@ export const UploadFile = (props: UploadFileProps) => {
                     setViewPdf(true);
                   }}
                   variant="outlined"
-                  sx={{ p: 6 }}
+                  sx={{ p:5 }}
                 >
                   {props.title}
                 </Button>

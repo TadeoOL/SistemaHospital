@@ -20,7 +20,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 900, sm:500 },
 };
 
 const scrollBarStyle = {
@@ -174,7 +174,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
             <Note note={note} setNote={setNote} />
           </Grid>
           <Grid item xs={12}>
-            <UploadFile pdf={pdf} setPdf={setPdf} title="Pruebaa" />
+            <UploadFile pdf={pdf} setPdf={setPdf} title="Visualizar PDF" />
           </Grid>
         </Grid>
       </Box>
