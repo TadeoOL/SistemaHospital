@@ -7,6 +7,8 @@ import { useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { isValidFloat } from '../../../utils/functions/dataUtils';
 import { changePrincipalSellStatus } from '../../../services/checkout/checkoutService';
+import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
+import { ICheckoutSell } from '../../../types/types';
 
 const style = {
   position: 'absolute',
@@ -36,10 +38,10 @@ const style = {
 // };
 interface CloseSaleModalProps {
   setOpen: Function;
-  sellId: string;
-  totalAmount: number;
+  sellData: ICheckoutSell;
 }
 export const CloseSaleModal = (props: CloseSaleModalProps) => {
+  const { sellData } = props;
   const checkoutId = useCheckoutDataStore((state) => state.id);
   const refetch = useCheckoutPaginationStore((state) => state.fetchData);
   const handleClose = () => props.setOpen(false);
@@ -48,9 +50,10 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentAmountRefError, setPaymentAmountRefError] = useState(false);
   const [paymentSelectedError, setPaymentSelectedError] = useState(false);
+  const conn = useConnectionSocket((state) => state.conn);
 
   const handleSubmit = async () => {
-    if (parseFloat(paymentAmount) < props.totalAmount) {
+    if (parseFloat(paymentAmount) < sellData.totalVenta) {
       toast.error('El monto de pago no puede ser menor al total de la venta');
       setPaymentAmountRefError(true);
       return;
@@ -59,14 +62,20 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
     if (paymentSelected === '') return setPaymentSelectedError(true);
     try {
       const sellChange = {
-        id_VentaPrincipal: props.sellId,
+        id_VentaPrincipal: sellData.id_VentaPrincipal,
         estatus: 2,
         id_CajaPrincipal: checkoutId as string,
         tieneIva: hasIva,
         tipoPago: hashPaymentsToNumber[paymentSelected],
         montoPago: parseFloat(paymentAmount),
+        id_UsuarioPase: sellData.id_UsuarioPase,
+        folio: sellData.folio,
+        moduloProveniente: sellData.moduloProveniente,
+        paciente: sellData.paciente,
+        totalVenta: sellData.totalVenta,
       };
       await changePrincipalSellStatus(sellChange);
+      conn?.invoke('UpdateSell', sellChange);
       refetch();
       toast.success('Venta realizada con éxito!');
       props.setOpen(false);
@@ -78,7 +87,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
 
   const change = useMemo(() => {
     if (paymentAmount === '') return 0;
-    return parseFloat(paymentAmount) - props.totalAmount;
+    return parseFloat(paymentAmount) - sellData.totalVenta;
   }, [paymentAmount]);
 
   return (

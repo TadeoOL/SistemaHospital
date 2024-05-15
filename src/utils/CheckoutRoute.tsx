@@ -5,15 +5,24 @@ import { useEffect } from 'react';
 import { API_ENV } from '../libs/axios';
 import { useConnectionSocket } from '../store/checkout/connectionSocket';
 import { useCheckoutPaginationStore } from '../store/checkout/checkoutPagination';
+import { useAuthStore } from '../store/auth';
+import { ICheckoutSell } from '../types/types';
+import { useCheckoutUserEmitterPaginationStore } from '../store/checkout/checkoutUserEmitterPagination';
 
 interface CheckoutRouteProps {
   redirectTo?: string;
   children?: React.ReactNode;
 }
 
-const useJoinRoom = (conn: HubConnection | null, setConn: Function, updateData: Function) => {
+const useJoinRoom = (
+  conn: HubConnection | null,
+  setConn: Function,
+  updateData: Function,
+  updateDataEmitter: Function
+) => {
+  const profile = useAuthStore((state) => state.profile);
   useEffect(() => {
-    const connect = async (userName: string, chatRoom: string) => {
+    const connect = async (userId: string, chatRoom: string) => {
       try {
         const conn = new HubConnectionBuilder()
           .withUrl(`${API_ENV}/Chat`, {
@@ -24,30 +33,45 @@ const useJoinRoom = (conn: HubConnection | null, setConn: Function, updateData: 
           .build();
         conn.on('JoinSpecificChatRoom', () => {});
 
-        conn.on('ReceiveSpecificSell', (sell: any) => {
+        conn.on('ReceiveSpecificSell', (sell: ICheckoutSell) => {
           const sellObject = {
-            estatus: sell.estadoVenta,
+            estatus: sell.estatus,
             folio: sell.folio,
-            id_VentaPrincipal: sell.id,
+            id_VentaPrincipal: sell.id_VentaPrincipal,
             moduloProveniente: sell.moduloProveniente,
             paciente: sell.paciente,
             totalVenta: sell.totalVenta,
             tipoPago: sell.tipoPago,
+            id_UsuarioPase: sell.id_UsuarioPase,
           };
           updateData(sellObject);
         });
 
+        conn.on('ReceiveSellUpdated', (sell: ICheckoutSell) => {
+          const sellObject = {
+            estatus: sell.estatus,
+            folio: sell.folio,
+            id_VentaPrincipal: sell.id_VentaPrincipal,
+            moduloProveniente: sell.moduloProveniente,
+            paciente: sell.paciente,
+            totalVenta: sell.totalVenta,
+            tipoPago: sell.tipoPago,
+            id_UsuarioPase: sell.id_UsuarioPase,
+          };
+          updateDataEmitter(sellObject);
+        });
         await conn.start();
-        await conn.invoke('JoinSpecificChatRoom', { userName, chatRoom });
-
+        await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         setConn(conn);
       } catch (error) {
         console.log(error);
       }
     };
-    connect('Tadeo', 'Ventas');
+
+    connect(profile?.id as string, 'Ventas');
 
     return () => {
+      conn?.invoke('Disconnect', profile?.id);
       conn?.stop();
     };
   }, []);
@@ -60,7 +84,8 @@ export const CheckoutRoute = (props: CheckoutRouteProps) => {
   const setConn = useConnectionSocket((state) => state.setConn);
   const conn = useConnectionSocket((state) => state.conn);
   const updateData = useCheckoutPaginationStore((state) => state.setData);
-  useJoinRoom(conn, setConn, updateData);
+  const updateDataEmitter = useCheckoutUserEmitterPaginationStore((state) => state.setUpdateData);
+  useJoinRoom(conn, setConn, updateData, updateDataEmitter);
 
   if (!conn) return <LoadingView />;
 

@@ -2,24 +2,29 @@ import { Box, Button, Card, Modal, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { CheckoutTableComponent } from './CheckoutTableComponent';
 import { GenerateReceiptModal } from './Modal/GenerateReceiptModal';
-import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
+import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
 
 const useGetData = () => {
-  const fetch = useCheckoutPaginationStore((state) => state.fetchData);
-  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
-  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
-  const search = useCheckoutPaginationStore((state) => state.search);
+  const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
+  const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
+  const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
 
   useEffect(() => {
-    console.log(pageIndex);
     fetch();
   }, [pageIndex, pageSize, search]);
 };
 
 export const ReceiptEmitter = () => {
   useGetData();
-  const data = useCheckoutPaginationStore((state) => state.data);
+  const data = useCheckoutUserEmitterPaginationStore((state) => state.data);
+  const count = useCheckoutUserEmitterPaginationStore((state) => state.count);
+  const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
+  const setPageIndex = useCheckoutUserEmitterPaginationStore((state) => state.setPageIndex);
+  const setPageSize = useCheckoutUserEmitterPaginationStore((state) => state.setPageSize);
   const [open, setOpen] = useState(false);
+
   return (
     <>
       <Card sx={{ p: 3 }}>
@@ -30,7 +35,15 @@ export const ReceiptEmitter = () => {
               Generar pase a caja
             </Button>
           </Box>
-          <CheckoutTableComponent data={data} admin={false} />
+          <CheckoutTableComponent
+            data={data}
+            admin={false}
+            count={count}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            setPageIndex={setPageIndex}
+            setPageSize={setPageSize}
+          />
         </Stack>
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>

@@ -19,6 +19,11 @@ export const PointOfSaleCheckout = () => {
   useGetData();
   const [open, setOpen] = useState(false);
   const data = useCheckoutPaginationStore((state) => state.data);
+  const count = useCheckoutPaginationStore((state) => state.count);
+  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
+  const setPageIndex = useCheckoutPaginationStore((state) => state.setPageIndex);
+  const setPageSize = useCheckoutPaginationStore((state) => state.setPageSize);
 
   return (
     <>
@@ -30,7 +35,15 @@ export const PointOfSaleCheckout = () => {
               Cerrar caja
             </Button>
           </Box>
-          <CheckoutTableComponent data={data} admin={true} />
+          <CheckoutTableComponent
+            data={data}
+            admin={true}
+            count={count}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            setPageIndex={setPageIndex}
+            setPageSize={setPageSize}
+          />
         </Stack>
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>
