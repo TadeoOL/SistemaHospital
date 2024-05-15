@@ -36,7 +36,6 @@ const style = {
 
 interface GenerateReceiptModalProps {
   setOpen: Function;
-  from: string;
 }
 export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
   const profile = useAuthStore((state) => state.profile);
@@ -115,9 +114,6 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
           <Typography sx={{ fontSize: 24, fontWeight: 500 }}>Nuevo recibo</Typography>
         </Box>
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-          <Grid item xs={12}>
-            <Typography>{props.from}</Typography>
-          </Grid>
           <Grid item xs={3}>
             <Typography>Concepto de salida:</Typography>
           </Grid>
