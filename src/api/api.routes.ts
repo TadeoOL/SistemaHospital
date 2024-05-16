@@ -304,7 +304,7 @@ export const getArticles = async (paramUrl: string) => {
 };
 
 export const modifyArticle = async (article: IArticle) => {
-  const { id, nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra, esCaja, unidadesPorCaja } = article;
+  const { id, nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra, esCaja, unidadesPorCaja, codigoBarras } = article;
 
   const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
     id,
@@ -317,12 +317,13 @@ export const modifyArticle = async (article: IArticle) => {
     precioCompra,
     esCaja,
     unidadesPorCaja,
+    codigoBarras
   });
   return res.data;
 };
 
 export const addNewArticle = async (article: IArticle) => {
-  const { nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra, precioVenta, esCaja, unidadesPorCaja } =
+  const { nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra, precioVenta, esCaja, unidadesPorCaja, codigoBarras } =
     article;
 
   const res = await axios.post(`/api/Articulo/registrar-articulo`, {
@@ -336,6 +337,7 @@ export const addNewArticle = async (article: IArticle) => {
     precioVenta,
     esCaja,
     unidadesPorCaja,
+    codigoBarras
   });
   return res.data;
 };

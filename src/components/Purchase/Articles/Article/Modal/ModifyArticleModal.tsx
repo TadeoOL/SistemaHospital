@@ -254,6 +254,23 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 {...register('unidadMedida')}
               />
             </Grid>
+            {article && article.esCaja && (
+              <Grid item xs={12} md={6}>
+                <Typography>Unidades por caja</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors?.unidadesPorCaja}
+                  helperText={errors?.unidadesPorCaja?.message}
+                  size="small"
+                  inputProps={{
+                    maxLength: 5,
+                    onInput: handleInputNumberChange,
+                  }}
+                  placeholder="Dígite un número de unidades"
+                  {...register('unidadesPorCaja')}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} md={12}>
               <Typography>Descripción</Typography>
               <TextField
@@ -362,23 +379,18 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 ))}
               </TextField>
             </Grid>
-            {article && article.esCaja && (
-              <Grid item xs={12} md={6}>
-                <Typography>Unidades por caja</Typography>
-                <TextField
-                  fullWidth
-                  error={!!errors?.unidadesPorCaja}
-                  helperText={errors?.unidadesPorCaja?.message}
-                  size="small"
-                  inputProps={{
-                    maxLength: 5,
-                    onInput: handleInputNumberChange,
-                  }}
-                  placeholder="Dígite un número de unidades"
-                  {...register('unidadesPorCaja')}
-                />
-              </Grid>
-            )}
+             <Grid item xs={12} md={6}>
+              <Typography>Código de Barras (Opcional)</Typography>
+              <TextField
+                fullWidth
+                error={!!errors.codigoBarras}
+                helperText={errors?.unidadMedida?.message}
+                size="small"
+                placeholder="Escriba un código de barras"
+                {...register('codigoBarras')}
+              />
+            </Grid>
+            
           </Grid>
           <Stack
             sx={{

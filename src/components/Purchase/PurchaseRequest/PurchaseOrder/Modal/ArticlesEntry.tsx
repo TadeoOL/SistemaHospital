@@ -214,7 +214,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   }
 
   function dataCompleted(article: IPurchaseOrderArticle) {
-    if (article.codigoBarras) return true;
+    if (article.codigoBarras && article.fechaCaducidad) return true;
     return false;
   }
 

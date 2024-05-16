@@ -99,6 +99,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       unidadMedida: '',
       precioCompra: '',
       precioVenta: '',
+      codigoBarras: ''
     },
     resolver: zodResolver(addArticle),
   });
@@ -217,6 +218,33 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 {...register('unidadMedida')}
               />
             </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography>Es un Paquete</Typography>
+                  <Checkbox
+                  checked={isBox}
+                  onChange={() => {
+                    setIsBox(!isBox);
+                  }}
+                />
+                </Box>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Unidades por Paquete"
+                    disabled={!isBox}
+                    inputRef={textQuantityRef}
+                    sx={{ display: isBox ? 'block' : 'none' }}
+                    inputProps={{
+                      type: 'number',
+                      pattern: '[0-9]*',
+                      inputMode: 'numeric',
+                      min: 0,
+                    }}
+                  />
+              </Box>
+            </Grid>
             <Grid item xs={12} md={12}>
               <Typography>Descripción</Typography>
               <TextField
@@ -243,52 +271,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 inputProps={{ maxLength: 200 }}
               />
             </Grid>
-              <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                  <Typography>Es un Paquete</Typography>
-                  <Checkbox
-                  checked={isBox}
-                  onChange={() => {
-                    setIsBox(!isBox);
-                  }}
-                />
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Unidades por Paquete"
-                    disabled={!isBox}
-                    inputRef={textQuantityRef}
-                    inputProps={{
-                      type: 'number',
-                      pattern: '[0-9]*',
-                      inputMode: 'numeric',
-                    }}
-                  />
-                </Box>
-                
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Sub Categoría</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                label="Seleccione una Sub Categoria"
-                error={!!errors.id_subcategoria}
-                helperText={errors?.id_subcategoria?.message}
-                {...register('id_subcategoria')}
-                value={subCategory}
-                onChange={handleChange}
-              >
-                {subCategories.map((data) => (
-                  <MenuItem value={data.id} key={data.id}>
-                    {data.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+              
             <Grid item xs={12} md={6}>
               <Typography>Precio de Compra</Typography>
               <TextField
@@ -348,7 +331,37 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 {...register('stockAlerta')}
               />
             </Grid>
-            
+              <Grid item xs={12} md={6}>
+              <Typography>Sub Categoría</Typography>
+              <TextField
+                fullWidth
+                size="small"
+                select
+                label="Seleccione una Sub Categoria"
+                error={!!errors.id_subcategoria}
+                helperText={errors?.id_subcategoria?.message}
+                {...register('id_subcategoria')}
+                value={subCategory}
+                onChange={handleChange}
+              >
+                {subCategories.map((data) => (
+                  <MenuItem value={data.id} key={data.id}>
+                    {data.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography>Código de Barras (Opcional)</Typography>
+              <TextField
+                fullWidth
+                error={!!errors.codigoBarras}
+                helperText={errors?.codigoBarras?.message}
+                size="small"
+                placeholder="Escriba un código de barras"
+                {...register('codigoBarras')}
+              />
+            </Grid>
           </Grid>
           <Stack
             sx={{

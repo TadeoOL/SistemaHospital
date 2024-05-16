@@ -119,6 +119,7 @@ export interface IArticle {
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
+  codigoBarras?: string;
 }
 
 export interface IExistingArticle {
