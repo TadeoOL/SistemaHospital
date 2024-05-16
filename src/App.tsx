@@ -66,7 +66,6 @@ function App() {
               <Route path="/almacenes" element={<WarehouseView />} />
               <Route path="/compras/autorizacion-compras" element={<PurchaseAuthorizationView />} />
               <Route path="compras/configuracion-compras" element={<PurchaseConfigView />} />
-              <Route path="/configuracion" element={<AccountView />} />
             </Route>
             <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
             <Route element={<PharmacyRoute />}>
@@ -87,6 +86,7 @@ function App() {
               <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
             </Route>
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
+            <Route path="/configuracion" element={<AccountView />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>
