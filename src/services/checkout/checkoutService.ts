@@ -94,3 +94,11 @@ export const getUserEmitterSells = async (param: string) => {
   const res = await axios.get(`${apiCheckout}/paginacion-ventas-emisor?${param}`);
   return res.data;
 };
+
+export const changeSellNote = async (data: {
+  id_VentaPrincipal: string;
+  Notas: string;
+}) => {
+  const res = await axios.put(`${apiCheckout}/editar-venta-principal`, data);
+  return res.data;
+};

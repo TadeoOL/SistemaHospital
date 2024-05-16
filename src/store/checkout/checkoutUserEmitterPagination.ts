@@ -2,6 +2,7 @@ import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { type ICheckoutSell } from '../../types/types';
 import { getUserEmitterSells } from '../../services/checkout/checkoutService';
+import { useCheckoutDataStore } from './checkoutData';
 
 const initialValues = {
   count: 0,
@@ -60,7 +61,8 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
 
     set({ loading: true });
     const index = pageIndex + 1;
-
+    const checkoutId = useCheckoutDataStore.getState().idCajaSearch;
+    
     const cancelToken = axios.CancelToken.source();
     if (get().cancelToken) {
       get().cancelToken?.cancel();
@@ -69,7 +71,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
 
     try {
       const res = await getUserEmitterSells(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}`
       );
       set({
         data: res.data,

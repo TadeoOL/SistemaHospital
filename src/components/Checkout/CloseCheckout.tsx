@@ -1,17 +1,17 @@
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { CheckoutTableComponent } from './CheckoutTableComponent';
-import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
 import { useNavigate } from 'react-router-dom';
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 import { Report } from '../Commons/Report/Report';
 import { hashPaymentsToString } from '../../utils/checkoutUtils';
+import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
 
 const useGetData = () => {
-  const fetch = useCheckoutPaginationStore((state) => state.fetchData);
-  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
-  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
-  const search = useCheckoutPaginationStore((state) => state.search);
+  const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
+  const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
+  const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
 
   useEffect(() => {
     fetch();
@@ -21,13 +21,14 @@ const useGetData = () => {
 export const CloseCheckout = () => {
   useGetData();
   const navigate = useNavigate();
-  const data = useCheckoutPaginationStore((state) => state.data);
-  const count = useCheckoutPaginationStore((state) => state.count);
-  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
-  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
-  const setPageIndex = useCheckoutPaginationStore((state) => state.setPageIndex);
-  const setPageSize = useCheckoutPaginationStore((state) => state.setPageSize);
+  const data = useCheckoutUserEmitterPaginationStore((state) => state.data);
+  const count = useCheckoutUserEmitterPaginationStore((state) => state.count);
+  const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
+  const setPageIndex = useCheckoutUserEmitterPaginationStore((state) => state.setPageIndex);
+  const setPageSize = useCheckoutUserEmitterPaginationStore((state) => state.setPageSize);
   const setIdCaja = useCheckoutDataStore((state) => state.setIdCaja);
+  const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
 
   const formatData = (info: any) => {
     const formatedData = info.map((obj: any) => ({
@@ -69,6 +70,8 @@ export const CloseCheckout = () => {
             setPageIndex={setPageIndex}
             setPageSize={setPageSize}
             hideActions
+            enableEditNote
+            refetch={fetch}
           />
         </Stack>
       </Card>
