@@ -180,6 +180,9 @@ export const ArticleTable = () => {
                 <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
               </TableCell>
               <TableCell>
+                <SortComponent tableCellLabel="Presentación" headerName="presentacion" setSortFunction={setSort} />
+              </TableCell>
+              <TableCell>
                 <SortComponent tableCellLabel="Stock mínimo" headerName="stockMinimo" setSortFunction={setSort} />
               </TableCell>
               <TableCell>
@@ -191,9 +194,7 @@ export const ArticleTable = () => {
               <TableCell>
                 <SortComponent tableCellLabel="Precio Venta" headerName="precioVenta" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
-                <SortComponent tableCellLabel="Presentacion" headerName="presentacion" setSortFunction={setSort} />
-              </TableCell>
+
               <TableCell>
                 <SortComponent tableCellLabel="Sub categoria" headerName="subCategoria" setSortFunction={setSort} />
               </TableCell>
@@ -209,11 +210,11 @@ export const ArticleTable = () => {
                     <React.Fragment key={article.id}>
                       <TableRow>
                         <TableCell>{article.nombre}</TableCell>
-                        <TableCell>{article.stockAlerta}</TableCell>
+                        <TableCell>{article.unidadMedida}</TableCell>
                         <TableCell>{article.stockMinimo}</TableCell>
+                        <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>$ {article.precioCompra}</TableCell>
                         <TableCell>$ {article.precioVenta}</TableCell>
-                        <TableCell>{article.unidadMedida}</TableCell>
                         <TableCell>{article.subCategoria as string}</TableCell>
                         <TableCell>
                           <Tooltip title="Editar">

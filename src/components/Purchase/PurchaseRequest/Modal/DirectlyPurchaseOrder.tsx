@@ -74,6 +74,7 @@ type Article = {
   id: string;
   nombre: string;
   precio: number;
+  precioVenta: number;
 };
 const style = {
   position: 'absolute',
@@ -189,6 +190,7 @@ export const BuildOrder = (props: { setOpen: Function }) => {
       name: articleSelected.nombre,
       amount: parseFloat(amountText),
       price: articleSelected.precio,
+      sellPrice: articleSelected.precioVenta,
     };
     const objectFiltered = articlesFetched.filter((a) => a.id !== objectArticle.id);
     setArticlesFetched(objectFiltered);
@@ -414,6 +416,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
           id: articleToAdd.id,
           nombre: articleToAdd.name,
           precio: articleToAdd.price,
+          precioVenta: articleToAdd.sellPrice,
         }
       : null;
     if (articleToAddModified) {
@@ -458,6 +461,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
       name: article.name,
       amount: article.amount,
       price: parseFloat(prices[article.id]) || article.price,
+      sellPrice: article.sellPrice,
     }));
     setArticles(articleData);
     setTotalAmountRequest(totalPrice);
@@ -636,7 +640,7 @@ const StepTwo = () => {
 };
 
 const SelectProviderAndUploadPDF = () => {
-  const { step, setStep, pdf, setPdf, setProvider, provider, setPaymentMethod, paymentMethod } =
+  const { step, setStep, pdf, setPdf, setProvider, provider, setPaymentMethod, paymentMethod, note, setNote } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
         step: state.step,
@@ -647,6 +651,8 @@ const SelectProviderAndUploadPDF = () => {
         setProvider: state.setProvider,
         setPaymentMethod: state.setPaymentMethod,
         paymentMethod: state.paymentMethod,
+        note: state.note,
+        setNote: state.setNote,
       }),
       shallow
     );
@@ -846,7 +852,7 @@ const SelectProviderAndUploadPDF = () => {
             </Collapse>
           </Stack>
           <Box>
-            <Note />
+            <Note note={note} setNote={setNote} />
           </Box>
         </Stack>
         <Box
@@ -954,6 +960,7 @@ const StepThree = (props: { setOpen: Function }) => {
             Id_Articulo: a.id,
             Cantidad: a.amount,
             PrecioProveedor: a.price as number,
+            PrecioVenta: a.sellPrice as number,
           };
         }),
         notas: note,

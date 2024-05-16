@@ -35,7 +35,7 @@ import { QuoteModal } from './Modal/QuoteModal';
 import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
-import { Assignment, CheckCircle, Info } from '@mui/icons-material';
+import { Assignment, Visibility, DoneAll, Info } from '@mui/icons-material';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
@@ -464,9 +464,28 @@ export const PurchaseOrder = () => {
                                 </>
                               )}
                               {order.estatus === 3 && (
+                                <>
                                 <Tooltip title="Artículos dados de alta en almacen">
-                                  <CheckCircle sx={{ color: 'green' }} />
+                                  <IconButton>
+                                   <DoneAll sx={{ color: 'green' }} />
+                                  </IconButton>
                                 </Tooltip>
+                                <Tooltip title="Ver Factura">
+                                    <IconButton
+                                      onClick={() => {
+                                        setOrderSelected({
+                                          folio: order.folio_Extension,
+                                          OrderId: order.id_OrdenCompra,
+                                        });
+                                        setOpenQuoteModal(true);
+                                        order.proveedor.estatus = order.estatus;
+                                        setProviders([order.proveedor]);
+                                      }}
+                                    >
+                                      <Visibility />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
                               )}
                             </TableCell>
                           </TableRow>

@@ -129,6 +129,7 @@ export const ArticlesPharmacyTable = () => {
     isLoading,
   } = useGetExistingArticles(warehouseIdSeted);
   const [openModal, setOpenModal] = useState(false);
+  const [exitArticlesM, setExitArticlesM] = useState(false);
 
   if (isLoading && data.length === 0)
     return (
@@ -172,12 +173,26 @@ export const ArticlesPharmacyTable = () => {
                 <FilterListOff />
               </IconButton>
               <Button
-                sx={{ minWidth: 180 }}
+                sx={{ minWidth: 200 }}
                 variant="contained"
                 startIcon={<AddCircleIcon />}
-                onClick={() => setOpenModal(!openModal)}
+                onClick={() => {
+                  setExitArticlesM(true);
+                  setOpenModal(!openModal);
+                }}
               >
                 Salida de artículos
+              </Button>
+              <Button
+                sx={{ minWidth: 200 }}
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => {
+                  setExitArticlesM(false);
+                  setOpenModal(!openModal);
+                }}
+              >
+                Entrada de artículos
               </Button>
             </Box>
           </Box>
@@ -247,7 +262,12 @@ export const ArticlesPharmacyTable = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+          <ArticlesExitModal
+            setOpen={setOpenModal}
+            warehouseId={warehouseIdSeted}
+            refetch={fetchExistingArticles}
+            articlesExit={exitArticlesM}
+          />
         </>
       </Modal>
     </>

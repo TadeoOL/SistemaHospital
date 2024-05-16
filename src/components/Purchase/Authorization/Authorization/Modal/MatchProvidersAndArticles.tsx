@@ -520,7 +520,6 @@ export const MatchProvidersAndArticles = (props: MatchProvidersAndArticlesProps)
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            :vVVVVv
             <IconButton onClick={() => setViewPdf(false)}>
               <Close />
             </IconButton>

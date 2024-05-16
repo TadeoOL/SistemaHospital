@@ -1,10 +1,21 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Grid,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig } from '../../../../../types/types';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
@@ -63,16 +74,20 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const { subCategories, isLoading } = useGetSubCategories();
   const config = useGetPurchaseConfig();
   const [valueState, setValueState] = useState('');
-  const [inputValue, setInputValue] = useState<any>();
+  const [inputValue, setInputValue] = useState<string>('');
   const [subCategory, setSubCategory] = useState('');
+  const textQuantityRef = useRef<HTMLTextAreaElement>();
+
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
     handleChangeArticle: state.handleChangeArticle,
   }));
+  const [isBox, setIsBox] = useState(false);
+
   const {
     register,
     handleSubmit,
-    setValue,
+    //setValue,
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues: {
@@ -84,6 +99,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       unidadMedida: '',
       precioCompra: '',
       precioVenta: '',
+      codigoBarras: ''
     },
     resolver: zodResolver(addArticle),
   });
@@ -93,6 +109,17 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   };
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
+      if (isBox && !textQuantityRef.current?.value) {
+        toast.error('escribe un número de unidades por caja');
+        return;
+      }
+      const numberQuantity = Number(textQuantityRef.current?.value);
+      if (isNaN(numberQuantity)) {
+        toast.error('No es un valor numerico entero');
+        return;
+      }
+      data.esCaja = isBox;
+      data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
       await addNewArticle(data);
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo creado con éxito!');
@@ -136,17 +163,28 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima) {
+       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
+          console.log(precioVentaString);
           setInputValue(precioVentaString);
-          setValue('precioVenta', precioVentaString);
         } else {
           setInputValue('0');
-          setValue('precioVenta', '0');
+        }
+      }
+      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+        const unidadesPorCaja = textQuantityRef.current?.value as string ?? "1";
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setInputValue(precioVentaString);
+        } else {
+          setInputValue('0');
         }
       }
     });
@@ -180,6 +218,33 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 {...register('unidadMedida')}
               />
             </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography>Es un Paquete</Typography>
+                  <Checkbox
+                  checked={isBox}
+                  onChange={() => {
+                    setIsBox(!isBox);
+                  }}
+                />
+                </Box>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Unidades por Paquete"
+                    disabled={!isBox}
+                    inputRef={textQuantityRef}
+                    sx={{ display: isBox ? 'block' : 'none' }}
+                    inputProps={{
+                      type: 'number',
+                      pattern: '[0-9]*',
+                      inputMode: 'numeric',
+                      min: 0,
+                    }}
+                  />
+              </Box>
+            </Grid>
             <Grid item xs={12} md={12}>
               <Typography>Descripción</Typography>
               <TextField
@@ -206,6 +271,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 inputProps={{ maxLength: 200 }}
               />
             </Grid>
+              
             <Grid item xs={12} md={6}>
               <Typography>Precio de Compra</Typography>
               <TextField
@@ -232,7 +298,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 inputProps={{
                   maxLength: 10,
                 }}
-                // onChange={(e: any) => handleInputDecimalChange(e)}
                 placeholder="Escriba un Precio de Venta"
               />
             </Grid>
@@ -266,7 +331,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 {...register('stockAlerta')}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6}>
               <Typography>Sub Categoría</Typography>
               <TextField
                 fullWidth
@@ -285,6 +350,17 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   </MenuItem>
                 ))}
               </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography>Código de Barras (Opcional)</Typography>
+              <TextField
+                fullWidth
+                error={!!errors.codigoBarras}
+                helperText={errors?.codigoBarras?.message}
+                size="small"
+                placeholder="Escriba un código de barras"
+                {...register('codigoBarras')}
+              />
             </Grid>
           </Grid>
           <Stack

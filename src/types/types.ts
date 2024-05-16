@@ -117,6 +117,9 @@ export interface IArticle {
   subCategoria: ISubCategory | string;
   stockActual?: string;
   lote?: IExistingArticleList[];
+  esCaja?: boolean;
+  unidadesPorCaja?: string;
+  codigoBarras?: string;
 }
 
 export interface IExistingArticle {
@@ -311,6 +314,8 @@ export interface IPurchaseOrderArticle {
   factorAplicado?: number;
   codigoBarras?: string;
   fechaCaducidad?: string;
+  unidadesPorCaja?: number;
+  unidadesTotal?: number;
 }
 
 export enum StatusPurchaseOrder {
@@ -468,4 +473,36 @@ export interface ICheckoutHistory {
   credito: number;
   ventaTotal: number;
   diaCorte: string;
+}
+
+export interface ICheckoutCloseHistory {
+  id_CajaPrincipal: string;
+  nombreUsuario: string;
+  efectivo: number;
+  transferencia: number;
+  debito: number;
+  credito: number;
+  ventaTotal: number;
+  diaHoraCorte: string;
+  dineroAlCorte: number;
+  dineroInicial: number;
+}
+
+export interface ICheckoutSell {
+  id_VentaPrincipal: string;
+  folio: string;
+  moduloProveniente: string;
+  paciente: string;
+  totalVenta: number;
+  tipoPago: number;
+  estatus: number;
+  id_UsuarioPase: string;
+  notas?: string;
+  pdfCadena?: string;
+}
+
+export interface IConfigEmitterUsers {
+  id_Usuario: string;
+  nombre: string;
+  departamento: string[];
 }

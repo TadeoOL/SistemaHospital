@@ -2,7 +2,7 @@ import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextFie
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addArticle } from '../../../../../schema/schemas';
+import { addArticle, addArticleBox } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig, ISubCategory } from '../../../../../types/types';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -52,7 +52,7 @@ const useFetchArticle = (articleId: string) => {
       setIsLoadingArticle(true);
       try {
         const data = await getArticleById(articleId);
-        setArticle(data);
+        setArticle({ ...data, unidadesPorCaja: data?.unidadesPorCaja?.toString() });
       } catch (error) {
         console.log(error);
       } finally {
@@ -92,6 +92,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    unidadesPorCaja,
+    esCaja,
   } = article ?? {};
 
   const { subCategories, isLoading } = useGetSubCategories();
@@ -122,12 +124,15 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       unidadMedida: unidadMedida,
       precioCompra: precioCompra,
       precioVenta: precioVenta,
+      unidadesPorCaja: unidadesPorCaja,
+      esCaja: esCaja,
     },
-    resolver: zodResolver(addArticle),
+    resolver: zodResolver(article?.esCaja ? addArticleBox : addArticle),
   });
 
   useEffect(() => {
     if (article) {
+      console.log(article);
       const subCate = article.subCategoria as ISubCategory;
       if (article.descripcion == null) article.descripcion = '';
       if (textValue.trim() === '') setTextValue(article.descripcion);
@@ -149,7 +154,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
       const idForm = getValues('id');
-      await modifyArticle({ ...data, id: idForm });
+      await modifyArticle({ ...data, id: idForm, esCaja: esCaja });
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo modificado con éxito!');
       open(false);
@@ -194,8 +199,20 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima) {
+       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima&& (article?.esCaja == null || article?.esCaja == false)) {
         const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setInputValue(precioVentaString);
+        } else {
+          setInputValue('0');
+        }
+      }
+      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && article?.esCaja) {
+        const unidadesPorCaja = article?.unidadesPorCaja ?? "1";
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
@@ -207,6 +224,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       }
     });
   };
+
 
   return (
     <Box sx={style}>
@@ -236,6 +254,23 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 {...register('unidadMedida')}
               />
             </Grid>
+            {article && article.esCaja && (
+              <Grid item xs={12} md={6}>
+                <Typography>Unidades por caja</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors?.unidadesPorCaja}
+                  helperText={errors?.unidadesPorCaja?.message}
+                  size="small"
+                  inputProps={{
+                    maxLength: 5,
+                    onInput: handleInputNumberChange,
+                  }}
+                  placeholder="Dígite un número de unidades"
+                  {...register('unidadesPorCaja')}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} md={12}>
               <Typography>Descripción</Typography>
               <TextField
@@ -344,6 +379,18 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 ))}
               </TextField>
             </Grid>
+             <Grid item xs={12} md={6}>
+              <Typography>Código de Barras (Opcional)</Typography>
+              <TextField
+                fullWidth
+                error={!!errors.codigoBarras}
+                helperText={errors?.unidadMedida?.message}
+                size="small"
+                placeholder="Escriba un código de barras"
+                {...register('codigoBarras')}
+              />
+            </Grid>
+            
           </Grid>
           <Stack
             sx={{

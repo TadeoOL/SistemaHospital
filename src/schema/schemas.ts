@@ -110,6 +110,7 @@ export const addCategory = z.object({
 export const addArticle = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().nullable(),
+  codigoBarras: z.string().nullable(),
   stockMinimo: z
     .string()
     .nullable() // Permitir valores nulos
@@ -150,8 +151,68 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  precioVenta: z
-    .any()
+  // precioVenta: z
+  //   .any()
+  //   .nullable() // Permitir valores nulos
+  //   .refine(
+  //     (value) => {
+  //       console.log(value)
+  //       if (value === null) {
+
+  //         return false; // Rechazar valores nulos
+  //       }
+  //       const parsedValue = parseFloat(value);
+  //       return !isNaN(parsedValue) && parsedValue > 0;
+  //     },
+  //     { message: 'Escribe una cantidad válida y mayor que cero' }
+  //   ),
+  id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
+});
+
+export const addArticleBox= z.object({
+  nombre: z.string().min(1, 'Escribe un nombre'),
+  descripcion: z.string().nullable(),
+  stockMinimo: z
+    .string()
+    .nullable() // Permitir valores nulos
+    .refine(
+      (value) => {
+        if (value === null) {
+          return false; // Rechazar valores nulos
+        }
+        const parsedValue = parseInt(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: 'Escribe una cantidad válida y mayor que cero' }
+    ),
+  stockAlerta: z
+    .string()
+    .nullable() // Permitir valores nulos
+    .refine(
+      (value) => {
+        if (value === null) {
+          return false; // Rechazar valores nulos
+        }
+        const parsedValue = parseInt(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: 'Escribe una cantidad válida y mayor que cero' }
+    ),
+    unidadesPorCaja: z
+    .string()
+    .refine(
+      (value) => {
+        if (value === null) {
+          return false; // Rechazar valores nulos
+        }
+        const parsedValue = parseInt(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: 'Escribe una cantidad válida y mayor que cero' }
+    ),
+  unidadMedida: z.string().min(1, 'Selecciona una presentación.'),
+  precioCompra: z
+    .string()
     .nullable() // Permitir valores nulos
     .refine(
       (value) => {
@@ -163,6 +224,19 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
+  // precioVenta: z
+  //   .any()
+  //   .nullable() // Permitir valores nulos
+  //   .refine(
+  //     (value) => {
+  //       if (value === null) {
+  //         return false; // Rechazar valores nulos
+  //       }
+  //       const parsedValue = parseFloat(value);
+  //       return !isNaN(parsedValue) && parsedValue > 0;
+  //     },
+  //     { message: 'Escribe una cantidad válida y mayor que cero' }
+  //   ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
 });
 

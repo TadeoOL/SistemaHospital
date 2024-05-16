@@ -11,9 +11,6 @@ export const SubCategory = lazy(() => import('../components/Purchase/Categorys/S
 export const ProvidersView = lazy(() => import('../views/Purchase/ProvidersView'));
 export const WarehouseView = lazy(() => import('../views/Purchase/WarehouseView'));
 export const PurchaseAuthorizationView = lazy(() => import('../views/Purchase/PurchaseAuthorizationView'));
-export const PurchaseAuthorization = lazy(
-  () => import('../components/Purchase/Authorization/Authorization/PurchaseAuthorization')
-);
 export const PurchaseConfigView = lazy(() => import('../views/Purchase/PurchaseConfigView'));
 export const AccountView = lazy(() => import('../views/AccountView'));
 export const WarehouseSelected = lazy(() => import('../components/Warehouse/WarehouseSelected/WarehouseSelected'));
@@ -21,3 +18,8 @@ export const PointOfSaleView = lazy(() => import('../views/Pharmacy/PointOfSaleV
 export const PackageCatalogueView = lazy(() => import('../views/Pharmacy/PackageCatalogueView'));
 export const PharmacyConfigView = lazy(() => import('../views/Pharmacy/PharmacyConfigView'));
 export const SellsHistoryView = lazy(() => import('../views/Pharmacy/SellsHistoryView'));
+export const PointOfSaleCheckoutView = lazy(() => import('../views/Checkout/PointOfSaleCheckoutView'));
+export const ReceiptEmitterView = lazy(() => import('../views/Checkout/ReceiptEmitterView'));
+export const ConfigEmitterUsersView = lazy(() => import('../views/Checkout/ConfigEmitterUsersView'));
+export const CloseCheckoutHistoryView = lazy(() => import('../views/Checkout/CloseCheckoutHistoryView'));
+export const CloseCheckoutView = lazy(() => import('../views/Checkout/CloseCheckoutView'));
