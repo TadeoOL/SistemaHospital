@@ -10,6 +10,7 @@ const initialValues = {
   pasoSuJornada: false,
   tieneCaja: false,
   conceptoSalidaSeleccionado: 'Todos',
+  idCajaSearch: '',
 };
 
 interface State {
@@ -22,10 +23,11 @@ interface State {
   pasoSuJornada: boolean;
   tieneCaja: boolean;
   conceptoSalidaSeleccionado: string;
+  idCajaSearch: string
 }
 
 interface Action {
-  setIdCaja: (id: string) => void,
+  setIdCaja: (idCajaSearch: string) => void,
   setData: (data: State) => void;
   setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => void;
 }
@@ -44,5 +46,5 @@ export const useCheckoutDataStore = create<State & Action>((set) => ({
       tieneCaja: data.tieneCaja,
     }),
   setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => set({ conceptoSalidaSeleccionado }),
-  setIdCaja: (id: string) => set({ id }),
+  setIdCaja: (idCajaSearch: string) => set({ idCajaSearch }),
 }));

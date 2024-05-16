@@ -4,6 +4,7 @@ import { CheckoutTableComponent } from './CheckoutTableComponent';
 import { GenerateReceiptModal } from './Modal/GenerateReceiptModal';
 import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 const thisLocation = '/ventas/emitir-recibo';
 
 const useGetData = () => {
@@ -18,6 +19,10 @@ const useGetData = () => {
 };
 
 export const ReceiptEmitter = () => {
+  const setIdCaja = useCheckoutDataStore((state) => state.setIdCaja);
+  useEffect(() => {
+    setIdCaja('');
+  }, []);
   useGetData();
   const data = useCheckoutUserEmitterPaginationStore((state) => state.data);
   const count = useCheckoutUserEmitterPaginationStore((state) => state.count);
