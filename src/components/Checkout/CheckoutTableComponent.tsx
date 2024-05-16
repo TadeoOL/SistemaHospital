@@ -39,23 +39,28 @@ interface CheckoutTableComponentProps {
   setPageIndex: Function;
   setPageSize: Function;
   hideActions?: boolean;
+  refetch?: Function;
+  enableEditNote?: boolean;
 }
 
 interface CheckoutTableProps {
   heads: string[];
-  hideActions: boolean;
 }
 
 interface CheckoutTableBodyProps {
   data: ICheckoutSell[];
   hideActions: boolean;
   admin: boolean;
+  refetch: Function;
+  enableEditNote: boolean;
 }
 
 interface CheckoutTableRowProps {
   data: ICheckoutSell;
   hideActions: boolean;
   admin: boolean;
+  refetch: Function;
+  enableEditNote: boolean;
 }
 
 export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
@@ -63,8 +68,14 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
     <Card>
       <TableContainer>
         <Table>
-          <CheckoutTableHeader heads={headTitles} hideActions={props?.hideActions || false} />
-          <CheckoutTableBody data={props.data} admin={props.admin} hideActions={props?.hideActions || false} />
+          <CheckoutTableHeader heads={headTitles} />
+          <CheckoutTableBody
+            data={props.data}
+            admin={props.admin}
+            hideActions={props?.hideActions || false}
+            refetch={props?.refetch || (() => {})}
+            enableEditNote={props?.enableEditNote || false}
+          />
           {props.data.length > 0 && (
             <SellTableFooter
               count={props.count}
@@ -90,9 +101,9 @@ const CheckoutTableHeader = (props: CheckoutTableProps) => {
   return (
     <TableHead>
       <TableRow>
-        {props.hideActions
-          ? props.heads.slice(0, -1).map((title, i) => <TableCell key={i + title}>{title}</TableCell>)
-          : props.heads.map((title, i) => <TableCell key={i + title}>{title}</TableCell>)}
+        {props.heads.map((title, i) => (
+          <TableCell key={i + title}>{title}</TableCell>
+        ))}
       </TableRow>
     </TableHead>
   );
@@ -107,6 +118,8 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
           data={data}
           admin={props.admin}
           hideActions={props.hideActions}
+          refetch={props.refetch}
+          enableEditNote={props.enableEditNote}
         />
       ))}
     </TableBody>
@@ -175,8 +188,9 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>${data.totalVenta}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
-        {!props.hideActions && (
-          <TableCell>
+
+        <TableCell>
+          {!props.hideActions ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {data.estatus === 1 && admin && (
                 <Tooltip title="Aceptar">
@@ -209,8 +223,16 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                 </Tooltip>
               )}
             </Box>
-          </TableCell>
-        )}
+          ) : data.notas || data.pdfCadena ? (
+            <Tooltip title="Ver detalles">
+              <IconButton onClick={() => setOpenDetails(true)}>
+                <Visibility color="primary" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <>Sin acciones</>
+          )}
+        </TableCell>
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
@@ -219,7 +241,12 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       </Modal>
       <Modal open={openDetails} onClose={() => setOpenDetails(false)}>
         <>
-          <CheckoutDetailsModal setOpen={setOpenDetails} sellData={data} />
+          <CheckoutDetailsModal
+            setOpen={setOpenDetails}
+            sellData={data}
+            refetch={props.refetch}
+            enableEditNote={props.enableEditNote}
+          />
         </>
       </Modal>
     </>

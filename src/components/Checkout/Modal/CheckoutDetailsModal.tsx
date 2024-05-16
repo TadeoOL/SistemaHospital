@@ -1,9 +1,11 @@
-import { Box, Button, Modal, Stack, Typography } from '@mui/material';
+import { Box, Button, Modal, Stack, Typography, CircularProgress } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { ICheckoutSell } from '../../../types/types';
 import { Note } from '../../Purchase/PurchaseRequest/Modal/Note';
 import { useState } from 'react';
 import { ViewBase64Doc } from '../../Commons/ViewBase64Doc';
+import { changeSellNote } from '../../../services/checkout/checkoutService';
+import { toast } from 'react-toastify';
 
 const style = {
   position: 'absolute',
@@ -21,11 +23,30 @@ const style = {
 interface CheckoutDetailsModalProps {
   setOpen: Function;
   sellData: ICheckoutSell;
+  refetch: Function;
+  enableEditNote: boolean;
 }
 export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
   const { sellData } = props;
   const [note, setNote] = useState(sellData.notas);
   const [open, setOpen] = useState(false);
+  const [savingData, setSavingData] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      setSavingData(true);
+      await changeSellNote({ id_VentaPrincipal: props.sellData.id_VentaPrincipal, Notas: note as string });
+      props.refetch();
+      toast.success('Notas actualizadas correctamente!');
+      setOpen(false);
+      props.setOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error('Error al modificar la nota');
+    } finally {
+      setSavingData(false);
+    }
+  };
 
   return (
     <>
@@ -43,15 +64,32 @@ export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
             </Stack>
             <Stack sx={{ flex: 1 }}>
               <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Notas:</Typography>
-              <Note note={note ? note : ''} setNote={setNote} sx={{ flex: 1 }} />
+              <Note note={note ? note : ''} disabled={!props.enableEditNote} setNote={setNote} sx={{ flex: 1 }} />
             </Stack>
           </Stack>
         </Box>
-        <Box sx={{ p: 1, bgcolor: 'background.paper', display: 'flex', justifyContent: 'flex-end' }}>
-          <Button variant="contained" onClick={() => props.setOpen(false)}>
-            Cerrar
-          </Button>
-        </Box>
+        {props.enableEditNote ? (
+          <Box sx={{ p: 1, bgcolor: 'background.paper', display: 'flex', justifyContent: 'space-between' }}>
+            <Button variant="contained" onClick={() => props.setOpen(false)}>
+              Cerrar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleSubmit();
+              }}
+              disabled={savingData}
+            >
+              {savingData ? <CircularProgress size={12} /> : 'Guardar'}
+            </Button>
+          </Box>
+        ) : (
+          <Box sx={{ p: 1, bgcolor: 'background.paper', display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="contained" onClick={() => props.setOpen(false)}>
+              Cerrar
+            </Button>
+          </Box>
+        )}
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>

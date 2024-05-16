@@ -4,6 +4,7 @@ interface NoteProps {
   note: string;
   setNote: Function;
   sx?: any;
+  disabled?: boolean;
 }
 export const Note = (props: NoteProps) => {
   const { note, setNote } = props;
@@ -27,6 +28,7 @@ export const Note = (props: NoteProps) => {
         fullWidth
         multiline
         value={localNote}
+        disabled={props.disabled}
         onChange={handleChange}
         rows={5}
         label="Escribe una nota..."

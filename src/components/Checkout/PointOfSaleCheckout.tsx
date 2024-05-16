@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { CheckoutCloseModal } from './Modal/CheckoutCloseModal';
 import { CheckoutTableComponent } from './CheckoutTableComponent';
 import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
-import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 
 const useGetData = () => {
   const fetch = useCheckoutPaginationStore((state) => state.fetchData);
@@ -17,10 +16,6 @@ const useGetData = () => {
 };
 
 export const PointOfSaleCheckout = () => {
-  const setIdCaja = useCheckoutDataStore((state) => state.setIdCaja);
-  useEffect(() => {
-    setIdCaja('');
-  }, []);
   useGetData();
   const [open, setOpen] = useState(false);
   const data = useCheckoutPaginationStore((state) => state.data);
