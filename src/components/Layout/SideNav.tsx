@@ -92,7 +92,6 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
   const isDashboard = title === 'Inicio';
 
   const handleClick = (title: string, roles: string[]) => {
-    console.log('clic');
     if (isActive && !children) return;
     if (!children) {
       if (!roles.includes('ADMIN') && title === 'Almacén') {
@@ -119,7 +118,6 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
         setIsOpen(false);
         return;
       }
-      console.log('Leggo acaaaa');
       if (!isOpen) {
         setIsOpen(true);
         setChildOpen(true);
@@ -379,8 +377,7 @@ export const SideNav = () => {
           item.title === "Catálogos" && profile?.roles.includes("DIRECTORCOMPRAS");
   */
         return (
-          !isMainDashboard &&
-          (!item.protectedRoles || item.protectedRoles.some((role) => profile?.roles.includes(role)))
+          isMainDashboard || (item.protectedRoles && item.protectedRoles.some((role) => profile?.roles.includes(role)))
         );
       });
 

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { CheckoutTableComponent } from './CheckoutTableComponent';
 import { GenerateReceiptModal } from './Modal/GenerateReceiptModal';
 import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
+import { useLocation, useNavigate } from 'react-router-dom';
+const thisLocation = '/ventas/emitir-recibo';
 
 const useGetData = () => {
   const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
@@ -24,6 +26,14 @@ export const ReceiptEmitter = () => {
   const setPageIndex = useCheckoutUserEmitterPaginationStore((state) => state.setPageIndex);
   const setPageSize = useCheckoutUserEmitterPaginationStore((state) => state.setPageSize);
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname !== thisLocation) {
+      navigate(thisLocation);
+    }
+  }, []);
 
   return (
     <>
