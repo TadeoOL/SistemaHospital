@@ -34,6 +34,7 @@ import {
   ConfigEmitterUsersView,
   CloseCheckoutHistoryView,
   CloseCheckoutView,
+  ProgrammingRegisterView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -85,6 +86,8 @@ function App() {
               <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
               <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
             </Route>
+            // ---------------------------Programacion------------------------------------- //
+            <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
             <Route path="/configuracion" element={<AccountView />} />
           </Route>
