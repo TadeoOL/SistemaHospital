@@ -506,3 +506,18 @@ export interface IConfigEmitterUsers {
   nombre: string;
   departamento: string[];
 }
+
+export interface IRoom {
+  id: string;
+  tipoCuarto: string;
+  nombre: string;
+  descripcion: string;
+}
+
+export interface ISurgeryProcedure {
+  id: string;
+  nombre: string;
+  duracionHospitalizacion: string;
+  duracionCirujia: string;
+  descripcion: string;
+}

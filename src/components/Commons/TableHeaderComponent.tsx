@@ -1,13 +1,13 @@
 import { TableCell, TableHead, TableRow } from '@mui/material';
 
 interface TableHeaderComponentProps {
-  Headers: string[];
+  headers: string[];
 }
 export const TableHeaderComponent = (props: TableHeaderComponentProps) => {
   return (
     <TableHead>
       <TableRow>
-        {props.Headers.map((item, index) => {
+        {props.headers.map((item, index) => {
           return <TableCell key={index}>{item}</TableCell>;
         })}
       </TableRow>

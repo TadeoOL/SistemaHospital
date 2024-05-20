@@ -2,7 +2,7 @@ import { Box, Card, Table, TableBody, TableCell, TableContainer, TableHead, Tabl
 import { Info } from '@mui/icons-material';
 import { neutral } from '../../theme/colors';
 import { ICheckoutCloseHistory } from '../../types/types';
-import { SellTableFooter } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
+import { TableFooterComponent } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
 import { formatDate } from '../../utils/pointOfSaleUtils';
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
@@ -50,7 +50,7 @@ export const CheckoutClosesTableComponent = (props: CheckoutClosesTableComponent
           <CheckoutTableHeader heads={headTitles} />
           <CheckoutTableBody data={props.data} />
           {props.data.length > 0 && (
-            <SellTableFooter
+            <TableFooterComponent
               count={count}
               pageIndex={pageIndex}
               pageSize={pageSize}

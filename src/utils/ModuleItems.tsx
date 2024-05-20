@@ -211,16 +211,14 @@ export const ModuleList: IModuleItemsList[] = [
         children: [
           {
             title: 'Cuartos',
-            path: '/programacion/catalogo/cuartos',
+            path: '/programacion/cuartos',
             icon: <Hotel sx={{ color: '#fff' }} />,
-            childrenItems: ['articulo', 'articulo-existente'],
             protectedRoles: supplyRoles,
           },
           {
             title: 'Procedimientos de crujía',
-            path: '/programacion/catalogo/procedimientos-cirujia',
+            path: '/programacion/procedimientos-cirujia',
             icon: <Vaccines sx={{ color: '#fff' }} />,
-            childrenItems: ['categoria', 'subcategoria'],
             protectedRoles: supplyRoles,
           },
         ],
