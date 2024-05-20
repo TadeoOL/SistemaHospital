@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { success } from '../../theme/colors';
 import { ICheckoutSell } from '../../types/types';
-import { SellTableFooter } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
+import { TableFooterComponent } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
 import { hashEstatusToString, hashPaymentsToString } from '../../utils/checkoutUtils';
 import { CloseSaleModal } from './Modal/CloseSaleModal';
@@ -77,7 +77,7 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
             enableEditNote={props?.enableEditNote || false}
           />
           {props.data.length > 0 && (
-            <SellTableFooter
+            <TableFooterComponent
               count={props.count}
               pageIndex={props.pageIndex}
               pageSize={props.pageSize}

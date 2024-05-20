@@ -29,3 +29,16 @@ export const clinicalDataSchema = z.object({
   procedure: z.string().min(1, 'El procedimiento es requerido'),
   comments: z.string().optional(),
 });
+
+export const roomSchema = z.object({
+  name: z.string().min(1, 'El nombre del cuarto es requerido'),
+  roomType: z.string().min(1, 'El tipo de cuarto es requerido'),
+  description: z.string().min(1, 'La descripción es requerida'),
+});
+
+export const surgeryProcedureSchema = z.object({
+  name: z.string().min(1, 'El nombre del cuarto es requerido'),
+  surgeryDuration: z.string().min(1, 'La duración de la crujía es requerida'),
+  hospitalizationDuration: z.string().min(1, 'La duración de hospitalization requerida'),
+  description: z.string().min(1, 'La descripción es requerida'),
+});

@@ -1,6 +1,6 @@
 import { Card, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import { TableHeaderComponent } from '../Commons/TableHeaderComponent';
-import { SellTableFooter } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
+import { TableFooterComponent } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 const headers = ['Clave paciente', 'Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Datos Clinicos', 'Acciones'];
 
@@ -18,10 +18,10 @@ export const TableHospitalization = () => {
     <Card>
       <TableContainer>
         <Table>
-          <TableHeaderComponent Headers={headers} />
+          <TableHeaderComponent headers={headers} />
           <TableBodyHospitalization data={data} />
           {data.length > 0 && (
-            <SellTableFooter count={0} pageIndex={0} pageSize={5} setPageIndex={() => {}} setPageSize={() => {}} />
+            <TableFooterComponent count={0} pageIndex={0} pageSize={5} setPageIndex={() => {}} setPageSize={() => {}} />
           )}
         </Table>
       </TableContainer>
