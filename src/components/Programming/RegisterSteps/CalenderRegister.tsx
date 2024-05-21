@@ -1,20 +1,21 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { useHospitalizationRegisterStore } from '../../../store/hospitalization/hospitalizationRegister';
-import { CalendarComponent } from './CalendarComponent';
+import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
+import { CalendarComponent } from './Calendar/CalendarComponent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import 'dayjs/locale/es';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+dayjs.locale('es');
 
 interface CalenderRegisterProps {
   setOpen: Function;
 }
 export const CalenderRegister = (props: CalenderRegisterProps) => {
-  const setStep = useHospitalizationRegisterStore((state) => state.setStep);
-  const step = useHospitalizationRegisterStore((state) => state.step);
+  const setStep = useProgrammingRegisterStore((state) => state.setStep);
+  const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
   const currentDate: any = dayjs(new Date());
 
@@ -49,7 +50,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
                   </Button>
                 )}
               </Box>
-              <Box sx={{ display: 'flex', flex: 1 }}>
+              <Box sx={{ display: 'flex', flex: 2 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     views={['year', 'month']}

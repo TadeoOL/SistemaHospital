@@ -166,7 +166,7 @@ const TableRowSurgeryProcedure = (props: TableRowSurgeryProcedureProps) => {
           </Box>
         </TableCell>
       </TableRow>
-      <Modal open={open} onClose={() => {}}>
+      <Modal open={open} onClose={() => setOpen(false)}>
         <>
           <AddSurgeryProcedureModal setOpen={setOpen} editData={surgeryProcedure} />
         </>

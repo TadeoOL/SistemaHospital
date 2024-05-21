@@ -40,9 +40,12 @@ export const changePrincipalSellStatus = async (data: {
   id_VentaPrincipal: string;
   estatus: number;
   id_CajaPrincipal: string;
-  tieneIva: boolean;
-  tipoPago: number;
-  montoPago: number;
+  pago: {
+    tipoPago: number;
+    montoPago: number;
+  }[];
+  notas?: string;
+  factura?: string;
 }) => {
   const res = await axios.put(`${apiCheckout}/estatus-venta`, data);
   return res.data;
@@ -95,10 +98,7 @@ export const getUserEmitterSells = async (param: string) => {
   return res.data;
 };
 
-export const changeSellNote = async (data: {
-  id_VentaPrincipal: string;
-  Notas: string;
-}) => {
+export const changeSellNote = async (data: { id_VentaPrincipal: string; Notas: string }) => {
   const res = await axios.put(`${apiCheckout}/editar-venta-principal`, data);
   return res.data;
 };

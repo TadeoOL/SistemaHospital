@@ -94,7 +94,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Agregar un procedimiento" />
+      <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar procedimiento' : 'Agregar un procedimiento'} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
           <Grid container spacing={1}>
@@ -158,11 +158,11 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           </Grid>
         </Box>
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>
-          <Button color="error" variant="outlined" disabled={isLoading}>
+          <Button color="error" variant="outlined" disabled={isLoading} onClick={() => props.setOpen(false)}>
             Cancelar
           </Button>
           <Button variant="contained" type="submit" disabled={isLoading}>
-            {isLoading ? <CircularProgress size={15} /> : 'Agregar'}
+            {isLoading ? <CircularProgress size={15} /> : editData ? 'Modificar' : 'Agregar'}
           </Button>
         </Box>
       </form>

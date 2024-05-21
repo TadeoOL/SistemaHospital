@@ -31,3 +31,8 @@ export const deleteSurgeryProcedure = async (roomId: string) => {
   const res = await axios.delete(`${apiSurgeryProcedure}/eliminar-procedimiento-cirujia`, { data: { id: roomId } });
   return res.data;
 };
+
+export const getAllSurgeryProcedures = async () => {
+  const res = await axios.get(`${apiSurgeryProcedure}/lista-procedimiento-cirujia`);
+  return res.data;
+};

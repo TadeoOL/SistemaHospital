@@ -1,9 +1,9 @@
-import { Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { hashPaymentsToNumber } from '../../../utils/checkoutUtils';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
 import { useCheckoutPaginationStore } from '../../../store/checkout/checkoutPagination';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { isValidFloat } from '../../../utils/functions/dataUtils';
 import { changePrincipalSellStatus } from '../../../services/checkout/checkoutService';
@@ -23,19 +23,19 @@ const style = {
   maxHeight: { xs: 900 },
 };
 
-// const scrollBarStyle = {
-//   '&::-webkit-scrollbar': {
-//     width: '0.4em',
-//   },
-//   '&::-webkit-scrollbar-track': {
-//     boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-//     webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-//   },
-//   '&::-webkit-scrollbar-thumb': {
-//     backgroundColor: 'rgba(0,0,0,.1)',
-//     outline: '1px solid slategrey',
-//   },
-// };
+const scrollBarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
+};
 interface CloseSaleModalProps {
   setOpen: Function;
   sellData: ICheckoutSell;
@@ -46,32 +46,76 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const refetch = useCheckoutPaginationStore((state) => state.fetchData);
   const handleClose = () => props.setOpen(false);
   const [paymentSelected, setPaymentSelected] = useState('');
+  const [paymentSelected2, setPaymentSelected2] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentAmount2, setPaymentAmount2] = useState('');
   const [paymentAmountRefError, setPaymentAmountRefError] = useState(false);
+  const [paymentAmountRefError2, setPaymentAmountRefError2] = useState(false);
   const [paymentSelectedError, setPaymentSelectedError] = useState(false);
+  const [paymentSelectedError2, setPaymentSelectedError2] = useState(false);
   const conn = useConnectionSocket((state) => state.conn);
+  const [hasAnotherPaymentMethod, setHasAnotherPaymentMethod] = useState(false);
+  const numberInvoiceRef = useRef<HTMLTextAreaElement | null>(null);
+  const noteRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async () => {
-    if (parseFloat(paymentAmount) < sellData.totalVenta) {
+    let paymentOne = 0;
+    let paymentTwo = 0;
+
+    if (!hasAnotherPaymentMethod && parseFloat(paymentAmount) < sellData.totalVenta) {
       toast.error('El monto de pago no puede ser menor al total de la venta');
       setPaymentAmountRefError(true);
       return;
     }
-    if (paymentAmount === '' || !isValidFloat(paymentAmount)) return setPaymentAmountRefError(true);
-    if (paymentSelected === '') return setPaymentSelectedError(true);
+
+    if ((paymentSelected === 'Efectivo' && paymentAmount === '') || !isValidFloat(paymentAmount)) {
+      return setPaymentAmountRefError(true);
+    }
+
+    if (paymentSelected === '') {
+      return setPaymentSelectedError(true);
+    }
+
+    if ((hasAnotherPaymentMethod && paymentAmount2 === '') || !isValidFloat(paymentAmount2)) {
+      return setPaymentAmountRefError2(true);
+    }
+
+    if (hasAnotherPaymentMethod && paymentSelected2 === '') {
+      return setPaymentSelectedError2(true);
+    }
+
+    if (paymentSelected === 'Efectivo' && hasAnotherPaymentMethod) {
+      paymentTwo = sellData.totalVenta - parseFloat(paymentAmount);
+    } else if (paymentSelected2 === 'Efectivo' && hasAnotherPaymentMethod) {
+      paymentOne = sellData.totalVenta - parseFloat(paymentAmount2);
+    }
+
     try {
+      const payment = [
+        {
+          tipoPago: hashPaymentsToNumber[paymentSelected],
+          montoPago: paymentSelected2 === 'Efectivo' ? paymentOne : parseFloat(paymentAmount),
+        },
+      ];
+
+      if (hasAnotherPaymentMethod) {
+        payment.push({
+          tipoPago: hashPaymentsToNumber[paymentSelected2],
+          montoPago: paymentSelected === 'Efectivo' ? paymentTwo : parseFloat(paymentAmount2),
+        });
+      }
       const sellChange = {
         id_VentaPrincipal: sellData.id_VentaPrincipal,
         estatus: 2,
         id_CajaPrincipal: checkoutId as string,
-        tieneIva: false,
-        tipoPago: hashPaymentsToNumber[paymentSelected],
-        montoPago: parseFloat(paymentAmount),
+        pago: payment,
         id_UsuarioPase: sellData.id_UsuarioPase,
         folio: sellData.folio,
         moduloProveniente: sellData.moduloProveniente,
         paciente: sellData.paciente,
         totalVenta: sellData.totalVenta,
+        notas: noteRef?.current?.value,
+        factura: numberInvoiceRef?.current?.value,
       };
       await changePrincipalSellStatus(sellChange);
       conn?.invoke('UpdateSell', sellChange);
@@ -85,18 +129,72 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   };
 
   const change = useMemo(() => {
-    if (paymentAmount === '') return 0;
-    return parseFloat(paymentAmount) - sellData.totalVenta;
-  }, [paymentAmount]);
+    let totalPayment = 0;
+    let efectivoTotal = 0;
+
+    if (paymentSelected === 'Efectivo') {
+      efectivoTotal += parseFloat(paymentAmount || '0');
+    } else {
+      totalPayment += sellData.totalVenta;
+    }
+
+    if (hasAnotherPaymentMethod) {
+      if (paymentSelected2 === 'Efectivo') {
+        efectivoTotal += parseFloat(paymentAmount2 || '0');
+      } else {
+        totalPayment += sellData.totalVenta - parseFloat(paymentAmount || '0');
+      }
+    }
+
+    totalPayment += efectivoTotal;
+
+    const change = efectivoTotal - sellData.totalVenta;
+    const totalChange = totalPayment >= sellData.totalVenta ? Math.max(change, 0) : 0;
+    return totalChange;
+  }, [paymentAmount, paymentAmount2, paymentSelected, paymentSelected2, hasAnotherPaymentMethod, sellData.totalVenta]);
+
+  useEffect(() => {
+    if (!hasAnotherPaymentMethod) {
+      setPaymentSelected2('');
+      setPaymentAmount2('');
+      setPaymentSelectedError2(false);
+      setPaymentAmountRefError2(false);
+    }
+  }, [hasAnotherPaymentMethod]);
 
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Generar venta" />
-      <Box sx={{ display: 'flex', bgcolor: 'background.paper', p: 4 }}>
-        <Stack sx={{ display: 'flex', flex: 1 }} spacing={4}>
+      <Box sx={{ display: 'flex', bgcolor: 'background.paper', p: 4, overflowY: 'auto', ...scrollBarStyle }}>
+        <Stack sx={{ display: 'flex', flex: 1 }} spacing={2}>
+          <Box sx={{ display: 'flex', columnGap: 1 }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 500 }}>Total a pagar:</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${sellData.totalVenta}</Typography>
+          </Box>
+          <Stack>
+            <Typography>Tipo Pago</Typography>
+            <TextField
+              placeholder="Método de pago"
+              select
+              value={paymentSelected}
+              error={paymentSelectedError}
+              helperText={paymentSelectedError && 'Seleccione un tipo de pago'}
+              onChange={(e) => {
+                setPaymentAmount('');
+                setPaymentSelected(e.target.value);
+              }}
+            >
+              {Object.keys(hashPaymentsToNumber).map((key) => (
+                <MenuItem key={key} value={key} disabled={key === paymentSelected2}>
+                  {key}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
           <Stack>
             <Typography>Monto Pago</Typography>
             <TextField
+              disabled={paymentSelected !== 'Efectivo'}
               placeholder="Monto pago..."
               error={paymentAmountRefError}
               helperText={paymentAmountRefError && 'Escribe un monto de pago valido...'}
@@ -106,23 +204,54 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
               }}
             />
           </Stack>
+          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+            <Button variant="contained" onClick={() => setHasAnotherPaymentMethod(!hasAnotherPaymentMethod)}>
+              {hasAnotherPaymentMethod ? 'Cancelar Division Pago' : 'Dividir pago'}
+            </Button>
+          </Box>
+          {hasAnotherPaymentMethod && (
+            <>
+              <Stack>
+                <Typography>Tipo Pago</Typography>
+                <TextField
+                  placeholder="Método de pago"
+                  select
+                  value={paymentSelected2}
+                  error={paymentSelectedError2}
+                  helperText={paymentSelectedError2 && 'Seleccione un tipo de pago'}
+                  onChange={(e) => setPaymentSelected2(e.target.value)}
+                >
+                  {Object.keys(hashPaymentsToNumber).map((key) => (
+                    <MenuItem key={key} value={key} disabled={key === paymentSelected}>
+                      {key}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Stack>
+              <Stack>
+                <Typography>Monto Pago</Typography>
+                <TextField
+                  disabled={paymentSelected2 !== 'Efectivo'}
+                  placeholder="Monto pago..."
+                  error={paymentAmountRefError2}
+                  helperText={paymentAmountRefError2 && 'Escribe un monto de pago valido...'}
+                  onBlur={(e) => {
+                    setPaymentAmount2(e.target.value);
+                    setPaymentAmountRefError2(false);
+                  }}
+                />
+              </Stack>
+            </>
+          )}
           <Stack>
-            <Typography>Tipo Pago</Typography>
-            <TextField
-              placeholder="Método de pago"
-              select
-              value={paymentSelected}
-              error={paymentSelectedError}
-              helperText={paymentSelectedError && 'Seleccione un tipo de pago'}
-              onChange={(e) => setPaymentSelected(e.target.value)}
-            >
-              {Object.keys(hashPaymentsToNumber).map((key) => (
-                <MenuItem key={key} value={key}>
-                  {key}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Typography>No. Factura Relacionada</Typography>
+            <TextField placeholder="No. Factura" inputRef={numberInvoiceRef} />
           </Stack>
+          <Stack>
+            <Typography>Notas</Typography>
+            <TextField placeholder="Notas" multiline inputRef={noteRef} />
+          </Stack>
+          <Divider sx={{ my: 1 }} />
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
             <Stack sx={{ display: 'flex', flex: 1 }}>
               <Typography sx={{ fontSize: 12, fontWeight: 600 }}>Cambio</Typography>

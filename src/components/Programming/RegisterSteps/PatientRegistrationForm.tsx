@@ -1,6 +1,6 @@
 import { Box, Button, Checkbox, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { useHospitalizationRegisterStore } from '../../../store/hospitalization/hospitalizationRegister';
+import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,8 +46,8 @@ type Inputs = {
 };
 
 export const PatientRegistrationForm = () => {
-  const step = useHospitalizationRegisterStore((state) => state.step);
-  const setStep = useHospitalizationRegisterStore((state) => state.setStep);
+  const step = useProgrammingRegisterStore((state) => state.step);
+  const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const [genereSelected, setGenereSelected] = useState('');
 
   const {
