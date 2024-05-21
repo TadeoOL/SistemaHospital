@@ -521,3 +521,11 @@ export interface ISurgeryProcedure {
   duracionCirujia: string;
   descripcion: string;
 }
+
+export interface IRegisterRoom {
+  id: string;
+  tipoCuarto: string;
+  nombre: string;
+  horaInicio: Date;
+  horaFin: Date;
+}

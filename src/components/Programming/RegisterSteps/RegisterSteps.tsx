@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import { CalenderRegister } from './CalenderRegister';
-import { useHospitalizationRegisterStore } from '../../../store/hospitalization/hospitalizationRegister';
+import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { useEffect } from 'react';
 import { PatientRegistrationForm } from './PatientRegistrationForm';
 import { ClinicalDataForm } from './ClinicalDataForm';
@@ -35,11 +35,11 @@ const renderStepView = (step: number, setOpen: Function) => {
 };
 
 export const RegisterSteps = (props: RegisterStepsProps) => {
-  const clearData = useHospitalizationRegisterStore((state) => state.clearAllData);
+  const clearData = useProgrammingRegisterStore((state) => state.clearAllData);
   useEffect(() => {
     return () => clearData();
   }, []);
 
-  const step = useHospitalizationRegisterStore((state) => state.step);
+  const step = useProgrammingRegisterStore((state) => state.step);
   return <Box sx={style}>{renderStepView(step, props.setOpen)}</Box>;
 };

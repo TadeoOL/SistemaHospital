@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { useHospitalizationRegisterStore } from '../../../store/hospitalization/hospitalizationRegister';
+import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clinicalDataSchema } from '../../../schema/programming/programmingSchemas';
@@ -36,8 +36,8 @@ interface ClinicalDataFormProps {
 }
 
 export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
-  const step = useHospitalizationRegisterStore((state) => state.step);
-  const setStep = useHospitalizationRegisterStore((state) => state.setStep);
+  const step = useProgrammingRegisterStore((state) => state.step);
+  const setStep = useProgrammingRegisterStore((state) => state.setStep);
 
   const {
     register,

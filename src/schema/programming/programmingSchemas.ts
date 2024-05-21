@@ -42,3 +42,14 @@ export const surgeryProcedureSchema = z.object({
   hospitalizationDuration: z.string().min(1, 'La duración de hospitalization requerida'),
   description: z.string().min(1, 'La descripción es requerida'),
 });
+
+export const addRoomReservation = z
+  .object({
+    room: z.string().min(1, 'Selecciona un cuarto'),
+    startTime: z.date().min(new Date(), 'La fecha de inicio debe ser posterior a la fecha actual'),
+    endTime: z.date(),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: 'La fecha de finalización debe ser posterior a la fecha de inicio',
+    path: ['endTime'],
+  });

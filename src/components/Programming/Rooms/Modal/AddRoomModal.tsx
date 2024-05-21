@@ -81,7 +81,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Agregar un cuarto" />
+      <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar cuarto' : 'Agregar cuarto'} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
           <Grid container spacing={1}>
@@ -133,7 +133,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
             Cancelar
           </Button>
           <Button variant="contained" type="submit" disabled={isLoading}>
-            {isLoading ? <CircularProgress size={15} /> : 'Agregar'}
+            {isLoading ? <CircularProgress size={15} /> : editData ? 'Modificar' : 'Agregar'}
           </Button>
         </Box>
       </form>
