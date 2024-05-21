@@ -64,7 +64,7 @@ export const RoomReservationModal = () => {
   const {
     register: registerProcedures,
     handleSubmit: handleSubmitProcedures,
-    formState: { errors: errorsProcedures },
+    // formState: { errors: errorsProcedures },
   } = useForm<Inputs>();
 
   const onSubmitProcedures: SubmitHandler<Inputs> = async (data) => {

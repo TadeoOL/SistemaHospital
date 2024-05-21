@@ -43,6 +43,7 @@ const useJoinRoom = (
             totalVenta: sell.totalVenta,
             tipoPago: sell.tipoPago,
             id_UsuarioPase: sell.id_UsuarioPase,
+            nombreUsuario: sell.nombreUsuario
           };
           updateData(sellObject);
         });

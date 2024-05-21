@@ -451,7 +451,6 @@ export const PurchaseOrder = () => {
                                  <Tooltip title="Ver Cotización">
                                   <IconButton
                                     size="small"
-                                    sx={{ color: 'neutral.700' }}
                                     onClick={() => { 
                                       if (order.cotizacion) {
                                       handleOpenPdf(order.cotizacion);
