@@ -59,12 +59,16 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const noteRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async () => {
-    let paymentOne = 0;
-    let paymentTwo = 0;
-
     if (!hasAnotherPaymentMethod && parseFloat(paymentAmount) < sellData.totalVenta) {
       toast.error('El monto de pago no puede ser menor al total de la venta');
       setPaymentAmountRefError(true);
+      return;
+    }
+
+    if (hasAnotherPaymentMethod && parseFloat(paymentAmount) + parseFloat(paymentAmount2) < sellData.totalVenta) {
+      toast.error('El monto de pago no puede ser menor al total de la venta');
+      setPaymentAmountRefError(true);
+      setPaymentAmountRefError2(true);
       return;
     }
 
@@ -84,24 +88,18 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
       return setPaymentSelectedError2(true);
     }
 
-    if (paymentSelected === 'Efectivo' && hasAnotherPaymentMethod) {
-      paymentTwo = sellData.totalVenta - parseFloat(paymentAmount);
-    } else if (paymentSelected2 === 'Efectivo' && hasAnotherPaymentMethod) {
-      paymentOne = sellData.totalVenta - parseFloat(paymentAmount2);
-    }
-
     try {
       const payment = [
         {
           tipoPago: hashPaymentsToNumber[paymentSelected],
-          montoPago: paymentSelected2 === 'Efectivo' ? paymentOne : parseFloat(paymentAmount),
+          montoPago: paymentSelected !== 'Efectivo' ? sellData.totalVenta : parseFloat(paymentAmount),
         },
       ];
 
       if (hasAnotherPaymentMethod) {
         payment.push({
           tipoPago: hashPaymentsToNumber[paymentSelected2],
-          montoPago: paymentSelected === 'Efectivo' ? paymentTwo : parseFloat(paymentAmount2),
+          montoPago: parseFloat(paymentAmount2),
         });
       }
       const sellChange = {
@@ -130,28 +128,18 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
 
   const change = useMemo(() => {
     let totalPayment = 0;
-    let efectivoTotal = 0;
-
-    if (paymentSelected === 'Efectivo') {
-      efectivoTotal += parseFloat(paymentAmount || '0');
-    } else {
-      totalPayment += sellData.totalVenta;
-    }
-
     if (hasAnotherPaymentMethod) {
-      if (paymentSelected2 === 'Efectivo') {
-        efectivoTotal += parseFloat(paymentAmount2 || '0');
+      totalPayment = parseFloat(paymentAmount) + parseFloat(paymentAmount2);
+    } else {
+      if (paymentSelected === 'Efectivo') {
+        totalPayment = parseFloat(paymentAmount);
       } else {
-        totalPayment += sellData.totalVenta - parseFloat(paymentAmount || '0');
+        totalPayment = sellData.totalVenta;
       }
     }
-
-    totalPayment += efectivoTotal;
-
-    const change = efectivoTotal - sellData.totalVenta;
-    const totalChange = totalPayment >= sellData.totalVenta ? Math.max(change, 0) : 0;
-    return totalChange;
-  }, [paymentAmount, paymentAmount2, paymentSelected, paymentSelected2, hasAnotherPaymentMethod, sellData.totalVenta]);
+    if (!Number(totalPayment)) return 0;
+    return totalPayment - sellData.totalVenta <= 0 ? 0 : totalPayment - sellData.totalVenta;
+  }, [paymentAmount, paymentAmount2, paymentSelected, hasAnotherPaymentMethod, sellData.totalVenta]);
 
   useEffect(() => {
     if (!hasAnotherPaymentMethod) {
@@ -194,7 +182,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
           <Stack>
             <Typography>Monto Pago</Typography>
             <TextField
-              disabled={paymentSelected !== 'Efectivo'}
+              disabled={paymentSelected !== 'Efectivo' && !hasAnotherPaymentMethod}
               placeholder="Monto pago..."
               error={paymentAmountRefError}
               helperText={paymentAmountRefError && 'Escribe un monto de pago valido...'}
@@ -231,7 +219,6 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
               <Stack>
                 <Typography>Monto Pago</Typography>
                 <TextField
-                  disabled={paymentSelected2 !== 'Efectivo'}
                   placeholder="Monto pago..."
                   error={paymentAmountRefError2}
                   helperText={paymentAmountRefError2 && 'Escribe un monto de pago valido...'}
