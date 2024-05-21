@@ -302,6 +302,7 @@ export interface IPurchaseOrder {
   id_Almacen: string;
   fueAutorizada: boolean;
   notas?: string;
+  cotizacion?: string;
 }
 
 export interface IPurchaseOrderArticle {
