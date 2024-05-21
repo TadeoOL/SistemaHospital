@@ -9,6 +9,7 @@ import { isValidFloat } from '../../../utils/functions/dataUtils';
 import { changePrincipalSellStatus } from '../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { ICheckoutSell } from '../../../types/types';
+import Swal from 'sweetalert2';
 
 const style = {
   position: 'absolute',
@@ -59,6 +60,17 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const noteRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async () => {
+    if (
+      (hasAnotherPaymentMethod &&
+        parseFloat(paymentAmount) + parseFloat(paymentAmount2) !== sellData.totalVenta &&
+        parseFloat(paymentAmount) === 0) ||
+      parseFloat(paymentAmount2) === 0
+    ) {
+      setPaymentAmountRefError(true);
+      setPaymentAmountRefError2(true);
+      toast.error('El monto de pago tiene que ser igual a la venta');
+      return;
+    }
     if (!hasAnotherPaymentMethod && parseFloat(paymentAmount) < sellData.totalVenta) {
       toast.error('El monto de pago no puede ser menor al total de la venta');
       setPaymentAmountRefError(true);
@@ -120,6 +132,13 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
       refetch();
       toast.success('Venta realizada con éxito!');
       props.setOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Correcto',
+        text: `Su cambio es de: ${change}`,
+        showConfirmButton: true,
+        timer: 2000,
+      });
     } catch (error) {
       console.log(error);
       toast.error('Error al realizar la venta!');
@@ -150,6 +169,20 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
     }
   }, [hasAnotherPaymentMethod]);
 
+  useEffect(() => {
+    if (hasAnotherPaymentMethod) {
+      if (paymentSelected === 'Efectivo') {
+        const changeForPayment = sellData.totalVenta - parseFloat(paymentAmount);
+        if (!Number(changeForPayment) || parseFloat(paymentAmount) > sellData.totalVenta) return setPaymentAmount2('0');
+        setPaymentAmount2(changeForPayment.toString());
+      } else if (paymentSelected2 === 'Efectivo') {
+        const changeForPayment = sellData.totalVenta - parseFloat(paymentAmount2);
+        if (!Number(changeForPayment) || parseFloat(paymentAmount2) > sellData.totalVenta) return setPaymentAmount('0');
+        setPaymentAmount(changeForPayment.toString());
+      }
+    }
+  }, [paymentSelected2, paymentAmount2, paymentSelected, paymentAmount]);
+
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Generar venta" />
@@ -168,8 +201,8 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
               error={paymentSelectedError}
               helperText={paymentSelectedError && 'Seleccione un tipo de pago'}
               onChange={(e) => {
-                setPaymentAmount('');
                 setPaymentSelected(e.target.value);
+                setPaymentAmount('');
               }}
             >
               {Object.keys(hashPaymentsToNumber).map((key) => (
@@ -179,19 +212,21 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
               ))}
             </TextField>
           </Stack>
-          <Stack>
-            <Typography>Monto Pago</Typography>
-            <TextField
-              disabled={paymentSelected !== 'Efectivo' && !hasAnotherPaymentMethod}
-              placeholder="Monto pago..."
-              error={paymentAmountRefError}
-              helperText={paymentAmountRefError && 'Escribe un monto de pago valido...'}
-              onBlur={(e) => {
-                setPaymentAmount(e.target.value);
-                setPaymentAmountRefError(false);
-              }}
-            />
-          </Stack>
+          {(hasAnotherPaymentMethod || paymentSelected === 'Efectivo') && (
+            <Stack>
+              <Typography>Monto Pago</Typography>
+              <TextField
+                placeholder="Monto pago..."
+                error={paymentAmountRefError}
+                value={paymentAmount}
+                helperText={paymentAmountRefError && 'Escribe un monto de pago valido...'}
+                onChange={(e) => {
+                  setPaymentAmount(e.target.value);
+                  setPaymentAmountRefError(false);
+                }}
+              />
+            </Stack>
+          )}
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
             <Button variant="contained" onClick={() => setHasAnotherPaymentMethod(!hasAnotherPaymentMethod)}>
               {hasAnotherPaymentMethod ? 'Cancelar Division Pago' : 'Dividir pago'}
@@ -220,9 +255,10 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
                 <Typography>Monto Pago</Typography>
                 <TextField
                   placeholder="Monto pago..."
+                  value={paymentAmount2}
                   error={paymentAmountRefError2}
                   helperText={paymentAmountRefError2 && 'Escribe un monto de pago valido...'}
-                  onBlur={(e) => {
+                  onChange={(e) => {
                     setPaymentAmount2(e.target.value);
                     setPaymentAmountRefError2(false);
                   }}

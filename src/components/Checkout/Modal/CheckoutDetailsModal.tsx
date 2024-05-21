@@ -62,10 +62,10 @@ export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
                 Ver PDF
               </Button>
             </Stack>
-            <Stack sx={{ flex: 1 }}>
+            <Box>
               <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Notas:</Typography>
-              <Note note={note ? note : ''} disabled={!props.enableEditNote} setNote={setNote} sx={{ flex: 1 }} />
-            </Stack>
+              <Note note={note ? note : ''} disabled={!props.enableEditNote} setNote={setNote} />
+            </Box>
           </Stack>
         </Box>
         {props.enableEditNote ? (
