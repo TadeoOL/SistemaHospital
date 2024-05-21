@@ -20,7 +20,16 @@ import {
   purchasingDirector,
   supplyRoles,
 } from './dataRoles';
-import { History, LocalPharmacy, PointOfSale, ShoppingBasket } from '@mui/icons-material';
+import {
+  History,
+  Hotel,
+  HowToReg,
+  LocalHospital,
+  LocalPharmacy,
+  PointOfSale,
+  ShoppingBasket,
+  Vaccines,
+} from '@mui/icons-material';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -30,6 +39,7 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Inicio',
         path: '/',
         icon: <DashboardIcon sx={{ color: '#fff' }} />,
+        mainDashboard: purchaseGlobalRoles,
       },
     ],
   },
@@ -182,11 +192,38 @@ export const ModuleList: IModuleItemsList[] = [
     ],
     path: 'ventas',
   },
-
-  // {
-  //   title: "Proveedores",
-  //   path: "/compras/proveedores",
-  //   icon: <PermContactCalendarIcon sx={{ color: "#fff" }} />,
-  //   protectedRoles: supplyRoles,
-  // },
+  {
+    categoryTitle: 'Programacion',
+    icon: <LocalHospital />,
+    moduleItems: [
+      {
+        title: 'Registro de pacientes',
+        path: '/programacion/registro',
+        icon: <HowToReg sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Catálogos',
+        icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
+        path: '#',
+        protectedRoles: supplyRoles,
+        topLevel: true,
+        children: [
+          {
+            title: 'Cuartos',
+            path: '/programacion/cuartos',
+            icon: <Hotel sx={{ color: '#fff' }} />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Procedimientos de crujía',
+            path: '/programacion/procedimientos-cirujia',
+            icon: <Vaccines sx={{ color: '#fff' }} />,
+            protectedRoles: supplyRoles,
+          },
+        ],
+      },
+    ],
+    path: 'programacion',
+  },
 ];

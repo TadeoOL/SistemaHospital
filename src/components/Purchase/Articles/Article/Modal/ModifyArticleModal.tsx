@@ -1,10 +1,10 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Backdrop, Box, Button, Checkbox, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addArticle, addArticleBox } from '../../../../../schema/schemas';
+import { addArticle } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig, ISubCategory } from '../../../../../types/types';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
@@ -101,7 +101,10 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const [subCategory, setSubCategory] = useState('');
   const [inputValue, setInputValue] = useState<string>();
   const config = useGetPurchaseConfig();
+  const [isBox, setIsBox] = useState(false);
+  let textQuantityRef = useRef<HTMLTextAreaElement>(null);
 
+  
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
     handleChangeArticle: state.handleChangeArticle,
@@ -127,12 +130,15 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       unidadesPorCaja: unidadesPorCaja,
       esCaja: esCaja,
     },
-    resolver: zodResolver(article?.esCaja ? addArticleBox : addArticle),
+    resolver: zodResolver(addArticle),
   });
 
   useEffect(() => {
     if (article) {
-      console.log(article);
+      setIsBox(article?.esCaja == null ? false : article?.esCaja);
+if (textQuantityRef.current) {
+  textQuantityRef.current.value = article?.unidadesPorCaja == null ? "0" : article?.unidadesPorCaja.toString();
+}      console.log(article);
       const subCate = article.subCategoria as ISubCategory;
       if (article.descripcion == null) article.descripcion = '';
       if (textValue.trim() === '') setTextValue(article.descripcion);
@@ -153,8 +159,20 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   };
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
+      if (isBox && !textQuantityRef.current?.value) {
+        toast.error('escribe un número de unidades por caja');
+        return;
+      }
+      const numberQuantity = Number(textQuantityRef.current?.value);
+      if (isNaN(numberQuantity)) {
+        toast.error('No es un valor numerico entero');
+        return;
+      }
+      data.esCaja = isBox;
+      console.log(data)
+      data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
       const idForm = getValues('id');
-      await modifyArticle({ ...data, id: idForm, esCaja: esCaja });
+      await modifyArticle({ ...data, id: idForm, esCaja: isBox });
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo modificado con éxito!');
       open(false);
@@ -254,23 +272,33 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 {...register('unidadMedida')}
               />
             </Grid>
-            {article && article.esCaja && (
-              <Grid item xs={12} md={6}>
-                <Typography>Unidades por caja</Typography>
-                <TextField
-                  fullWidth
-                  error={!!errors?.unidadesPorCaja}
-                  helperText={errors?.unidadesPorCaja?.message}
-                  size="small"
-                  inputProps={{
-                    maxLength: 5,
-                    onInput: handleInputNumberChange,
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography>Es un Paquete</Typography>
+                  <Checkbox
+                  checked={isBox}
+                  onChange={() => {
+                    setIsBox(!isBox);
                   }}
-                  placeholder="Dígite un número de unidades"
-                  {...register('unidadesPorCaja')}
                 />
-              </Grid>
-            )}
+                </Box>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Unidades por Paquete"
+                    disabled={!isBox}
+                    inputRef={textQuantityRef}
+                    sx={{ display: isBox ? 'block' : 'none' }}
+                    inputProps={{
+                      type: 'number',
+                      pattern: '[0-9]*',
+                      inputMode: 'numeric',
+                      min: 0,
+                    }}
+                  />
+              </Box>
+            </Grid>
             <Grid item xs={12} md={12}>
               <Typography>Descripción</Typography>
               <TextField

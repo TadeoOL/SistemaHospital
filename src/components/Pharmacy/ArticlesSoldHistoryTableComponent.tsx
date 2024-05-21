@@ -168,7 +168,7 @@ export const SellsTable = (props: SellsTableProps) => {
             <SellTableHead />
             <SellTableBody sells={props.sells} />
             {props.sells.length > 0 && (
-              <SellTableFooter
+              <TableFooterComponent
                 count={count}
                 pageIndex={pageIndex}
                 pageSize={pageSize}
@@ -214,7 +214,7 @@ const SellTableBody = (props: SellTableBodyProps) => {
   );
 };
 
-export const SellTableFooter = (props: PaginationProps) => {
+export const TableFooterComponent = (props: PaginationProps) => {
   const { count, pageIndex, pageSize, setPageIndex, setPageSize } = props;
   return (
     <TableFooter>

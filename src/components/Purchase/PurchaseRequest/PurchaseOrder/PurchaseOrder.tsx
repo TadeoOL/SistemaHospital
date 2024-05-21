@@ -2,6 +2,7 @@ import {
   Box,
   Card,
   CircularProgress,
+  ClickAwayListener,
   Collapse,
   IconButton,
   MenuItem,
@@ -18,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Edit } from '@mui/icons-material';
+import { Close, Edit } from '@mui/icons-material';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -35,13 +36,14 @@ import { QuoteModal } from './Modal/QuoteModal';
 import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
-import { Assignment, Visibility, DoneAll, Info } from '@mui/icons-material';
+import { Assignment, Visibility, DoneAll, Info, RemoveRedEye } from '@mui/icons-material';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
 import { SortComponent } from '../../../Commons/SortComponent';
 import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrderPackage';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
+import { toast } from 'react-toastify';
 
 enum authFilter {
   'Todas las ordenes' = 0,
@@ -96,6 +98,8 @@ export const PurchaseOrder = () => {
   const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
   const [orderSelectedId, setOrderSelectedId] = useState('');
   const [providers, setProviders] = useState<any[]>([]);
+  const [viewPdf, setViewPdf] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState('');
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [orderSelected, setOrderSelected] = useState<{
     folio: string;
@@ -195,6 +199,16 @@ export const PurchaseOrder = () => {
   useEffect(() => {
     fetch();
   }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate, sort, requiredAuth]);
+
+    const handleOpenPdf = async (quoteId: string) => {
+    try {
+      if (quoteId === '') return toast.warning('Esta orden no cuenta con cotización');
+      setPdfOpen(quoteId as string);
+      setViewPdf(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -433,6 +447,21 @@ export const PurchaseOrder = () => {
                                   </IconButton>
                                 </Tooltip>
                               )}
+                              {order.estatus === 1 && order.cotizacion && (
+                                 <Tooltip title="Ver Cotización">
+                                  <IconButton
+                                    size="small"
+                                    sx={{ color: 'neutral.700' }}
+                                    onClick={() => { 
+                                      if (order.cotizacion) {
+                                      handleOpenPdf(order.cotizacion);
+                                    }
+                                    }}
+                                  >
+                                    <RemoveRedEye />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                               {order.estatus === 2 && (
                                 <>
                                   <Tooltip title="Ver Factura">
@@ -575,6 +604,7 @@ export const PurchaseOrder = () => {
           <QuoteModal idFolio={orderSelected} open={setOpenQuoteModal} providers={providers} />
         </>
       </Modal>
+
       <Modal
         open={openArticlesEntry}
         onClose={() => {
@@ -596,6 +626,42 @@ export const PurchaseOrder = () => {
             clearData={handleRefetchAndClearStates}
           />
         </>
+      </Modal>
+
+        <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
+        <Stack
+          sx={{
+            display: 'flex',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={() => setViewPdf(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+          <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 10,
+                mx: 7,
+                mb: 3,
+              }}
+            >
+              <embed
+                src={pdfOpen}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                }}
+              />
+            </Box>
+          </ClickAwayListener>
+        </Stack>
       </Modal>
     </>
   );

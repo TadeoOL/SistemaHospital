@@ -11,10 +11,10 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from '@mui/material';
 import { IConfigEmitterUsers } from '../../types/types';
-import { Delete, Edit, Info } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
+import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 
 interface UsersEmitterTableBodyProps {
   handleDelete: (id: string) => void;
@@ -47,14 +47,7 @@ export const EmitterUsersTable = (props: EmitterUsersTableProps) => {
           )}
         </Table>
       </TableContainer>
-      {props.data.length < 1 && !props.loading && (
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', columnGap: 1, p: 4, color: 'gray' }}
-        >
-          <Info sx={{ width: 50, height: 50 }} />
-          <Typography variant="h2">No hay usuarios</Typography>
-        </Box>
-      )}
+      {props.data.length < 1 && !props.loading && <NoDataInTableInfo infoTitle="No hay usuarios" />}
       {props.loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
           <CircularProgress size={40} />

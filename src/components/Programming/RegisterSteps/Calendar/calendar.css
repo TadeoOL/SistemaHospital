@@ -1,0 +1,5 @@
+.rbc-day-bg:hover {
+    cursor: pointer;
+    transform: scale(1.03);
+    background-color: aliceblue;
+  }

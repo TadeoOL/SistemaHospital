@@ -305,7 +305,7 @@ export const getArticles = async (paramUrl: string) => {
 
 export const modifyArticle = async (article: IArticle) => {
   const { id, nombre, descripcion, id_subcategoria, stockAlerta, stockMinimo, unidadMedida, precioCompra, esCaja, unidadesPorCaja, codigoBarras } = article;
-
+  
   const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
     id,
     nombre,

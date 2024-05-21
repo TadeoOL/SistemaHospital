@@ -12,11 +12,10 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from '@mui/material';
-import { neutral, success } from '../../theme/colors';
+import { success } from '../../theme/colors';
 import { ICheckoutSell } from '../../types/types';
-import { SellTableFooter } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
+import { TableFooterComponent } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
 import { hashEstatusToString, hashPaymentsToString } from '../../utils/checkoutUtils';
 import { CloseSaleModal } from './Modal/CloseSaleModal';
@@ -27,6 +26,7 @@ import { changePrincipalSellStatus } from '../../services/checkout/checkoutServi
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 import { useConnectionSocket } from '../../store/checkout/connectionSocket';
 import { CheckoutDetailsModal } from './Modal/CheckoutDetailsModal';
+import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 
 const headTitles = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Tipo de pago', 'Estatus', 'Acciones'];
 
@@ -77,7 +77,7 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
             enableEditNote={props?.enableEditNote || false}
           />
           {props.data.length > 0 && (
-            <SellTableFooter
+            <TableFooterComponent
               count={props.count}
               pageIndex={props.pageIndex}
               pageSize={props.pageSize}
@@ -87,12 +87,7 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
           )}
         </Table>
       </TableContainer>
-      {props.data.length === 0 && (
-        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', p: 6, columnGap: 2 }}>
-          <Info sx={{ color: neutral[400], width: 40, height: 40 }} />
-          <Typography sx={{ fontSize: 28, fontWeight: 700, color: neutral[400] }}>No hay ventas</Typography>
-        </Box>
-      )}
+      {props.data.length === 0 && <NoDataInTableInfo infoTitle="No hay ventas" />}
     </Card>
   );
 };

@@ -23,3 +23,6 @@ export const ReceiptEmitterView = lazy(() => import('../views/Checkout/ReceiptEm
 export const ConfigEmitterUsersView = lazy(() => import('../views/Checkout/ConfigEmitterUsersView'));
 export const CloseCheckoutHistoryView = lazy(() => import('../views/Checkout/CloseCheckoutHistoryView'));
 export const CloseCheckoutView = lazy(() => import('../views/Checkout/CloseCheckoutView'));
+export const ProgrammingRegisterView = lazy(() => import('../views/Programming/ProgrammingRegisterView'));
+export const RoomsView = lazy(() => import('../views/Programming/RoomsView'));
+export const SurgeryProcedureView = lazy(() => import('../views/Programming/SurgeryProcedureView'));

@@ -302,6 +302,7 @@ export interface IPurchaseOrder {
   id_Almacen: string;
   fueAutorizada: boolean;
   notas?: string;
+  cotizacion?: string;
 }
 
 export interface IPurchaseOrderArticle {
@@ -505,4 +506,27 @@ export interface IConfigEmitterUsers {
   id_Usuario: string;
   nombre: string;
   departamento: string[];
+}
+
+export interface IRoom {
+  id: string;
+  tipoCuarto: string;
+  nombre: string;
+  descripcion: string;
+}
+
+export interface ISurgeryProcedure {
+  id: string;
+  nombre: string;
+  duracionHospitalizacion: string;
+  duracionCirujia: string;
+  descripcion: string;
+}
+
+export interface IRegisterRoom {
+  id: string;
+  tipoCuarto: string;
+  nombre: string;
+  horaInicio: Date;
+  horaFin: Date;
 }

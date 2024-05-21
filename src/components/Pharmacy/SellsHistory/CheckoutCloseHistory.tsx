@@ -16,7 +16,7 @@ import { SearchBar } from '../../Inputs/SearchBar';
 import { Info } from '@mui/icons-material';
 import { useEffect } from 'react';
 import { useCheckoutHistoryPaginationStore } from '../../../store/pharmacy/sellsHistory/checkoutHistoryPagination';
-import { SellTableFooter } from '../ArticlesSoldHistoryTableComponent';
+import { TableFooterComponent } from '../ArticlesSoldHistoryTableComponent';
 import { ICheckoutHistory } from '../../../types/types';
 import { formatDate } from '../../../utils/pointOfSaleUtils';
 import { Report } from '../../Commons/Report/Report';
@@ -202,7 +202,7 @@ const CheckoutHistoryTable = (props: CheckoutHistoryTableProps) => {
             <SellTableHead />
             <SellTableBody data={data} />
             {data.length > 0 && (
-              <SellTableFooter
+              <TableFooterComponent
                 count={count}
                 pageIndex={pageIndex}
                 pageSize={pageSize}
