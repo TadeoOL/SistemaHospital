@@ -88,10 +88,11 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         totalVenta: res.totalVenta,
         tipoPago: res.tipoPago,
         id_UsuarioPase: res.id_UsuarioPase,
+        nombreUsuario: res.nombreUsuario
       };
       conn.invoke('SendSell', resObj);
       refetch();
-      toast.success('');
+      toast.success('Pase de Caja generado correctamente.');
       props.setOpen(false);
       setTotalAmountError(false);
       personNameRef.current.value = '';

@@ -499,6 +499,8 @@ export interface ICheckoutSell {
   estatus: number;
   id_UsuarioPase: string;
   notas?: string;
+  montoPago?: number;
+  nombreUsuario?: string;
   pdfCadena?: string;
 }
 
