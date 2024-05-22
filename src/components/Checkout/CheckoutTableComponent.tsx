@@ -30,7 +30,7 @@ import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
 
 const headTitlesCaja = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Monto de Pago', 'Tipo de pago', 'Estatus', 'Acciones'];
-const headTitlesAdmin = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Generado Por', 'Monto de Pago','Tipo de pago', 'Estatus', 'Acciones'];
+const headTitlesAdmin = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Generado Por', 'Monto de Pago','Tipo de pago', 'Estatus', 'Notas', 'Acciones'];
 
 interface CheckoutTableComponentProps {
   data: ICheckoutSell[];
@@ -193,7 +193,9 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>{data.montoPago ? '$ '+ data.montoPago : 'No se ha cobrado'}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
-
+        { admin && (
+          <TableCell>{data.notas}</TableCell>
+        )}
         <TableCell>
           {!props.hideActions ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>

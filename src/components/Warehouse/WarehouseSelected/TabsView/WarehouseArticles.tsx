@@ -497,7 +497,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({
           {article.map((a) => (
             <SubItemsTableRow
               articleR={a}
-              key={a.id}
+              key={a.Id_ArticuloExistente}
               idArticle={idArticle}
               isEditingSubRow={isEditingSubRow}
               setIsEditingSubRow={setIsEditingSubRow}
@@ -506,8 +506,8 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({
         </TableBody>
       </Table>
       {openNewLote && (
-        <Stack sx={{ display: 'flex', width: '100%' }} key={`artEd${article.at(0)?.id}`}>
-          <TableRow key={`artEdr${article.at(0)?.id}`}>
+        <Stack sx={{ display: 'flex', width: '100%' }} key={`artEd${article.at(0)?.Id_ArticuloExistente}`}>
+          <TableRow key={`artEdr${article.at(0)?.Id_ArticuloExistente}`}>
             <TableCell align="center">Nuevo Lote:</TableCell>
             <TableCell width={'20%'} align="center">
               <Typography variant="subtitle2">Fecha de caducidad</Typography>
@@ -655,9 +655,9 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
       if (textStockRef.current) {
         textStockRef.current.value = articleR.cantidad.toString();
       }
-      if (textCodeRef.current) {
-        textCodeRef.current.value = articleR.codigoBarras;
-      }
+      //if (textCodeRef.current) {
+      //  textCodeRef.current.value = articleR.codigoBarras;
+      //}
     }
   }, [isEditing]);
 
@@ -670,7 +670,7 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
     const loteModified = {
       Stock: Number(value) || undefined,
       Id_Almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
-      Id_Articulo_Lote: articleR.id,
+      Id_Articulo_Lote: articleR.Id_ArticuloExistente,
       Id_Articulo: idArticle,
       CodigoBarras: textCodeRef.current?.value || undefined,
       FechaCaducidad: textLoteDateRef.current?.value || undefined,
@@ -690,7 +690,7 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
   };
 
   return (
-    <TableRow key={articleR.id}>
+    <TableRow key={articleR.Id_ArticuloExistente}>
       <StyledTableCell align="center">{articleR.fechaCompraLote}</StyledTableCell>
       {isEditing ? (
         <>
@@ -719,7 +719,7 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
         <>
           <StyledTableCell align="center">{returnExpireDate(articleR.fechaCaducidad)}</StyledTableCell>
           <StyledTableCell align="center">{articleR.cantidad}</StyledTableCell>
-          <StyledTableCell align="center">{articleR.codigoBarras}</StyledTableCell>
+          <StyledTableCell align="center">{/*articleR.codigoBarras*/}cambio</StyledTableCell>
         </>
       )}
       <StyledTableCell align="center">
@@ -757,7 +757,7 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
         <Tooltip title="Eliminar">
           <IconButton
             onClick={() => {
-              deleteLote(articleR.id);
+              deleteLote(articleR.Id_ArticuloExistente);
             }}
           >
             <Delete />
