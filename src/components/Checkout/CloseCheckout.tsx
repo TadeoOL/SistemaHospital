@@ -35,8 +35,11 @@ export const CloseCheckout = () => {
       folio: obj.folio,
       modulo: obj.moduloProveniente,
       paciente: obj.paciente,
-      tipoPago: hashPaymentsToString[obj.tipoPago] || 'Sin tipo de pago',
       totalVenta: obj.totalVenta,
+      nombreUsuario: obj.nombreUsuario,
+      montoPago: obj.montoPago,
+      tipoPago: hashPaymentsToString[obj.tipoPago] || 'Sin tipo de pago',
+      notas: obj.notas
     }));
     return formatedData;
   };
@@ -59,11 +62,11 @@ export const CloseCheckout = () => {
               </Button>
               <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del dia</Typography>
             </Box>
-            <Report data={formatData(data)} headers={['Folio', 'Modulo', 'Paciente', 'Tipo de pago', 'Total venta']} />
+            <Report data={formatData(data)} headers={['Folio', 'Proveniente de', 'Paciente', 'Costo Total', 'Generado Por', 'Monto de Pago', 'Tipo de Pago', 'Notas']} />
           </Box>
           <CheckoutTableComponent
             data={data}
-            admin={false}
+            admin={true}
             count={count}
             pageIndex={pageIndex}
             pageSize={pageSize}
