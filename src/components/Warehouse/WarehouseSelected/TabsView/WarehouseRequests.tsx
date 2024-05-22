@@ -25,7 +25,7 @@ import { Info } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
 import { merchandiseEntryRequestPagination } from '../../../../store/warehouseStore/merchandiseEntryRequest';
-import { AceptWareHouseRequestModal } from './Modal/AcceptWarehouseRequest';
+import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest copy';
 import CloseIcon from '@mui/icons-material/Close';
 import { MerchandiseEntry } from '../../../../types/types';
 import Swal from 'sweetalert2';
@@ -345,7 +345,7 @@ export const WarehouseRequest = () => {
         }}
       >
         <React.Fragment>
-          <AceptWareHouseRequestModal
+          <AceptWareHouseRequestModalRework
             setOpen={setOpenModal}
             refetch={fetchEntryRequest}
             request={request as MerchandiseEntry}

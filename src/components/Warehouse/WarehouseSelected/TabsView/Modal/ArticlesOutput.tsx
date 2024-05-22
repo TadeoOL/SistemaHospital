@@ -10,6 +10,7 @@ import {
   FormLabel,
   Grid,
   IconButton,
+  Modal,
   Radio,
   RadioGroup,
   Stack,
@@ -28,16 +29,15 @@ import {
   tableCellClasses,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Delete, Edit, ExpandLess, ExpandMore, Save, ArrowForward } from '@mui/icons-material';
-import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { IWarehouseData } from '../../../../../types/types';
 import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { LoteSelection } from './LoteSelection';
 
 const style = {
   position: 'absolute',
@@ -89,11 +89,18 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 export type ArticlesFetched = {
-  id: string;
+  id_Articulo: string;
   nombre: string;
-  lote: { stock: number; fechaCaducidad: string; id: string }[];
+  loteChanges?: loteFetch[]; //Lote cuyos valores se pueden manipular
   stockActual: string;
   cantidad: string;
+  codigoBarras?: string;
+  lote: loteFetch[]; //Lote que debe permanecer sin cambios
+};
+type loteFetch = {
+  stock: number;
+  fechaCaducidad: string;
+  Id_ArticuloExistente: string;
 };
 
 const renderOutputView = (
@@ -156,8 +163,12 @@ export const ArticlesView = (props: ArticlesViewProps) => {
     const existingArticles = articles
       .flatMap((article) => article.lote)
       .map((article) => {
-        return { Id_ArticuloExistente: article.id, Cantidad: article.stock.toString() };
-      });
+        return {
+          Id_ArticuloExistente: article.Id_ArticuloExistente,
+          Cantidad: article.stock.toString(),
+          FechaCaducidad: article.fechaCaducidad,
+        };
+      }); //cambiar?
     const object = {
       Articulos: existingArticles,
       id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : warehouseData.id,
@@ -285,8 +296,10 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [articlesFetched, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
   const [articleSelected, setArticleSelected] = useState<ArticlesFetched | null>(null);
-  const [amount, setAmount] = useState('');
   const ExitReasonRef = useRef<HTMLInputElement | null>(null);
+  const [openLoteModal, setOpenLoteModal] = useState(false);
+  const [loteEditing, setLoteEditing] = useState(false);
+  const [loteSelected, setLoteSelected] = useState<loteFetch[] | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -297,7 +310,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
             .map((a: ArticlesFetched) => {
               return { ...a, stockActual: a.stockActual.toString() };
             })
-            .filter((a: ArticlesFetched) => !articles.some((ar) => ar.id === a.id))
+            .filter((a: ArticlesFetched) => !articles.some((ar) => ar.id_Articulo === a.id_Articulo))
         );
       } catch (error) {
         console.log(error);
@@ -308,45 +321,34 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     fetch();
   }, [search, warehouseData, articles]);
 
-  const maxAmount = useMemo(() => {
-    if (!articleSelected) return '';
-    return articleSelected.stockActual.toString();
-  }, [articleSelected]);
-
-  const handleAddArticle = () => {
-    if (!articleSelected) return toast.error('Selecciona un articulo');
-    if (amount === '0' || amount === '') return toast.error('Escribe una cantidad!');
-    if (parseInt(amount) > parseInt(articleSelected.stockActual)) return toast.error('La cantidad excede el stock!');
-
-    const loteFormatted = articleSelected.lote.map((item) => ({
-      ...item,
-      fechaCaducidad: new Date(item.fechaCaducidad).toLocaleDateString(),
-    }));
-    loteFormatted.sort((a, b) => {
-      const dateA = new Date(a.fechaCaducidad).getTime();
-      const dateB = new Date(b.fechaCaducidad).getTime();
-      return dateA - dateB;
-    });
-    let remainingAmount = parseInt(amount);
+  const handleAddArticle = (lotesArticles: any, edit: boolean) => {
     const updatedLote = [];
-    for (const item of loteFormatted) {
-      const deductedAmount = Math.min(remainingAmount, item.stock);
+    let totalAmount = 0;
+    for (const item of lotesArticles) {
       updatedLote.push({
-        ...item,
-        stock: deductedAmount,
-      });
-      remainingAmount -= item.stock;
-      if (remainingAmount <= 0) break;
+        stock: item.stock,
+        id: item.Id_ArticuloExistente,
+        fechaCaducidad: item.fechaCaducidad,
+      }); //cambiar?
+      totalAmount += item.stock;
     }
     const updatedArticle = {
       ...articleSelected,
-      cantidad: amount,
+      cantidad: totalAmount,
       lote: updatedLote,
     };
-    setArticles((prev: any) => [...prev, updatedArticle]);
-    setOriginalArticlesSelected((prev: any) => [...prev, articleSelected]);
-    setArticleSelected(null);
-    setAmount('');
+    if (edit) {
+      const direction = articles.findIndex((art) => art.id_Articulo === (articleSelected?.id_Articulo || ''));
+      articles.splice(direction, 1);
+      setArticles([...articles, updatedArticle]);
+      setOriginalArticlesSelected([...articles, articleSelected]);
+      setArticleSelected(null);
+      setLoteEditing(false);
+    } else {
+      setArticles((prev: any) => [...prev, updatedArticle]);
+      setOriginalArticlesSelected((prev: any) => [...prev, articleSelected]);
+      setArticleSelected(null);
+    }
   };
 
   const handleOtherReassonChangeText = (event: any) => {
@@ -375,6 +377,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               loadingText="Cargando artículos..."
               onChange={(e, val) => {
                 e.stopPropagation();
+                setOpenLoteModal(true);
                 setArticleSelected(val);
               }}
               getOptionLabel={(option) => option.nombre}
@@ -384,8 +387,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  // error={providerError}
-                  // helperText={providerError && 'Selecciona un subalmacen'}
                   placeholder="Artículos..."
                   sx={{ width: '50%' }}
                   onChange={(e) => setSearch(e.target.value)}
@@ -393,31 +394,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               )}
             />
           </Stack>
-          <Stack flexDirection={'column'} width={'50%'}>
-            <Typography>Cantidad</Typography>
-            <Box sx={{ display: 'flex', flex: 1, columnGap: 1, flexDirection: 'column' }}>
-              <TextField
-                placeholder="Cantidad"
-                value={amount}
-                disabled={!articleSelected}
-                onChange={(e) => {
-                  if (!articleSelected) return;
-                  if (!isValidInteger(e.target.value)) return;
-                  if (parseInt(e.target.value) > parseInt(articleSelected.stockActual)) return;
-                  setAmount(e.target.value);
-                }}
-                sx={{ width: '50%' }}
-              />
-              <Typography variant="caption" color="error">
-                Cantidad maxima: {maxAmount}
-              </Typography>
-            </Box>
-          </Stack>
-          <Box sx={{ heigth: 25 }}>
-            <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticle()}>
-              Agregar
-            </Button>
-          </Box>
         </Stack>
 
         <ArticlesTable
@@ -425,6 +401,10 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           setArticles={setArticles}
           isResume={false}
           originalArticlesSelected={originalArticlesSelected}
+          setLoteEditing={setLoteEditing}
+          setLoteSelected={setLoteSelected}
+          setArticleSelected={setArticleSelected}
+          setOpenLoteModal={setOpenLoteModal}
         />
         <Divider />
         <Stack flexDirection={'row'}>
@@ -459,15 +439,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
                 options={warehouseData.subAlmacenes}
                 value={subWarehouse}
                 noOptionsText="No existen registros de Sub Almacenes"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    // error={providerError}
-                    // helperText={providerError && 'Selecciona un subalmacen'}
-                    placeholder="Sub Almacén..."
-                    fullWidth
-                  />
-                )}
+                renderInput={(params) => <TextField {...params} placeholder="Sub Almacén..." fullWidth />}
               />
             ) : (
               <>
@@ -513,18 +485,27 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               onChange={(e) => setReasonMessage(e.target.value)}
             >
               {radioOptions.map((option) => (
-                <FormControlLabel
-                  key={option}
-                  value={option} // Valor asociado al radio button
-                  control={<Radio />} // Componente de radio button
-                  label={option} // Etiqueta del radio button
-                />
+                <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
               ))}
             </RadioGroup>
           </Box>
         </Stack>
         <Typography>Motivo de salida seleccionado: {reasonMessage}</Typography>
       </Stack>
+      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
+        <>
+          <LoteSelection
+            setOpen={setOpenLoteModal}
+            open={openLoteModal}
+            lotes={articleSelected?.lote || []}
+            articleName={articleSelected?.nombre || ''}
+            addFunction={handleAddArticle}
+            setEditing={setLoteEditing}
+            editing={loteEditing}
+            selectedLotes={loteSelected as loteFetch[]}
+          />
+        </>
+      </Modal>
     </>
   );
 };
@@ -534,8 +515,21 @@ interface ArticlesTableProps {
   setArticles?: Function;
   isResume: boolean;
   originalArticlesSelected?: ArticlesFetched[];
+  setLoteEditing: Function;
+  setLoteSelected: Function;
+  setArticleSelected: Function;
+  setOpenLoteModal: Function;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, originalArticlesSelected }) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({
+  articles,
+  setArticles,
+  isResume,
+  originalArticlesSelected,
+  setLoteEditing,
+  setLoteSelected,
+  setArticleSelected,
+  setOpenLoteModal,
+}) => {
   return (
     <Card>
       <TableContainer>
@@ -551,10 +545,14 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, is
             {articles.map((article) => (
               <ArticlesTableRow
                 article={article}
-                key={article.id}
+                key={article.id_Articulo}
                 setArticles={setArticles as Function}
                 articles={articles}
                 isResume={isResume}
+                setLoteEditing={setLoteEditing}
+                setLoteSelected={setLoteSelected}
+                setOpenLoteModal={setOpenLoteModal}
+                setArticleSelected={setArticleSelected}
                 originalArticlesSelected={originalArticlesSelected as ArticlesFetched[]}
               />
             ))}
@@ -571,6 +569,10 @@ interface ArticlesTableRowProps {
   setArticles: Function;
   isResume: boolean;
   originalArticlesSelected: ArticlesFetched[];
+  setLoteEditing: Function;
+  setLoteSelected: Function;
+  setArticleSelected: Function;
+  setOpenLoteModal: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
@@ -578,49 +580,12 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   articles,
   isResume,
   originalArticlesSelected,
+  setLoteEditing,
+  setLoteSelected,
+  setArticleSelected,
+  setOpenLoteModal,
 }) => {
   const [open, setOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleDelete = () => {
-    const articlesFilter = articles.filter((a) => a.id !== article.id);
-    setArticles(articlesFilter);
-  };
-
-  const handleEditAmount = (e: string) => {
-    const originalArticleIndex = originalArticlesSelected.findIndex((item) => item.id === article.id);
-    if (originalArticleIndex === -1) return;
-    if (!isValidInteger(e)) return;
-
-    const cantidad = e.trim() === '' || isNaN(parseInt(e)) ? '' : parseInt(e).toString();
-    if (parseInt(cantidad) > parseInt(originalArticlesSelected[originalArticleIndex].stockActual)) {
-      return toast.error('La cantidad excede el stock!');
-    }
-
-    const updatedLote = [];
-    let remainingAmount = parseInt(cantidad);
-    if (parseInt(cantidad) > 0) {
-      for (const item of originalArticlesSelected[originalArticleIndex].lote) {
-        const deductedAmount = Math.min(remainingAmount, item.stock);
-        updatedLote.push({
-          ...item,
-          stock: deductedAmount,
-        });
-        remainingAmount -= deductedAmount;
-        if (remainingAmount <= 0) break;
-      }
-    }
-
-    const updatedArticle = {
-      ...article,
-      cantidad: cantidad.toString(),
-      lote: updatedLote.length === 0 ? article.lote : updatedLote,
-    };
-
-    const articlesCopy = [...articles];
-    articlesCopy[originalArticleIndex] = updatedArticle;
-    setArticles(articlesCopy);
-  };
 
   return (
     <React.Fragment>
@@ -631,33 +596,28 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             {article.nombre}
           </Box>
         </TableCell>
-        <TableCell>
-          {!isEditing ? (
-            article.cantidad
-          ) : (
-            <TextField
-              placeholder="Cantidad"
-              inputProps={{ className: 'tableCell' }}
-              value={article.cantidad}
-              onChange={(e) => handleEditAmount(e.target.value)}
-            />
-          )}
-        </TableCell>
+        <TableCell>{article.cantidad}</TableCell>
         {!isResume && (
           <TableCell>
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
-                  if (article.cantidad === '' || article.cantidad === '0')
-                    return toast.error('Para guardar escribe una cantidad valida!');
-                  setIsEditing(!isEditing);
+                  setLoteEditing(true);
+                  setLoteSelected(article.lote);
+                  setArticleSelected(originalArticlesSelected.find((art) => art.id_Articulo === article.id_Articulo));
+                  setOpenLoteModal(true);
                 }}
               >
-                {!isEditing ? <Edit /> : <Save />}
+                <Edit />
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
-              <IconButton onClick={() => handleDelete()}>
+              <IconButton
+                onClick={() => {
+                  console.log('orita veo');
+                  setArticles(articles.filter((art) => art.id_Articulo !== article.id_Articulo));
+                }}
+              >
                 <Delete />
               </IconButton>
             </Tooltip>
@@ -688,7 +648,7 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
         </TableHead>
         <TableBody>
           {articles.map((a) => (
-            <TableRow key={a.id}>
+            <TableRow key={a.Id_ArticuloExistente}>
               <NestedTableCell>{a.stock}</NestedTableCell>
               <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
             </TableRow>
@@ -736,7 +696,14 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, ra
           )}
         </Grid>
       </Grid>
-      <ArticlesTable articles={articles} isResume={true} />
+      <ArticlesTable
+        articles={articles}
+        isResume={true}
+        setLoteEditing={() => {}}
+        setLoteSelected={() => {}}
+        setArticleSelected={() => {}}
+        setOpenLoteModal={() => {}}
+      />
     </Stack>
   );
 };

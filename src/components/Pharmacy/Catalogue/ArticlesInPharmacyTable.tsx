@@ -338,11 +338,11 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
         </TableHead>
         <TableBody>
           {article.map((a) => (
-            <TableRow key={a.id}>
+            <TableRow key={a.Id_ArticuloExistente}>
               <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
               <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
               <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
-              <StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>
+              {/*<StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>*/}
             </TableRow>
           ))}
         </TableBody>

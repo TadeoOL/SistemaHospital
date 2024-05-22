@@ -1,11 +1,12 @@
-import { Box, Button, Card, CircularProgress, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Grid, Modal, Stack, Tooltip, Typography } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
-import { IPosArticle } from '../../../types/types';
+import { IArticle2 } from '../../../types/types';
 import { neutral } from '../../../theme/colors';
 import { Info } from '@mui/icons-material';
+import { LoteSelection } from '../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelection';
 
 const scrollBar = {
   '&::-webkit-scrollbar': {
@@ -51,24 +52,74 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
 
+  const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
+  const [openLoteModal, setOpenLoteModal] = useState(false);
+  const [loteEditing, setLoteEditing] = useState(false);
+
   const articlesToSale = useMemo(
-    () => data.filter((article) => !articlesOnBasket.some((articleBasket) => articleBasket.id === article.id)),
+    () =>
+      data.filter(
+        (article) => !articlesOnBasket.some((articleBasket) => articleBasket.id_Articulo === article.id_Articulo)
+      ),
     [articlesOnBasket, data]
   );
   const hasMorePages = useMemo(() => {
     return pageIndex < pageCount;
   }, [pageIndex, pageCount]);
 
-  console.log({ pageIndex });
-  console.log({ pageCount });
-  const handleAddArticleToBasket = (article: IPosArticle) => {
-    if (articlesOnBasket.some((a) => a.id === article.id)) return;
+  //console.log({ pageIndex });
+  //console.log({ pageCount });
+  const handleAddArticleToBasket = (article: IArticle2) => {
+    console.log(article);
+    if (articlesOnBasket.some((a) => a.id_Articulo === article.id_Articulo)) return;
     const articleModified = data
       .map((a) => {
         return { ...a, cantidad: 1 };
       })
-      .filter((a) => a.id === article.id);
+      .filter((a) => a.id_Articulo === article.id_Articulo);
     setArticlesOnBasket([...articlesOnBasket, ...articleModified]);
+  };
+
+  const handleAddArticle = (articles: any, edit: boolean) => {
+    /*
+    const updatedLote = [];
+    let totalAmount = 0;
+    for (const item of articles) {
+      updatedLote.push({
+        stock: item.stock,
+        Id_ArticuloExistente: item.id_ArticuloExistente,
+        fechaCaducidad: item.fechaCaducidad,
+      });
+      totalAmount += item.stock;
+    }
+    const updatedArticle = {
+      ...articleSelected,
+      cantidad: totalAmount,
+      loteChanges: updatedLote,
+    };
+    console.log(updatedArticle);
+    if (temporalLoteEditing) {
+      const direction = articlesToSelect.findIndex(
+        (art) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
+      );
+      articlesToSelect.splice(direction, 1);
+      setArticles([...(articles as any), updatedArticle]);
+      setArticleSelected(null);
+      setTemporalLoteEditing(false);
+      return;
+    }
+    if (edit) {
+      const direction = articles.findIndex(
+        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
+      );
+      articles.splice(direction, 1);
+      setArticles([...(articles as any), updatedArticle]);
+      setArticleSelected(null);
+      setLoteEditing(false);
+    } else {
+      setArticles((prev: any) => [...prev, updatedArticle]);
+      setArticleSelected(null);
+    }*/
   };
 
   return (
@@ -79,7 +130,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           <Grid container spacing={2} sx={{ py: 2 }}>
             {articlesToSale.length !== 0
               ? articlesToSale.map((article) => (
-                  <Grid item xs={12} lg={3} key={article.id}>
+                  <Grid item xs={12} lg={3} key={article.id_Articulo}>
                     <AnimateButton>
                       <Card
                         sx={{
@@ -97,6 +148,9 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           boxShadow: 3,
                         }}
                         onClick={() => {
+                          setArticleSelected(article);
+                          //setLoteEditing(true)
+                          setOpenLoteModal(true);
                           handleAddArticleToBasket(article);
                         }}
                       >
@@ -122,12 +176,13 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           }}
                         >
                           <Box sx={{ display: 'flex', columnGap: 1 }}>
-                            <Typography sx={{ fontSize: 13, fontWeight: 600 }}>Precio: ${article.precio}</Typography>
+                            <Typography sx={{ fontSize: 13, fontWeight: 600 }}>
+                              Precio: ${article.precioVenta}
+                            </Typography>
                             <Typography sx={{ fontSize: 13, fontWeight: 500, color: neutral[400] }}>
-                              / {article.cantidad} pza.
+                              / {article.stockActual} pza.
                             </Typography>
                           </Box>
-                          <Typography sx={{ fontSize: 9, fontWeight: 500 }}>{article.fechaCaducidad}</Typography>
                         </Box>
                       </Card>
                     </AnimateButton>
@@ -175,6 +230,18 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           )}
         </>
       </Stack>
+      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
+        <LoteSelection
+          setOpen={setOpenLoteModal}
+          open={openLoteModal}
+          lotes={(articleSelected?.lote as any) || []}
+          articleName={articleSelected?.nombre || ''}
+          addFunction={handleAddArticle}
+          setEditing={setLoteEditing}
+          editing={loteEditing}
+          //selectedLotes={loteSelected as loteFetch[]}
+        />
+      </Modal>
     </Stack>
   );
 };
