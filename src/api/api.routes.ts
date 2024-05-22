@@ -337,7 +337,7 @@ export const addNewArticle = async (article: IArticle) => {
     precioVenta,
     esCaja,
     unidadesPorCaja,
-    codigoBarras
+    codigoBarras,
   });
   return res.data;
 };

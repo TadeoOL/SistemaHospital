@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { IPosArticle, IUserSalesRegister } from '../../../types/types';
+import { IArticle2, IUserSalesRegister } from '../../../types/types';
 import { devtools } from 'zustand/middleware';
 
 const initialValuesUserSalesData: IUserSalesRegister = {
@@ -21,7 +21,7 @@ const initialValues = {
 };
 
 interface State {
-  articlesOnBasket: IPosArticle[];
+  articlesOnBasket: IArticle2[];
   paymentMethod: number;
   subTotal: number;
   iva: number;
@@ -30,7 +30,7 @@ interface State {
 }
 
 interface Action {
-  setArticlesOnBasket: (articlesOnBasket: IPosArticle[]) => void;
+  setArticlesOnBasket: (articlesOnBasket: IArticle2[]) => void;
   setPaymentMethod: (paymentMethod: number) => void;
   setSubTotal: (subTotal: number) => void;
   setIva: (iva: number) => void;
@@ -44,7 +44,7 @@ export const usePosOrderArticlesStore = createWithEqualityFn<State & Action>()(
     ...initialValues,
     userSalesRegisterData: initialValuesUserSalesData,
     setPaymentMethod: (paymentMethod: number) => set({ paymentMethod }),
-    setArticlesOnBasket: (articlesOnBasket: IPosArticle[]) => set({ articlesOnBasket }),
+    setArticlesOnBasket: (articlesOnBasket: IArticle2[]) => set({ articlesOnBasket }),
     setSubTotal: (subTotal: number) => set({ subTotal }),
     setIva: (iva: number) => set({ iva }),
     setTotal: (total: number) => set({ total }),

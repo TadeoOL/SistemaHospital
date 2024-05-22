@@ -1,12 +1,15 @@
 import {
   Autocomplete,
   Box,
+  Modal,
   Button,
   Card,
   CircularProgress,
   Radio,
   IconButton,
   Stack,
+  styled,
+  Collapse,
   Table,
   TableBody,
   FormControlLabel,
@@ -19,6 +22,8 @@ import {
   Tooltip,
   Typography,
   createFilterOptions,
+  tableCellClasses,
+  alpha,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,13 +39,12 @@ import {
 } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { isValidInteger } from '../../../../utils/functions/dataUtils';
+//import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import AnimateButton from '../../../@extended/AnimateButton';
-import { useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
-import { shallow } from 'zustand/shallow';
-import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
+import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore, WarningAmber } from '@mui/icons-material';
 import { IArticle, IArticlesPackage } from '../../../../types/types';
 import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
+import { LoteSelection } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelection';
 
 const OPTIONS_LIMIT = 5;
 const filterArticleOptions = createFilterOptions<IArticle>({
@@ -74,6 +78,24 @@ const style = {
     outline: '1px solid slategrey',
   },
 };
+const NestedTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    border: 'hidden',
+    fontSize: 11,
+  },
+  [`&.${tableCellClasses.root}`]: {
+    paddingLeft: '20px',
+    width: '50%',
+    paddingTop: '5px',
+    paddingBottom: '5px',
+    justifyContent: 'center',
+  },
+}));
 
 export const ArticlesExitModal = (props: {
   setOpen: Function;
@@ -118,8 +140,47 @@ export const ArticlesExitModal = (props: {
       setIsLoadingWarehouse(true);
       try {
         const res = await getArticlesByWarehouseIdAndSearch(props.warehouseId, '');
+        console.log('res articucklos', res);
+        const fokinshi = [
+          {
+            id_Articulo: 'article1',
+            nombre: 'Articulo 1',
+            lote: [
+              { stock: 10, fechaCaducidad: '2024-06-01', Id_ArticuloExistente: 'lote1-1' },
+              { stock: 20, fechaCaducidad: '2024-07-01', Id_ArticuloExistente: 'lote1-2' },
+              { stock: 15, fechaCaducidad: '2024-08-01', Id_ArticuloExistente: 'lote1-3' },
+            ],
+            stockActual: '45',
+            cantidad: '45',
+            codigoBarras: '1234567890123',
+          },
+          {
+            id_Articulo: 'article2',
+            nombre: 'Articulo 2',
+            lote: [
+              { stock: 5, fechaCaducidad: '2024-06-10', Id_ArticuloExistente: 'lote2-1' },
+              { stock: 7, fechaCaducidad: '2024-07-10', Id_ArticuloExistente: 'lote2-2' },
+              { stock: 1, fechaCaducidad: '2024-08-10', Id_ArticuloExistente: 'lote2-3' },
+            ],
+            stockActual: '13',
+            cantidad: '13',
+            codigoBarras: '9876543210987',
+          },
+          {
+            id_Articulo: 'article3',
+            nombre: 'Articulo 3',
+            lote: [
+              { stock: 3, fechaCaducidad: '2024-05-15', Id_ArticuloExistente: 'lote3-1' },
+              { stock: 4, fechaCaducidad: '2024-06-15', Id_ArticuloExistente: 'lote3-2' },
+              { stock: 5, fechaCaducidad: '2024-07-15', Id_ArticuloExistente: 'lote3-3' },
+            ],
+            stockActual: '12',
+            cantidad: '12',
+            codigoBarras: '4567890123456',
+          },
+        ];
         setArticlesFetchedAM(
-          res.data.map((a: ArticlesFetched) => {
+          fokinshi.map((a: ArticlesFetched) => {
             return { ...a, stockActual: a.stockActual.toString() };
           })
         );
@@ -133,24 +194,19 @@ export const ArticlesExitModal = (props: {
     };
     fetch();
   }, []);
-
-  const { setArticles, articles, setArticlesFetched, articlesFetched } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      warehouseSelected: state.warehouseSelected,
-      setWarehouseSelected: state.setWarehouseSelected,
-      setArticles: state.setArticles,
-      articles: state.articles,
-      setArticlesFetched: state.setArticlesFetched,
-      articlesFetched: state.articlesFetched,
-    }),
-    shallow
-  );
+  const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
+  //const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
   const [nurseSelected, setNurseSelected] = useState<string>();
   const [roomSelected, setRoomSelected] = useState<string | null>();
   const [roomError, setRoomError] = useState(false);
   const [articleError, setArticleError] = useState(false);
+  const [openLoteModal, setOpenLoteModal] = useState(false);
+  const [loteEditing, setLoteEditing] = useState(false);
+  const [temporalLoteEditing, setTemporalLoteEditing] = useState(false);
+  //const [loteSelected, setLoteSelected] = useState<loteFetch[] | null>(null);
+  const [articlesToSelect, setArticlesToSelect] = useState<ArticlesFetched[] | []>([]);
 
   useEffect(() => {
     setArticleSelected(null);
@@ -161,7 +217,8 @@ export const ArticlesExitModal = (props: {
       setArticleError(true);
       return toast.warning('Selecciona un articulo!');
     }
-    const objectArticle = {
+
+    /*const objectArticle = {
       id: articleSelected.id,
       name: articleSelected.nombre,
       amount: 1,
@@ -178,40 +235,81 @@ export const ArticlesExitModal = (props: {
     setArticles([...articles, objectArticle]);
     setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
     setArticleSelected(null);
+    */
+  };
+
+  const handleAddArticle = (articles: any, edit: boolean) => {
+    const updatedLote = [];
+    let totalAmount = 0;
+    for (const item of articles) {
+      updatedLote.push({
+        stock: item.stock,
+        Id_ArticuloExistente: item.id_ArticuloExistente,
+        fechaCaducidad: item.fechaCaducidad,
+      });
+      totalAmount += item.stock;
+    }
+    const updatedArticle = {
+      ...articleSelected,
+      cantidad: totalAmount,
+      loteChanges: updatedLote,
+    };
+    console.log(updatedArticle);
+    if (temporalLoteEditing) {
+      const direction = articlesToSelect.findIndex(
+        (art) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
+      );
+      articlesToSelect.splice(direction, 1);
+      setArticles([...(articles as any), updatedArticle]);
+      setArticleSelected(null);
+      setTemporalLoteEditing(false);
+      return;
+    }
+    if (edit) {
+      const direction = articles.findIndex(
+        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
+      );
+      articles.splice(direction, 1);
+      setArticles([...(articles as any), updatedArticle]);
+      setArticleSelected(null);
+      setLoteEditing(false);
+    } else {
+      setArticles((prev: any) => [...prev, updatedArticle]);
+      setArticleSelected(null);
+    }
   };
 
   const handleAddArticlesFromPackage = (packageL: IArticlesPackage) => {
-    let objectFiltered = articlesFetched;
-    let dataArticlesState = dataWerehouseSelectedArticles;
-    packageL.contenido.forEach((articulo) => {
-      objectFiltered = objectFiltered.filter((a) => a.id !== articulo.id);
-      dataArticlesState = dataArticlesState.filter((a) => a.id !== articulo.id);
-    });
-
-    setArticlesFetched(objectFiltered);
-    setDataWerehouseArticlesSelected(dataArticlesState);
-    setArticles(
-      packageL.contenido.map((art) => ({
-        name: art.nombre,
-        amount: art.cantidad,
-        id: art.id,
-        stock: Number(articlesFetchedAM.find((f) => f.id === art.id)?.stockActual) || 0,
-        lote: articlesFetchedAM
-          .find((f) => f.id === art.id)
-          ?.lote?.sort((a, b) => {
-            return new Date(b.fechaCaducidad).getTime() - new Date(a.fechaCaducidad).getTime();
-          }),
-      }))
-    );
-    setArticleSelected(null);
+    const formatPackageL = packageL.contenido
+      ?.filter(
+        (val: any) =>
+          !(
+            articles.map((art) => art.id_Articulo).includes(val.id) ||
+            articlesToSelect.map((art) => art.id_Articulo).includes(val.id)
+          )
+      )
+      .map((artPack: any) => ({
+        id_Articulo: artPack.id,
+        nombre: artPack.nombre,
+        lote: artPack?.lote
+          ? artPack.lote.map((artLote: any) => ({
+              ...artLote,
+            }))
+          : [],
+        cantidad: artPack.cantidad.toString(),
+        stockActual: '0',
+        //cambio quiza agregar codigo de barras
+      }));
+    setArticlesToSelect(formatPackageL as any[]);
   };
 
   const handleFetchArticlesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
+      console.log('esta puta mierda es la q se cicla');
       const res = await getArticlesByWarehouseIdAndSearch(props.warehouseId, '');
       const transformedData = res.data.map((item: any) => ({
-        id: item.id,
+        id: item.id_Articulo,
         nombre: item.nombre,
         stock: item.stockActual,
         lote: item.lote,
@@ -231,8 +329,10 @@ export const ArticlesExitModal = (props: {
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getPackagesByWarehouseId(wareH);
+      console.log('paketaxos', res);
       setDataWerehousePackagesSelected(res);
       const resNurses = await getNursesUsers();
+      console.log(resNurses);
       setNursesData(resNurses);
     } catch (error) {
       console.log(error);
@@ -279,17 +379,24 @@ export const ArticlesExitModal = (props: {
       let articlesArticlesExit: any = [];
       for (const article of articles as any) {
         //(articles as any).forEach((article: any) => {
-        let amountArt = article.amount;
-        if (amountArt > article.stock) {
+        //let amountArt = article.amount;
+        /*if (amountArt > article.stock) {
           toast.error(`La cantidad de salida del articulo ${article.name} esta superando la existencias actuales! `);
           setLoadingSubmit(false);
           return;
-        }
-        article.lote.forEach((loteA: any) => {
-          if (amountArt > loteA.stock) {
+        }*/
+        console.log('articulo vuelta', article);
+        article.loteChanges.forEach((loteA: any) => {
+          articlesArticlesExit.push({
+            Id_ArticuloExistente: loteA.Id_ArticuloExistente,
+            Cantidad: loteA.stock.toString(),
+            fechaCaducidad: loteA.fechaCaducidad,
+          });
+          /*if (amountArt > loteA.stock) {
             articlesArticlesExit.push({
               Id_ArticuloExistente: loteA.id,
               Cantidad: loteA.stock.toString(),
+              fechaCaducidad: loteA.fechaCaducidad
             });
             amountArt = amountArt - loteA.stock;
           } else if (amountArt > 0) {
@@ -298,7 +405,7 @@ export const ArticlesExitModal = (props: {
               Cantidad: amountArt.toString(),
             });
             amountArt = 0;
-          }
+          }*/
         });
       }
       const object = {
@@ -309,6 +416,8 @@ export const ArticlesExitModal = (props: {
         SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : `${reasonMessage} ${roomSelected}`,
         SolicitadoPor: nurseSelected,
       };
+      console.log('aleluya', object);
+      return;
       if (props.articlesExit) {
         await articlesOutputToWarehouse(object);
       } else {
@@ -348,7 +457,9 @@ export const ArticlesExitModal = (props: {
                 onChange={(e, val) => {
                   e.stopPropagation();
                   setPackageSelected(val);
-                  handleAddArticlesFromPackage(val as IArticlesPackage);
+                  if (val !== null) {
+                    handleAddArticlesFromPackage(val as IArticlesPackage);
+                  }
                 }}
                 loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
                 getOptionLabel={(option) => option.nombre}
@@ -378,6 +489,17 @@ export const ArticlesExitModal = (props: {
                   filterOptions={filterArticleOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
+                    //console.log('ckickeisho', val);
+                    if (val !== null) {
+                      if (
+                        !(
+                          articles.map((art) => art.id_Articulo).includes(val.id) ||
+                          articlesToSelect.map((art) => art.id_Articulo).includes(val.id)
+                        )
+                      ) {
+                        setOpenLoteModal(true);
+                      }
+                    }
                     setArticleSelected(val);
                     setArticleError(false);
                   }}
@@ -415,7 +537,20 @@ export const ArticlesExitModal = (props: {
                 </AnimateButton>
               </Box>
             </Box>
-            <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} initialData={articlesFetchedAM} />
+            <ArticlesTable
+              setOpen={props.setOpen}
+              submitData={onSubmit}
+              initialData={articlesFetchedAM}
+              setLoteEditing={setLoteEditing}
+              //setLoteSelected={setLoteSelected}
+              setArticleSelected={setArticleSelected}
+              setOpenLoteModal={setOpenLoteModal}
+              setArticles={setArticles}
+              articles={articles || []}
+              articlesPending={articlesToSelect}
+              setArticlesPending={setArticlesToSelect}
+              setTemporalLoteEditing={setTemporalLoteEditing}
+            />
             <Box
               sx={{
                 flex: 1,
@@ -562,100 +697,40 @@ export const ArticlesExitModal = (props: {
           </Stack>
         </form>
       )}
+      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
+        <>
+          <LoteSelection
+            setOpen={setOpenLoteModal}
+            open={openLoteModal}
+            lotes={(articleSelected?.lote as any) || []}
+            articleName={articleSelected?.nombre || ''}
+            addFunction={handleAddArticle}
+            setEditing={setLoteEditing}
+            editing={loteEditing}
+            //selectedLotes={loteSelected as loteFetch[]}
+          />
+        </>
+      </Modal>
     </Box>
   );
 };
 
-const ArticlesTable = (props: { setOpen: Function; submitData: Function; initialData: ArticlesFetched[] }) => {
-  const { articles, articlesFetched, setArticlesFetched, setArticles, step, setProvider } =
-    useDirectlyPurchaseRequestOrderStore(
-      (state) => ({
-        articles: state.articles,
-        articlesFetched: state.articlesFetched,
-        setArticlesFetched: state.setArticlesFetched,
-        setArticles: state.setArticles,
-        step: state.step,
-        setProvider: state.setProvider,
-      }),
-      shallow
-    );
-  const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
-  const [quantity, setQuantity] = useState<any>({});
-  const [isChargingPrices, setIsChargingPrices] = useState(true);
-
-  const updateArticlesData = () => {
-    const newQuantity: any = {};
-    articles.forEach((article) => {
-      newQuantity[article.id] = article.amount.toString();
-    });
-    setQuantity(newQuantity);
-    setIsChargingPrices(false);
-  };
-
-  useEffect(() => {
-    updateArticlesData();
-  }, [step, articles]);
-
-  useEffect(() => {
-    setProvider(null);
-  }, []);
-
-  const toggleEdit = (id: string) => {
-    const newEditingIds = new Set(editingIds);
-    if (newEditingIds.has(id)) {
-      newEditingIds.delete(id);
-    } else {
-      newEditingIds.add(id);
-    }
-    setEditingIds(newEditingIds);
-  };
-
-  const handleDeleteArticle = (id: string) => {
-    const articlesFiltered = articles.filter((a) => a.id !== id);
-    const articleToAdd = articles.find((a) => a.id === id);
-    const articleToAddModified = articleToAdd
-      ? {
-          id: articleToAdd.id,
-          nombre: articleToAdd.name,
-          precio: 0,
-        }
-      : null;
-    if (articleToAddModified) {
-      setArticlesFetched([...articlesFetched, articleToAddModified]);
-    }
-    setArticles(articlesFiltered);
-  };
-
-  const handleSaveQuantity = (id: string, newQuantity: string) => {
-    if (!newQuantity || parseFloat(newQuantity) <= 0) return;
-
-    const articleToUpdate = props.initialData.find((article) => article.id === id);
-    if (articleToUpdate) {
-      const newAmount = parseFloat(newQuantity);
-      const articleStock = articleToUpdate.stockActual ? parseFloat(articleToUpdate.stockActual) : 0;
-      if (newAmount > articleStock) {
-        toast.warning('La cantidad excede el stock disponible');
-        return;
-      }
-
-      const updatedArticles = articles.map((article) => {
-        if (article.id === id) {
-          return {
-            ...article,
-            amount: newAmount,
-          };
-        }
-        return article;
-      });
-      setArticles(updatedArticles);
-    }
-  };
-
-  useEffect(() => {
-    setArticles([]);
-  }, [props.setOpen]);
-
-  if (isChargingPrices)
+const ArticlesTable = (props: {
+  setOpen: Function;
+  submitData: Function;
+  initialData: ArticlesFetched[];
+  articles: ArticlesFetched[];
+  setArticles: Function;
+  setLoteEditing: Function;
+  //setLoteSelected: Function;
+  setArticleSelected: Function;
+  setOpenLoteModal: Function;
+  articlesPending: ArticlesFetched[] | null;
+  setArticlesPending: Function;
+  setTemporalLoteEditing: Function;
+}) => {
+  if (false)
+    //cambiar
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 4 }}>
         <CircularProgress />
@@ -674,63 +749,48 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function; initial
               </TableRow>
             </TableHead>
             <TableBody>
-              {articles
-                .slice()
-                .reverse()
-                .map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell>{a.name}</TableCell>
-                    <TableCell>
-                      {editingIds.has(a.id) ? (
-                        <>
-                          <TextField
-                            label="Cantidad"
-                            size="small"
-                            InputLabelProps={{ style: { fontSize: 12 } }}
-                            value={quantity[a.id] || ''}
-                            onChange={(e) => {
-                              if (!isValidInteger(e.target.value)) return;
-                              setQuantity({
-                                ...quantity,
-                                [a.id]: e.target.value,
-                              });
-                            }}
-                          />
-                          <Typography>stock max: {a.stock} </Typography>
-                        </>
-                      ) : (
-                        a.amount
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <>
-                        <Tooltip title={editingIds.has(a.id) ? 'Guardar' : 'Editar'}>
-                          <IconButton
-                            onClick={() => {
-                              if (editingIds.has(a.id)) {
-                                handleSaveQuantity(a.id, quantity[a.id]);
-                                toggleEdit(a.id);
-                              } else {
-                                toggleEdit(a.id);
-                              }
-                            }}
-                          >
-                            {editingIds.has(a.id) ? <Save /> : <Edit />}
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Eliminar">
-                          <IconButton onClick={() => handleDeleteArticle(a.id)}>
-                            <Delete />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {props.articles?.length > 0 ? (
+                props.articles
+                  ?.slice()
+                  .reverse()
+                  .map((a) => (
+                    <ArticlesRows
+                      key={a.id_Articulo}
+                      setLoteEditing={props.setLoteEditing}
+                      setArticleSelected={props.setArticleSelected}
+                      setOpenLoteModal={props.setOpenLoteModal}
+                      setArticles={props.setArticles}
+                      articleRow={a}
+                      articles={props.articles}
+                    />
+                  ))
+              ) : (
+                <></>
+              )}
+              {props?.articlesPending && props.articlesPending?.length > 0 ? (
+                props.articlesPending
+                  ?.slice()
+                  .reverse()
+                  .map((a) => (
+                    <TemporalArticlesRows
+                      key={a.id_Articulo}
+                      setLoteEditing={props.setLoteEditing}
+                      setArticleSelected={props.setArticleSelected}
+                      setOpenLoteModal={props.setOpenLoteModal}
+                      setArticles={props.setArticlesPending}
+                      articleRow={a}
+                      articles={props.articlesPending}
+                      setTemporalLoteEditing={props.setTemporalLoteEditing}
+                    />
+                  ))
+              ) : (
+                <></>
+              )}
+              {}
             </TableBody>
           </Table>
         </TableContainer>
-        {articles.length === 0 && (
+        {props.articles.length === 0 && (
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
             <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
             <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
@@ -739,6 +799,165 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function; initial
           </Box>
         )}
       </Card>
+    </>
+  );
+};
+
+interface ArticlesRowsProps {
+  setLoteEditing: Function;
+  setArticleSelected: Function;
+  setOpenLoteModal: Function;
+  setArticles: Function;
+  articleRow: any;
+  articles: any;
+}
+const ArticlesRows: React.FC<ArticlesRowsProps> = ({
+  setLoteEditing,
+  setArticleSelected,
+  setOpenLoteModal,
+  setArticles,
+  articleRow,
+  articles,
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <TableRow key={articleRow.id_Articulo}>
+        <TableCell>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <IconButton onClick={() => setOpen(!open)}>{open ? <ExpandLess /> : <ExpandMore />}</IconButton>
+            {articleRow.nombre}
+          </Box>
+        </TableCell>
+        <TableCell>{articleRow.cantidad}</TableCell>
+        <TableCell>
+          <>
+            <Tooltip title={'Editar'}>
+              <IconButton
+                onClick={() => {
+                  setLoteEditing(true);
+                  setArticleSelected(articleRow);
+                  setOpenLoteModal(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Eliminar">
+              <IconButton
+                onClick={() => {
+                  setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </>
+        </TableCell>
+      </TableRow>
+      {articleRow?.lote?.length > 0 && (
+        <TableRow>
+          <TableCell colSpan={3} sx={{ padding: 0 }} key={`${articleRow.id_Articulo}${articleRow.nombre}`}>
+            <NestedArticlesTable articles={articleRow.loteChanges} open={open} />
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  );
+};
+
+interface NestedArticlesTableProps {
+  articles: ArticlesFetched['loteChanges'];
+  open: boolean;
+}
+const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
+  return (
+    <Collapse in={open}>
+      <Table sx={{ marginRight: 2 }}>
+        <TableHead>
+          <TableRow>
+            <NestedTableCell>Cantidad</NestedTableCell>
+            <NestedTableCell>Fecha de Caducidad</NestedTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {articles ? (
+            articles.map((a) => (
+              <TableRow key={a.Id_ArticuloExistente}>
+                <NestedTableCell>{a.stock}</NestedTableCell>
+                <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
+              </TableRow>
+            ))
+          ) : (
+            <></>
+          )}
+        </TableBody>
+      </Table>
+    </Collapse>
+  );
+};
+
+//Filas temporales de articulos que faltan de seleccionar lote
+interface TemporalArticlesRowsProps {
+  setLoteEditing: Function;
+  setArticleSelected: Function;
+  setOpenLoteModal: Function;
+  setArticles: Function;
+  articleRow: any;
+  articles: any;
+  setTemporalLoteEditing: Function;
+}
+const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
+  setArticleSelected,
+  setOpenLoteModal,
+  setArticles,
+  articleRow,
+  articles,
+  setTemporalLoteEditing,
+}) => {
+  return (
+    <>
+      <TableRow key={articleRow.id_Articulo}>
+        <TableCell>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <WarningAmber
+              sx={{
+                mr: 1,
+                color: articleRow.cantidad > 0 ? 'rgb(204, 153, 0)' : 'red',
+              }}
+            />
+            {articleRow.nombre}
+          </Box>
+        </TableCell>
+        <TableCell>{articleRow.cantidad}</TableCell>
+        <TableCell>
+          <>
+            {articleRow.cantidad > 0 && (
+              <Tooltip title={'Agregar'}>
+                <IconButton
+                  onClick={() => {
+                    setTemporalLoteEditing(true);
+                    setArticleSelected(articleRow);
+                    setOpenLoteModal(true);
+                  }}
+                >
+                  <AddCircleIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            <Tooltip title="Eliminar">
+              <IconButton
+                onClick={() => {
+                  setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </>
+        </TableCell>
+      </TableRow>
     </>
   );
 };

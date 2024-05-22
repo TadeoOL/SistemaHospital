@@ -116,6 +116,25 @@ export interface IArticle {
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
   stockActual?: string;
+  codigoBarras?: string;
+  lote?: IExistingArticleList[];
+  esCaja?: boolean;
+  unidadesPorCaja?: string;
+}
+
+export interface IArticle2 { //cambio en id
+  id_Articulo: string;
+  nombre: string;
+  descripcion: string | null;
+  stockMinimo: string;
+  stockAlerta: string;
+  unidadMedida: string;
+  precioCompra: string;
+  precioVenta: string;
+  id_subcategoria: string;
+  subCategoria: ISubCategory | string;
+  stockActual?: string;
+  codigoBarras?: string;
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
@@ -134,14 +153,15 @@ export interface IExistingArticle {
   fechaCaducidad: string;
   nombre: string;
   listaArticuloExistente: IExistingArticleList[];
+  codigoBarras?: string;
 }
 
 export interface IExistingArticleList {
-  id: string;
+  Id_ArticuloExistente: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;
-  codigoBarras: string;
+  //codigoBarras: string; cambioFC
 }
 
 export interface IWarehouse {
@@ -400,6 +420,7 @@ export interface Articulos_contenidos {
   id: string;
   nombre: string;
   cantidad: number;
+  lote?: IExistingArticleList[];
 }
 
 export interface IPosArticle {

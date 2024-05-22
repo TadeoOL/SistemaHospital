@@ -167,6 +167,7 @@ export const addArticle = z.object({
   //     { message: 'Escribe una cantidad válida y mayor que cero' }
   //   ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
+  codigoBarras: z.string().nullable(),
 });
 
 export const addArticleBox= z.object({
@@ -238,6 +239,7 @@ export const addArticleBox= z.object({
   //     { message: 'Escribe una cantidad válida y mayor que cero' }
   //   ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
+  codigoBarras: z.string().nullable(),
 });
 
 export const addExistingArticle = z

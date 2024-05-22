@@ -137,7 +137,7 @@ interface ArticlesViewProps {
   request: MerchandiseEntry;
 }
 
-export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
+export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
   const [articles, setArticles] = useState<ArticlesFetched[]>(
     props.request.historialArticulos.map((art) => ({
       nombre: art.nombre,
@@ -162,7 +162,6 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
       Articulos: articles.map((art) => ({
         Id_ArticuloExistente: art.id as string,
         Cantidad: art.cantidad.toString(),
-        FechaCaducidad: 'cambiar esta mal',
       })),
       Estatus: 2,
       Id_HistorialMovimiento: props.request.id,
