@@ -20,7 +20,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900, sm:500 },
+  maxHeight: { xs: 900, sm: 500 },
 };
 
 const scrollBarStyle = {

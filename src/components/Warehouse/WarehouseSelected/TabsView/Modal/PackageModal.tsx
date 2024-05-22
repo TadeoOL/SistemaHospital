@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IArticle, IArticlesPackage } from '../../../../../types/types';
-import { addArticlesPackage, getExistingArticles } from '../../../../../api/api.routes';
+import { addArticlesPackage, getArticlesBySearch } from '../../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../../schema/schemas';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -138,10 +138,9 @@ export const PackageModal = (props: { setOpen: Function }) => {
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
-      );
-      const transformedData = res.data.map((item: any) => ({
+      const res = await getArticlesBySearch(serch, wareH); //cambiaar esta puta vaina por la otra llamada
+      console.log('k traes we?', res);
+      const transformedData = res.map((item: any) => ({
         id: item.id,
         nombre: item.nombre,
         stock: item.stockActual,
