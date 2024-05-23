@@ -216,6 +216,9 @@ export const WarehouseArticles = () => {
                         setSortFunction={setSort}
                       />
                     </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Código de Barras" headerName="codigoBarras" setSortFunction={setSort} />
+                    </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
@@ -350,6 +353,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
+        <TableCell>{article.codigoBarras}</TableCell>
         <TableCell>
           <Tooltip title={isEditing ? 'Guardar' : 'Editar stock mínimo'}>
             <IconButton
@@ -489,8 +493,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({
             <StyledTableCell align="center">Fecha de compra de lote</StyledTableCell>
             <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
             <StyledTableCell align="center">Stock</StyledTableCell>
-            <StyledTableCell align="center">Código de barras</StyledTableCell>
-            <StyledTableCell align="center"></StyledTableCell>
+            <StyledTableCell align="center">Acciones</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -694,8 +697,7 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
       <StyledTableCell align="center">{articleR.fechaCompraLote}</StyledTableCell>
       {isEditing ? (
         <>
-          <StyledTableCell width={'20%'} align="center">
-            <Typography variant="subtitle2">Fecha de caducidad</Typography>
+          <StyledTableCell width={'80%'} align="center">
             <Stack flexDirection={'row'}>
               <TextField
                 disabled={expireDate}
@@ -706,20 +708,14 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
               />
             </Stack>
           </StyledTableCell>
-          <StyledTableCell width={'20%'} align="center">
-            <Typography variant="subtitle2">Cantidad</Typography>
+          <StyledTableCell width={'80%'} align="center">
             <TextField placeholder="Cantidad Entrada" inputRef={textStockRef} />
-          </StyledTableCell>
-          <StyledTableCell width={'20%'} align="center">
-            <Typography variant="subtitle2">Código de barras</Typography>
-            <TextField placeholder="Código de Barras" inputRef={textCodeRef} />
           </StyledTableCell>
         </>
       ) : (
         <>
           <StyledTableCell align="center">{returnExpireDate(articleR.fechaCaducidad)}</StyledTableCell>
           <StyledTableCell align="center">{articleR.cantidad}</StyledTableCell>
-          <StyledTableCell align="center">{/*articleR.codigoBarras*/}cambio</StyledTableCell>
         </>
       )}
       <StyledTableCell align="center">
