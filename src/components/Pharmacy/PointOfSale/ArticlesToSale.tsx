@@ -81,13 +81,13 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
   };
 
   const handleAddArticle = (articles: any, edit: boolean) => {
-    /*
     const updatedLote = [];
+    console.log('lotem', articles);
     let totalAmount = 0;
     for (const item of articles) {
       updatedLote.push({
         stock: item.stock,
-        Id_ArticuloExistente: item.id_ArticuloExistente,
+        Id_ArticuloExistente: item.Id_ArticuloExistente,
         fechaCaducidad: item.fechaCaducidad,
       });
       totalAmount += item.stock;
@@ -98,28 +98,10 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
       loteChanges: updatedLote,
     };
     console.log(updatedArticle);
-    if (temporalLoteEditing) {
-      const direction = articlesToSelect.findIndex(
-        (art) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articlesToSelect.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setTemporalLoteEditing(false);
-      return;
-    }
-    if (edit) {
-      const direction = articles.findIndex(
-        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articles.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setLoteEditing(false);
-    } else {
-      setArticles((prev: any) => [...prev, updatedArticle]);
-      setArticleSelected(null);
-    }*/
+    setArticlesOnBasket([...articlesOnBasket, updatedArticle]);
+
+    //setArticles((prev: any) => [...prev, updatedArticle]);
+    setArticleSelected(null);
   };
 
   return (
@@ -151,7 +133,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           setArticleSelected(article);
                           //setLoteEditing(true)
                           setOpenLoteModal(true);
-                          handleAddArticleToBasket(article);
+                          //handleAddArticleToBasket(article);
                         }}
                       >
                         <Typography fontWeight={700} fontSize={24}>

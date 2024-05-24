@@ -139,6 +139,14 @@ export interface IArticle2 {
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
+  cantidad?: number;
+  iva?: number;
+}
+
+export interface IArticleFromSearch {
+  id_Articulo: string;
+  nombre: string;
+  
 }
 
 export interface IExistingArticle {
@@ -156,7 +164,7 @@ export interface IExistingArticle {
   codigoBarras?: string;
 }
 
-export interface IExistingArticleList {
+export interface IExistingArticleList {//Lote
   id_ArticuloExistente: string;
   fechaCompraLote: string;
   fechaCaducidad: string;

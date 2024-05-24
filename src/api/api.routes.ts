@@ -395,6 +395,11 @@ export const getAllArticles = async () => {
   return res.data;
 };
 
+export const getArticlesFromWarehouseSearch = async (search: string, idWarehouse: string) => {
+  const res = await axios.get(`/api/Articulo/obtener-articulos?search=${search}&id_Almacen=${idWarehouse}`);
+  return res.data;
+};
+
 export const getAllAlmacenes = async () => {
   const res = await axios.get(`/api/Almacen/obtener-almacenes`);
   return res.data;
@@ -898,11 +903,28 @@ export const articlesOutputToWarehouse = async (
     });
     return res.data;
   }
+  //al rato quitamo eto
   const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
     ...data,
   });
   return res.data;
 };
+
+export const articlesOutputToWarehouseToWarehouse = async ( 
+  data: {
+  id_almacenOrigen: string;
+  id_almacenDestino: string;
+  Lotes: {
+  Id_ArticuloExistente: string;
+  Cantidad: number;
+    }[];
+  SalidaMotivo?: string;
+}) => {
+  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
+    ...data,
+  });
+  return res.data;
+}
 
 export const addArticlesPackage = async (packagePost: {
   Contenido: string;
@@ -1018,5 +1040,10 @@ export const articlesLoteDelete = async (data: { Id_ArticuloExistente: string })
   const res = await axios.put(`/api/ArticuloExistente/inhabilitar-lote-existente`, {
     ...data,
   });
+  return res.data;
+};
+
+export const getLotesFromExistingArticles = async (paramUrl: string) => {
+  const res = await axios.get(`/api/ArticuloExistente/obtener-lotes?${paramUrl}`);
   return res.data;
 };
