@@ -122,7 +122,8 @@ export interface IArticle {
   unidadesPorCaja?: string;
 }
 
-export interface IArticle2 { //cambio en id
+export interface IArticle2 {
+  //cambio en id
   id_Articulo: string;
   nombre: string;
   descripcion: string | null;
@@ -138,11 +139,10 @@ export interface IArticle2 { //cambio en id
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
-  codigoBarras?: string;
 }
 
 export interface IExistingArticle {
-  id: string;
+  id_Articulo: string;
   cantidad: number;
   fechaCompra: string;
   precioCompra: number;
@@ -157,7 +157,7 @@ export interface IExistingArticle {
 }
 
 export interface IExistingArticleList {
-  Id_ArticuloExistente: string;
+  id_ArticuloExistente: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;

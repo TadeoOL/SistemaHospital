@@ -130,7 +130,7 @@ export const WarehouseHistory = () => {
                     </TableCell>
                     <TableCell>
                       <SortComponent
-                        tableCellLabel="Almacén Proveniente"
+                        tableCellLabel="Proveniente de"
                         headerName="almacenProveniente"
                         setSortFunction={setSort}
                       />
@@ -151,7 +151,7 @@ export const WarehouseHistory = () => {
                     </TableCell>
                     <TableCell>
                       <SortComponent
-                        tableCellLabel="Almacén Dirigido"
+                        tableCellLabel="Dirigido a"
                         headerName="almacenDirigido"
                         setSortFunction={setSort}
                       />

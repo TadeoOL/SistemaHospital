@@ -152,10 +152,10 @@ export const WarehouseHistoryPharmacy = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell align="center">Folio</TableCell>
-                    <TableCell>Almacén Proveniente</TableCell>
+                    <TableCell>Proveniente de</TableCell>
                     <TableCell>Solicitado por</TableCell>
                     <TableCell>Autorizado por</TableCell>
-                    <TableCell>Almacén dirigido</TableCell>
+                    <TableCell>Dirigido a</TableCell>
                     <TableCell>Fecha Solicitud</TableCell>
                     <TableCell>Estatus</TableCell>
                   </TableRow>

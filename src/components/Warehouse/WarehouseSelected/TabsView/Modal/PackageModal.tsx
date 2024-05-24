@@ -172,13 +172,13 @@ export const PackageModal = (props: { setOpen: Function }) => {
     );
 
   const onSubmit: SubmitHandler<any> = async (data) => {
-    data.historialArticulos = articles.map((art) => ({ id: art.id, cantidad: art.amount }));
+    data.historialArticulos = articles.map((art) => ({ id_Articulo: art.id, cantidad: art.amount }));
     try {
       const object = {
         Nombre: data.nombre,
         Descripcion: data.descripcion,
         Id_Almacen: warehouseId as string,
-        Contenido: JSON.stringify(data.historialArticulos),
+        Contenido: data.historialArticulos,
       };
       await addArticlesPackage(object);
       toast.success('Paquete creado');
