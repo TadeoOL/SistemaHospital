@@ -14,9 +14,11 @@ export const ResumeSale = () => {
   const [open, setOpen] = useState(false);
   const { subTotal, iva } = articlesOnBasket.reduce(
     (acc, article) => {
-      const precioConIva = article.iva > 0 ? article.iva * 0.01 * article.precio : article.precio;
-      const precioTotal = article.cantidad * precioConIva;
-      const ivaArticulo = article.iva > 0 ? precioTotal - article.cantidad * article.precio : 0;
+      const precioConIva =
+        article.iva && article.iva > 0 ? article.iva * 0.01 * Number(article.precioVenta) : Number(article.precioVenta);
+      const precioTotal = (article.cantidad || 0) * precioConIva;
+      const ivaArticulo =
+        article.iva && article.iva > 0 ? precioTotal - (article.cantidad || 0) * Number(article.precioVenta) : 0;
 
       return {
         subTotal: acc.subTotal + precioTotal,

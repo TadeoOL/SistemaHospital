@@ -15,7 +15,7 @@ import {
   alpha,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { IPosArticle } from '../../../../types/types';
+import { IArticle2 } from '../../../../types/types';
 import { usePosOrderArticlesStore } from '../../../../store/pharmacy/pointOfSale/posOrderArticles';
 import { CreditCard, Payments, SwapHoriz } from '@mui/icons-material';
 import AnimateButton from '../../../@extended/AnimateButton';
@@ -23,6 +23,7 @@ import { neutral, primary } from '../../../../theme/colors';
 import { usePosArticlesPaginationStore } from '../../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { toast } from 'react-toastify';
 import { registerSale } from '../../../../services/pharmacy/pointOfSaleService';
+import { invariant } from 'framer-motion';
 
 const style = {
   position: 'absolute',
@@ -87,11 +88,12 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     if (paymentMethod === 0) return toast.error('Selecciona un método de pago!');
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
+    console.log(articlesOnBasket);
     const articlesFormatted = articlesOnBasket.map((article) => {
       return {
-        id: article.id,
+        id: article.id_Articulo,
         cantidad: article.cantidad,
-        precioUnitario: article.precio,
+        precioUnitario: article.precioVenta,
       };
     });
     console.log({ userSalesRegisterData });
@@ -102,6 +104,8 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
       montoPago: total,
       totalVenta: total,
     };
+    console.log('salewe', saleObject);
+    return;
     try {
       await registerSale(saleObject);
       refetch();
@@ -179,26 +183,27 @@ const TableHeaderResume = () => {
 
 const TableBodyResume = () => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
+  console.log('resume articlesOnBasket ', articlesOnBasket);
   return (
     <TableBody>
       {articlesOnBasket.map((article) => (
-        <TableRowArticleResume article={article} key={article.id} />
+        <TableRowArticleResume article={article} key={article.id_Articulo} />
       ))}
     </TableBody>
   );
 };
 interface TableRowArticleResumeProps {
-  article: IPosArticle;
+  article: IArticle2;
 }
 const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
   const { article } = props;
-  const totalPriceArticle = article.cantidad * article.precio;
+  const totalPriceArticle = ((article.cantidad || 0) * Number(article.precioVenta)).toFixed(2);
   return (
     <TableRow>
       <TableCell>{article.nombre}</TableCell>
       <TableCell>{article.codigoBarras}</TableCell>
       <TableCell>{article.cantidad}</TableCell>
-      <TableCell>{article.precio}</TableCell>
+      <TableCell>{article.precioVenta}</TableCell>
       <TableCell>{totalPriceArticle}</TableCell>
     </TableRow>
   );
@@ -254,18 +259,18 @@ const AmountResume = () => {
         <Stack sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography sx={{ fontWeight: 600, fontSize: { xs: 13, md: 15 } }}>Sub Total:</Typography>
-            <Typography sx={{ fontWeight: 500, fontSize: 13 }}>${subTotal}</Typography>
+            <Typography sx={{ fontWeight: 500, fontSize: 13 }}>${subTotal.toFixed(2)}</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography sx={{ fontWeight: 600, fontSize: { xs: 13, md: 15 } }}>IVA:</Typography>
-            <Typography sx={{ fontWeight: 500, fontSize: 13 }}>${iva}</Typography>
+            <Typography sx={{ fontWeight: 500, fontSize: 13 }}>${iva.toFixed(2)}</Typography>
           </Box>
           <Divider sx={{ mt: 1 }} />
         </Stack>
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography sx={{ fontWeight: 600, fontSize: { xs: 13, md: 15 } }}>Total:</Typography>
-            <Typography sx={{ fontWeight: 500, fontSize: 13 }}>${total}</Typography>
+            <Typography sx={{ fontWeight: 500, fontSize: 13 }}>${total.toFixed(2)}</Typography>
           </Box>
         </Box>
       </Stack>

@@ -1,6 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { IArticle2 } from '../../../types/types';
-import { getArticlesToSaleOnPOS } from '../../../services/pharmacy/pointOfSaleService';
 import axios, { CancelTokenSource } from 'axios';
 import { usePosTabNavStore } from './posTabNav';
 import { getExistingArticles } from '../../../api/api.routes';
