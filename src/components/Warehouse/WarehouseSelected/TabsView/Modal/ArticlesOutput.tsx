@@ -172,7 +172,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       });
     const object = {
       Lotes: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : warehouseData.id,
+      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : '',
       id_almacenOrigen: warehouseData.id,
       SalidaMotivo: radioSelected === 1 ? reasonMessage : undefined,
     };
