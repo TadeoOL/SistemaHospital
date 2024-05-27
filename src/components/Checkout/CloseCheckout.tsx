@@ -3,9 +3,8 @@ import { useEffect } from 'react';
 import { CheckoutTableComponent } from './CheckoutTableComponent';
 import { useNavigate } from 'react-router-dom';
 import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
-import { Report } from '../Commons/Report/Report';
-import { hashPaymentsToString } from '../../utils/checkoutUtils';
 import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
+import { ReporteCaja } from '../Commons/Report/ReporteCaja';
 
 const useGetData = () => {
   const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
@@ -28,21 +27,9 @@ export const CloseCheckout = () => {
   const setPageIndex = useCheckoutUserEmitterPaginationStore((state) => state.setPageIndex);
   const setPageSize = useCheckoutUserEmitterPaginationStore((state) => state.setPageSize);
   const setIdCaja = useCheckoutDataStore((state) => state.setIdCaja);
-  const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
+  const idCaja = useCheckoutDataStore((state) => state.idCajaSearch);
 
-  const formatData = (info: any) => {
-    const formatedData = info.map((obj: any) => ({
-      folio: obj.folio,
-      modulo: obj.moduloProveniente,
-      paciente: obj.paciente,
-      totalVenta: obj.totalVenta,
-      nombreUsuario: obj.nombreUsuario,
-      montoPago: obj.montoPago,
-      tipoPago: hashPaymentsToString[obj.tipoPago] || 'Sin tipo de pago',
-      notas: obj.notas
-    }));
-    return formatedData;
-  };
+  const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
 
   return (
     <>
@@ -62,7 +49,7 @@ export const CloseCheckout = () => {
               </Button>
               <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del dia</Typography>
             </Box>
-            <Report data={formatData(data)} headers={['Folio', 'Proveniente de', 'Paciente', 'Costo Total', 'Generado Por', 'Monto de Pago', 'Tipo de Pago', 'Notas']} />
+            <ReporteCaja id_CajaPrincipal={idCaja} />
           </Box>
           <CheckoutTableComponent
             data={data}

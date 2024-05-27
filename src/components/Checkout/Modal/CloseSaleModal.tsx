@@ -1,4 +1,4 @@
-import { Box, Button, Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, InputAdornment, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { hashPaymentsToNumber } from '../../../utils/checkoutUtils';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
@@ -217,6 +217,11 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
               <Typography>Monto Pago</Typography>
               <TextField
                 placeholder="Monto pago..."
+                type="number"
+                InputProps={{
+                  startAdornment: <InputAdornment position="end">$</InputAdornment>,
+                }}
+                inputProps={{ min: 0, inputMode: 'numeric', pattern: '[0-9]' }}
                 error={paymentAmountRefError}
                 value={paymentAmount}
                 helperText={paymentAmountRefError && 'Escribe un monto de pago valido...'}
@@ -255,7 +260,13 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
                 <Typography>Monto Pago</Typography>
                 <TextField
                   placeholder="Monto pago..."
+                  type="number"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="end">$</InputAdornment>,
+                  }}
+                  inputProps={{ min: 0, inputMode: 'numeric', pattern: '[0-9]' }}
                   value={paymentAmount2}
+                  disabled
                   error={paymentAmountRefError2}
                   helperText={paymentAmountRefError2 && 'Escribe un monto de pago valido...'}
                   onChange={(e) => {

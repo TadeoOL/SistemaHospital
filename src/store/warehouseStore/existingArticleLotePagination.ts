@@ -1,6 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getExistingArticles } from '../../api/api.routes';
-import { IExistingArticle } from '../../types/types';
+import { getLotesFromExistingArticles } from '../../api/api.routes';
+import { IExistingArticleList } from '../../types/types';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
@@ -8,13 +8,13 @@ interface State {
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IExistingArticle[];
+  data: IExistingArticleList[];
   isLoading: boolean;
   search: string;
   enabled: boolean;
   handleChangeExistingArticle: boolean;
   warehouseId: string;
-  principalWarehouseId: string;
+  articleId: string;
   startDate: string;
   endDate: string;
   sort: string;
@@ -30,7 +30,7 @@ interface Action {
   setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) => void;
   fetchExistingArticles: () => Promise<void>;
   setWarehouseId: (warehouseId: string) => void;
-  setPrincipalWarehouseId: (principalWarehouseId: string) => void;
+  setArticleId: (articleId: string) => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
   clearFilters: () => void;
@@ -49,18 +49,18 @@ const initialState: State = {
   enabled: true,
   handleChangeExistingArticle: false,
   warehouseId: '',
-  principalWarehouseId: '',
+  articleId: '',
   startDate: getFirstDayOfTheMonth(),
   endDate: '',
   sort: '',
 };
 
-export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
+export const useExistingArticleLotesPagination = createWithEqualityFn<State & Action>((set, get) => ({
   ...initialState,
   setStartDate: (startDate: string) => set({ startDate }),
   setEndDate: (endDate: string) => set({ endDate }),
   setWarehouseId: (warehouseId: string) => set({ warehouseId }),
-  setPrincipalWarehouseId: (principalWarehouseId: string) => set({ principalWarehouseId }),
+  setArticleId: (articleId: string) => set({ articleId }),
   setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) => set({ handleChangeExistingArticle }),
   setCount: (count: number) => set({ count }),
   setPageCount: (pageCount: number) => set({ pageCount }),
@@ -71,25 +71,23 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, warehouseId, startDate, endDate, sort, principalWarehouseId } = get();
+    const { pageIndex, pageSize, search, enabled, warehouseId, articleId } = get();
     const page = pageIndex + 1;
     try {
-      let mainWarehouseId = ''
+      console.log(`entro&Id_Articulo=${articleId} y esto ${warehouseId}`);
       if (warehouseId === '') return;
-      if(principalWarehouseId === '') {mainWarehouseId = warehouseId}
-      else { mainWarehouseId = principalWarehouseId }
-      const res = await getExistingArticles(
+      const res = await getLotesFromExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId
-        }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_Articulo=${articleId}`
       );
-      console.log(res.data);
+      console.log("pagineicho ",res);
       set(() => ({
         data: res.data,
         count: res.count,
         pageSize: res.pageSize,
         enabled: res.habilitado,
+        pageCount: res.pageCount
       }));
     } catch (error) {
       console.log(error);

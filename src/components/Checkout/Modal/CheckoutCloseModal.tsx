@@ -76,15 +76,19 @@ const useFormatData = (data: SaleResume[] | undefined): any => {
       switch (sale.tipoPago) {
         case hashPaymentsToNumber['Efectivo']:
           acc.efectivo.push(sale);
+          acc.efectivoTotal += sale.totalVenta;
           break;
         case hashPaymentsToNumber['Transferencia']:
           acc.transferencia.push(sale);
+          acc.transferenciaTotal += sale.totalVenta;
           break;
         case hashPaymentsToNumber['Crédito']:
           acc.credito.push(sale);
+          acc.creditoTotal += sale.totalVenta;
           break;
         case hashPaymentsToNumber['Débito']:
           acc.debito.push(sale);
+          acc.debitoTotal += sale.totalVenta;
           break;
         default:
           break;
@@ -96,6 +100,10 @@ const useFormatData = (data: SaleResume[] | undefined): any => {
       transferencia: [] as SaleResume[],
       credito: [] as SaleResume[],
       debito: [] as SaleResume[],
+      efectivoTotal: 0 as number,
+      transferenciaTotal: 0 as number,
+      creditoTotal: 0 as number,
+      debitoTotal: 0 as number,
     }
   );
 
@@ -135,7 +143,13 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
   const day = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   const totalAmount = useMemo(() => {
     if (!data) return 0;
-    return data?.efectivo + data?.transferencia + data?.credito + data.debito;
+    console.log(dataFormatted);
+    return (
+      dataFormatted.efectivoTotal +
+      dataFormatted.transferenciaTotal +
+      dataFormatted.creditoTotal +
+      dataFormatted.debitoTotal
+    );
   }, [data]);
   const cashRef = useRef<HTMLTextAreaElement | null>();
   const [cashError, setCashError] = useState(false);
@@ -166,11 +180,6 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
           setIsLoadingClose(true);
           try {
             const obj = {
-              debito: data.debito,
-              credito: data.credito,
-              efectivo: data.efectivo,
-              transferencia: data.transferencia,
-              ventaTotal: totalAmount,
               dineroAlCorte: parseFloat(cashRef.current?.value as string),
             };
             await closePrincipalCheckout(obj);
@@ -234,29 +243,34 @@ export const CheckoutCloseModal = (props: CheckoutCloseModalProps) => {
         <Box sx={{ display: 'flex', columnGap: 4, backgroundColor: '#F9F9F9', p: 2, borderRadius: 4 }}>
           <Stack sx={{ flex: 1, justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Fondo Inicial</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>$ {data?.dineroInicial}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
               <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Efectivo</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.efectivo}</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>$ {dataFormatted.efectivoTotal}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
               <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Débito</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.debito}</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>$ {dataFormatted.debitoTotal}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
               <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Crédito</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.credito}</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>$ {dataFormatted.creditoTotal}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
               <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Transferencia</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${data?.transferencia}</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>$ {dataFormatted.transferenciaTotal}</Typography>
             </Box>
             <Divider />
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Total</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>${totalAmount}</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Total (Sin contar Fondo)</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>$ {totalAmount}</Typography>
             </Box>
           </Stack>
           <Stack sx={{ flex: 1 }}>
-            <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Dinero en caja al corte</Typography>
+            <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Efectivo en Caja al Corte</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 500 }}>(Contando el fondo Inicial)</Typography>
             <TextField
               placeholder="Dinero en caja..."
               inputRef={cashRef}

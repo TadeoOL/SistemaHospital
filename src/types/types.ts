@@ -122,27 +122,32 @@ export interface IArticle {
   unidadesPorCaja?: string;
 }
 
-export interface IArticle2 { //cambio en id
+export interface IArticle2 {
+  //cambio en id
   id_Articulo: string;
   nombre: string;
   descripcion: string | null;
   stockMinimo: string;
-  stockAlerta: string;
-  unidadMedida: string;
   precioCompra: string;
   precioVenta: string;
-  id_subcategoria: string;
-  subCategoria: ISubCategory | string;
   stockActual?: string;
   codigoBarras?: string;
   lote?: IExistingArticleList[];
+  listaArticuloExistente: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
-  codigoBarras?: string;
+  cantidad?: number;
+  iva?: number;
+}
+
+export interface IArticleFromSearch {
+  id_Articulo: string;
+  nombre: string;
+  
 }
 
 export interface IExistingArticle {
-  id: string;
+  id_Articulo: string;
   cantidad: number;
   fechaCompra: string;
   precioCompra: number;
@@ -156,8 +161,8 @@ export interface IExistingArticle {
   codigoBarras?: string;
 }
 
-export interface IExistingArticleList {
-  Id_ArticuloExistente: string;
+export interface IExistingArticleList {//Lote
+  id_ArticuloExistente: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;

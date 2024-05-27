@@ -7,6 +7,7 @@ export interface CheckoutResume {
   transferencia: number;
   credito: number;
   debito: number;
+  dineroInicial: number;
   resumenVenta: SaleResume[];
 }
 
@@ -81,14 +82,7 @@ export const getCheckoutResume = async (checkoutId: string) => {
   return res.data as CheckoutResume;
 };
 
-export const closePrincipalCheckout = async (data: {
-  debito: number;
-  credito: number;
-  transferencia: number;
-  efectivo: number;
-  ventaTotal: number;
-  dineroAlCorte: number;
-}) => {
+export const closePrincipalCheckout = async (data: { dineroAlCorte: number }) => {
   const res = await axios.put(`${apiCheckout}/cerrar-caja`, data);
   return res.data;
 };
