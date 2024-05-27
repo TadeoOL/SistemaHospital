@@ -33,6 +33,8 @@ import { returnExpireDate } from '../../../utils/expireDate';
 import { ArticlesExitModal } from './Modal/ArticlesExitModal';
 import { SortComponent } from '../../Commons/SortComponent';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
+import { useShallow } from 'zustand/react/shallow';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -48,13 +50,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const useGetExistingArticles = (warehouseId: string) => {
+const useGetExistingArticles = (warehouseId: string, principalWarehouseId: string) => {
   const {
     data,
     setSearch,
     search,
     fetchExistingArticles,
     setWarehouseId,
+    setPrincipalWarehouseId,
     setStartDate,
     setEndDate,
     clearFilters,
@@ -73,6 +76,7 @@ const useGetExistingArticles = (warehouseId: string) => {
       search: state.search,
       fetchExistingArticles: state.fetchExistingArticles,
       setWarehouseId: state.setWarehouseId,
+      setPrincipalWarehouseId: state.setPrincipalWarehouseId,
       setStartDate: state.setStartDate,
       setEndDate: state.setEndDate,
       clearFilters: state.clearFilters,
@@ -94,6 +98,7 @@ const useGetExistingArticles = (warehouseId: string) => {
 
   useEffect(() => {
     setWarehouseId(warehouseId);
+    setPrincipalWarehouseId(principalWarehouseId);
     fetchExistingArticles();
   }, [search, startDate, endDate, clearFilters, sort]);
 
@@ -114,6 +119,8 @@ const useGetExistingArticles = (warehouseId: string) => {
 };
 export const ArticlesPharmacyTable = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+
   const {
     data,
     setSearch,
@@ -127,7 +134,7 @@ export const ArticlesPharmacyTable = () => {
     startDate,
     endDate,
     isLoading,
-  } = useGetExistingArticles(warehouseIdSeted);
+  } = useGetExistingArticles(warehouseIdSeted, warehouseData.id_AlmacenPrincipal || '');
   const [openModal, setOpenModal] = useState(false);
   const [exitArticlesM, setExitArticlesM] = useState(false);
 
@@ -220,7 +227,7 @@ export const ArticlesPharmacyTable = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data && data.map((article) => <TableRowComponent article={article} key={article.id} />)}
+                  {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
                 </TableBody>
               </Table>
               {!data ||
@@ -338,7 +345,7 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
         </TableHead>
         <TableBody>
           {article.map((a) => (
-            <TableRow key={a.Id_ArticuloExistente}>
+            <TableRow key={a.id_ArticuloExistente}>
               <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
               <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
               <StyledTableCell align="center">{a.cantidad}</StyledTableCell>

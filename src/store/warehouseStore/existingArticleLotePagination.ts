@@ -74,7 +74,7 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
     const { pageIndex, pageSize, search, enabled, warehouseId, articleId } = get();
     const page = pageIndex + 1;
     try {
-      console.log("entro");
+      console.log(`entro&Id_Articulo=${articleId} y esto ${warehouseId}`);
       if (warehouseId === '') return;
       const res = await getLotesFromExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${

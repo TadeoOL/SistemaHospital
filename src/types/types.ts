@@ -128,15 +128,12 @@ export interface IArticle2 {
   nombre: string;
   descripcion: string | null;
   stockMinimo: string;
-  stockAlerta: string;
-  unidadMedida: string;
   precioCompra: string;
   precioVenta: string;
-  id_subcategoria: string;
-  subCategoria: ISubCategory | string;
   stockActual?: string;
   codigoBarras?: string;
   lote?: IExistingArticleList[];
+  listaArticuloExistente: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
   cantidad?: number;

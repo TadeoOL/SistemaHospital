@@ -21,9 +21,11 @@ interface ResumeSaleProps {
 }
 interface CardItemsProps {
   article: IArticle2;
+  maxAmount: number;
 }
 interface AddAndRemoveButtonsProps {
   amount: number;
+  maxAmount: number;
   id: string;
 }
 
@@ -36,9 +38,21 @@ export const ArticlesOnBasket = (props: ResumeSaleProps) => {
       </Typography>
       <Stack sx={{ overflowY: 'auto', ...scrollBar }}>
         <Stack spacing={2} sx={{ maxHeight: '500px', p: 1.5 }}>
-          {articlesOnBasket.map((item) => (
-            <CardItems key={item.id_Articulo} article={item} />
-          ))}
+          {articlesOnBasket.map((item) =>
+            item?.lote?.map((nestedArt) => (
+              <CardItems
+                key={nestedArt.id_ArticuloExistente}
+                article={{
+                  ...item,
+                  cantidad: nestedArt.cantidad,
+                }}
+                maxAmount={
+                  item.listaArticuloExistente.find((a) => a.id_ArticuloExistente === nestedArt.id_ArticuloExistente)
+                    ?.cantidad || 10
+                }
+              />
+            ))
+          )}
         </Stack>
       </Stack>
     </Stack>
@@ -83,9 +97,7 @@ const CardItems = (props: CardItemsProps) => {
           <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
             <b>Cantidad: </b> {article.cantidad}
           </Typography>
-          {
-            //<AddAndRemoveButtons amount={article.cantidad || 0} id={article.id_Articulo} />
-          }
+          {<AddAndRemoveButtons amount={article.cantidad || 0} id={article.id_Articulo} maxAmount={props.maxAmount} />}
         </Box>
       </Stack>
     </Card>
@@ -100,7 +112,8 @@ const AddAndRemoveButtons = (props: AddAndRemoveButtonsProps) => {
   const maxAmountArticle = data.find((article) => article.id_Articulo === props.id)?.cantidad || 0;
 
   const handleAddAmount = () => {
-    if (props.amount === maxAmountArticle) return;
+    console.log(props.maxAmount);
+    if (props.amount === props.maxAmount) return;
     if (findIndex !== -1) {
       const updatedArticlesOnBasket = [...articlesOnBasket];
       updatedArticlesOnBasket[findIndex].cantidad = (updatedArticlesOnBasket[findIndex]?.cantidad || 0) + 1;
