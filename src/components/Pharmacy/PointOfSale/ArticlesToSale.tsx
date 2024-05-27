@@ -3,10 +3,11 @@ import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { useEffect, useMemo, useState } from 'react';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
-import { IArticle2 } from '../../../types/types';
+import { IArticle2, IExistingArticleList } from '../../../types/types';
 import { neutral } from '../../../theme/colors';
 import { Info } from '@mui/icons-material';
-import { LoteSelection } from '../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelection';
+import { LoteSelectionRemake } from '../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake';
+import { useExistingArticleLotesPagination } from '../../../store/warehouseStore/existingArticleLotePagination';
 
 const scrollBar = {
   '&::-webkit-scrollbar': {
@@ -51,18 +52,19 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
   const { data, loading, pageIndex, pageCount, setPageIndex, setFetchPagination } = useGetAllData();
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
+  const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
   const [openLoteModal, setOpenLoteModal] = useState(false);
   const [loteEditing, setLoteEditing] = useState(false);
 
-  const articlesToSale = useMemo(
+  /*const articlesToSale = useMemo(
     () =>
       data.filter(
         (article) => !articlesOnBasket.some((articleBasket) => articleBasket.id_Articulo === article.id_Articulo)
       ),
     [articlesOnBasket, data]
-  );
+  );*/
   const hasMorePages = useMemo(() => {
     return pageIndex < pageCount;
   }, [pageIndex, pageCount]);
@@ -80,28 +82,43 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
     setArticlesOnBasket([...articlesOnBasket, ...articleModified]);
   };
 
-  const handleAddArticle = (articles: any, edit: boolean) => {
-    const updatedLote = [];
-    console.log('lotem', articles);
-    let totalAmount = 0;
-    for (const item of articles) {
-      updatedLote.push({
-        stock: item.stock,
-        Id_ArticuloExistente: item.Id_ArticuloExistente,
-        fechaCaducidad: item.fechaCaducidad,
-      });
-      totalAmount += item.stock;
+  const handleAddArticle = (articles: any, lotesFromArticle: IExistingArticleList[]) => {
+    if (articleSelected) {
+      const updatedLote = {
+        cantidad: 1,
+        id_ArticuloExistente: articles.id_ArticuloExistente,
+        fechaCaducidad: articles.fechaCaducidad,
+        fechaCompraLote: articles.fechaCompraLote,
+      }; //articlesOnBasket
+      const alreadyAddedArticle = articlesOnBasket.find((a) => a.id_Articulo === (articleSelected?.id_Articulo || ''));
+      if (alreadyAddedArticle && alreadyAddedArticle.lote) {
+        alreadyAddedArticle.lote.push(updatedLote);
+        const updatedArticle = {
+          ...articleSelected,
+          cantidad: (alreadyAddedArticle.cantidad || 0) + 1,
+          lote: alreadyAddedArticle.lote,
+        };
+        const direction = articlesOnBasket.findIndex((a) => a.id_Articulo === (articleSelected?.id_Articulo || ''));
+        articlesOnBasket.splice(direction, 1);
+        setArticlesOnBasket([...articlesOnBasket, updatedArticle]);
+        //setOriginalArticlesSelected((prev: any) => [...prev, articleSelected]);
+        setArticleSelected(null);
+      } else {
+        const updatedArticle = {
+          ...articleSelected,
+          cantidad: 1,
+          lote: [updatedLote],
+        };
+        const nosewe = {
+          ...articleSelected,
+          lote: [updatedArticle],
+          cantidad: lotesFromArticle.reduce((total, lote) => total + lote.cantidad, 0),
+        };
+        setArticlesOnBasket([...articlesOnBasket, updatedArticle]);
+        //setOriginalArticlesSelected((prev: any) => [...prev, nosewe]);
+        setArticleSelected(null);
+      }
     }
-    const updatedArticle = {
-      ...articleSelected,
-      cantidad: totalAmount,
-      loteChanges: updatedLote,
-    };
-    console.log(updatedArticle);
-    setArticlesOnBasket([...articlesOnBasket, updatedArticle]);
-
-    //setArticles((prev: any) => [...prev, updatedArticle]);
-    setArticleSelected(null);
   };
 
   return (
@@ -110,8 +127,8 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
         <>
           <Typography variant="h5">Artículos</Typography>
           <Grid container spacing={2} sx={{ py: 2 }}>
-            {articlesToSale.length !== 0
-              ? articlesToSale.map((article) => (
+            {data.length !== 0
+              ? data.map((article) => (
                   <Grid item xs={12} lg={3} key={article.id_Articulo}>
                     <AnimateButton>
                       <Card
@@ -131,13 +148,15 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                         }}
                         onClick={() => {
                           setArticleSelected(article);
+                          setArticleId(article.id_Articulo);
+                          console.log('art seleccionado', article);
                           //setLoteEditing(true)
                           setOpenLoteModal(true);
                           //handleAddArticleToBasket(article);
                         }}
                       >
-                        <Typography fontWeight={700} fontSize={24}>
-                          {article.nombre}
+                        <Typography fontWeight={700} fontSize={18}>
+                          {article.nombre.substring(0, 30).concat('...')}
                         </Typography>
                         <Typography sx={{ fontSize: 9, fontWeight: 500, mb: 0.5 }}>
                           Codigo: {article.codigoBarras}
@@ -213,7 +232,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
         </>
       </Stack>
       <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
-        <LoteSelection
+        {/*<LoteSelection
           setOpen={setOpenLoteModal}
           open={openLoteModal}
           lotes={(articleSelected?.lote as any) || []}
@@ -222,7 +241,20 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           setEditing={setLoteEditing}
           editing={loteEditing}
           //selectedLotes={loteSelected as loteFetch[]}
-        />
+        />*/}
+        {
+          <LoteSelectionRemake
+            sx={{ p: 2 }}
+            setOpen={setOpenLoteModal}
+            articleName={articleSelected?.nombre || ''}
+            addFunction={handleAddArticle}
+            alreadySelectedArticlesIDs={
+              articlesOnBasket
+                .find((artS) => artS.id_Articulo === articleSelected?.id_Articulo || '')
+                ?.lote?.map((lot) => lot.id_ArticuloExistente) || undefined
+            }
+          />
+        }
       </Modal>
     </Stack>
   );

@@ -68,6 +68,7 @@ export const useGetExistingArticles = () => {
     search,
     fetchExistingArticles,
     setWarehouseId,
+    setPrincipalWarehouseId,
     setStartDate,
     setEndDate,
     clearFilters,
@@ -91,6 +92,7 @@ export const useGetExistingArticles = () => {
       search: state.search,
       fetchExistingArticles: state.fetchExistingArticles,
       setWarehouseId: state.setWarehouseId,
+      setPrincipalWarehouseId: state.setPrincipalWarehouseId,
       setStartDate: state.setStartDate,
       setEndDate: state.setEndDate,
       clearFilters: state.clearFilters,
@@ -112,6 +114,7 @@ export const useGetExistingArticles = () => {
   }, [warehouseData.id]);
 
   useEffect(() => {
+    setPrincipalWarehouseId(warehouseData.id_AlmacenPrincipal || '')
     setWarehouseId(warehouseData.id);
     fetchExistingArticles();
   }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
