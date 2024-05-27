@@ -29,8 +29,28 @@ import { CheckoutDetailsModal } from './Modal/CheckoutDetailsModal';
 import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
 
-const headTitlesCaja = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Monto de Pago', 'Tipo de pago', 'Estatus', 'Acciones'];
-const headTitlesAdmin = ['Folio', 'Proveniente de', 'Paciente', 'Costo total', 'Generado Por', 'Monto de Pago','Tipo de pago', 'Estatus', 'Notas', 'Acciones'];
+const headTitlesCaja = [
+  'Folio',
+  'Proveniente de',
+  'Paciente',
+  'Costo total',
+  'Monto de Pago',
+  'Tipo de pago',
+  'Estatus',
+  'Acciones',
+];
+const headTitlesAdmin = [
+  'Folio',
+  'Proveniente de',
+  'Paciente',
+  'Costo total',
+  'Generado Por',
+  'Monto de Pago',
+  'Tipo de pago',
+  'Estatus',
+  'Notas',
+  'Acciones',
+];
 
 interface CheckoutTableComponentProps {
   data: ICheckoutSell[];
@@ -152,10 +172,12 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
             tipoPago: data.tipoPago,
             montoPago: data.totalVenta,
             id_UsuarioPase: data.id_UsuarioPase,
-            pago: [{
-              tipoPago: 0,
-              montoPago: 0
-            }]
+            pago: [
+              {
+                tipoPago: 0,
+                montoPago: 0,
+              },
+            ],
           };
           await changePrincipalSellStatus(objSell);
           conn?.invoke('UpdateSell', objSell);
@@ -186,16 +208,12 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>{data.folio}</TableCell>
         <TableCell>{data.moduloProveniente}</TableCell>
         <TableCell>{data.paciente}</TableCell>
-        <TableCell>${data.totalVenta}</TableCell>
-        { admin && (
-          <TableCell>{data.nombreUsuario}</TableCell>
-        )}
-        <TableCell>{data.montoPago ? '$ '+ data.montoPago : 'No se ha cobrado'}</TableCell>
+        <TableCell>$ {data.totalVenta}</TableCell>
+        {admin && <TableCell>{data.nombreUsuario}</TableCell>}
+        <TableCell>{data.montoPago ? '$ ' + data.montoPago : 'No se ha cobrado'}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
-        { admin && (
-          <TableCell>{data.notas}</TableCell>
-        )}
+        {admin && <TableCell>{data.notas}</TableCell>}
         <TableCell>
           {!props.hideActions ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>

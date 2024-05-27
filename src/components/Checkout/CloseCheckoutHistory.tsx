@@ -5,20 +5,17 @@ import { useCheckoutClosePaginationStore } from '../../store/checkout/checkoutCl
 import { Report } from '../Commons/Report/Report';
 import { formatDate } from '../../utils/pointOfSaleUtils';
 
-const useGetData = () => {
+export const CloseCheckoutHistory = () => {
   const fetch = useCheckoutClosePaginationStore((state) => state.fetchData);
   const pageIndex = useCheckoutClosePaginationStore((state) => state.pageIndex);
   const pageSize = useCheckoutClosePaginationStore((state) => state.pageSize);
   const search = useCheckoutClosePaginationStore((state) => state.search);
+  const count = useCheckoutClosePaginationStore((state) => state.count);
+  const data = useCheckoutClosePaginationStore((state) => state.data);
 
   useEffect(() => {
     fetch();
-  }, [pageIndex, pageSize, search]);
-};
-
-export const CloseCheckoutHistory = () => {
-  useGetData();
-  const data = useCheckoutClosePaginationStore((state) => state.data);
+  }, [pageIndex, pageSize, search, count]);
 
   const formatData = (info: any) => {
     const formatedData = info.map((obj: any) => ({
@@ -40,7 +37,7 @@ export const CloseCheckoutHistory = () => {
       <Card sx={{ p: 3 }}>
         <Stack spacing={4}>
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Historial de cortes</Typography>
+            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Historial de Cortes</Typography>
             <Report
               data={formatData(data)}
               headers={[
@@ -56,7 +53,7 @@ export const CloseCheckoutHistory = () => {
               ]}
             />
           </Box>
-          <CheckoutClosesTableComponent data={data} />
+          <CheckoutClosesTableComponent />
         </Stack>
       </Card>
     </>

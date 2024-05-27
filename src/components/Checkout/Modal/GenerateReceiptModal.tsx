@@ -1,4 +1,14 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  InputAdornment,
+  MenuItem,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useRef, useState } from 'react';
 import { registerSell } from '../../../services/checkout/checkoutService';
@@ -88,7 +98,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         totalVenta: res.totalVenta,
         tipoPago: res.tipoPago,
         id_UsuarioPase: res.id_UsuarioPase,
-        nombreUsuario: res.nombreUsuario
+        nombreUsuario: res.nombreUsuario,
       };
       conn.invoke('SendSell', resObj);
       refetch();
@@ -154,7 +164,9 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               placeholder="Nombre"
               inputRef={personNameRef}
               error={personNameError}
-              onChange={() => setPersonNameError(false)}
+              onChange={() => {
+                setPersonNameError(false);
+              }}
               helperText={personNameError && 'Escribe un nombre...'}
             />
           </Grid>
@@ -163,10 +175,17 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
           </Grid>
           <Grid item xs={8}>
             <TextField
+              InputProps={{
+                startAdornment: <InputAdornment position="end">$</InputAdornment>,
+              }}
               placeholder="Total"
               inputRef={totalAmountRef}
               error={totalAmountError}
-              onChange={() => setTotalAmountError(false)}
+              type="number"
+              inputProps={{ min: 0, inputMode: 'numeric', pattern: '[0-9]' }}
+              onChange={() => {
+                setTotalAmountError(false);
+              }}
               helperText={totalAmountError && 'Escribe una cantidad...'}
             />
           </Grid>
