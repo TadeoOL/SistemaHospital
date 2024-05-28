@@ -78,7 +78,6 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
         }&search=${search}&habilitado=${enabled}&id_Almacen=${warehouseId
         }&id_AlmacenPrincipal=${warehouseId}&id_SubCategoria=${subCategoryId}`
       );
-      console.log("res postArticlesPagination",res.data);
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
         pageSize: res.pageSize,

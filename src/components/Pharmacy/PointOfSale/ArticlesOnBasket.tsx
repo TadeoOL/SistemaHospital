@@ -2,7 +2,6 @@ import { AddCircleOutlineRounded, Delete, RemoveCircleOutlineRounded } from '@mu
 import { Box, Card, IconButton, Stack, Typography, alpha } from '@mui/material';
 import { neutral } from '../../../theme/colors';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
-import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { useShallow } from 'zustand/react/shallow';
 import { IArticle2 } from '../../../types/types';
 
@@ -22,11 +21,14 @@ interface ResumeSaleProps {
 interface CardItemsProps {
   article: IArticle2;
   maxAmount: number;
+  id: string;
+  fechaCaducidad: string;
 }
 interface AddAndRemoveButtonsProps {
   amount: number;
   maxAmount: number;
   id: string;
+  idArticleNested: string;
 }
 
 export const ArticlesOnBasket = (props: ResumeSaleProps) => {
@@ -42,13 +44,15 @@ export const ArticlesOnBasket = (props: ResumeSaleProps) => {
             item?.lote?.map((nestedArt) => (
               <CardItems
                 key={nestedArt.id_ArticuloExistente}
+                id={nestedArt.id_ArticuloExistente}
                 article={{
                   ...item,
                   cantidad: nestedArt.cantidad,
                 }}
+                fechaCaducidad={nestedArt.fechaCaducidad}
                 maxAmount={
                   item.listaArticuloExistente.find((a) => a.id_ArticuloExistente === nestedArt.id_ArticuloExistente)
-                    ?.cantidad || 10
+                    ?.cantidad || 0
                 }
               />
             ))
@@ -79,11 +83,9 @@ const CardItems = (props: CardItemsProps) => {
       <Stack sx={{ display: 'flex' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{article.nombre}</Typography>
-          {
-            // <Typography sx={{ fontSize: 10, fontWeight: 500 }}>{article.fechaCaducidad}</Typography>
-          }
         </Box>
         <Typography sx={{ fontSize: 11, fontWeight: 500 }}>Codigo: {article.codigoBarras}</Typography>
+        <Typography sx={{ fontSize: 13, fontWeight: 500 }}>Lote: {props.fechaCaducidad}</Typography>
         <Box
           sx={{
             display: 'flex',
@@ -95,9 +97,14 @@ const CardItems = (props: CardItemsProps) => {
         >
           <Typography sx={{ fontSize: 14, fontWeight: 500 }}>${article.precioVenta}</Typography>
           <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
-            <b>Cantidad: </b> {article.cantidad}
+            <b>Cantidad: </b> {props.maxAmount}
           </Typography>
-          {<AddAndRemoveButtons amount={article.cantidad || 0} id={article.id_Articulo} maxAmount={props.maxAmount} />}
+          <AddAndRemoveButtons
+            amount={article.cantidad || 0}
+            id={article.id_Articulo}
+            maxAmount={props.maxAmount}
+            idArticleNested={props.id}
+          />
         </Box>
       </Stack>
     </Card>
@@ -105,19 +112,26 @@ const CardItems = (props: CardItemsProps) => {
 };
 
 const AddAndRemoveButtons = (props: AddAndRemoveButtonsProps) => {
-  const data = usePosArticlesPaginationStore((state) => state.data);
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
   const articlesOnBasket = usePosOrderArticlesStore(useShallow((state) => state.articlesOnBasket));
   const findIndex = articlesOnBasket.findIndex((article) => article.id_Articulo === props.id);
-  const maxAmountArticle = data.find((article) => article.id_Articulo === props.id)?.cantidad || 0;
 
   const handleAddAmount = () => {
-    console.log(props.maxAmount);
     if (props.amount === props.maxAmount) return;
     if (findIndex !== -1) {
       const updatedArticlesOnBasket = [...articlesOnBasket];
-      updatedArticlesOnBasket[findIndex].cantidad = (updatedArticlesOnBasket[findIndex]?.cantidad || 0) + 1;
-      setArticlesOnBasket(updatedArticlesOnBasket);
+      const article = updatedArticlesOnBasket[findIndex];
+      const secondIndex = article.lote?.findIndex(
+        (articleLote) => articleLote.id_ArticuloExistente === props.idArticleNested
+      );
+      if (secondIndex !== -1 && article.lote) {
+        const loteIndex = article.lote.findIndex((lote) => lote.id_ArticuloExistente === props.idArticleNested);
+
+        if (loteIndex !== -1) {
+          article.lote[loteIndex].cantidad = (article.lote[loteIndex].cantidad || 0) + 1;
+          setArticlesOnBasket(updatedArticlesOnBasket);
+        }
+      }
     }
   };
 
@@ -125,8 +139,18 @@ const AddAndRemoveButtons = (props: AddAndRemoveButtonsProps) => {
     if (props.amount === 1) return;
     if (findIndex !== -1) {
       const updatedArticlesOnBasket = [...articlesOnBasket];
-      updatedArticlesOnBasket[findIndex].cantidad = (updatedArticlesOnBasket[findIndex]?.cantidad || 0) - 1;
-      setArticlesOnBasket(updatedArticlesOnBasket);
+      const article = updatedArticlesOnBasket[findIndex];
+      const secondIndex = article.lote?.findIndex(
+        (articleLote) => articleLote.id_ArticuloExistente === props.idArticleNested
+      );
+      if (secondIndex !== -1 && article.lote) {
+        const loteIndex = article.lote.findIndex((lote) => lote.id_ArticuloExistente === props.idArticleNested);
+
+        if (loteIndex !== -1) {
+          article.lote[loteIndex].cantidad = (article.lote[loteIndex].cantidad || 0) - 1;
+          setArticlesOnBasket(updatedArticlesOnBasket);
+        }
+      }
     }
   };
 
