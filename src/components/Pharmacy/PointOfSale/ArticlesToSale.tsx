@@ -46,6 +46,9 @@ const useGetAllData = () => {
 
 interface ArticlesToSaleProps {
   sx?: any;
+  openModal?: boolean;
+  articleSelectedByBarCode: IArticle2;
+  setOpenLoteModal: Function;
 }
 
 export const ArticlesToSale = (props: ArticlesToSaleProps) => {
@@ -56,7 +59,6 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
   const [openLoteModal, setOpenLoteModal] = useState(false);
-  const [loteEditing, setLoteEditing] = useState(false);
 
   /*const articlesToSale = useMemo(
     () =>
@@ -69,18 +71,17 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
     return pageIndex < pageCount;
   }, [pageIndex, pageCount]);
 
-  //console.log({ pageIndex });
-  //console.log({ pageCount });
-  const handleAddArticleToBasket = (article: IArticle2) => {
-    console.log(article);
-    if (articlesOnBasket.some((a) => a.id_Articulo === article.id_Articulo)) return;
-    const articleModified = data
-      .map((a) => {
-        return { ...a, cantidad: 1 };
-      })
-      .filter((a) => a.id_Articulo === article.id_Articulo);
-    setArticlesOnBasket([...articlesOnBasket, ...articleModified]);
-  };
+  useEffect(() => {
+    console.log('yusefe');
+    if (props.openModal) {
+      console.log('im in');
+      console.log(props.articleSelectedByBarCode);
+      setArticleSelected(props.articleSelectedByBarCode);
+      setArticleId(props.articleSelectedByBarCode.id_Articulo);
+      setOpenLoteModal(true);
+      props.setOpenLoteModal(false); // para reiniciar el estado de busqueda por codigo de barras
+    }
+  }, [props.openModal]);
 
   const handleAddArticle = (articles: any, lotesFromArticle: IExistingArticleList[]) => {
     if (articleSelected) {
@@ -109,11 +110,11 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           cantidad: 1,
           lote: [updatedLote],
         };
-        const nosewe = {
+        /*const nosewe = {
           ...articleSelected,
           lote: [updatedArticle],
           cantidad: lotesFromArticle.reduce((total, lote) => total + lote.cantidad, 0),
-        };
+        };*/
         setArticlesOnBasket([...articlesOnBasket, updatedArticle]);
         //setOriginalArticlesSelected((prev: any) => [...prev, nosewe]);
         setArticleSelected(null);
