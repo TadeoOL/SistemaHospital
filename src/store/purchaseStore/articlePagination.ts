@@ -12,6 +12,7 @@ interface State {
   sort: string
   enabled: boolean;
   handleChangeArticle: boolean;
+  warehouseSelected: string;
 }
 
 interface Action {
@@ -22,6 +23,7 @@ interface Action {
   setSearch: (search: string) => void;
   setSort: (sort: string) => void;
   setEnabled: (enabled: boolean) => void;
+  setWarehouseSelected: (warehouseSelected: string) => void;
   setHandleChangeArticle: (handleChangeArticle: boolean) => void;
   fetchArticles: () => Promise<void>;
   cleanArticles: () => void;
@@ -37,6 +39,7 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   isLoading: true,
   search: '',
   sort:'',
+  warehouseSelected: 'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5',//harcodeo insano de farmacia
   enabled: true,
   handleChangeArticle: false,
   setHandleChangeArticle: (handleChangeArticle: boolean) => set({ handleChangeArticle }),
@@ -47,15 +50,17 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setSort: (sort: string) => set ({ sort }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  setWarehouseSelected: (warehouseSelected: string)=> set({warehouseSelected}),
   fetchArticles: async () => {
-    const { pageIndex, pageSize, enabled, search, sort } = get();
+    const { pageIndex, pageSize, enabled, search, sort, warehouseSelected } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&sort=${sort}&habilitado=${enabled}`
+        }&search=${search}&sort=${sort}&habilitado=${enabled
+        }&id_AlmacenPrincipal=${warehouseSelected}&id_Almacen=${warehouseSelected}`
       );
       set(() => ({
         data: res.data,

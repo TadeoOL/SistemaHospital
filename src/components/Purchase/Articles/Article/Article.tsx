@@ -1,11 +1,12 @@
-import { Box, Button, Divider, Modal, Stack } from '@mui/material';
+import { Box, Button, Divider, MenuItem, Modal, Stack, TextField } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArticleTable } from './ArticleTable';
 import { AddArticleModal } from './Modal/AddArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
 // import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
 
 const Article = () => {
@@ -13,11 +14,20 @@ const Article = () => {
   // const [warehouseSelected, setWarehouseSelected] = useState('');
   //const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   // const { almacenes } = useGetAlmacenes();
-  const { enabled, setEnabled, setSearch } = useArticlePagination((state) => ({
-    enabled: state.enabled,
-    setEnabled: state.setEnabled,
-    setSearch: state.setSearch,
-  }));
+  const { almacenes } = useGetAlmacenes();
+  const { enabled, setEnabled, setSearch, refetchArticles, warehouseSelected, setWarehouseSelected } =
+    useArticlePagination((state) => ({
+      enabled: state.enabled,
+      setEnabled: state.setEnabled,
+      setSearch: state.setSearch,
+      refetchArticles: state.fetchArticles,
+      warehouseSelected: state.warehouseSelected,
+      setWarehouseSelected: state.setWarehouseSelected,
+    }));
+
+  useEffect(() => {
+    refetchArticles();
+  }, [warehouseSelected]);
 
   return (
     <>
@@ -47,6 +57,24 @@ const Article = () => {
             }}
           >
             <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%' }} />
+            <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
+              <TextField
+                select
+                label="Busqueda por almacén"
+                size="small"
+                value={warehouseSelected}
+                onChange={(e: any) => {
+                  console.log(e.target.value);
+                  setWarehouseSelected(e.target.value);
+                }}
+              >
+                {almacenes.map((warehouse) => (
+                  <MenuItem key={warehouse.id} value={warehouse.id}>
+                    {warehouse.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
             {/* <TextField
               sx={{ width: 200 }}
               select

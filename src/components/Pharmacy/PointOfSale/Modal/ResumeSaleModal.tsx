@@ -23,7 +23,6 @@ import { neutral, primary } from '../../../../theme/colors';
 import { usePosArticlesPaginationStore } from '../../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { toast } from 'react-toastify';
 import { registerSale } from '../../../../services/pharmacy/pointOfSaleService';
-import { invariant } from 'framer-motion';
 
 const style = {
   position: 'absolute',
@@ -89,13 +88,25 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
     console.log(articlesOnBasket);
-    const articlesFormatted = articlesOnBasket.map((article) => {
-      return {
-        id: article.id_Articulo,
-        cantidad: article.cantidad,
-        precioUnitario: article.precioVenta,
-      };
+    let articlesFormatted: any = [];
+    articlesOnBasket.forEach((article) => {
+      article?.lote?.forEach((articleNested) => {
+        articlesFormatted.push({
+          id: articleNested.id_ArticuloExistente,
+          cantidad: articleNested.cantidad,
+          precioUnitario: article.precioVenta,
+        });
+      });
     });
+    /*((article) => {
+      article?.lote?.map((articleNested) => {
+        return {
+          id: articleNested.id_ArticuloExistente,
+          cantidad: articleNested.cantidad,
+          precioUnitario: article.precioVenta,
+        };
+      });
+    });*/
     console.log({ userSalesRegisterData });
     const saleObject = {
       id_Caja: userSalesRegisterData.id,
@@ -105,7 +116,6 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
       totalVenta: total,
     };
     console.log('salewe', saleObject);
-    return;
     try {
       await registerSale(saleObject);
       refetch();
@@ -175,6 +185,7 @@ const TableHeaderResume = () => {
         <TableCell>Código de barras</TableCell>
         <TableCell>Cantidad</TableCell>
         <TableCell>Precio unitario</TableCell>
+        <TableCell>IVA</TableCell>
         <TableCell>Precio total articulo</TableCell>
       </TableRow>
     </TableHead>
@@ -187,7 +198,13 @@ const TableBodyResume = () => {
   return (
     <TableBody>
       {articlesOnBasket.map((article) => (
-        <TableRowArticleResume article={article} key={article.id_Articulo} />
+        <TableRowArticleResume
+          article={{
+            ...article,
+            cantidad: article.lote?.reduce((total, item) => total + item.cantidad, 0) || 0,
+          }}
+          key={article.id_Articulo}
+        />
       ))}
     </TableBody>
   );
@@ -204,6 +221,7 @@ const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
       <TableCell>{article.codigoBarras}</TableCell>
       <TableCell>{article.cantidad}</TableCell>
       <TableCell>{article.precioVenta}</TableCell>
+      <TableCell>{article.iva || 0}</TableCell>
       <TableCell>{totalPriceArticle}</TableCell>
     </TableRow>
   );

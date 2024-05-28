@@ -4,6 +4,7 @@ import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/po
 import { useEffect, useState, useCallback } from 'react';
 import { primary } from '../../../theme/colors';
 import { toast } from 'react-toastify';
+import { IArticle2 } from '../../../types/types';
 
 export const ResumeSale = () => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
@@ -12,13 +13,21 @@ export const ResumeSale = () => {
   const setIva = usePosOrderArticlesStore((state) => state.setIva);
   const setTotal = usePosOrderArticlesStore((state) => state.setTotal);
   const [open, setOpen] = useState(false);
+  const totalByArticle = (articleTocount: IArticle2) => {
+    if (articleTocount.lote) {
+      const arreglonumeros = articleTocount.lote.map((art) => art.cantidad);
+      const sumLote = arreglonumeros.reduce((total, num) => total + num, 0);
+      return sumLote;
+    }
+    return 0;
+  };
   const { subTotal, iva } = articlesOnBasket.reduce(
     (acc, article) => {
       const precioConIva =
         article.iva && article.iva > 0 ? article.iva * 0.01 * Number(article.precioVenta) : Number(article.precioVenta);
-      const precioTotal = (article.cantidad || 0) * precioConIva;
+      const precioTotal = totalByArticle(article) * precioConIva;
       const ivaArticulo =
-        article.iva && article.iva > 0 ? precioTotal - (article.cantidad || 0) * Number(article.precioVenta) : 0;
+        article.iva && article.iva > 0 ? precioTotal - totalByArticle(article) * Number(article.precioVenta) : 0;
 
       return {
         subTotal: acc.subTotal + precioTotal,
