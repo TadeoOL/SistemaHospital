@@ -964,7 +964,7 @@ const StepThree = (props: { setOpen: Function }) => {
           };
         }),
         notas: note,
-        PDFCadena: pdf
+        PDFCadena: pdf,
       };
       try {
         await addDirectlyPurchaseOrder(object);
