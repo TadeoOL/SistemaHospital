@@ -51,7 +51,7 @@ const headTitlesAdmin = [
   'Notas',
   'Acciones',
 ];
-
+const headTitlesFarmacia = ['Folio', 'Costo total', 'Monto de Pago', 'Tipo de pago', 'Estatus', 'Notas', 'Acciones'];
 interface CheckoutTableComponentProps {
   data: ICheckoutSell[];
   admin: boolean;
@@ -63,10 +63,12 @@ interface CheckoutTableComponentProps {
   hideActions?: boolean;
   refetch?: Function;
   enableEditNote?: boolean;
+  fromPointOfSale: boolean;
 }
 
 interface CheckoutTableProps {
   heads: string[];
+  fromPointOfSale: boolean;
 }
 
 interface CheckoutTableBodyProps {
@@ -75,6 +77,7 @@ interface CheckoutTableBodyProps {
   admin: boolean;
   refetch: Function;
   enableEditNote: boolean;
+  fromPointOfSale: boolean;
 }
 
 interface CheckoutTableRowProps {
@@ -83,6 +86,7 @@ interface CheckoutTableRowProps {
   admin: boolean;
   refetch: Function;
   enableEditNote: boolean;
+  fromPointOfSale: boolean;
 }
 
 export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
@@ -90,13 +94,17 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
     <Card>
       <TableContainer>
         <Table>
-          <CheckoutTableHeader heads={props.admin ? headTitlesAdmin : headTitlesCaja} />
+          <CheckoutTableHeader
+            heads={props.admin ? headTitlesAdmin : headTitlesCaja}
+            fromPointOfSale={props.fromPointOfSale}
+          />
           <CheckoutTableBody
             data={props.data}
             admin={props.admin}
             hideActions={props?.hideActions || false}
             refetch={props?.refetch || (() => {})}
             enableEditNote={props?.enableEditNote || false}
+            fromPointOfSale={props.fromPointOfSale}
           />
           {props.data.length > 0 && (
             <TableFooterComponent
@@ -118,9 +126,12 @@ const CheckoutTableHeader = (props: CheckoutTableProps) => {
   return (
     <TableHead>
       <TableRow>
-        {props.heads.map((title, i) => (
-          <TableCell key={i + title}>{title}</TableCell>
-        ))}
+        {
+          props.fromPointOfSale
+            ? headTitlesFarmacia.map((title, i) => <TableCell key={i + title}>{title}</TableCell>)
+            : props.heads.map((title, i) => <TableCell key={i + title}>{title}</TableCell>)
+          //headTitlesFarmacia
+        }
       </TableRow>
     </TableHead>
   );
@@ -137,6 +148,7 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
           hideActions={props.hideActions}
           refetch={props.refetch}
           enableEditNote={props.enableEditNote}
+          fromPointOfSale={props.fromPointOfSale}
         />
       ))}
     </TableBody>
@@ -206,14 +218,14 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
     <>
       <TableRow>
         <TableCell>{data.folio}</TableCell>
-        <TableCell>{data.moduloProveniente}</TableCell>
-        <TableCell>{data.paciente}</TableCell>
+        {!props.fromPointOfSale && <TableCell>{data.moduloProveniente}</TableCell>}
+        {!props.fromPointOfSale && <TableCell>paciente?{data.paciente}</TableCell>}
         <TableCell>$ {data.totalVenta}</TableCell>
         {admin && <TableCell>{data.nombreUsuario}</TableCell>}
         <TableCell>{data.montoPago ? '$ ' + data.montoPago : 'No se ha cobrado'}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
-        {admin && <TableCell>{data.notas}</TableCell>}
+        {(admin || props.fromPointOfSale) && <TableCell>{data.notas}</TableCell>}
         <TableCell>
           {!props.hideActions ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -224,7 +236,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                   </IconButton>
                 </Tooltip>
               )}
-              {(data.notas || data.pdfCadena) && (
+              {(data.notas || data.pdfCadena) && !props.fromPointOfSale && (
                 <Tooltip title="Ver detalles">
                   <IconButton onClick={() => setOpenDetails(true)}>
                     <Visibility color="primary" />

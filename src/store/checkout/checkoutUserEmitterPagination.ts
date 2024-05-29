@@ -22,7 +22,7 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
-  fetchData: () => void;
+  fetchData: (module?: string) => void;
   setEnabled: (enabled: boolean) => void;
   setUpdateData: (dataUpdated: ICheckoutSell) => void;
 }
@@ -56,7 +56,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
       set({ data: [...copyData] });
     }
   },
-  fetchData: async () => {
+  fetchData: async (module?: string) => {
     const { enabled, search, pageIndex, pageSize } = get();
 
     set({ loading: true });
@@ -71,7 +71,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
 
     try {
       const res = await getUserEmitterSells(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}&Modulo=${module}`
       );
       set({
         data: res.data,

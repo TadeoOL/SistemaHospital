@@ -21,7 +21,10 @@ export const PointOfSaleTabs = () => {
       >
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
           <Tab label="Venta" value={0} />
-          <Tab label="Espera de Confirmación de Pago" value={1} />
+          <Tab label="Confirmación de pago" value={1} />
+          {
+            //cambial etra otra vaina
+          }
           <Tab label="Historial de Ventas" value={2} />
         </Tabs>
       </AppBar>
