@@ -85,7 +85,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
           <Grid container spacing={1}>
-            <Grid item xl={12}>
+            <Grid item xs={12}>
               <Typography>Nombre</Typography>
               <TextField
                 placeholder="Escribe un nombre..."
@@ -95,7 +95,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 {...register('name')}
               />
             </Grid>
-            <Grid item xl={12}>
+            <Grid item xs={12}>
               <Typography>Tipo de cuarto</Typography>
               <TextField
                 label="Selecciona un tipo de cuarto"
@@ -115,7 +115,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 })}
               </TextField>
             </Grid>
-            <Grid item xl={12}>
+            <Grid item xs={12}>
               <Typography>Descripción</Typography>
               <TextField
                 placeholder="Escribe una descripción..."

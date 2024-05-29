@@ -557,4 +557,56 @@ export interface IRegisterRoom {
   nombre: string;
   horaInicio: Date;
   horaFin: Date;
+  provisionalId?: string;
+}
+
+export interface IRoomsList {
+  id: string;
+  tipoCuarto: string;
+  nombre: string;
+}
+
+export interface IRoomEvent {
+  id: string;
+  id_Cuarto: string;
+  nombre: string;
+  fechaInicio: string;
+  fechaFin: string;
+}
+export interface IEventsCalendar {
+  id: string;
+  roomId: string;
+  title: string;
+  start: Date;
+  end: Date;
+  source?: string;
+}
+
+export interface IPatient {
+  name: string;
+  lastName: string;
+  secondLastName: string;
+  age: string;
+  genere: string;
+  civilStatus: string;
+  phoneNumber: string;
+  occupation: string;
+  zipCode: string;
+  neighborhood: string;
+  address: string;
+  personInCharge: string;
+  relationship: string;
+  personInChargeZipCode: string;
+  personInChargeNeighborhood: string;
+  personInChargeAddress: string;
+  personInChargePhoneNumber: string;
+}
+
+export interface IClinicalData {
+  medicName: string;
+  specialty: string;
+  reasonForAdmission: string;
+  admissionDiagnosis: string;
+  procedure: string;
+  comments: string;
 }

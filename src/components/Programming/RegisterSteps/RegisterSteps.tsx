@@ -35,9 +35,9 @@ const renderStepView = (step: number, setOpen: Function) => {
 };
 
 export const RegisterSteps = (props: RegisterStepsProps) => {
-  const clearData = useProgrammingRegisterStore((state) => state.clearAllData);
+  const clearAllData = useProgrammingRegisterStore((state) => state.clearAllData);
   useEffect(() => {
-    return () => clearData();
+    return () => clearAllData();
   }, []);
 
   const step = useProgrammingRegisterStore((state) => state.step);

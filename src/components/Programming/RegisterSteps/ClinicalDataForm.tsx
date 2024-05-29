@@ -5,6 +5,12 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clinicalDataSchema } from '../../../schema/programming/programmingSchemas';
 import { toast } from 'react-toastify';
+import { IClinicalData } from '../../../types/types';
+import { useEffect } from 'react';
+import { createPatient } from '../../../services/programming/patientService';
+import { createAdmission } from '../../../services/programming/admissionRegisterService';
+import { createClinicalHistory } from '../../../services/programming/clinicalHistoryService';
+import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 
 const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
 
@@ -22,15 +28,6 @@ const scrollBarStyle = {
   },
 };
 
-type Inputs = {
-  medicName: string;
-  specialty: string;
-  reasonForAdmission: string;
-  admissionDiagnosis: string;
-  procedure: string;
-  comments: string;
-};
-
 interface ClinicalDataFormProps {
   setOpen: Function;
 }
@@ -38,24 +35,98 @@ interface ClinicalDataFormProps {
 export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
   const step = useProgrammingRegisterStore((state) => state.step);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
+  const clinicalData = useProgrammingRegisterStore((state) => state.clinicalData);
+  const patient = useProgrammingRegisterStore((state) => state.patient);
+  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+  const procedures = useProgrammingRegisterStore((state) => state.procedures);
+  const setClinicalData = useProgrammingRegisterStore((state) => state.setClinicalData);
+  const { admissionDiagnosis, comments, medicName, procedure, reasonForAdmission, specialty } = clinicalData;
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<Inputs>({
+  } = useForm<IClinicalData>({
     resolver: zodResolver(clinicalDataSchema),
+    defaultValues: {
+      admissionDiagnosis,
+      comments,
+      medicName,
+      procedure,
+      reasonForAdmission,
+      specialty,
+    },
   });
+  const watchAdmissionDiagnosis = watch('admissionDiagnosis');
+  const watchComments = watch('comments');
+  const watchMedicName = watch('medicName');
+  const watchProcedure = watch('procedure');
+  const watchReasonForAdmission = watch('reasonForAdmission');
+  const watchSpecialty = watch('specialty');
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const onSubmit: SubmitHandler<IClinicalData> = async (data) => {
+    if (roomValues.length < 1) return toast.error('Debes seleccionar un cuarto para dar de alta al paciente');
+    let startDate = roomValues[0].horaInicio;
+    let endDate = roomValues[0].horaFin;
+
+    for (let i = 1; i < roomValues.length; i++) {
+      if (roomValues[i].horaInicio < startDate) {
+        startDate = roomValues[i].horaInicio;
+      }
+      if (roomValues[i].horaFin > endDate) {
+        endDate = roomValues[i].horaFin;
+      }
+    }
     try {
-      console.log(data);
+      const patientRes = await createPatient(patient);
+      const registerClinicalHistoryObj = {
+        Id_Paciente: patientRes.id,
+        MedicoTratante: data.medicName,
+        Especialidad: data.specialty,
+        MotivoIngreso: data.reasonForAdmission,
+        DiagnosticoIngreso: data.admissionDiagnosis,
+        Procedimiento: data.procedure,
+        Comentarios: data.comments,
+      };
+      const clinicalDataRes = await createClinicalHistory(registerClinicalHistoryObj);
+      const registerAdmissionObj = {
+        pacienteId: patientRes.id,
+        historialClinicoId: clinicalDataRes.id,
+        procedimientos: procedures,
+        fechaInicio: startDate,
+        fechaFin: endDate,
+        cuartos: roomValues.map((r) => {
+          return {
+            cuartoId: r.id,
+            horaInicio: r.horaInicio,
+            horaFin: r.horaFin,
+            tipoCuarto: r.tipoCuarto,
+          };
+        }),
+      };
+      console;
+      await createAdmission(registerAdmissionObj);
+      refetch();
       toast.success('Paciente dado de alta correctamente');
       props.setOpen(false);
     } catch (error) {
       console.log(error);
+      toast.error('Error al dar de alta al paciente');
     }
   };
+
+  useEffect(() => {
+    setClinicalData({
+      admissionDiagnosis: watchAdmissionDiagnosis,
+      comments: watchComments,
+      medicName: watchMedicName,
+      procedure: watchProcedure,
+      reasonForAdmission: watchReasonForAdmission,
+      specialty: watchSpecialty,
+    });
+  }, [watchAdmissionDiagnosis, watchComments, watchMedicName, watchReasonForAdmission, watchSpecialty, watchProcedure]);
 
   return (
     <>

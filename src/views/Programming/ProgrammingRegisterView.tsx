@@ -1,4 +1,4 @@
-import { HospitalizationRegister } from '../../components/Programming/ProgrammingRegister';
+import { HospitalizationRegister } from '../../components/Programming/Register/ProgrammingRegister';
 
 const ProgrammingRegisterView = () => {
   return <HospitalizationRegister />;
