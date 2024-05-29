@@ -37,7 +37,6 @@ export const Note = (props: NoteProps) => {
           '& .MuiInputLabel-shrink': {
             opacity: 0,
             transition: 'all 0.2s ease-in',
-            padding: 1,
           },
           '& .MuiInputBase-root': {
             height: 150,

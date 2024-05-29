@@ -1,15 +1,37 @@
-import { Box, Button, Checkbox, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
-import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import {
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Divider,
+  Grid,
+  MenuItem,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { patientRegistrationSchema } from '../../../schema/programming/programmingSchemas';
-// import { toast } from 'react-toastify';
+import { patientRegistrationSchema } from '../../../../../schema/programming/programmingSchemas';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { Paciente } from '../../../../../types/admissionTypes';
+import { getPatientById, modifyPatient } from '../../../../../services/programming/patientService';
+import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
+import Swal from 'sweetalert2';
 
-// const CIVIL_STATUS = ['Soltero(a)', 'Casado(a)', 'Divorciado(a)', 'Viudo(a)'];
-const GENERE = ['Hombre', 'Mujer'];
-const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: 380, sm: 550, md: 650 },
+  borderRadius: 2,
+  boxShadow: 24,
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: { xs: 900 },
+};
 
 const scrollBarStyle = {
   '&::-webkit-scrollbar': {
@@ -24,6 +46,9 @@ const scrollBarStyle = {
     outline: '1px solid slategrey',
   },
 };
+
+const GENERE = ['Hombre', 'Mujer'];
+const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
 
 type Inputs = {
   name: string;
@@ -46,30 +71,76 @@ type Inputs = {
   personInChargePhoneNumber: string;
 };
 
-export const PatientRegistrationForm = () => {
-  const step = useProgrammingRegisterStore((state) => state.step);
-  const setStep = useProgrammingRegisterStore((state) => state.setStep);
-  const patient = useProgrammingRegisterStore((state) => state.patient);
-  const setPatient = useProgrammingRegisterStore((state) => state.setPatient);
-  const {
-    secondLastName,
-    lastName,
-    zipCode,
-    personInChargeZipCode,
-    neighborhood,
-    personInChargeNeighborhood,
-    address,
-    personInChargeAddress,
-    age,
-    civilStatus,
-    genere,
-    name,
-    personInCharge,
-    occupation,
-    relationship,
-    phoneNumber,
-    personInChargePhoneNumber,
-  } = patient;
+interface EditPersonalInfoModalProps {
+  setOpen: Function;
+  patientId: string;
+}
+
+const useGetPersonalData = (patientId: string) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [personalData, setPersonalData] = useState<Paciente>();
+
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchData = async () => {
+      try {
+        const res = await getPatientById(patientId);
+        setPersonalData(res);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+  return {
+    isLoading,
+    personalData,
+  };
+};
+
+export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
+  const { isLoading, personalData } = useGetPersonalData(props.patientId);
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const id = props.patientId;
+    const { sameAddress, ...rest } = data;
+    const obj = {
+      id,
+      ...rest,
+    };
+
+    Swal.fire({
+      title: '¿Estas seguro?',
+      text: 'Esta acción no se puede revertir',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'No',
+      reverseButtons: true,
+    }).then(async (res) => {
+      if (res.isConfirmed) {
+        try {
+          await modifyPatient(obj);
+          refetch();
+          Swal.fire({
+            title: 'Actualizado!',
+            text: 'Datos actualizados correctamente',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1000,
+          });
+          props.setOpen(false);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
+  };
 
   const {
     register,
@@ -80,31 +151,33 @@ export const PatientRegistrationForm = () => {
   } = useForm<Inputs>({
     resolver: zodResolver(patientRegistrationSchema),
     defaultValues: {
-      name,
-      lastName,
-      secondLastName,
-      phoneNumber,
-      genere,
-      zipCode,
-      personInChargeZipCode,
-      neighborhood,
-      personInChargeNeighborhood,
-      address,
-      personInChargeAddress,
-      age: age.toString(),
-      civilStatus,
-      personInCharge,
-      occupation,
-      relationship,
-      personInChargePhoneNumber,
+      genere: '',
     },
   });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    setPatient(data);
-    setStep(step + 1);
-    // toast.success("Datos registrados correctamente")
+  const defaultValues = {
+    name: personalData?.nombre,
+    lastName: personalData?.apellidoPaterno,
+    secondLastName: personalData?.apellidoMaterno,
+    phoneNumber: personalData?.telefono,
+    genere: personalData?.genero ? personalData.genero : '',
+    zipCode: personalData?.codigoPostal,
+    personInChargeZipCode: personalData?.codigoPostalResponsable,
+    neighborhood: personalData?.colonia,
+    personInChargeNeighborhood: personalData?.coloniaResponsable,
+    address: personalData?.direccion,
+    personInChargeAddress: personalData?.domicilioResponsable,
+    age: personalData?.edad.toString(),
+    civilStatus: personalData?.estadoCivil,
+    personInCharge: personalData?.nombreResponsable,
+    occupation: personalData?.ocupacion,
+    relationship: personalData?.parentesco,
+    personInChargePhoneNumber: personalData?.telefonoResponsable,
   };
+
+  const watchAddresPersonInCharge = watch('personInChargeAddress');
+  const watchPersonInChargeZipCode = watch('personInChargeZipCode');
+  const watchPersonInChargeNeighborhood = watch('personInChargeNeighborhood');
 
   const watchSameAddress = watch('sameAddress');
   const watchZipCode = watch('zipCode');
@@ -113,19 +186,38 @@ export const PatientRegistrationForm = () => {
   const watchGenere = watch('genere');
 
   useEffect(() => {
-    if (watchSameAddress) {
-      setValue('personInChargeAddress', watchAddress);
-      setValue('personInChargeNeighborhood', watchNeighborhood);
-      setValue('personInChargeZipCode', watchZipCode);
-    } else {
-      setValue('personInChargeZipCode', '');
-      setValue('personInChargeNeighborhood', '');
-      setValue('personInChargeAddress', '');
+    if (!isLoading) {
+      Object.keys(defaultValues).forEach((key) => {
+        setValue(key as keyof typeof defaultValues, defaultValues[key as keyof typeof defaultValues] as string);
+      });
     }
-  }, [watchSameAddress, watchZipCode, watchNeighborhood, watchAddress]);
+  }, [isLoading, setValue]);
 
+  useEffect(() => {
+    if (
+      watchAddresPersonInCharge === watchAddress &&
+      watchNeighborhood === watchPersonInChargeNeighborhood &&
+      watchZipCode === watchPersonInChargeZipCode
+    ) {
+      setValue('sameAddress', true);
+    }
+  }, [
+    watchAddress,
+    watchZipCode,
+    watchNeighborhood,
+    watchPersonInChargeNeighborhood,
+    watchPersonInChargeZipCode,
+    watchAddresPersonInCharge,
+  ]);
+
+  if (!personalData)
+    return (
+      <Backdrop open>
+        <CircularProgress size={15} />
+      </Backdrop>
+    );
   return (
-    <>
+    <Box sx={style}>
       <HeaderModal setOpen={() => {}} title="Alta de Paciente" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box
@@ -286,7 +378,7 @@ export const PatientRegistrationForm = () => {
               />
             </Grid>
             <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox {...register('sameAddress')} />
+              <Checkbox {...register('sameAddress')} checked={watchSameAddress} />
               <Typography sx={TYPOGRAPHY_STYLE}>Mismo Domicilio</Typography>
             </Grid>
             <Grid item xs={12} md={3}>
@@ -345,14 +437,14 @@ export const PatientRegistrationForm = () => {
             p: 1,
           }}
         >
-          <Button variant="contained" onClick={() => setStep(step - 1)}>
-            Regresar
+          <Button variant="outlined" onClick={() => props.setOpen(false)} color="error">
+            Cancelar
           </Button>
           <Button type="submit" variant="contained">
-            Siguiente
+            Aceptar
           </Button>
         </Box>
       </form>
-    </>
+    </Box>
   );
 };

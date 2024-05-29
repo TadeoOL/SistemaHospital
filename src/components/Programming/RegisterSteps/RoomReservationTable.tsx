@@ -1,37 +1,38 @@
-import { Card, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
+import { Box, Card, IconButton, Table, TableBody, TableCell, TableContainer, TableRow, Tooltip } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { IRegisterRoom } from '../../../types/types';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
+import dayjs from 'dayjs';
+import { Delete } from '@mui/icons-material';
+import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 const HEADERS = ['Tipo de cuarto', 'Cuarto', 'Hora Inicio', 'Hora Fin', 'Acciones'];
-interface RoomReservationTableProps {
-  data: IRegisterRoom[];
-}
-interface RoomReservationTableBodyProps extends RoomReservationTableProps {}
 interface RoomReservationTableRowProps {
   data: IRegisterRoom;
 }
 
-export const RoomReservationTable = (props: RoomReservationTableProps) => {
+export const RoomReservationTable = () => {
+  const roomsValues = useProgrammingRegisterStore((state) => state.roomValues);
   return (
     <Card>
       <TableContainer>
         <Table>
           <TableHeaderComponent headers={HEADERS} />
-          <RoomReservationTableBody data={props.data} />
+          <RoomReservationTableBody />
         </Table>
       </TableContainer>
-      {props.data.length < 1 && (
+      {roomsValues.length < 1 && (
         <NoDataInTableInfo infoTitle="No hay cuartos registrados" sizeIcon={30} variantText="h4" />
       )}
     </Card>
   );
 };
 
-const RoomReservationTableBody = (props: RoomReservationTableBodyProps) => {
+const RoomReservationTableBody = () => {
+  const roomsValues = useProgrammingRegisterStore((state) => state.roomValues);
   return (
     <TableBody>
-      {props.data.map((room) => (
-        <RoomReservationTableRow data={room} />
+      {roomsValues.map((room) => (
+        <RoomReservationTableRow key={room.id} data={room} />
       ))}
     </TableBody>
   );
@@ -39,12 +40,26 @@ const RoomReservationTableBody = (props: RoomReservationTableBodyProps) => {
 
 const RoomReservationTableRow = (props: RoomReservationTableRowProps) => {
   const { data } = props;
+  const roomsValues = useProgrammingRegisterStore((state) => state.roomValues);
+  const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
+  const handleRemove = () => {
+    setRoomValues(roomsValues.filter((room) => room.id !== data.id));
+  };
   return (
     <TableRow>
       <TableCell>{data.tipoCuarto}</TableCell>
       <TableCell>{data.nombre}</TableCell>
-      <TableCell>{data.horaInicio.toLocaleDateString()}</TableCell>
-      <TableCell>{data.horaFin.toLocaleDateString()}</TableCell>
+      <TableCell>{dayjs(data.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
+      <TableCell>{dayjs(data.horaFin).format('DD/MM/YYYY - HH:mm')}</TableCell>
+      <TableCell>
+        <Box>
+          <Tooltip title="Eliminar">
+            <IconButton onClick={handleRemove}>
+              <Delete color="error" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </TableCell>
     </TableRow>
   );
 };
