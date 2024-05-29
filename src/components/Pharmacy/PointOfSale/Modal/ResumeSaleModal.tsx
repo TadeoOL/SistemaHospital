@@ -23,6 +23,7 @@ import { neutral, primary } from '../../../../theme/colors';
 import { usePosArticlesPaginationStore } from '../../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { toast } from 'react-toastify';
 import { registerSale } from '../../../../services/pharmacy/pointOfSaleService';
+import { useState } from 'react';
 
 const style = {
   position: 'absolute',
@@ -81,10 +82,12 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
   const refetch = usePosArticlesPaginationStore((state) => state.fetchData);
   const clearData = usePosOrderArticlesStore((state) => state.clearData);
   const total = usePosOrderArticlesStore((state) => state.total);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   // const amountRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async () => {
     if (paymentMethod === 0) return toast.error('Selecciona un método de pago!');
+    setLoadingSubmit(true);
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
     console.log(articlesOnBasket);
@@ -125,6 +128,8 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     } catch (error) {
       console.log(error);
       toast.error('Error al realizar la compra!');
+    } finally {
+      setLoadingSubmit(false);
     }
   };
 
@@ -153,7 +158,7 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         >
           Cancelar
         </Button>
-        <Button variant="contained" onClick={() => handleSubmit()}>
+        <Button variant="contained" disabled={loadingSubmit} onClick={() => handleSubmit()}>
           Aceptar
         </Button>
       </Box>

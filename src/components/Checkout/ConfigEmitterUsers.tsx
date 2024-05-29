@@ -9,7 +9,6 @@ import { IConfigEmitterUsers } from '../../types/types';
 import LoadingView from '../../views/LoadingView/LoadingView';
 import { useGetCheckoutConfig } from '../../hooks/useGetCheckoutConfig';
 import { leaveConcepts } from '../../utils/checkoutUtils';
-
 const useGetUsers = () => {
   const [hashTableUsers, setHashTableUsers] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
