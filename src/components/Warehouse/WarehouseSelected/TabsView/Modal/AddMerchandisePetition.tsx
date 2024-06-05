@@ -31,12 +31,7 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
-import {
-  addMerchandiseEntry,
-  // getArticlesByWarehouseIdAndSearch,
-  getExistingArticles,
-  getWarehouseById,
-} from '../../../../../api/api.routes';
+import { addMerchandiseEntry, getExistingArticles, getWarehouseById } from '../../../../../api/api.routes';
 
 type Article = {
   id: string;
@@ -59,27 +54,6 @@ const style = {
   flexDirection: 'column',
   maxHeight: { xs: 600 },
 };
-
-// const useFetchPurchaseWarehouse = (warehouseId: string) => {
-//   const [isLoadingArticles, setIsLoadingExistingArticle] = useState(true);
-//   const [articlesRes, setArticlesFetched] = useState<ArticlesFetched[] | []>([]);
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       setIsLoadingExistingArticle(true);
-//       try {
-//         const data = await getArticlesByWarehouseIdAndSearch(warehouseId, '');
-//         setArticlesFetched(data.data);
-//       } catch (error) {
-//         console.log(error);
-//       } finally {
-//         setIsLoadingExistingArticle(false);
-//       }
-//     };
-//     fetchData();
-//   }, [warehouseId]);
-//   return { isLoadingArticles, articlesRes };
-// };
 
 export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
   const { warehouseId } = useParams();
@@ -111,8 +85,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     fetch();
   }, [warehouseId]);
   useEffect(() => {
-    console.log(warehouseData);
-  }, [warehouseData]);
+    handleFetchArticlesFromWareHouse(warehouseSelected);
+  }, [serch]);
 
   const { warehouseSelected, setWarehouseSelected, setArticles, articles, setArticlesFetched, articlesFetched } =
     useDirectlyPurchaseRequestOrderStore(
@@ -169,10 +143,10 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
+        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}&Id_AlmacenPrincipal=${wareH}&fechaInicio=&fechaFin=&sort=`
       );
       const transformedData = res.data.map((item: any) => ({
-        id: item.id,
+        id: item.id_Articulo,
         nombre: item.nombre,
         stock: item.stockActual,
       }));
@@ -201,7 +175,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
         Id_AlmacenDestino: warehouseId as string,
-        ListaArticulos: JSON.stringify(data.historialArticulos),
+        ListaArticulos: data.historialArticulos,
       };
       await addMerchandiseEntry(object);
       toast.success('Solicitud creada');
@@ -284,6 +258,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   placeholder="Artículos"
                   sx={{ width: '50%' }}
                   onChange={(e) => {
+                    if (e.target.value === null) {
+                      setSerch('');
+                    }
                     setSerch(e.target.value);
                   }}
                 />
@@ -532,7 +509,12 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
           onClick={() => {
             props.submitData({
               almacenDestino: warehouseSelected,
-              historialArticulos: articles.map((art) => ({ nombre: art.name, cantidad: art.amount })),
+              historialArticulos: articles.map((art) => ({
+                Id_Articulo: art.id,
+                Nombre: art.name,
+                Cantidad: art.amount,
+                FechaCaducidad: null,
+              })),
             });
           }}
         >

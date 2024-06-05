@@ -87,6 +87,20 @@ export const PackageModal = (props: { setOpen: Function }) => {
     fetch();
   }, []);
 
+  useEffect(() => {
+    const fetch = async () => {
+      setIsLoadingWarehouse(true);
+      try {
+        handleFetchArticlesFromWareHouse(warehouseId as string);
+      } catch (error) {
+        console.log('error');
+      } finally {
+        setIsLoadingWarehouse(false);
+      }
+    };
+    fetch();
+  }, [serch]);
+
   const { setArticles, articles, setArticlesFetched, articlesFetched } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       warehouseSelected: state.warehouseSelected,

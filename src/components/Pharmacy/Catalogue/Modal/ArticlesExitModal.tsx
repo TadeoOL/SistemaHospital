@@ -31,23 +31,25 @@ import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {
-  articlesOutputToWarehouse,
+  articlesOutputToWarehouseToWarehouse,
   articlesEntryToWarehouse,
-  getArticlesByWarehouseIdAndSearch,
+  getArticlesFromWarehouseSearch,
   getNursesUsers,
   getPackagesByWarehouseId,
+  getExistingArticles,
 } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 //import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import AnimateButton from '../../../@extended/AnimateButton';
 import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore, WarningAmber } from '@mui/icons-material';
-import { IArticle, IArticlesPackage } from '../../../../types/types';
+import { IArticleFromSearch, IArticlesPackage, IExistingArticleList } from '../../../../types/types';
 import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
-import { LoteSelection } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelection';
+import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
+import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
 
 const OPTIONS_LIMIT = 5;
-const filterArticleOptions = createFilterOptions<IArticle>({
+const filterArticleOptions = createFilterOptions<IArticleFromSearch>({
   limit: OPTIONS_LIMIT,
 });
 const filterPackageOptions = createFilterOptions<IArticlesPackage>({
@@ -106,14 +108,20 @@ export const ArticlesExitModal = (props: {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
-  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
-  const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<IArticle[]>([]);
+  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearch[]>([]);
+  const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<
+    IArticleFromSearch[]
+  >([]);
   const [nursesData, setNursesData] = useState<string[]>([]);
   const textFieldRef = useRef<HTMLInputElement | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
   const [articlesFetchedAM, setArticlesFetchedAM] = useState<ArticlesFetched[] | []>([]);
+  const [search, setSearch] = useState('');
+
+  const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
+  const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
 
   const defaultRoomsQuirofano = ['C-1', 'C-2', 'C-3', 'C-4', 'EndoPro', 'LPR'];
   const defaultRoomsHospitalizacion = [
@@ -136,68 +144,51 @@ export const ArticlesExitModal = (props: {
   ];
 
   useEffect(() => {
+    setWarehouseId(props.warehouseId);
+  }, []);
+
+  useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        const res = await getArticlesByWarehouseIdAndSearch(props.warehouseId, '');
-        console.log('res articucklos', res);
-        const fokinshi = [
-          {
-            id_Articulo: 'article1',
-            nombre: 'Articulo 1',
-            lote: [
-              { stock: 10, fechaCaducidad: '2024-06-01', Id_ArticuloExistente: 'lote1-1' },
-              { stock: 20, fechaCaducidad: '2024-07-01', Id_ArticuloExistente: 'lote1-2' },
-              { stock: 15, fechaCaducidad: '2024-08-01', Id_ArticuloExistente: 'lote1-3' },
-            ],
-            stockActual: '45',
-            cantidad: '45',
-            codigoBarras: '1234567890123',
-          },
-          {
-            id_Articulo: 'article2',
-            nombre: 'Articulo 2',
-            lote: [
-              { stock: 5, fechaCaducidad: '2024-06-10', Id_ArticuloExistente: 'lote2-1' },
-              { stock: 7, fechaCaducidad: '2024-07-10', Id_ArticuloExistente: 'lote2-2' },
-              { stock: 1, fechaCaducidad: '2024-08-10', Id_ArticuloExistente: 'lote2-3' },
-            ],
-            stockActual: '13',
-            cantidad: '13',
-            codigoBarras: '9876543210987',
-          },
-          {
-            id_Articulo: 'article3',
-            nombre: 'Articulo 3',
-            lote: [
-              { stock: 3, fechaCaducidad: '2024-05-15', Id_ArticuloExistente: 'lote3-1' },
-              { stock: 4, fechaCaducidad: '2024-06-15', Id_ArticuloExistente: 'lote3-2' },
-              { stock: 5, fechaCaducidad: '2024-07-15', Id_ArticuloExistente: 'lote3-3' },
-            ],
-            stockActual: '12',
-            cantidad: '12',
-            codigoBarras: '4567890123456',
-          },
-        ];
+        const res = await getExistingArticles(
+          `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
+        );
         setArticlesFetchedAM(
-          fokinshi.map((a: ArticlesFetched) => {
-            return { ...a, stockActual: a.stockActual.toString() };
+          res.data.map((a: IArticleFromSearch) => {
+            return { ...a };
           })
         );
         handleFetchArticlesFromWareHouse();
         handleFetchArticlesPackagesFromWareHouse(props.warehouseId);
       } catch (error) {
-        console.log('error');
+        console.log(error);
       } finally {
         setIsLoadingWarehouse(false);
       }
     };
     fetch();
   }, []);
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await getExistingArticles(
+          `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
+        );
+        setDataWerehouseArticlesSelected(
+          res.data.map((a: IArticleFromSearch) => {
+            return { ...a };
+          })
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetch();
+  }, [search]);
   const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
-  //const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
 
-  const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
+  const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearch>(null);
   const [nurseSelected, setNurseSelected] = useState<string>();
   const [roomSelected, setRoomSelected] = useState<string | null>();
   const [roomError, setRoomError] = useState(false);
@@ -205,7 +196,9 @@ export const ArticlesExitModal = (props: {
   const [openLoteModal, setOpenLoteModal] = useState(false);
   const [loteEditing, setLoteEditing] = useState(false);
   const [temporalLoteEditing, setTemporalLoteEditing] = useState(false);
-  //const [loteSelected, setLoteSelected] = useState<loteFetch[] | null>(null);
+  const [loteSelected, setLoteSelected] = useState<
+    { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
+  >(null);
   const [articlesToSelect, setArticlesToSelect] = useState<ArticlesFetched[] | []>([]);
 
   useEffect(() => {
@@ -217,44 +210,25 @@ export const ArticlesExitModal = (props: {
       setArticleError(true);
       return toast.warning('Selecciona un articulo!');
     }
-
-    /*const objectArticle = {
-      id: articleSelected.id,
-      name: articleSelected.nombre,
-      amount: 1,
-      price: 0,
-      stock: Number(articlesFetchedAM.find((art) => art.id === articleSelected.id)?.stockActual) || 0,
-      lote: articlesFetchedAM
-        .find((f) => f.id === articleSelected.id)
-        ?.lote?.sort((a, b) => {
-          return new Date(b.fechaCaducidad).getTime() - new Date(a.fechaCaducidad).getTime();
-        }),
-    };
-    const objectFiltered = articlesFetched.filter((a) => a.id !== objectArticle.id);
-    setArticlesFetched(objectFiltered);
-    setArticles([...articles, objectArticle]);
-    setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
-    setArticleSelected(null);
-    */
   };
 
-  const handleAddArticle = (articles: any, edit: boolean) => {
-    const updatedLote = [];
-    let totalAmount = 0;
-    for (const item of articles) {
-      updatedLote.push({
-        stock: item.stock,
-        Id_ArticuloExistente: item.id_ArticuloExistente,
-        fechaCaducidad: item.fechaCaducidad,
-      });
-      totalAmount += item.stock;
-    }
+  const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
+    let totalQuantityByArticle = 0;
+    const updatedLote: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] = [];
+    lotesArticles.forEach((element) => {
+      const nestedLote = {
+        cantidad: element.cantidad,
+        id_ArticuloExistente: element.id_ArticuloExistente,
+        fechaCaducidad: element.fechaCaducidad,
+      };
+      updatedLote.push(nestedLote);
+      totalQuantityByArticle += element.cantidad;
+    });
     const updatedArticle = {
       ...articleSelected,
-      cantidad: totalAmount,
-      loteChanges: updatedLote,
+      cantidad: totalQuantityByArticle,
+      lote: updatedLote,
     };
-    console.log(updatedArticle);
     if (temporalLoteEditing) {
       const direction = articlesToSelect.findIndex(
         (art) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
@@ -289,7 +263,7 @@ export const ArticlesExitModal = (props: {
           )
       )
       .map((artPack: any) => ({
-        id_Articulo: artPack.id,
+        id_Articulo: artPack.id_Articulo,
         nombre: artPack.nombre,
         lote: artPack?.lote
           ? artPack.lote.map((artLote: any) => ({
@@ -297,7 +271,6 @@ export const ArticlesExitModal = (props: {
             }))
           : [],
         cantidad: artPack.cantidad.toString(),
-        stockActual: '0',
         //cambio quiza agregar codigo de barras
       }));
     setArticlesToSelect(formatPackageL as any[]);
@@ -306,13 +279,10 @@ export const ArticlesExitModal = (props: {
   const handleFetchArticlesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
-      console.log('esta puta mierda es la q se cicla');
-      const res = await getArticlesByWarehouseIdAndSearch(props.warehouseId, '');
-      const transformedData = res.data.map((item: any) => ({
-        id: item.id_Articulo,
+      const res = await getArticlesFromWarehouseSearch(search, props.warehouseId);
+      const transformedData = res.map((item: any) => ({
+        id_Articulo: item.id_Articulo,
         nombre: item.nombre,
-        stock: item.stockActual,
-        lote: item.lote,
       }));
       if (dataWerehouseSelectedArticlesInitial?.length < 1) {
         setDataWerehouseArticlesSelectedInitial(transformedData);
@@ -329,10 +299,8 @@ export const ArticlesExitModal = (props: {
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getPackagesByWarehouseId(wareH);
-      console.log('paketaxos', res);
       setDataWerehousePackagesSelected(res);
       const resNurses = await getNursesUsers();
-      console.log(resNurses);
       setNursesData(resNurses);
     } catch (error) {
       console.log(error);
@@ -378,48 +346,24 @@ export const ArticlesExitModal = (props: {
 
       let articlesArticlesExit: any = [];
       for (const article of articles as any) {
-        //(articles as any).forEach((article: any) => {
-        //let amountArt = article.amount;
-        /*if (amountArt > article.stock) {
-          toast.error(`La cantidad de salida del articulo ${article.name} esta superando la existencias actuales! `);
-          setLoadingSubmit(false);
-          return;
-        }*/
-        console.log('articulo vuelta', article);
-        article.loteChanges.forEach((loteA: any) => {
+        article.lote.forEach((loteA: any) => {
           articlesArticlesExit.push({
-            Id_ArticuloExistente: loteA.Id_ArticuloExistente,
-            Cantidad: loteA.stock.toString(),
+            Id_ArticuloExistente: loteA.id_ArticuloExistente,
+            Cantidad: loteA.cantidad.toString(),
             fechaCaducidad: loteA.fechaCaducidad,
           });
-          /*if (amountArt > loteA.stock) {
-            articlesArticlesExit.push({
-              Id_ArticuloExistente: loteA.id,
-              Cantidad: loteA.stock.toString(),
-              fechaCaducidad: loteA.fechaCaducidad
-            });
-            amountArt = amountArt - loteA.stock;
-          } else if (amountArt > 0) {
-            articlesArticlesExit.push({
-              Id_ArticuloExistente: loteA.id,
-              Cantidad: amountArt.toString(),
-            });
-            amountArt = 0;
-          }*/
         });
       }
       const object = {
-        Articulos: articlesArticlesExit,
-        id_almacenDestino: props.warehouseId,
+        Lotes: articlesArticlesExit,
+        id_almacenDestino: '',
         id_almacenOrigen: props.warehouseId,
-        Estatus: 3,
+        EnEspera: true,
         SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : `${reasonMessage} ${roomSelected}`,
         SolicitadoPor: nurseSelected,
       };
-      console.log('aleluya', object);
-      return;
       if (props.articlesExit) {
-        await articlesOutputToWarehouse(object);
+        await articlesOutputToWarehouseToWarehouse(object);
       } else {
         await articlesEntryToWarehouse(object);
       }
@@ -489,19 +433,20 @@ export const ArticlesExitModal = (props: {
                   filterOptions={filterArticleOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
-                    //console.log('ckickeisho', val);
                     if (val !== null) {
                       if (
                         !(
-                          articles.map((art) => art.id_Articulo).includes(val.id) ||
-                          articlesToSelect.map((art) => art.id_Articulo).includes(val.id)
+                          articles.map((art) => art.id_Articulo).includes(val.id_Articulo) ||
+                          articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
                         )
                       ) {
                         setOpenLoteModal(true);
                       }
+                      console.log(val);
+                      setArticleId(val.id_Articulo);
+                      setArticleSelected(val);
+                      setArticleError(false);
                     }
-                    setArticleSelected(val);
-                    setArticleError(false);
                   }}
                   loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
                   getOptionLabel={(option) => option.nombre}
@@ -513,6 +458,9 @@ export const ArticlesExitModal = (props: {
                       {...params}
                       error={articleError}
                       helperText={articleError && 'Selecciona un articulo'}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                      }}
                       placeholder="Artículos"
                       sx={{ width: '50%' }}
                     />
@@ -542,7 +490,7 @@ export const ArticlesExitModal = (props: {
               submitData={onSubmit}
               initialData={articlesFetchedAM}
               setLoteEditing={setLoteEditing}
-              //setLoteSelected={setLoteSelected}
+              setLoteSelected={setLoteSelected}
               setArticleSelected={setArticleSelected}
               setOpenLoteModal={setOpenLoteModal}
               setArticles={setArticles}
@@ -550,6 +498,7 @@ export const ArticlesExitModal = (props: {
               articlesPending={articlesToSelect}
               setArticlesPending={setArticlesToSelect}
               setTemporalLoteEditing={setTemporalLoteEditing}
+              setArticleId={setArticleId}
             />
             <Box
               sx={{
@@ -699,15 +648,13 @@ export const ArticlesExitModal = (props: {
       )}
       <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
         <>
-          <LoteSelection
+          <LoteSelectionRemake2
             setOpen={setOpenLoteModal}
-            open={openLoteModal}
-            lotes={(articleSelected?.lote as any) || []}
+            //lotes={(articleSelected?.lote as any) || []}
             articleName={articleSelected?.nombre || ''}
             addFunction={handleAddArticle}
-            setEditing={setLoteEditing}
             editing={loteEditing}
-            //selectedLotes={loteSelected as loteFetch[]}
+            selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
           />
         </>
       </Modal>
@@ -721,8 +668,9 @@ const ArticlesTable = (props: {
   initialData: ArticlesFetched[];
   articles: ArticlesFetched[];
   setArticles: Function;
+  setArticleId: Function;
   setLoteEditing: Function;
-  //setLoteSelected: Function;
+  setLoteSelected: Function;
   setArticleSelected: Function;
   setOpenLoteModal: Function;
   articlesPending: ArticlesFetched[] | null;
@@ -762,6 +710,8 @@ const ArticlesTable = (props: {
                       setArticles={props.setArticles}
                       articleRow={a}
                       articles={props.articles}
+                      setLoteSelected={props.setLoteSelected}
+                      setArticleId={props.setArticleId}
                     />
                   ))
               ) : (
@@ -781,6 +731,7 @@ const ArticlesTable = (props: {
                       articleRow={a}
                       articles={props.articlesPending}
                       setTemporalLoteEditing={props.setTemporalLoteEditing}
+                      setArticleId={props.setArticleId}
                     />
                   ))
               ) : (
@@ -808,6 +759,8 @@ interface ArticlesRowsProps {
   setArticleSelected: Function;
   setOpenLoteModal: Function;
   setArticles: Function;
+  setArticleId: Function;
+  setLoteSelected: Function;
   articleRow: any;
   articles: any;
 }
@@ -815,6 +768,8 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
   setLoteEditing,
   setArticleSelected,
   setOpenLoteModal,
+  setLoteSelected,
+  setArticleId,
   setArticles,
   articleRow,
   articles,
@@ -836,6 +791,8 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
             <Tooltip title={'Editar'}>
               <IconButton
                 onClick={() => {
+                  setLoteSelected(articleRow.lote);
+                  setArticleId(articleRow.id_Articulo);
                   setLoteEditing(true);
                   setArticleSelected(articleRow);
                   setOpenLoteModal(true);
@@ -859,7 +816,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
       {articleRow?.lote?.length > 0 && (
         <TableRow>
           <TableCell colSpan={3} sx={{ padding: 0 }} key={`${articleRow.id_Articulo}${articleRow.nombre}`}>
-            <NestedArticlesTable articles={articleRow.loteChanges} open={open} />
+            <NestedArticlesTable articles={articleRow.lote} open={open} />
           </TableCell>
         </TableRow>
       )}
@@ -868,7 +825,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
 };
 
 interface NestedArticlesTableProps {
-  articles: ArticlesFetched['loteChanges'];
+  articles: ArticlesFetched['lote'];
   open: boolean;
 }
 const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
@@ -884,8 +841,8 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
         <TableBody>
           {articles ? (
             articles.map((a) => (
-              <TableRow key={a.Id_ArticuloExistente}>
-                <NestedTableCell>{a.stock}</NestedTableCell>
+              <TableRow key={a.id_ArticuloExistente}>
+                <NestedTableCell>{a.cantidad}</NestedTableCell>
                 <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
               </TableRow>
             ))
@@ -907,6 +864,7 @@ interface TemporalArticlesRowsProps {
   articleRow: any;
   articles: any;
   setTemporalLoteEditing: Function;
+  setArticleId: Function;
 }
 const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
   setArticleSelected,
@@ -915,6 +873,7 @@ const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
   articleRow,
   articles,
   setTemporalLoteEditing,
+  setArticleId,
 }) => {
   return (
     <>
@@ -939,6 +898,7 @@ const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
                   onClick={() => {
                     setTemporalLoteEditing(true);
                     setArticleSelected(articleRow);
+                    setArticleId(articleRow.id_Articulo);
                     setOpenLoteModal(true);
                   }}
                 >

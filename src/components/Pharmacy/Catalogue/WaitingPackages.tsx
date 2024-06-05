@@ -117,13 +117,10 @@ export const WaitingPackages = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return articlesOutputToWarehouse(
-            {
-              Estatus: 0,
-              Id_HistorialMovimiento: idRequest,
-            },
-            true
-          );
+          return articlesOutputToWarehouse({
+            Estatus: 0,
+            Id_HistorialMovimiento: idRequest,
+          });
         },
         allowOutsideClick: () => !Swal.isLoading(),
       })
@@ -144,7 +141,7 @@ export const WaitingPackages = () => {
       });
   };
 
-  const acceptRequest = (idRequest: string) => {
+  const acceptRequest = (idRequest: string, lotes: any) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -160,7 +157,7 @@ export const WaitingPackages = () => {
           return articlesOutputToWarehouse({
             Estatus: 2,
             Id_HistorialMovimiento: idRequest,
-            solicitudAceptada: true,
+            Lotes: lotes,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -182,7 +179,6 @@ export const WaitingPackages = () => {
         }
       });
   };
-
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -294,7 +290,7 @@ export const WaitingPackages = () => {
                               <IconButton>
                                 <DoneIcon
                                   onClick={() => {
-                                    acceptRequest(movimiento.id);
+                                    acceptRequest(movimiento.id, movimiento.historialArticulos);
                                   }}
                                 />
                               </IconButton>
@@ -326,6 +322,7 @@ export const WaitingPackages = () => {
                                       <TableRow key={(movimientoArticuclo.nombre, i)}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
+                                        <TableCell align="center">{movimientoArticuclo.fechaCaducidad}</TableCell>
                                       </TableRow>
                                     ))}
                                 </TableBody>

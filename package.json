@@ -29,6 +29,7 @@
     "immer": "^10.0.4",
     "jwt-decode": "^4.0.0",
     "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
     "match-sorter": "^6.3.2",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
@@ -46,6 +47,7 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.4",
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
