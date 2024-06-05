@@ -13,7 +13,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
   alpha,
@@ -22,15 +21,18 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import React, { useEffect, useState } from 'react';
-import { Cancel, Delete, Edit, ExpandLess, ExpandMore, Save, Check } from '@mui/icons-material';
+import { Cancel, Delete, Edit, ExpandLess, ExpandMore, Check, Warning } from '@mui/icons-material';
 import { OutputReasonMessage } from './OutputReasonMessage';
-import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
-import { articlesOutputToWarehouse, getArticlesByWarehouseIdAndSearch } from '../../../../../api/api.routes';
+import { IArticleFromSearch, IExistingArticleList, IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
+import { articlesOutputToWarehouse } from '../../../../../api/api.routes';
 import { returnExpireDate } from '../../../../../utils/expireDate';
+import { LoteSelectionRemake2 } from './LoteSelectionRemake2';
+import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
 
 const style = {
   position: 'absolute',
@@ -84,9 +86,17 @@ export type ArticlesFetched = {
   cantidad: string;
 };
 
+type ArticlesToSelectLote = {
+  id_Articulo: string;
+  nombre: string;
+  cantidadSeleccionar: string;
+  cantidad: number;
+  lote?: IExistingArticleList[];
+};
+
 const renderOutputView = (
   step: number,
-  articles: ArticlesFetched[],
+  articles: ArticlesToSelectLote[],
   setArticles: Function,
   reasonMessage: string,
   setReasonMessage: Function,
@@ -94,10 +104,16 @@ const renderOutputView = (
   setRadioSelected: Function,
   subWarehouse: any,
   setSubWarehouse: Function,
-  originalArticlesSelected: ArticlesFetched[],
-  setOriginalArticlesSelected: Function,
   request: MerchandiseEntry,
-  setEditingRow: Function
+  setOpenLoteModal: Function,
+  openLoteModal: boolean,
+  setArticleSelected: Function,
+  articleSelected: null | IArticleFromSearch,
+  setLoteEditing: Function,
+  loteEditing: boolean,
+  setLoteSelected: Function,
+  loteSelected: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null,
+  handleAddArticle: Function
 ) => {
   switch (step) {
     case 0:
@@ -111,10 +127,16 @@ const renderOutputView = (
           setRadioSelected={setRadioSelected}
           subWarehouse={subWarehouse}
           setSubWarehouse={setSubWarehouse}
-          originalArticlesSelected={originalArticlesSelected}
-          setOriginalArticlesSelected={setOriginalArticlesSelected}
           request={request}
-          setEditingRow={setEditingRow}
+          setOpenLoteModal={setOpenLoteModal}
+          openLoteModal={openLoteModal}
+          setArticleSelected={setArticleSelected}
+          articleSelected={articleSelected}
+          setLoteEditing={setLoteEditing}
+          loteEditing={loteEditing}
+          setLoteSelected={setLoteSelected}
+          loteSelected={loteSelected}
+          handleAddArticle={handleAddArticle}
         />
       );
 
@@ -126,7 +148,6 @@ const renderOutputView = (
           radioSelected={radioSelected}
           subWarehouse={subWarehouse}
           request={request}
-          setEditingRow={setEditingRow}
         />
       );
   }
@@ -137,37 +158,52 @@ interface ArticlesViewProps {
   request: MerchandiseEntry;
 }
 
-export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
-  const [articles, setArticles] = useState<ArticlesFetched[]>(
+export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
+  const [articles, setArticles] = useState<ArticlesToSelectLote[]>(
     props.request.historialArticulos.map((art) => ({
       nombre: art.nombre,
-      cantidad: art.cantidad.toString(),
-      stockActual: undefined,
+      cantidadSeleccionar: art.cantidad.toString(),
+      cantidad: 0,
       lote: undefined,
-      id: undefined,
+      id_Articulo: art.id_Articulo,
     }))
   );
   const [reasonMessage, setReasonMessage] = useState('');
   const [value, setValue] = useState(0);
-  const [editingRow, setEditingRow] = useState(false);
   const [radioSelected, setRadioSelected] = useState(0);
   const [subWarehouse, setSubWarehouse] = useState<IWarehouseData | null>(null);
-  const [originalArticlesSelected, setOriginalArticlesSelected] = useState<ArticlesFetched[] | []>([]);
+
+  const [openLoteModal, setOpenLoteModal] = useState(false);
+  const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearch>(null);
+  const [loteEditing, setLoteEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loteSelected, setLoteSelected] = useState<
+    { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
+  >(null);
+  const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
+  const wData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+
+  useEffect(() => {
+    setWarehouseId(wData.id);
+  }, []);
 
   const handleSubmit = async () => {
+    setLoading(true);
     const object = {
-      solicitudAceptada: true,
-      id_almacenOrigen: props.request.id_AlmacenOrigen,
-      id_almacenDestino: props.request.id_AlmacenDestino,
-      Articulos: articles.map((art) => ({
-        Id_ArticuloExistente: art.id as string,
-        Cantidad: art.cantidad.toString(),
-        FechaCaducidad: 'cambiar esta mal',
-      })),
-      Estatus: 2,
       Id_HistorialMovimiento: props.request.id,
+      Lotes: articles
+        .map((art) =>
+          art?.lote?.map((loteArt) => ({
+            Id_ArticuloExistente: loteArt.id_ArticuloExistente,
+            Cantidad: loteArt.cantidad.toString(),
+          }))
+        )
+        .flat(1) as {
+        Id_ArticuloExistente: string;
+        Cantidad: string;
+      }[],
+      Estatus: 2,
     };
-    console.log(object);
     try {
       await articlesOutputToWarehouse(object);
       props.refetch();
@@ -176,8 +212,77 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
     } catch (error) {
       console.log(error);
       toast.error('Error al dar salida a artículos!');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
+    let totalQuantityByArticle = 0;
+    const updatedLote: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] = [];
+    lotesArticles.forEach((element) => {
+      const nestedLote = {
+        cantidad: element.cantidad,
+        id_ArticuloExistente: element.id_ArticuloExistente,
+        fechaCaducidad: element.fechaCaducidad,
+      };
+      updatedLote.push(nestedLote);
+      totalQuantityByArticle += element.cantidad;
+    });
+    const updatedArticle = {
+      ...articleSelected,
+      cantidad: totalQuantityByArticle,
+      lote: updatedLote,
+    };
+    if (edit) {
+      const direction = articles.findIndex(
+        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
+      );
+      articles.splice(direction, 1);
+      setArticles([...(articles as any), updatedArticle]);
+      setArticleSelected(null);
+      setLoteEditing(false);
+    } else {
+      setArticles((prev: any) => [...prev, updatedArticle]);
+      setArticleSelected(null);
+    }
+  };
+
+  const continueRequest = () => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `¿Seguro que deseas aceptar esta solicitud con artículos faltantes?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          handleSubmit();
+        }
+      });
+  };
+  const checkQuantyties = () => {
+    let diferentNumbers = false;
+    articles.forEach((article) => {
+      let totalToSendByArticle = 0;
+      article?.lote?.forEach((articleNested) => {
+        totalToSendByArticle += articleNested.cantidad;
+      });
+      if (totalToSendByArticle < Number(article.cantidadSeleccionar)) diferentNumbers = true;
+    });
+    if (diferentNumbers || articles.length !== props.request.historialArticulos.length) {
+      continueRequest();
+      return;
+    } else {
+      handleSubmit();
+    }
+  };
+
   return (
     <Box sx={{ ...style }}>
       <HeaderModal setOpen={props.setOpen} title="Solicitud de Artículos" />
@@ -197,10 +302,16 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
             setRadioSelected,
             subWarehouse,
             setSubWarehouse,
-            originalArticlesSelected,
-            setOriginalArticlesSelected,
             props.request,
-            setEditingRow
+            setOpenLoteModal,
+            openLoteModal,
+            setArticleSelected,
+            articleSelected,
+            setLoteEditing,
+            loteEditing,
+            setLoteSelected,
+            loteSelected,
+            handleAddArticle
           )}
         </Box>
       </Box>
@@ -230,12 +341,13 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
         </Button>
         <Button
           variant="contained"
-          disabled={editingRow}
+          disabled={props.request.historialArticulos.length < 1 || loading}
           onClick={() => {
             if (articles.length === 0) return toast.error('Agrega artículos!');
-            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === '' || cantidad === '0'))
+            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0))
               return toast.error('Rellena todas las cantidades');
-            handleSubmit();
+
+            checkQuantyties();
           }}
           startIcon={<Check />}
         >
@@ -247,7 +359,7 @@ export const AceptWareHouseRequestModal = (props: ArticlesViewProps) => {
 };
 
 interface ArticlesOutputProp {
-  articles: ArticlesFetched[];
+  articles: ArticlesToSelectLote[];
   setArticles: Function;
   reasonMessage: string;
   setReasonMessage: Function;
@@ -255,10 +367,17 @@ interface ArticlesOutputProp {
   setRadioSelected: Function;
   subWarehouse: any;
   setSubWarehouse: Function;
-  originalArticlesSelected: ArticlesFetched[];
-  setOriginalArticlesSelected: Function;
   request: MerchandiseEntry;
-  setEditingRow: Function;
+
+  setOpenLoteModal: Function;
+  openLoteModal: boolean;
+  setArticleSelected: Function;
+  articleSelected: null | IArticleFromSearch;
+  setLoteEditing: Function;
+  loteEditing: boolean;
+  setLoteSelected: Function;
+  loteSelected: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null;
+  handleAddArticle: Function;
 }
 
 const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
@@ -266,59 +385,38 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   setArticles,
   setReasonMessage,
   request,
-  setEditingRow,
+  setOpenLoteModal,
+  openLoteModal,
+  setArticleSelected,
+  articleSelected,
+  setLoteEditing,
+  loteEditing,
+  setLoteSelected,
+  loteSelected,
+  handleAddArticle,
 }) => {
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await getArticlesByWarehouseIdAndSearch(warehouseData.id, '');
-        const filteredData = res.data.filter((dataItem: ArticlesFetched) =>
-          articles.some((article) => article.nombre === dataItem.nombre)
-        );
-        const updatedData = filteredData.map((dataItem: ArticlesFetched) => {
-          const correspondingArticle = articles.find((article) => article.nombre === dataItem.nombre);
-          return {
-            ...dataItem,
-            cantidad: correspondingArticle ? correspondingArticle.cantidad : 0,
-            stockActual: dataItem?.stockActual?.toString(),
-          };
-        });
-        const combinedData = [
-          ...articles.filter(
-            (article) => !filteredData.some((dataItem: ArticlesFetched) => dataItem.nombre === article.nombre)
-          ),
-          ...updatedData,
-        ];
-
-        setArticles(combinedData);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetch();
-  }, [warehouseData]);
 
   return (
     <>
       <Stack spacing={2}>
-        {!isLoading && (
-          <React.Fragment>
-            <ArticlesTable
-              articles={articles}
-              setArticles={setArticles}
-              isResume={false}
-              originalArticlesSelected={articles}
-              request={request}
-              setEditingRow={setEditingRow}
-            />
-          </React.Fragment>
-        )}
+        <React.Fragment>
+          <ArticlesTable
+            articles={articles}
+            setArticles={setArticles}
+            isResume={false}
+            request={request}
+            setOpenLoteModal={setOpenLoteModal}
+            openLoteModal={openLoteModal}
+            setArticleSelected={setArticleSelected}
+            articleSelected={articleSelected}
+            setLoteEditing={setLoteEditing}
+            loteEditing={loteEditing}
+            setLoteSelected={setLoteSelected}
+            loteSelected={loteSelected}
+            handleAddArticle={handleAddArticle}
+          />
+        </React.Fragment>
       </Stack>
       <Modal open={open} onClose={() => setOpen(!open)}>
         <>
@@ -330,20 +428,34 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
 };
 
 interface ArticlesTableProps {
-  articles: ArticlesFetched[];
+  articles: ArticlesToSelectLote[];
   setArticles?: Function;
   isResume: boolean;
-  originalArticlesSelected?: ArticlesFetched[];
   request: MerchandiseEntry;
-  setEditingRow: Function;
+  setOpenLoteModal: Function;
+  openLoteModal: boolean;
+  setArticleSelected: Function;
+  articleSelected: null | IArticleFromSearch;
+  setLoteEditing: Function;
+  loteEditing: boolean;
+  setLoteSelected: Function;
+  loteSelected: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null;
+  handleAddArticle: Function;
 }
 const ArticlesTable: React.FC<ArticlesTableProps> = ({
   articles,
   setArticles,
   isResume,
-  originalArticlesSelected,
   request,
-  setEditingRow,
+  setOpenLoteModal,
+  openLoteModal,
+  setArticleSelected,
+  articleSelected,
+  setLoteEditing,
+  loteEditing,
+  setLoteSelected,
+  loteSelected,
+  handleAddArticle,
 }) => {
   return (
     <Card>
@@ -354,81 +466,65 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
               <TableCell>Nombre del articulo</TableCell>
               <TableCell>Cantidad Solicitada</TableCell>
               <TableCell sx={{ textAlign: 'center' }}>Acción</TableCell>
-              <TableCell>Stock Actual</TableCell>
+              <TableCell>Cantidad Seleccionada</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {articles.map((article) => (
               <ArticlesTableRow
-                setEditingRow={setEditingRow}
                 request={request}
                 article={article}
-                key={article.id}
+                key={article.id_Articulo}
                 setArticles={setArticles as Function}
                 articles={articles}
                 isResume={isResume}
-                originalArticlesSelected={originalArticlesSelected as ArticlesFetched[]}
+                setOpenLoteModal={setOpenLoteModal}
+                setArticleSelected={setArticleSelected}
+                setLoteSelected={setLoteSelected}
+                setLoteEditing={setLoteEditing}
               />
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
+        <>
+          <LoteSelectionRemake2
+            setOpen={setOpenLoteModal as (arg0: boolean) => void}
+            articleName={articleSelected?.nombre || ''}
+            addFunction={handleAddArticle}
+            editing={loteEditing}
+            selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
+          />
+        </>
+      </Modal>
     </Card>
   );
 };
 
 interface ArticlesTableRowProps {
-  articles: ArticlesFetched[];
-  article: ArticlesFetched;
+  articles: ArticlesToSelectLote[];
+  article: ArticlesToSelectLote;
   setArticles: Function;
   isResume: boolean;
-  originalArticlesSelected: ArticlesFetched[];
   request: MerchandiseEntry;
-  setEditingRow: Function;
+  setOpenLoteModal: Function;
+  setArticleSelected: Function;
+  setLoteSelected: Function;
+  setLoteEditing: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
   setArticles,
   articles,
   isResume,
-  originalArticlesSelected,
-  setEditingRow,
+  setOpenLoteModal,
+  setArticleSelected,
+  setLoteSelected,
+  setLoteEditing,
 }) => {
   const [open, setOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleDelete = () => {
-    const articlesFilter = articles.filter((a) => a.id !== article.id);
-    setArticles(articlesFilter);
-  };
-
-  const handleEditAmount = (e: string) => {
-    const originalArticle = originalArticlesSelected.find((item) => item.id === article.id);
-    if (!originalArticle) return;
-    if (!isValidInteger(e)) return;
-
-    const cantidad = e.trim() === '' || isNaN(parseInt(e)) ? '' : parseInt(e).toString();
-    if (parseInt(cantidad) > parseInt(originalArticle?.stockActual ? originalArticle.stockActual : '0'))
-      return toast.error('La cantidad excede el stock!');
-
-    const updatedLote = [];
-    let remainingAmount = parseInt(cantidad);
-    if (parseInt(cantidad) > 0 && originalArticle?.lote) {
-      for (const item of originalArticle?.lote) {
-        const deductedAmount = Math.min(remainingAmount, item.stock);
-        updatedLote.push({
-          ...item,
-          stock: deductedAmount,
-        });
-        remainingAmount -= deductedAmount;
-        if (remainingAmount <= 0) break;
-      }
-    }
-
-    const updatedArticle = { ...article, cantidad: e };
-    const updatedArticles = articles.map((a) => (a.id === updatedArticle.id ? updatedArticle : a));
-    setArticles(updatedArticles);
-  };
+  const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
 
   return (
     <React.Fragment>
@@ -439,39 +535,47 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             {article.nombre}
           </Box>
         </TableCell>
-        <TableCell sx={{ textAlign: 'center' }}>
-          {!isEditing ? (
-            article.cantidad
-          ) : (
-            <TextField
-              placeholder="Cantidad"
-              value={article.cantidad}
-              onChange={(e) => handleEditAmount(e.target.value)}
-            />
-          )}
-        </TableCell>
+        <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSeleccionar}</TableCell>
         {!isResume && (
           <TableCell>
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
-                  if (article.stockActual === '' || article.stockActual === '0')
+                  setLoteSelected(article.lote);
+                  setArticleId(article.id_Articulo);
+                  setLoteEditing(true);
+                  setArticleSelected(article);
+                  setOpenLoteModal(true);
+                  /*if (article.stockActual === '' || article.stockActual === '0')
                     return toast.error('Para guardar escribe una cantidad valida!');
                   setIsEditing(!isEditing);
                   setEditingRow(!isEditing);
+                  */
                 }}
               >
-                {!isEditing ? <Edit /> : <Save />}
+                <Edit />
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
-              <IconButton onClick={() => handleDelete()}>
+              <IconButton
+                onClick={() => {
+                  setArticles(articles.filter((a) => a.id_Articulo !== article.id_Articulo));
+                }}
+              >
                 <Delete />
               </IconButton>
             </Tooltip>
           </TableCell>
         )}
-        <TableCell sx={{ textAlign: 'center' }}>{article.stockActual}</TableCell>
+        <TableCell sx={{ textAlign: 'center' }}>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
+            {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
+              <Warning sx={{ color: '#FFA500', mr: 2 }} />
+            )}
+            {article.cantidad}
+          </Box>
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={4} sx={{ padding: 0 }}>
@@ -482,7 +586,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   );
 };
 interface NestedArticlesTableProps {
-  articles: ArticlesFetched['lote'];
+  articles: ArticlesToSelectLote['lote'];
   open: boolean;
 }
 const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
@@ -498,7 +602,7 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
         <TableBody>
           {articles?.map((a, i) => (
             <TableRow key={i}>
-              <NestedTableCell>{a.stock}</NestedTableCell>
+              <NestedTableCell>{a.cantidad}</NestedTableCell>
               <NestedTableCell>{returnExpireDate(a.fechaCaducidad)}</NestedTableCell>
             </TableRow>
           ))}
@@ -514,7 +618,6 @@ interface OutputResumeProps {
   radioSelected: number;
   subWarehouse: any;
   request: MerchandiseEntry;
-  setEditingRow: Function;
 }
 
 const OutputResume: React.FC<OutputResumeProps> = ({
@@ -523,7 +626,6 @@ const OutputResume: React.FC<OutputResumeProps> = ({
   radioSelected,
   subWarehouse,
   request,
-  setEditingRow,
 }) => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
   const dateNow = Date.now();
@@ -554,7 +656,20 @@ const OutputResume: React.FC<OutputResumeProps> = ({
           )}
         </Grid>
       </Grid>
-      <ArticlesTable articles={articles} isResume={true} request={request} setEditingRow={setEditingRow} />
+      <ArticlesTable
+        articles={articles}
+        isResume={true}
+        request={request}
+        setOpenLoteModal={() => {}}
+        openLoteModal={false}
+        setArticleSelected={() => {}}
+        articleSelected={null}
+        setLoteEditing={() => {}}
+        loteEditing={false}
+        setLoteSelected={() => {}}
+        loteSelected={null}
+        handleAddArticle={() => {}}
+      />
     </Stack>
   );
 };

@@ -4,7 +4,6 @@ import { useExistingArticleLotesPagination } from '../../../../../store/warehous
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { Info } from '@mui/icons-material';
-import { neutral } from '../../../../../theme/colors';
 
 interface LoteSelectionProps {
   sx?: any;
@@ -77,10 +76,19 @@ const useGetAllData = () => {
   };
 };
 
-export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
+export const LoteSelectionPOS: React.FC<LoteSelectionProps> = (props) => {
   const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize } = useGetAllData();
 
-  const LoteCard = ({ article, articleName, addFunction, setOpen, disabled, lotes }: any) => (
+  useEffect(() => {
+    if (data.length === 1) {
+      if (!props.alreadySelectedArticlesIDs?.includes(data[0].id_ArticuloExistente)) {
+        props.addFunction(data[0], data);
+      }
+      props.setOpen(false);
+    }
+  }, []);
+
+  const LoteCard = ({ article, articleName, addFunction, setOpen, disabled }: any) => (
     <AnimateButton>
       <Card
         sx={{
@@ -105,7 +113,7 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
         }}
         onClick={() => {
           if (!disabled) {
-            addFunction(article, lotes);
+            addFunction(article);
             setOpen(false);
           }
         }}
@@ -124,7 +132,7 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
           }}
         >
           <Box sx={{ display: 'flex', columnGap: 1 }}>
-            <Typography sx={{ fontSize: 13, fontWeight: 500, color: neutral[400] }}>{article.cantidad} pza.</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{article.cantidad} pza.</Typography>
           </Box>
         </Box>
       </Card>
@@ -158,7 +166,6 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
                           addFunction={props.addFunction}
                           setOpen={props.setOpen}
                           disabled={props.alreadySelectedArticlesIDs?.includes(article.id_ArticuloExistente)}
-                          lotes={data}
                         />
                       </Grid>
                     ))
@@ -211,4 +218,4 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
   );
 };
 
-export default LoteSelectionRemake;
+export default LoteSelectionPOS;

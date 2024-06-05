@@ -272,6 +272,9 @@ export interface MerchandiseEntry {
 export interface ArticleObjectInPetition {
   cantidad: number;
   nombre: string;
+  fechaCaducidad: string | null;
+  id_Articulo: string;
+  lote?: IExistingArticleList;
 }
 
 export interface ICheckedArticles {
@@ -381,6 +384,8 @@ export interface IWarehouseMovementData {
 export interface IArticleHistory {
   nombre: string;
   cantidad: number;
+  fechaCaducidad?: string;
+  Id_ArticuloEcistente?: string;//no estoy seguro si siempre llega
 }
 
 export interface IWarehousePurchaseOrder {
