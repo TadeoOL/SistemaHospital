@@ -61,7 +61,7 @@ const useGetAllData = () => {
   const setSearch = useExistingArticleLotesPagination((state) => state.setSearch);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
   }, [search, pageIndex]);
 
   return {
@@ -81,8 +81,8 @@ export const LoteSelectionPOS: React.FC<LoteSelectionProps> = (props) => {
 
   useEffect(() => {
     if (data.length === 1) {
-      if (!props.alreadySelectedArticlesIDs?.includes(data[0].id_ArticuloExistente)) {
-        props.addFunction(data[0], data);
+      if (!props.alreadySelectedArticlesIDs?.includes(data[0].id_ArticuloExistente) && data[0]) {
+        props.addFunction(data[0]);
       }
       props.setOpen(false);
     }
