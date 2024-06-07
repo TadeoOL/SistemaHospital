@@ -59,6 +59,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
   const [openLoteModal, setOpenLoteModal] = useState(false);
+  const setData = useExistingArticleLotesPagination((state) => state.setData);
 
   const hasMorePages = useMemo(() => {
     return pageIndex < pageCount;
@@ -138,8 +139,8 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           boxShadow: 3,
                         }}
                         onClick={() => {
-                          setArticleSelected(article);
                           setArticleId(article.id_Articulo);
+                          setArticleSelected(article);
                           setOpenLoteModal(true);
                         }}
                       >
@@ -219,10 +220,17 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           )}
         </>
       </Stack>
-      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
+      <Modal
+        open={openLoteModal}
+        onClose={() => {
+          setOpenLoteModal(false);
+          setData();
+        }}
+      >
         <LoteSelectionPOS
           sx={{ p: 2 }}
           setOpen={setOpenLoteModal}
+          open={openLoteModal}
           articleName={articleSelected?.nombre || ''}
           addFunction={handleAddArticle}
           alreadySelectedArticlesIDs={

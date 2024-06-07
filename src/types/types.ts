@@ -431,6 +431,7 @@ export interface Articulos_contenidos {
   nombre: string;
   cantidad: number;
   lote?: IExistingArticleList[];
+  cantidadSeleccion?: number;
 }
 
 export interface IPosArticle {

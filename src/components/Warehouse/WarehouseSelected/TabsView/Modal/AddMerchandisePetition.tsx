@@ -510,7 +510,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
             props.submitData({
               almacenDestino: warehouseSelected,
               historialArticulos: articles.map((art) => ({
-                Id_Articulo: art.id,
+                Id_ArticuloExistente: art.id,
                 Nombre: art.name,
                 Cantidad: art.amount,
                 FechaCaducidad: null,

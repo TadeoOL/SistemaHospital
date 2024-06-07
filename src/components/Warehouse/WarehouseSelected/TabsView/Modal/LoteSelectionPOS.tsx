@@ -11,6 +11,7 @@ interface LoteSelectionProps {
   articleName: string;
   addFunction: Function;
   alreadySelectedArticlesIDs?: string[];
+  open: boolean;
 }
 
 const style = {
@@ -59,13 +60,18 @@ const useGetAllData = () => {
   const loading = useExistingArticleLotesPagination((state) => state.isLoading);
   const setPageIndex = useExistingArticleLotesPagination((state) => state.setPageIndex);
   const setSearch = useExistingArticleLotesPagination((state) => state.setSearch);
+  const setData = useExistingArticleLotesPagination((state) => state.setData);
+  const articleId = useExistingArticleLotesPagination((state) => state.articleId);
 
   useEffect(() => {
-    fetchData(true);
-  }, [search, pageIndex]);
+    if (articleId) {
+      fetchData(true);
+    }
+  }, [search, pageIndex, articleId]);
 
   return {
     data,
+    setData,
     pageIndex,
     loading,
     pageCount,
@@ -77,16 +83,16 @@ const useGetAllData = () => {
 };
 
 export const LoteSelectionPOS: React.FC<LoteSelectionProps> = (props) => {
-  const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize } = useGetAllData();
+  const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize, setData } = useGetAllData();
 
   useEffect(() => {
-    if (data.length === 1) {
+    if (data.length === 1 && !loading) {
       if (!props.alreadySelectedArticlesIDs?.includes(data[0].id_ArticuloExistente) && data[0]) {
         props.addFunction(data[0]);
+        props.setOpen(false);
       }
-      props.setOpen(false);
     }
-  }, []);
+  }, [data]);
 
   const LoteCard = ({ article, articleName, addFunction, setOpen, disabled }: any) => (
     <AnimateButton>
@@ -206,6 +212,7 @@ export const LoteSelectionPOS: React.FC<LoteSelectionProps> = (props) => {
               variant="contained"
               sx={{ maxWidth: 100 }}
               onClick={() => {
+                setData();
                 props.setOpen(false);
               }}
             >

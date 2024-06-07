@@ -249,6 +249,7 @@ export const WarehouseRequest = () => {
                               <IconButton>
                                 <SettingsIcon
                                   onClick={() => {
+                                    console.log('peticion', petition);
                                     setRequest(petition);
                                     setOpenModal(true);
                                   }}

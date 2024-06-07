@@ -165,7 +165,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
       cantidadSeleccionar: art.cantidad.toString(),
       cantidad: 0,
       lote: undefined,
-      id_Articulo: art.id_Articulo,
+      id_Articulo: (art as any).id_ArticuloExistente,
     }))
   );
   const [reasonMessage, setReasonMessage] = useState('');
@@ -495,6 +495,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
             addFunction={handleAddArticle}
             editing={loteEditing}
             selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
+            empityLotes={true}
           />
         </>
       </Modal>
@@ -541,6 +542,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
+                  console.log('whatajeeeeeeell', article);
                   setLoteSelected(article.lote);
                   setArticleId(article.id_Articulo);
                   setLoteEditing(true);

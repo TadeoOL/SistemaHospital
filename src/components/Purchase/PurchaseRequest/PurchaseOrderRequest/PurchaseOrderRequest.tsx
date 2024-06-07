@@ -199,7 +199,7 @@ export const PurchaseOrderRequest = () => {
         <Stack spacing={2} sx={{ minWidth: { xs: 950, xl: 0 } }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar solicitud de compraxxx..."
+              title="Buscar solicitud de compra..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 2 }}
             />
