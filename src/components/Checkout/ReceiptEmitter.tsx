@@ -58,6 +58,7 @@ export const ReceiptEmitter = () => {
             pageSize={pageSize}
             setPageIndex={setPageIndex}
             setPageSize={setPageSize}
+            fromPointOfSale={false}
           />
         </Stack>
       </Card>

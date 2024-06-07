@@ -27,7 +27,7 @@ import withReactContent from 'sweetalert2-react-content';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
-import { articlesOutputToWarehouse } from '../../../api/api.routes';
+import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const useGetMovements = () => {
@@ -117,7 +117,7 @@ export const WaitingPackages = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return articlesOutputToWarehouse({
+          return waitingpackageChangeStatus({
             Estatus: 0,
             Id_HistorialMovimiento: idRequest,
           });
@@ -313,6 +313,7 @@ export const WaitingPackages = () => {
                                   <TableRow>
                                     <TableCell align="center">Articulo</TableCell>
                                     <TableCell align="center">Cantidad</TableCell>
+                                    <TableCell align="center">Fecha Caducidad</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>

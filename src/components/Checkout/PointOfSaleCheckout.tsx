@@ -43,6 +43,7 @@ export const PointOfSaleCheckout = () => {
             pageSize={pageSize}
             setPageIndex={setPageIndex}
             setPageSize={setPageSize}
+            fromPointOfSale={true}
           />
         </Stack>
       </Card>

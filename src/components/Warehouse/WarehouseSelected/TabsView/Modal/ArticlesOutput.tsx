@@ -96,6 +96,7 @@ export type ArticlesFetched = {
   loteChanges?: loteFetch[]; //Lote cuyos valores se pueden manipular
   stockActual: string;
   cantidad: string;
+  cantidadSeleccionar?: string;
   codigoBarras?: string;
   lote: loteFetch[]; //Lote que debe permanecer sin cambios
 };
@@ -501,6 +502,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           addFunction={handleAddArticle}
           editing={loteEditing}
           selectedLotes={lotesSelected?.length > 0 ? lotesSelected : undefined}
+          empityLotes={true}
         />
       </Modal>
     </>

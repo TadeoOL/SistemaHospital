@@ -22,6 +22,9 @@ interface LoteSelectionProps {
   addFunction: Function;
   editing?: boolean;
   selectedLotes?: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[];
+  adding?: boolean;
+  temporalFromPackageAmountSelect?: number;
+  empityLotes: boolean | null;
 }
 
 interface LoteCardProps {
@@ -29,6 +32,7 @@ interface LoteCardProps {
   articleName: string;
   initialQuantity: number;
   handleQuantityChange: (id_ArticuloExistente: string, value: number) => void;
+  adding: boolean;
 }
 
 const style = {
@@ -66,7 +70,7 @@ const scrollBar = {
   },
 };
 
-const useGetAllData = () => {
+const useGetAllData = (lotes: boolean | null) => {
   const data = useExistingArticleLotesPagination((state) => state.data);
   const fetchData = useExistingArticleLotesPagination((state) => state.fetchExistingArticles);
   const pageCount = useExistingArticleLotesPagination((state) => state.pageCount);
@@ -79,7 +83,7 @@ const useGetAllData = () => {
   const setSearch = useExistingArticleLotesPagination((state) => state.setSearch);
 
   useEffect(() => {
-    fetchData();
+    fetchData(lotes);
   }, [search, pageIndex]);
 
   return {
@@ -95,7 +99,7 @@ const useGetAllData = () => {
 };
 
 export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
-  const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize } = useGetAllData();
+  const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize } = useGetAllData(props.empityLotes);
   const [quantities, setQuantities] = useState<{ [id_ArticuloExistente: string]: number }>({});
 
   useEffect(() => {
@@ -110,6 +114,7 @@ export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
       setQuantities(initialQuantities);
     }
   }, [props.editing, props.selectedLotes]);
+  useEffect(() => {}, [props.articleName]);
 
   const handleQuantityChange = (id_ArticuloExistente: string, value: number) => {
     setQuantities((prev) => ({ ...prev, [id_ArticuloExistente]: value }));
@@ -126,16 +131,28 @@ export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
     props.setOpen(false);
   };
 
-  const LoteCard: React.FC<LoteCardProps> = ({ article, articleName, initialQuantity, handleQuantityChange }) => {
+  const LoteCard: React.FC<LoteCardProps> = ({
+    article,
+    articleName,
+    initialQuantity,
+    handleQuantityChange,
+    adding,
+  }) => {
     const [quantity, setQuantity] = useState(initialQuantity);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = Math.max(0, Math.min(article.cantidad, Number(e.target.value)));
-      setQuantity(value);
-      debouncedHandleQuantityChange(article.id_ArticuloExistente, value);
+      if (props.adding) {
+        const value = Number(e.target.value);
+        setQuantity(value);
+        debouncedHandleQuantityChange(article.id_ArticuloExistente, value);
+      } else {
+        const value = Math.max(0, Math.min(article.cantidad, Number(e.target.value)));
+        setQuantity(value);
+        debouncedHandleQuantityChange(article.id_ArticuloExistente, value);
+      }
     };
 
-    const debouncedHandleQuantityChange = debounce(handleQuantityChange, 300);
+    const debouncedHandleQuantityChange = debounce(handleQuantityChange, 150);
 
     return (
       <Card
@@ -168,7 +185,7 @@ export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
             <TextField
               type="number"
               placeholder="Cantidad"
-              inputProps={{ className: 'tableCell', min: 0, max: article.cantidad }}
+              inputProps={{ className: 'tableCell', min: 0, max: adding ? 1000 : article.cantidad }}
               value={quantity}
               onChange={handleChange}
             />
@@ -187,7 +204,10 @@ export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
             <Box sx={{ justifyContent: 'space-between', display: 'flex', mb: 2 }}>
               <Typography variant="h5">Nombre: {props.articleName}</Typography>
             </Box>
-            <Typography variant="h5">Seleccione el lote del artículo que desea retirar:</Typography>
+            <Typography variant="h5">
+              Seleccione el lote del artículo que desea retirar
+              {props.temporalFromPackageAmountSelect ? `(${props.temporalFromPackageAmountSelect})` : ''}:
+            </Typography>
 
             {loading ? (
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 6, alignItems: 'center' }}>
@@ -204,6 +224,7 @@ export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
                           articleName={props.articleName}
                           initialQuantity={quantities[article.id_ArticuloExistente] || 0}
                           handleQuantityChange={handleQuantityChange}
+                          adding={props.adding || false}
                         />
                       </Grid>
                     ))

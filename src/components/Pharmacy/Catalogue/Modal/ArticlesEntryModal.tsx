@@ -29,17 +29,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {
-  articlesOutputToWarehouseToWarehouse,
+  articlesEntryToWarehouse,
   getArticlesFromWarehouseSearch,
-  getNursesUsers,
-  getPackagesByWarehouseId,
   getExistingArticles,
 } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore, WarningAmber } from '@mui/icons-material';
+import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { IArticleFromSearch, IArticlesPackage, IExistingArticleList } from '../../../../types/types';
 import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
 import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
@@ -47,9 +44,6 @@ import { useExistingArticleLotesPagination } from '../../../../store/warehouseSt
 
 const OPTIONS_LIMIT = 5;
 const filterArticleOptions = createFilterOptions<IArticleFromSearch>({
-  limit: OPTIONS_LIMIT,
-});
-const filterPackageOptions = createFilterOptions<IArticlesPackage>({
   limit: OPTIONS_LIMIT,
 });
 const style = {
@@ -96,19 +90,16 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
+export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
-  const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearch[]>([]);
   const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<
     IArticleFromSearch[]
   >([]);
-  const [nursesData, setNursesData] = useState<string[]>([]);
   const textFieldRef = useRef<HTMLInputElement | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
-  const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
   const [articlesFetchedAM, setArticlesFetchedAM] = useState<ArticlesFetched[] | []>([]);
   const [search, setSearch] = useState('');
 
@@ -152,7 +143,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
           })
         );
         handleFetchArticlesFromWareHouse();
-        handleFetchArticlesPackagesFromWareHouse(props.warehouseId);
       } catch (error) {
         console.log(error);
       } finally {
@@ -181,18 +171,14 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
 
   const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearch>(null);
-  const [nurseSelected, setNurseSelected] = useState<string>();
   const [roomSelected, setRoomSelected] = useState<string | null>();
   const [roomError, setRoomError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [openLoteModal, setOpenLoteModal] = useState(false);
   const [loteEditing, setLoteEditing] = useState(false);
-  const [temporalLoteEditing, setTemporalLoteEditing] = useState(false);
   const [loteSelected, setLoteSelected] = useState<
     { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
   >(null);
-  const [articlesToSelect, setArticlesToSelect] = useState<ArticlesFetched[] | []>([]);
-  const [amountToSelect, setAmountToSelect] = useState<number | undefined>();
 
   useEffect(() => {
     setArticleSelected(null);
@@ -201,7 +187,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   useEffect(() => {
     if (!openLoteModal) {
       setArticleSelected(null);
-      setAmountToSelect(undefined);
     }
   }, [openLoteModal]);
 
@@ -222,16 +207,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       cantidad: totalQuantityByArticle,
       lote: updatedLote,
     };
-    if (temporalLoteEditing) {
-      const direction = articlesToSelect.findIndex(
-        (art) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articlesToSelect.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setTemporalLoteEditing(false);
-      return;
-    }
     if (edit) {
       const direction = articles.findIndex(
         (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
@@ -246,30 +221,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     }
   };
 
-  const handleAddArticlesFromPackage = (packageL: IArticlesPackage) => {
-    const formatPackageL = packageL.contenido
-      ?.filter(
-        (val: any) =>
-          !(
-            articles.map((art) => art.id_Articulo).includes(val.id) ||
-            articlesToSelect.map((art) => art.id_Articulo).includes(val.id)
-          )
-      )
-      .map((artPack: any) => ({
-        id_Articulo: artPack.id_Articulo,
-        nombre: artPack.nombre,
-        lote: artPack?.lote
-          ? artPack.lote.map((artLote: any) => ({
-              ...artLote,
-            }))
-          : [],
-        cantidad: artPack.cantidad.toString(),
-        cantidadSeleccionar: artPack.cantidadSeleccionar,
-        //cambio quiza agregar codigo de barras
-      }));
-    setArticlesToSelect(formatPackageL as any[]);
-  };
-
   const handleFetchArticlesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
@@ -282,20 +233,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         setDataWerehouseArticlesSelectedInitial(transformedData);
       }
       setDataWerehouseArticlesSelected(transformedData);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoadingArticlesWareH(false);
-    }
-  };
-
-  const handleFetchArticlesPackagesFromWareHouse = async (wareH: string) => {
-    try {
-      setIsLoadingArticlesWareH(true);
-      const res = await getPackagesByWarehouseId(wareH);
-      setDataWerehousePackagesSelected(res);
-      const resNurses = await getNursesUsers();
-      setNursesData(resNurses);
     } catch (error) {
       console.log(error);
     } finally {
@@ -330,10 +267,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       toast.error('Selecciona un cuarto');
       return;
     }
-    if (!nurseSelected) {
-      toast.error('Selecciona enfermero');
-      return;
-    }
     try {
       if (!validateAmount) return;
       setLoadingSubmit(true);
@@ -348,17 +281,20 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
           });
         });
       }
+
       const object = {
-        Lotes: articlesArticlesExit,
-        id_almacenDestino: '',
-        id_almacenOrigen: props.warehouseId,
-        EnEspera: true,
-        SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : `${reasonMessage} ${roomSelected}`,
-        SolicitadoPor: nurseSelected,
+        Lotes: articlesArticlesExit.map((loteA: any) => ({
+          Id_ArticuloExistente: loteA.Id_ArticuloExistente,
+          Stock: loteA.Cantidad,
+          fechaCaducidad: loteA.fechaCaducidad,
+        })),
+        Id_Almacen: props.warehouseId,
+        IngresoMotivo:
+          reasonMessage === 'Otro' ? `${textFieldRef.current?.value}` : `${reasonMessage} ${roomSelected || ''}`,
       };
-      await articlesOutputToWarehouseToWarehouse(object);
+      await articlesEntryToWarehouse(object);
       props.refetch();
-      toast.success('Salida a artículos con éxito!');
+      toast.success('Entrada de artículos con éxito!');
       setLoadingSubmit(false);
       props.setOpen(false);
       setDataWerehouseArticlesSelected([]);
@@ -374,7 +310,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Salida paquete de artículos" />
+      <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
       {isLoadingWarehouse ? (
         <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
           <CircularProgress size={40} />
@@ -382,29 +318,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       ) : (
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterPackageOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setPackageSelected(val);
-                  if (val !== null) {
-                    handleAddArticlesFromPackage(val as IArticlesPackage);
-                  }
-                }}
-                loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
-                getOptionLabel={(option) => option.nombre}
-                options={dataWerehouseSelectedPackages}
-                value={packageSelected}
-                noOptionsText="No se encontraron paquetes"
-                renderInput={(params) => (
-                  <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
-                )}
-              />
-            </Stack>
             <Box
               sx={{
                 display: 'flex',
@@ -424,12 +337,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   onChange={(e, val) => {
                     e.stopPropagation();
                     if (val !== null) {
-                      if (
-                        !(
-                          articles.map((art) => art.id_Articulo).includes(val.id_Articulo) ||
-                          articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
-                        )
-                      ) {
+                      if (!articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
                         setOpenLoteModal(true);
                       }
                       console.log(val);
@@ -468,11 +376,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
               setOpenLoteModal={setOpenLoteModal}
               setArticles={setArticles}
               articles={articles || []}
-              articlesPending={articlesToSelect}
-              setArticlesPending={setArticlesToSelect}
-              setTemporalLoteEditing={setTemporalLoteEditing}
               setArticleId={setArticleId}
-              setAmountToSelect={setAmountToSelect}
             />
             <Box
               sx={{
@@ -520,7 +424,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                     onChange={(e, val) => {
                       e.stopPropagation();
                       setRoomSelected(val as string);
-                      setRoomError(false);
+                      setRoomError(false); //cambiar
                     }}
                     options={defaultRoomsQuirofano}
                     value={roomSelected}
@@ -560,33 +464,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                 )}
               </Stack>
             )}
-            <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                //filterOptions={filterArticleOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setNurseSelected(val as string);
-                  setArticleError(false); //cambiar
-                }}
-                loading={isLoadingArticlesWareH}
-                //getOptionLabel={(option) => option.nombre}
-                options={nursesData}
-                value={nurseSelected}
-                noOptionsText="No se encontraron enfermeros"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={articleError}
-                    helperText={articleError && 'Selecciona un enfermero'}
-                    placeholder="Enfermeros"
-                    sx={{ width: '50%' }}
-                  />
-                )}
-              />
-            </Stack>
             <Box
               sx={{
                 display: 'flex',
@@ -629,8 +506,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
             addFunction={handleAddArticle}
             editing={loteEditing}
             selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
-            temporalFromPackageAmountSelect={amountToSelect}
-            empityLotes={true}
+            adding={true}
+            empityLotes={null}
           />
         </>
       </Modal>
@@ -649,10 +526,6 @@ const ArticlesTable = (props: {
   setLoteSelected: Function;
   setArticleSelected: Function;
   setOpenLoteModal: Function;
-  articlesPending: ArticlesFetched[] | null;
-  setArticlesPending: Function;
-  setTemporalLoteEditing: Function;
-  setAmountToSelect: Function;
 }) => {
   return (
     <>
@@ -688,28 +561,6 @@ const ArticlesTable = (props: {
               ) : (
                 <></>
               )}
-              {props?.articlesPending && props.articlesPending?.length > 0 ? (
-                props.articlesPending
-                  ?.slice()
-                  .reverse()
-                  .map((a) => (
-                    <TemporalArticlesRows
-                      key={a.id_Articulo}
-                      setLoteEditing={props.setLoteEditing}
-                      setArticleSelected={props.setArticleSelected}
-                      setOpenLoteModal={props.setOpenLoteModal}
-                      setArticles={props.setArticlesPending}
-                      articleRow={a}
-                      articles={props.articlesPending}
-                      setTemporalLoteEditing={props.setTemporalLoteEditing}
-                      setArticleId={props.setArticleId}
-                      setAmountToSelect={props.setAmountToSelect}
-                    />
-                  ))
-              ) : (
-                <></>
-              )}
-              {}
             </TableBody>
           </Table>
         </TableContainer>
@@ -825,76 +676,5 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
         </TableBody>
       </Table>
     </Collapse>
-  );
-};
-
-//Filas temporales de articulos que faltan de seleccionar lote
-interface TemporalArticlesRowsProps {
-  setLoteEditing: Function;
-  setArticleSelected: Function;
-  setOpenLoteModal: Function;
-  setArticles: Function;
-  articleRow: any;
-  articles: any;
-  setTemporalLoteEditing: Function;
-  setArticleId: Function;
-  setAmountToSelect: Function;
-}
-const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
-  setArticleSelected,
-  setOpenLoteModal,
-  setArticles,
-  articleRow,
-  articles,
-  setTemporalLoteEditing,
-  setArticleId,
-  setAmountToSelect,
-}) => {
-  return (
-    <>
-      <TableRow key={articleRow.id_Articulo}>
-        <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <WarningAmber
-              sx={{
-                mr: 1,
-                color: articleRow.cantidad > 0 ? 'rgb(204, 153, 0)' : 'red',
-              }}
-            />
-            {articleRow.nombre}
-          </Box>
-        </TableCell>
-        <TableCell align={'center'}>{articleRow.cantidadSeleccionar}</TableCell>
-        <TableCell align={'center'}>{articleRow.cantidad}</TableCell>
-        <TableCell>
-          <>
-            {articleRow.cantidad > 0 && (
-              <Tooltip title={'Agregar'}>
-                <IconButton
-                  onClick={() => {
-                    setTemporalLoteEditing(true);
-                    setArticleSelected(articleRow);
-                    setAmountToSelect(articleRow.cantidadSeleccionar);
-                    setArticleId(articleRow.id_Articulo);
-                    setOpenLoteModal(true);
-                  }}
-                >
-                  <AddCircleIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            <Tooltip title="Eliminar">
-              <IconButton
-                onClick={() => {
-                  setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
-                }}
-              >
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </>
-        </TableCell>
-      </TableRow>
-    </>
   );
 };
