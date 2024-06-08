@@ -242,7 +242,25 @@ export const ArticlesView = (props: ArticlesViewProps) => {
               )
                 return toast.error('Rellena todas las cantidades');
               if (radioSelected === 0) {
-                if (!subWarehouse) return toast.error('Selecciona un Sub Almacén');
+                if (!subWarehouse) {
+                  if (warehouseData.esSubAlmacen) {
+                    setSubWarehouse({
+                      nombre: '',
+                      descripcion: '',
+                      esSubAlmacen: false,
+                      id_AlmacenPrincipal: null,
+                      id_UsuarioEncargado: null,
+                      articuloExistentes: null,
+                      id: warehouseData.id_AlmacenPrincipal || '',
+                      fechaCreacion: '',
+                      fechaModificacion: '',
+                      habilitado: true,
+                      subAlmacenes: [],
+                    });
+                  } else {
+                    return toast.error('Selecciona un Sub Almacén');
+                  }
+                }
               } else {
                 if (reasonMessage === '') return toast.error('Agrega un motivo de salida');
               }
@@ -426,7 +444,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               onChange={(e: any) => setRadioSelected(Number(e.target.value))}
               value={0}
               control={<Radio />}
-              label="Se dirige a otro almacén"
+              label={warehouseData.esSubAlmacen ? 'Se dirige al almacen principal' : 'Se dirige a otro almacén'}
             />
             <FormControlLabel
               value={1}
@@ -437,23 +455,26 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           </RadioGroup>
         </FormControl>
         <Stack flexDirection={'row'}>
-          <Box sx={{ width: '35%' }}>
-            <Autocomplete
-              disabled={radioSelected === 1}
-              disablePortal
-              sx={{ width: 200, mx: 'auto' }}
-              filterOptions={filterSubWarehousesOptions}
-              onChange={(e, val) => {
-                e.stopPropagation();
-                setSubWarehouse(val);
-              }}
-              getOptionLabel={(option) => option.nombre}
-              options={warehouseData.subAlmacenes}
-              value={subWarehouse}
-              noOptionsText="No existen registros de Sub Almacenes"
-              renderInput={(params) => <TextField {...params} placeholder="Sub Almacén..." fullWidth />}
-            />
-          </Box>
+          {warehouseData.subAlmacenes.length > 0 && !warehouseData.esSubAlmacen && (
+            <Box sx={{ width: '35%' }}>
+              <Autocomplete
+                disabled={radioSelected === 1}
+                disablePortal
+                sx={{ width: 200, mx: 'auto' }}
+                filterOptions={filterSubWarehousesOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setSubWarehouse(val);
+                }}
+                getOptionLabel={(option) => option.nombre}
+                options={warehouseData.subAlmacenes}
+                value={subWarehouse}
+                noOptionsText="No existen registros de Sub Almacenes"
+                renderInput={(params) => <TextField {...params} placeholder="Sub Almacén..." fullWidth />}
+              />
+            </Box>
+          )}
+
           <Box
             sx={{
               width: '65%',

@@ -71,9 +71,9 @@ interface State {
           `Id_Almacen=${useWarehouseTabsNavStore.getState().warehouseData.id
           }&${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}
-          &FechaInicio=${startDate}&FechaFin=${endDate}
-          &Sort=${sort}&`
+          }&search=${search}&habilitado=${enabled
+          }&FechaInicio=${startDate}&FechaFin=${endDate
+          }&Sort=${sort}`
         );
         set(() => ({
           data: res.data,

@@ -85,14 +85,14 @@ const useGetAllData = () => {
 export const LoteSelectionPOS: React.FC<LoteSelectionProps> = (props) => {
   const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize, setData } = useGetAllData();
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (data.length === 1 && !loading) {
       if (!props.alreadySelectedArticlesIDs?.includes(data[0].id_ArticuloExistente) && data[0]) {
         props.addFunction(data[0]);
         props.setOpen(false);
       }
     }
-  }, [data]);
+  }, [data]);*/
 
   const LoteCard = ({ article, articleName, addFunction, setOpen, disabled }: any) => (
     <AnimateButton>

@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IArticle, IArticlesPackage } from '../../../../../types/types';
-import { addArticlesPackage, getArticlesBySearch } from '../../../../../api/api.routes';
+import { addArticlesPackage, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../../schema/schemas';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -152,14 +152,11 @@ export const PackageModal = (props: { setOpen: Function }) => {
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getArticlesBySearch(serch, wareH); //cambiaar esta puta vaina por la otra llamada
-      console.log('k traes we?', res);
+      const res = await getArticlesFromWarehouseSearch(serch, wareH);
       const transformedData = res.map((item: any) => ({
-        id: item.id,
+        id: item.id_Articulo,
         nombre: item.nombre,
-        stock: item.stockActual,
       }));
-
       setDataWerehouseArticlesSelected(transformedData);
     } catch (error) {
       console.log(error);
