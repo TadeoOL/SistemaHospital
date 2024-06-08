@@ -26,6 +26,7 @@ import { AddSubWarehouseModal } from './Modal/AddSubWarehouseModal';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
 import { SortComponent } from '../../../Commons/SortComponent';
+import { returnExpireDate } from '../../../../utils/expireDate';
 // import { sortComponent } from '../../../Commons/sortComponent';
 
 export const WarehouseHistory = () => {
@@ -226,6 +227,7 @@ export const WarehouseHistory = () => {
                                   <TableRow>
                                     <TableCell align="center">Articulo</TableCell>
                                     <TableCell align="center">Cantidad</TableCell>
+                                    <TableCell align="center">Fecha Caducidad</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -235,6 +237,9 @@ export const WarehouseHistory = () => {
                                       <TableRow key={movimientoArticuclo.nombre}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
+                                        <TableCell align="center">
+                                          {returnExpireDate(movimientoArticuclo.fechaCaducidad || '')}
+                                        </TableCell>
                                       </TableRow>
                                     ))}
                                 </TableBody>

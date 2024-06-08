@@ -26,6 +26,7 @@ import { useWarehouseMovementPaginationStore } from '../../../store/warehouseSto
 import { SearchBar } from '../../Inputs/SearchBar';
 import { AddSubWarehouseModal } from '../../Warehouse/WarehouseSelected/TabsView/Modal/AddSubWarehouseModal';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { returnExpireDate } from '../../../utils/expireDate';
 
 const useGetMovements = () => {
   const {
@@ -218,6 +219,7 @@ export const WarehouseHistoryPharmacy = () => {
                                   <TableRow>
                                     <TableCell align="center">Articulo</TableCell>
                                     <TableCell align="center">Cantidad</TableCell>
+                                    <TableCell align="center">Fecha Caducidad</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -227,6 +229,9 @@ export const WarehouseHistoryPharmacy = () => {
                                       <TableRow key={i}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
+                                        <TableCell align="center">
+                                          {returnExpireDate(movimientoArticuclo.fechaCaducidad || '')}
+                                        </TableCell>
                                       </TableRow>
                                     ))}
                                 </TableBody>

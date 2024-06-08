@@ -3,10 +3,10 @@ import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { useEffect, useMemo, useState } from 'react';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
-import { IArticle2, IExistingArticleList } from '../../../types/types';
+import { IArticle2 } from '../../../types/types';
 import { neutral } from '../../../theme/colors';
 import { Info } from '@mui/icons-material';
-import { LoteSelectionRemake } from '../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake';
+import { LoteSelectionPOS } from '../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionPOS';
 import { useExistingArticleLotesPagination } from '../../../store/warehouseStore/existingArticleLotePagination';
 
 const scrollBar = {
@@ -59,23 +59,14 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
   const [openLoteModal, setOpenLoteModal] = useState(false);
+  const setData = useExistingArticleLotesPagination((state) => state.setData);
 
-  /*const articlesToSale = useMemo(
-    () =>
-      data.filter(
-        (article) => !articlesOnBasket.some((articleBasket) => articleBasket.id_Articulo === article.id_Articulo)
-      ),
-    [articlesOnBasket, data]
-  );*/
   const hasMorePages = useMemo(() => {
     return pageIndex < pageCount;
   }, [pageIndex, pageCount]);
 
   useEffect(() => {
-    console.log('yusefe');
     if (props.openModal) {
-      console.log('im in');
-      console.log(props.articleSelectedByBarCode);
       setArticleSelected(props.articleSelectedByBarCode);
       setArticleId(props.articleSelectedByBarCode.id_Articulo);
       setOpenLoteModal(true);
@@ -83,7 +74,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
     }
   }, [props.openModal]);
 
-  const handleAddArticle = (articles: any, lotesFromArticle: IExistingArticleList[]) => {
+  const handleAddArticle = (articles: any) => {
     if (articleSelected) {
       const updatedLote = {
         cantidad: 1,
@@ -148,12 +139,9 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           boxShadow: 3,
                         }}
                         onClick={() => {
-                          setArticleSelected(article);
                           setArticleId(article.id_Articulo);
-                          console.log('art seleccionado', article);
-                          //setLoteEditing(true)
+                          setArticleSelected(article);
                           setOpenLoteModal(true);
-                          //handleAddArticleToBasket(article);
                         }}
                       >
                         <Typography fontWeight={700} fontSize={18}>
@@ -232,30 +220,25 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           )}
         </>
       </Stack>
-      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
-        {/*<LoteSelection
+      <Modal
+        open={openLoteModal}
+        onClose={() => {
+          setOpenLoteModal(false);
+          setData();
+        }}
+      >
+        <LoteSelectionPOS
+          sx={{ p: 2 }}
           setOpen={setOpenLoteModal}
           open={openLoteModal}
-          lotes={(articleSelected?.lote as any) || []}
           articleName={articleSelected?.nombre || ''}
           addFunction={handleAddArticle}
-          setEditing={setLoteEditing}
-          editing={loteEditing}
-          //selectedLotes={loteSelected as loteFetch[]}
-        />*/}
-        {
-          <LoteSelectionRemake
-            sx={{ p: 2 }}
-            setOpen={setOpenLoteModal}
-            articleName={articleSelected?.nombre || ''}
-            addFunction={handleAddArticle}
-            alreadySelectedArticlesIDs={
-              articlesOnBasket
-                .find((artS) => artS.id_Articulo === articleSelected?.id_Articulo || '')
-                ?.lote?.map((lot) => lot.id_ArticuloExistente) || undefined
-            }
-          />
-        }
+          alreadySelectedArticlesIDs={
+            articlesOnBasket
+              .find((artS) => artS.id_Articulo === articleSelected?.id_Articulo || '')
+              ?.lote?.map((lot) => lot.id_ArticuloExistente) || undefined
+          }
+        />
       </Modal>
     </Stack>
   );

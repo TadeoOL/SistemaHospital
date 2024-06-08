@@ -84,7 +84,6 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId
         }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
       );
-      console.log(res.data);
       set(() => ({
         data: res.data,
         count: res.count,

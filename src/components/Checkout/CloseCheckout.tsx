@@ -62,6 +62,7 @@ export const CloseCheckout = () => {
             hideActions
             enableEditNote
             refetch={fetch}
+            fromPointOfSale={false}
           />
         </Stack>
       </Card>

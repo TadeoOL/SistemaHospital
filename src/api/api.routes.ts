@@ -848,9 +848,9 @@ export const getRequestListByWareHouseId = async (paramUrl: string) => {
 export const addMerchandiseEntry = async (merchandisePetition: {
   Id_AlmacenOrigen: string;
   Id_AlmacenDestino: string;
-  ListaArticulos: string;
+  ListaArticulos: any;
 }) => {
-  const res = await axios.post(`/api/Almacen/registrar-peticion`, {
+  const res = await axios.post(`/api/Almacen/registrar-peticion-almacen`, {
     ...merchandisePetition,
   });
   return res.data;
@@ -869,45 +869,37 @@ export const modifyMinStockExistingArticle = async (data: {
 
 export const articlesOutputToWarehouse = async (
   data: {
-    solicitudAceptada?: boolean;
     id_almacenOrigen?: string;
     id_almacenDestino?: string;
-    Articulos?: {
+    /*Lotes?: {
       Id_ArticuloExistente: string;
       Cantidad: string;
-    }[];
+    }[];*/
+    Lotes?: any;
     Estatus: number;
     Id_HistorialMovimiento?: string;
-    SalidaMotivo?: string;
     SolicitadoPor?: string;
     Mensaje?: string;
-  },
-  paqueteCancelado?: boolean
+  }
 ) => {
-  if (data.solicitudAceptada) {
-    const modifiedArticulos = data.Articulos?.map((articulo) => ({
-      ...articulo,
-      Id_Articulo: articulo.Id_ArticuloExistente,
-    }));
+    const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
+      ...data,
+    });
+    return res.data;
+  
+};
 
-    const res = await axios.post(`/api/Almacen/aceptar-peticion-almacen`, {
+export const waitingpackageChangeStatus = async (
+  data: {
+    Estatus: number;
+    Id_HistorialMovimiento: string;
+    Lotes?: any;
+  }
+) => {
+    const res = await axios.put(`/api/Almacen/estatus-espera-paquete`, {
       ...data,
-      Articulos: modifiedArticulos,
     });
     return res.data;
-  }
-  if (paqueteCancelado) {
-    const res = await axios.post(`/api/Almacen/aceptar-peticion-almacen`, {
-      ...data,
-      PaqueteCancelado: true,
-    });
-    return res.data;
-  }
-  //al rato quitamo eto
-  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
-    ...data,
-  });
-  return res.data;
 };
 
 export const articlesOutputToWarehouseToWarehouse = async ( 
@@ -916,6 +908,7 @@ export const articlesOutputToWarehouseToWarehouse = async (
   id_almacenDestino: string;
   Lotes: {
   Id_ArticuloExistente: string;
+  EnEspera?: boolean;
   Cantidad: number;
     }[];
   SalidaMotivo?: string;
@@ -946,6 +939,7 @@ export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
 
 export const getPackagesByWarehouseId = async (id: string) => {
   const res = await axios.get(`/api/Almacen/obtener-paquetes?Id=${id}`);
+  console.log("datapack",res.data);
   return res.data;
 };
 
@@ -1007,16 +1001,15 @@ export const getNursesUsers = async () => {
 };
 
 export const articlesEntryToWarehouse = async (data: {
-  id_almacenOrigen?: string;
-  id_almacenDestino?: string;
-  Articulos?: {
+  Id_Almacen: string;
+  Lotes?: {
     Id_ArticuloExistente: string;
     Cantidad: string;
+    fechaCaducidad: string;
   }[];
-  SalidaMotivo?: string;
-  SolicitadoPor?: string;
+  IngresoMotivo: string;
 }) => {
-  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
+  const res = await axios.put(`/api/ArticuloExistente/entrada-manual-lote`, {
     ...data,
   });
   return res.data;

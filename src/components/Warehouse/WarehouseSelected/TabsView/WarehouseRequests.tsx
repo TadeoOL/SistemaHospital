@@ -25,7 +25,7 @@ import { Info } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
 import { merchandiseEntryRequestPagination } from '../../../../store/warehouseStore/merchandiseEntryRequest';
-import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest copy';
+import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest';
 import CloseIcon from '@mui/icons-material/Close';
 import { MerchandiseEntry } from '../../../../types/types';
 import Swal from 'sweetalert2';
@@ -249,6 +249,7 @@ export const WarehouseRequest = () => {
                               <IconButton>
                                 <SettingsIcon
                                   onClick={() => {
+                                    console.log('peticion', petition);
                                     setRequest(petition);
                                     setOpenModal(true);
                                   }}
