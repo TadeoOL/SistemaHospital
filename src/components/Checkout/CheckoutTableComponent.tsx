@@ -31,7 +31,7 @@ import { changePrincipalSellStatus } from '../../services/checkout/checkoutServi
 
 const headTitlesCaja = [
   'Folio',
-  'Proveniente de',
+  'Concepto',
   'Paciente',
   'Costo total',
   'Monto de Pago',
@@ -51,7 +51,18 @@ const headTitlesAdmin = [
   'Notas',
   'Acciones',
 ];
-const headTitlesFarmacia = ['Folio', 'Costo total', 'Monto de Pago', 'Tipo de pago', 'Estatus', 'Notas', 'Acciones'];
+const headTitlesFarmacia = [
+  'Folio',
+  'Modulo Proveniente',
+  'Paciente',
+  'Costo total',
+  'Generado Por',
+  'Monto de Pago',
+  'Tipo de pago',
+  'Estatus',
+  'Notas',
+  'Acciones',
+];
 interface CheckoutTableComponentProps {
   data: ICheckoutSell[];
   admin: boolean;
@@ -218,10 +229,10 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
     <>
       <TableRow>
         <TableCell>{data.folio}</TableCell>
-        {!props.fromPointOfSale && <TableCell>{data.moduloProveniente}</TableCell>}
-        {!props.fromPointOfSale && <TableCell>paciente?{data.paciente}</TableCell>}
+        <TableCell>{data.moduloProveniente}</TableCell>
+        <TableCell>{data.paciente}</TableCell>
         <TableCell>$ {data.totalVenta}</TableCell>
-        {admin && <TableCell>{data.nombreUsuario}</TableCell>}
+        {(admin || props.fromPointOfSale) && <TableCell>{data.nombreUsuario}</TableCell>}
         <TableCell>{data.montoPago ? '$ ' + data.montoPago : 'No se ha cobrado'}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
