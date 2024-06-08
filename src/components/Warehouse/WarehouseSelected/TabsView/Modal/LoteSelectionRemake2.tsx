@@ -1,17 +1,38 @@
-import React, { useEffect } from 'react';
-import { Box, Button, Stack, Grid, Card, Typography, CircularProgress, TablePagination } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Stack,
+  Grid,
+  Card,
+  Typography,
+  CircularProgress,
+  TablePagination,
+  TextField,
+} from '@mui/material';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import AnimateButton from '../../../../@extended/AnimateButton';
 import { Info } from '@mui/icons-material';
-import { neutral } from '../../../../../theme/colors';
+import { debounce } from 'lodash';
 
 interface LoteSelectionProps {
   sx?: any;
   setOpen: (open: boolean) => void;
   articleName: string;
   addFunction: Function;
-  alreadySelectedArticlesIDs?: string[];
+  editing?: boolean;
+  selectedLotes?: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[];
+  adding?: boolean;
+  temporalFromPackageAmountSelect?: number;
+  empityLotes: boolean | null;
+}
+
+interface LoteCardProps {
+  article: any;
+  articleName: string;
+  initialQuantity: number;
+  handleQuantityChange: (id_ArticuloExistente: string, value: number) => void;
+  adding: boolean;
 }
 
 const style = {
@@ -49,7 +70,7 @@ const scrollBar = {
   },
 };
 
-const useGetAllData = () => {
+const useGetAllData = (lotes: boolean | null) => {
   const data = useExistingArticleLotesPagination((state) => state.data);
   const fetchData = useExistingArticleLotesPagination((state) => state.fetchExistingArticles);
   const pageCount = useExistingArticleLotesPagination((state) => state.pageCount);
@@ -62,7 +83,7 @@ const useGetAllData = () => {
   const setSearch = useExistingArticleLotesPagination((state) => state.setSearch);
 
   useEffect(() => {
-    fetchData();
+    fetchData(lotes);
   }, [search, pageIndex]);
 
   return {
@@ -77,11 +98,63 @@ const useGetAllData = () => {
   };
 };
 
-export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
-  const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize } = useGetAllData();
+export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
+  const { data, pageCount, setPageIndex, pageIndex, loading, pageSize, setPageSize } = useGetAllData(props.empityLotes);
+  const [quantities, setQuantities] = useState<{ [id_ArticuloExistente: string]: number }>({});
 
-  const LoteCard = ({ article, articleName, addFunction, setOpen, disabled, lotes }: any) => (
-    <AnimateButton>
+  useEffect(() => {
+    if (props.editing && props.selectedLotes) {
+      const initialQuantities = props.selectedLotes.reduce(
+        (acc, lote) => {
+          acc[lote.id_ArticuloExistente] = lote.cantidad;
+          return acc;
+        },
+        {} as { [id: string]: number }
+      );
+      setQuantities(initialQuantities);
+    }
+  }, [props.editing, props.selectedLotes]);
+  useEffect(() => {}, [props.articleName]);
+
+  const handleQuantityChange = (id_ArticuloExistente: string, value: number) => {
+    setQuantities((prev) => ({ ...prev, [id_ArticuloExistente]: value }));
+  };
+
+  const handleConfirm = () => {
+    const selectedLotes = data
+      .filter((lote) => quantities[lote.id_ArticuloExistente] > 0)
+      .map((lote) => ({
+        ...lote,
+        cantidad: quantities[lote.id_ArticuloExistente],
+      }));
+    props.addFunction(selectedLotes, props.editing);
+    props.setOpen(false);
+  };
+
+  const LoteCard: React.FC<LoteCardProps> = ({
+    article,
+    articleName,
+    initialQuantity,
+    handleQuantityChange,
+    adding,
+  }) => {
+    const [quantity, setQuantity] = useState(initialQuantity);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (props.adding) {
+        const value = Number(e.target.value);
+        setQuantity(value);
+        debouncedHandleQuantityChange(article.id_ArticuloExistente, value);
+      } else {
+        const value = Math.max(0, Math.min(article.cantidad, Number(e.target.value)));
+        setQuantity(value);
+        debouncedHandleQuantityChange(article.id_ArticuloExistente, value);
+      }
+    };
+
+    const debouncedHandleQuantityChange = debounce(handleQuantityChange, 150);
+
+    return (
       <Card
         sx={{
           p: 2,
@@ -90,24 +163,7 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
-          opacity: disabled ? 0.5 : 1,
-          ...(disabled
-            ? {}
-            : {
-                '&:hover': {
-                  cursor: 'pointer',
-                  transform: 'scale(1.02)',
-                  transition: 'transform 0.2s ease-in-out',
-                  boxShadow: 3,
-                },
-              }),
           boxShadow: 3,
-        }}
-        onClick={() => {
-          if (!disabled) {
-            addFunction(article, lotes);
-            setOpen(false);
-          }
         }}
       >
         <Typography fontWeight={700} fontSize={14}>
@@ -115,6 +171,7 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
         </Typography>
         <Typography fontSize={14}>Caducidad</Typography>
         <Typography fontSize={14}>{article.fechaCaducidad}</Typography>
+
         <Box
           sx={{
             marginTop: 'auto',
@@ -124,12 +181,20 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
           }}
         >
           <Box sx={{ display: 'flex', columnGap: 1 }}>
-            <Typography sx={{ fontSize: 13, fontWeight: 500, color: neutral[400] }}>{article.cantidad} pza.</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{article.cantidad} pza.</Typography>
+            <TextField
+              type="number"
+              placeholder="Cantidad"
+              inputProps={{ className: 'tableCell', min: 0, max: adding ? 1000 : article.cantidad }}
+              value={quantity}
+              onChange={handleChange}
+            />
           </Box>
         </Box>
       </Card>
-    </AnimateButton>
-  );
+    );
+  };
+
   return (
     <Box sx={{ ...style }}>
       <HeaderModal setOpen={props.setOpen} title="Lotes Disponibles" />
@@ -137,9 +202,12 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
         <Stack sx={{ overflowY: 'auto', ...props.sx, ...scrollBar }}>
           <Stack sx={{ maxHeight: 550 }}>
             <Box sx={{ justifyContent: 'space-between', display: 'flex', mb: 2 }}>
-              <Typography variant="h5">Nombre: {props.articleName} </Typography>
+              <Typography variant="h5">Nombre: {props.articleName}</Typography>
             </Box>
-            <Typography variant="h5">Seleccione el lote del articulo que desea retirar:</Typography>
+            <Typography variant="h5">
+              Seleccione el lote del artículo que desea retirar
+              {props.temporalFromPackageAmountSelect ? `(${props.temporalFromPackageAmountSelect})` : ''}:
+            </Typography>
 
             {loading ? (
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 6, alignItems: 'center' }}>
@@ -152,13 +220,11 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
                   ? data.map((article) => (
                       <Grid item xs={12} lg={3} key={article.id_ArticuloExistente}>
                         <LoteCard
-                          key={`card${article.id_ArticuloExistente}`}
                           article={article}
                           articleName={props.articleName}
-                          addFunction={props.addFunction}
-                          setOpen={props.setOpen}
-                          disabled={props.alreadySelectedArticlesIDs?.includes(article.id_ArticuloExistente)}
-                          lotes={data}
+                          initialQuantity={quantities[article.id_ArticuloExistente] || 0}
+                          handleQuantityChange={handleQuantityChange}
+                          adding={props.adding || false}
                         />
                       </Grid>
                     ))
@@ -197,12 +263,11 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
               fullWidth
               size="large"
               variant="contained"
-              sx={{ maxWidth: 100 }}
-              onClick={() => {
-                props.setOpen(false);
-              }}
+              sx={{ maxWidth: 300, alignSelf: 'center', mb: 2 }}
+              color="primary"
+              onClick={handleConfirm}
             >
-              Cancelar
+              Confirmar
             </Button>
           </Stack>
         </Stack>
@@ -210,5 +275,3 @@ export const LoteSelectionRemake: React.FC<LoteSelectionProps> = (props) => {
     </Box>
   );
 };
-
-export default LoteSelectionRemake;

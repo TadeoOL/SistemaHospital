@@ -1,23 +1,67 @@
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { CalendarComponent } from './Calendar/CalendarComponent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+import { getRoomsEventsByDate } from '../../../services/programming/roomsService';
+import { toast } from 'react-toastify';
 dayjs.locale('es');
-
 interface CalenderRegisterProps {
   setOpen: Function;
 }
+
+const useGetDate = (date: Date) => {
+  const events = useProgrammingRegisterStore((state) => state.events);
+  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        const formattedDate = date.toISOString();
+        const res = await getRoomsEventsByDate(formattedDate);
+        if (res.length > 0) {
+          const formattedRes = res
+            .map((event) => {
+              return {
+                id: event.id,
+                roomId: event.id_Cuarto,
+                title: event.nombre,
+                start: new Date(event.fechaInicio),
+                end: new Date(event.fechaFin),
+              };
+            })
+            .filter((e) => !events.some((localEvent) => localEvent.id === e.id));
+          setEvents([...formattedRes, ...events]);
+        } else {
+          setEvents([...events]);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchEvents();
+  }, [date]);
+  return {
+    isLoading,
+  };
+};
 export const CalenderRegister = (props: CalenderRegisterProps) => {
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
   const currentDate: any = dayjs(new Date());
+  const { isLoading } = useGetDate(date);
+  const events = useProgrammingRegisterStore((state) => state.events);
+  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
 
   const sameDate = useMemo(() => {
     if (!date) return true;
@@ -26,6 +70,17 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
     return formattedCurrentDate === formattedSelectedDate;
   }, [date]);
 
+  const handleNextStep = () => {
+    if (roomValues.length < 1) return toast.warning('Para avanzar es necesario seleccionar un evento en el calendario');
+    setStep(step + 1);
+  };
+
+  if (isLoading)
+    return (
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   return (
     <>
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />
@@ -65,7 +120,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
             </Box>
           </Box>
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-            <CalendarComponent date={date} />
+            <CalendarComponent date={date} events={events} />
           </Box>
         </Stack>
       </Box>
@@ -82,7 +137,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cancelar
         </Button>
-        <Button variant="contained" onClick={() => setStep(step + 1)}>
+        <Button variant="contained" onClick={handleNextStep}>
           Siguiente
         </Button>
       </Box>

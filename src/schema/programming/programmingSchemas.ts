@@ -1,4 +1,7 @@
+import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
+
+const toDate = (val: any) => (dayjs.isDayjs(val) ? val.toDate() : val);
 
 export const patientRegistrationSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido'),
@@ -45,11 +48,20 @@ export const surgeryProcedureSchema = z.object({
 
 export const addRoomReservation = z
   .object({
-    room: z.string().min(1, 'Selecciona un cuarto'),
-    startTime: z.date().min(new Date(), 'La fecha de inicio debe ser posterior a la fecha actual'),
-    endTime: z.date(),
+    room: z.string().min(1, 'La habitación es requerida'),
+    startTime: z.preprocess(
+      (val) => toDate(val as Dayjs),
+      z.date().min(new Date(), 'La fecha de inicio debe ser posterior a la fecha actual')
+    ),
+    endDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
   })
-  .refine((data) => data.endTime > data.startTime, {
+  .refine((data) => data.endDate >= data.startTime, {
     message: 'La fecha de finalización debe ser posterior a la fecha de inicio',
-    path: ['endTime'],
+    path: ['endDate'],
   });
+
+export const procedureSchema = z.object({
+  proceduresId: z
+    .array(z.string().min(1, 'El ID del procedimiento no puede estar vacío'))
+    .nonempty('El procedimiento es requerido'),
+});

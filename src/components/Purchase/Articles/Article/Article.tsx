@@ -26,7 +26,7 @@ const Article = () => {
     }));
 
   useEffect(() => {
-    refetchArticles(warehouseSelected);
+    refetchArticles();
   }, [warehouseSelected]);
 
   return (
@@ -57,7 +57,6 @@ const Article = () => {
             }}
           >
             <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%' }} />
-
             <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
               <TextField
                 select
@@ -76,7 +75,6 @@ const Article = () => {
                 ))}
               </TextField>
             </Stack>
-
             {/* <TextField
               sx={{ width: 200 }}
               select

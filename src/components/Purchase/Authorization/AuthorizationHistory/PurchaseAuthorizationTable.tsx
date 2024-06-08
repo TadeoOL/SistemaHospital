@@ -183,7 +183,7 @@ export const PurchaseAuthorizationTable = () => {
                             {auth.habilitado == true ? 'Solicitud Autorizada' : 'Solicitud Rechazada'}
                           </TableCell>
                           <TableCell>
-                            <Tooltip title="Ver Cotización xxx">
+                            <Tooltip title="Ver Cotización">
                               <IconButton
                                 size="small" //Cambiar aca
                                 sx={{ color: 'neutral.700' }}

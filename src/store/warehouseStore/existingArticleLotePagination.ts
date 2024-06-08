@@ -22,13 +22,14 @@ interface State {
 
 interface Action {
   setCount: (count: number) => void;
+  setData: () => void;
   setPageCount: (pageCount: number) => void;
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeExistingArticle: (handleChangeExistingArticle: boolean) => void;
-  fetchExistingArticles: () => Promise<void>;
+  fetchExistingArticles: (inhabilitados: boolean | null) => Promise<void>;
   setWarehouseId: (warehouseId: string) => void;
   setArticleId: (articleId: string) => void;
   setStartDate: (startDate: string) => void;
@@ -44,7 +45,7 @@ const initialState: State = {
   pageIndex: 0,
   pageSize: 10,
   data: [],
-  isLoading: true,
+  isLoading: false,
   search: '',
   enabled: true,
   handleChangeExistingArticle: false,
@@ -66,22 +67,25 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSort: (sort: string) => set({ sort }),
+  setData: () => set({ data: []}),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchExistingArticles: async () => {
+  fetchExistingArticles: async (inhabilitados: boolean | null) => {
+    const { isLoading } = get();
+    if (isLoading) return;
     set(() => ({ isLoading: true }));
     const { pageIndex, pageSize, search, enabled, warehouseId, articleId } = get();
     const page = pageIndex + 1;
     try {
-      console.log(`entro&Id_Articulo=${articleId} y esto ${warehouseId}`);
       if (warehouseId === '') return;
       const res = await getLotesFromExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_Articulo=${articleId}`
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId
+        }&Id_Articulo=${articleId
+        }${inhabilitados === null ? '' : `&LoteHabilitado=${inhabilitados}` }`
       );
-      console.log("pagineicho ",res);
       set(() => ({
         data: res.data,
         count: res.count,

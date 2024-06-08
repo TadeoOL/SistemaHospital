@@ -35,6 +35,7 @@ import { SortComponent } from '../../Commons/SortComponent';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
+import { ArticlesEntryModal } from './Modal/ArticlesEntryModal';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -118,7 +119,7 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
   };
 };
 export const ArticlesPharmacyTable = () => {
-  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseIdSeted: string = usePosTabNavStore((state) => state.warehouseId);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
 
   const {
@@ -269,12 +270,11 @@ export const ArticlesPharmacyTable = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          <ArticlesExitModal
-            setOpen={setOpenModal}
-            warehouseId={warehouseIdSeted}
-            refetch={fetchExistingArticles}
-            articlesExit={exitArticlesM}
-          />
+          {exitArticlesM ? (
+            <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+          ) : (
+            <ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+          )}
         </>
       </Modal>
     </>

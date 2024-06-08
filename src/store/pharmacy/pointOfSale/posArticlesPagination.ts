@@ -2,7 +2,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { IArticle2 } from '../../../types/types';
 import axios, { CancelTokenSource } from 'axios';
 import { usePosTabNavStore } from './posTabNav';
-import { getExistingArticles } from '../../../api/api.routes';
+import { getArticlesToSaleOnPOS } from '../../../services/pharmacy/pointOfSaleService';
 
 interface State {
   count: number;
@@ -60,7 +60,6 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
 
     set({ loading: true });
     // const index = pageIndex + 1;
-    console.log({ pageIndex });
 
     const cancelToken = axios.CancelToken.source();
     if (get().cancelToken) {
@@ -72,13 +71,13 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
       if (fetchPagination) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
-      const res = await getExistingArticles(
+      const res = await getArticlesToSaleOnPOS(
         `&pageIndex=${pageIndex}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&id_Almacen=${warehouseId
-        }&id_AlmacenPrincipal=${warehouseId}&id_SubCategoria=${subCategoryId}`
-      );
-      console.log("res postArticlesPagination",res.data);
+        }&id_SubCategoria=${subCategoryId}`
+      )
+
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
         pageSize: res.pageSize,

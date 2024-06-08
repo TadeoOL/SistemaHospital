@@ -27,7 +27,7 @@ import withReactContent from 'sweetalert2-react-content';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
-import { articlesOutputToWarehouse } from '../../../api/api.routes';
+import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const useGetMovements = () => {
@@ -117,13 +117,10 @@ export const WaitingPackages = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return articlesOutputToWarehouse(
-            {
-              Estatus: 0,
-              Id_HistorialMovimiento: idRequest,
-            },
-            true
-          );
+          return waitingpackageChangeStatus({
+            Estatus: 0,
+            Id_HistorialMovimiento: idRequest,
+          });
         },
         allowOutsideClick: () => !Swal.isLoading(),
       })
@@ -144,7 +141,7 @@ export const WaitingPackages = () => {
       });
   };
 
-  const acceptRequest = (idRequest: string) => {
+  const acceptRequest = (idRequest: string, lotes: any) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -160,7 +157,7 @@ export const WaitingPackages = () => {
           return articlesOutputToWarehouse({
             Estatus: 2,
             Id_HistorialMovimiento: idRequest,
-            solicitudAceptada: true,
+            Lotes: lotes,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -182,7 +179,6 @@ export const WaitingPackages = () => {
         }
       });
   };
-
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -294,7 +290,7 @@ export const WaitingPackages = () => {
                               <IconButton>
                                 <DoneIcon
                                   onClick={() => {
-                                    acceptRequest(movimiento.id);
+                                    acceptRequest(movimiento.id, movimiento.historialArticulos);
                                   }}
                                 />
                               </IconButton>
@@ -317,6 +313,7 @@ export const WaitingPackages = () => {
                                   <TableRow>
                                     <TableCell align="center">Articulo</TableCell>
                                     <TableCell align="center">Cantidad</TableCell>
+                                    <TableCell align="center">Fecha Caducidad</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -326,6 +323,7 @@ export const WaitingPackages = () => {
                                       <TableRow key={(movimientoArticuclo.nombre, i)}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
+                                        <TableCell align="center">{movimientoArticuclo.fechaCaducidad}</TableCell>
                                       </TableRow>
                                     ))}
                                 </TableBody>

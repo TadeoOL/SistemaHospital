@@ -2,9 +2,10 @@ import { Box, Button, Checkbox, Divider, Grid, MenuItem, TextField, Typography }
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { patientRegistrationSchema } from '../../../schema/programming/programmingSchemas';
+// import { toast } from 'react-toastify';
 
 // const CIVIL_STATUS = ['Soltero(a)', 'Casado(a)', 'Divorciado(a)', 'Viudo(a)'];
 const GENERE = ['Hombre', 'Mujer'];
@@ -48,7 +49,27 @@ type Inputs = {
 export const PatientRegistrationForm = () => {
   const step = useProgrammingRegisterStore((state) => state.step);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
-  const [genereSelected, setGenereSelected] = useState('');
+  const patient = useProgrammingRegisterStore((state) => state.patient);
+  const setPatient = useProgrammingRegisterStore((state) => state.setPatient);
+  const {
+    secondLastName,
+    lastName,
+    zipCode,
+    personInChargeZipCode,
+    neighborhood,
+    personInChargeNeighborhood,
+    address,
+    personInChargeAddress,
+    age,
+    civilStatus,
+    genere,
+    name,
+    personInCharge,
+    occupation,
+    relationship,
+    phoneNumber,
+    personInChargePhoneNumber,
+  } = patient;
 
   const {
     register,
@@ -58,17 +79,38 @@ export const PatientRegistrationForm = () => {
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(patientRegistrationSchema),
+    defaultValues: {
+      name,
+      lastName,
+      secondLastName,
+      phoneNumber,
+      genere,
+      zipCode,
+      personInChargeZipCode,
+      neighborhood,
+      personInChargeNeighborhood,
+      address,
+      personInChargeAddress,
+      age: age.toString(),
+      civilStatus,
+      personInCharge,
+      occupation,
+      relationship,
+      personInChargePhoneNumber,
+    },
   });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log({ data });
+    setPatient(data);
     setStep(step + 1);
+    // toast.success("Datos registrados correctamente")
   };
 
   const watchSameAddress = watch('sameAddress');
   const watchZipCode = watch('zipCode');
   const watchNeighborhood = watch('neighborhood');
   const watchAddress = watch('address');
+  const watchGenere = watch('genere');
 
   useEffect(() => {
     if (watchSameAddress) {
@@ -147,11 +189,10 @@ export const PatientRegistrationForm = () => {
                 fullWidth
                 label="Selecciona el genero"
                 select
-                value={genereSelected}
+                value={watchGenere}
                 error={!!errors.genere?.message}
                 helperText={errors.genere?.message}
                 {...register('genere')}
-                onChange={(e) => setGenereSelected(e.target.value)}
               >
                 {GENERE.map((genero) => (
                   <MenuItem key={genero} value={genero}>

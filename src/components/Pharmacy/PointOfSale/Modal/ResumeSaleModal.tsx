@@ -3,7 +3,7 @@ import {
   Button,
   Card,
   Divider,
-  Grid,
+  //Grid,
   Stack,
   Table,
   TableBody,
@@ -17,13 +17,14 @@ import {
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { IArticle2 } from '../../../../types/types';
 import { usePosOrderArticlesStore } from '../../../../store/pharmacy/pointOfSale/posOrderArticles';
-import { CreditCard, Payments, SwapHoriz } from '@mui/icons-material';
-import AnimateButton from '../../../@extended/AnimateButton';
-import { neutral, primary } from '../../../../theme/colors';
+//import { CreditCard, Payments, SwapHoriz } from '@mui/icons-material';
+//import AnimateButton from '../../../@extended/AnimateButton';
+//import { neutral, primary } from '../../../../theme/colors';
+import { neutral } from '../../../../theme/colors';
 import { usePosArticlesPaginationStore } from '../../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { toast } from 'react-toastify';
 import { registerSale } from '../../../../services/pharmacy/pointOfSaleService';
-import { invariant } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
 const style = {
   position: 'absolute',
@@ -51,7 +52,7 @@ const scrollBarStyle = {
     outline: '1px solid slategrey',
   },
 };
-
+/*
 const paymentMethods = [
   { id: '1', method: 'Efectivo', value: 1 },
   { id: '2', method: 'Débito', value: 2 },
@@ -70,7 +71,7 @@ const iconPaymentMethod = (value: number, isSelected: boolean) => {
     case 4:
       return <SwapHoriz sx={{ color: colorIcon }} />;
   }
-};
+};*/
 interface ResumeSaleModalProps {
   setOpen: Function;
 }
@@ -78,36 +79,92 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setPaymentMethod = usePosOrderArticlesStore((state) => state.setPaymentMethod);
   const userSalesRegisterData = usePosOrderArticlesStore((state) => state.userSalesRegisterData);
-  const paymentMethod = usePosOrderArticlesStore((state) => state.paymentMethod);
   const refetch = usePosArticlesPaginationStore((state) => state.fetchData);
   const clearData = usePosOrderArticlesStore((state) => state.clearData);
   const total = usePosOrderArticlesStore((state) => state.total);
-  // const amountRef = useRef<HTMLTextAreaElement | null>(null);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const subTotal = usePosOrderArticlesStore((state) => state.subTotal);
+  const iva = usePosOrderArticlesStore((state) => state.iva);
+
+  const ws = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    // Crear una nueva conexión WebSocket
+    ws.current = new WebSocket('ws://localhost:2001');
+
+    // Definir el evento de apertura de la conexión
+    ws.current.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    // Definir el evento de cierre de la conexión
+    ws.current.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    // Limpiar la conexión cuando el componente se desmonte
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
-    if (paymentMethod === 0) return toast.error('Selecciona un método de pago!');
+    setLoadingSubmit(true);
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
     console.log(articlesOnBasket);
-    const articlesFormatted = articlesOnBasket.map((article) => {
-      return {
-        id: article.id_Articulo,
-        cantidad: article.cantidad,
-        precioUnitario: article.precioVenta,
-      };
+    let articlesFormatted: any = [];
+    articlesOnBasket.forEach((article) => {
+      article?.lote?.forEach((articleNested) => {
+        articlesFormatted.push({
+          id: articleNested.id_ArticuloExistente,
+          cantidad: articleNested.cantidad,
+          precioUnitario: article.precioVenta,
+        });
+      });
     });
+    /*((article) => {
+      article?.lote?.map((articleNested) => {
+        return {
+          id: articleNested.id_ArticuloExistente,
+          cantidad: articleNested.cantidad,
+          precioUnitario: article.precioVenta,
+        };
+      });
+    });*/
     console.log({ userSalesRegisterData });
     const saleObject = {
       id_Caja: userSalesRegisterData.id,
-      tipoPago: paymentMethod,
+      tipoPago: 1,
       articulos: articlesFormatted,
       montoPago: total,
       totalVenta: total,
     };
     console.log('salewe', saleObject);
-    return;
+
     try {
-      await registerSale(saleObject);
+      const response = await registerSale(saleObject);
+      const objWS = {
+        Folio: response.folio,
+        SubTotal: subTotal,
+        IVA: iva,
+        TotalVenta: total,
+        UsuarioVenta: response.ventaPrincipal.nombreUsuario,
+        Articulos: response.detalleVentas.map((artF: any) => ({
+          Nombre: artF.articuloExistente.articulo.nombre,
+          Precio: artF.precioUnitario,
+          Cantidad: artF.cantidad,
+        })),
+      };
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify(objWS));
+        toast.success('Compra realizada con éxito!');
+        clearData();
+      } else {
+        toast.error('Error al conectar con el WebSocket!');
+      }
       refetch();
       props.setOpen(false);
       toast.success('Compra realizada con éxito!');
@@ -115,6 +172,8 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     } catch (error) {
       console.log(error);
       toast.error('Error al realizar la compra!');
+    } finally {
+      setLoadingSubmit(false);
     }
   };
 
@@ -127,7 +186,9 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
             <Typography variant="h5">Ingresa el monto pagado:</Typography>
             <TextField inputRef={amountRef} placeholder="Monto pagado..." sx={{ maxWidth: 200 }} />
           </Stack> */}
-          <PaymentMethods />
+          {
+            //<PaymentMethods />
+          }
           <TableResume />
           <AmountResume />
         </Stack>
@@ -143,7 +204,7 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         >
           Cancelar
         </Button>
-        <Button variant="contained" onClick={() => handleSubmit()}>
+        <Button variant="contained" disabled={loadingSubmit} onClick={() => handleSubmit()}>
           Aceptar
         </Button>
       </Box>
@@ -175,6 +236,7 @@ const TableHeaderResume = () => {
         <TableCell>Código de barras</TableCell>
         <TableCell>Cantidad</TableCell>
         <TableCell>Precio unitario</TableCell>
+        <TableCell>IVA</TableCell>
         <TableCell>Precio total articulo</TableCell>
       </TableRow>
     </TableHead>
@@ -187,7 +249,13 @@ const TableBodyResume = () => {
   return (
     <TableBody>
       {articlesOnBasket.map((article) => (
-        <TableRowArticleResume article={article} key={article.id_Articulo} />
+        <TableRowArticleResume
+          article={{
+            ...article,
+            cantidad: article.lote?.reduce((total, item) => total + item.cantidad, 0) || 0,
+          }}
+          key={article.id_Articulo}
+        />
       ))}
     </TableBody>
   );
@@ -204,11 +272,12 @@ const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
       <TableCell>{article.codigoBarras}</TableCell>
       <TableCell>{article.cantidad}</TableCell>
       <TableCell>{article.precioVenta}</TableCell>
+      <TableCell>{article.iva || 0}</TableCell>
       <TableCell>{totalPriceArticle}</TableCell>
     </TableRow>
   );
 };
-
+/*
 const PaymentMethods = () => {
   const paymentMethodSelected = usePosOrderArticlesStore((state) => state.paymentMethod);
   const setPaymentMethod = usePosOrderArticlesStore((state) => state.setPaymentMethod);
@@ -247,7 +316,7 @@ const PaymentMethods = () => {
       </Grid>
     </Box>
   );
-};
+};*/
 
 const AmountResume = () => {
   const subTotal = usePosOrderArticlesStore((state) => state.subTotal);
