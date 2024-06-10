@@ -22,7 +22,14 @@ import Swal from 'sweetalert2';
 import { deleteSurgeryProcedure } from '../../../services/programming/surgeryProcedureService';
 import { AddSurgeryProcedureModal } from './Modal/AddSurgeryProcedureModal';
 
-const HEADERS = ['Nombre', 'Duración de Hospitalización', 'Duración de Crujía', 'Descripción', 'Acciones'];
+const HEADERS = [
+  'Nombre',
+  'Duración de Hospitalización',
+  'Duración de Crujía',
+  'Precio Crujía',
+  'Descripción',
+  'Acciones',
+];
 
 interface TableRowSurgeryProcedureProps {
   surgeryProcedure: ISurgeryProcedure;
@@ -146,6 +153,7 @@ const TableRowSurgeryProcedure = (props: TableRowSurgeryProcedureProps) => {
         <TableCell>{surgeryProcedure.nombre}</TableCell>
         <TableCell>{surgeryProcedure.duracionHospitalizacion}</TableCell>
         <TableCell>{surgeryProcedure.duracionCirujia}</TableCell>
+        <TableCell>${surgeryProcedure.precioCirujia}</TableCell>
         <TableCell>{surgeryProcedure.descripcion}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

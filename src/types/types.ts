@@ -143,7 +143,6 @@ export interface IArticle2 {
 export interface IArticleFromSearch {
   id_Articulo: string;
   nombre: string;
-  
 }
 
 export interface IExistingArticle {
@@ -161,7 +160,8 @@ export interface IExistingArticle {
   codigoBarras?: string;
 }
 
-export interface IExistingArticleList {//Lote
+export interface IExistingArticleList {
+  //Lote
   id_ArticuloExistente: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
@@ -552,7 +552,8 @@ export interface IRoom {
 export interface ISurgeryProcedure {
   id: string;
   nombre: string;
-  duracionHospitalizacion: string;
+  duracionHospitalizacion: number;
+  precioCirujia: number;
   duracionCirujia: string;
   descripcion: string;
 }
@@ -564,6 +565,7 @@ export interface IRegisterRoom {
   horaInicio: Date;
   horaFin: Date;
   provisionalId?: string;
+  id_Cuarto?: string;
 }
 
 export interface IRoomsList {
@@ -594,18 +596,19 @@ export interface IPatient {
   secondLastName: string;
   age: string;
   genere: string;
-  civilStatus: string;
-  phoneNumber: string;
-  occupation: string;
-  zipCode: string;
-  neighborhood: string;
-  address: string;
-  personInCharge: string;
-  relationship: string;
-  personInChargeZipCode: string;
-  personInChargeNeighborhood: string;
-  personInChargeAddress: string;
-  personInChargePhoneNumber: string;
+  birthDate: Date;
+  civilStatus?: string;
+  phoneNumber?: string;
+  occupation?: string;
+  zipCode?: string;
+  neighborhood?: string;
+  address?: string;
+  personInCharge?: string;
+  relationship?: string;
+  personInChargeZipCode?: string;
+  personInChargeNeighborhood?: string;
+  personInChargeAddress?: string;
+  personInChargePhoneNumber?: string;
 }
 
 export interface IClinicalData {
@@ -613,6 +616,8 @@ export interface IClinicalData {
   specialty: string;
   reasonForAdmission: string;
   admissionDiagnosis: string;
-  procedure: string;
+  procedure?: string;
   comments: string;
+  allergies: string;
+  bloodType: string;
 }

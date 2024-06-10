@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
-import { CalenderRegister } from './CalenderRegister';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { useEffect } from 'react';
 import { PatientRegistrationForm } from './PatientRegistrationForm';
 import { ClinicalDataForm } from './ClinicalDataForm';
+import { RoomReservationModal } from './RoomReservationModal';
 
 const style = {
   position: 'absolute',
@@ -24,9 +24,9 @@ interface RegisterStepsProps {
 const renderStepView = (step: number, setOpen: Function) => {
   switch (step) {
     case 0:
-      return <CalenderRegister setOpen={setOpen} />;
+      return <RoomReservationModal setOpen={setOpen} />;
     case 1:
-      return <PatientRegistrationForm />;
+      return <PatientRegistrationForm setOpen={setOpen} />;
     case 2:
       return <ClinicalDataForm setOpen={setOpen} />;
     default:
@@ -36,10 +36,15 @@ const renderStepView = (step: number, setOpen: Function) => {
 
 export const RegisterSteps = (props: RegisterStepsProps) => {
   const clearAllData = useProgrammingRegisterStore((state) => state.clearAllData);
+  const clearEvents = useProgrammingRegisterStore((state) => state.clearEvents);
+  const step = useProgrammingRegisterStore((state) => state.step);
+
   useEffect(() => {
-    return () => clearAllData();
+    return () => {
+      clearAllData();
+      clearEvents();
+    };
   }, []);
 
-  const step = useProgrammingRegisterStore((state) => state.step);
   return <Box sx={style}>{renderStepView(step, props.setOpen)}</Box>;
 };

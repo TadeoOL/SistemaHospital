@@ -55,9 +55,12 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
   const events = useProgrammingRegisterStore((state) => state.events);
   const procedures = useProgrammingRegisterStore((state) => state.procedures);
-  const appointmentDate = useProgrammingRegisterStore((state) => state.appointmentDate);
+  const appointmentStartDate = useProgrammingRegisterStore((state) => state.appointmentStartDate);
+  const appointmentEndDate = useProgrammingRegisterStore((state) => state.appointmentEndDate);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
+  const setStep = useProgrammingRegisterStore((state) => state.setStep);
+  const step = useProgrammingRegisterStore((state) => state.step);
 
   const {
     control: controlRooms,
@@ -69,8 +72,8 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   } = useForm<RoomsInput>({
     resolver: zodResolver(addRoomReservation),
     defaultValues: {
-      startTime: dayjs(appointmentDate),
-      endDate: dayjs(appointmentDate).add(1, 'day'),
+      startTime: dayjs(appointmentStartDate),
+      endDate: dayjs(appointmentEndDate),
       room: '',
     },
   });
@@ -105,8 +108,8 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       };
       setRoomValues([...roomValues, roomObj]);
     }
-    setValueRooms('endDate', dayjs(appointmentDate).add(1, 'day'));
-    setValueRooms('startTime', dayjs(appointmentDate));
+    setValueRooms('endDate', dayjs(appointmentEndDate).add(1, 'day'));
+    setValueRooms('startTime', dayjs(appointmentStartDate));
     setValueRooms('room', '');
   };
 
@@ -149,7 +152,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     setEvents([...events, ...roomObj]);
     setProcedures(data.proceduresId);
     toast.success('Datos registrados correctamente!');
-    props.setOpen(false);
+    setStep(step + 1);
   };
 
   useEffect(() => {
@@ -240,7 +243,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       >
         <Box sx={{ display: 'flex', flex: 1 }}>
           <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
-            Fecha seleccionada: {appointmentDate.toLocaleDateString()}
+            Fecha seleccionada: {appointmentStartDate.toLocaleDateString()} - {appointmentEndDate.toLocaleDateString()}
           </Typography>
         </Box>
         <form onSubmit={handleSubmitProcedures(onSubmitProcedures)} id="form1">
@@ -318,6 +321,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                       label="Hora admisión"
                       ampm={false}
                       value={value}
+                      onMonthChange={(e) => {
+                        const date = e.toDate();
+                        setCurrentDate(date);
+                      }}
+                      onYearChange={(e) => {
+                        const date = e.toDate();
+                        setCurrentDate(date);
+                      }}
                       onChange={(date) => {
                         const dayjsToDate = date?.toDate();
                         setCurrentDate(dayjsToDate as Date);

@@ -26,3 +26,5 @@ export const CloseCheckoutView = lazy(() => import('../views/Checkout/CloseCheck
 export const ProgrammingRegisterView = lazy(() => import('../views/Programming/ProgrammingRegisterView'));
 export const RoomsView = lazy(() => import('../views/Programming/RoomsView'));
 export const SurgeryProcedureView = lazy(() => import('../views/Programming/SurgeryProcedureView'));
+export const ProgrammingCalendarView = lazy(() => import('../views/Programming/ProgrammingCalendarView'));
+export const ConfigurationProgrammingView = lazy(() => import('../views/Programming/ConfigurationProgrammingView'));
