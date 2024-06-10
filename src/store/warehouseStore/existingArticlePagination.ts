@@ -89,6 +89,8 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
         count: res.count,
         pageSize: res.pageSize,
         enabled: res.habilitado,
+        pageCount: res.pageCount,
+        //pageIndex: res.pageIndex,
       }));
     } catch (error) {
       console.log(error);
