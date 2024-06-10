@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ import { createClinicalHistory } from '../../../services/programming/clinicalHis
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 
 const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
+const BLOOD_TYPE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const scrollBarStyle = {
   '&::-webkit-scrollbar': {
@@ -41,7 +42,7 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
   const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
   const procedures = useProgrammingRegisterStore((state) => state.procedures);
   const setClinicalData = useProgrammingRegisterStore((state) => state.setClinicalData);
-  const { admissionDiagnosis, comments, medicName, procedure, reasonForAdmission, specialty } = clinicalData;
+  const { admissionDiagnosis, comments, medicName, reasonForAdmission, specialty, allergies, bloodType } = clinicalData;
 
   const {
     register,
@@ -54,15 +55,17 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
       admissionDiagnosis,
       comments,
       medicName,
-      procedure,
       reasonForAdmission,
       specialty,
+      allergies,
+      bloodType,
     },
   });
   const watchAdmissionDiagnosis = watch('admissionDiagnosis');
   const watchComments = watch('comments');
   const watchMedicName = watch('medicName');
-  const watchProcedure = watch('procedure');
+  const watchAllergies = watch('allergies');
+  const watchBloodType = watch('bloodType');
   const watchReasonForAdmission = watch('reasonForAdmission');
   const watchSpecialty = watch('specialty');
 
@@ -87,8 +90,9 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
         Especialidad: data.specialty,
         MotivoIngreso: data.reasonForAdmission,
         DiagnosticoIngreso: data.admissionDiagnosis,
-        Procedimiento: data.procedure,
         Comentarios: data.comments,
+        Alergias: data.allergies,
+        TipoSangre: data.bloodType,
       };
       const clinicalDataRes = await createClinicalHistory(registerClinicalHistoryObj);
       const registerAdmissionObj = {
@@ -122,15 +126,24 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
       admissionDiagnosis: watchAdmissionDiagnosis,
       comments: watchComments,
       medicName: watchMedicName,
-      procedure: watchProcedure,
       reasonForAdmission: watchReasonForAdmission,
       specialty: watchSpecialty,
+      allergies: watchAllergies,
+      bloodType: watchBloodType,
     });
-  }, [watchAdmissionDiagnosis, watchComments, watchMedicName, watchReasonForAdmission, watchSpecialty, watchProcedure]);
+  }, [
+    watchAdmissionDiagnosis,
+    watchComments,
+    watchMedicName,
+    watchReasonForAdmission,
+    watchSpecialty,
+    watchAllergies,
+    watchBloodType,
+  ]);
 
   return (
     <>
-      <HeaderModal setOpen={() => {}} title="Datos Clínicos" />
+      <HeaderModal setOpen={props.setOpen} title="Datos Clínicos" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box
           sx={{
@@ -188,14 +201,32 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
               />
             </Grid>
             <Grid item xs={12} md={12}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Procedimiento</Typography>
+              <Typography sx={TYPOGRAPHY_STYLE}>Alergias</Typography>
               <TextField
                 fullWidth
-                placeholder="Procedimiento..."
-                {...register('procedure')}
-                error={!!errors.procedure?.message}
-                helperText={errors.procedure?.message}
+                placeholder="Alergias..."
+                {...register('allergies')}
+                error={!!errors.allergies?.message}
+                helperText={errors.allergies?.message}
               />
+            </Grid>
+            <Grid item xs={12} md={12}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Tipo de sangre</Typography>
+              <TextField
+                fullWidth
+                select
+                value={watchBloodType}
+                placeholder="Tipo de sangre..."
+                {...register('bloodType')}
+                error={!!errors.bloodType?.message}
+                helperText={errors.bloodType?.message}
+              >
+                {BLOOD_TYPE.map((bt) => (
+                  <MenuItem key={bt} value={bt}>
+                    {bt}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12} md={12}>
               <Typography sx={TYPOGRAPHY_STYLE}>Comentarios</Typography>

@@ -33,6 +33,7 @@ type Inputs = {
   surgeryDuration: string;
   hospitalizationDuration: string;
   description: string;
+  price: string;
 };
 
 interface AddSurgeryProcedureModalProps {
@@ -54,8 +55,9 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
     defaultValues: {
       name: editData ? editData.nombre : '',
       surgeryDuration: editData ? editData.duracionCirujia : '',
-      hospitalizationDuration: editData ? editData.duracionHospitalizacion : '',
+      hospitalizationDuration: editData ? editData.duracionHospitalizacion.toString() : '',
       description: editData ? editData.descripcion : '',
+      price: editData ? editData.precioCirujia.toString() : '',
     },
   });
 
@@ -66,16 +68,18 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
         await registerSurgeryProcedure({
           nombre: data.name,
           duracionCirujia: data.surgeryDuration,
-          duracionHospitalizacion: data.hospitalizationDuration,
+          duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
+          precioCirujia: parseFloat(data.price),
         });
         toast.success('Procedimiento dado de alta correctamente');
       } else {
         await modifySurgeryProcedure({
           nombre: data.name,
           duracionCirujia: data.surgeryDuration,
-          duracionHospitalizacion: data.hospitalizationDuration,
+          duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
+          precioCirujia: parseFloat(data.price),
           id: editData.id,
         });
         toast.success('Procedimiento modificado correctamente');
@@ -92,10 +96,14 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
     }
   };
 
+  const onError = (errors: any) => {
+    console.log(errors);
+  };
+
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar procedimiento' : 'Agregar un procedimiento'} />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit, onError)}>
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
           <Grid container spacing={1}>
             <Grid item xs={12}>
@@ -113,16 +121,16 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
               <Controller
                 control={control}
                 name="hospitalizationDuration"
-                defaultValue={editData ? editData.duracionHospitalizacion : ''}
+                defaultValue={editData ? editData.duracionHospitalizacion.toString() : ''}
                 render={({ field: { onChange, value } }) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker
-                      label="Duración de hospitalización"
-                      onChange={(newValue) => onChange(newValue ? newValue.format('HH:mm:ss') : '')}
-                      value={value ? dayjs(value, 'HH:mm:ss') : null}
-                      ampm={false}
-                    />
-                  </LocalizationProvider>
+                  <TextField
+                    placeholder="Duracion Hospitalizacion"
+                    value={value}
+                    type={'number'}
+                    onChange={onChange}
+                    error={!!errors.hospitalizationDuration?.message}
+                    helperText={errors.hospitalizationDuration?.message}
+                  />
                 )}
               />
             </Grid>
@@ -139,8 +147,32 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                       onChange={(newValue) => onChange(newValue ? newValue.format('HH:mm:ss') : '')}
                       value={value ? dayjs(value, 'HH:mm:ss') : null}
                       ampm={false}
+                      slotProps={{
+                        textField: {
+                          error: !!errors.surgeryDuration?.message,
+                          helperText: errors.surgeryDuration?.message,
+                        },
+                      }}
                     />
                   </LocalizationProvider>
+                )}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Precio de la crujía</Typography>
+              <Controller
+                control={control}
+                name="price"
+                defaultValue={editData ? editData.precioCirujia.toString() : ''}
+                render={({ field: { onChange, value } }) => (
+                  <TextField
+                    placeholder="Precio crujía"
+                    value={value}
+                    type={'number'}
+                    onChange={onChange}
+                    error={!!errors.price?.message}
+                    helperText={errors.price?.message}
+                  />
                 )}
               />
             </Grid>

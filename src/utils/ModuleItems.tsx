@@ -223,6 +223,18 @@ export const ModuleList: IModuleItemsList[] = [
           },
         ],
       },
+      {
+        title: 'Programación de eventos',
+        path: '/programacion/registro-eventos',
+        icon: <HowToReg sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Configuración',
+        path: '/programacion/configuracion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
     ],
     path: 'programacion',
   },

@@ -37,6 +37,8 @@ import {
   ProgrammingRegisterView,
   RoomsView,
   SurgeryProcedureView,
+  ProgrammingCalendarView,
+  ConfigurationProgrammingView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -91,7 +93,9 @@ function App() {
             // ---------------------------Programacion------------------------------------- //
             <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
             <Route path="programacion/cuartos" element={<RoomsView />} />
+            <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
             <Route path="programacion/procedimientos-cirujia" element={<SurgeryProcedureView />} />
+            <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
             <Route path="/configuracion" element={<AccountView />} />
           </Route>

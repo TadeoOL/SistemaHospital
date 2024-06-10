@@ -44,6 +44,7 @@ export interface Paciente {
   apellidoMaterno: string;
   edad: number;
   genero: string;
+  fechaNacimiento: Date;
   estadoCivil: string;
   telefono: string;
   ocupacion: string;
@@ -66,4 +67,5 @@ export interface IPatientRegisterPagination {
   fechaIngreso: Date;
   id_Paciente: string;
   id_HistorialClinico: string;
+  faltanDatos?: boolean;
 }

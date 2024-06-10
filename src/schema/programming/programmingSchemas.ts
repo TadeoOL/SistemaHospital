@@ -7,21 +7,36 @@ export const patientRegistrationSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido'),
   lastName: z.string().min(1, 'Apellido Paterno es requerido'),
   secondLastName: z.string().min(1, 'Apellido Materno es requerido'),
-  age: z.string().min(1, 'Edad es requerida'),
+  age: z
+    .string()
+    .min(1, 'La edad es necesaria')
+    .refine((val) => parseInt(val, 10) > 0, {
+      message: 'La edad tiene que ser mayor a 0',
+    }),
   genere: z.string().min(1, 'Genero es requerido'),
-  civilStatus: z.string().min(1, 'Estado Civil es requerido'),
-  phoneNumber: z.string().min(1, 'Teléfono es requerido'),
-  occupation: z.string().min(1, 'Ocupación/Empleo es requerido'),
-  zipCode: z.string().min(1, 'Código Postal es requerido'),
-  neighborhood: z.string().min(1, 'Colonia es requerida'),
-  address: z.string().min(1, 'Calle y Número es requerido'),
-  personInCharge: z.string().min(1, 'Persona Responsable es requerida'),
-  relationship: z.string().min(1, 'Parentesco es requerido'),
+  birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+});
+
+export const patientModifySchema = z.object({
+  name: z.string().nullable(),
+  lastName: z.string().nullable(),
+  secondLastName: z.string().nullable(),
+  age: z.string().nullable(),
+  genere: z.string().nullable(),
+  civilStatus: z.string().nullable(),
+  phoneNumber: z.string().nullable(),
+  occupation: z.string().nullable(),
+  zipCode: z.string().nullable(),
+  neighborhood: z.string().nullable(),
+  address: z.string().nullable(),
+  personInCharge: z.string().nullable(),
+  relationship: z.string().nullable(),
   sameAddress: z.boolean(),
-  personInChargeZipCode: z.string().min(1, 'Código Postal es requerido'),
-  personInChargeNeighborhood: z.string().min(1, 'Colonia es requerida'),
-  personInChargeAddress: z.string().min(1, 'Calle y Número es requerido'),
-  personInChargePhoneNumber: z.string().min(1, 'Teléfono es requerido'),
+  personInChargeZipCode: z.string().nullable(),
+  personInChargeNeighborhood: z.string().nullable(),
+  personInChargeAddress: z.string().nullable(),
+  personInChargePhoneNumber: z.string().nullable(),
+  birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 
 export const clinicalDataSchema = z.object({
@@ -29,8 +44,20 @@ export const clinicalDataSchema = z.object({
   specialty: z.string().min(1, 'La especialidad es requerida'),
   reasonForAdmission: z.string().min(1, 'El motivo de ingreso es requerido'),
   admissionDiagnosis: z.string().min(1, 'El diagnóstico de ingreso es requerido'),
-  procedure: z.string().min(1, 'El procedimiento es requerido'),
+  allergies: z.string().min(1, 'El procedimiento es requerido'),
+  bloodType: z.string().min(1, 'El tipo de sangre es requerido'),
   comments: z.string().optional(),
+});
+
+export const clinicalDataModifySchema = z.object({
+  medicName: z.string().nullable(),
+  specialty: z.string().nullable(),
+  reasonForAdmission: z.string().nullable(),
+  admissionDiagnosis: z.string().nullable(),
+  allergies: z.string().nullable(),
+  bloodType: z.string().nullable(),
+  comments: z.string().nullable(),
+  procedure: z.string().nullable(),
 });
 
 export const roomSchema = z.object({
@@ -41,9 +68,25 @@ export const roomSchema = z.object({
 
 export const surgeryProcedureSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
-  surgeryDuration: z.string().min(1, 'La duración de la crujía es requerida'),
-  hospitalizationDuration: z.string().min(1, 'La duración de hospitalization requerida'),
+  surgeryDuration: z
+    .string()
+    .min(1, 'La duración de la crujía es requerida')
+    .refine((val) => val !== '00:00:00', {
+      message: 'La duración de la crujía es requerida',
+    }),
+  hospitalizationDuration: z
+    .string()
+    .min(1, 'La duración de hospitalización requerida')
+    .refine((val) => parseInt(val, 10) > 0, {
+      message: 'La duración de hospitalización tiene que ser mayor a 0',
+    }),
   description: z.string().min(1, 'La descripción es requerida'),
+  price: z
+    .string()
+    .min(1, 'El precio es necesario')
+    .refine((val) => parseInt(val, 10) > 0, {
+      message: 'El precio tiene que ser mayor a 0',
+    }),
 });
 
 export const addRoomReservation = z

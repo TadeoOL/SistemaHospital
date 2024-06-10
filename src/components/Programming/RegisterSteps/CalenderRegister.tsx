@@ -5,55 +5,16 @@ import { CalendarComponent } from './Calendar/CalendarComponent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import { getRoomsEventsByDate } from '../../../services/programming/roomsService';
 import { toast } from 'react-toastify';
+import { useGetDate } from '../../../hooks/programming/useGetDate';
 dayjs.locale('es');
 interface CalenderRegisterProps {
   setOpen: Function;
 }
 
-const useGetDate = (date: Date) => {
-  const events = useProgrammingRegisterStore((state) => state.events);
-  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setIsLoading(true);
-      try {
-        const formattedDate = date.toISOString();
-        const res = await getRoomsEventsByDate(formattedDate);
-        if (res.length > 0) {
-          const formattedRes = res
-            .map((event) => {
-              return {
-                id: event.id,
-                roomId: event.id_Cuarto,
-                title: event.nombre,
-                start: new Date(event.fechaInicio),
-                end: new Date(event.fechaFin),
-              };
-            })
-            .filter((e) => !events.some((localEvent) => localEvent.id === e.id));
-          setEvents([...formattedRes, ...events]);
-        } else {
-          setEvents([...events]);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchEvents();
-  }, [date]);
-  return {
-    isLoading,
-  };
-};
 export const CalenderRegister = (props: CalenderRegisterProps) => {
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
@@ -120,7 +81,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
             </Box>
           </Box>
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-            <CalendarComponent date={date} events={events} />
+            <CalendarComponent date={date} events={events} setDate={setDate} />
           </Box>
         </Stack>
       </Box>
