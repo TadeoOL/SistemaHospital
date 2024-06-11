@@ -1,4 +1,4 @@
-import { Box, Button, Card, Grid, Modal, Stack, Typography, alpha } from '@mui/material';
+import { Box, Card, Grid, Modal, Stack, Typography, alpha } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
 import { neutral, primary } from '../../../theme/colors';
 import { useState } from 'react';
@@ -77,11 +77,11 @@ export const Categories = (props: CategoriesProps) => {
             ))}
           </Grid>
         </Stack>
-        <Box>
+        {/* <Box>
           <Button onClick={() => setOpen(true)} variant="contained" color="error">
             Cerrar caja
           </Button>
-        </Box>
+        </Box> */}
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
