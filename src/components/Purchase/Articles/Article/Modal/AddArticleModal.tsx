@@ -99,7 +99,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       unidadMedida: '',
       precioCompra: '',
       precioVenta: '',
-      codigoBarras: ''
+      codigoBarras: '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -120,7 +120,9 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       }
       data.esCaja = isBox;
       data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
+      data.precioVenta = inputValue;
       await addNewArticle(data);
+      console.log('art', data);
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo creado con éxito!');
       open(false);
@@ -163,7 +165,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -174,9 +176,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         } else {
           setInputValue('0');
         }
-      }
-      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
-        const unidadesPorCaja = textQuantityRef.current?.value as string ?? "1";
+      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -221,28 +222,28 @@ export const AddArticleModal = (props: IAddArticleModal) => {
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography>Es un Paquete</Typography>
+                  <Typography>Es un Paquete</Typography>
                   <Checkbox
-                  checked={isBox}
-                  onChange={() => {
-                    setIsBox(!isBox);
-                  }}
-                />
-                </Box>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Unidades por Paquete"
-                    disabled={!isBox}
-                    inputRef={textQuantityRef}
-                    sx={{ display: isBox ? 'block' : 'none' }}
-                    inputProps={{
-                      type: 'number',
-                      pattern: '[0-9]*',
-                      inputMode: 'numeric',
-                      min: 0,
+                    checked={isBox}
+                    onChange={() => {
+                      setIsBox(!isBox);
                     }}
                   />
+                </Box>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Unidades por Paquete"
+                  disabled={!isBox}
+                  inputRef={textQuantityRef}
+                  sx={{ display: isBox ? 'block' : 'none' }}
+                  inputProps={{
+                    type: 'number',
+                    pattern: '[0-9]*',
+                    inputMode: 'numeric',
+                    min: 0,
+                  }}
+                />
               </Box>
             </Grid>
             <Grid item xs={12} md={12}>
@@ -271,7 +272,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 inputProps={{ maxLength: 200 }}
               />
             </Grid>
-              
+
             <Grid item xs={12} md={6}>
               <Typography>Precio de Compra</Typography>
               <TextField
@@ -299,6 +300,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   maxLength: 10,
                 }}
                 placeholder="Escriba un Precio de Venta"
+                {...register('precioVenta')}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -331,7 +333,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 {...register('stockAlerta')}
               />
             </Grid>
-              <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6}>
               <Typography>Sub Categoría</Typography>
               <TextField
                 fullWidth

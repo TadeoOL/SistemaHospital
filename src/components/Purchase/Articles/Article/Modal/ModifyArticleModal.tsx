@@ -1,4 +1,15 @@
-import { Backdrop, Box, Button, Checkbox, CircularProgress, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Grid,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -101,10 +112,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const [subCategory, setSubCategory] = useState('');
   const [inputValue, setInputValue] = useState<string>();
   const config = useGetPurchaseConfig();
-  const [isBox, setIsBox] = useState(false);
+  const [isBox, setIsBox] = useState(esCaja || false);
   let textQuantityRef = useRef<HTMLTextAreaElement>(null);
 
-  
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
     handleChangeArticle: state.handleChangeArticle,
@@ -136,9 +146,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   useEffect(() => {
     if (article) {
       setIsBox(article?.esCaja == null ? false : article?.esCaja);
-if (textQuantityRef.current) {
-  textQuantityRef.current.value = article?.unidadesPorCaja == null ? "0" : article?.unidadesPorCaja.toString();
-}      console.log(article);
+      if (textQuantityRef.current) {
+        textQuantityRef.current.value = article?.unidadesPorCaja == null ? '0' : article?.unidadesPorCaja.toString();
+      }
       const subCate = article.subCategoria as ISubCategory;
       if (article.descripcion == null) article.descripcion = '';
       if (textValue.trim() === '') setTextValue(article.descripcion);
@@ -169,8 +179,11 @@ if (textQuantityRef.current) {
         return;
       }
       data.esCaja = isBox;
-      console.log(data)
       data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
+      if (!isBox) {
+        data.unidadesPorCaja = undefined;
+      }
+      data.precioVenta = inputValue || '';
       const idForm = getValues('id');
       await modifyArticle({ ...data, id: idForm, esCaja: isBox });
       setHandleChangeArticle(!handleChangeArticle);
@@ -217,7 +230,7 @@ if (textQuantityRef.current) {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima&& (article?.esCaja == null || article?.esCaja == false)) {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -227,9 +240,8 @@ if (textQuantityRef.current) {
         } else {
           setInputValue('0');
         }
-      }
-      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && article?.esCaja) {
-        const unidadesPorCaja = article?.unidadesPorCaja ?? "1";
+      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+        const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -243,6 +255,27 @@ if (textQuantityRef.current) {
     });
   };
 
+  const handleAmountChange = (salePrice?: string) => {
+    config?.factor.forEach((factor) => {
+      const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
+      const precioComprac = parseFloat(precioCompra || salePrice || '1') / parseFloat(unidadesPorCaja);
+      const factorMultiplicador = factor.factorMultiplicador as number;
+      const precioVentaC = precioComprac * factorMultiplicador;
+      if (!isNaN(precioVentaC)) {
+        const precioVentaString = precioVentaC.toFixed(2).toString();
+        setInputValue(precioVentaString);
+      } else {
+        setInputValue('0');
+      }
+    });
+  };
+
+  const boxConvertion = (flag: boolean) => {
+    if (flag) {
+      //De caja a articulo normal
+      setInputValue((Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
+    }
+  };
 
   return (
     <Box sx={style}>
@@ -275,28 +308,32 @@ if (textQuantityRef.current) {
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography>Es un Paquete</Typography>
+                  <Typography>Es un Paquete</Typography>
                   <Checkbox
-                  checked={isBox}
-                  onChange={() => {
-                    setIsBox(!isBox);
-                  }}
-                />
-                </Box>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Unidades por Paquete"
-                    disabled={!isBox}
-                    inputRef={textQuantityRef}
-                    sx={{ display: isBox ? 'block' : 'none' }}
-                    inputProps={{
-                      type: 'number',
-                      pattern: '[0-9]*',
-                      inputMode: 'numeric',
-                      min: 0,
+                    checked={isBox}
+                    onChange={() => {
+                      setIsBox(!isBox);
+                      boxConvertion(isBox);
                     }}
                   />
+                </Box>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Unidades por Paquete"
+                  disabled={!isBox}
+                  inputRef={textQuantityRef}
+                  sx={{ display: isBox ? 'block' : 'none' }}
+                  inputProps={{
+                    type: 'number',
+                    pattern: '[0-9]*',
+                    inputMode: 'numeric',
+                    min: 0,
+                  }}
+                  onChange={() => {
+                    handleAmountChange(inputValue);
+                  }}
+                />
               </Box>
             </Grid>
             <Grid item xs={12} md={12}>
@@ -407,7 +444,7 @@ if (textQuantityRef.current) {
                 ))}
               </TextField>
             </Grid>
-             <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6}>
               <Typography>Código de Barras (Opcional)</Typography>
               <TextField
                 fullWidth
@@ -418,7 +455,6 @@ if (textQuantityRef.current) {
                 {...register('codigoBarras')}
               />
             </Grid>
-            
           </Grid>
           <Stack
             sx={{

@@ -119,7 +119,7 @@ const PointOfSaleView = () => {
       }
     };
     checkJornadaLaboral();
-    const intervalId = setInterval(checkJornadaLaboral, 60 * 1000);
+    const intervalId = setInterval(checkJornadaLaboral, 60 * 1000000000000000);
     return () => clearInterval(intervalId);
   }, [data]);
 

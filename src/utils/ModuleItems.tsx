@@ -155,6 +155,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <History sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
       },
+      /*{ Solicitud de usuario activar AAA
+        title: 'Solicitud usuario',
+        path: '/farmacia/solicitud-usuario',
+        icon: <History sx={{ color: '#fff' }} />,
+        protectedRoles: pharmacyDirectorRole,
+      },*/
     ],
     path: 'farmacia',
   },
@@ -222,6 +228,18 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: supplyRoles,
           },
         ],
+      },
+      {
+        title: 'Programación de eventos',
+        path: '/programacion/registro-eventos',
+        icon: <HowToReg sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Configuración',
+        path: '/programacion/configuracion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
       },
     ],
     path: 'programacion',

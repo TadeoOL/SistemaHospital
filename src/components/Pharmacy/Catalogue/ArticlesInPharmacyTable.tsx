@@ -70,6 +70,9 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
     isLoading,
     setSort,
     sort,
+    pageCount,
+    pageSize,
+    pageIndex,
   } = useExistingArticlePagination(
     (state) => ({
       data: state.data,
@@ -82,7 +85,10 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
       setEndDate: state.setEndDate,
       clearFilters: state.clearFilters,
       setPageIndex: state.setPageIndex,
+      pageSize: state.pageSize,
+      pageCount: state.pageCount,
       setPageSize: state.setPageSize,
+      pageIndex: state.pageIndex,
       startDate: state.startDate,
       endDate: state.endDate,
       clearAllData: state.clearAllData,
@@ -95,13 +101,13 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
 
   useEffect(() => {
     clearAllData();
-  }, [warehouseId]);
+  }, []);
 
   useEffect(() => {
     setWarehouseId(warehouseId);
     setPrincipalWarehouseId(principalWarehouseId);
     fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters, sort]);
+  }, [search, startDate, endDate, clearFilters, sort, pageIndex, pageSize]);
 
   return {
     data,
@@ -116,6 +122,9 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
     isLoading,
     setSort,
     fetchExistingArticles,
+    pageIndex,
+    pageSize,
+    pageCount,
   };
 };
 export const ArticlesPharmacyTable = () => {
@@ -135,16 +144,13 @@ export const ArticlesPharmacyTable = () => {
     startDate,
     endDate,
     isLoading,
+    pageCount,
+    pageSize,
+    pageIndex,
   } = useGetExistingArticles(warehouseIdSeted, warehouseData.id_AlmacenPrincipal || '');
   const [openModal, setOpenModal] = useState(false);
   const [exitArticlesM, setExitArticlesM] = useState(false);
 
-  if (isLoading && data.length === 0)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, p: 4, justifyContent: 'center' }}>
-        <CircularProgress size={30} />
-      </Box>
-    );
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -205,66 +211,76 @@ export const ArticlesPharmacyTable = () => {
             </Box>
           </Box>
           <Card>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
-                    </TableCell>
-                    <TableCell>
-                      <SortComponent tableCellLabel="Stock mínimo" headerName="stockMinimo" setSortFunction={setSort} />
-                    </TableCell>
-                    <TableCell>
-                      <SortComponent tableCellLabel="Stock" headerName="stockActual" setSortFunction={setSort} />
-                    </TableCell>
-                    <TableCell>
-                      <SortComponent
-                        tableCellLabel="Precio Compra"
-                        headerName="precioCompra"
-                        setSortFunction={setSort}
-                      />
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
-                </TableBody>
-              </Table>
-              {!data ||
-                (data.length === 0 && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      p: 5,
-                      columnGap: 1,
-                    }}
-                  >
-                    <Info sx={{ width: 40, height: 40, color: 'gray' }} />
-                    <Typography variant="h2" color="gray">
-                      No hay artículos existentes
-                    </Typography>
-                  </Box>
-                ))}
-              <TablePagination
-                component="div"
-                count={0}
-                onPageChange={(e, value) => {
-                  e?.stopPropagation();
-                  setPageIndex(value);
-                }}
-                onRowsPerPageChange={(e: any) => {
-                  setPageSize(e.target.value);
-                }}
-                page={0}
-                rowsPerPage={5}
-                rowsPerPageOptions={[5, 10, 25, 50]}
-                labelRowsPerPage="Filas por página"
-              />
-            </TableContainer>
+            {isLoading && data.length === 0 ? (
+              <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
+                <CircularProgress size={30} />
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+                      </TableCell>
+                      <TableCell>
+                        <SortComponent
+                          tableCellLabel="Stock mínimo"
+                          headerName="stockMinimo"
+                          setSortFunction={setSort}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <SortComponent tableCellLabel="Stock" headerName="stockActual" setSortFunction={setSort} />
+                      </TableCell>
+                      <TableCell>
+                        <SortComponent
+                          tableCellLabel="Precio Compra"
+                          headerName="precioCompra"
+                          setSortFunction={setSort}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
+                  </TableBody>
+                </Table>
+                {!data ||
+                  (data.length === 0 && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        p: 5,
+                        columnGap: 1,
+                      }}
+                    >
+                      <Info sx={{ width: 40, height: 40, color: 'gray' }} />
+                      <Typography variant="h2" color="gray">
+                        No hay artículos existentes
+                      </Typography>
+                    </Box>
+                  ))}
+                <TablePagination
+                  component="div"
+                  count={pageCount}
+                  onPageChange={(e, value) => {
+                    e?.stopPropagation();
+                    setPageIndex(value);
+                  }}
+                  onRowsPerPageChange={(e: any) => {
+                    setPageSize(e.target.value);
+                  }}
+                  page={pageIndex}
+                  rowsPerPage={pageSize}
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                  labelRowsPerPage="Filas por página"
+                />
+              </TableContainer>
+            )}
           </Card>
         </Stack>
       </Stack>

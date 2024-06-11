@@ -1,6 +1,8 @@
 import { CalendarMonth, Close, PermIdentity, TextSnippet } from '@mui/icons-material';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import { EditPersonalInfoModal } from './EditData/EditPersonalInfoModal';
+import { EditClinicalInfoModal } from './EditData/EditClinicalInfoModal';
+import { SelectRoomToEdit } from './EditData/SelectRoomToEdit';
 
 const style = {
   position: 'absolute',
@@ -16,19 +18,19 @@ const style = {
 };
 
 const typographyStyle = {
-  fontSize: 18,
+  fontSize: { xs: 14, md: 18 },
   fontWeight: 500,
 };
 
 const iconStyle = {
   color: 'rgba(0, 0, 0, 0.54)',
-  height: 50,
-  width: 50,
+  height: { md: 50, xs: 25 },
+  width: { md: 50, xs: 25 },
 };
 
 const cardStyle = {
-  width: '100%',
-  height: 200,
+  width: { md: '100%', xs: '50%' },
+  height: { md: 200, xs: 75 },
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -54,6 +56,9 @@ interface SelectEditOptionModalProps {
   clinicalHistoryId: string;
   value: number;
   setValue: Function;
+  registerId: string;
+  setRegisterRoomId: Function;
+  registerRoomId: string;
 }
 export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
   switch (props.value) {
@@ -62,9 +67,18 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
     case 1:
       return <EditPersonalInfoModal setOpen={props.setOpen} patientId={props.patientId} />;
     case 2:
-      return <h1>clinico</h1>;
+      return <EditClinicalInfoModal clinicalDataId={props.clinicalHistoryId} setOpen={props.setOpen} />;
     case 3:
       return <h1>Calendario</h1>;
+    case 4:
+      return (
+        <SelectRoomToEdit
+          registerId={props.registerId}
+          setOpen={props.setOpen}
+          setValue={props.setValue}
+          setRegisterRoomId={props.setRegisterRoomId}
+        />
+      );
     default:
       break;
   }
@@ -80,8 +94,24 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
             <Close sx={{ top: 'auto', left: 'auto' }} />
           </IconButton>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4 }}>
-          <Box sx={cardStyle}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 4,
+            flexDirection: {
+              xs: 'column',
+              md: 'row',
+            },
+          }}
+        >
+          <Box
+            sx={cardStyle}
+            onClick={() => {
+              props.setValue(4);
+            }}
+          >
             <CalendarMonth sx={iconStyle} />
             <Typography sx={typographyStyle}>Calendario</Typography>
           </Box>
@@ -94,7 +124,12 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
             <PermIdentity sx={iconStyle} />
             <Typography sx={typographyStyle}>Información personal</Typography>
           </Box>
-          <Box sx={cardStyle}>
+          <Box
+            sx={cardStyle}
+            onClick={() => {
+              props.setValue(2);
+            }}
+          >
             <TextSnippet sx={iconStyle} />
             <Typography sx={typographyStyle}>Información clínica</Typography>
           </Box>

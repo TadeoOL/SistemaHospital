@@ -21,6 +21,7 @@ const useJoinRoom = (
   updateDataEmitter: Function
 ) => {
   const profile = useAuthStore((state) => state.profile);
+
   useEffect(() => {
     const connect = async (userId: string, chatRoom: string) => {
       try {
@@ -30,7 +31,9 @@ const useJoinRoom = (
             transport: HttpTransportType.WebSockets,
           })
           .configureLogging(LogLevel.Information)
+          .withAutomaticReconnect([2000])
           .build();
+
         conn.on('JoinSpecificChatRoom', () => {});
 
         conn.on('ReceiveSpecificSell', (sell: ICheckoutSell) => {
@@ -43,7 +46,7 @@ const useJoinRoom = (
             totalVenta: sell.totalVenta,
             tipoPago: sell.tipoPago,
             id_UsuarioPase: sell.id_UsuarioPase,
-            nombreUsuario: sell.nombreUsuario
+            nombreUsuario: sell.nombreUsuario,
           };
           updateData(sellObject);
         });
@@ -61,6 +64,11 @@ const useJoinRoom = (
           };
           updateDataEmitter(sellObject);
         });
+
+        conn.onclose(async () => {
+          console.log('Connection lost, attempting to reconnect...');
+        });
+
         await conn.start();
         await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         setConn(conn);

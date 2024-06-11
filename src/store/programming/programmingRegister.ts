@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { IClinicalData, IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
-
 const initialPatientValues: IPatient = {
   name: '',
   lastName: '',
@@ -8,6 +7,7 @@ const initialPatientValues: IPatient = {
   age: '0',
   genere: '',
   civilStatus: '',
+  birthDate: new Date(),
   phoneNumber: '',
   occupation: '',
   zipCode: '0',
@@ -26,8 +26,9 @@ const initialClinicalData: IClinicalData = {
   specialty: '',
   reasonForAdmission: '',
   admissionDiagnosis: '',
-  procedure: '',
   comments: '',
+  allergies: '',
+  bloodType: '',
 };
 
 const initialRoomValue = {
@@ -37,18 +38,19 @@ const initialRoomValue = {
 
 const initialValues = {
   step: 0,
-  events: [],
   patient: initialPatientValues,
   clinicalData: initialClinicalData,
 };
 
 interface State {
   step: number;
-  appointmentDate: Date;
+  appointmentStartDate: Date;
+  appointmentEndDate: Date;
   procedures: string[];
   events: IEventsCalendar[];
   patient: IPatient;
   clinicalData: IClinicalData;
+  fetchEvents: boolean;
 }
 
 interface Action {
@@ -57,24 +59,32 @@ interface Action {
   setEvents: (event: IEventsCalendar[]) => void;
   setPatient: (patient: IPatient) => void;
   setClinicalData: (clinicalData: IClinicalData) => void;
+  setFetchEvents: (fetchEvents: boolean) => void;
+  clearEvents: () => void;
 }
 interface ActionRoom {
-  setAppointmentDate: (appointmentDate: Date) => void;
+  setAppointmentStartDate: (appointmentStartDate: Date) => void;
+  setAppointmentEndDate: (appointmentEndDate: Date) => void;
   setRoomValues: (roomValues: IRegisterRoom[]) => void;
-  setProcedures: (procedures: string[]) => void;
   clearRoomRegisteredData: () => void;
+  setProcedures: (procedures: string[]) => void;
 }
 
 interface StateRoom {
   roomValues: IRegisterRoom[];
 }
 
-export const useProgrammingRegisterStore = create<State & Action & ActionRoom & StateRoom>((set) => ({
-  appointmentDate: new Date(),
+export const useProgrammingRegisterStore = create<State & Action & ActionRoom & StateRoom>((set, get) => ({
+  appointmentStartDate: new Date(),
+  appointmentEndDate: new Date(),
+  fetchEvents: false,
+  events: [],
   ...initialValues,
   ...initialRoomValue,
+  setFetchEvents: (fetchEvents: boolean) => set(() => ({ fetchEvents })),
   setStep: (step: number) => set(() => ({ step })),
-  setAppointmentDate: (appointmentDate: Date) => set(() => ({ appointmentDate })),
+  setAppointmentStartDate: (appointmentStartDate: Date) => set(() => ({ appointmentStartDate })),
+  setAppointmentEndDate: (appointmentEndDate: Date) => set(() => ({ appointmentEndDate })),
   setRoomValues: (roomValues: IRegisterRoom[]) => set(() => ({ roomValues })),
   setProcedures: (procedures: string[]) => set(() => ({ procedures })),
   setEvents: (events: IEventsCalendar[]) => set(() => ({ events })),
@@ -82,4 +92,10 @@ export const useProgrammingRegisterStore = create<State & Action & ActionRoom & 
   setClinicalData: (clinicalData: IClinicalData) => set(() => ({ clinicalData })),
   clearAllData: () => set(() => ({ ...initialValues, ...initialRoomValue })),
   clearRoomRegisteredData: () => set(() => ({ ...initialRoomValue })),
+  clearEvents: () => {
+    const { events } = get();
+    const eventsCleared = events.filter((event) => !event.source);
+
+    set(() => ({ events: eventsCleared }));
+  },
 }));

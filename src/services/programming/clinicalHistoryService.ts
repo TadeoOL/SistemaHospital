@@ -8,8 +8,9 @@ interface ClinicalHistoryRegister {
   Especialidad: string;
   MotivoIngreso: string;
   DiagnosticoIngreso: string;
-  Procedimiento: string;
   Comentarios: string;
+  Alergias: string;
+  TipoSangre: string;
 }
 
 export const createClinicalHistory = async (data: ClinicalHistoryRegister) => {
@@ -24,4 +25,19 @@ export const getClinicalHistoryById = async (clinicalHistoryId: string) => {
     },
   });
   return res.data as HistorialClinico;
+};
+
+export const editClinicalHistory = async (data: {
+  medicoTratante: string;
+  especialidad: string;
+  motivoIngreso: string;
+  diagnosticoIngreso: string;
+  procedimiento?: string;
+  comentarios?: string;
+  alergias?: string;
+  tipoSangre?: string;
+  id: string;
+}) => {
+  const res = await axios.put(`${apiClinicalHistory}/modificar-historial-clinico`, data);
+  return res.data;
 };

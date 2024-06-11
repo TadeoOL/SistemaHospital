@@ -36,3 +36,22 @@ export const getPatientRegisterPagination = async (params: string) => {
   const res = await axios.get(`${apiRegister}/paginacion-registros?${params}`);
   return res.data;
 };
+
+export const getRegisterRoomsByRegisterId = async (registerId: string) => {
+  const res = await axios.get(`${apiRegister}/registros-cuartos`, {
+    params: {
+      id_Registro: registerId,
+    },
+  });
+  return res.data;
+};
+
+export const modifyEventRoom = async (data: {
+  id_RegistroCuarto: string;
+  id_Cuarto: string;
+  horaInicio: Date;
+  horaFin: Date;
+}) => {
+  const res = await axios.put(`${apiRegister}/modificar-registro-cuarto`, data);
+  return res.data;
+};
