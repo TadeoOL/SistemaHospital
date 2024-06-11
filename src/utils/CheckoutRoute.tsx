@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import LoadingView from '../views/LoadingView/LoadingView';
 import { HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { API_ENV } from '../libs/axios';
 import { useConnectionSocket } from '../store/checkout/connectionSocket';
 import { useCheckoutPaginationStore } from '../store/checkout/checkoutPagination';
@@ -21,7 +21,6 @@ const useJoinRoom = (
   updateDataEmitter: Function
 ) => {
   const profile = useAuthStore((state) => state.profile);
-  const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   useEffect(() => {
     const connect = async (userId: string, chatRoom: string) => {
@@ -32,7 +31,7 @@ const useJoinRoom = (
             transport: HttpTransportType.WebSockets,
           })
           .configureLogging(LogLevel.Information)
-          .withAutomaticReconnect()
+          .withAutomaticReconnect([2000])
           .build();
 
         conn.on('JoinSpecificChatRoom', () => {});
@@ -67,20 +66,12 @@ const useJoinRoom = (
         });
 
         conn.onclose(async () => {
-          if (reconnectAttempts < 5) {
-            console.log('Connection lost, attempting to reconnect...');
-            setReconnectAttempts((prev) => prev + 1);
-            await new Promise((res) => setTimeout(res, 2000));
-            connect(userId, chatRoom);
-          } else {
-            console.log('Could not reconnect after several attempts.');
-          }
+          console.log('Connection lost, attempting to reconnect...');
         });
 
         await conn.start();
         await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         setConn(conn);
-        setReconnectAttempts(0);
       } catch (error) {
         console.log(error);
       }
@@ -92,7 +83,7 @@ const useJoinRoom = (
       conn?.invoke('Disconnect', profile?.id);
       conn?.stop();
     };
-  }, [profile?.id, setConn, updateData, updateDataEmitter]);
+  }, []);
 
   return conn;
 };
