@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/auth';
 import { createUserSalesRegister, getUserSalesRegister } from '../../services/pharmacy/pointOfSaleService';
 import { ArticlesSoldHistory } from '../../components/Pharmacy/PointOfSale/ArticlesSoldHistory';
-import { useShallow } from 'zustand/react/shallow';
+// import { useShallow } from 'zustand/react/shallow';
 import { ReceiptEmitterPharmacy } from '../../components/Pharmacy/PointOfSale/ReceiptEmitterPharmacy';
 
 const alert = (navigate: NavigateFunction, userData: IUserSalesRegister, setIsLoading: Function) => {
@@ -51,15 +51,15 @@ const alert = (navigate: NavigateFunction, userData: IUserSalesRegister, setIsLo
   });
 };
 
-const closeCheckoutAlert = () => {
-  Swal.fire({
-    title: 'Advertencia',
-    text: `Su jornada laboral ya paso, favor de cerrar la caja y imprimir el ticket para realizar nuevas compras`,
-    icon: 'warning',
-    confirmButtonText: 'Aceptar',
-    confirmButtonColor: primary.main,
-  });
-};
+// const closeCheckoutAlert = () => {
+//   Swal.fire({
+//     title: 'Advertencia',
+//     text: `Su jornada laboral ya paso, favor de cerrar la caja y imprimir el ticket para realizar nuevas compras`,
+//     icon: 'warning',
+//     confirmButtonText: 'Aceptar',
+//     confirmButtonColor: primary.main,
+//   });
+// };
 
 const useGetUserSalesRegister = (navigate: NavigateFunction) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +104,7 @@ const PointOfSaleView = () => {
   // const profile = useAuthStore((state) => state.profile);
   const isLoading = useGetUserSalesRegister(navigate);
   const clearData = usePosOrderArticlesStore((state) => state.clearData);
-  const data = usePosOrderArticlesStore(useShallow((state) => state.userSalesRegisterData));
+  // const data = usePosOrderArticlesStore(useShallow((state) => state.userSalesRegisterData));
 
   useEffect(() => {
     return () => {
@@ -112,16 +112,16 @@ const PointOfSaleView = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const checkJornadaLaboral = () => {
-      if (data.pasoSuJornada) {
-        closeCheckoutAlert();
-      }
-    };
-    checkJornadaLaboral();
-    const intervalId = setInterval(checkJornadaLaboral, 60 * 1000000000000000);
-    return () => clearInterval(intervalId);
-  }, [data]);
+  // useEffect(() => {
+  //   const checkJornadaLaboral = () => {
+  //     // if (data.pasoSuJornada) {
+  //     //   closeCheckoutAlert();
+  //     // }
+  //   };
+  //   checkJornadaLaboral();
+  //   const intervalId = setInterval(checkJornadaLaboral, 60 * 10000000);
+  //   return () => clearInterval(intervalId);
+  // }, [data]);
 
   return (
     <Stack sx={{ display: 'flex', flex: 1 }}>
