@@ -385,7 +385,7 @@ export interface IArticleHistory {
   nombre: string;
   cantidad: number;
   fechaCaducidad?: string;
-  Id_ArticuloEcistente?: string;//no estoy seguro si siempre llega
+  Id_ArticuloEcistente?: string; //no estoy seguro si siempre llega
 }
 
 export interface IWarehousePurchaseOrder {
@@ -427,7 +427,7 @@ export interface IArticlesPackage {
   almacen?: string;
 }
 export interface Articulos_contenidos {
-  id: string;
+  id_Articulo: string;
   nombre: string;
   cantidad: number;
   lote?: IExistingArticleList[];
