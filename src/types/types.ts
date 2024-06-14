@@ -143,7 +143,6 @@ export interface IArticle2 {
 export interface IArticleFromSearch {
   id_Articulo: string;
   nombre: string;
-  
 }
 
 export interface IExistingArticle {
@@ -161,7 +160,8 @@ export interface IExistingArticle {
   codigoBarras?: string;
 }
 
-export interface IExistingArticleList {//Lote
+export interface IExistingArticleList {
+  //Lote
   id_ArticuloExistente: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
@@ -385,7 +385,7 @@ export interface IArticleHistory {
   nombre: string;
   cantidad: number;
   fechaCaducidad?: string;
-  Id_ArticuloEcistente?: string;//no estoy seguro si siempre llega
+  Id_ArticuloEcistente?: string; //no estoy seguro si siempre llega
 }
 
 export interface IWarehousePurchaseOrder {
@@ -427,7 +427,7 @@ export interface IArticlesPackage {
   almacen?: string;
 }
 export interface Articulos_contenidos {
-  id: string;
+  id_Articulo: string;
   nombre: string;
   cantidad: number;
   lote?: IExistingArticleList[];

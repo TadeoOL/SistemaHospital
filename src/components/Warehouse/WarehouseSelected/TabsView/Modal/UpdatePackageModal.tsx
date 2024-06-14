@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IArticle, IArticlesPackage } from '../../../../../types/types';
-import { modifyPackage, getExistingArticles } from '../../../../../api/api.routes';
+import { modifyPackage, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../../schema/schemas';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -85,8 +85,9 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
       }
     };
     fetch();
+    console.log('contenido pre', props.package.contenido);
     const articlesFromPackage = props.package.contenido.map((art) => ({
-      id: art.id,
+      id: art.id_Articulo,
       name: art.nombre,
       amount: art.cantidad,
     }));
@@ -147,15 +148,12 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
-      );
-      const transformedData = res.data.map((item: any) => ({
-        id: item.id,
+      const res = await getArticlesFromWarehouseSearch(serch, wareH);
+      const transformedData = res.map((item: any) => ({
+        id: item.id_Articulo,
         nombre: item.nombre,
-        stock: item.stockActual,
       }));
-      const articlesFromPackage = props.package.contenido.map((art) => art.id);
+      const articlesFromPackage = props.package.contenido.map((art) => art.id_Articulo);
       const objectFiltered = transformedData.filter((art: any) => !articlesFromPackage.includes(art.id));
       setDataWerehouseArticlesSelected(objectFiltered);
     } catch (error) {
@@ -183,7 +181,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     );
 
   const onSubmit: SubmitHandler<any> = async (data) => {
-    data.historialArticulos = articles.map((art) => ({ id: art.id, nombre: art.name, cantidad: art.amount }));
+    data.historialArticulos = articles.map((art) => ({ id_Articulo: art.id, cantidad: art.amount }));
     try {
       const object = {
         Id: props.package.id_PaqueteArticulo,
