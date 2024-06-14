@@ -145,6 +145,20 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     setAmountText('');
   };
 
+  useEffect(() => {
+    const fetch = async () => {
+      setIsLoadingWarehouse(true);
+      try {
+        handleFetchArticlesFromWareHouse(warehouseId as string);
+      } catch (error) {
+        console.log('error');
+      } finally {
+        setIsLoadingWarehouse(false);
+      }
+    };
+    fetch();
+  }, [serch]);
+
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
