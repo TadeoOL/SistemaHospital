@@ -70,7 +70,7 @@ export const Layout: React.FC = () => {
     '/farmacia/configuracion-farmacia': 'Configuración de Farmacia',
     '/farmacia/punto-venta': 'Punto de Venta',
     '/farmacia/historial-ventas': 'Historial de Ventas',
-    '/farmacia/solicitud-usuario': 'Solicitud Usuario',
+    '/farmacia/solicitud-enfermero': 'Solicitud Enfermero',
     '/farmacia/catalogo': 'Salidas y Existencias',
   };
 

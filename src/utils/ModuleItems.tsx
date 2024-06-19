@@ -155,12 +155,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <History sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
       },
-      /*{ Solicitud de usuario activar AAA
-        title: 'Solicitud usuario',
-        path: '/farmacia/solicitud-usuario',
+      {
+        title: 'Solicitud enfermero',
+        path: '/farmacia/solicitud-enfermero',
         icon: <History sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
-      },*/
+      },
     ],
     path: 'farmacia',
   },

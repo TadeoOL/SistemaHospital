@@ -141,13 +141,13 @@ export const WarehouseArticles = () => {
   const {
     data,
     setSearch,
-    setEndDate,
-    setStartDate,
+    //setEndDate,
+    //setStartDate,
     clearFilters,
     setPageIndex,
     setPageSize,
-    startDate,
-    endDate,
+    //startDate,
+    //endDate,
     isLoading,
     setSort,
     pageSize,
@@ -168,7 +168,7 @@ export const WarehouseArticles = () => {
               size="small"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              <TextField
+              {/*<TextField
                 label="Fecha inicio"
                 size="small"
                 type="date"
@@ -187,7 +187,7 @@ export const WarehouseArticles = () => {
                 onChange={(e) => {
                   setEndDate(e.target.value);
                 }}
-              />
+              />*/}
               <IconButton onClick={() => clearFilters()}>
                 <FilterListOff />
               </IconButton>
