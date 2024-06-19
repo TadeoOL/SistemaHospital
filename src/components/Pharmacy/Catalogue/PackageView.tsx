@@ -5,6 +5,7 @@ import { ArticlesPharmacyTable } from './ArticlesInPharmacyTable';
 import { PackageTabs } from './PackageTabs';
 import { WarehouseHistoryPharmacy } from './WarehouseHistoryPharmacy';
 import { WaitingPackages } from './WaitingPackages';
+import { NurseRequestManagementTable } from './NurseRequestManagementTable';
 
 const GetWarehouseView: React.FC = () => {
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
@@ -12,8 +13,10 @@ const GetWarehouseView: React.FC = () => {
     case 0:
       return <ArticlesPharmacyTable />;
     case 1:
-      return <WaitingPackages />;
+      return <NurseRequestManagementTable />;
     case 2:
+      return <WaitingPackages />;
+    case 3:
       return <WarehouseHistoryPharmacy />;
     default:
       break;

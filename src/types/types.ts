@@ -368,6 +368,12 @@ export interface IWarehouseData {
   habilitado: boolean;
   subAlmacenes: IWarehouseData[];
 }
+export interface IPatientFromSearch {
+    id_Paciente: string;
+    nombreCompleto: string;
+    id_Cuenta: string;
+    id_ArticuloCuenta: string;
+}
 export interface IWarehouseMovementData {
   almacenOrigen: string | null;
   almacenDestino: string | null;
@@ -506,6 +512,37 @@ export interface ICheckoutHistory {
   credito: number;
   ventaTotal: number;
   diaCorte: string;
+}
+
+export interface InurseRequest {
+  id_SolicitudEnfermero: string;
+  folio: string;
+  cuarto: string;
+  id_paciente: string;
+  usuarioEmisor: string;
+  solicitadoEn: string;//en que piso se solicito
+  id_AlmacenSolicitado: string; 
+  almacenNombre: string; 
+  usuarioEntrego: string;
+  estatus: number;
+  usuarioEmisorNombre: string;
+  usuarioEntregoNombre: string;
+  pacienteNombre: string;
+  articulos: IArticleInRequest[];
+  lista_ArticulosEntregados: IArticlesDelivered[] | null;
+}
+
+export interface IArticleInRequest {
+  id_Articulo: string;
+  nombre: string;
+  cantidad: number;
+}
+
+export interface IArticlesDelivered {
+  id_Articulo: string;
+  nombre: string;
+  cantidad: number;
+  lote: IExistingArticleList[];
 }
 
 export interface ICheckoutCloseHistory {
