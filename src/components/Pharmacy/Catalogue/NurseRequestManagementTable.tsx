@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
 import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
@@ -101,8 +102,9 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
+    console.log("entra el efects");
     fetchData(false);
-  }, [search, startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex, status]);
+  }, [search, startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex]);
   return {
     data,
     setSearch,
@@ -120,6 +122,7 @@ export const useGetNursesRequest = () => {
     count,
     fetchData,
     setStatus,
+    status,
   };
 };
 export const NurseRequestManagementTable = () => {
@@ -140,13 +143,14 @@ export const NurseRequestManagementTable = () => {
     count,
     fetchData,
     setStatus,
+    status
   } = useGetNursesRequest();
   const [openModalBuild, setOpenModalBuild] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
   //setWarehouseId
   useEffect(() => {
     fetchData(false);
-  }, []);
+  }, [ status]);
 
   const rejectRequest = (idRequest: string, Id_warehouseRequest: string) => {
     withReactContent(Swal)
@@ -186,6 +190,44 @@ export const NurseRequestManagementTable = () => {
       });
   };
 
+  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Confirmación',
+        text: `¿Seguro que deseas marcar esta solicitud como entregada?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'green',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return updateStatusNurseRequest({
+            Id_AlmacenOrigen: Id_warehouseRequest,
+            EstadoSolicitud: 3,
+            Id: idRequest,
+          });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          fetchData(false);
+          withReactContent(Swal).fire({
+            title: 'Éxito!',
+            text: 'Salida marcada como entregada',
+            icon: 'success',
+          });
+        } else {
+          withReactContent(Swal).fire({
+            title: 'No se marcó la salida como entregada',
+            icon: 'info',
+          });
+        }
+      });
+  };
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -202,7 +244,7 @@ export const NurseRequestManagementTable = () => {
                 <Switch
                   defaultChecked
                   onChange={(val) => {
-                    if (val) {
+                    if (val.target.checked) {
                       setStatus(1);
                     } else {
                       setStatus(2);
@@ -302,6 +344,7 @@ export const NurseRequestManagementTable = () => {
                           nurseRequest={request}
                           setOpenModalBuild={setOpenModalBuild}
                           setNurseRequest={setNurseRequest}
+                          markAsDelivered={markAsDelivered}
                           key={request.id_SolicitudEnfermero}
                           rejectRequest={rejectRequest}
                         />
@@ -364,12 +407,14 @@ interface TableRowComponentProps {
   setOpenModalBuild: Function;
   setNurseRequest: Function;
   rejectRequest: Function;
+  markAsDelivered: Function;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
   setOpenModalBuild,
   setNurseRequest,
   rejectRequest,
+  markAsDelivered,
 }) => {
   const [open, setOpen] = useState(false);
   //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
@@ -403,7 +448,19 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-
+          {
+            nurseRequest.estatus === 2 && (
+              <Tooltip title="Marcar como Entregado">
+                <IconButton
+                  onClick={() => {
+                    markAsDelivered(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
+                  }}
+                >
+                  <MarkunreadMailboxIcon sx={{ color: 'green' }} />
+                </IconButton>
+              </Tooltip>
+            )
+          }
           {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 3 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
@@ -415,6 +472,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
+          
         </TableCell>
       </TableRow>
       <TableRow>
