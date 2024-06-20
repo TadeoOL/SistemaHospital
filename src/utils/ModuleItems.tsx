@@ -21,15 +21,21 @@ import {
   supplyRoles,
 } from './dataRoles';
 import {
+  GroupAdd,
   History,
   Hotel,
   HowToReg,
   LocalHospital,
   LocalPharmacy,
+  MedicalInformation,
+  MonitorHeart,
+  PendingActions,
   PointOfSale,
   ShoppingBasket,
   Vaccines,
 } from '@mui/icons-material';
+import { LiaXRaySolid } from 'react-icons/lia';
+import { FaUserDoctor } from 'react-icons/fa6';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -216,8 +222,8 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: supplyRoles,
           },
           {
-            title: 'Procedimientos de crujía',
-            path: '/programacion/procedimientos-cirujia',
+            title: 'Procedimientos de cirugía',
+            path: '/programacion/procedimientos-cirugia',
             icon: <Vaccines sx={{ color: '#fff' }} />,
             protectedRoles: supplyRoles,
           },
@@ -235,7 +241,53 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
       },
+      {
+        title: 'Solicitud de programacion',
+        path: '/programacion/solicitud-programacion',
+        icon: <PendingActions sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
     ],
     path: 'programacion',
+  },
+  {
+    categoryTitle: 'Hospitalización',
+    icon: <MonitorHeart />,
+    moduleItems: [
+      {
+        title: 'Catálogos',
+        icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
+        path: '#',
+        protectedRoles: supplyRoles,
+        topLevel: true,
+        children: [
+          {
+            title: 'Anestesiólogos',
+            path: '/hospitalizacion/anestesiologos',
+            icon: <GroupAdd sx={{ color: '#fff' }} />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Equipo Biomédico',
+            path: '/hospitalizacion/equipo-biomedico',
+            icon: <MedicalInformation sx={{ color: '#fff' }} />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Radiografías',
+            path: '/hospitalizacion/radiografias',
+            icon: <LiaXRaySolid />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Medicos',
+            path: '/hospitalizacion/medicos',
+            icon: <FaUserDoctor />,
+            protectedRoles: supplyRoles,
+          },
+        ],
+      },
+    ],
+    path: 'hospitalizacion',
   },
 ];

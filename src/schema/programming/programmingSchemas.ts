@@ -108,3 +108,25 @@ export const procedureSchema = z.object({
     .array(z.string().min(1, 'El ID del procedimiento no puede estar vacío'))
     .nonempty('El procedimiento es requerido'),
 });
+
+export const programmingRegisterSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  lastName: z.string().min(1, 'El apellido paterno es requerido'),
+  secondLastName: z.string().min(1, 'El apellido materno es requerido'),
+  age: z
+    .string()
+    .min(1, 'La edad es requerida')
+    .refine((e) => parseInt(e) != 0, {
+      message: 'La edad tiene que ser mayor a 0',
+    }),
+  doctorId: z.string().min(1, 'El medico es requerido'),
+  notes: z.string().optional(),
+  surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
+  date: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+});
+
+export const procedureAndDoctorSelectorSchema = z.object({
+  proceduresId: z.string().array().nonempty('Los procedimientos son requeridos'),
+  medicId: z.string().min(1, 'El medico es requerido'),
+  anesthesiologistId: z.string().min(1, 'El anestesiólogo es requerido'),
+});

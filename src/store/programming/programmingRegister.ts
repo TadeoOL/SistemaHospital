@@ -40,6 +40,9 @@ const initialValues = {
   step: 0,
   patient: initialPatientValues,
   clinicalData: initialClinicalData,
+  evidencePdf: '',
+  rejectedMedicId: '',
+  articlesSelected: [],
 };
 
 interface State {
@@ -51,6 +54,9 @@ interface State {
   patient: IPatient;
   clinicalData: IClinicalData;
   fetchEvents: boolean;
+  evidencePdf: string;
+  rejectedMedicId: string;
+  articlesSelected: { id: string; nombre: string; cantidad: number }[];
 }
 
 interface Action {
@@ -61,6 +67,9 @@ interface Action {
   setClinicalData: (clinicalData: IClinicalData) => void;
   setFetchEvents: (fetchEvents: boolean) => void;
   clearEvents: () => void;
+  setEvidencePdf: (evidencePdf: string) => void;
+  setRejectedMedicId: (rejectedMedicId: string) => void;
+  setArticlesSelected: (articlesSelected: { id: string; nombre: string; cantidad: number }[]) => void;
 }
 interface ActionRoom {
   setAppointmentStartDate: (appointmentStartDate: Date) => void;
@@ -81,6 +90,10 @@ export const useProgrammingRegisterStore = create<State & Action & ActionRoom & 
   events: [],
   ...initialValues,
   ...initialRoomValue,
+  setArticlesSelected: (articlesSelected: { id: string; nombre: string; cantidad: number }[]) =>
+    set({ articlesSelected }),
+  setRejectedMedicId: (rejectedMedicId: string) => set(() => ({ rejectedMedicId })),
+  setEvidencePdf: (evidencePdf: string) => set(() => ({ evidencePdf })),
   setFetchEvents: (fetchEvents: boolean) => set(() => ({ fetchEvents })),
   setStep: (step: number) => set(() => ({ step })),
   setAppointmentStartDate: (appointmentStartDate: Date) => set(() => ({ appointmentStartDate })),

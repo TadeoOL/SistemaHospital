@@ -385,7 +385,7 @@ export interface IArticleHistory {
   nombre: string;
   cantidad: number;
   fechaCaducidad?: string;
-  Id_ArticuloEcistente?: string;//no estoy seguro si siempre llega
+  Id_ArticuloEcistente?: string; //no estoy seguro si siempre llega
 }
 
 export interface IWarehousePurchaseOrder {
@@ -595,8 +595,8 @@ export interface IPatient {
   lastName: string;
   secondLastName: string;
   age: string;
-  genere: string;
-  birthDate: Date;
+  genere?: string;
+  birthDate?: Date;
   civilStatus?: string;
   phoneNumber?: string;
   occupation?: string;

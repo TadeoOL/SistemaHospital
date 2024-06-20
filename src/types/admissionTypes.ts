@@ -69,3 +69,15 @@ export interface IPatientRegisterPagination {
   id_HistorialClinico: string;
   faltanDatos?: boolean;
 }
+
+export interface IProgrammingRequestPagination {
+  id: string;
+  id_Paciente: string;
+  id_Medico: string;
+  nombrePaciente: string;
+  nombreMedico: string;
+  fechaSugerida: Date;
+  recomendacionMedica: boolean;
+  notas?: string;
+  procedimientos: { id: string; nombre: string }[];
+}

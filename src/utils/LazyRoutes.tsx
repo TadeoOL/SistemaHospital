@@ -28,3 +28,8 @@ export const RoomsView = lazy(() => import('../views/Programming/RoomsView'));
 export const SurgeryProcedureView = lazy(() => import('../views/Programming/SurgeryProcedureView'));
 export const ProgrammingCalendarView = lazy(() => import('../views/Programming/ProgrammingCalendarView'));
 export const ConfigurationProgrammingView = lazy(() => import('../views/Programming/ConfigurationProgrammingView'));
+export const ProgrammingRequestView = lazy(() => import('../views/Programming/ProgrammingRequestView'));
+export const BiomedicalEquipmentView = lazy(() => import('../views/Hospitalization/BiomedicalEquipmentView'));
+export const AnesthesiologistView = lazy(() => import('../views/Hospitalization/AnesthesiologistView'));
+export const XRayView = lazy(() => import('../views/Hospitalization/XRayView'));
+export const MedicView = lazy(() => import('../views/Hospitalization/MedicView'));

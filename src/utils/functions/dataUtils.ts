@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import { ArticleObject } from '../../types/types';
 
 export const addArticlesPrice = (arrayDeObjetos: ArticleObject[]) => {
@@ -68,3 +69,7 @@ export const wasAuth = (value: number) => {
       break;
   }
 };
+
+export const debouncedSetSearch = debounce((set, search) => {
+  set({ search, pageIndex: 0 });
+}, 250);

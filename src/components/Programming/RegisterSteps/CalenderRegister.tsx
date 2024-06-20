@@ -11,11 +11,25 @@ import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 import { useGetDate } from '../../../hooks/programming/useGetDate';
 dayjs.locale('es');
-interface CalenderRegisterProps {
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: 380, sm: 550, md: 900 },
+  borderRadius: 2,
+  boxShadow: 24,
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: { xs: 900 },
+};
+
+interface CalendarRegisterProps {
   setOpen: Function;
 }
 
-export const CalenderRegister = (props: CalenderRegisterProps) => {
+export const CalendarRegister = (props: CalendarRegisterProps) => {
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
@@ -23,6 +37,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
   const { isLoading } = useGetDate(date);
   const events = useProgrammingRegisterStore((state) => state.events);
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
+  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
 
   const sameDate = useMemo(() => {
     if (!date) return true;
@@ -43,7 +58,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
       </Box>
     );
   return (
-    <>
+    <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />
       <Box
         sx={{
@@ -80,8 +95,8 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
               </Box>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-            <CalendarComponent date={date} events={events} setDate={setDate} />
+          <Box>
+            <CalendarComponent date={date} events={events} setDate={setDate} setEvents={setEvents} />
           </Box>
         </Stack>
       </Box>
@@ -102,6 +117,6 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
           Siguiente
         </Button>
       </Box>
-    </>
+    </Box>
   );
 };

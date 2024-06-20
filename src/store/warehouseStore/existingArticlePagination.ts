@@ -1,7 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { getExistingArticles } from '../../api/api.routes';
 import { IExistingArticle } from '../../types/types';
-import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { debouncedSetSearch, getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -67,22 +67,24 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSort: (sort: string) => set({ sort }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
-  setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setSearch: (search: string) => debouncedSetSearch(set, search),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async () => {
     set(() => ({ isLoading: true }));
     const { pageIndex, pageSize, search, enabled, warehouseId, startDate, endDate, sort, principalWarehouseId } = get();
     const page = pageIndex + 1;
     try {
-      let mainWarehouseId = ''
+      let mainWarehouseId = '';
       if (warehouseId === '') return;
-      if(principalWarehouseId === '') {mainWarehouseId = warehouseId}
-      else { mainWarehouseId = principalWarehouseId }
+      if (principalWarehouseId === '') {
+        mainWarehouseId = warehouseId;
+      } else {
+        mainWarehouseId = principalWarehouseId;
+      }
       const res = await getExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId
-        }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
       );
       set(() => ({
         data: res.data,

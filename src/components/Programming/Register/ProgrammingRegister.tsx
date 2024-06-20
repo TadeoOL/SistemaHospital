@@ -1,7 +1,8 @@
 import { Box, Button, Card, Modal, Stack, Typography } from '@mui/material';
 import { TableHospitalization } from './TableHospitalization';
 import { useState } from 'react';
-import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
+// import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
+import { CalendarRegister } from '../RegisterSteps/CalenderRegister';
 
 export const HospitalizationRegister = () => {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,7 @@ export const HospitalizationRegister = () => {
       </Card>
       <Modal open={open}>
         <>
-          <RegisterSteps setOpen={setOpen} />
+          <CalendarRegister setOpen={setOpen} />
         </>
       </Modal>
     </>

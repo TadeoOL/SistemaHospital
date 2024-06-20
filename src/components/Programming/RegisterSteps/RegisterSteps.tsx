@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { PatientRegistrationForm } from './PatientRegistrationForm';
 import { ClinicalDataForm } from './ClinicalDataForm';
 import { RoomReservationModal } from './RoomReservationModal';
+import { ProcedureAndDoctorSelectorModal } from './ProcedureAndDoctorSelectorModal';
+import { MedicinePackageSelectorModal } from './MedicinePackageSelectorModal';
 
 const style = {
   position: 'absolute',
@@ -21,23 +23,19 @@ const style = {
 interface RegisterStepsProps {
   setOpen: Function;
 }
-const renderStepView = (step: number, setOpen: Function) => {
-  switch (step) {
-    case 0:
-      return <RoomReservationModal setOpen={setOpen} />;
-    case 1:
-      return <PatientRegistrationForm setOpen={setOpen} />;
-    case 2:
-      return <ClinicalDataForm setOpen={setOpen} />;
-    default:
-      return;
-  }
-};
 
 export const RegisterSteps = (props: RegisterStepsProps) => {
   const clearAllData = useProgrammingRegisterStore((state) => state.clearAllData);
   const clearEvents = useProgrammingRegisterStore((state) => state.clearEvents);
   const step = useProgrammingRegisterStore((state) => state.step);
+
+  const renderStepView: Record<number, JSX.Element> = {
+    0: <RoomReservationModal setOpen={props.setOpen} />,
+    1: <PatientRegistrationForm setOpen={props.setOpen} />,
+    2: <ProcedureAndDoctorSelectorModal setOpen={props.setOpen} />,
+    3: <MedicinePackageSelectorModal setOpen={props.setOpen} />,
+    4: <ClinicalDataForm setOpen={props.setOpen} />,
+  };
 
   useEffect(() => {
     return () => {
@@ -46,5 +44,5 @@ export const RegisterSteps = (props: RegisterStepsProps) => {
     };
   }, []);
 
-  return <Box sx={style}>{renderStepView(step, props.setOpen)}</Box>;
+  return <Box sx={style}>{renderStepView[step]}</Box>;
 };
