@@ -132,24 +132,24 @@ export const ProvidersTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell width={'26%'} >
                 <SortComponent
                   tableCellLabel="Nombre de la Compañía"
                   headerName="nombreCompania"
                   setSortFunction={setSort}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell width={'31%'}>
                 <SortComponent
                   tableCellLabel="Nombre del Contacto"
                   headerName="nombreContacto"
                   setSortFunction={setSort}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell width={'10%'}>
                 <SortComponent tableCellLabel="Teléfono" headerName="telefono" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'36%'}>
                 <SortComponent
                   tableCellLabel="Correo Electrónico"
                   headerName="correoElectronico"
@@ -157,7 +157,7 @@ export const ProvidersTable = () => {
                 />
               </TableCell>
 
-              <TableCell>Acciones</TableCell>
+              <TableCell width={'7%'}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

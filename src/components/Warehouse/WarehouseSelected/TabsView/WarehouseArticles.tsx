@@ -202,11 +202,6 @@ export const WarehouseArticles = () => {
             </Box>
           </Box>
           <Card>
-            {isLoading && data.length === 0 ? (
-              <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
-                <CircularProgress size={30} />
-              </Box>
-            ) : (
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -253,8 +248,12 @@ export const WarehouseArticles = () => {
                     {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
                   </TableBody>
                 </Table>
-                {!data ||
-                  (data.length === 0 && (
+                {isLoading  && (
+              <Box sx={{ display: 'flex', flex: 1, p: 4}}>
+                <CircularProgress sx={{mx:'auto'}} />
+              </Box>
+                )}
+                {data.length === 0 && !isLoading && (
                     <Box
                       sx={{
                         display: 'flex',
@@ -270,7 +269,7 @@ export const WarehouseArticles = () => {
                         No hay artículos existentes
                       </Typography>
                     </Box>
-                  ))}
+                  )}
                 <TablePagination
                   component="div"
                   count={count}
@@ -287,7 +286,6 @@ export const WarehouseArticles = () => {
                   labelRowsPerPage="Filas por página"
                 />
               </TableContainer>
-            )}
           </Card>
         </Stack>
       </Stack>

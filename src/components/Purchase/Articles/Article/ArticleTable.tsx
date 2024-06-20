@@ -176,29 +176,29 @@ export const ArticleTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell width={'22%'}>
                 <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'22%'}>
                 <SortComponent tableCellLabel="Presentación" headerName="presentacion" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'7%'}>
                 <SortComponent tableCellLabel="Stock mínimo" headerName="stockMinimo" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'7%'}>
                 <SortComponent tableCellLabel="Stock alerta" headerName="stockAlerta" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'10%'}>
                 <SortComponent tableCellLabel="Precio Compra" headerName="precioCompra" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'10%'}>
                 <SortComponent tableCellLabel="Precio Venta" headerName="precioVenta" setSortFunction={setSort} />
               </TableCell>
 
-              <TableCell>
+              <TableCell width={'22%'}>
                 <SortComponent tableCellLabel="Sub categoria" headerName="subCategoria" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>Acciones</TableCell>
+              <TableCell width={'10%'}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -18,7 +18,7 @@ const Category = () => {
   return (
     <Box sx={{ pt: 2 }}>
       <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-        <SearchBar title="Busca la categoría..." searchState={setSearch} sx={{ width: '30%' }} />
+        
         <Stack
           sx={{
             flexDirection: 'row',
@@ -29,8 +29,7 @@ const Category = () => {
             p: 3,
           }}
         >
-          <Divider sx={{ my: 1 }} />
-          <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
+          <SearchBar title="Busca la categoría..." searchState={setSearch} sx={{ width: '30%' }} />
             <Button
               onClick={() => {
                 setEnabled(!enabled);
@@ -42,7 +41,6 @@ const Category = () => {
             <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => setOpen(!open)}>
               Agregar
             </Button>
-          </Stack>
         </Stack>
       </Box>
       <CategoryTable />

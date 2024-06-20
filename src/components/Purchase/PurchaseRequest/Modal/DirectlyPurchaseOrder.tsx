@@ -8,13 +8,10 @@ import {
   Collapse,
   Divider,
   FormControl,
-  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
   Modal,
-  Radio,
-  RadioGroup,
   Stack,
   Step,
   StepLabel,
@@ -235,6 +232,7 @@ export const BuildOrder = (props: { setOpen: Function }) => {
           display: 'flex',
           flex: 1,
           justifyContent: 'space-between',
+          alignContent: "center",
           columnGap: 2,
           flexDirection: { xs: 'column', sm: 'row' },
           rowGap: { xs: 2, sm: 0 },
@@ -262,7 +260,7 @@ export const BuildOrder = (props: { setOpen: Function }) => {
                 error={articleError}
                 helperText={articleError && 'Selecciona un articulo'}
                 placeholder="Artículos"
-                sx={{ width: '50%' }}
+                sx={{ width: '100%' }}
                 onChange={(e) => {
                   setSearch(e.target.value);
                 }}
@@ -270,10 +268,10 @@ export const BuildOrder = (props: { setOpen: Function }) => {
             )}
           />
         </Stack>
-        <Stack sx={{ display: 'flex', flex: 1 }}>
+        <Stack sx={{ display: 'flex' }}>
           <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
           <TextField
-            sx={{ width: '60%' }}
+            sx={{ width: '100%' }}
             size="small"
             fullWidth
             placeholder="Cantidad"
@@ -287,20 +285,14 @@ export const BuildOrder = (props: { setOpen: Function }) => {
             }}
           />
         </Stack>
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flex: 1,
-          justifyContent: 'flex-end',
-          mt: 2,
-        }}
-      >
+        <Box sx={{mt:'auto'}} >
         <AnimateButton>
           <Button size="medium" variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticles()}>
             Agregar
           </Button>
         </AnimateButton>
+        </Box>
+        
       </Box>
       <ArticlesTable setWarehouseError={setWarehouseError} setOpen={props.setOpen} />
     </Stack>
@@ -731,22 +723,19 @@ const SelectProviderAndUploadPDF = () => {
         <Stack>
           <Box sx={{ mt: 4 }}>
             <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
-            <Stack direction="row" spacing={2}>
-              <FormControl component="fieldset" sx={{ width: '100%' }}>
-                <RadioGroup
-                  row
-                  sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
-                  aria-label="paymentMethod"
-                  name="paymentMethod"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(Number(e.target.value))}
-                >
-                  <FormControlLabel value={1} control={<Radio />} label="Crédito" />
-                  <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
-                  <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
-                </RadioGroup>
-              </FormControl>
-            </Stack>
+            <FormControl component="fieldset" sx={{ width: '100%' }}>
+              <TextField
+                select
+                label="Método de Pago"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                fullWidth
+              >
+                <MenuItem value={1}>Crédito</MenuItem>
+                <MenuItem value={3}>Transferencia</MenuItem>
+                <MenuItem value={2}>Efectivo</MenuItem>
+              </TextField>
+            </FormControl>
           </Box>
         </Stack>
         <Stack spacing={1} sx={{ mt: 4 }}>

@@ -78,7 +78,7 @@ export const PurchaseWithoutProvider = (props: PurchaseWithoutProviderProps) => 
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Solicitud de Compra" />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Cotización a Proveedores" />
       <Stack sx={{ p: 4, bgcolor: 'white', overflowY: 'auto' }}>
         <Stepper activeStep={step}>
           {stepsArray.map((s) => (
@@ -195,7 +195,7 @@ const StepThree = (props: { setOpen: Function }) => {
           Regresar
         </Button>
         <Button variant="contained" startIcon={<Save />} onClick={() => handleSubmit()} disabled={isLoading}>
-          {isLoading ? <CircularProgress size={18} /> : 'Generar compra'}
+          {isLoading ? <CircularProgress size={18} /> : 'Generar Solicitud de Cotizacion'}
         </Button>
       </Box>
     </Stack>
