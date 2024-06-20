@@ -17,7 +17,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 650, sm: 750, md: 900 },
 };
 
 interface PatientInfoModalProps {
@@ -66,7 +66,7 @@ export const PatientInfoModal = (props: PatientInfoModalProps) => {
         setOpen={props.setOpen}
         title={`Información del ${props.patientId ? 'Paciente' : 'Historial Clínico'}`}
       />
-      <Box sx={{ bgcolor: 'background.paper', p: 3 }}>{data && showViewInfo(patient, data)}</Box>
+      <Box sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto' }}>{data && showViewInfo(patient, data)}</Box>
       <Box sx={{ bgcolor: 'background.paper', display: 'flex', justifyContent: 'flex-end', p: 1 }}>
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cerrar

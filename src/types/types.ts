@@ -368,6 +368,12 @@ export interface IWarehouseData {
   habilitado: boolean;
   subAlmacenes: IWarehouseData[];
 }
+export interface IPatientFromSearch {
+    id_Paciente: string;
+    nombreCompleto: string;
+    id_Cuenta: string;
+    id_ArticuloCuenta: string;
+}
 export interface IWarehouseMovementData {
   almacenOrigen: string | null;
   almacenDestino: string | null;
@@ -508,6 +514,37 @@ export interface ICheckoutHistory {
   diaCorte: string;
 }
 
+export interface InurseRequest {
+  id_SolicitudEnfermero: string;
+  folio: string;
+  cuarto: string;
+  id_paciente: string;
+  usuarioEmisor: string;
+  solicitadoEn: string;//en que piso se solicito
+  id_AlmacenSolicitado: string; 
+  almacenNombre: string; 
+  usuarioEntrego: string;
+  estatus: number;
+  usuarioEmisorNombre: string;
+  usuarioEntregoNombre: string;
+  pacienteNombre: string;
+  articulos: IArticleInRequest[];
+  lista_ArticulosEntregados: IArticlesDelivered[] | null;
+}
+
+export interface IArticleInRequest {
+  id_Articulo: string;
+  nombre: string;
+  cantidad: number;
+}
+
+export interface IArticlesDelivered {
+  id_Articulo: string;
+  nombre: string;
+  cantidad: number;
+  lote: IExistingArticleList[];
+}
+
 export interface ICheckoutCloseHistory {
   id_CajaPrincipal: string;
   nombreUsuario: string;
@@ -552,7 +589,8 @@ export interface IRoom {
 export interface ISurgeryProcedure {
   id: string;
   nombre: string;
-  duracionHospitalizacion: string;
+  duracionHospitalizacion: number;
+  precioCirujia: number;
   duracionCirujia: string;
   descripcion: string;
 }
@@ -564,6 +602,7 @@ export interface IRegisterRoom {
   horaInicio: Date;
   horaFin: Date;
   provisionalId?: string;
+  id_Cuarto?: string;
 }
 
 export interface IRoomsList {
@@ -594,18 +633,19 @@ export interface IPatient {
   secondLastName: string;
   age: string;
   genere: string;
-  civilStatus: string;
-  phoneNumber: string;
-  occupation: string;
-  zipCode: string;
-  neighborhood: string;
-  address: string;
-  personInCharge: string;
-  relationship: string;
-  personInChargeZipCode: string;
-  personInChargeNeighborhood: string;
-  personInChargeAddress: string;
-  personInChargePhoneNumber: string;
+  birthDate: Date;
+  civilStatus?: string;
+  phoneNumber?: string;
+  occupation?: string;
+  zipCode?: string;
+  neighborhood?: string;
+  address?: string;
+  personInCharge?: string;
+  relationship?: string;
+  personInChargeZipCode?: string;
+  personInChargeNeighborhood?: string;
+  personInChargeAddress?: string;
+  personInChargePhoneNumber?: string;
 }
 
 export interface IClinicalData {
@@ -613,6 +653,8 @@ export interface IClinicalData {
   specialty: string;
   reasonForAdmission: string;
   admissionDiagnosis: string;
-  procedure: string;
+  procedure?: string;
   comments: string;
+  allergies: string;
+  bloodType: string;
 }

@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { IPatientRegisterPagination } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
-import { Check, Close, Edit } from '@mui/icons-material';
+import { Check, Close, Edit, Info } from '@mui/icons-material';
 import { PatientInfoModal } from './Modal/PatientInfoModal';
 import { SelectEditOptionModal } from './Modal/SelectEditOptionModal';
 const headers = ['Clave paciente', 'Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Datos Clinicos', 'Acciones'];
@@ -106,6 +106,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
   const [clinicalHistoryId, setClinicalHistoryId] = useState<string>();
   const [openEdit, setOpenEdit] = useState(false);
   const [valueView, setValueView] = useState(0);
+  const [registerRoomId, setRegisterRoomId] = useState('');
 
   useEffect(() => {
     if (!openEdit) setValueView(0);
@@ -143,11 +144,17 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Aceptar">
-              <IconButton>
-                <Check color="success" />
-              </IconButton>
-            </Tooltip>
+            {data.faltanDatos ? (
+              <Tooltip title="Faltan datos por llenar">
+                <Info color="warning" />
+              </Tooltip>
+            ) : (
+              <Tooltip title="Aceptar">
+                <IconButton>
+                  <Check color="success" />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title="Editar">
               <IconButton onClick={() => setOpenEdit(true)}>
                 <Edit />
@@ -171,9 +178,12 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
           <SelectEditOptionModal
             setOpen={setOpenEdit}
             patientId={data.id_Paciente}
-            clinicalHistoryId=""
+            clinicalHistoryId={data.id_HistorialClinico}
             setValue={setValueView}
             value={valueView}
+            registerId={data.id}
+            setRegisterRoomId={setRegisterRoomId}
+            registerRoomId={registerRoomId}
           />
         </>
       </Modal>

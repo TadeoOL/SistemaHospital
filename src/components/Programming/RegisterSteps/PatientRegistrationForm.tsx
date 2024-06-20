@@ -1,11 +1,14 @@
-import { Box, Button, Checkbox, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { patientRegistrationSchema } from '../../../schema/programming/programmingSchemas';
-// import { toast } from 'react-toastify';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { toast } from 'react-toastify';
+import dayjs from 'dayjs';
+dayjs.locale('es');
 
 // const CIVIL_STATUS = ['Soltero(a)', 'Casado(a)', 'Divorciado(a)', 'Viudo(a)'];
 const GENERE = ['Hombre', 'Mujer'];
@@ -31,51 +34,23 @@ type Inputs = {
   secondLastName: string;
   age: string;
   genere: string;
-  civilStatus: string;
-  phoneNumber: string;
-  occupation: string;
-  zipCode: string;
-  neighborhood: string;
-  address: string;
-  personInCharge: string;
-  relationship: string;
-  sameAddress: boolean;
-  personInChargeZipCode: string;
-  personInChargeNeighborhood: string;
-  personInChargeAddress: string;
-  personInChargePhoneNumber: string;
+  birthDate: Date;
 };
-
-export const PatientRegistrationForm = () => {
+interface PatientRegistrationFormProps {
+  setOpen: Function;
+}
+export const PatientRegistrationForm = (props: PatientRegistrationFormProps) => {
   const step = useProgrammingRegisterStore((state) => state.step);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const patient = useProgrammingRegisterStore((state) => state.patient);
   const setPatient = useProgrammingRegisterStore((state) => state.setPatient);
-  const {
-    secondLastName,
-    lastName,
-    zipCode,
-    personInChargeZipCode,
-    neighborhood,
-    personInChargeNeighborhood,
-    address,
-    personInChargeAddress,
-    age,
-    civilStatus,
-    genere,
-    name,
-    personInCharge,
-    occupation,
-    relationship,
-    phoneNumber,
-    personInChargePhoneNumber,
-  } = patient;
+  const { secondLastName, lastName, age, genere, name } = patient;
 
   const {
+    control,
     register,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(patientRegistrationSchema),
@@ -83,50 +58,23 @@ export const PatientRegistrationForm = () => {
       name,
       lastName,
       secondLastName,
-      phoneNumber,
       genere,
-      zipCode,
-      personInChargeZipCode,
-      neighborhood,
-      personInChargeNeighborhood,
-      address,
-      personInChargeAddress,
-      age: age.toString(),
-      civilStatus,
-      personInCharge,
-      occupation,
-      relationship,
-      personInChargePhoneNumber,
+      age,
+      birthDate: new Date(),
     },
   });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     setPatient(data);
     setStep(step + 1);
-    // toast.success("Datos registrados correctamente")
+    toast.success('Datos registrados correctamente');
   };
 
-  const watchSameAddress = watch('sameAddress');
-  const watchZipCode = watch('zipCode');
-  const watchNeighborhood = watch('neighborhood');
-  const watchAddress = watch('address');
   const watchGenere = watch('genere');
-
-  useEffect(() => {
-    if (watchSameAddress) {
-      setValue('personInChargeAddress', watchAddress);
-      setValue('personInChargeNeighborhood', watchNeighborhood);
-      setValue('personInChargeZipCode', watchZipCode);
-    } else {
-      setValue('personInChargeZipCode', '');
-      setValue('personInChargeNeighborhood', '');
-      setValue('personInChargeAddress', '');
-    }
-  }, [watchSameAddress, watchZipCode, watchNeighborhood, watchAddress]);
 
   return (
     <>
-      <HeaderModal setOpen={() => {}} title="Alta de Paciente" />
+      <HeaderModal setOpen={props.setOpen} title="Alta de Paciente" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box
           sx={{
@@ -184,6 +132,25 @@ export const PatientRegistrationForm = () => {
               />
             </Grid>
             <Grid item xs={12} md={4}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Fecha Nacimiento</Typography>
+              <Controller
+                control={control}
+                name="birthDate"
+                render={({ field: { onChange, value } }) => (
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'es'}>
+                    <DatePicker
+                      value={dayjs(value)}
+                      onChange={onChange}
+                      views={['year', 'month', 'day']}
+                      disableFuture
+                      format={'DD/MM/YYYY'}
+                      label="Fecha de nacimiento"
+                    />
+                  </LocalizationProvider>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Genero</Typography>
               <TextField
                 fullWidth
@@ -200,137 +167,6 @@ export const PatientRegistrationForm = () => {
                   </MenuItem>
                 ))}
               </TextField>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Estado Civil</Typography>
-              <TextField
-                fullWidth
-                placeholder="Estado Civil..."
-                {...register('civilStatus')}
-                error={!!errors.civilStatus?.message}
-                helperText={errors.civilStatus?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Teléfono</Typography>
-              <TextField
-                fullWidth
-                placeholder="Teléfono..."
-                {...register('phoneNumber')}
-                error={!!errors.phoneNumber?.message}
-                helperText={errors.phoneNumber?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Ocupación/Empleo</Typography>
-              <TextField
-                fullWidth
-                placeholder="Escribe la ocupación..."
-                {...register('occupation')}
-                error={!!errors.occupation?.message}
-                helperText={errors.occupation?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
-              <TextField
-                fullWidth
-                placeholder="Código Postal..."
-                {...register('zipCode')}
-                error={!!errors.zipCode?.message}
-                helperText={errors.zipCode?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
-              <TextField
-                fullWidth
-                placeholder="Colonia..."
-                {...register('neighborhood')}
-                error={!!errors.neighborhood?.message}
-                helperText={errors.neighborhood?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={7}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
-              <TextField
-                fullWidth
-                placeholder="Dirección..."
-                {...register('address')}
-                error={!!errors.address?.message}
-                helperText={errors.address?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos de contacto</Typography>
-              <Divider sx={{ my: 1 }} />
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Persona Responsable</Typography>
-              <TextField
-                fullWidth
-                placeholder="Nombre..."
-                {...register('personInCharge')}
-                error={!!errors.personInCharge?.message}
-                helperText={errors.personInCharge?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Parentesco</Typography>
-              <TextField
-                fullWidth
-                placeholder="Parentesco..."
-                {...register('relationship')}
-                error={!!errors.relationship?.message}
-                helperText={errors.relationship?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox {...register('sameAddress')} />
-              <Typography sx={TYPOGRAPHY_STYLE}>Mismo Domicilio</Typography>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
-              <TextField
-                fullWidth
-                placeholder="Código postal..."
-                disabled={watchSameAddress}
-                error={!!errors.personInChargeZipCode?.message}
-                helperText={errors.personInChargeZipCode?.message}
-                {...register('personInChargeZipCode')}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
-              <TextField
-                fullWidth
-                placeholder="Colonia..."
-                disabled={watchSameAddress}
-                error={!!errors.personInChargeNeighborhood?.message}
-                helperText={errors.personInChargeNeighborhood?.message}
-                {...register('personInChargeNeighborhood')}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
-              <TextField
-                fullWidth
-                placeholder="Dirección..."
-                disabled={watchSameAddress}
-                error={!!errors.personInChargeAddress?.message}
-                helperText={errors.personInChargeAddress?.message}
-                {...register('personInChargeAddress')}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Teléfono</Typography>
-              <TextField
-                fullWidth
-                placeholder="Teléfono..."
-                error={!!errors.personInChargePhoneNumber?.message}
-                helperText={errors.personInChargePhoneNumber?.message}
-                {...register('personInChargePhoneNumber')}
-              />
             </Grid>
           </Grid>
         </Box>

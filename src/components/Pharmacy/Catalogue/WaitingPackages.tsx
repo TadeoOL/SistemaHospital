@@ -194,7 +194,7 @@ export const WaitingPackages = () => {
             <Stack sx={{ display: 'flex', flex: 1 }}>
               <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
                 <SearchBar
-                  title="Buscar orden de compra..."
+                  title="Buscar paquete en espera..."
                   searchState={setSearch}
                   sx={{ display: 'flex', flex: 1 }}
                   size="small"

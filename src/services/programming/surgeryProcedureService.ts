@@ -4,8 +4,9 @@ const apiSurgeryProcedure = '/api/ProcedimientoCirujia';
 export const registerSurgeryProcedure = async (data: {
   nombre: string;
   descripcion: string;
-  duracionHospitalizacion: string;
+  duracionHospitalizacion: number;
   duracionCirujia: string;
+  precioCirujia: number;
 }) => {
   const res = await axios.post(`${apiSurgeryProcedure}/registrar-procedimiento-cirujia`, data);
   return res.data;
@@ -19,8 +20,9 @@ export const getSurgeryProceduresPagination = async (params: string) => {
 export const modifySurgeryProcedure = async (data: {
   nombre: string;
   descripcion: string;
-  duracionHospitalizacion: string;
+  duracionHospitalizacion: number;
   duracionCirujia: string;
+  precioCirujia: number;
   id: string;
 }) => {
   const res = await axios.put(`${apiSurgeryProcedure}/editar-procedimiento-cirujia`, data);

@@ -12,13 +12,18 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { patientRegistrationSchema } from '../../../../../schema/programming/programmingSchemas';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { patientModifySchema } from '../../../../../schema/programming/programmingSchemas';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { Paciente } from '../../../../../types/admissionTypes';
 import { getPatientById, modifyPatient } from '../../../../../services/programming/patientService';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
 import Swal from 'sweetalert2';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
 
 const style = {
   position: 'absolute',
@@ -30,7 +35,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 650, md: 900 },
 };
 
 const scrollBarStyle = {
@@ -54,6 +59,7 @@ type Inputs = {
   name: string;
   lastName: string;
   secondLastName: string;
+  birthDate: Date;
   age: string;
   genere: string;
   civilStatus: string;
@@ -137,21 +143,30 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
           props.setOpen(false);
         } catch (error) {
           console.log(error);
+          Swal.fire({
+            title: 'Error!',
+            text: `No se pudo actualizar el paciente`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 1000,
+          });
         }
       }
     });
   };
 
   const {
+    control,
     register,
     handleSubmit,
     watch,
     setValue,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(patientRegistrationSchema),
+    resolver: zodResolver(patientModifySchema),
     defaultValues: {
       genere: '',
+      sameAddress: false,
     },
   });
 
@@ -173,6 +188,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     occupation: personalData?.ocupacion,
     relationship: personalData?.parentesco,
     personInChargePhoneNumber: personalData?.telefonoResponsable,
+    birthDate: new Date(personalData?.fechaNacimiento as Date),
   };
 
   const watchAddresPersonInCharge = watch('personInChargeAddress');
@@ -188,13 +204,31 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
   useEffect(() => {
     if (!isLoading) {
       Object.keys(defaultValues).forEach((key) => {
-        setValue(key as keyof typeof defaultValues, defaultValues[key as keyof typeof defaultValues] as string);
+        if (key === 'birthDate') {
+          setValue(key as keyof typeof defaultValues, defaultValues[key as keyof typeof defaultValues] as Date);
+        } else {
+          setValue(key as keyof typeof defaultValues, defaultValues[key as keyof typeof defaultValues] as string);
+        }
       });
     }
   }, [isLoading, setValue]);
 
   useEffect(() => {
+    if (watchSameAddress) {
+      setValue('personInChargeAddress', watchAddress);
+      setValue('personInChargeZipCode', watchZipCode);
+      setValue('personInChargeNeighborhood', watchNeighborhood);
+    }
+  }, [watchSameAddress, watchZipCode, watchAddress, watchNeighborhood]);
+
+  useEffect(() => {
     if (
+      watchAddress &&
+      watchAddresPersonInCharge &&
+      watchNeighborhood &&
+      watchPersonInChargeNeighborhood &&
+      watchZipCode &&
+      watchPersonInChargeZipCode &&
       watchAddresPersonInCharge === watchAddress &&
       watchNeighborhood === watchPersonInChargeNeighborhood &&
       watchZipCode === watchPersonInChargeZipCode
@@ -218,8 +252,12 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     );
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={() => {}} title="Alta de Paciente" />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <HeaderModal setOpen={props.setOpen} title="Alta de Paciente" />
+      <form
+        onSubmit={handleSubmit(onSubmit, (e) => {
+          console.log(e);
+        })}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -228,7 +266,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
             p: 3,
             bgcolor: 'background.paper',
             overflowY: 'auto',
-            maxHeight: 700,
+            maxHeight: { xs: 500, md: 750 },
             ...scrollBarStyle,
           }}
         >
@@ -292,6 +330,25 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                   </MenuItem>
                 ))}
               </TextField>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Fecha Nacimiento</Typography>
+              <Controller
+                control={control}
+                name="birthDate"
+                render={({ field: { onChange, value } }) => (
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'es-mx'}>
+                    <DatePicker
+                      value={dayjs(value)}
+                      onChange={onChange}
+                      views={['year', 'month', 'day']}
+                      disableFuture
+                      format={'DD/MM/YYYY'}
+                      label="Fecha de nacimiento"
+                    />
+                  </LocalizationProvider>
+                )}
+              />
             </Grid>
             <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Estado Civil</Typography>

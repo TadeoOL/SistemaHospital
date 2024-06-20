@@ -37,7 +37,9 @@ import {
   ProgrammingRegisterView,
   RoomsView,
   SurgeryProcedureView,
-  UserRequestView,
+  ProgrammingCalendarView,
+  ConfigurationProgrammingView,
+  NurseRequestView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -80,7 +82,7 @@ function App() {
               <Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
-                <Route path="/farmacia/solicitud-usuario" element={<UserRequestView />} />
+                <Route path="/farmacia/solicitud-enfermero" element={<NurseRequestView />} />
               </Route>
               {/*<Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
@@ -97,7 +99,9 @@ function App() {
             // ---------------------------Programacion------------------------------------- //
             <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
             <Route path="programacion/cuartos" element={<RoomsView />} />
+            <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
             <Route path="programacion/procedimientos-cirujia" element={<SurgeryProcedureView />} />
+            <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
             <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
             <Route path="/configuracion" element={<AccountView />} />
           </Route>

@@ -15,7 +15,7 @@ export const PurchaseConfigView = lazy(() => import('../views/Purchase/PurchaseC
 export const AccountView = lazy(() => import('../views/AccountView'));
 export const WarehouseSelected = lazy(() => import('../components/Warehouse/WarehouseSelected/WarehouseSelected'));
 export const PointOfSaleView = lazy(() => import('../views/Pharmacy/PointOfSaleView'));
-export const UserRequestView = lazy(() => import('../views/Pharmacy/UserRequestView'));
+export const NurseRequestView = lazy(() => import('../views/Pharmacy/NurseRequestView'));
 export const PackageCatalogueView = lazy(() => import('../views/Pharmacy/PackageCatalogueView'));
 export const PharmacyConfigView = lazy(() => import('../views/Pharmacy/PharmacyConfigView'));
 export const SellsHistoryView = lazy(() => import('../views/Pharmacy/SellsHistoryView'));
@@ -27,3 +27,5 @@ export const CloseCheckoutView = lazy(() => import('../views/Checkout/CloseCheck
 export const ProgrammingRegisterView = lazy(() => import('../views/Programming/ProgrammingRegisterView'));
 export const RoomsView = lazy(() => import('../views/Programming/RoomsView'));
 export const SurgeryProcedureView = lazy(() => import('../views/Programming/SurgeryProcedureView'));
+export const ProgrammingCalendarView = lazy(() => import('../views/Programming/ProgrammingCalendarView'));
+export const ConfigurationProgrammingView = lazy(() => import('../views/Programming/ConfigurationProgrammingView'));
