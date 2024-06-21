@@ -16,49 +16,59 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
-import { usePackagePaginationStore } from '../../../store/warehouseStore/packagesPagination';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { getPharmacyConfig } from '../../../services/pharmacy/configService';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { Delete, Edit, Save } from '@mui/icons-material';
+import { Delete, Edit, Save, WarningAmber } from '@mui/icons-material';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import { isValidInteger } from '../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { IExistingArticle } from '../../../types/types';
+import { IArticlesPackage, IExistingArticle } from '../../../types/types';
+import { getPackagesByWarehouseId } from '../../../api/api.routes';
 const TABLE_HEADER = ['Nombre', 'Cantidad', 'Acciones'];
 interface MedicinePackageSelectorProps {
   setOpen: Function;
 }
 
-const useGetPackageData = () => {
-  const fetchData = usePackagePaginationStore((state) => state.fetchWarehousePackages);
-  const data = usePackagePaginationStore((state) => state.data);
-  const search = usePackagePaginationStore((state) => state.search);
-  const pageSize = usePackagePaginationStore((state) => state.pageSize);
-  const pageIndex = usePackagePaginationStore((state) => state.pageIndex);
-  const setPageIndex = usePackagePaginationStore((state) => state.setPageIndex);
-  const setPageSize = usePackagePaginationStore((state) => state.setPageSize);
-  const count = usePackagePaginationStore((state) => state.count);
-  const isLoading = usePackagePaginationStore((state) => state.isLoading);
-  const setSearch = usePackagePaginationStore((state) => state.setSearch);
-  const clearData = usePackagePaginationStore((state) => state.clearData);
+const useGetPrincipalWarehouseId = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [principalWarehouseId, setPrincipalWarehouseId] = useState('');
 
   useEffect(() => {
+    setIsLoading(true);
+    const fetchData = async () => {
+      try {
+        const res = await getPharmacyConfig();
+        setPrincipalWarehouseId(res.id_Almacen);
+      } catch (error) {
+        console.log(error);
+      }
+      setIsLoading(false);
+    };
     fetchData();
-  }, [search, pageIndex, pageSize]);
-  return {
-    data,
-    search,
-    pageSize,
-    pageIndex,
-    setPageIndex,
-    setPageSize,
-    count,
-    isLoading,
-    setSearch,
-    clearData,
-  };
+  }, []);
+  return { isLoading, principalWarehouseId };
+};
+
+const useGetPackageData = (warehouseId: string, isLoadingWarehouse: boolean) => {
+  const [packages, setPackages] = useState<IArticlesPackage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (isLoadingWarehouse) return;
+    const fetchPackageData = async () => {
+      try {
+        const res = await getPackagesByWarehouseId(warehouseId);
+        setPackages(res);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPackageData();
+  }, [warehouseId, isLoadingWarehouse]);
+  return { packages, isLoading };
 };
 
 const useGetArticles = (warehouseId: string) => {
@@ -92,29 +102,9 @@ const useGetArticles = (warehouseId: string) => {
   };
 };
 
-const useGetPrincipalWarehouseId = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [principalWarehouseId, setPrincipalWarehouseId] = useState('');
-
-  useEffect(() => {
-    setIsLoading(true);
-    const fetchData = async () => {
-      try {
-        const res = await getPharmacyConfig();
-        setPrincipalWarehouseId(res.id_Almacen);
-      } catch (error) {
-        console.log(error);
-      }
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
-  return { isLoading, principalWarehouseId };
-};
-
 export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps) => {
-  const { data: packageData, isLoading: isLoadingPackages, setSearch, clearData } = useGetPackageData();
   const { principalWarehouseId, isLoading } = useGetPrincipalWarehouseId();
+  const { packages: packageData, isLoading: isLoadingPackages } = useGetPackageData(principalWarehouseId, isLoading);
   const {
     data: articlesRes,
     isLoading: isLoadingArticles,
@@ -127,9 +117,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   const setArticlesSelected = useProgrammingRegisterStore((state) => state.setArticlesSelected);
   const [articleSelected, setArticleSelected] = useState<{ id: string; nombre: string; cantidad: number } | null>();
   const [articleAmount, setArticleAmount] = useState('0');
-  let articlesList = articles
-    .filter((a) => a.stockActual > 0)
-    .filter((a) => !articlesSelected.some((as) => as.id === a.id_Articulo));
+  const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
 
   const handleAmountChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const num = e.target.value;
@@ -146,14 +134,32 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
     if (articlesSelected.find((article) => article.id === id)) {
       return toast.warning('El artículo seleccionado ya se encuentra en la lista');
     }
-    setArticlesSelected([...articlesSelected, { ...articleSelected, cantidad: parseInt(articleAmount) }]);
+    const originalArticle = articlesRes.find((a) => a.id_Articulo === id);
+    setArticlesSelected([
+      ...articlesSelected,
+      { ...articleSelected, cantidad: parseInt(articleAmount), cantidadDisponible: originalArticle?.stockActual },
+    ]);
     setArticleSelected(undefined);
     setArticleAmount('0');
   };
 
   useEffect(() => {
-    () => clearData();
-  }, []);
+    if (isLoadingArticles) return;
+    setArticles(articlesRes);
+  }, [isLoadingArticles, articlesRes]);
+
+  const handleSubmit = () => {
+    if (articlesSelected.length === 0) return toast.warning('Agrega artículos al paquete');
+    if (
+      articlesSelected.some(
+        (a) => (a.cantidadDisponible as number) < 1 || (a.cantidadDisponible as number) < a.cantidad
+      )
+    ) {
+      return toast.warning('No hay suficiente stock de alguno de los artículos seleccionados');
+    }
+    setStep(step + 1);
+  };
+
   return (
     <>
       <HeaderModal setOpen={props.setOpen} title="Paquete de medicinas" />
@@ -168,9 +174,27 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
           options={packageData ?? []}
           sx={{ width: { xs: 350, sm: 400 } }}
           noOptionsText="No se encontraron paquetes"
-          renderInput={(params) => (
-            <TextField {...params} placeholder="Paquetes de artículos" onChange={(e) => setSearch(e.target.value)} />
-          )}
+          renderInput={(params) => <TextField {...params} placeholder="Paquetes de artículos" />}
+          onChange={(_, val) => {
+            if (!val) return;
+            setPackageSelected(val);
+            setArticlesSelected(
+              val.contenido.map((a: any) => {
+                return {
+                  id: a.id_Articulo,
+                  nombre: a.nombre,
+                  cantidad: a.cantidadSeleccionar,
+                  cantidadDisponible: a.cantidad,
+                };
+              })
+            );
+          }}
+          onInputChange={(_, __, reason) => {
+            if (reason === 'clear') {
+              setPackageSelected(null);
+            }
+          }}
+          value={packageSelected}
         />
         <Divider sx={{ my: 1 }} />
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
@@ -191,7 +215,11 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
               }}
               loading={isLoadingArticles}
               getOptionLabel={(option) => option.nombre}
-              options={articlesList ?? []}
+              options={
+                articles
+                  .filter((a) => a.stockActual > 0)
+                  .filter((a) => !articlesSelected.some((as) => as.id === a.id_Articulo)) ?? []
+              }
               onInputChange={(_, __, reason) => {
                 if (reason === 'clear') {
                   setArticleSelected(undefined);
@@ -262,14 +290,16 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
         <Button variant="outlined" onClick={() => setStep(step - 1)}>
           Regresar
         </Button>
-        <Button variant="contained">Continuar</Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Continuar
+        </Button>
       </Box>
     </>
   );
 };
 
 const MedicineSelectedTable = (props: {
-  data: { id: string; nombre: string; cantidad: number }[];
+  data: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[];
   articlesRes: IExistingArticle[];
 }) => {
   return (
@@ -286,39 +316,72 @@ const MedicineSelectedTable = (props: {
 };
 
 const MedicineSelectedTableBody = (props: {
-  data: { id: string; nombre: string; cantidad: number }[];
+  data: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[];
   articlesRes: IExistingArticle[];
 }) => {
   return (
     <TableBody>
       {props.data.map((d) => (
-        <MedicineSelectedTableRow data={d} key={d.id} articlesRes={props.articlesRes} />
+        <MedicineSelectedTableRow data={d} key={d.id} />
       ))}
     </TableBody>
   );
 };
 
 const MedicineSelectedTableRow = (props: {
-  data: { id: string; nombre: string; cantidad: number };
-  articlesRes: IExistingArticle[];
+  data: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number };
 }) => {
   const { data } = props;
   const articlesSelected = useProgrammingRegisterStore((state) => state.articlesSelected);
   const setArticlesSelected = useProgrammingRegisterStore((state) => state.setArticlesSelected);
   const [edit, setEdit] = useState(false);
+  const [editedAmount, setEditedAmount] = useState(data.cantidad.toString());
+  console.log({ data });
   const handleRemoveArticle = () => {
     setArticlesSelected(articlesSelected.filter((a) => a.id !== data.id));
   };
-  const specificArticle = props.articlesRes.find((a) => a.id_Articulo === data.id);
+  const handleEditArticle = () => {
+    setEdit(!edit);
+  };
+  const handleSaveEditArticle = () => {
+    if (parseInt(editedAmount) > (data.cantidadDisponible as number))
+      return toast.warning('La cantidad excede el stock actual!');
+    setArticlesSelected(
+      articlesSelected.map((a) => (a.id === data.id ? { ...a, cantidad: parseInt(editedAmount) } : a))
+    );
+    setEdit(!edit);
+  };
+  const handleAmountChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const num = e.target.value.trim();
+    if (!isValidInteger(num)) return toast.warning('Escribe un número valido!');
+    setEditedAmount(num);
+  };
   return (
     <TableRow>
-      <TableCell>{data.nombre}</TableCell>
+      <TableCell>
+        <Box sx={{ display: 'flex', alignItems: 'center', columnGap: 1 }}>
+          {(data.cantidadDisponible as number) < 1 && (
+            <Tooltip title="No hay stock">
+              <Box>{<WarningAmber color="error" />}</Box>
+            </Tooltip>
+          )}
+          {(data.cantidadDisponible as number) > 0 && (data.cantidadDisponible as number) < data.cantidad && (
+            <Tooltip title="La cantidad excede el stock">
+              <Box>
+                <WarningAmber color="warning" />
+              </Box>
+            </Tooltip>
+          )}
+          <Typography variant="caption">{data.nombre}</Typography>
+        </Box>
+      </TableCell>
       <TableCell>
         {edit ? (
           <TextField
             label="Cantidad"
-            helperText={`Cantidad disponible ${(specificArticle?.stockActual as number) - data.cantidad}`}
-            defaultValue={data.cantidad}
+            helperText={`Cantidad disponible ${data.cantidadDisponible as number}`}
+            value={editedAmount}
+            onChange={handleAmountChange}
           />
         ) : (
           data.cantidad
@@ -326,12 +389,12 @@ const MedicineSelectedTableRow = (props: {
       </TableCell>
       <TableCell>
         <Box>
-          <Tooltip title="Editar cantidad" onClick={() => setEdit(!edit)}>
+          <Tooltip title="Editar cantidad" onClick={() => (edit ? handleSaveEditArticle() : handleEditArticle())}>
             <IconButton>{edit ? <Save /> : <Edit />}</IconButton>
           </Tooltip>
           <Tooltip title="Eliminar" onClick={handleRemoveArticle}>
             <IconButton>
-              <Delete />
+              <Delete color="error" />
             </IconButton>
           </Tooltip>
         </Box>

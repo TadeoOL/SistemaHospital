@@ -21,7 +21,14 @@ import {
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { Cancel, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useGetAllSurgeryProcedures } from '../../../hooks/programming/useGetAllSurgeryProcedure';
-import { FieldErrorsImpl, SubmitHandler, UseControllerProps, UseFormRegister, useForm } from 'react-hook-form';
+import {
+  FieldErrorsImpl,
+  SubmitHandler,
+  UseControllerProps,
+  UseFormSetValue,
+  UseFormWatch,
+  useForm,
+} from 'react-hook-form';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { useGetMedics } from '../../../hooks/programming/useGetDoctors';
 import { useGetAnesthesiologists } from '../../../hooks/hospitalization/useGetAnesthesiologists';
@@ -51,6 +58,12 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
   const setEvidencePdf = useProgrammingRegisterStore((state) => state.setEvidencePdf);
   const rejectedMedicId = useProgrammingRegisterStore((state) => state.rejectedMedicId);
   const setRejectMedicId = useProgrammingRegisterStore((state) => state.setRejectedMedicId);
+  const setProcedures = useProgrammingRegisterStore((state) => state.setProcedures);
+  const setMedicId = useProgrammingRegisterStore((state) => state.setMedicId);
+  const setAnesthesiologistId = useProgrammingRegisterStore((state) => state.setAnesthesiologistId);
+  const procedures = useProgrammingRegisterStore((state) => state.procedures);
+  const medicId = useProgrammingRegisterStore((state) => state.medicId);
+  const anesthesiologistId = useProgrammingRegisterStore((state) => state.anesthesiologistId);
 
   const handleChange = (event: any) => {
     setValue('medicId', '');
@@ -66,12 +79,13 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
   } = useForm<Inputs>({
     resolver: zodResolver(procedureAndDoctorSelectorSchema),
     defaultValues: {
-      proceduresId: [],
-      medicId: '',
-      anesthesiologistId: '',
+      proceduresId: procedures,
+      medicId: medicId,
+      anesthesiologistId: anesthesiologistId,
     },
   });
   const watchProceduresId = watch('proceduresId');
+  const watchAnesthesiologistId = watch('anesthesiologistId');
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     if (
@@ -81,7 +95,9 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
       toast.error('Error, debes seleccionar un medico y un archivo para continuar.');
     }
     console.log(data);
-    // props.setOpen(false);
+    setProcedures(data.proceduresId);
+    setMedicId(data.medicId);
+    setAnesthesiologistId(data.anesthesiologistId);
     setStep(step + 1);
   };
 
@@ -146,8 +162,9 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
             error={errors}
             name="medicId"
             handleChange={handleChange}
-            register={register}
             valueRadioButton={valueRadioButton}
+            setValue={setValue}
+            watch={watch}
           />
           <Divider sx={{ my: 1 }} />
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -158,11 +175,14 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
               loading={isLoadingAnesthesiologists}
               getOptionLabel={(option) => option.nombre}
               options={anesthesiologistsData}
+              value={anesthesiologistsData.find((a) => a.id === watchAnesthesiologistId) ?? null}
               noOptionsText="No se encontraron anestesiólogos"
+              onChange={(_, val) => {
+                setValue('anesthesiologistId', val?.id ?? '');
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  {...register('anesthesiologistId')}
                   error={!!errors.anesthesiologistId?.message}
                   helperText={errors.anesthesiologistId?.message}
                   placeholder="Anestesiólogo"
@@ -196,7 +216,8 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
 interface MedicSelectComponentProps<T extends Inputs> extends UseControllerProps<T> {
   handleChange: (event: ChangeEvent<HTMLInputElement>, value: string) => void;
   valueRadioButton: string;
-  register: UseFormRegister<Inputs>;
+  setValue: UseFormSetValue<Inputs>;
+  watch: UseFormWatch<Inputs>;
   error: FieldErrorsImpl<T>;
 }
 
@@ -204,7 +225,8 @@ const MedicSelectComponent = <T extends Inputs>({
   error,
   handleChange,
   valueRadioButton,
-  register,
+  setValue,
+  watch,
 }: MedicSelectComponentProps<T>) => {
   const { doctorsData, isLoadingMedics } = useGetMedics();
 
@@ -227,10 +249,13 @@ const MedicSelectComponent = <T extends Inputs>({
             getOptionLabel={(option) => option.nombre}
             options={doctorsData}
             noOptionsText="No se encontraron medicos"
+            onChange={(_, val) => {
+              setValue('medicId', val?.id ?? '');
+            }}
+            value={doctorsData.find((d) => d.id === watch('medicId')) ?? null}
             renderInput={(params) => (
               <TextField
                 {...params}
-                {...register('medicId')}
                 error={!!error?.medicId?.message}
                 helperText={error?.medicId?.message as string}
                 placeholder="Medico"

@@ -27,7 +27,7 @@ export const convertBase64 = (file: File): Promise<string> => {
 
 export const isValidInteger = (value: string) => {
   if (value.trim() === '') return true;
-  const regex = /^[1-9][0-9]*$/;
+  const regex = /^([1-9][0-9]*)$/;
   return regex.test(value);
 };
 

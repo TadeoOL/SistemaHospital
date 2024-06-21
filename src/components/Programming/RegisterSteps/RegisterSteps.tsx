@@ -6,6 +6,7 @@ import { ClinicalDataForm } from './ClinicalDataForm';
 import { RoomReservationModal } from './RoomReservationModal';
 import { ProcedureAndDoctorSelectorModal } from './ProcedureAndDoctorSelectorModal';
 import { MedicinePackageSelectorModal } from './MedicinePackageSelectorModal';
+import { BiomedicalEquipmentSelectorModal } from './BiomedicalEquipmentSelectorModal';
 
 const style = {
   position: 'absolute',
@@ -34,7 +35,8 @@ export const RegisterSteps = (props: RegisterStepsProps) => {
     1: <PatientRegistrationForm setOpen={props.setOpen} />,
     2: <ProcedureAndDoctorSelectorModal setOpen={props.setOpen} />,
     3: <MedicinePackageSelectorModal setOpen={props.setOpen} />,
-    4: <ClinicalDataForm setOpen={props.setOpen} />,
+    4: <BiomedicalEquipmentSelectorModal setOpen={props.setOpen} />,
+    5: <ClinicalDataForm setOpen={props.setOpen} />,
   };
 
   useEffect(() => {

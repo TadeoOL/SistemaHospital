@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { IClinicalData, IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
+import { IBiomedicalEquipment } from '../../types/hospitalizationTypes';
 const initialPatientValues: IPatient = {
   name: '',
   lastName: '',
@@ -32,7 +33,6 @@ const initialClinicalData: IClinicalData = {
 };
 
 const initialRoomValue = {
-  procedures: [],
   roomValues: [],
 };
 
@@ -40,9 +40,13 @@ const initialValues = {
   step: 0,
   patient: initialPatientValues,
   clinicalData: initialClinicalData,
+  procedures: [],
   evidencePdf: '',
   rejectedMedicId: '',
   articlesSelected: [],
+  biomedicalEquipmentsSelected: [],
+  medicId: '',
+  anesthesiologistId: '',
 };
 
 interface State {
@@ -56,7 +60,10 @@ interface State {
   fetchEvents: boolean;
   evidencePdf: string;
   rejectedMedicId: string;
-  articlesSelected: { id: string; nombre: string; cantidad: number }[];
+  articlesSelected: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[];
+  biomedicalEquipmentsSelected: IBiomedicalEquipment[];
+  medicId: string;
+  anesthesiologistId: string;
 }
 
 interface Action {
@@ -69,7 +76,12 @@ interface Action {
   clearEvents: () => void;
   setEvidencePdf: (evidencePdf: string) => void;
   setRejectedMedicId: (rejectedMedicId: string) => void;
-  setArticlesSelected: (articlesSelected: { id: string; nombre: string; cantidad: number }[]) => void;
+  setArticlesSelected: (
+    articlesSelected: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[]
+  ) => void;
+  setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected: IBiomedicalEquipment[]) => void;
+  setMedicId: (medicId: string) => void;
+  setAnesthesiologistId: (anesthesiologistId: string) => void;
 }
 interface ActionRoom {
   setAppointmentStartDate: (appointmentStartDate: Date) => void;
@@ -90,8 +102,12 @@ export const useProgrammingRegisterStore = create<State & Action & ActionRoom & 
   events: [],
   ...initialValues,
   ...initialRoomValue,
-  setArticlesSelected: (articlesSelected: { id: string; nombre: string; cantidad: number }[]) =>
-    set({ articlesSelected }),
+  setMedicId: (medicId: string) => set(() => ({ medicId })),
+  setAnesthesiologistId: (anesthesiologistId: string) => set(() => ({ anesthesiologistId })),
+  setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected) => set({ biomedicalEquipmentsSelected }),
+  setArticlesSelected: (
+    articlesSelected: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[]
+  ) => set({ articlesSelected }),
   setRejectedMedicId: (rejectedMedicId: string) => set(() => ({ rejectedMedicId })),
   setEvidencePdf: (evidencePdf: string) => set(() => ({ evidencePdf })),
   setFetchEvents: (fetchEvents: boolean) => set(() => ({ fetchEvents })),

@@ -23,7 +23,7 @@ import { useState } from 'react';
 import { createPatient } from '../../../../services/programming/patientService';
 import { IPatient } from '../../../../types/types';
 import { createProgrammingRequest } from '../../../../services/programming/programmingRequest';
-import { useGetDoctors } from '../../../../hooks/programming/useGetDoctors';
+import { useGetMedics } from '../../../../hooks/programming/useGetDoctors';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { programmingRegisterSchema } from '../../../../schema/programming/programmingSchemas';
 
@@ -56,7 +56,7 @@ interface Inputs {
 
 export const ProgrammingRegisterModal = (props: ProgrammingRegisterModalProps) => {
   const { data: proceduresData, isLoadingProcedures } = useGetAllSurgeryProcedures();
-  const { doctorsData, isLoadingDoctors } = useGetDoctors();
+  const { doctorsData, isLoadingMedics } = useGetMedics();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -116,7 +116,7 @@ export const ProgrammingRegisterModal = (props: ProgrammingRegisterModalProps) =
     }
   };
 
-  if (isLoadingProcedures || isLoadingDoctors)
+  if (isLoadingProcedures || isLoadingMedics)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -244,7 +244,7 @@ export const ProgrammingRegisterModal = (props: ProgrammingRegisterModalProps) =
                     />
                   </LocalizationProvider>
                 )}
-              ></Controller>
+              />
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography>Seleccionar medico</Typography>

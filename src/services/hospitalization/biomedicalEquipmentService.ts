@@ -25,3 +25,8 @@ export const disableBiomedicalEquipment = async (id: string) => {
   const res = await axios.put(`${apiBiomedicalEquipment}/deshabilitar-equipo-biomedico/`, { id: id });
   return res.data;
 };
+
+export const getAllBiomedicalEquipment = async () => {
+  const res = await axios.get(`${apiBiomedicalEquipment}/lista-equipo-biomedico`);
+  return res.data;
+};
