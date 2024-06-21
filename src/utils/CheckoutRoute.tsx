@@ -81,7 +81,6 @@ const useJoinRoom = (
         console.log(error);
       }
     };
-    console.log("q chucha", conn);
     connect(profile?.id as string, 'Ventas');
 
     return () => {

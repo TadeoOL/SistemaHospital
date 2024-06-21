@@ -132,17 +132,17 @@ export const CategoryTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell width={'37.5%'}>
                 <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'37.5%'}>
                 <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'25%'}>
                 <SortComponent tableCellLabel="Almacén" headerName="almacen" setSortFunction={setSort} />
               </TableCell>
 
-              <TableCell>Acciones</TableCell>
+              <TableCell width={'10%'}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
