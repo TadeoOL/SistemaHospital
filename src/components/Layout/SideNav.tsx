@@ -7,10 +7,10 @@ import {
   Drawer,
   List,
   Stack,
-  Tooltip,
-  TooltipProps,
+  //Tooltip,
+  //TooltipProps,
   Typography,
-  tooltipClasses,
+  //tooltipClasses,
   useMediaQuery,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -28,7 +28,7 @@ import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTa
 import { SideNavWarehouses } from './SideNavWarehouses';
 
 const SelectedOptionColor = '#9ca1a5';
-const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+/*const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
@@ -38,7 +38,7 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
     fontSize: theme.typography.pxToRem(12),
     border: '1px solid #dadde9',
   },
-}));
+}));*/
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -196,7 +196,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
             '&.Mui-selected:hover': { backgroundColor: SelectedOptionColor },
           }}
         >
-          {children && children.length !== 0 ? (
+          {/*children && children.length !== 0 ? (
             <>
               {/*<HtmlTooltip
                 sx={{ visibility: childOpen ? 'hidden' : 'visible' }}
@@ -263,12 +263,13 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
               >
                 {iconInSideBar}
               </HtmlTooltip>
-              Tooltip anidada cambiar
-              */}
+              }
+
             </>
           ) : (
             <>{iconInSideBar}</>
-          )}
+          )*/}
+          {iconInSideBar}
           <Box
             sx={{
               justifyContent: 'flex-end',
