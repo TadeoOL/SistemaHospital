@@ -198,7 +198,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
         >
           {children && children.length !== 0 ? (
             <>
-              <HtmlTooltip
+              {/*<HtmlTooltip
                 sx={{ visibility: childOpen ? 'hidden' : 'visible' }}
                 title={
                   <React.Fragment>
@@ -263,6 +263,8 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
               >
                 {iconInSideBar}
               </HtmlTooltip>
+              Tooltip anidada cambiar
+              */}
             </>
           ) : (
             <>{iconInSideBar}</>
