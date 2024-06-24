@@ -45,12 +45,16 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 600 },
-  bgcolor: 'background.paper',
+
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   display: 'flex',
   flexDirection: 'column',
   maxHeight: 600,
+};
+
+const style2 = {
+  bgcolor: 'background.paper',
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     width: '0.4em',
@@ -223,126 +227,128 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Editar paquete de articulos" />
-      <form noValidate onSubmit={handleSubmit(onSubmit)}>
-        <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-          <Grid component="span" container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography>Nombre</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.nombre}
-                helperText={errors?.nombre?.message}
-                size="small"
-                placeholder="Escriba un Nombre"
-                {...register('nombre')}
-              />
+      <Box sx={{ style2 }}>
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+          <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
+            <Grid component="span" container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Typography>Nombre</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.nombre}
+                  helperText={errors?.nombre?.message}
+                  size="small"
+                  placeholder="Escriba un Nombre"
+                  {...register('nombre')}
+                />
+              </Grid>
+              <Grid item xs={12} md={12}>
+                <Typography>Descripción</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.descripcion}
+                  size="small"
+                  placeholder="Escriba una Descripción"
+                  {...register('descripcion')}
+                  multiline
+                  onChange={handleChangeText}
+                  helperText={
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexGrow: 1,
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
+                      <Box>{`${valueState.length}/${200}`}</Box>
+                    </Box>
+                  }
+                  maxRows={3}
+                  inputProps={{ maxLength: 200 }}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={12}>
-              <Typography>Descripción</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.descripcion}
-                size="small"
-                placeholder="Escriba una Descripción"
-                {...register('descripcion')}
-                multiline
-                onChange={handleChangeText}
-                helperText={
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexGrow: 1,
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
-                    <Box>{`${valueState.length}/${200}`}</Box>
-                  </Box>
-                }
-                maxRows={3}
-                inputProps={{ maxLength: 200 }}
-              />
-            </Grid>
-          </Grid>
-          <Box
-            sx={{
-              display: 'flex',
-              flex: 1,
-              justifyContent: 'space-between',
-              columnGap: 2,
-              flexDirection: { xs: 'column', sm: 'row' },
-              rowGap: { xs: 2, sm: 0 },
-            }}
-          >
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterArticleOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setArticleSelected(val);
-                  setArticleError(false);
-                }}
-                loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
-                getOptionLabel={(option) => option.nombre}
-                options={dataWerehouseSelectedArticles}
-                value={articleSelected}
-                noOptionsText="No se encontraron artículos"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={articleError}
-                    helperText={articleError && 'Selecciona un articulo'}
-                    placeholder="Artículos"
-                    sx={{ width: '90%' }}
-                    onChange={(e) => {
-                      setSerch(e.target.value);
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-            <Stack sx={{ display: 'flex' }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
-              <TextField
-                sx={{ width: '50%' }}
-                size="small"
-                fullWidth
-                placeholder="Cantidad"
-                value={amountText}
-                error={amountError}
-                helperText={amountError && 'Agrega una cantidad'}
-                onChange={(e) => {
-                  if (!isValidInteger(e.target.value)) return;
-                  setAmountText(e.target.value);
-                  setAmountError(false);
-                }}
-              />
-            </Stack>
             <Box
               sx={{
                 display: 'flex',
-                mt: 2,
+                flex: 1,
+                justifyContent: 'space-between',
+                columnGap: 2,
+                flexDirection: { xs: 'column', sm: 'row' },
+                rowGap: { xs: 2, sm: 0 },
               }}
             >
-              <AnimateButton>
-                <Button
-                  size="medium"
-                  variant="contained"
-                  startIcon={<AddCircleIcon />}
-                  onClick={() => handleAddArticles()}
-                >
-                  Agregar
-                </Button>
-              </AnimateButton>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterArticleOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setArticleSelected(val);
+                    setArticleError(false);
+                  }}
+                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  getOptionLabel={(option) => option.nombre}
+                  options={dataWerehouseSelectedArticles}
+                  value={articleSelected}
+                  noOptionsText="No se encontraron artículos"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={articleError}
+                      helperText={articleError && 'Selecciona un articulo'}
+                      placeholder="Artículos"
+                      sx={{ width: '90%' }}
+                      onChange={(e) => {
+                        setSerch(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+              <Stack sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
+                <TextField
+                  sx={{ width: '50%' }}
+                  size="small"
+                  fullWidth
+                  placeholder="Cantidad"
+                  value={amountText}
+                  error={amountError}
+                  helperText={amountError && 'Agrega una cantidad'}
+                  onChange={(e) => {
+                    if (!isValidInteger(e.target.value)) return;
+                    setAmountText(e.target.value);
+                    setAmountError(false);
+                  }}
+                />
+              </Stack>
+              <Box
+                sx={{
+                  display: 'flex',
+                  mt: 2,
+                }}
+              >
+                <AnimateButton>
+                  <Button
+                    size="medium"
+                    variant="contained"
+                    startIcon={<AddCircleIcon />}
+                    onClick={() => handleAddArticles()}
+                  >
+                    Agregar
+                  </Button>
+                </AnimateButton>
+              </Box>
             </Box>
-          </Box>
 
-          <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} />
-        </Stack>
-      </form>
+            <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} />
+          </Stack>
+        </form>
+      </Box>
     </Box>
   );
 };

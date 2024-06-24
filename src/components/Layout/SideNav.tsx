@@ -7,10 +7,10 @@ import {
   Drawer,
   List,
   Stack,
-  Tooltip,
-  TooltipProps,
+  //Tooltip,
+  //TooltipProps,
   Typography,
-  tooltipClasses,
+  //tooltipClasses,
   useMediaQuery,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -28,17 +28,17 @@ import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTa
 import { SideNavWarehouses } from './SideNavWarehouses';
 
 const SelectedOptionColor = '#9ca1a5';
-const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+/*const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: 'rgba(0, 0, 0, 0.87)',
+    backgroundColor: '#373b3e',
     color: 'rgba(255, 255, 255, 0.87)',
     maxWidth: 220,
     fontSize: theme.typography.pxToRem(12),
     border: '1px solid #dadde9',
   },
-}));
+}));*/
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -196,9 +196,9 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
             '&.Mui-selected:hover': { backgroundColor: SelectedOptionColor },
           }}
         >
-          {children && children.length !== 0 ? (
+          {/*children && children.length !== 0 ? (
             <>
-              <HtmlTooltip
+              {/*<HtmlTooltip
                 sx={{ visibility: childOpen ? 'hidden' : 'visible' }}
                 title={
                   <React.Fragment>
@@ -263,10 +263,13 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
               >
                 {iconInSideBar}
               </HtmlTooltip>
+              }
+
             </>
           ) : (
             <>{iconInSideBar}</>
-          )}
+          )*/}
+          {iconInSideBar}
           <Box
             sx={{
               justifyContent: 'flex-end',

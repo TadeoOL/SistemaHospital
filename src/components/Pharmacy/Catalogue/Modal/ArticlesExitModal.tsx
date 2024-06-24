@@ -58,12 +58,16 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 600 },
-  bgcolor: 'background.paper',
+
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   display: 'flex',
   flexDirection: 'column',
   maxHeight: 600,
+};
+
+const style2 = {
+  bgcolor: 'background.paper',
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     width: '0.4em',
@@ -375,251 +379,253 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Salida paquete de artículos" />
-      {isLoadingWarehouse ? (
-        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
-          <CircularProgress size={40} />
-        </Box>
-      ) : (
-        <form noValidate onSubmit={handleSubmit(onSubmit)}>
-          <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterPackageOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setPackageSelected(val);
-                  if (val !== null) {
-                    handleAddArticlesFromPackage(val as IArticlesPackage);
-                  }
-                }}
-                loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
-                getOptionLabel={(option) => option.nombre}
-                options={dataWerehouseSelectedPackages}
-                value={packageSelected}
-                noOptionsText="No se encontraron paquetes"
-                renderInput={(params) => (
-                  <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
-                )}
-              />
-            </Stack>
-            <Box
-              sx={{
-                display: 'flex',
-                flex: 1,
-                justifyContent: 'space-between',
-                columnGap: 2,
-                flexDirection: { xs: 'column', sm: 'row' },
-                rowGap: { xs: 2, sm: 0 },
-              }}
-            >
+      <Box sx={style2}>
+        {isLoadingWarehouse ? (
+          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
+            <CircularProgress size={40} />
+          </Box>
+        ) : (
+          <form noValidate onSubmit={handleSubmit(onSubmit)}>
+            <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
               <Stack sx={{ display: 'flex', flex: 1 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
                 <Autocomplete
                   disablePortal
                   fullWidth
-                  filterOptions={filterArticleOptions}
+                  filterOptions={filterPackageOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
+                    setPackageSelected(val);
                     if (val !== null) {
-                      if (
-                        !(
-                          articles.map((art) => art.id_Articulo).includes(val.id_Articulo) ||
-                          articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
-                        )
-                      ) {
-                        setOpenLoteModal(true);
-                      }
-                      console.log(val);
-                      setArticleId(val.id_Articulo);
-                      setArticleSelected(val);
-                      setArticleError(false);
+                      handleAddArticlesFromPackage(val as IArticlesPackage);
                     }
                   }}
-                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
                   getOptionLabel={(option) => option.nombre}
-                  options={dataWerehouseSelectedArticles}
-                  value={articleSelected}
-                  noOptionsText="No se encontraron artículos"
+                  options={dataWerehouseSelectedPackages}
+                  value={packageSelected}
+                  noOptionsText="No se encontraron paquetes"
+                  renderInput={(params) => (
+                    <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
+                  )}
+                />
+              </Stack>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: 1,
+                  justifyContent: 'space-between',
+                  columnGap: 2,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  rowGap: { xs: 2, sm: 0 },
+                }}
+              >
+                <Stack sx={{ display: 'flex', flex: 1 }}>
+                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+                  <Autocomplete
+                    disablePortal
+                    fullWidth
+                    filterOptions={filterArticleOptions}
+                    onChange={(e, val) => {
+                      e.stopPropagation();
+                      if (val !== null) {
+                        if (
+                          !(
+                            articles.map((art) => art.id_Articulo).includes(val.id_Articulo) ||
+                            articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
+                          )
+                        ) {
+                          setOpenLoteModal(true);
+                        }
+                        console.log(val);
+                        setArticleId(val.id_Articulo);
+                        setArticleSelected(val);
+                        setArticleError(false);
+                      }
+                    }}
+                    loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                    getOptionLabel={(option) => option.nombre}
+                    options={dataWerehouseSelectedArticles}
+                    value={articleSelected}
+                    noOptionsText="No se encontraron artículos"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={articleError}
+                        helperText={articleError && 'Selecciona un articulo'}
+                        onChange={(e) => {
+                          setSearch(e.target.value);
+                        }}
+                        placeholder="Artículos"
+                        sx={{ width: '50%' }}
+                      />
+                    )}
+                  />
+                </Stack>
+              </Box>
+              <ArticlesTable
+                setOpen={props.setOpen}
+                submitData={onSubmit}
+                initialData={articlesFetchedAM}
+                setLoteEditing={setLoteEditing}
+                setLoteSelected={setLoteSelected}
+                setArticleSelected={setArticleSelected}
+                setOpenLoteModal={setOpenLoteModal}
+                setArticles={setArticles}
+                articles={articles || []}
+                articlesPending={articlesToSelect}
+                setArticlesPending={setArticlesToSelect}
+                setTemporalLoteEditing={setTemporalLoteEditing}
+                setArticleId={setArticleId}
+                setAmountToSelect={setAmountToSelect}
+              />
+              <Box
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography textAlign={'center'}>Motivos de salida:</Typography>
+
+                <RadioGroup
+                  sx={{
+                    mx: 'auto',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'row',
+                  }}
+                  value={reasonMessage}
+                  onChange={(e) => {
+                    setReasonMessage(e.target.value);
+                    setRoomSelected(null);
+                  }}
+                >
+                  {radioOptions.map((option) => (
+                    <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
+                  ))}
+                  <TextField
+                    inputRef={textFieldRef}
+                    label={'Razón de salida'}
+                    error={true}
+                    sx={{
+                      visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
+                    }}
+                  />
+                </RadioGroup>
+              </Box>
+              {(reasonMessage === 'Quirofano' || reasonMessage === 'Hospitalizacion') && (
+                <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
+                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccion de cuarto</Typography>
+                  {reasonMessage === 'Quirofano' ? (
+                    <Autocomplete
+                      disablePortal
+                      fullWidth
+                      onChange={(e, val) => {
+                        e.stopPropagation();
+                        setRoomSelected(val as string);
+                        setRoomError(false);
+                      }}
+                      options={defaultRoomsQuirofano}
+                      value={roomSelected}
+                      noOptionsText="No se encontraron enfermeros"
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={roomError}
+                          helperText={roomError && 'Selecciona un cuarto'}
+                          placeholder="Cuartos"
+                          sx={{ width: '50%' }}
+                        />
+                      )}
+                    />
+                  ) : (
+                    <Autocomplete
+                      disablePortal
+                      fullWidth
+                      onChange={(e, val) => {
+                        e.stopPropagation();
+                        setRoomSelected(val as string);
+                        setRoomError(false);
+                      }}
+                      options={defaultRoomsHospitalizacion}
+                      value={roomSelected}
+                      noOptionsText="No se encontraron enfermeros"
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={roomError}
+                          helperText={roomError && 'Selecciona un cuarto'}
+                          placeholder="Cuartos"
+                          sx={{ width: '50%' }}
+                        />
+                      )}
+                    />
+                  )}
+                </Stack>
+              )}
+              <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  //filterOptions={filterArticleOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setNurseSelected(val as string);
+                    setArticleError(false); //cambiar
+                  }}
+                  loading={isLoadingArticlesWareH}
+                  //getOptionLabel={(option) => option.nombre}
+                  options={nursesData}
+                  value={nurseSelected}
+                  noOptionsText="No se encontraron enfermeros"
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       error={articleError}
-                      helperText={articleError && 'Selecciona un articulo'}
-                      onChange={(e) => {
-                        setSearch(e.target.value);
-                      }}
-                      placeholder="Artículos"
+                      helperText={articleError && 'Selecciona un enfermero'}
+                      placeholder="Enfermeros"
                       sx={{ width: '50%' }}
                     />
                   )}
                 />
               </Stack>
-            </Box>
-            <ArticlesTable
-              setOpen={props.setOpen}
-              submitData={onSubmit}
-              initialData={articlesFetchedAM}
-              setLoteEditing={setLoteEditing}
-              setLoteSelected={setLoteSelected}
-              setArticleSelected={setArticleSelected}
-              setOpenLoteModal={setOpenLoteModal}
-              setArticles={setArticles}
-              articles={articles || []}
-              articlesPending={articlesToSelect}
-              setArticlesPending={setArticlesToSelect}
-              setTemporalLoteEditing={setTemporalLoteEditing}
-              setArticleId={setArticleId}
-              setAmountToSelect={setAmountToSelect}
-            />
-            <Box
-              sx={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography textAlign={'center'}>Motivos de salida:</Typography>
-
-              <RadioGroup
+              <Box
                 sx={{
-                  mx: 'auto',
-                  flex: 1,
                   display: 'flex',
-                  flexDirection: 'row',
-                }}
-                value={reasonMessage}
-                onChange={(e) => {
-                  setReasonMessage(e.target.value);
-                  setRoomSelected(null);
+                  flex: 1,
+                  justifyContent: 'space-between',
+                  mt: 2,
+                  bottom: 0,
                 }}
               >
-                {radioOptions.map((option) => (
-                  <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
-                ))}
-                <TextField
-                  inputRef={textFieldRef}
-                  label={'Razón de salida'}
-                  error={true}
-                  sx={{
-                    visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
+                <Button
+                  variant="outlined"
+                  startIcon={<Cancel />}
+                  color="error"
+                  onClick={() => {
+                    props.setOpen(false);
                   }}
-                />
-              </RadioGroup>
-            </Box>
-            {(reasonMessage === 'Quirofano' || reasonMessage === 'Hospitalizacion') && (
-              <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccion de cuarto</Typography>
-                {reasonMessage === 'Quirofano' ? (
-                  <Autocomplete
-                    disablePortal
-                    fullWidth
-                    onChange={(e, val) => {
-                      e.stopPropagation();
-                      setRoomSelected(val as string);
-                      setRoomError(false);
-                    }}
-                    options={defaultRoomsQuirofano}
-                    value={roomSelected}
-                    noOptionsText="No se encontraron enfermeros"
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={roomError}
-                        helperText={roomError && 'Selecciona un cuarto'}
-                        placeholder="Cuartos"
-                        sx={{ width: '50%' }}
-                      />
-                    )}
-                  />
-                ) : (
-                  <Autocomplete
-                    disablePortal
-                    fullWidth
-                    onChange={(e, val) => {
-                      e.stopPropagation();
-                      setRoomSelected(val as string);
-                      setRoomError(false);
-                    }}
-                    options={defaultRoomsHospitalizacion}
-                    value={roomSelected}
-                    noOptionsText="No se encontraron enfermeros"
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={roomError}
-                        helperText={roomError && 'Selecciona un cuarto'}
-                        placeholder="Cuartos"
-                        sx={{ width: '50%' }}
-                      />
-                    )}
-                  />
-                )}
-              </Stack>
-            )}
-            <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                //filterOptions={filterArticleOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setNurseSelected(val as string);
-                  setArticleError(false); //cambiar
-                }}
-                loading={isLoadingArticlesWareH}
-                //getOptionLabel={(option) => option.nombre}
-                options={nursesData}
-                value={nurseSelected}
-                noOptionsText="No se encontraron enfermeros"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={articleError}
-                    helperText={articleError && 'Selecciona un enfermero'}
-                    placeholder="Enfermeros"
-                    sx={{ width: '50%' }}
-                  />
-                )}
-              />
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  endIcon={<Save />}
+                  disabled={articles.length === 0 || loadingSubmit}
+                  onClick={() => {
+                    onSubmit();
+                  }}
+                >
+                  Guardar
+                </Button>
+              </Box>
             </Stack>
-            <Box
-              sx={{
-                display: 'flex',
-                flex: 1,
-                justifyContent: 'space-between',
-                mt: 2,
-                bottom: 0,
-              }}
-            >
-              <Button
-                variant="outlined"
-                startIcon={<Cancel />}
-                color="error"
-                onClick={() => {
-                  props.setOpen(false);
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant="contained"
-                endIcon={<Save />}
-                disabled={articles.length === 0 || loadingSubmit}
-                onClick={() => {
-                  onSubmit();
-                }}
-              >
-                Guardar
-              </Button>
-            </Box>
-          </Stack>
-        </form>
-      )}
+          </form>
+        )}
+      </Box>
       <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
         <>
           <LoteSelectionRemake2
