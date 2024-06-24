@@ -8,6 +8,7 @@ import RuleIcon from '@mui/icons-material/Rule';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import {
@@ -33,7 +34,7 @@ import {
 
 export const ModuleList: IModuleItemsList[] = [
   {
-    categoryTitle: 'Dashboard',
+    categoryTitle: 'Inicio',
     moduleItems: [
       {
         title: 'Inicio',
@@ -155,12 +156,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <History sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
       },
-      /*{ Solicitud de usuario activar AAA
-        title: 'Solicitud usuario',
-        path: '/farmacia/solicitud-usuario',
-        icon: <History sx={{ color: '#fff' }} />,
+      {
+        title: 'Solicitud enfermero',
+        path: '/farmacia/solicitud-enfermero',
+        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
-      },*/
+      },
     ],
     path: 'farmacia',
   },

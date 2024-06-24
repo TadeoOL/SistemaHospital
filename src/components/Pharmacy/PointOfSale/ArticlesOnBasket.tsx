@@ -72,6 +72,13 @@ const CardItems = (props: CardItemsProps) => {
     setArticlesOnBasket(filterArticles);
   };
 
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
+    }
+    return text;
+  };
+
   return (
     <Card sx={{ position: 'relative', p: 1, bgcolor: alpha(neutral[100], 1), overflow: 'visible' }}>
       <IconButton
@@ -82,7 +89,7 @@ const CardItems = (props: CardItemsProps) => {
       </IconButton>
       <Stack sx={{ display: 'flex' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{article.nombre}</Typography>
+          <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{truncateText(article.nombre, 30)}</Typography>
         </Box>
         <Typography sx={{ fontSize: 11, fontWeight: 500 }}>Codigo: {article.codigoBarras}</Typography>
         <Typography sx={{ fontSize: 13, fontWeight: 500 }}>Lote: {props.fechaCaducidad}</Typography>

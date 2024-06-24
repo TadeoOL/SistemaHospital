@@ -1,7 +1,7 @@
-import { ICheckoutHistory } from '../../../types/types';
-import { getCheckoutHistory } from '../../../services/pharmacy/pointOfSaleService';
+import { InurseRequest } from '../../../types/types';
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
+import { getNurseRequestPending, getNurseEmiterRequestPending } from '../../../api/api.routes';
 
 interface State {
   count: number;
@@ -9,16 +9,14 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: ICheckoutHistory[];
+  data: InurseRequest[];
   loading: boolean;
+  status: number;
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
   startDate: string;
   endDate: string;
-  sellValue: number[];
-  minValue: number;
-  maxValue: number;
 }
 
 interface Action {
@@ -26,12 +24,13 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setStatus: (status: number) => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
-  fetchData: () => void;
+  fetchData: (isNurse: boolean) => void;
   setEnabled: (enabled: boolean) => void;
+  clearFilters: () => void;
   clearData: () => void;
-  setSellValue: (value: number[]) => void;
 }
 
 const initialValues = {
@@ -39,6 +38,7 @@ const initialValues = {
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
+  status: 1,
   pageSize: 10,
   data: [],
   loading: false,
@@ -47,23 +47,20 @@ const initialValues = {
   cancelToken: null as CancelTokenSource | null,
   startDate: '',
   endDate: '',
-  sellValue: [0, 100000],
-  minValue: 0,
-  maxValue: 1,
 };
 
-export const useUserRequestPaginationStore = create<State & Action>((set, get) => ({
+export const useNurseRequestPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
   setPageSize: (pageSize: number) => set({ pageSize }),
+  setStatus: (status: number) => set({ status }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setStartDate: (startDate: string) => set({ startDate, pageIndex: 0 }),
   setEndDate: (endDate: string) => set({ endDate, pageIndex: 0 }),
-  setSellValue: (sellValue: number[]) => set({ sellValue, pageIndex: 0 }),
-  fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize } = get();
+  fetchData: async (isNurse: boolean) => {
+    const { enabled, search, pageIndex, pageSize, status } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -74,17 +71,26 @@ export const useUserRequestPaginationStore = create<State & Action>((set, get) =
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getCheckoutHistory(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
-      );
-
+      let res: any;
+      if(isNurse){
+        console.log("enfermero");
+        res = await getNurseRequestPending(
+          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}`
+        );
+      }else{
+        res = await getNurseEmiterRequestPending(
+          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}&estatus=${status}`
+        );
+      }
+      
+      console.log("weragonateikit enimor",res.data);
       set({
         data: res.data,
         pageSize: res.pageSize,
         count: res.count,
         pageCount: res.pageCount,
-        minValue: res.valorMinimo,
-        maxValue: res.valorMaximo,
       });
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -97,6 +103,18 @@ export const useUserRequestPaginationStore = create<State & Action>((set, get) =
         set({ loading: false });
       }
     }
+  },
+  clearFilters: () => {
+    set({
+      pageCount: 0,
+      pageIndex: 0,
+      status: 1,
+      pageSize: 10,
+      search: '',
+      loading: true,
+      startDate: '',
+      endDate: '',
+    });
   },
   clearData: () => {
     set({ ...initialValues });
