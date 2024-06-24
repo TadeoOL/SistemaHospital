@@ -313,6 +313,7 @@ export const modifyArticle = async (article: IArticle) => {
     stockMinimo,
     unidadMedida,
     precioCompra,
+    precioVenta,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -327,6 +328,7 @@ export const modifyArticle = async (article: IArticle) => {
     id_subcategoria,
     unidadMedida,
     precioCompra,
+    precioVenta,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -1038,5 +1040,54 @@ export const articlesLoteDelete = async (data: { Id_ArticuloExistente: string })
 
 export const getLotesFromExistingArticles = async (paramUrl: string) => {
   const res = await axios.get(`/api/ArticuloExistente/obtener-lotes?${paramUrl}`);
+  return res.data;
+};
+
+//SolicitudEnfemero
+
+export const addNurseRequest = async (article: any) => {
+  const {
+    Cuarto,
+    Id_Paciente,
+    Id_CuentaPaciente,
+    Id_Enfermero,
+    NombreEnfermero,
+    SolicitadoEn,
+    Id_AlmacenSolicitado,
+    ListaSolicitud,
+  } = article;
+
+  const res = await axios.post(`/api/SolicitudEnfemero/registrar-solicitud-enfermero`, {
+    Cuarto,
+    Id_Paciente,
+    Id_CuentaPaciente,
+    Id_Enfermero,
+    NombreEnfermero,
+    SolicitadoEn,
+    Id_AlmacenSolicitado,
+    ListaSolicitud,
+  });
+  return res.data;
+};
+
+export const updateStatusNurseRequest = async (data: {
+  Id: string; 
+  EstadoSolicitud: number; 
+  Id_AlmacenOrigen: string; 
+  Lotes?: any; 
+}) => {
+  const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`,{
+    ...data}
+  );
+  return res.data;
+};
+
+export const getNurseRequestPending = async (paramUrl: string) => {
+  const res = await axios.get(`/api/SolicitudEnfemero/paginacion-solicitud-enfermero?${paramUrl}`);
+  return res.data;
+};
+
+export const getNurseEmiterRequestPending = async (paramUrl: string) => {
+  const res = await axios.get(`/api/SolicitudEnfemero/paginacion-solicitud-enfermero-emisor?${paramUrl}`);
   return res.data;
 };

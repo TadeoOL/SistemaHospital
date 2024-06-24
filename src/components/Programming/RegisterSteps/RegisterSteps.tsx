@@ -7,6 +7,7 @@ import { RoomReservationModal } from './RoomReservationModal';
 import { ProcedureAndDoctorSelectorModal } from './ProcedureAndDoctorSelectorModal';
 import { MedicinePackageSelectorModal } from './MedicinePackageSelectorModal';
 import { BiomedicalEquipmentSelectorModal } from './BiomedicalEquipmentSelectorModal';
+import { ProgrammingRegisterResume } from './ProgrammingRegisterResume';
 
 const style = {
   position: 'absolute',
@@ -37,12 +38,16 @@ export const RegisterSteps = (props: RegisterStepsProps) => {
     3: <MedicinePackageSelectorModal setOpen={props.setOpen} />,
     4: <BiomedicalEquipmentSelectorModal setOpen={props.setOpen} />,
     5: <ClinicalDataForm setOpen={props.setOpen} />,
+    6: <ProgrammingRegisterResume setOpen={props.setOpen} />,
   };
 
   useEffect(() => {
     return () => {
       clearAllData();
       clearEvents();
+      localStorage.removeItem('medicData');
+      localStorage.removeItem('proceduresList');
+      localStorage.removeItem('anesthesiologist');
     };
   }, []);
 

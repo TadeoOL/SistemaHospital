@@ -128,9 +128,9 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   const handleAddArticle = () => {
     if (!articleSelected) return toast.warning('Selecciona un artículo');
     if (parseInt(articleAmount) === 0) return toast.warning('Agrega una cantidad!');
-    const { id, nombre, cantidad } = articleSelected;
-    if (parseInt(articleAmount) > cantidad) return toast.warning('No hay suficiente stock!');
-    if (cantidad === 0) return toast.warning('El artículo seleccionado no tiene existencias');
+    const { id, cantidad } = articleSelected;
+    // if (parseInt(articleAmount) > cantidad) return toast.warning('No hay suficiente stock!');
+    // if (cantidad === 0) return toast.warning('El artículo seleccionado no tiene existencias');
     if (articlesSelected.find((article) => article.id === id)) {
       return toast.warning('El artículo seleccionado ya se encuentra en la lista');
     }
@@ -150,13 +150,14 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
 
   const handleSubmit = () => {
     if (articlesSelected.length === 0) return toast.warning('Agrega artículos al paquete');
-    if (
-      articlesSelected.some(
-        (a) => (a.cantidadDisponible as number) < 1 || (a.cantidadDisponible as number) < a.cantidad
-      )
-    ) {
-      return toast.warning('No hay suficiente stock de alguno de los artículos seleccionados');
-    }
+    // if (
+    //   articlesSelected.some(
+    //     (a) => (a.cantidadDisponible as number) < 1 || (a.cantidadDisponible as number) < a.cantidad
+    //   )
+    // ) {
+    //   return toast.warning('No hay suficiente stock de alguno de los artículos seleccionados');
+    // }
+    toast.success('Artículos agregados con éxito!');
     setStep(step + 1);
   };
 
@@ -215,11 +216,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
               }}
               loading={isLoadingArticles}
               getOptionLabel={(option) => option.nombre}
-              options={
-                articles
-                  .filter((a) => a.stockActual > 0)
-                  .filter((a) => !articlesSelected.some((as) => as.id === a.id_Articulo)) ?? []
-              }
+              options={articles.filter((a) => !articlesSelected.some((as) => as.id === a.id_Articulo)) ?? []}
               onInputChange={(_, __, reason) => {
                 if (reason === 'clear') {
                   setArticleSelected(undefined);
@@ -255,7 +252,6 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
               <Typography>Cantidad:</Typography>
               <TextField
                 label="Cantidad"
-                helperText={`Cantidad disponible: ${articleSelected?.cantidad ?? 0}`}
                 FormHelperTextProps={{
                   sx: {
                     fontSize: 11,
@@ -291,7 +287,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
           Regresar
         </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          Continuar
+          Siguiente
         </Button>
       </Box>
     </>
@@ -336,13 +332,15 @@ const MedicineSelectedTableRow = (props: {
   const setArticlesSelected = useProgrammingRegisterStore((state) => state.setArticlesSelected);
   const [edit, setEdit] = useState(false);
   const [editedAmount, setEditedAmount] = useState(data.cantidad.toString());
-  console.log({ data });
+
   const handleRemoveArticle = () => {
     setArticlesSelected(articlesSelected.filter((a) => a.id !== data.id));
   };
+
   const handleEditArticle = () => {
     setEdit(!edit);
   };
+
   const handleSaveEditArticle = () => {
     if (parseInt(editedAmount) > (data.cantidadDisponible as number))
       return toast.warning('La cantidad excede el stock actual!');
@@ -351,11 +349,13 @@ const MedicineSelectedTableRow = (props: {
     );
     setEdit(!edit);
   };
+
   const handleAmountChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const num = e.target.value.trim();
     if (!isValidInteger(num)) return toast.warning('Escribe un número valido!');
     setEditedAmount(num);
   };
+
   return (
     <TableRow>
       <TableCell>

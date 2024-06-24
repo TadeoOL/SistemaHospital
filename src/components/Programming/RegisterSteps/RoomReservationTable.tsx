@@ -42,8 +42,12 @@ const RoomReservationTableRow = (props: RoomReservationTableRowProps) => {
   const { data } = props;
   const roomsValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
+  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+  const events = useProgrammingRegisterStore((state) => state.events);
+
   const handleRemove = () => {
     setRoomValues(roomsValues.filter((room) => room.id !== data.id));
+    setEvents(events.filter((e) => e.roomId !== data.id));
   };
   return (
     <TableRow>

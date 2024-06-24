@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IArticle, IArticlesPackage } from '../../../../../types/types';
-import { modifyPackage, getExistingArticles } from '../../../../../api/api.routes';
+import { modifyPackage, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../../schema/schemas';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -45,12 +45,16 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 600 },
-  bgcolor: 'background.paper',
+
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   display: 'flex',
   flexDirection: 'column',
   maxHeight: 600,
+};
+
+const style2 = {
+  bgcolor: 'background.paper',
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     width: '0.4em',
@@ -85,8 +89,9 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
       }
     };
     fetch();
+    console.log('contenido pre', props.package.contenido);
     const articlesFromPackage = props.package.contenido.map((art) => ({
-      id: art.id,
+      id: art.id_Articulo,
       name: art.nombre,
       amount: art.cantidad,
     }));
@@ -144,18 +149,29 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     setAmountText('');
   };
 
+  useEffect(() => {
+    const fetch = async () => {
+      setIsLoadingWarehouse(true);
+      try {
+        handleFetchArticlesFromWareHouse(warehouseId as string);
+      } catch (error) {
+        console.log('error');
+      } finally {
+        setIsLoadingWarehouse(false);
+      }
+    };
+    fetch();
+  }, [serch]);
+
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=50'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}`
-      );
-      const transformedData = res.data.map((item: any) => ({
-        id: item.id,
+      const res = await getArticlesFromWarehouseSearch(serch, wareH);
+      const transformedData = res.map((item: any) => ({
+        id: item.id_Articulo,
         nombre: item.nombre,
-        stock: item.stockActual,
       }));
-      const articlesFromPackage = props.package.contenido.map((art) => art.id);
+      const articlesFromPackage = props.package.contenido.map((art) => art.id_Articulo);
       const objectFiltered = transformedData.filter((art: any) => !articlesFromPackage.includes(art.id));
       setDataWerehouseArticlesSelected(objectFiltered);
     } catch (error) {
@@ -183,7 +199,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     );
 
   const onSubmit: SubmitHandler<any> = async (data) => {
-    data.historialArticulos = articles.map((art) => ({ id: art.id, nombre: art.name, cantidad: art.amount }));
+    data.historialArticulos = articles.map((art) => ({ id_Articulo: art.id, cantidad: art.amount }));
     try {
       const object = {
         Id: props.package.id_PaqueteArticulo,
@@ -211,126 +227,128 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Editar paquete de articulos" />
-      <form noValidate onSubmit={handleSubmit(onSubmit)}>
-        <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-          <Grid component="span" container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography>Nombre</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.nombre}
-                helperText={errors?.nombre?.message}
-                size="small"
-                placeholder="Escriba un Nombre"
-                {...register('nombre')}
-              />
+      <Box sx={{ style2 }}>
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+          <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
+            <Grid component="span" container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Typography>Nombre</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.nombre}
+                  helperText={errors?.nombre?.message}
+                  size="small"
+                  placeholder="Escriba un Nombre"
+                  {...register('nombre')}
+                />
+              </Grid>
+              <Grid item xs={12} md={12}>
+                <Typography>Descripción</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.descripcion}
+                  size="small"
+                  placeholder="Escriba una Descripción"
+                  {...register('descripcion')}
+                  multiline
+                  onChange={handleChangeText}
+                  helperText={
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexGrow: 1,
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
+                      <Box>{`${valueState.length}/${200}`}</Box>
+                    </Box>
+                  }
+                  maxRows={3}
+                  inputProps={{ maxLength: 200 }}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={12}>
-              <Typography>Descripción</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.descripcion}
-                size="small"
-                placeholder="Escriba una Descripción"
-                {...register('descripcion')}
-                multiline
-                onChange={handleChangeText}
-                helperText={
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexGrow: 1,
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
-                    <Box>{`${valueState.length}/${200}`}</Box>
-                  </Box>
-                }
-                maxRows={3}
-                inputProps={{ maxLength: 200 }}
-              />
-            </Grid>
-          </Grid>
-          <Box
-            sx={{
-              display: 'flex',
-              flex: 1,
-              justifyContent: 'space-between',
-              columnGap: 2,
-              flexDirection: { xs: 'column', sm: 'row' },
-              rowGap: { xs: 2, sm: 0 },
-            }}
-          >
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterArticleOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setArticleSelected(val);
-                  setArticleError(false);
-                }}
-                loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
-                getOptionLabel={(option) => option.nombre}
-                options={dataWerehouseSelectedArticles}
-                value={articleSelected}
-                noOptionsText="No se encontraron artículos"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={articleError}
-                    helperText={articleError && 'Selecciona un articulo'}
-                    placeholder="Artículos"
-                    sx={{ width: '90%' }}
-                    onChange={(e) => {
-                      setSerch(e.target.value);
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-            <Stack sx={{ display: 'flex' }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
-              <TextField
-                sx={{ width: '50%' }}
-                size="small"
-                fullWidth
-                placeholder="Cantidad"
-                value={amountText}
-                error={amountError}
-                helperText={amountError && 'Agrega una cantidad'}
-                onChange={(e) => {
-                  if (!isValidInteger(e.target.value)) return;
-                  setAmountText(e.target.value);
-                  setAmountError(false);
-                }}
-              />
-            </Stack>
             <Box
               sx={{
                 display: 'flex',
-                mt: 2,
+                flex: 1,
+                justifyContent: 'space-between',
+                columnGap: 2,
+                flexDirection: { xs: 'column', sm: 'row' },
+                rowGap: { xs: 2, sm: 0 },
               }}
             >
-              <AnimateButton>
-                <Button
-                  size="medium"
-                  variant="contained"
-                  startIcon={<AddCircleIcon />}
-                  onClick={() => handleAddArticles()}
-                >
-                  Agregar
-                </Button>
-              </AnimateButton>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterArticleOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setArticleSelected(val);
+                    setArticleError(false);
+                  }}
+                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  getOptionLabel={(option) => option.nombre}
+                  options={dataWerehouseSelectedArticles}
+                  value={articleSelected}
+                  noOptionsText="No se encontraron artículos"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={articleError}
+                      helperText={articleError && 'Selecciona un articulo'}
+                      placeholder="Artículos"
+                      sx={{ width: '90%' }}
+                      onChange={(e) => {
+                        setSerch(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+              <Stack sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
+                <TextField
+                  sx={{ width: '50%' }}
+                  size="small"
+                  fullWidth
+                  placeholder="Cantidad"
+                  value={amountText}
+                  error={amountError}
+                  helperText={amountError && 'Agrega una cantidad'}
+                  onChange={(e) => {
+                    if (!isValidInteger(e.target.value)) return;
+                    setAmountText(e.target.value);
+                    setAmountError(false);
+                  }}
+                />
+              </Stack>
+              <Box
+                sx={{
+                  display: 'flex',
+                  mt: 2,
+                }}
+              >
+                <AnimateButton>
+                  <Button
+                    size="medium"
+                    variant="contained"
+                    startIcon={<AddCircleIcon />}
+                    onClick={() => handleAddArticles()}
+                  >
+                    Agregar
+                  </Button>
+                </AnimateButton>
+              </Box>
             </Box>
-          </Box>
 
-          <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} />
-        </Stack>
-      </form>
+            <ArticlesTable setOpen={props.setOpen} submitData={onSubmit} />
+          </Stack>
+        </form>
+      </Box>
     </Box>
   );
 };

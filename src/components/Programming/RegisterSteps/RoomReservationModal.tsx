@@ -353,7 +353,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
           Cerrar
         </Button>
         <Button variant="contained" onClick={onSubmitProcedures}>
-          Aceptar
+          Siguiente
         </Button>
       </Box>
     </Box>

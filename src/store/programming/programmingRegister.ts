@@ -23,8 +23,6 @@ const initialPatientValues: IPatient = {
 };
 
 const initialClinicalData: IClinicalData = {
-  medicName: '',
-  specialty: '',
   reasonForAdmission: '',
   admissionDiagnosis: '',
   comments: '',
@@ -47,6 +45,8 @@ const initialValues = {
   biomedicalEquipmentsSelected: [],
   medicId: '',
   anesthesiologistId: '',
+  medicPersonalBiomedicalEquipment: [],
+  xrayIds: [],
 };
 
 interface State {
@@ -64,6 +64,8 @@ interface State {
   biomedicalEquipmentsSelected: IBiomedicalEquipment[];
   medicId: string;
   anesthesiologistId: string;
+  medicPersonalBiomedicalEquipment: IBiomedicalEquipment[];
+  xrayIds: string[];
 }
 
 interface Action {
@@ -82,6 +84,7 @@ interface Action {
   setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected: IBiomedicalEquipment[]) => void;
   setMedicId: (medicId: string) => void;
   setAnesthesiologistId: (anesthesiologistId: string) => void;
+  setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) => void;
 }
 interface ActionRoom {
   setAppointmentStartDate: (appointmentStartDate: Date) => void;
@@ -89,6 +92,7 @@ interface ActionRoom {
   setRoomValues: (roomValues: IRegisterRoom[]) => void;
   clearRoomRegisteredData: () => void;
   setProcedures: (procedures: string[]) => void;
+  setXRayIds: (xrayIds: string[]) => void;
 }
 
 interface StateRoom {
@@ -102,6 +106,9 @@ export const useProgrammingRegisterStore = create<State & Action & ActionRoom & 
   events: [],
   ...initialValues,
   ...initialRoomValue,
+  setXRayIds: (xrayIds: string[]) => set({ xrayIds }),
+  setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) =>
+    set(() => ({ medicPersonalBiomedicalEquipment })),
   setMedicId: (medicId: string) => set(() => ({ medicId })),
   setAnesthesiologistId: (anesthesiologistId: string) => set(() => ({ anesthesiologistId })),
   setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected) => set({ biomedicalEquipmentsSelected }),

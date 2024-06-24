@@ -1,8 +1,9 @@
 export interface IBiomedicalEquipment {
   id: string;
   nombre: string;
-  descripcion: string;
+  descripcion?: string;
   precio: number;
+  esPersonal?: boolean;
 }
 
 export interface IAnesthesiologist {

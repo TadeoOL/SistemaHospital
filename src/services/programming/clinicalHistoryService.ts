@@ -4,8 +4,6 @@ const apiClinicalHistory = '/api/HistorialClinico';
 
 interface ClinicalHistoryRegister {
   Id_Paciente: string;
-  MedicoTratante: string;
-  Especialidad: string;
   MotivoIngreso: string;
   DiagnosticoIngreso: string;
   Comentarios: string;

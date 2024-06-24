@@ -40,8 +40,6 @@ export const patientModifySchema = z.object({
 });
 
 export const clinicalDataSchema = z.object({
-  medicName: z.string().min(1, 'El nombre del médico es requerido'),
-  specialty: z.string().min(1, 'La especialidad es requerida'),
   reasonForAdmission: z.string().min(1, 'El motivo de ingreso es requerido'),
   admissionDiagnosis: z.string().min(1, 'El diagnóstico de ingreso es requerido'),
   allergies: z.string().min(1, 'El procedimiento es requerido'),
@@ -127,6 +125,19 @@ export const programmingRegisterSchema = z.object({
 
 export const procedureAndDoctorSelectorSchema = z.object({
   proceduresId: z.string().array().nonempty('Los procedimientos son requeridos'),
+  xrayIds: z.string().array().nonempty('Las radiografías son requeridas'),
   medicId: z.string().min(1, 'El medico es requerido'),
   anesthesiologistId: z.string().min(1, 'El anestesiólogo es requerido'),
+});
+
+export const medicPersonalBiomedicalEquipmentSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  price: z
+    .string()
+    .refine((p) => parseFloat(p) !== 0, {
+      message: 'El precio tiene que ser mayor a 0',
+    })
+    .refine((p) => p !== '', {
+      message: 'El precio tiene que ser mayor a 0',
+    }),
 });

@@ -30,6 +30,7 @@ const messagesByLink: Record<string, string> = {
   '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
   '/farmacia/configuracion-farmacia': 'Configuración de Farmacia',
   '/farmacia/punto-venta': 'Punto de Venta',
+  '/farmacia/solicitud-enfermero': 'Solicitud Enfermero',
   '/farmacia/historial-ventas': 'Historial de Ventas',
   '/farmacia/catalogo': 'Salidas y Existencias',
 };

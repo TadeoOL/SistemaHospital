@@ -20,3 +20,8 @@ export const getXRayPagination = async (params: string) => {
   const res = await axios.get(`${apiXRay}/paginacion-radiografia?${params}`);
   return res.data;
 };
+
+export const getAllXRay = async () => {
+  const res = await axios.get(`${apiXRay}/obtener-radiografias`);
+  return res.data;
+};

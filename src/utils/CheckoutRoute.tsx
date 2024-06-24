@@ -18,9 +18,10 @@ const useJoinRoom = (
   conn: HubConnection | null,
   setConn: Function,
   updateData: Function,
-  updateDataEmitter: Function
+  updateDataEmitter: Function,
 ) => {
   const profile = useAuthStore((state) => state.profile);
+
   useEffect(() => {
     const connect = async (userId: string, chatRoom: string) => {
       try {
@@ -30,8 +31,11 @@ const useJoinRoom = (
             transport: HttpTransportType.WebSockets,
           })
           .configureLogging(LogLevel.Information)
+          .withAutomaticReconnect([0, 2000, 10000, 15000,20000, 30000, 60000, 120000, 150000])
           .build();
-        conn.on('JoinSpecificChatRoom', () => {});
+
+        conn.on('JoinSpecificChatRoom', () => {
+        });
 
         conn.on('ReceiveSpecificSell', (sell: ICheckoutSell) => {
           const sellObject = {
@@ -43,7 +47,7 @@ const useJoinRoom = (
             totalVenta: sell.totalVenta,
             tipoPago: sell.tipoPago,
             id_UsuarioPase: sell.id_UsuarioPase,
-            nombreUsuario: sell.nombreUsuario
+            nombreUsuario: sell.nombreUsuario,
           };
           updateData(sellObject);
         });
@@ -61,6 +65,15 @@ const useJoinRoom = (
           };
           updateDataEmitter(sellObject);
         });
+
+        conn.onclose(async () => {
+          console.log('Connection lost, attempting to reconnect...');
+        });
+
+        conn.onreconnected(async () => {
+          setConn(conn);//cambio de reconexion
+        await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
+        });
         await conn.start();
         await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         setConn(conn);
@@ -68,14 +81,13 @@ const useJoinRoom = (
         console.log(error);
       }
     };
-
     connect(profile?.id as string, 'Ventas');
 
     return () => {
       conn?.invoke('Disconnect', profile?.id);
       conn?.stop();
     };
-  }, []);
+  }, [profile?.id, setConn, updateData, updateDataEmitter]);
 
   return conn;
 };

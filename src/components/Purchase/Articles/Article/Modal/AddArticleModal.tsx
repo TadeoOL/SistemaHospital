@@ -29,12 +29,16 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: { xs: 380, md: 600 },
-  bgcolor: 'background.paper',
+
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   display: 'flex',
   flexDirection: 'column',
   maxHeight: 600,
+};
+
+const style2 = {
+  bgcolor: 'background.paper',
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     width: '0.4em',
@@ -99,7 +103,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       unidadMedida: '',
       precioCompra: '',
       precioVenta: '',
-      codigoBarras: ''
+      codigoBarras: '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -120,7 +124,9 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       }
       data.esCaja = isBox;
       data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
+      data.precioVenta = inputValue;
       await addNewArticle(data);
+      console.log('art', data);
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo creado con éxito!');
       open(false);
@@ -163,7 +169,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       event.target.value = precio.slice(0, -1);
     }
     config?.factor.forEach((factor) => {
-       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -174,9 +180,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         } else {
           setInputValue('0');
         }
-      }
-      else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
-        const unidadesPorCaja = textQuantityRef.current?.value as string ?? "1";
+      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -193,42 +198,43 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={open} title="Agregar articulo" />
-      <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
-        <Stack sx={{ p: 4 }}>
-          <Grid component="span" container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography>Nombre</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.nombre}
-                helperText={errors?.nombre?.message}
-                size="small"
-                placeholder="Escriba un Nombre"
-                {...register('nombre')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Presentación</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.unidadMedida}
-                helperText={errors?.unidadMedida?.message}
-                size="small"
-                placeholder="Escriba una presentación"
-                {...register('unidadMedida')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography>Es un Paquete</Typography>
-                  <Checkbox
-                  checked={isBox}
-                  onChange={() => {
-                    setIsBox(!isBox);
-                  }}
+      <Box sx={style2}>
+        <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
+          <Stack sx={{ p: 4 }}>
+            <Grid component="span" container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Typography>Nombre</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.nombre}
+                  helperText={errors?.nombre?.message}
+                  size="small"
+                  placeholder="Escriba un Nombre"
+                  {...register('nombre')}
                 />
-                </Box>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Presentación</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.unidadMedida}
+                  helperText={errors?.unidadMedida?.message}
+                  size="small"
+                  placeholder="Escriba una presentación"
+                  {...register('unidadMedida')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography>Es un Paquete</Typography>
+                    <Checkbox
+                      checked={isBox}
+                      onChange={() => {
+                        setIsBox(!isBox);
+                      }}
+                    />
+                  </Box>
                   <TextField
                     fullWidth
                     size="small"
@@ -243,143 +249,145 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                       min: 0,
                     }}
                   />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={12}>
-              <Typography>Descripción</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.descripcion}
-                size="small"
-                placeholder="Escriba una Descripción"
-                {...register('descripcion')}
-                multiline
-                onChange={handleChangeText}
-                helperText={
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexGrow: 1,
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
-                    <Box>{`${valueState.length}/${200}`}</Box>
-                  </Box>
-                }
-                maxRows={3}
-                inputProps={{ maxLength: 200 }}
-              />
-            </Grid>
-              
-            <Grid item xs={12} md={6}>
-              <Typography>Precio de Compra</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.precioCompra}
-                helperText={errors?.precioCompra?.message}
-                size="small"
-                inputProps={{
-                  maxLength: 10,
-                  onInput: (e: any) => handleInputDecimalChange(e),
-                }}
-                placeholder="Escriba un Precio de Compra"
-                {...register('precioCompra')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Precio de Venta</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.precioVenta}
-                helperText={errors?.precioVenta?.message}
-                size="small"
-                value={inputValue}
-                inputProps={{
-                  maxLength: 10,
-                }}
-                placeholder="Escriba un Precio de Venta"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Stock Mínimo</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.stockMinimo}
-                helperText={errors?.stockMinimo?.message}
-                size="small"
-                inputProps={{
-                  maxLength: 10,
-                  onInput: handleInputNumberChange,
-                }}
-                placeholder="Dígite un Stock Mínimo"
-                {...register('stockMinimo')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Stock Alerta</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.stockAlerta}
-                helperText={errors?.stockAlerta?.message}
-                size="small"
-                inputProps={{
-                  maxLength: 10,
-                  onInput: handleInputNumberChange,
-                }}
-                placeholder="Dígite un Stock Alerta"
-                {...register('stockAlerta')}
-              />
-            </Grid>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={12}>
+                <Typography>Descripción</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.descripcion}
+                  size="small"
+                  placeholder="Escriba una Descripción"
+                  {...register('descripcion')}
+                  multiline
+                  onChange={handleChangeText}
+                  helperText={
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexGrow: 1,
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
+                      <Box>{`${valueState.length}/${200}`}</Box>
+                    </Box>
+                  }
+                  maxRows={3}
+                  inputProps={{ maxLength: 200 }}
+                />
+              </Grid>
+
               <Grid item xs={12} md={6}>
-              <Typography>Sub Categoría</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                label="Seleccione una Sub Categoria"
-                error={!!errors.id_subcategoria}
-                helperText={errors?.id_subcategoria?.message}
-                {...register('id_subcategoria')}
-                value={subCategory}
-                onChange={handleChange}
-              >
-                {subCategories.map((data) => (
-                  <MenuItem value={data.id} key={data.id}>
-                    {data.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
+                <Typography>Precio de Compra</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.precioCompra}
+                  helperText={errors?.precioCompra?.message}
+                  size="small"
+                  inputProps={{
+                    maxLength: 10,
+                    onInput: (e: any) => handleInputDecimalChange(e),
+                  }}
+                  placeholder="Escriba un Precio de Compra"
+                  {...register('precioCompra')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Precio de Venta</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.precioVenta}
+                  helperText={errors?.precioVenta?.message}
+                  size="small"
+                  value={inputValue}
+                  inputProps={{
+                    maxLength: 10,
+                  }}
+                  placeholder="Escriba un Precio de Venta"
+                  {...register('precioVenta')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Stock Mínimo</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.stockMinimo}
+                  helperText={errors?.stockMinimo?.message}
+                  size="small"
+                  inputProps={{
+                    maxLength: 10,
+                    onInput: handleInputNumberChange,
+                  }}
+                  placeholder="Dígite un Stock Mínimo"
+                  {...register('stockMinimo')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Stock Alerta</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.stockAlerta}
+                  helperText={errors?.stockAlerta?.message}
+                  size="small"
+                  inputProps={{
+                    maxLength: 10,
+                    onInput: handleInputNumberChange,
+                  }}
+                  placeholder="Dígite un Stock Alerta"
+                  {...register('stockAlerta')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Sub Categoría</Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  select
+                  label="Seleccione una Sub Categoria"
+                  error={!!errors.id_subcategoria}
+                  helperText={errors?.id_subcategoria?.message}
+                  {...register('id_subcategoria')}
+                  value={subCategory}
+                  onChange={handleChange}
+                >
+                  {subCategories.map((data) => (
+                    <MenuItem value={data.id} key={data.id}>
+                      {data.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de Barras (Opcional)</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoBarras}
+                  helperText={errors?.codigoBarras?.message}
+                  size="small"
+                  placeholder="Escriba un código de barras"
+                  {...register('codigoBarras')}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Código de Barras (Opcional)</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.codigoBarras}
-                helperText={errors?.codigoBarras?.message}
-                size="small"
-                placeholder="Escriba un código de barras"
-                {...register('codigoBarras')}
-              />
-            </Grid>
-          </Grid>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              columnGap: 2,
-              justifyContent: 'space-between',
-              pt: 4,
-            }}
-          >
-            <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
-              Cancelar
-            </Button>
-            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
-              Guardar
-            </Button>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                columnGap: 2,
+                justifyContent: 'space-between',
+                pt: 4,
+              }}
+            >
+              <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
+                Cancelar
+              </Button>
+              <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
+                Guardar
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
-      </form>
+        </form>
+      </Box>
     </Box>
   );
 };

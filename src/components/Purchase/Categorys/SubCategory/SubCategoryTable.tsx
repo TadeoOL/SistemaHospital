@@ -132,19 +132,19 @@ export const SubCategoryTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell width={'25%'}>
                 <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'30%'}>
                 <SortComponent tableCellLabel="Descripción" headerName="descripcion" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'10%'}>
                 <SortComponent tableCellLabel="IVA" headerName="iva" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>
+              <TableCell width={'25%'}>
                 <SortComponent tableCellLabel="Categoría" headerName="categoria" setSortFunction={setSort} />
               </TableCell>
-              <TableCell>Acciones</TableCell>
+              <TableCell width={'10%'}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

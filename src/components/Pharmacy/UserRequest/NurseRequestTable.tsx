@@ -22,20 +22,15 @@ import {
   tableCellClasses,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Warning } from '@mui/icons-material';
-import { shallow } from 'zustand/shallow';
-import { warning } from '../../../theme/colors';
-import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { ExpandLess, ExpandMore, FilterListOff, Info } from '@mui/icons-material';
+import { shallow } from 'zustand/shallow';
+import { useNurseRequestPaginationStore } from '../../../store/pharmacy/nurseRequest/nurseRequestPagination';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { IExistingArticle, IExistingArticleList } from '../../../types/types';
-import { returnExpireDate } from '../../../utils/expireDate';
-import { ArticlesExitModal } from './Modal/ArticlesExitModal';
-import { SortComponent } from '../../Commons/SortComponent';
-import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
-import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
-import { useShallow } from 'zustand/react/shallow';
-import { ArticlesEntryModal } from './Modal/ArticlesEntryModal';
+import { NurseRequestModal } from './Modal/NurseRequestModal';
+import { InurseRequest, IArticleInRequest } from '../../../types/types';
+import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
+import { getStatus } from '../../../utils/NurseRequestUtils';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -47,68 +42,60 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     border: 'hidden',
   },
   [`&.${tableCellClasses.root}`]: {
-    width: '25%',
+    width: '20%',
   },
 }));
 
-const useGetExistingArticles = (warehouseId: string, principalWarehouseId: string) => {
+export const useGetNursesRequest = () => {
   const {
     data,
     setSearch,
     search,
-    fetchExistingArticles,
-    setWarehouseId,
-    setPrincipalWarehouseId,
+    fetchData,
     setStartDate,
     setEndDate,
-    clearFilters,
     setPageIndex,
     setPageSize,
+    clearFilters,
+    pageSize,
     startDate,
     endDate,
-    clearAllData,
     isLoading,
-    setSort,
-    sort,
-    pageCount,
-    pageSize,
     pageIndex,
-  } = useExistingArticlePagination(
+    count,
+  } = useNurseRequestPaginationStore(
     (state) => ({
+      pageIndex: state.pageIndex,
+      count: state.count,
       data: state.data,
       setSearch: state.setSearch,
       search: state.search,
-      fetchExistingArticles: state.fetchExistingArticles,
-      setWarehouseId: state.setWarehouseId,
-      setPrincipalWarehouseId: state.setPrincipalWarehouseId,
+      fetchData: state.fetchData,
       setStartDate: state.setStartDate,
       setEndDate: state.setEndDate,
       clearFilters: state.clearFilters,
       setPageIndex: state.setPageIndex,
-      pageSize: state.pageSize,
-      pageCount: state.pageCount,
       setPageSize: state.setPageSize,
-      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
       startDate: state.startDate,
       endDate: state.endDate,
-      clearAllData: state.clearAllData,
-      isLoading: state.isLoading,
-      sort: state.sort,
-      setSort: state.setSort,
+      //clearAllData: state.clearAllData,
+      isLoading: state.loading,
+      //sort: state.sort,
+      //setSort: state.setSort,
     }),
     shallow
   );
 
-  useEffect(() => {
-    clearAllData();
-  }, []);
+  /*useEffect(() => {
+    //clearAllData();
+    //setWarehouseId(warehouseData.id);
+    setPrincipalWarehouseId(warehouseData.id_AlmacenPrincipal || '');
+  }, []);*/
 
   useEffect(() => {
-    setWarehouseId(warehouseId);
-    setPrincipalWarehouseId(principalWarehouseId);
-    fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters, sort, pageIndex, pageSize]);
-
+    fetchData(true);
+  }, [search, startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex]);
   return {
     data,
     setSearch,
@@ -120,17 +107,15 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
     startDate,
     endDate,
     isLoading,
-    setSort,
-    fetchExistingArticles,
-    pageIndex,
+    //setSort,
     pageSize,
-    pageCount,
+    pageIndex,
+    count,
+    fetchData,
   };
 };
-export const ArticlesPharmacyTable = () => {
-  const warehouseIdSeted: string = usePosTabNavStore((state) => state.warehouseId);
-  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-
+export const NurseRequestTable = () => {
+  // const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const {
     data,
     setSearch,
@@ -139,25 +124,23 @@ export const ArticlesPharmacyTable = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
-    setSort,
-    fetchExistingArticles,
     startDate,
     endDate,
     isLoading,
-    pageCount,
+    //setSort,
     pageSize,
     pageIndex,
-  } = useGetExistingArticles(warehouseIdSeted, warehouseData.id_AlmacenPrincipal || '');
+    count,
+    fetchData,
+  } = useGetNursesRequest();
   const [openModal, setOpenModal] = useState(false);
-  const [exitArticlesM, setExitArticlesM] = useState(false);
-
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
         <Stack spacing={2} sx={{ minWidth: 950 }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar articulo en farmacia..."
+              title="Buscar solicitud..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 1 }}
               size="small"
@@ -187,26 +170,12 @@ export const ArticlesPharmacyTable = () => {
                 <FilterListOff />
               </IconButton>
               <Button
-                sx={{ minWidth: 200 }}
+                sx={{ minWidth: 220 }}
                 variant="contained"
                 startIcon={<AddCircleIcon />}
-                onClick={() => {
-                  setExitArticlesM(true);
-                  setOpenModal(!openModal);
-                }}
+                onClick={() => setOpenModal(!openModal)}
               >
-                Salida de artículos
-              </Button>
-              <Button
-                sx={{ minWidth: 200 }}
-                variant="contained"
-                startIcon={<AddCircleIcon />}
-                onClick={() => {
-                  setExitArticlesM(false);
-                  setOpenModal(!openModal);
-                }}
-              >
-                Entrada de artículos
+                Solicitud de Articulos
               </Button>
             </Box>
           </Box>
@@ -220,30 +189,58 @@ export const ArticlesPharmacyTable = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>
-                        <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
+                      {/*
+                        <TableCell>
+                        <SortComponent
+                          tableCellLabel="Nombre del Articulo"
+                          headerName="articulo"
+                          setSortFunction={setSort}
+                        />
                       </TableCell>
                       <TableCell>
                         <SortComponent
-                          tableCellLabel="Stock mínimo"
+                          tableCellLabel="Stock Minimo"
                           headerName="stockMinimo"
                           setSortFunction={setSort}
                         />
                       </TableCell>
                       <TableCell>
-                        <SortComponent tableCellLabel="Stock" headerName="stockActual" setSortFunction={setSort} />
+                        <SortComponent
+                          tableCellLabel="Stock Actual"
+                          headerName="stockActual"
+                          setSortFunction={setSort}
+                        />
                       </TableCell>
                       <TableCell>
                         <SortComponent
-                          tableCellLabel="Precio Compra"
+                          tableCellLabel="Precio de compra"
                           headerName="precioCompra"
                           setSortFunction={setSort}
                         />
                       </TableCell>
+                      <TableCell>
+                        <SortComponent
+                          tableCellLabel="Código de Barras"
+                          headerName="codigoBarras"
+                          setSortFunction={setSort}
+                        />
+                      </TableCell>*/}
+                      <TableCell>Folio</TableCell>
+                      <TableCell>Paciente</TableCell>
+                      <TableCell>Cuarto</TableCell>
+                      <TableCell>Enfermero que solicitó</TableCell>
+                      <TableCell>Solicitado</TableCell>
+                      <TableCell>Almacén Solicitado</TableCell>
+                      <TableCell>Entregado Por</TableCell>
+                      <TableCell>Estatus</TableCell>
+                      <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
+                    {data &&
+                      data.map((request) => (
+                        <TableRowComponent nurseRequest={request} key={request.id_SolicitudEnfermero} />
+                      ))}
                   </TableBody>
                 </Table>
                 {!data ||
@@ -266,7 +263,7 @@ export const ArticlesPharmacyTable = () => {
                   ))}
                 <TablePagination
                   component="div"
-                  count={pageCount}
+                  count={count}
                   onPageChange={(e, value) => {
                     e?.stopPropagation();
                     setPageIndex(value);
@@ -286,11 +283,7 @@ export const ArticlesPharmacyTable = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          {exitArticlesM ? (
-            <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          ) : (
-            <ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          )}
+          <NurseRequestModal setOpen={setOpenModal} refetch={fetchData} />
         </>
       </Modal>
     </>
@@ -298,45 +291,64 @@ export const ArticlesPharmacyTable = () => {
 };
 
 interface TableRowComponentProps {
-  article: IExistingArticle;
+  nurseRequest: InurseRequest;
 }
-const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
+const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) => {
   const [open, setOpen] = useState(false);
+  //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
 
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>
-              {article.listaArticuloExistente && article.listaArticuloExistente.length > 0 && !open ? (
-                <ExpandMore />
-              ) : (
-                <ExpandLess />
-              )}
-            </IconButton>
-            {article.nombre}
+            <IconButton onClick={() => setOpen(!open)}>{!open ? <ExpandMore /> : <ExpandLess />}</IconButton>
+            {nurseRequest.folio}
           </Box>
         </TableCell>
+        <TableCell>{nurseRequest.pacienteNombre}</TableCell>
+        <TableCell>{nurseRequest.cuarto}</TableCell>
+        <TableCell>{nurseRequest.usuarioEmisorNombre}</TableCell>
+        <TableCell>{nurseRequest.solicitadoEn}</TableCell>
+        <TableCell>{nurseRequest.almacenNombre}</TableCell>
+        <TableCell>{nurseRequest.usuarioEntregoNombre ? nurseRequest.usuarioEntregoNombre : ''}</TableCell>
+        <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
         <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
-            <Box>{article.stockMinimo}</Box>
-            <Box>
-              {article.stockActual < article.stockMinimo ? (
-                <Tooltip title="Stock bajo">
-                  <Warning sx={{ color: warning.main }} />
-                </Tooltip>
-              ) : null}
-            </Box>
-          </Box>
+          {/*<Tooltip title={'Editar stock mínimo'}>
+            <IconButton
+              onClick={() => {
+                setOpenModalBuild(true);
+                setNurseRequest(nurseRequest);
+                if (isEditing) {
+                  handleSaveValue();
+                }
+                setIsEditing(!isEditing);
+                setIsEditingSubRow(!isEditingSubRow);
+              }}
+            >
+              <Edit />
+            </IconButton>
+          </Tooltip>
+          */}
+
+          <Tooltip title="Imprimir">
+            <IconButton
+              onClick={() => {
+                /*setOpen(true);
+                setOpenNewLote(true);
+                setIsEditingSubRow(true);
+                */
+              }}
+            >
+              <LocalPrintshopOutlinedIcon />
+            </IconButton>
+          </Tooltip>
         </TableCell>
-        <TableCell>{article.stockActual}</TableCell>
-        <TableCell>$ {article.precioCompra}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={8} sx={{ padding: 0 }}>
           <Collapse in={open} unmountOnExit>
-            <SubItemsTable article={article.listaArticuloExistente} />
+            <SubItemsTable articles={nurseRequest.articulos} />
           </Collapse>
         </TableCell>
       </TableRow>
@@ -345,31 +357,35 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
 };
 
 interface SubItemsTableProps {
-  article: IExistingArticleList[];
+  articles: IArticleInRequest[];
 }
-const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
+const SubItemsTable: React.FC<SubItemsTableProps> = ({ articles }) => {
   return (
     <TableContainer>
       <Table>
         <TableHead>
           <TableRow>
-            <StyledTableCell align="center">Fecha de compra de lote</StyledTableCell>
-            <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
-            <StyledTableCell align="center">Stock</StyledTableCell>
-            <StyledTableCell align="center">Código de barras</StyledTableCell>
+            <StyledTableCell align="center">Nombre Articulo</StyledTableCell>
+            <StyledTableCell align="center">Cantidad</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {article.map((a) => (
-            <TableRow key={a.id_ArticuloExistente}>
-              <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
-              <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
-              <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
-              {/*<StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>*/}
-            </TableRow>
+          {articles.map((a, i) => (
+            <SubItemsTableRow articleR={a} key={`${a.id_Articulo}|${i}`} />
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+  );
+};
+interface SubItemsTableRowProps {
+  articleR: IArticleInRequest;
+}
+const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({ articleR }) => {
+  return (
+    <TableRow key={articleR.id_Articulo}>
+      <TableCell align="center">{articleR.nombre}</TableCell>
+      <TableCell align="center">{articleR.cantidad}</TableCell>
+    </TableRow>
   );
 };

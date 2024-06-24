@@ -8,6 +8,7 @@ import RuleIcon from '@mui/icons-material/Rule';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import {
@@ -39,7 +40,7 @@ import { FaUserDoctor } from 'react-icons/fa6';
 
 export const ModuleList: IModuleItemsList[] = [
   {
-    categoryTitle: 'Dashboard',
+    categoryTitle: 'Inicio',
     moduleItems: [
       {
         title: 'Inicio',
@@ -159,6 +160,12 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Historial de ventas',
         path: '/farmacia/historial-ventas',
         icon: <History sx={{ color: '#fff' }} />,
+        protectedRoles: pharmacyDirectorRole,
+      },
+      {
+        title: 'Solicitud enfermero',
+        path: '/farmacia/solicitud-enfermero',
+        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
       },
     ],

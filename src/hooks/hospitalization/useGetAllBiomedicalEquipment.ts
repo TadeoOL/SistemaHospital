@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getAllBiomedicalEquipment } from '../../services/hospitalization/biomedicalEquipmentService';
+import { IBiomedicalEquipment } from '../../types/hospitalizationTypes';
 
 export const useGetAllBiomedicalEquipment = () => {
   const {
@@ -13,7 +14,7 @@ export const useGetAllBiomedicalEquipment = () => {
 
   return {
     isLoadingBiomedicalEquipment: isLoading,
-    biomedicalEquipmentData: data as { id: string; nombre: string; descripcion: string; precio: number }[],
+    biomedicalEquipmentData: data as IBiomedicalEquipment[],
     isError,
   };
 };

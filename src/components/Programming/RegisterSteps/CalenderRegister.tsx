@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { CalendarComponent } from './Calendar/CalendarComponent';
@@ -34,7 +34,7 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
   const currentDate: any = dayjs(new Date());
-  const { isLoading } = useGetDate(date);
+  useGetDate(date);
   const events = useProgrammingRegisterStore((state) => state.events);
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
@@ -51,12 +51,6 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
     setStep(step + 1);
   };
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />

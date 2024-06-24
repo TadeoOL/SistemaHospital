@@ -37,9 +37,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { procedureAndDoctorSelectorSchema } from '../../../schema/programming/programmingSchemas';
 import { UploadFile } from '../../Commons/UploadFile';
 import { toast } from 'react-toastify';
+import { useGetAllXRay } from '../../../hooks/hospitalization/useGetAllXRay';
 
 interface Inputs {
   proceduresId: string[];
+  xrayIds: string[];
   medicId: string;
   anesthesiologistId: string;
 }
@@ -49,8 +51,9 @@ interface ProcedureAndDoctorSelectorModalProps {
 }
 export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelectorModalProps) => {
   const { data: proceduresRes, isLoadingProcedures } = useGetAllSurgeryProcedures();
-  // const { doctorsData, isLoadingMedics } = useGetMedics();
+  const { doctorsData } = useGetMedics();
   const { anesthesiologistsData, isLoadingAnesthesiologists } = useGetAnesthesiologists();
+  const { xrayData, isLoadingXRay } = useGetAllXRay();
   const [valueRadioButton, setValueRadioButton] = useState('no');
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
@@ -60,10 +63,12 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
   const setRejectMedicId = useProgrammingRegisterStore((state) => state.setRejectedMedicId);
   const setProcedures = useProgrammingRegisterStore((state) => state.setProcedures);
   const setMedicId = useProgrammingRegisterStore((state) => state.setMedicId);
+  const setXRayIds = useProgrammingRegisterStore((state) => state.setXRayIds);
   const setAnesthesiologistId = useProgrammingRegisterStore((state) => state.setAnesthesiologistId);
   const procedures = useProgrammingRegisterStore((state) => state.procedures);
   const medicId = useProgrammingRegisterStore((state) => state.medicId);
   const anesthesiologistId = useProgrammingRegisterStore((state) => state.anesthesiologistId);
+  const xrayIds = useProgrammingRegisterStore((state) => state.xrayIds);
 
   const handleChange = (event: any) => {
     setValue('medicId', '');
@@ -82,6 +87,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
       proceduresId: procedures,
       medicId: medicId,
       anesthesiologistId: anesthesiologistId,
+      xrayIds: xrayIds,
     },
   });
   const watchProceduresId = watch('proceduresId');
@@ -94,9 +100,40 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
     ) {
       toast.error('Error, debes seleccionar un medico y un archivo para continuar.');
     }
-    console.log(data);
+    const medicData = doctorsData.find((m) => m.id === data.medicId);
+
+    let proceduresMap: { [key: string]: { id: string; name: string } } = {};
+    for (let i = 0; i < proceduresRes.length; i++) {
+      proceduresMap[proceduresRes[i].id] = { id: proceduresRes[i].id, name: proceduresRes[i].nombre };
+    }
+
+    let proceduresList = [];
+    for (let i = 0; i < data.proceduresId.length; i++) {
+      proceduresList.push(proceduresMap[data.proceduresId[i]]);
+    }
+
+    let xrayMap: { [key: string]: { id: string; name: string } } = {};
+    for (let i = 0; i < xrayData.length; i++) {
+      xrayMap[xrayData[i].id] = { id: xrayData[i].id, name: xrayData[i].nombre };
+    }
+
+    let xrayList = [];
+    for (let i = 0; i < data.xrayIds.length; i++) {
+      xrayList.push(xrayMap[data.xrayIds[i]]);
+    }
+    const anesthesiologist = anesthesiologistsData.find((a) => a.id === data.anesthesiologistId);
+
+    localStorage.setItem('proceduresList', JSON.stringify(proceduresList));
+    localStorage.setItem('xrayList', JSON.stringify(xrayList));
+    localStorage.setItem('medicData', JSON.stringify({ id: medicData?.id, name: medicData?.nombre }));
+    localStorage.setItem(
+      'anesthesiologist',
+      JSON.stringify({ id: anesthesiologist?.id, name: anesthesiologist?.nombre })
+    );
+
     setProcedures(data.proceduresId);
     setMedicId(data.medicId);
+    setXRayIds(data.xrayIds);
     setAnesthesiologistId(data.anesthesiologistId);
     setStep(step + 1);
   };
@@ -117,45 +154,81 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
       <HeaderModal setOpen={props.setOpen} title="Selección de procedimiento y medico" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
-          <Box>
-            <Typography>Seleccione los procedimientos:</Typography>
-            <TextField
-              select
-              SelectProps={{
-                multiple: true,
-                renderValue: (selected: any) => {
-                  return (
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                      {selected &&
-                        selected.map((value: string) => (
-                          <Chip
-                            key={value}
-                            label={proceduresRes.find((v) => v.id === value)?.nombre}
-                            style={{ margin: 2 }}
-                            onDelete={() => {
-                              const procedureList = watchProceduresId.filter((p) => p !== value);
-                              setValue('proceduresId', procedureList);
-                            }}
-                            deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
-                          />
-                        ))}
-                    </div>
-                  );
-                },
-              }}
-              label="Procedimientos"
-              fullWidth
-              error={!!errors.proceduresId?.message}
-              helperText={errors.proceduresId?.message}
-              value={watchProceduresId}
-              {...register('proceduresId')}
-            >
-              {proceduresRes.map((p) => (
-                <MenuItem key={p.id} value={p.id}>
-                  {p.nombre}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, columnGap: 2, rowGap: 2 }}>
+            <Box sx={{ flex: 1 }}>
+              <Typography>Seleccione los procedimientos:</Typography>
+              <TextField
+                select
+                SelectProps={{
+                  multiple: true,
+                  renderValue: (selected: any) => {
+                    return (
+                      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {selected &&
+                          selected.map((value: string) => (
+                            <Chip
+                              key={value}
+                              label={proceduresRes.find((v) => v.id === value)?.nombre}
+                              style={{ margin: 2 }}
+                              onDelete={() => {
+                                const procedureList = watchProceduresId.filter((p) => p !== value);
+                                setValue('proceduresId', procedureList);
+                              }}
+                              deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
+                            />
+                          ))}
+                      </div>
+                    );
+                  },
+                }}
+                label="Procedimientos"
+                fullWidth
+                error={!!errors.proceduresId?.message}
+                helperText={errors.proceduresId?.message}
+                value={watchProceduresId}
+                {...register('proceduresId')}
+              >
+                {proceduresRes.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography>Seleccione las radiografías:</Typography>
+              <Autocomplete
+                disablePortal
+                fullWidth
+                loading={isLoadingXRay}
+                getOptionLabel={(option) => option.nombre}
+                options={xrayData}
+                multiple
+                noOptionsText="No se encontraron radiografías"
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                onChange={(_, val) => {
+                  setValue('xrayIds', val.flatMap((x) => x.id) ?? '');
+                }}
+                value={
+                  watch('xrayIds').map((x) => {
+                    const xray = xrayData.find((xr) => xr.id === x);
+                    return {
+                      id: xray?.id as string,
+                      nombre: xray?.nombre as string,
+                    };
+                  }) ?? []
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!errors?.xrayIds?.message}
+                    helperText={errors?.xrayIds?.message as string}
+                    placeholder="Radiografías"
+                  />
+                )}
+                key={valueRadioButton}
+              />
+            </Box>
           </Box>
           <Divider sx={{ my: 1 }} />
           <MedicSelectComponent
@@ -205,7 +278,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
             Regresar
           </Button>
           <Button variant="contained" type="submit">
-            Aceptar
+            Siguiente
           </Button>
         </Box>
       </form>

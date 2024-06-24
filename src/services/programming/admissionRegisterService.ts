@@ -5,7 +5,13 @@ const apiRegister = '/api/Registro';
 interface RegisterAdmission {
   pacienteId: string;
   historialClinicoId: string;
+  id_Medico: string;
+  id_Anestesiologo: string;
   procedimientos: string[];
+  radiografias: string[];
+  equiposBiomedico: string[];
+  equipoBiomedicoHonorario?: string;
+  articulos: { articuloId: string; cantidad: number; notas?: string }[];
   fechaInicio: Date;
   fechaFin: Date;
   cuartos: Cuarto[];

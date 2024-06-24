@@ -87,7 +87,7 @@ export const ResumeSale = () => {
             fullWidth
             onClick={() => handleOpen()}
           >
-            Realizar compra
+            Generar Pase a Caja
           </Button>
         </Box>
       </Stack>
