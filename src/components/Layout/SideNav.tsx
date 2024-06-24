@@ -516,10 +516,10 @@ export const SideNav = () => {
                 )
                   return null;
 
-                if (list.categoryTitle === 'Dashboard') {
+                if (list.categoryTitle === 'Inicio') {
                   return (
                     <Box key={list.categoryTitle}>
-                      {isOpen && (
+                      {/* {isOpen && (
                         <Typography
                           sx={{
                             '&.Mui-selected': {
@@ -534,7 +534,7 @@ export const SideNav = () => {
                         >
                           {list.categoryTitle}
                         </Typography>
-                      )}
+                      )} */}
                       {list.moduleItems.map((item, i) => (
                         <SideNavItems
                           icon={item.icon}
