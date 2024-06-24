@@ -33,7 +33,7 @@ import {
 
 export const ModuleList: IModuleItemsList[] = [
   {
-    categoryTitle: 'Dashboard',
+    categoryTitle: 'Inicio',
     moduleItems: [
       {
         title: 'Inicio',
