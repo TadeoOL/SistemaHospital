@@ -17,6 +17,10 @@ const initialValues = {
   fetchPagination: false,
   cancelToken: null as CancelTokenSource | null,
   checkoutId: '',
+  sort: '',
+  startDate: '',
+  endDate: '',
+  status: 1,
 };
 
 interface Action {
@@ -25,9 +29,14 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
+  setStatus: (status: number) => void;
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
   setFetchPagination: (fetchPagination: boolean) => void;
+  setEndDate: (endDate: string) => void;
+  setStartDate: (startDate: string) => void;
+  clearFilters: () => void;
 }
 
 interface State {
@@ -43,6 +52,10 @@ interface State {
   fetchPagination: boolean;
   cancelToken: CancelTokenSource | null;
   checkoutId: string;
+  sort: string;
+  startDate: string;
+  endDate: string;
+  status: number;
 }
 
 export const useCheckoutPaginationStore = create<State & Action>((set, get) => ({
@@ -61,14 +74,18 @@ export const useCheckoutPaginationStore = create<State & Action>((set, get) => (
     set({ data: [updateData, ...data] });
   },
   setPageSize: (pageSize: number) => set({ pageSize }),
+  setStatus: (status: number) => set({ status }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setSort: (sort: string) => set({ sort }),
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
   setFetchPagination: (fetchPagination: boolean) => set({ fetchPagination }),
 
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, fetchPagination, data } = get();
+    const { enabled, search, pageIndex, pageSize, fetchPagination, data, sort, startDate, endDate, status } = get();
 
     set({ loading: true });
     const index = pageIndex + 1;
@@ -85,7 +102,7 @@ export const useCheckoutPaginationStore = create<State & Action>((set, get) => (
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       const res = await getSells(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&estatus=${status}`
       );
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
@@ -104,5 +121,17 @@ export const useCheckoutPaginationStore = create<State & Action>((set, get) => (
         set({ loading: false, fetchPagination: false });
       }
     }
+  },
+  clearFilters: () => {
+    set({
+      pageCount: 0,
+      pageIndex: 0,
+      pageSize: 10,
+      search: '',
+      loading: true,
+      startDate: '',
+      endDate: '',
+      status: 1,
+    });
   },
 }));

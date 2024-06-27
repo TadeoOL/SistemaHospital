@@ -213,7 +213,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Agregar paquete de artículos" />
-      <Box sx={{ style2 }}>
+      <Box sx={style2}>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
             <Grid component="span" container spacing={2}>

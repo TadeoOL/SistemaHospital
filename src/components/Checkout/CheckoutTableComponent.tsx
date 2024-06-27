@@ -28,6 +28,8 @@ import { useConnectionSocket } from '../../store/checkout/connectionSocket';
 import { CheckoutDetailsModal } from './Modal/CheckoutDetailsModal';
 import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
+import { SortComponent } from '../Commons/SortComponent';
+import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
 
 const headTitlesCaja = [
   'Folio',
@@ -134,15 +136,32 @@ export const CheckoutTableComponent = (props: CheckoutTableComponentProps) => {
 };
 
 const CheckoutTableHeader = (props: CheckoutTableProps) => {
+  const setSort = useCheckoutPaginationStore((state) => state.setSort);
+  const setSort2 = useCheckoutUserEmitterPaginationStore((state) => state.setSort);
+
+  const doubleSort = (value: string) => {
+    setSort(value);
+    setSort2(value);
+  };
+
   return (
     <TableHead>
       <TableRow>
         {
           props.fromPointOfSale
-            ? headTitlesFarmacia.map((title, i) => <TableCell key={i + title}>{title}</TableCell>)
-            : props.heads.map((title, i) => <TableCell key={i + title}>{title}</TableCell>)
+            ? headTitlesFarmacia.slice(0, -1).map((title, i) => (
+                <TableCell key={i + title}>
+                  <SortComponent tableCellLabel={title} headerName={title} setSortFunction={doubleSort} />
+                </TableCell>
+              ))
+            : props.heads.slice(0, -1).map((title, i) => (
+                <TableCell key={i + title}>
+                  <SortComponent tableCellLabel={title} headerName={title} setSortFunction={doubleSort} />
+                </TableCell>
+              ))
           //headTitlesFarmacia
         }
+        <TableCell>Acciones</TableCell>
       </TableRow>
     </TableHead>
   );
