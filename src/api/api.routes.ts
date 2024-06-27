@@ -381,7 +381,7 @@ export const getArticleById = async (articleId: string) => {
   const res = await axios.get(`/api/Articulo/${articleId}`);
   return res.data;
 };
-//actualizar las de agrgar y cambiar
+
 export const getExistingArticles = async (paramUrl: string) => {
   const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`);
   return res.data;

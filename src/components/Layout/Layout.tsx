@@ -72,6 +72,9 @@ export const Layout: React.FC = () => {
     '/farmacia/historial-ventas': 'Historial de Ventas',
     '/farmacia/solicitud-enfermero': 'Solicitud Enfermero',
     '/farmacia/catalogo': 'Salidas y Existencias',
+    '/ventas/caja': 'Caja del dia',
+    '/ventas/emitir-recibo': 'Pase a caja',
+    '/ventas/historial-cortes': 'Historial de cortes de caja',
   };
 
   const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

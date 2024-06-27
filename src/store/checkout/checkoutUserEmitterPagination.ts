@@ -14,7 +14,11 @@ const initialValues = {
   loading: false,
   enabled: true,
   search: '',
+  sort: '',
   cancelToken: null as CancelTokenSource | null,
+  startDate: '',
+  endDate: '',
+  status: 1,
 };
 
 interface Action {
@@ -22,9 +26,14 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
   fetchData: (module?: string) => void;
   setEnabled: (enabled: boolean) => void;
   setUpdateData: (dataUpdated: ICheckoutSell) => void;
+  setEndDate: (endDate: string) => void;
+  setStartDate: (startDate: string) => void;
+  clearFilters: () => void;
+  setStatus: (status: number) => void;
 }
 
 interface State {
@@ -36,17 +45,25 @@ interface State {
   data: ICheckoutSell[];
   loading: boolean;
   search: string;
+  sort: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
+  startDate: string;
+  endDate: string;
+  status: number,
 }
 
 export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setSort: (sort: string) => set({ sort }),
+  setStatus: (status: number) => set({ status }),
   setUpdateData: (dataUpdated: ICheckoutSell) => {
     const { data } = get();
     const copyData = data;
@@ -57,7 +74,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
     }
   },
   fetchData: async (module?: string) => {
-    const { enabled, search, pageIndex, pageSize } = get();
+    const { enabled, search, pageIndex, pageSize, sort, startDate, endDate, status } = get();
 
     set({ loading: true });
     const index = pageIndex + 1;
@@ -71,7 +88,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
 
     try {
       const res = await getUserEmitterSells(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}&Modulo=${module}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}&Modulo=${module}&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}${status === 404 ? '' : `&estatus=${status}`}`
       );
       set({
         data: res.data,
@@ -90,5 +107,17 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
         set({ loading: false });
       }
     }
+  },
+  clearFilters: () => {
+    set({
+      pageCount: 0,
+      pageIndex: 0,
+      pageSize: 10,
+      search: '',
+      loading: true,
+      startDate: '',
+      endDate: '',
+      status: 1,
+    });
   },
 }));

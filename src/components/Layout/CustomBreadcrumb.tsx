@@ -5,6 +5,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import HomeIcon from '@mui/icons-material/Home';
 import GrainIcon from '@mui/icons-material/Grain';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useLocation } from 'react-router-dom';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
@@ -33,6 +34,9 @@ const messagesByLink: Record<string, string> = {
   '/farmacia/solicitud-enfermero': 'Solicitud Enfermero',
   '/farmacia/historial-ventas': 'Historial de Ventas',
   '/farmacia/catalogo': 'Salidas y Existencias',
+  '/ventas/caja': 'Caja',
+  '/ventas/emitir-recibo': 'Pase a caja',
+  '/ventas/historial-cortes': 'Cortes de caja',
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
@@ -49,6 +53,8 @@ const TsxByModule: React.FC<TsxByModuleProps> = ({ module }) => {
       return <ViewRender icon={ShoppingCartIcon} title="Compras" />;
     case 'almacenes':
       return <ViewRender icon={WarehouseIcon} title="Almacén" />;
+    case 'ventas':
+      return <ViewRender icon={PointOfSaleIcon} title="Ventas" />;
     default:
       return <ViewRender icon={HomeIcon} title="Inicio" />;
   }

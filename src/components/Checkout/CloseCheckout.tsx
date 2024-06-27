@@ -11,10 +11,16 @@ const useGetData = () => {
   const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
   const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
   const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
-
+  const sort = useCheckoutUserEmitterPaginationStore((state) => state.sort);
+  const setStatus = useCheckoutUserEmitterPaginationStore((state) => state.setStatus);
   useEffect(() => {
+    setStatus(404);
     fetch();
-  }, [pageIndex, pageSize, search]);
+
+    return () => {
+      setStatus(1);
+    };
+  }, [pageIndex, pageSize, search, sort]);
 };
 
 export const CloseCheckout = () => {
@@ -47,7 +53,7 @@ export const CloseCheckout = () => {
               >
                 Regresar
               </Button>
-              <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del dia</Typography>
+              <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del dia 5</Typography>
             </Box>
             <ReporteCaja id_CajaPrincipal={idCaja} />
           </Box>
