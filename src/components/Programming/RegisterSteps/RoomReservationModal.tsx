@@ -51,6 +51,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
+  const setStartDateSurgery = useProgrammingRegisterStore((state) => state.setStartDateSurgery);
   const step = useProgrammingRegisterStore((state) => state.step);
 
   const {
@@ -93,6 +94,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         id: roomFound.id,
         nombre: roomFound.nombre,
         tipoCuarto: roomFound.tipoCuarto,
+        precio: roomFound.precio,
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
@@ -106,6 +108,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
 
   const onSubmitProcedures = async () => {
     if (roomValues.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
+
+    let startDate = roomValues[0].horaInicio;
+    for (let i = 1; i < roomValues.length; i++) {
+      if (roomValues[i].horaInicio < startDate) {
+        startDate = roomValues[i].horaInicio;
+      }
+    }
+    setStartDateSurgery(startDate);
 
     const roomObj = roomValues
       .map((r) => {

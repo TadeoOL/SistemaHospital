@@ -163,6 +163,7 @@ export interface IExistingArticle {
 export interface IExistingArticleList {
   //Lote
   id_ArticuloExistente: string;
+  id_Articulo?: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;
@@ -369,10 +370,10 @@ export interface IWarehouseData {
   subAlmacenes: IWarehouseData[];
 }
 export interface IPatientFromSearch {
-    id_Paciente: string;
-    nombreCompleto: string;
-    id_Cuenta: string;
-    id_ArticuloCuenta: string;
+  id_Paciente: string;
+  nombreCompleto: string;
+  id_Cuenta: string;
+  id_ArticuloCuenta: string;
 }
 export interface IWarehouseMovementData {
   almacenOrigen: string | null;
@@ -392,6 +393,8 @@ export interface IArticleHistory {
   cantidad: number;
   fechaCaducidad?: string;
   Id_ArticuloEcistente?: string; //no estoy seguro si siempre llega
+  id_ArticuloExistente?: string;
+  id_Articulo?: string;
 }
 
 export interface IWarehousePurchaseOrder {
@@ -520,9 +523,9 @@ export interface InurseRequest {
   cuarto: string;
   id_paciente: string;
   usuarioEmisor: string;
-  solicitadoEn: string;//en que piso se solicito
-  id_AlmacenSolicitado: string; 
-  almacenNombre: string; 
+  solicitadoEn: string; //en que piso se solicito
+  id_AlmacenSolicitado: string;
+  almacenNombre: string;
   usuarioEntrego: string;
   estatus: number;
   usuarioEmisorNombre: string;
@@ -584,6 +587,7 @@ export interface IRoom {
   tipoCuarto: string;
   nombre: string;
   descripcion: string;
+  precio: number;
 }
 
 export interface ISurgeryProcedure {
@@ -603,12 +607,14 @@ export interface IRegisterRoom {
   horaFin: Date;
   provisionalId?: string;
   id_Cuarto?: string;
+  precio: number;
 }
 
 export interface IRoomsList {
   id: string;
   tipoCuarto: string;
   nombre: string;
+  precio: number;
 }
 
 export interface IRoomEvent {
@@ -651,7 +657,6 @@ export interface IPatient {
 export interface IClinicalData {
   reasonForAdmission: string;
   admissionDiagnosis: string;
-  procedure?: string;
   comments: string;
   allergies: string;
   bloodType: string;

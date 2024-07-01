@@ -37,6 +37,8 @@ import {
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
+import { FaLaptopMedical } from 'react-icons/fa';
+import { GiMedicalDrip } from 'react-icons/gi';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -293,6 +295,18 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: supplyRoles,
           },
         ],
+      },
+      {
+        title: 'Guardias Medicos',
+        path: '/hospitalizacion/guardias-medicos',
+        icon: <FaLaptopMedical />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Guardias Anestesiologos',
+        path: '/hospitalizacion/guardias-anestesiologos',
+        icon: <GiMedicalDrip />,
+        protectedRoles: checkout,
       },
     ],
     path: 'hospitalizacion',

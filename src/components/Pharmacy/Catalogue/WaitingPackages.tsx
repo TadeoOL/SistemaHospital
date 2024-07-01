@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  Modal,
   Stack,
   Table,
   TableBody,
@@ -29,6 +30,24 @@ import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
 import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
+import { LuPackagePlus } from 'react-icons/lu';
+import { CreatePackageModal } from './Modal/CreatePackageModal';
+import { IArticleHistory } from '../../../types/types';
+
+const TABLE_HEADERS = ['Folio', 'Solicitado por', 'Fecha Solicitud', 'Estatus', 'Acciones'];
+const STATUS: Record<number, string> = {
+  0: 'Cancelada',
+  2: 'Aceptada',
+  3: 'En espera',
+  4: 'Armar paquete',
+};
+enum STATUS_ENUM {
+  Cancelada = 0,
+  Aceptada = 2,
+  Esperando = 3,
+  ArmarPaquete = 4,
+}
 
 const useGetMovements = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
@@ -103,6 +122,9 @@ export const WaitingPackages = () => {
     fetchWareHouseMovements,
   } = useGetMovements();
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
+  const [packageSelected, setPackageSelected] = useState('');
+  const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
 
   const rejectRequest = (idRequest: string) => {
     withReactContent(Swal)
@@ -179,6 +201,16 @@ export const WaitingPackages = () => {
         }
       });
   };
+
+  const createPackage = (id: string) => {
+    setOpenCreatePackageModal(true);
+    setPackageSelected(id);
+  };
+
+  useEffect(() => {
+    setProvisionalArticles(data?.find((d) => d.id === packageSelected)?.historialArticulos ?? []);
+  }, [packageSelected]);
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -229,15 +261,7 @@ export const WaitingPackages = () => {
           <Card>
             <TableContainer>
               <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center">Folio</TableCell>
-                    <TableCell>Solicitado por</TableCell>
-                    <TableCell>Fecha Solicitud</TableCell>
-                    <TableCell>Estatus</TableCell>
-                    <TableCell>Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
+                <TableHeaderComponent headers={TABLE_HEADERS}></TableHeaderComponent>
                 <TableBody>
                   {data && data.length > 0 ? (
                     data.map((movimiento) => (
@@ -268,17 +292,8 @@ export const WaitingPackages = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell> {movimiento.solicitadoPor} </TableCell>
-                          {
-                            //<TableCell> {movimiento.autorizadoPor} </TableCell>
-                          }
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
-                          <TableCell>
-                            {movimiento.estatus === 0
-                              ? 'Cancelada'
-                              : movimiento.estatus === 2
-                                ? 'Aceptada'
-                                : 'En espera'}
-                          </TableCell>
+                          <TableCell>{movimiento.estatus && STATUS[movimiento.estatus]}</TableCell>
                           <TableCell>
                             <Box
                               sx={{
@@ -287,13 +302,27 @@ export const WaitingPackages = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              <IconButton>
-                                <DoneIcon
-                                  onClick={() => {
-                                    acceptRequest(movimiento.id, movimiento.historialArticulos);
-                                  }}
-                                />
-                              </IconButton>
+                              {(movimiento.estatus as number) === STATUS_ENUM.Esperando ? (
+                                <>
+                                  <IconButton
+                                    onClick={() => {
+                                      acceptRequest(movimiento.id, movimiento.historialArticulos);
+                                    }}
+                                  >
+                                    <DoneIcon />
+                                  </IconButton>
+                                </>
+                              ) : (
+                                <>
+                                  <IconButton onClick={() => createPackage(movimiento.id)}>
+                                    <LuPackagePlus
+                                      style={{
+                                        color: '#8F959E',
+                                      }}
+                                    />
+                                  </IconButton>
+                                </>
+                              )}
                               <IconButton
                                 size="small"
                                 onClick={() => {
@@ -380,6 +409,16 @@ export const WaitingPackages = () => {
           </Card>
         </Stack>
       </Stack>
+      <Modal open={openCreatePackageModal} onClose={() => setOpenCreatePackageModal(false)}>
+        <>
+          <CreatePackageModal
+            setOpen={setOpenCreatePackageModal}
+            articles={provisionalArticles}
+            movementHistoryId={packageSelected}
+            setArticles={setProvisionalArticles}
+          />
+        </>
+      </Modal>
     </>
   );
 };

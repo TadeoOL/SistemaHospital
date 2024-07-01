@@ -31,13 +31,14 @@ import {
 } from 'react-hook-form';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { useGetMedics } from '../../../hooks/programming/useGetDoctors';
-import { useGetAnesthesiologists } from '../../../hooks/hospitalization/useGetAnesthesiologists';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { procedureAndDoctorSelectorSchema } from '../../../schema/programming/programmingSchemas';
 import { UploadFile } from '../../Commons/UploadFile';
 import { toast } from 'react-toastify';
 import { useGetAllXRay } from '../../../hooks/hospitalization/useGetAllXRay';
+import { useGetMedicalShiftsByDate } from '../../../hooks/hospitalization/useGetMedicalShiftsByDate';
+import { useGetAnesthesiologistShiftsByDate } from '../../../hooks/hospitalization/useGetAnesthesiologistShiftsByDate';
 
 interface Inputs {
   proceduresId: string[];
@@ -52,7 +53,7 @@ interface ProcedureAndDoctorSelectorModalProps {
 export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelectorModalProps) => {
   const { data: proceduresRes, isLoadingProcedures } = useGetAllSurgeryProcedures();
   const { doctorsData } = useGetMedics();
-  const { anesthesiologistsData, isLoadingAnesthesiologists } = useGetAnesthesiologists();
+
   const { xrayData, isLoadingXRay } = useGetAllXRay();
   const [valueRadioButton, setValueRadioButton] = useState('no');
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
@@ -69,6 +70,9 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
   const medicId = useProgrammingRegisterStore((state) => state.medicId);
   const anesthesiologistId = useProgrammingRegisterStore((state) => state.anesthesiologistId);
   const xrayIds = useProgrammingRegisterStore((state) => state.xrayIds);
+  const startDateSurgery = useProgrammingRegisterStore((state) => state.startDateSurgery);
+  const { isLoadingAnesthesiologistShifts, anesthesiologistShiftsData } =
+    useGetAnesthesiologistShiftsByDate(startDateSurgery);
 
   const handleChange = (event: any) => {
     setValue('medicId', '');
@@ -121,7 +125,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
     for (let i = 0; i < data.xrayIds.length; i++) {
       xrayList.push(xrayMap[data.xrayIds[i]]);
     }
-    const anesthesiologist = anesthesiologistsData.find((a) => a.id === data.anesthesiologistId);
+    const anesthesiologist = anesthesiologistShiftsData.find((a) => a.id === data.anesthesiologistId);
 
     localStorage.setItem('proceduresList', JSON.stringify(proceduresList));
     localStorage.setItem('xrayList', JSON.stringify(xrayList));
@@ -241,15 +245,15 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
           />
           <Divider sx={{ my: 1 }} />
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography>Seleccione el anestesiólogo:</Typography>
+            <Typography>Seleccione el anestesiólogo en guardia:</Typography>
             <Autocomplete
               disablePortal
               fullWidth
-              loading={isLoadingAnesthesiologists}
+              loading={isLoadingAnesthesiologistShifts}
               getOptionLabel={(option) => option.nombre}
-              options={anesthesiologistsData}
-              value={anesthesiologistsData.find((a) => a.id === watchAnesthesiologistId) ?? null}
-              noOptionsText="No se encontraron anestesiólogos"
+              options={anesthesiologistShiftsData}
+              value={anesthesiologistShiftsData.find((a) => a.id === watchAnesthesiologistId) ?? null}
+              noOptionsText="No se encontraron anestesiólogos en guardia"
               onChange={(_, val) => {
                 setValue('anesthesiologistId', val?.id ?? '');
               }}
@@ -302,6 +306,9 @@ const MedicSelectComponent = <T extends Inputs>({
   watch,
 }: MedicSelectComponentProps<T>) => {
   const { doctorsData, isLoadingMedics } = useGetMedics();
+  const startDateSurgery = useProgrammingRegisterStore((state) => state.startDateSurgery);
+  const { isLoadingMedicalShifts, medicalShiftsData } = useGetMedicalShiftsByDate(startDateSurgery);
+  const valueToFind = valueRadioButton === 'no' ? doctorsData : medicalShiftsData;
 
   return (
     <Box sx={{ display: 'flex', columnGap: 4 }}>
@@ -318,14 +325,29 @@ const MedicSelectComponent = <T extends Inputs>({
           <Autocomplete
             disablePortal
             fullWidth
-            loading={isLoadingMedics}
+            loading={valueRadioButton === 'no' ? isLoadingMedics : isLoadingMedicalShifts}
             getOptionLabel={(option) => option.nombre}
-            options={doctorsData}
-            noOptionsText="No se encontraron medicos"
+            options={valueRadioButton === 'no' ? doctorsData : medicalShiftsData}
+            noOptionsText={`No se encontraron medicos ${valueRadioButton === 'si' ? 'en guardia' : ''}`}
             onChange={(_, val) => {
-              setValue('medicId', val?.id ?? '');
+              if (valueRadioButton === 'no') {
+                setValue('medicId', val?.id ?? '');
+              } else {
+                const value = val as { id: string; id_Medico: string; nombre: string };
+                setValue('medicId', (value?.id_Medico as any) ?? '');
+              }
             }}
-            value={doctorsData.find((d) => d.id === watch('medicId')) ?? null}
+            value={
+              valueToFind.find((d) => {
+                if (valueRadioButton === 'no') {
+                  return d.id === watch('medicId');
+                } else {
+                  const val = d as any;
+                  return val.id_Medico === watch('medicId');
+                }
+              }) ?? null
+            }
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             renderInput={(params) => (
               <TextField
                 {...params}

@@ -34,3 +34,5 @@ export const BiomedicalEquipmentView = lazy(() => import('../views/Hospitalizati
 export const AnesthesiologistView = lazy(() => import('../views/Hospitalization/AnesthesiologistView'));
 export const XRayView = lazy(() => import('../views/Hospitalization/XRayView'));
 export const MedicView = lazy(() => import('../views/Hospitalization/MedicView'));
+export const MedicalShiftView = lazy(() => import('../views/Hospitalization/MedicalShiftView'));
+export const AnesthesiologistShiftView = lazy(() => import('../views/Hospitalization/AnesthesiologistShiftView'));

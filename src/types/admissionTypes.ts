@@ -30,12 +30,11 @@ export interface Procedimiento {
 export interface HistorialClinico {
   id: string;
   id_Paciente: string;
-  medicoTratante: string;
-  especialidad: string;
   motivoIngreso: string;
   diagnosticoIngreso: string;
-  procedimiento: string;
   comentarios: string;
+  tipoSangre: string;
+  alergias: string;
 }
 
 export interface Paciente {

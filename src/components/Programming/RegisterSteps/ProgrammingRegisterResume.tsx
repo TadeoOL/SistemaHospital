@@ -126,7 +126,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
             tipoCuarto: r.tipoCuarto,
           };
         }),
-        radiografias: xrayIds,
+        radiografias: xrayIds.length === 0 ? null : xrayIds,
         equiposBiomedico: biomedicalEquipment.flatMap((be) => be.id),
         articulos: articlesSelected.map((a) => {
           return {
@@ -143,8 +143,8 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
             };
           })
         ),
-        id_Medico: medicId,
-        id_Anestesiologo: anesthesiologistId,
+        id_Medico: medicId === '' ? null : medicId,
+        id_Anestesiologo: anesthesiologistId === '' ? null : anesthesiologistId,
       };
       await createAdmission(registerAdmissionObj);
       refetch();

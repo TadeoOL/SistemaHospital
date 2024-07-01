@@ -114,3 +114,39 @@ export const medicSchema = z.object({
   phoneNumber: z.string().min(1, 'El telefono es necesario'),
   email: z.string().email('El correo es necesario'),
 });
+
+export const medicalShiftRegisterSchema = z
+  .object({
+    medicId: z.object(
+      {
+        id: z.string().min(1, 'El medico es necesario'),
+      },
+      {
+        invalid_type_error: 'El medico es necesario',
+      }
+    ),
+    startShift: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    endShift: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+  })
+  .refine((args) => args.endShift >= args.startShift, {
+    message: 'La fecha de finalización debe ser mayor a la fecha de inicio',
+    path: ['endShift'],
+  });
+
+export const anesthesiologistShiftRegisterSchema = z
+  .object({
+    anesthesiologist: z.object(
+      {
+        id: z.string().min(1, 'El medico es necesario'),
+      },
+      {
+        invalid_type_error: 'El medico es necesario',
+      }
+    ),
+    startShift: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    endShift: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+  })
+  .refine((args) => args.endShift >= args.startShift, {
+    message: 'La fecha de finalización debe ser mayor a la fecha de inicio',
+    path: ['endShift'],
+  });

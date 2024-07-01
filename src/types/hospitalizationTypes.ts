@@ -34,3 +34,19 @@ export interface IMedic {
   edad: number;
   fechaNacimiento: Date;
 }
+
+export interface IMedicalShift {
+  id: string;
+  id_Medico: string;
+  nombre: string;
+  fechaInicio: Date;
+  fechaFin: Date;
+}
+
+export interface IAnesthesiologistShift {
+  id: string;
+  id_Anestesiologo: string;
+  nombre: string;
+  fechaInicio: Date;
+  fechaFin: Date;
+}

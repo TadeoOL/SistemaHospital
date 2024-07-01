@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { modifyRoom, registerRoom } from '../../../../services/programming/roomsService';
 import { IRoom } from '../../../../types/types';
 import { useRoomsPaginationStore } from '../../../../store/programming/roomsPagination';
+import { isValidFloat } from '../../../../utils/functions/dataUtils';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -27,6 +28,7 @@ type Inputs = {
   name: string;
   roomType: string;
   description: string;
+  price: string;
 };
 
 interface AddRoomModalProps {
@@ -42,6 +44,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(roomSchema),
@@ -49,6 +52,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       name: editData ? editData.nombre : '',
       roomType: editData ? editData.tipoCuarto : '',
       description: editData ? editData.descripcion : '',
+      price: editData ? editData.precio.toString() : '',
     },
   });
 
@@ -58,7 +62,12 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     setIsLoading(true);
     try {
       if (!editData) {
-        await registerRoom({ nombre: data.name, tipoCuarto: data.roomType, descripcion: data.description });
+        await registerRoom({
+          nombre: data.name,
+          tipoCuarto: data.roomType,
+          descripcion: data.description,
+          precio: parseFloat(data.price),
+        });
         toast.success('Cuarto dado de alta correctamente');
       } else {
         await modifyRoom({
@@ -66,6 +75,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
           tipoCuarto: data.roomType,
           descripcion: data.description,
           id: editData.id,
+          precio: parseFloat(data.price),
         });
         toast.success('Cuarto modificado correctamente');
       }
@@ -114,6 +124,25 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                   );
                 })}
               </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>Precio del cuarto</Typography>
+              <TextField
+                label="Precio"
+                fullWidth
+                error={!!errors.price?.message}
+                helperText={errors.price?.message}
+                value={watch('price')}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isValidFloat(value)) return;
+                  if (value === '.') {
+                    setValue('price', '');
+                    return;
+                  }
+                  setValue('price', value);
+                }}
+              />
             </Grid>
             <Grid item xs={12}>
               <Typography>Descripción</Typography>

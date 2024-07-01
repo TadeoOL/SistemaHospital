@@ -45,6 +45,8 @@ import {
   XRayView,
   MedicView,
   NurseRequestView,
+  MedicalShiftView,
+  AnesthesiologistShiftView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -115,6 +117,8 @@ function App() {
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
             <Route path="hospitalizacion/radiografias" element={<XRayView />} />
             <Route path="hospitalizacion/medicos" element={<MedicView />} />
+            <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
+            <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

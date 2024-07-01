@@ -48,6 +48,7 @@ export const RegisterSteps = (props: RegisterStepsProps) => {
       localStorage.removeItem('medicData');
       localStorage.removeItem('proceduresList');
       localStorage.removeItem('anesthesiologist');
+      localStorage.removeItem('xrayList');
     };
   }, []);
 

@@ -108,7 +108,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<
     IArticleFromSearch[]
   >([]);
-  const [nursesData, setNursesData] = useState<string[]>([]);
+  const [nursesData, setNursesData] = useState<{ id_Enfermero: string; nombre: string }[]>([]);
   const textFieldRef = useRef<HTMLInputElement | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
@@ -358,7 +358,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         id_almacenOrigen: props.warehouseId,
         EnEspera: true,
         SalidaMotivo: reasonMessage === 'Otro' ? textFieldRef.current?.value : `${reasonMessage} ${roomSelected}`,
-        SolicitadoPor: nurseSelected,
+        SolicitadoPor: nursesData.find((n) => n.id_Enfermero === nurseSelected)?.nombre,
       };
       await articlesOutputToWarehouseToWarehouse(object);
       props.refetch();
@@ -437,7 +437,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                         ) {
                           setOpenLoteModal(true);
                         }
-                        console.log(val);
                         setArticleId(val.id_Articulo);
                         setArticleSelected(val);
                         setArticleError(false);
@@ -571,15 +570,15 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   disablePortal
                   fullWidth
                   //filterOptions={filterArticleOptions}
-                  onChange={(e, val) => {
-                    e.stopPropagation();
-                    setNurseSelected(val as string);
+                  onChange={(_, val) => {
+                    console.log({ val });
+                    setNurseSelected(val?.id_Enfermero as string);
                     setArticleError(false); //cambiar
                   }}
                   loading={isLoadingArticlesWareH}
-                  //getOptionLabel={(option) => option.nombre}
+                  getOptionLabel={(option) => option.nombre}
                   options={nursesData}
-                  value={nurseSelected}
+                  value={nursesData.find((n) => n.id_Enfermero === nurseSelected)}
                   noOptionsText="No se encontraron enfermeros"
                   renderInput={(params) => (
                     <TextField
