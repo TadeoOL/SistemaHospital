@@ -2,6 +2,8 @@ import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 const toDate = (val: any) => (dayjs.isDayjs(val) ? val.toDate() : val);
+const zodDay = z.custom<Dayjs>((val) => val instanceof dayjs, 'Fecha invalida').optional();
+
 const priceSchema = z
   .string()
   .refine((p) => parseFloat(p) !== 0, {
@@ -142,4 +144,35 @@ export const procedureAndDoctorSelectorSchema = z.object({
 export const medicPersonalBiomedicalEquipmentSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   price: priceSchema,
+});
+
+const priceByTimeRange = z
+  .object({
+    inicio: z.string().min(1, 'La hora inicio es necesaria'),
+    fin: z.string().nullable(),
+    precio: z.number().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'El precio debe ser un número decimal positivo',
+    }),
+    noneHour: z.boolean().optional(),
+  })
+  .refine(
+    (val) => {
+      if (!val.noneHour && val.fin) {
+        return val.inicio <= val.fin;
+      }
+      return true;
+    },
+    {
+      message: 'La hora inicial debe ser menor a la final',
+      path: ['inicio'],
+    }
+  )
+  .optional();
+
+export const typeRoomSchema = z.object({
+  name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
+  description: z.string().optional(),
+  reservedSpaceTime: zodDay,
+  priceByTimeRange: z.array(priceByTimeRange).optional(),
+  type: z.string(),
 });

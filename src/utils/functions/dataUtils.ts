@@ -73,3 +73,9 @@ export const wasAuth = (value: number) => {
 export const debouncedSetSearch = debounce((set, search) => {
   set({ search, pageIndex: 0 });
 }, 250);
+
+export const isValidIntegerIncludeZero = (value: string) => {
+  if (value.trim() === '') return true;
+  const regex = /^([0-9][0-9]*)$/;
+  return regex.test(value);
+};

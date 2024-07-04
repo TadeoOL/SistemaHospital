@@ -21,7 +21,7 @@ interface Cuarto {
   cuartoId: string;
   horaInicio: Date;
   horaFin: Date;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
 }
 
 export const createAdmission = async (data: RegisterAdmission) => {

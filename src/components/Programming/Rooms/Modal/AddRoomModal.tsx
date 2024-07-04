@@ -9,6 +9,7 @@ import { modifyRoom, registerRoom } from '../../../../services/programming/rooms
 import { IRoom } from '../../../../types/types';
 import { useRoomsPaginationStore } from '../../../../store/programming/roomsPagination';
 import { isValidFloat } from '../../../../utils/functions/dataUtils';
+import { useGetAllTypesRoom } from '../../../../hooks/programming/useGetAllTypesRoom';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -21,8 +22,6 @@ const style = {
   flexDirection: 'column',
   maxHeight: { xs: 900 },
 };
-
-const ROOM_TYPES = ['Hospitalización', 'Quirófano'];
 
 type Inputs = {
   name: string;
@@ -39,6 +38,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useRoomsPaginationStore((state) => state.fetchData);
+  const { isLoadingTypeRoom, data } = useGetAllTypesRoom();
 
   const {
     register,
@@ -64,7 +64,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       if (!editData) {
         await registerRoom({
           nombre: data.name,
-          tipoCuarto: data.roomType,
+          id_TipoCuarto: data.roomType,
           descripcion: data.description,
           precio: parseFloat(data.price),
         });
@@ -72,7 +72,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       } else {
         await modifyRoom({
           nombre: data.name,
-          tipoCuarto: data.roomType,
+          id_TipoCuarto: data.roomType,
           descripcion: data.description,
           id: editData.id,
           precio: parseFloat(data.price),
@@ -89,6 +89,12 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     }
   };
 
+  if (isLoadingTypeRoom)
+    return (
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar cuarto' : 'Agregar cuarto'} />
@@ -116,10 +122,10 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 {...register('roomType')}
                 value={watchRoomType}
               >
-                {ROOM_TYPES.map((roomType) => {
+                {data.map((roomType) => {
                   return (
-                    <MenuItem value={roomType} key={roomType}>
-                      {roomType}
+                    <MenuItem value={roomType.id} key={roomType.id}>
+                      {roomType.nombre}
                     </MenuItem>
                   );
                 })}

@@ -45,7 +45,7 @@ const styleBar = {
 interface RegisterResumeProps {
   setOpen: Function;
 }
-const HEADERS = ['Nombre', 'Tipo de Cuarto', 'Hora Inicio', 'Hora Fin'];
+const HEADERS = ['Nombre', 'Hora Inicio', 'Hora Fin'];
 const DIVIDER_SIZE = 1;
 const DIVIDER_STYLE = {
   my: DIVIDER_SIZE,
@@ -123,7 +123,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
             cuartoId: r.id,
             horaInicio: r.horaInicio,
             horaFin: r.horaFin,
-            tipoCuarto: r.tipoCuarto,
+            id_TipoCuarto: r.id_TipoCuarto,
           };
         }),
         radiografias: xrayIds.length === 0 ? null : xrayIds,
@@ -283,7 +283,6 @@ const LocalEventsTable: React.FC<LocalEventsTableProps> = ({ events }) => {
           {events.map((event) => (
             <TableRow key={event.id}>
               <TableCell>{event.nombre}</TableCell>
-              <TableCell>{event.tipoCuarto}</TableCell>
               <TableCell>{event.horaInicio.toLocaleString()}</TableCell>
               <TableCell>{event.horaFin.toLocaleString()}</TableCell>
             </TableRow>

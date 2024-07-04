@@ -5,7 +5,7 @@ import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import dayjs from 'dayjs';
 import { Delete } from '@mui/icons-material';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
-const HEADERS = ['Cuarto', 'Tipo de cuarto', 'Precio', 'Hora Inicio', 'Hora Fin', 'Acciones'];
+const HEADERS = ['Cuarto', 'Precio', 'Hora Inicio', 'Hora Fin', 'Acciones'];
 interface RoomReservationTableRowProps {
   data: IRegisterRoom;
 }
@@ -49,10 +49,10 @@ const RoomReservationTableRow = (props: RoomReservationTableRowProps) => {
     setRoomValues(roomsValues.filter((room) => room.id !== data.id));
     setEvents(events.filter((e) => e.roomId !== data.id));
   };
+
   return (
     <TableRow>
       <TableCell>{data.nombre}</TableCell>
-      <TableCell>{data.tipoCuarto}</TableCell>
       <TableCell>{data.precio}</TableCell>
       <TableCell>{dayjs(data.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
       <TableCell>{dayjs(data.horaFin).format('DD/MM/YYYY - HH:mm')}</TableCell>

@@ -93,7 +93,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       const roomObj: IRegisterRoom = {
         id: roomFound.id,
         nombre: roomFound.nombre,
-        tipoCuarto: roomFound.tipoCuarto,
+        id_TipoCuarto: roomFound.id_TipoCuarto,
         precio: roomFound.precio,
         horaFin: endDate,
         horaInicio: startTime,
@@ -131,6 +131,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       .filter((room) => !events.some((event) => event.id === room.id));
     setEvents([...events, ...roomObj]);
     toast.success('Datos registrados correctamente!');
+    console.log({ roomObj });
     setStep(step + 1);
   };
 

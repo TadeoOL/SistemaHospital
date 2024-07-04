@@ -39,6 +39,7 @@ import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
 import { FaLaptopMedical } from 'react-icons/fa';
 import { GiMedicalDrip } from 'react-icons/gi';
+import { FaHouseChimneyMedical } from 'react-icons/fa6';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -231,6 +232,12 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: supplyRoles,
           },
           {
+            title: 'Tipos de Cuarto',
+            path: '/programacion/tipos-cuarto',
+            icon: <FaHouseChimneyMedical />,
+            protectedRoles: supplyRoles,
+          },
+          {
             title: 'Procedimientos de cirugía',
             path: '/programacion/procedimientos-cirugia',
             icon: <Vaccines sx={{ color: '#fff' }} />,
@@ -310,5 +317,24 @@ export const ModuleList: IModuleItemsList[] = [
       },
     ],
     path: 'hospitalizacion',
+  },
+  {
+    categoryTitle: 'Quirófano',
+    icon: <MonitorHeart />,
+    moduleItems: [
+      {
+        title: 'Operaciones del dia',
+        path: '/quirofano/operaciones-del-dia',
+        icon: <GiMedicalDrip />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Configuración',
+        path: '/quirofano/configuracion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+    ],
+    path: 'quirofano',
   },
 ];

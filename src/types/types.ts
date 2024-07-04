@@ -601,7 +601,7 @@ export interface ISurgeryProcedure {
 
 export interface IRegisterRoom {
   id: string;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
   nombre: string;
   horaInicio: Date;
   horaFin: Date;
@@ -612,7 +612,7 @@ export interface IRegisterRoom {
 
 export interface IRoomsList {
   id: string;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
   nombre: string;
   precio: number;
 }

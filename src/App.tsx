@@ -47,6 +47,9 @@ import {
   NurseRequestView,
   MedicalShiftView,
   AnesthesiologistShiftView,
+  OperatingRoomView,
+  TypesRoomView,
+  DailyOperatingView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -106,6 +109,7 @@ function App() {
             // ---------------------------Programacion------------------------------------- //
             <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
             <Route path="programacion/cuartos" element={<RoomsView />} />
+            <Route path="programacion/tipos-cuarto" element={<TypesRoomView />} />
             <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
             <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
             <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
@@ -119,6 +123,9 @@ function App() {
             <Route path="hospitalizacion/medicos" element={<MedicView />} />
             <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
             <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
+            // --------------------------------- OperatingRoom ------------------------------- //
+            <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
+            <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

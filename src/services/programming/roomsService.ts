@@ -5,7 +5,7 @@ const apiRoom = '/api/Cuartos';
 export const registerRoom = async (data: {
   nombre: string;
   descripcion: string;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
   precio: number;
 }) => {
   const res = await axios.post(`${apiRoom}/registrar-cuarto`, data);
@@ -20,7 +20,7 @@ export const getRoomsPagination = async (params: string) => {
 export const modifyRoom = async (data: {
   nombre: string;
   descripcion: string;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
   id: string;
   precio: number;
 }) => {

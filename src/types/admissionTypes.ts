@@ -1,3 +1,5 @@
+import { IRecoveryRoomOperatingRoom } from './operatingRoomTypes';
+
 export interface IEventDetails {
   id: string;
   horaInicio: string;
@@ -79,4 +81,13 @@ export interface IProgrammingRequestPagination {
   recomendacionMedica: boolean;
   notas?: string;
   procedimientos: { id: string; nombre: string }[];
+}
+
+export interface ITypeRoom {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  configuracionLimpieza?: string;
+  configuracionPrecioHora?: IRecoveryRoomOperatingRoom[];
+  tipo: number;
 }
