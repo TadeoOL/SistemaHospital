@@ -30,6 +30,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
 import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { SortComponent } from '../../Commons/SortComponent';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { LuPackagePlus } from 'react-icons/lu';
 import { CreatePackageModal } from './Modal/CreatePackageModal';
@@ -67,6 +68,8 @@ const useGetMovements = () => {
     setEndDate,
     setSearch,
     search,
+    sort,
+    setSort,
   } = useWarehouseMovementPackagesPaginationStore((state) => ({
     data: state.data,
     fetchWareHouseMovements: state.fetchWarehouseMovements,
@@ -83,11 +86,13 @@ const useGetMovements = () => {
     search: state.search,
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
+    sort: state.sort,
+    setSort: state.setSort,
   }));
 
   useEffect(() => {
     fetchWareHouseMovements(warehouseIdSeted);
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
+  }, [pageCount, pageSize, pageIndex, startDate, sort, endDate, search]);
   return {
     data,
     isLoading,
@@ -101,6 +106,7 @@ const useGetMovements = () => {
     setEndDate,
     setPageIndex,
     setPageSize,
+    setSort,
     fetchWareHouseMovements,
   };
 };
@@ -120,6 +126,7 @@ export const WaitingPackages = () => {
     setPageIndex,
     setPageSize,
     fetchWareHouseMovements,
+    setSort,
   } = useGetMovements();
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
@@ -261,7 +268,27 @@ export const WaitingPackages = () => {
           <Card>
             <TableContainer>
               <Table>
-                <TableHeaderComponent headers={TABLE_HEADERS}></TableHeaderComponent>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Solicitado por" headerName="enfermero" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Fecha Solicitud"
+                        headerName="fechaSolicitud"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
                 <TableBody>
                   {data && data.length > 0 ? (
                     data.map((movimiento) => (
@@ -380,7 +407,7 @@ export const WaitingPackages = () => {
                             <>
                               <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                               <Typography variant="h2" color="gray">
-                                No hay movimientos
+                                No hay paquetes en espera
                               </Typography>
                             </>
                           )}

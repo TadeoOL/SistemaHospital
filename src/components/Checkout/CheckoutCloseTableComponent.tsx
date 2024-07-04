@@ -8,6 +8,7 @@ import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useCheckoutClosePaginationStore } from '../../store/checkout/checkoutClosePagination';
+import { SortComponent } from '../Commons/SortComponent';
 
 const headTitles = [
   'Usuario',
@@ -38,6 +39,7 @@ export const CheckoutClosesTableComponent = () => {
   const pageIndex = useCheckoutClosePaginationStore((state) => state.pageIndex);
   const pageSize = useCheckoutClosePaginationStore((state) => state.pageSize);
   const search = useCheckoutClosePaginationStore((state) => state.search);
+  const sort = useCheckoutClosePaginationStore((state) => state.sort);
   const count = useCheckoutClosePaginationStore((state) => state.count);
   const data = useCheckoutClosePaginationStore((state) => state.data);
   const setPageIndex = useCheckoutClosePaginationStore((state) => state.setPageIndex);
@@ -45,7 +47,7 @@ export const CheckoutClosesTableComponent = () => {
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, search, count]);
+  }, [pageIndex, pageSize, search, count, sort]);
 
   return (
     <Card>
@@ -75,11 +77,14 @@ export const CheckoutClosesTableComponent = () => {
 };
 
 const CheckoutTableHeader = (props: CheckoutTableProps) => {
+  const setSort = useCheckoutClosePaginationStore((state) => state.setSort);
   return (
     <TableHead>
       <TableRow>
         {props.heads.map((title, i) => (
-          <TableCell key={i + title}>{title}</TableCell>
+          <TableCell key={i + title}>
+            <SortComponent tableCellLabel={title} headerName={title} setSortFunction={setSort} />
+          </TableCell>
         ))}
       </TableRow>
     </TableHead>

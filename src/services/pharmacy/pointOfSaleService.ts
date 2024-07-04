@@ -16,6 +16,11 @@ export const getArticlesToSaleOnPOS = async (paramUrl: string) => {
   const res = await axios.get(`${apiPos}/obtener-articulos-venta?${paramUrl}`);
   return res.data;
 };
+//acomodar despues
+export const getExistingArticlesPOS = async (paramUrl: string) => {
+  const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente-pos?${paramUrl}`);
+  return res.data;
+};
 
 export const getCategoriesForPOS = async (warehouseId: string) => {
   const res = await axios.get(`${apiPos}/obtener-subCategorias-puntoVenta/almacen/${warehouseId}`);
