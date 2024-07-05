@@ -5,6 +5,7 @@ import {
   ClickAwayListener,
   Collapse,
   IconButton,
+  Menu,
   MenuItem,
   Modal,
   Stack,
@@ -44,6 +45,9 @@ import { SortComponent } from '../../../Commons/SortComponent';
 import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrderPackage';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
 import { toast } from 'react-toastify';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { CommonReport } from '../../../Export/Common/CommonReport';
+import { CommonSpreadSheet } from '../../../Export/Common/CommonSpreadSheet';
 
 enum authFilter {
   'Todas las ordenes' = 0,
@@ -200,7 +204,7 @@ export const PurchaseOrder = () => {
     fetch();
   }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate, sort, requiredAuth]);
 
-    const handleOpenPdf = async (quoteId: string) => {
+  const handleOpenPdf = async (quoteId: string) => {
     try {
       if (quoteId === '') return toast.warning('Esta orden no cuenta con cotización');
       setPdfOpen(quoteId as string);
@@ -208,6 +212,27 @@ export const PurchaseOrder = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const title = 'Reporte de Orden de Compra';
+  const header = [
+    { key: 'folio_Extension', nameHeader: 'Orden de Compra' },
+    { key: 'usuarioSolicitado', nameHeader: 'Creado por' },
+    { key: 'proveedorNombre', nameHeader: 'Proveedor' },
+    { key: 'fechaSolicitud', nameHeader: 'Fecha de Solicitud' },
+    { key: 'precioTotalOrden', nameHeader: 'Total' },
+    { key: 'estatus', nameHeader: 'Estatus' },
+  ];
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -282,6 +307,37 @@ export const PurchaseOrder = () => {
             <IconButton onClick={() => usePurchaseOrderPagination.getState().clearFilters()}>
               <FilterListOffIcon />
             </IconButton>
+          </Box>
+          <Box>
+            <IconButton onClick={handleClick}>
+              <DownloadIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <MenuItem onClick={handleClose}>
+                <PDFDownloadLink
+                  document={<CommonReport title={title} header={header} data={data} />}
+                  fileName={`${Date.now()}.pdf`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  PDF
+                </PDFDownloadLink>
+              </MenuItem>
+              <MenuItem onClick={handleClose}>
+                <CommonSpreadSheet title={`${Date.now()}`} header={header} data={data} />
+              </MenuItem>
+            </Menu>
           </Box>
         </Box>
         <Card sx={{ minWidth: { xs: 950, xl: 0 } }}>
@@ -370,7 +426,7 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {(!order.fueAutorizada && order.estatus === 1) && (
+                                  {!order.fueAutorizada && order.estatus === 1 && (
                                     <Tooltip title="Editar">
                                       <IconButton
                                         onClick={() => {
@@ -448,13 +504,13 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               )}
                               {order.estatus === 1 && order.cotizacion && (
-                                 <Tooltip title="Ver Cotización">
+                                <Tooltip title="Ver Cotización">
                                   <IconButton
                                     size="small"
-                                    onClick={() => { 
+                                    onClick={() => {
                                       if (order.cotizacion) {
-                                      handleOpenPdf(order.cotizacion);
-                                    }
+                                        handleOpenPdf(order.cotizacion);
+                                      }
                                     }}
                                   >
                                     <RemoveRedEye />
@@ -493,12 +549,12 @@ export const PurchaseOrder = () => {
                               )}
                               {order.estatus === 3 && (
                                 <>
-                                <Tooltip title="Artículos dados de alta en almacen">
-                                  <IconButton>
-                                   <DoneAll sx={{ color: 'green' }} />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Ver Factura">
+                                  <Tooltip title="Artículos dados de alta en almacen">
+                                    <IconButton>
+                                      <DoneAll sx={{ color: 'green' }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Ver Factura">
                                     <IconButton
                                       onClick={() => {
                                         setOrderSelected({
@@ -627,7 +683,7 @@ export const PurchaseOrder = () => {
         </>
       </Modal>
 
-        <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
+      <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
         <Stack
           sx={{
             display: 'flex',
