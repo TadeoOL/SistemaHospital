@@ -128,7 +128,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   const handleAddArticle = () => {
     if (!articleSelected) return toast.warning('Selecciona un artículo');
     if (parseInt(articleAmount) === 0) return toast.warning('Agrega una cantidad!');
-    const { id, cantidad } = articleSelected;
+    const { id } = articleSelected;
     // if (parseInt(articleAmount) > cantidad) return toast.warning('No hay suficiente stock!');
     // if (cantidad === 0) return toast.warning('El artículo seleccionado no tiene existencias');
     if (articlesSelected.find((article) => article.id === id)) {

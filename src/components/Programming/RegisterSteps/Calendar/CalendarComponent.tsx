@@ -233,6 +233,8 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         }}
         onEventDrop={eventModify}
         onEventResize={eventModify}
+        // endAccessor={({ end }) => new Date(end.getTime() - 1)}
+        showMultiDayTimes={true}
       />
       <Modal open={open}>
         <>

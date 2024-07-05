@@ -1,8 +1,13 @@
-import { Box } from '@mui/material';
+import { Autocomplete, Box, TextField } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { DailyOperatingTable } from './DailyOperatingTable';
+import { useDailyOperatingRoomsPaginationStore } from '../../../store/operatingRoom/dailyOperatingRoomsPagination';
+import { useGetAllOperatingRooms } from '../../../hooks/operatingRoom/useGetAllOperatingRoomTypes';
 
 export const DailyOperating = () => {
+  const setSearch = useDailyOperatingRoomsPaginationStore((state) => state.setSearch);
+  const setOperatingRoomId = useDailyOperatingRoomsPaginationStore((state) => state.setOperatingRoomId);
+  const { data, isLoading } = useGetAllOperatingRooms();
   return (
     <Box
       sx={{
@@ -15,7 +20,18 @@ export const DailyOperating = () => {
         rowGap: 2,
       }}
     >
-      <SearchBar searchState={() => {}} title="Buscar cirugía" />
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <SearchBar searchState={setSearch} title="Buscar cirugía" sx={{ flex: 4 }} />
+        <Autocomplete
+          options={data}
+          loading={isLoading}
+          loadingText={'Cargando quirófanos...'}
+          renderInput={(params) => <TextField {...params} placeholder="Quirófanos" />}
+          onChange={(_, val) => setOperatingRoomId(val?.id ?? '')}
+          getOptionLabel={(option) => option.nombre}
+          sx={{ flex: 1 }}
+        />
+      </Box>
       <DailyOperatingTable />
     </Box>
   );

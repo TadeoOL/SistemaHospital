@@ -31,12 +31,10 @@ import Swal from 'sweetalert2';
 import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { SortComponent } from '../../Commons/SortComponent';
-import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { LuPackagePlus } from 'react-icons/lu';
 import { CreatePackageModal } from './Modal/CreatePackageModal';
 import { IArticleHistory } from '../../../types/types';
 
-const TABLE_HEADERS = ['Folio', 'Solicitado por', 'Fecha Solicitud', 'Estatus', 'Acciones'];
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
   2: 'Aceptada',

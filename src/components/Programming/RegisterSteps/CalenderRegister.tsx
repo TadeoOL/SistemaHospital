@@ -41,8 +41,8 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
 
   const sameDate = useMemo(() => {
     if (!date) return true;
-    const formattedCurrentDate = currentDate['$M'] + currentDate['$y'];
-    const formattedSelectedDate = date['$M'] + date['$y'];
+    const formattedCurrentDate = currentDate['$M'] + currentDate['$y'] + currentDate['$D'];
+    const formattedSelectedDate = date['$M'] + date['$y'] + date['$D'];
     return formattedCurrentDate === formattedSelectedDate;
   }, [date]);
 
@@ -56,7 +56,6 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />
       <Box
         sx={{
-          display: 'flex',
           flex: 1,
           flexDirection: 'column',
           p: 2,
@@ -66,7 +65,7 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
         }}
       >
         <Stack>
-          <Box sx={{ display: 'flex' }}>
+          <Box>
             <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10 }}>
               <Box sx={{ display: 'flex', flex: 1 }}>
                 {!sameDate && (
@@ -75,7 +74,7 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
                   </Button>
                 )}
               </Box>
-              <Box sx={{ display: 'flex', flex: 2 }}>
+              <Box sx={{ flex: 2 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     views={['year', 'month']}
@@ -89,9 +88,7 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
               </Box>
             </Box>
           </Box>
-          <Box>
-            <CalendarComponent date={date} events={events} setDate={setDate} setEvents={setEvents} />
-          </Box>
+          <CalendarComponent date={date} events={events} setDate={setDate} setEvents={setEvents} />
         </Stack>
       </Box>
       <Box

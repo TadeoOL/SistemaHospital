@@ -21,24 +21,12 @@ export const EventClinicalHistoryDetails = (props: EventClinicalHistoryDetailsPr
         <Divider sx={{ my: 1 }} />
       </Grid>
       <Grid sx={gridStyle} item xs={12} md={6}>
-        <Typography sx={titleStyle}>Medico Tratante:</Typography>
-        <Typography sx={bodyStyle}>{clinicalHistory.medicoTratante}</Typography>
-      </Grid>
-      <Grid sx={gridStyle} item xs={12} md={6}>
-        <Typography sx={titleStyle}>Especialidad:</Typography>
-        <Typography sx={bodyStyle}>{clinicalHistory.especialidad}</Typography>
-      </Grid>
-      <Grid sx={gridStyle} item xs={12} md={6}>
         <Typography sx={titleStyle}>Motivo Ingreso:</Typography>
         <Typography sx={bodyStyle}>{clinicalHistory.motivoIngreso}</Typography>
       </Grid>
       <Grid sx={gridStyle} item xs={12} md={6}>
         <Typography sx={titleStyle}>Diagnostico Ingreso:</Typography>
         <Typography sx={bodyStyle}>{clinicalHistory.diagnosticoIngreso}</Typography>
-      </Grid>
-      <Grid sx={gridStyle} item xs={12} md={6}>
-        <Typography sx={titleStyle}>Procedimiento:</Typography>
-        <Typography sx={bodyStyle}>{clinicalHistory.procedimiento}</Typography>
       </Grid>
       <Grid sx={gridStyle} item xs={12}>
         <Typography sx={titleStyle}>Comentarios:</Typography>

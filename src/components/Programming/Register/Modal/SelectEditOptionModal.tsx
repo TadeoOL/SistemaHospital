@@ -1,4 +1,4 @@
-import { CalendarMonth, Close, PermIdentity, TextSnippet } from '@mui/icons-material';
+import { Close, PermIdentity, TextSnippet } from '@mui/icons-material';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import { EditPersonalInfoModal } from './EditData/EditPersonalInfoModal';
 import { EditClinicalInfoModal } from './EditData/EditClinicalInfoModal';

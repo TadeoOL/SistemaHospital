@@ -87,7 +87,6 @@ export const SelectRoomToEdit = (props: SelectRoomToEditProps) => {
               }}
             >
               <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{room.nombre}</Typography>
-              <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{room.tipoCuarto}</Typography>
               <Box sx={{ display: 'flex' }}>
                 <Typography sx={{ fontSize: 13, fontWeight: 500, mr: 0.5 }}>
                   {dayjs(room.horaInicio).format('DD/MM/YYYY - HH:mm')} al
