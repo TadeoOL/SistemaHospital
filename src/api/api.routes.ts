@@ -876,16 +876,19 @@ export const articlesOutputToWarehouse = async (data: {
       Id_ArticuloExistente: string;
       Cantidad: string;
     }[];*/
-  Lotes?: any;
-  Estatus: number;
-  Id_HistorialMovimiento?: string;
-  SolicitadoPor?: string;
-  Mensaje?: string;
-}) => {
-  const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
-    ...data,
-  });
-  return res.data;
+    Lotes?: any;
+    Estatus: number;
+    Id_HistorialMovimiento?: string;
+    Id_CuentaPaciente?: string;
+    SolicitadoPor?: string;
+    Mensaje?: string;
+  }
+) => {
+    const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
+      ...data,
+    });
+    return res.data;
+  
 };
 
 export const waitingpackageChangeStatus = async (data: {
@@ -909,6 +912,8 @@ export const articlesOutputToWarehouseToWarehouse = async (data: {
   }[];
   SalidaMotivo?: string;
   SolicitadoPor?: string;
+  Id_Enfermero?: string;
+  Id_CuentaPaciente?: string;
 }) => {
   const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
     ...data,
@@ -1005,6 +1010,8 @@ export const articlesEntryToWarehouse = async (data: {
     fechaCaducidad: string;
   }[];
   IngresoMotivo: string;
+  NombreEnfermero: string;
+  Id_CuentaPaciente: string;
 }) => {
   const res = await axios.put(`/api/ArticuloExistente/entrada-manual-lote`, {
     ...data,
@@ -1045,8 +1052,6 @@ export const addNurseRequest = async (article: any) => {
     Cuarto,
     Id_Paciente,
     Id_CuentaPaciente,
-    Id_Enfermero,
-    NombreEnfermero,
     SolicitadoEn,
     Id_AlmacenSolicitado,
     ListaSolicitud,
@@ -1056,8 +1061,6 @@ export const addNurseRequest = async (article: any) => {
     Cuarto,
     Id_Paciente,
     Id_CuentaPaciente,
-    Id_Enfermero,
-    NombreEnfermero,
     SolicitadoEn,
     Id_AlmacenSolicitado,
     ListaSolicitud,
@@ -1066,10 +1069,12 @@ export const addNurseRequest = async (article: any) => {
 };
 
 export const updateStatusNurseRequest = async (data: {
-  Id: string;
-  EstadoSolicitud: number;
-  Id_AlmacenOrigen: string;
-  Lotes?: any;
+  Id: string; 
+  EstadoSolicitud: number; 
+  Id_AlmacenOrigen: string; 
+  Id_CuentaPaciente?: string; 
+  Id_Enfermero?: string; 
+  Lotes?: any; 
 }) => {
   const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
     ...data,

@@ -105,7 +105,6 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    console.log('entra el efects');
     fetchData(false);
   }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
   return {
@@ -193,7 +192,7 @@ export const NurseRequestManagementTable = () => {
       });
   };
 
-  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string) => {
+  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string, Id_PacientAccount: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -210,6 +209,8 @@ export const NurseRequestManagementTable = () => {
             Id_AlmacenOrigen: Id_warehouseRequest,
             EstadoSolicitud: 3,
             Id: idRequest,
+            Id_CuentaPaciente: Id_PacientAccount,
+            //Id_Enfermero : '',
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -443,7 +444,11 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
             <Tooltip title="Marcar como Entregado">
               <IconButton
                 onClick={() => {
-                  markAsDelivered(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
+                  markAsDelivered(
+                    nurseRequest.id_SolicitudEnfermero,
+                    nurseRequest.id_AlmacenSolicitado,
+                    nurseRequest.id_CuentaPaciente
+                  );
                 }}
               >
                 <MarkunreadMailboxIcon sx={{ color: 'green' }} />

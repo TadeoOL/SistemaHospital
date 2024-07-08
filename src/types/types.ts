@@ -145,6 +145,14 @@ export interface IArticleFromSearch {
   nombre: string;
 }
 
+export interface IArticleFromSearchWithBarCode {
+  id_Articulo: string;
+  id_ArticuloCuenta: string;
+  nombre: string;
+  codigoBarras?: string;
+  cantidad: number;
+}
+
 export interface IExistingArticle {
   id_Articulo: string;
   cantidad: number;
@@ -383,6 +391,7 @@ export interface IWarehouseMovementData {
   ingresoMotivo: string;
   salidaMotivo: string;
   id: string;
+  id_CuentaPaciente?: string;
   solicitadoPor?: string;
   autorizadoPor?: string;
   estatus?: number;
@@ -519,6 +528,7 @@ export interface ICheckoutHistory {
 
 export interface InurseRequest {
   id_SolicitudEnfermero: string;
+  id_CuentaPaciente: string;
   folio: string;
   cuarto: string;
   id_paciente: string;

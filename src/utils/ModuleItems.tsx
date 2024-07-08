@@ -15,6 +15,7 @@ import {
   checkout,
   checkoutAdmin,
   checkoutSell,
+  nurseRole,
   pharmacyDirectorRole,
   pharmacyManager,
   purchaseGlobalRoles,
@@ -169,7 +170,7 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Solicitud enfermero',
         path: '/farmacia/solicitud-enfermero',
         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-        protectedRoles: pharmacyDirectorRole,
+        protectedRoles: nurseRole,
       },
     ],
     path: 'farmacia',
@@ -302,6 +303,18 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: supplyRoles,
           },
         ],
+      },
+      {
+        title: 'Solicitar Radiografía',
+        path: '/hospitalizacion/radiografias-solicitud',
+        icon: <LiaXRaySolid />,
+        protectedRoles: nurseRole,
+      },
+      {
+        title: 'Administrar Radiografías',
+        path: '/hospitalizacion/radiografias-administracion',
+        icon: <FactCheckIcon />,
+        protectedRoles: nurseRole, //Cambiar aca por admin de radiografia-radiologo
       },
       {
         title: 'Guardias Medicos',

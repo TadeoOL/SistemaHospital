@@ -24,6 +24,7 @@ interface LoteSelectionProps {
   selectedLotes?: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[];
   adding?: boolean;
   temporalFromPackageAmountSelect?: number;
+  maxAmountSelect?: number | null;
   empityLotes: boolean | null;
 }
 
@@ -207,6 +208,7 @@ export const LoteSelectionRemake2: React.FC<LoteSelectionProps> = (props) => {
             <Typography variant="h5">
               Seleccione el lote del artículo que desea retirar
               {props.temporalFromPackageAmountSelect ? `(${props.temporalFromPackageAmountSelect})` : ''}:
+              {props.maxAmountSelect ? `(MAX ${props.maxAmountSelect})` : ''}
             </Typography>
 
             {loading ? (

@@ -35,7 +35,7 @@ export const SearchBar = (props: ISearchBar) => {
         InputProps={{
           startAdornment: <SearchIcon />,
         }}
-        sx={{ maxWidth: 500, backgroundColor: 'white' }}
+        sx={{ maxWidth: 500, backgroundColor: 'white', borderRadius: 3.5 }}
       />
     </Box>
   );
