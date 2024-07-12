@@ -61,7 +61,7 @@ interface State {
   fetchEvents: boolean;
   evidencePdf: string;
   rejectedMedicId: string;
-  articlesSelected: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[];
+  articlesSelected: { id: string; nombre: string; cantidad: number; precioVenta: number; cantidadDisponible?: number }[];
   biomedicalEquipmentsSelected: IBiomedicalEquipment[];
   medicId: string;
   anesthesiologistId: string;
@@ -81,7 +81,7 @@ interface Action {
   setEvidencePdf: (evidencePdf: string) => void;
   setRejectedMedicId: (rejectedMedicId: string) => void;
   setArticlesSelected: (
-    articlesSelected: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[]
+    articlesSelected: { id: string; nombre: string; cantidad: number; precioVenta: number; cantidadDisponible?: number }[]
   ) => void;
   setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected: IBiomedicalEquipment[]) => void;
   setMedicId: (medicId: string) => void;
@@ -117,7 +117,7 @@ export const useProgrammingRegisterStore = create<State & Action & ActionRoom & 
   setAnesthesiologistId: (anesthesiologistId: string) => set(() => ({ anesthesiologistId })),
   setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected) => set({ biomedicalEquipmentsSelected }),
   setArticlesSelected: (
-    articlesSelected: { id: string; nombre: string; cantidad: number; cantidadDisponible?: number }[]
+    articlesSelected: { id: string; nombre: string; cantidad: number; precioVenta: number; cantidadDisponible?: number }[]
   ) => set({ articlesSelected }),
   setRejectedMedicId: (rejectedMedicId: string) => set(() => ({ rejectedMedicId })),
   setEvidencePdf: (evidencePdf: string) => set(() => ({ evidencePdf })),

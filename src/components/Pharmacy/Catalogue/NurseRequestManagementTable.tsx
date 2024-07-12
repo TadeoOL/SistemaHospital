@@ -158,7 +158,7 @@ export const NurseRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `¿Seguro que deseas cancelar esta solicitud de enfermero?`,
+        text: `¿Seguro que deseas cancelar esta solicitud de radiografia?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -180,7 +180,7 @@ export const NurseRequestManagementTable = () => {
           fetchData(false);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Salida cancelada',
+            text: 'Radiografía cancelada',
             icon: 'success',
           });
         } else {
@@ -196,7 +196,7 @@ export const NurseRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
-        text: `¿Seguro que deseas marcar esta solicitud como entregada?`,
+        text: `¿Seguro que deseas aceptar esta radiografía?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -220,12 +220,12 @@ export const NurseRequestManagementTable = () => {
           fetchData(false);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Salida marcada como entregada',
+            text: 'Radiografía aceptada',
             icon: 'success',
           });
         } else {
           withReactContent(Swal).fire({
-            title: 'No se marcó la salida como entregada',
+            title: 'No se acepto la radiografía',
             icon: 'info',
           });
         }

@@ -328,6 +328,18 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <GiMedicalDrip />,
         protectedRoles: checkout,
       },
+      {
+        title: 'Cierre de cuenta',
+        path: '/hospitalizacion/cierre-de-cuenta',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Configuración',
+        path: '/hospitalizacion/configuracion-hospitalizacion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
     ],
     path: 'hospitalizacion',
   },

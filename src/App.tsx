@@ -52,12 +52,14 @@ import {
   DailyOperatingView,
   XRayRequestView,
   XRayRequestManagementView,
+  HospitalizationConfigView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
   ProtectedRoutePharmacyManager,
 } from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePharmacy';
 import { CheckoutRoute } from './utils/CheckoutRoute';
+import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 
 function App() {
   return (
@@ -107,17 +109,17 @@ function App() {
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
               <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
               <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
+              // ---------------------------Programacion------------------------------------- //
+              <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
+              <Route path="programacion/cuartos" element={<RoomsView />} />
+              <Route path="programacion/tipos-cuarto" element={<TypesRoomView />} />
+              <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
+              <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
+              <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
+              <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
+              <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
+              <Route path="/configuracion" element={<AccountView />} />
             </Route>
-            // ---------------------------Programacion------------------------------------- //
-            <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
-            <Route path="programacion/cuartos" element={<RoomsView />} />
-            <Route path="programacion/tipos-cuarto" element={<TypesRoomView />} />
-            <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
-            <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
-            <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
-            <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
-            <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
-            <Route path="/configuracion" element={<AccountView />} />
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
@@ -127,6 +129,8 @@ function App() {
             <Route path="hospitalizacion/medicos" element={<MedicView />} />
             <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
             <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
+            <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} />
+            <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
             // --------------------------------- OperatingRoom ------------------------------- //
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />

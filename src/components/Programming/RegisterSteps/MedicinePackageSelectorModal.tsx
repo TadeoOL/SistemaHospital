@@ -115,7 +115,12 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const articlesSelected = useProgrammingRegisterStore((state) => state.articlesSelected);
   const setArticlesSelected = useProgrammingRegisterStore((state) => state.setArticlesSelected);
-  const [articleSelected, setArticleSelected] = useState<{ id: string; nombre: string; cantidad: number } | null>();
+  const [articleSelected, setArticleSelected] = useState<{
+    id: string;
+    nombre: string;
+    cantidad: number;
+    precioVenta: number;
+  } | null>();
   const [articleAmount, setArticleAmount] = useState('0');
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
 
@@ -137,7 +142,12 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
     const originalArticle = articlesRes.find((a) => a.id_Articulo === id);
     setArticlesSelected([
       ...articlesSelected,
-      { ...articleSelected, cantidad: parseInt(articleAmount), cantidadDisponible: originalArticle?.stockActual },
+      {
+        ...articleSelected,
+        cantidad: parseInt(articleAmount),
+        cantidadDisponible: originalArticle?.stockActual,
+        precioVenta: articleSelected.precioVenta,
+      },
     ]);
     setArticleSelected(undefined);
     setArticleAmount('0');
@@ -186,6 +196,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
                   nombre: a.nombre,
                   cantidad: a.cantidadSeleccionar,
                   cantidadDisponible: a.cantidad,
+                  precioVenta: a.precioVentaPI,
                 };
               })
             );
@@ -211,6 +222,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
                     id: val.id_Articulo as string,
                     cantidad: val.stockActual as number,
                     nombre: val.nombre as string,
+                    precioVenta: val.precioVentaPI as number,
                   });
                 }
               }}

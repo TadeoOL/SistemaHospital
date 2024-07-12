@@ -35,6 +35,8 @@ export const AnesthesiologistView = lazy(() => import('../views/Hospitalization/
 export const XRayView = lazy(() => import('../views/Hospitalization/XRayView'));
 export const XRayRequestView = lazy(() => import('../views/Hospitalization/XRayRequestView'));
 export const XRayRequestManagementView = lazy(() => import('../views/Hospitalization/XRayRequestManagementView'));
+export const PatientAcountsView = lazy(() => import('../views/Hospitalization/PatientAcountsView'));
+export const HospitalizationConfigView = lazy(() => import('../views/Hospitalization/HospitalizationConfigView'));
 export const MedicView = lazy(() => import('../views/Hospitalization/MedicView'));
 export const MedicalShiftView = lazy(() => import('../views/Hospitalization/MedicalShiftView'));
 export const AnesthesiologistShiftView = lazy(() => import('../views/Hospitalization/AnesthesiologistShiftView'));

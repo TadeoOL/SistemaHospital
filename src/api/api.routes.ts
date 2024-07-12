@@ -6,6 +6,7 @@ import {
   ICategory,
   IProvider,
   IPurchaseConfig,
+  IPurchaseInternConfig,
   IRegisterOrderPurchase,
   ISubCategory,
   IUpdateUsers,
@@ -346,6 +347,7 @@ export const addNewArticle = async (article: IArticle) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -360,6 +362,7 @@ export const addNewArticle = async (article: IArticle) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -927,7 +930,6 @@ export const addArticlesPackage = async (packagePost: {
   Descripcion: string;
   Id_Almacen: string;
 }) => {
-  console.log(packagePost);
   const res = await axios.post(`/api/Almacen/registrar-paquete`, {
     ...packagePost,
   });
@@ -941,7 +943,6 @@ export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
 
 export const getPackagesByWarehouseId = async (id: string) => {
   const res = await axios.get(`/api/Almacen/obtener-paquetes?Id=${id}`);
-  console.log('datapack', res.data);
   return res.data;
 };
 
@@ -1033,7 +1034,6 @@ export const articlesLoteUpdate = async (data: {
   return res.data;
 };
 export const articlesLoteDelete = async (data: { Id_ArticuloExistente: string }) => {
-  console.log(data);
   const res = await axios.put(`/api/ArticuloExistente/inhabilitar-lote-existente`, {
     ...data,
   });
@@ -1099,4 +1099,9 @@ export const buildPackage = async (data: {
 }) => {
   const res = await axios.post(`/api/Almacen/armar-paquete`, data);
   return res.data;
+};
+
+export const getHospitalizationConfig = async () => {
+  const res = await axios.get('/api/ConfiguracionHospitalizacion/obtener-configuracion-hospitalizacion');
+  return res.data as IPurchaseInternConfig;
 };

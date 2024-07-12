@@ -113,6 +113,7 @@ export interface IArticle {
   unidadMedida: string;
   precioCompra: string;
   precioVenta: string;
+  precioVentaPI: string;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
   stockActual?: string;
@@ -159,6 +160,7 @@ export interface IExistingArticle {
   fechaCompra: string;
   precioCompra: number;
   precioVenta: number;
+  precioVentaPI: number;
   factorAplicado: number;
   stockActual: number;
   stockMinimo: number;
@@ -248,6 +250,13 @@ export interface IPurchaseConfig {
   factor: IFactor[];
   cantidadLicitacionDirecta: number;
   activarLicitacion?: boolean;
+}
+
+export interface IPurchaseInternConfig {
+  //cantidadOrdenDirecta: number;
+  factor: IFactor[] | null;
+  //cantidadLicitacionDirecta: number;
+  //activarLicitacion?: boolean;
 }
 
 export interface IFactor {
@@ -448,6 +457,8 @@ export interface Articulos_contenidos {
   id_Articulo: string;
   nombre: string;
   cantidad: number;
+  precioVenta: number;
+  PrecioVentaPI: number;
   lote?: IExistingArticleList[];
   cantidadSeleccion?: number;
 }

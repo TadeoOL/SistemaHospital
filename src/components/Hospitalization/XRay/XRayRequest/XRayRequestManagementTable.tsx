@@ -44,6 +44,7 @@ export const useGetNursesRequest = () => {
     status,
     search,
     fetchData,
+    clearData,
     //setStartDate,
     //setEndDate,
     setPageIndex,
@@ -73,7 +74,7 @@ export const useGetNursesRequest = () => {
       pageSize: state.pageSize,
       //startDate: state.startDate,
       //endDate: state.endDate,
-      //clearAllData: state.clearAllData,
+      clearData: state.clearData,
       isLoading: state.loading,
       //sort: state.sort,
       //setSort: state.setSort,
@@ -108,6 +109,7 @@ export const useGetNursesRequest = () => {
     pageIndex,
     count,
     fetchData,
+    clearData,
   };
 };
 export const XRayRequestManagementTable = () => {
@@ -117,6 +119,7 @@ export const XRayRequestManagementTable = () => {
     status,
     setStatus,
     setSearch,
+    clearData,
     //setEndDate,
     //setStartDate,
     //clearFilters,
@@ -132,6 +135,12 @@ export const XRayRequestManagementTable = () => {
     fetchData,
   } = useGetNursesRequest();
   const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      clearData();
+    };
+  }, []);
 
   const rejectRequest = (Id_Request: string) => {
     withReactContent(Swal)
@@ -313,13 +322,14 @@ export const XRayRequestManagementTable = () => {
                       <TableCell>Precio</TableCell>
                       <TableCell>Fecha Solicitud</TableCell>
                       <TableCell>Estatus</TableCell>
-                      <TableCell>Acciones</TableCell>
+                      {status === 1 && <TableCell>Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {data &&
                       data.map((request: IXRayRequest) => (
                         <TableRowComponent
+                          status={status}
                           nurseRequest={request}
                           key={request.id}
                           rejectRequest={rejectRequest}
@@ -379,10 +389,14 @@ interface TableRowComponentProps {
   nurseRequest: IXRayRequest;
   rejectRequest: Function;
   acceptRequest: Function;
+  status: number;
 }
-const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest, rejectRequest, acceptRequest }) => {
-  //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
-
+const TableRowComponent: React.FC<TableRowComponentProps> = ({
+  nurseRequest,
+  rejectRequest,
+  acceptRequest,
+  status,
+}) => {
   return (
     <React.Fragment>
       <TableRow>
@@ -393,26 +407,28 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest, rej
         <TableCell>{nurseRequest.precio}</TableCell>
         <TableCell>{formatDate(nurseRequest.fechaSolicitud)}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
-        <TableCell>
-          <Tooltip title="Aceptar solicitud">
-            <IconButton
-              onClick={() => {
-                acceptRequest(nurseRequest.id);
-              }}
-            >
-              <DoneIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Cancelar solicitud">
-            <IconButton
-              onClick={() => {
-                rejectRequest(nurseRequest.id);
-              }}
-            >
-              <Cancel sx={{ color: 'red' }} />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
+        {status === 1 && (
+          <TableCell>
+            <Tooltip title="Aceptar solicitud">
+              <IconButton
+                onClick={() => {
+                  acceptRequest(nurseRequest.id);
+                }}
+              >
+                <DoneIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Cancelar solicitud">
+              <IconButton
+                onClick={() => {
+                  rejectRequest(nurseRequest.id);
+                }}
+              >
+                <Cancel sx={{ color: 'red' }} />
+              </IconButton>
+            </Tooltip>
+          </TableCell>
+        )}
       </TableRow>
     </React.Fragment>
   );
