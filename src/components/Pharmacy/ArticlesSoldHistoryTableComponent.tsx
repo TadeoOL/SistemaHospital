@@ -70,6 +70,7 @@ interface PaginationProps {
   pageIndex: number;
   setPageIndex: Function;
   setPageSize: Function;
+  isLoading?: boolean;
 }
 interface ArticlesSoldTableComponentProps extends PaginationProps {
   clearData: Function;
@@ -232,6 +233,7 @@ export const TableFooterComponent = (props: PaginationProps) => {
           rowsPerPage={pageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
           labelRowsPerPage="Filas por página"
+          disabled={props.isLoading}
         />
       </TableRow>
     </TableFooter>

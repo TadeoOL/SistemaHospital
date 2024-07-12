@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { modifyRoom, registerRoom } from '../../../../services/programming/roomsService';
 import { IRoom } from '../../../../types/types';
 import { useRoomsPaginationStore } from '../../../../store/programming/roomsPagination';
+import { isValidFloat } from '../../../../utils/functions/dataUtils';
+import { useGetAllTypesRoom } from '../../../../hooks/programming/useGetAllTypesRoom';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -21,12 +23,11 @@ const style = {
   maxHeight: { xs: 900 },
 };
 
-const ROOM_TYPES = ['Hospitalización', 'Quirófano'];
-
 type Inputs = {
   name: string;
   roomType: string;
   description: string;
+  price: string;
 };
 
 interface AddRoomModalProps {
@@ -37,11 +38,13 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useRoomsPaginationStore((state) => state.fetchData);
+  const { isLoadingTypeRoom, data } = useGetAllTypesRoom();
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(roomSchema),
@@ -49,6 +52,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       name: editData ? editData.nombre : '',
       roomType: editData ? editData.tipoCuarto : '',
       description: editData ? editData.descripcion : '',
+      price: editData ? editData.precio.toString() : '',
     },
   });
 
@@ -58,14 +62,20 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     setIsLoading(true);
     try {
       if (!editData) {
-        await registerRoom({ nombre: data.name, tipoCuarto: data.roomType, descripcion: data.description });
+        await registerRoom({
+          nombre: data.name,
+          id_TipoCuarto: data.roomType,
+          descripcion: data.description,
+          precio: parseFloat(data.price),
+        });
         toast.success('Cuarto dado de alta correctamente');
       } else {
         await modifyRoom({
           nombre: data.name,
-          tipoCuarto: data.roomType,
+          id_TipoCuarto: data.roomType,
           descripcion: data.description,
           id: editData.id,
+          precio: parseFloat(data.price),
         });
         toast.success('Cuarto modificado correctamente');
       }
@@ -79,6 +89,12 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     }
   };
 
+  if (isLoadingTypeRoom)
+    return (
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar cuarto' : 'Agregar cuarto'} />
@@ -106,14 +122,33 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 {...register('roomType')}
                 value={watchRoomType}
               >
-                {ROOM_TYPES.map((roomType) => {
+                {data.map((roomType) => {
                   return (
-                    <MenuItem value={roomType} key={roomType}>
-                      {roomType}
+                    <MenuItem value={roomType.id} key={roomType.id}>
+                      {roomType.nombre}
                     </MenuItem>
                   );
                 })}
               </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>Precio del cuarto</Typography>
+              <TextField
+                label="Precio"
+                fullWidth
+                error={!!errors.price?.message}
+                helperText={errors.price?.message}
+                value={watch('price')}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isValidFloat(value)) return;
+                  if (value === '.') {
+                    setValue('price', '');
+                    return;
+                  }
+                  setValue('price', value);
+                }}
+              />
             </Grid>
             <Grid item xs={12}>
               <Typography>Descripción</Typography>

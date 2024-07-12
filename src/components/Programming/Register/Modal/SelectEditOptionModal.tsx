@@ -87,9 +87,11 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
 export const MainMenuEditView = (props: { setOpen: Function; setValue: Function }) => {
   return (
     <Box sx={style}>
-      <Stack sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 10 }}>
+      <Stack sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 5 }}>
         <Box sx={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 700 }}>Selecciona una opción para editar</Typography>
+          <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'gray' }}>
+            Selecciona una opción para editar
+          </Typography>
           <IconButton onClick={() => props.setOpen(false)}>
             <Close sx={{ top: 'auto', left: 'auto' }} />
           </IconButton>
@@ -106,7 +108,7 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
             },
           }}
         >
-          <Box
+          {/* <Box
             sx={cardStyle}
             onClick={() => {
               props.setValue(4);
@@ -114,7 +116,7 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
           >
             <CalendarMonth sx={iconStyle} />
             <Typography sx={typographyStyle}>Calendario</Typography>
-          </Box>
+          </Box> */}
           <Box
             sx={cardStyle}
             onClick={() => {

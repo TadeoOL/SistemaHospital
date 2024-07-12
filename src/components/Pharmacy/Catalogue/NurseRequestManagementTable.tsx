@@ -35,6 +35,7 @@ import { SearchBar } from '../../Inputs/SearchBar';
 import { RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
 import { updateStatusNurseRequest } from '../../../api/api.routes';
 import { getStatus } from '../../../utils/NurseRequestUtils';
+import { SortComponent } from '../../Commons/SortComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -69,6 +70,8 @@ export const useGetNursesRequest = () => {
     isLoading,
     pageIndex,
     count,
+    sort,
+    setSort,
   } = useNurseRequestPaginationStore(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -89,8 +92,8 @@ export const useGetNursesRequest = () => {
       endDate: state.endDate,
       //clearAllData: state.clearAllData,
       isLoading: state.loading,
-      //sort: state.sort,
-      //setSort: state.setSort,
+      sort: state.sort,
+      setSort: state.setSort,
     }),
     shallow
   );
@@ -102,9 +105,8 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    console.log("entra el efects");
     fetchData(false);
-  }, [search, startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex]);
+  }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
   return {
     data,
     setSearch,
@@ -116,7 +118,7 @@ export const useGetNursesRequest = () => {
     startDate,
     endDate,
     isLoading,
-    //setSort,
+    setSort,
     pageSize,
     pageIndex,
     count,
@@ -137,26 +139,26 @@ export const NurseRequestManagementTable = () => {
     startDate,
     endDate,
     isLoading,
-    //setSort,
+    setSort,
     pageSize,
     pageIndex,
     count,
     fetchData,
     setStatus,
-    status
+    status,
   } = useGetNursesRequest();
   const [openModalBuild, setOpenModalBuild] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
   //setWarehouseId
   useEffect(() => {
     fetchData(false);
-  }, [ status]);
+  }, [status]);
 
   const rejectRequest = (idRequest: string, Id_warehouseRequest: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `¿Seguro que deseas cancelar esta solicitud de enfermero?`,
+        text: `¿Seguro que deseas cancelar esta solicitud de radiografia?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -178,7 +180,7 @@ export const NurseRequestManagementTable = () => {
           fetchData(false);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Salida cancelada',
+            text: 'Radiografía cancelada',
             icon: 'success',
           });
         } else {
@@ -190,11 +192,11 @@ export const NurseRequestManagementTable = () => {
       });
   };
 
-  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string) => {
+  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string, Id_PacientAccount: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
-        text: `¿Seguro que deseas marcar esta solicitud como entregada?`,
+        text: `¿Seguro que deseas aceptar esta radiografía?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -207,6 +209,8 @@ export const NurseRequestManagementTable = () => {
             Id_AlmacenOrigen: Id_warehouseRequest,
             EstadoSolicitud: 3,
             Id: idRequest,
+            Id_CuentaPaciente: Id_PacientAccount,
+            //Id_Enfermero : '',
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -216,12 +220,12 @@ export const NurseRequestManagementTable = () => {
           fetchData(false);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Salida marcada como entregada',
+            text: 'Radiografía aceptada',
             icon: 'success',
           });
         } else {
           withReactContent(Swal).fire({
-            title: 'No se marcó la salida como entregada',
+            title: 'No se acepto la radiografía',
             icon: 'info',
           });
         }
@@ -290,50 +294,36 @@ export const NurseRequestManagementTable = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      {/*
-                        <TableCell>
+                      <TableCell>
+                        <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
+                      </TableCell>
+                      <TableCell>
+                        <SortComponent tableCellLabel="Paciente" headerName="paciente" setSortFunction={setSort} />
+                      </TableCell>
+                      <TableCell>
+                        <SortComponent tableCellLabel="Cuarto" headerName="cuarto" setSortFunction={setSort} />
+                      </TableCell>
+                      <TableCell>
                         <SortComponent
-                          tableCellLabel="Nombre del Articulo"
-                          headerName="articulo"
+                          tableCellLabel="Enfermero que solicitó"
+                          headerName="enfermero"
                           setSortFunction={setSort}
                         />
                       </TableCell>
                       <TableCell>
-                        <SortComponent
-                          tableCellLabel="Stock Minimo"
-                          headerName="stockMinimo"
-                          setSortFunction={setSort}
-                        />
+                        <SortComponent tableCellLabel="Solicitado" headerName="solicitado" setSortFunction={setSort} />
                       </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Stock Actual"
-                          headerName="stockActual"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Precio de compra"
-                          headerName="precioCompra"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Código de Barras"
-                          headerName="codigoBarras"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>*/}
-                      <TableCell>Folio</TableCell>
-                      <TableCell>Paciente</TableCell>
-                      <TableCell>Cuarto</TableCell>
-                      <TableCell>Enfermero que solicitó</TableCell>
-                      <TableCell>Solicitado</TableCell>
                       <TableCell>Almacén Solicitado</TableCell>
-                      <TableCell>Entregado Por</TableCell>
-                      <TableCell>Estatus</TableCell>
+                      <TableCell>
+                        <SortComponent
+                          tableCellLabel="Entregado Por"
+                          headerName="entregadoPor"
+                          setSortFunction={setSort}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
+                      </TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
@@ -365,7 +355,9 @@ export const NurseRequestManagementTable = () => {
                     >
                       <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                       <Typography variant="h2" color="gray">
-                        No hay artículos existentes
+                        {status === 1
+                          ? `No hay solicitudes Pendientes`
+                          : `No hay solicitudes armadas, entregadas o canceladas`}
                       </Typography>
                     </Box>
                   ))}
@@ -448,19 +440,21 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          {
-            nurseRequest.estatus === 2 && (
-              <Tooltip title="Marcar como Entregado">
-                <IconButton
-                  onClick={() => {
-                    markAsDelivered(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
-                  }}
-                >
-                  <MarkunreadMailboxIcon sx={{ color: 'green' }} />
-                </IconButton>
-              </Tooltip>
-            )
-          }
+          {nurseRequest.estatus === 2 && (
+            <Tooltip title="Marcar como Entregado">
+              <IconButton
+                onClick={() => {
+                  markAsDelivered(
+                    nurseRequest.id_SolicitudEnfermero,
+                    nurseRequest.id_AlmacenSolicitado,
+                    nurseRequest.id_CuentaPaciente
+                  );
+                }}
+              >
+                <MarkunreadMailboxIcon sx={{ color: 'green' }} />
+              </IconButton>
+            </Tooltip>
+          )}
           {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 3 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
@@ -472,7 +466,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          
         </TableCell>
       </TableRow>
       <TableRow>

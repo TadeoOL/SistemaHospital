@@ -16,7 +16,7 @@ export const PointOfSale = () => {
   const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
 
   useEffect(() => {
-    return () => usePosArticlesPaginationStore.setState({ search: '', data: [], pageIndex: 1 });
+    return () => usePosArticlesPaginationStore.setState({ search: '', data: [], pageIndex: 1, subCategoryId: '' });
   }, []);
 
   return (

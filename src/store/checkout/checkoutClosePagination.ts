@@ -14,9 +14,12 @@ const initialValues = {
   loading: false,
   enabled: true,
   search: '',
+  sort: '',
   fetchPagination: false,
   cancelToken: null as CancelTokenSource | null,
   checkoutId: '',
+  startDate: '',
+  endDate: '',
 };
 
 interface Action {
@@ -25,9 +28,13 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: string) => void;
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
   setFetchPagination: (fetchPagination: boolean) => void;
+  setEndDate: (endDate: string) => void;
+  setStartDate: (startDate: string) => void;
+  clearFilters: () => void;
 }
 
 interface State {
@@ -39,14 +46,19 @@ interface State {
   data: ICheckoutCloseHistory[];
   loading: boolean;
   search: string;
+  sort: string;
   enabled: boolean;
   fetchPagination: boolean;
   cancelToken: CancelTokenSource | null;
   checkoutId: string;
+  endDate: string;
+  startDate: string;
 }
 
 export const useCheckoutClosePaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
   setData: (updateData: ICheckoutCloseHistory) => {
     const { data, pageIndex, count } = get();
     if (data.length > 0 && data[0].id_CajaPrincipal === updateData.id_CajaPrincipal) return;
@@ -65,10 +77,11 @@ export const useCheckoutClosePaginationStore = create<State & Action>((set, get)
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setSort: (sort: string) => set({ sort }),
   setFetchPagination: (fetchPagination: boolean) => set({ fetchPagination }),
 
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, fetchPagination, data } = get();
+    const { enabled, search, pageIndex, pageSize, fetchPagination, data, sort, startDate, endDate } = get();
 
     set({ loading: true });
     const index = pageIndex + 1;
@@ -85,7 +98,7 @@ export const useCheckoutClosePaginationStore = create<State & Action>((set, get)
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       const res = await getCheckoutCloses(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}`
       );
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
@@ -104,5 +117,16 @@ export const useCheckoutClosePaginationStore = create<State & Action>((set, get)
         set({ loading: false, fetchPagination: false });
       }
     }
+  },
+  clearFilters: () => {
+    set({
+      pageCount: 0,
+      pageIndex: 0,
+      pageSize: 10,
+      search: '',
+      loading: true,
+      startDate: '',
+      endDate: '',
+    });
   },
 }));

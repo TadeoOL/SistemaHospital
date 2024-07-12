@@ -114,7 +114,6 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    console.log(props.request.id_SolicitudEnfermero);
     const object = {
       Id: props.request.id_SolicitudEnfermero,
       Lotes: articles
@@ -130,6 +129,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
       }[],
       EstadoSolicitud: 2,
       Id_AlmacenOrigen: props.request.id_AlmacenSolicitado,
+      Id_CuentaPaciente: props.request.id_CuentaPaciente,
     };
     try {
       //await articlesOutputToWarehouse(object);
@@ -398,7 +398,6 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                   setLoteSelected(article.lote);
                   setArticleId(article.id_Articulo);
                   setSearch('');
-                  console.log('article.id_Articulo', article.id_Articulo);
                   setLoteEditing(true);
                   setArticleSelected(article);
                   setOpenLoteModal(true);

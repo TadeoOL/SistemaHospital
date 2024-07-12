@@ -17,6 +17,7 @@ interface State {
   cancelToken: CancelTokenSource | null;
   startDate: string;
   endDate: string;
+  sort: string;
 }
 
 interface Action {
@@ -30,6 +31,7 @@ interface Action {
   fetchData: (isNurse: boolean) => void;
   setEnabled: (enabled: boolean) => void;
   clearFilters: () => void;
+  setSort: (sort: string) => void;
   clearData: () => void;
 }
 
@@ -47,6 +49,7 @@ const initialValues = {
   cancelToken: null as CancelTokenSource | null,
   startDate: '',
   endDate: '',
+  sort: '',
 };
 
 export const useNurseRequestPaginationStore = create<State & Action>((set, get) => ({
@@ -59,8 +62,9 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setStartDate: (startDate: string) => set({ startDate, pageIndex: 0 }),
   setEndDate: (endDate: string) => set({ endDate, pageIndex: 0 }),
+  setSort: (sort: string) => set({ sort }),
   fetchData: async (isNurse: boolean) => {
-    const { enabled, search, pageIndex, pageSize, status } = get();
+    const { enabled, search, pageIndex, pageSize, status, sort } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -76,16 +80,14 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
         console.log("enfermero");
         res = await getNurseRequestPending(
           `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}`
+          }&search=${search}&habilitado=${enabled}&sort=${sort}`
         );
       }else{
         res = await getNurseEmiterRequestPending(
           `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&estatus=${status}`
+          }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}`
         );
       }
-      
-      console.log("weragonateikit enimor",res.data);
       set({
         data: res.data,
         pageSize: res.pageSize,

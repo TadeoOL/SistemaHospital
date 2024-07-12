@@ -4,8 +4,6 @@ const apiClinicalHistory = '/api/HistorialClinico';
 
 interface ClinicalHistoryRegister {
   Id_Paciente: string;
-  MedicoTratante: string;
-  Especialidad: string;
   MotivoIngreso: string;
   DiagnosticoIngreso: string;
   Comentarios: string;
@@ -28,11 +26,8 @@ export const getClinicalHistoryById = async (clinicalHistoryId: string) => {
 };
 
 export const editClinicalHistory = async (data: {
-  medicoTratante: string;
-  especialidad: string;
   motivoIngreso: string;
   diagnosticoIngreso: string;
-  procedimiento?: string;
   comentarios?: string;
   alergias?: string;
   tipoSangre?: string;

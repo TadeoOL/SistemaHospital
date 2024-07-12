@@ -10,10 +10,11 @@ const useGetData = () => {
   const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
   const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
   const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
+  const sort = useCheckoutUserEmitterPaginationStore((state) => state.sort);
 
   useEffect(() => {
     fetch('Farmacia');
-  }, [pageIndex, pageSize, search]);
+  }, [pageIndex, pageSize, search, sort]);
 };
 
 export const ReceiptEmitterPharmacy = () => {

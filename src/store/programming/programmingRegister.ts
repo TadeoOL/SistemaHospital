@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { IClinicalData, IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
+import { IBiomedicalEquipment } from '../../types/hospitalizationTypes';
 const initialPatientValues: IPatient = {
   name: '',
   lastName: '',
@@ -22,8 +23,6 @@ const initialPatientValues: IPatient = {
 };
 
 const initialClinicalData: IClinicalData = {
-  medicName: '',
-  specialty: '',
   reasonForAdmission: '',
   admissionDiagnosis: '',
   comments: '',
@@ -32,7 +31,6 @@ const initialClinicalData: IClinicalData = {
 };
 
 const initialRoomValue = {
-  procedures: [],
   roomValues: [],
 };
 
@@ -40,6 +38,16 @@ const initialValues = {
   step: 0,
   patient: initialPatientValues,
   clinicalData: initialClinicalData,
+  procedures: [],
+  evidencePdf: '',
+  rejectedMedicId: '',
+  articlesSelected: [],
+  biomedicalEquipmentsSelected: [],
+  medicId: '',
+  anesthesiologistId: '',
+  medicPersonalBiomedicalEquipment: [],
+  xrayIds: [],
+  startDateSurgery: new Date(),
 };
 
 interface State {
@@ -51,6 +59,15 @@ interface State {
   patient: IPatient;
   clinicalData: IClinicalData;
   fetchEvents: boolean;
+  evidencePdf: string;
+  rejectedMedicId: string;
+  articlesSelected: { id: string; nombre: string; cantidad: number; precioVenta: number; cantidadDisponible?: number }[];
+  biomedicalEquipmentsSelected: IBiomedicalEquipment[];
+  medicId: string;
+  anesthesiologistId: string;
+  medicPersonalBiomedicalEquipment: IBiomedicalEquipment[];
+  xrayIds: string[];
+  startDateSurgery: Date;
 }
 
 interface Action {
@@ -61,6 +78,16 @@ interface Action {
   setClinicalData: (clinicalData: IClinicalData) => void;
   setFetchEvents: (fetchEvents: boolean) => void;
   clearEvents: () => void;
+  setEvidencePdf: (evidencePdf: string) => void;
+  setRejectedMedicId: (rejectedMedicId: string) => void;
+  setArticlesSelected: (
+    articlesSelected: { id: string; nombre: string; cantidad: number; precioVenta: number; cantidadDisponible?: number }[]
+  ) => void;
+  setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected: IBiomedicalEquipment[]) => void;
+  setMedicId: (medicId: string) => void;
+  setAnesthesiologistId: (anesthesiologistId: string) => void;
+  setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) => void;
+  setStartDateSurgery: (startDateSurgery: Date) => void;
 }
 interface ActionRoom {
   setAppointmentStartDate: (appointmentStartDate: Date) => void;
@@ -68,6 +95,7 @@ interface ActionRoom {
   setRoomValues: (roomValues: IRegisterRoom[]) => void;
   clearRoomRegisteredData: () => void;
   setProcedures: (procedures: string[]) => void;
+  setXRayIds: (xrayIds: string[]) => void;
 }
 
 interface StateRoom {
@@ -81,6 +109,18 @@ export const useProgrammingRegisterStore = create<State & Action & ActionRoom & 
   events: [],
   ...initialValues,
   ...initialRoomValue,
+  setStartDateSurgery: (startDateSurgery: Date) => set({ startDateSurgery }),
+  setXRayIds: (xrayIds: string[]) => set({ xrayIds }),
+  setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) =>
+    set(() => ({ medicPersonalBiomedicalEquipment })),
+  setMedicId: (medicId: string) => set(() => ({ medicId })),
+  setAnesthesiologistId: (anesthesiologistId: string) => set(() => ({ anesthesiologistId })),
+  setBiomedicalEquipmentsSelected: (biomedicalEquipmentsSelected) => set({ biomedicalEquipmentsSelected }),
+  setArticlesSelected: (
+    articlesSelected: { id: string; nombre: string; cantidad: number; precioVenta: number; cantidadDisponible?: number }[]
+  ) => set({ articlesSelected }),
+  setRejectedMedicId: (rejectedMedicId: string) => set(() => ({ rejectedMedicId })),
+  setEvidencePdf: (evidencePdf: string) => set(() => ({ evidencePdf })),
   setFetchEvents: (fetchEvents: boolean) => set(() => ({ fetchEvents })),
   setStep: (step: number) => set(() => ({ step })),
   setAppointmentStartDate: (appointmentStartDate: Date) => set(() => ({ appointmentStartDate })),

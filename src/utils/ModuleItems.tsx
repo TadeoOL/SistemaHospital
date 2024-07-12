@@ -15,6 +15,7 @@ import {
   checkout,
   checkoutAdmin,
   checkoutSell,
+  nurseRole,
   pharmacyDirectorRole,
   pharmacyManager,
   purchaseGlobalRoles,
@@ -22,15 +23,24 @@ import {
   supplyRoles,
 } from './dataRoles';
 import {
+  GroupAdd,
   History,
   Hotel,
   HowToReg,
   LocalHospital,
   LocalPharmacy,
+  MedicalInformation,
+  MonitorHeart,
+  PendingActions,
   PointOfSale,
   ShoppingBasket,
   Vaccines,
 } from '@mui/icons-material';
+import { LiaXRaySolid } from 'react-icons/lia';
+import { FaUserDoctor } from 'react-icons/fa6';
+import { FaLaptopMedical } from 'react-icons/fa';
+import { GiMedicalDrip } from 'react-icons/gi';
+import { FaHouseChimneyMedical } from 'react-icons/fa6';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -160,7 +170,7 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Solicitud enfermero',
         path: '/farmacia/solicitud-enfermero',
         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-        protectedRoles: pharmacyDirectorRole,
+        protectedRoles: nurseRole,
       },
     ],
     path: 'farmacia',
@@ -223,8 +233,14 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: supplyRoles,
           },
           {
-            title: 'Procedimientos de crujía',
-            path: '/programacion/procedimientos-cirujia',
+            title: 'Tipos de Cuarto',
+            path: '/programacion/tipos-cuarto',
+            icon: <FaHouseChimneyMedical />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Procedimientos de cirugía',
+            path: '/programacion/procedimientos-cirugia',
             icon: <Vaccines sx={{ color: '#fff' }} />,
             protectedRoles: supplyRoles,
           },
@@ -242,7 +258,108 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
       },
+      {
+        title: 'Solicitud de programacion',
+        path: '/programacion/solicitud-programacion',
+        icon: <PendingActions sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
     ],
     path: 'programacion',
+  },
+  {
+    categoryTitle: 'Hospitalización',
+    icon: <MonitorHeart />,
+    moduleItems: [
+      {
+        title: 'Catálogos',
+        icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
+        path: '#',
+        protectedRoles: supplyRoles,
+        topLevel: true,
+        children: [
+          {
+            title: 'Anestesiólogos',
+            path: '/hospitalizacion/anestesiologos',
+            icon: <GroupAdd sx={{ color: '#fff' }} />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Equipo Biomédico',
+            path: '/hospitalizacion/equipo-biomedico',
+            icon: <MedicalInformation sx={{ color: '#fff' }} />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Radiografías',
+            path: '/hospitalizacion/radiografias',
+            icon: <LiaXRaySolid />,
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Medicos',
+            path: '/hospitalizacion/medicos',
+            icon: <FaUserDoctor />,
+            protectedRoles: supplyRoles,
+          },
+        ],
+      },
+      {
+        title: 'Solicitar Radiografía',
+        path: '/hospitalizacion/radiografias-solicitud',
+        icon: <LiaXRaySolid />,
+        protectedRoles: nurseRole,
+      },
+      {
+        title: 'Administrar Radiografías',
+        path: '/hospitalizacion/radiografias-administracion',
+        icon: <FactCheckIcon />,
+        protectedRoles: nurseRole, //Cambiar aca por admin de radiografia-radiologo
+      },
+      {
+        title: 'Guardias Medicos',
+        path: '/hospitalizacion/guardias-medicos',
+        icon: <FaLaptopMedical />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Guardias Anestesiologos',
+        path: '/hospitalizacion/guardias-anestesiologos',
+        icon: <GiMedicalDrip />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Cierre de cuenta',
+        path: '/hospitalizacion/cierre-de-cuenta',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Configuración',
+        path: '/hospitalizacion/configuracion-hospitalizacion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+    ],
+    path: 'hospitalizacion',
+  },
+  {
+    categoryTitle: 'Quirófano',
+    icon: <MonitorHeart />,
+    moduleItems: [
+      {
+        title: 'Operaciones del dia',
+        path: '/quirofano/operaciones-del-dia',
+        icon: <GiMedicalDrip />,
+        protectedRoles: checkout,
+      },
+      {
+        title: 'Configuración',
+        path: '/quirofano/configuracion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
+    ],
+    path: 'quirofano',
   },
 ];

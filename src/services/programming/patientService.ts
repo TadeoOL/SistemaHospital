@@ -63,32 +63,10 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
 
 export const getPatientsWithAccount = async (url: string) => {
   const res = await axios.get(`${apiPatient}/obtener-paciente-activo?${url}`);
-  /*const res = [
-    {
-        "Id_paciente": "P001",
-        "nombrePaciente": "Juan Perez",
-        "Id_CuentaPaciente": "C001"
-    },
-    {
-        "Id_paciente": "P002",
-        "nombrePaciente": "Maria Gomez",
-        "Id_CuentaPaciente": "C002"
-    },
-    {
-        "Id_paciente": "P003",
-        "nombrePaciente": "Carlos Lopez",
-        "Id_CuentaPaciente": "C003"
-    },
-    {
-        "Id_paciente": "P004",
-        "nombrePaciente": "Ana Martinez",
-        "Id_CuentaPaciente": "C004"
-    },
-    {
-        "Id_paciente": "P005",
-        "nombrePaciente": "Luis Rodriguez",
-        "Id_CuentaPaciente": "C005"
-    }
-]+*/
   return res.data as IPatientFromSearch[] ;
+}
+
+export const getPatientsWithAccountPagination = async (url: string) => {
+  const res = await axios.get(`${apiPatient}/obtener-cuentas?${url}`);
+  return res.data;
 }

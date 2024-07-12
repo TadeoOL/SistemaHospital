@@ -25,7 +25,7 @@ export const useGetDate = (date: Date) => {
               end: new Date(event.fechaFin),
             };
           });
-          const eventsFiltered = events.filter((e) => !formattedRes.some((resEvent) => resEvent.id === e.id));
+          // const eventsFiltered = events.filter((e) => !formattedRes.some((resEvent) => resEvent.id === e.id));
           setEvents([...formattedRes]);
         } else {
           setEvents([...events]);

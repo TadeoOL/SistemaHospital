@@ -5,7 +5,13 @@ const apiRegister = '/api/Registro';
 interface RegisterAdmission {
   pacienteId: string;
   historialClinicoId: string;
+  id_Medico: string | null;
+  id_Anestesiologo: string | null;
   procedimientos: string[];
+  radiografias: string[] | null;
+  equiposBiomedico: string[];
+  equipoBiomedicoHonorario?: string;
+  articulos: { articuloId: string; cantidad: number; notas?: string }[];
   fechaInicio: Date;
   fechaFin: Date;
   cuartos: Cuarto[];
@@ -15,7 +21,7 @@ interface Cuarto {
   cuartoId: string;
   horaInicio: Date;
   horaFin: Date;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
 }
 
 export const createAdmission = async (data: RegisterAdmission) => {
