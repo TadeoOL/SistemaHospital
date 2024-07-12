@@ -23,6 +23,7 @@ import {
   supplyRoles,
 } from './dataRoles';
 import {
+  AirlineSeatFlat,
   GroupAdd,
   History,
   Hotel,
@@ -353,10 +354,16 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <GiMedicalDrip />,
         protectedRoles: checkout,
       },
+      // {
+      //   title: 'Configuración',
+      //   path: '/quirofano/configuracion',
+      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
+      //   protectedRoles: checkout,
+      // },
       {
-        title: 'Configuración',
-        path: '/quirofano/configuracion',
-        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        title: 'Recuperación',
+        path: '/quirofano/recuperacion',
+        icon: <AirlineSeatFlat sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
       },
     ],

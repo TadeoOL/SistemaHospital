@@ -53,6 +53,7 @@ import {
   XRayRequestView,
   XRayRequestManagementView,
   HospitalizationConfigView,
+  RecoveryRoomsView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -134,6 +135,7 @@ function App() {
             // --------------------------------- OperatingRoom ------------------------------- //
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
+            <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

@@ -1,6 +1,7 @@
-import { Box, TextField } from '@mui/material';
+import { Box, IconButton, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useState } from 'react';
+import { Clear } from '@mui/icons-material';
 
 interface ISearchBar {
   searchState: Function;
@@ -24,6 +25,11 @@ export const SearchBar = (props: ISearchBar) => {
     return () => clearTimeout(timer);
   }, [text]);
 
+  const handleClear = () => {
+    setText('');
+    searchState('');
+  };
+
   return (
     <Box sx={{ px: 2, ...sx }}>
       <TextField
@@ -34,6 +40,11 @@ export const SearchBar = (props: ISearchBar) => {
         value={text}
         InputProps={{
           startAdornment: <SearchIcon />,
+          endAdornment: text && (
+            <IconButton onClick={handleClear}>
+              <Clear />
+            </IconButton>
+          ),
         }}
         sx={{ maxWidth: 500, backgroundColor: 'white', borderRadius: 3.5 }}
       />

@@ -43,3 +43,4 @@ export const AnesthesiologistShiftView = lazy(() => import('../views/Hospitaliza
 export const OperatingRoomView = lazy(() => import('../views/OperatingRoom/OperatingRoomView'));
 export const TypesRoomView = lazy(() => import('../views/Programming/TypesRoomView'));
 export const DailyOperatingView = lazy(() => import('../views/OperatingRoom/DailyOperatingView'));
+export const RecoveryRoomsView = lazy(() => import('../views/OperatingRoom/RecoveryRoomsView'));
