@@ -126,7 +126,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         const existing = myEvents.find((ev) => ev.id === event.id);
         const cleanRoom = myEvents.find((ev) => ev.roomId === event.id);
         const filtered = myEvents.filter((ev) => ev.id !== event.id).filter((ev) => ev.roomId !== event.id);
-        if (!cleanRoom) {
+        if (!cleanRoom && Object.keys(hashCleanRoomEvents).length > 0) {
           const cleanRoomInHashMap = hashCleanRoomEvents[existing?.id as string];
           const cleanRoomDuration = cleanRoomInHashMap.end.getTime() - cleanRoomInHashMap.start.getTime();
           const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
@@ -135,7 +135,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
             { ...existing, start: drop.start as Date, end: drop.end as Date },
             { ...cleanRoomInHashMap, start: drop.end as Date, end: newEndCleanRoom },
           ]);
-        } else {
+        } else if (cleanRoom) {
           const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
           const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
           props.setEvents([
@@ -143,10 +143,13 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
             { ...existing, start: drop.start as Date, end: drop.end as Date },
             { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
           ]);
+        } else {
+          props.setEvents([...filtered, { ...existing, start: drop.start as Date, end: drop.end as Date }]);
         }
       } catch (error) {
-        const errorMsg = error as any;
-        toast.error(errorMsg.response.data as string);
+        console.log({ error });
+        // const errorMsg = error as any;
+        // toast.error(errorMsg.response.data as string);
       }
     },
     [myEvents, hashCleanRoomEvents]

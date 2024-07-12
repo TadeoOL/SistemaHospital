@@ -26,6 +26,7 @@ export const DailyOperating = () => {
           options={data}
           loading={isLoading}
           loadingText={'Cargando quirófanos...'}
+          noOptionsText="No hay quirófanos"
           renderInput={(params) => <TextField {...params} placeholder="Quirófanos" />}
           onChange={(_, val) => setOperatingRoomId(val?.id ?? '')}
           getOptionLabel={(option) => option.nombre}

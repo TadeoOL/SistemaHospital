@@ -24,3 +24,19 @@ export const recoveryRoomOperatingRoomSchema = z
       path: ['inicio'],
     }
   );
+
+export const surgeonOperatingRoomSchema = z.object({
+  medical: z.object({ id: z.string(), nombre: z.string() }, { invalid_type_error: 'Selecciona un cirujano' }),
+});
+
+export const anesthesiologistOperatingRoomSchema = z.object({
+  anesthesiologist: z.object(
+    { id: z.string(), nombre: z.string() },
+    { invalid_type_error: 'Selecciona un anestesiólogo' }
+  ),
+});
+
+export const startRecoveryPhaseSchema = z.object({
+  nurse: z.object({ id_Enfermero: z.string(), nombre: z.string() }, { invalid_type_error: 'Selecciona un enfermero' }),
+  startTime: z.string().min(1, 'Es necesario agregar la hora de inicio'),
+});

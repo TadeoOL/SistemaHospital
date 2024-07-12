@@ -28,6 +28,14 @@ export const EventClinicalHistoryDetails = (props: EventClinicalHistoryDetailsPr
         <Typography sx={titleStyle}>Diagnostico Ingreso:</Typography>
         <Typography sx={bodyStyle}>{clinicalHistory.diagnosticoIngreso}</Typography>
       </Grid>
+      <Grid sx={gridStyle} item xs={12} md={6}>
+        <Typography sx={titleStyle}>Alergias:</Typography>
+        <Typography sx={bodyStyle}>{clinicalHistory.alergias}</Typography>
+      </Grid>
+      <Grid sx={gridStyle} item xs={12} md={6}>
+        <Typography sx={titleStyle}>Tipo de sangre:</Typography>
+        <Typography sx={bodyStyle}>{clinicalHistory.tipoSangre}</Typography>
+      </Grid>
       <Grid sx={gridStyle} item xs={12}>
         <Typography sx={titleStyle}>Comentarios:</Typography>
         <Typography sx={bodyStyle}>{clinicalHistory.comentarios}</Typography>
