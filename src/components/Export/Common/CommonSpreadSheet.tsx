@@ -10,8 +10,6 @@ export const CommonSpreadSheet: React.FC<CommonExportProps> = ({ title, header, 
         header.forEach((headerItem) => {
           if (headerItem.key in item) {
             newItem[headerItem.nameHeader] = item[headerItem.key];
-          } else if (headerItem.key === 'proveedorNombre' && item.proveedor) {
-            newItem[headerItem.nameHeader] = item.proveedor.nombre;
           } else {
             newItem[headerItem.nameHeader] = null;
           }
