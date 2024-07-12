@@ -626,6 +626,11 @@ export const getOrderRequestById = async (idQuote: string) => {
   return res.data;
 };
 
+export const getOrdenCotizacionbyId = async (idQuote: string) => {
+  const res = await axios.get(`/api/Compras/obtener-cotizacion-orden-compra/${idQuote}`);
+  return res.data;
+};
+
 // Messages Response
 
 export const obtenerMensajes = async (modulo: string) => {
@@ -737,6 +742,7 @@ export const addDirectlyPurchaseOrder = async (OrdenCompra: {
     PrecioVenta: number;
   }[];
   notas?: string;
+  cotizacion?: string;
 }) => {
   const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
     OrdenCompra,
@@ -876,6 +882,10 @@ export const articlesOutputToWarehouse = async (data: {
   id_almacenOrigen?: string;
   id_almacenDestino?: string;
   /*Lotes?: {
+export const articlesOutputToWarehouse = async (data: {
+  id_almacenOrigen?: string;
+  id_almacenDestino?: string;
+  /*Lotes?: {
       Id_ArticuloExistente: string;
       Cantidad: string;
     }[];*/
@@ -903,12 +913,26 @@ export const waitingpackageChangeStatus = async (data: {
     ...data,
   });
   return res.data;
+export const waitingpackageChangeStatus = async (data: {
+  Estatus: number;
+  Id_HistorialMovimiento: string;
+  Lotes?: any;
+}) => {
+  const res = await axios.put(`/api/Almacen/estatus-espera-paquete`, {
+    ...data,
+  });
+  return res.data;
 };
 
+export const articlesOutputToWarehouseToWarehouse = async (data: {
 export const articlesOutputToWarehouseToWarehouse = async (data: {
   id_almacenOrigen: string;
   id_almacenDestino: string;
   Lotes: {
+    Id_ArticuloExistente: string;
+    EnEspera?: boolean;
+    Cantidad: number;
+  }[];
     Id_ArticuloExistente: string;
     EnEspera?: boolean;
     Cantidad: number;
@@ -1076,6 +1100,9 @@ export const updateStatusNurseRequest = async (data: {
   Id_Enfermero?: string; 
   Lotes?: any; 
 }) => {
+  const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
+    ...data,
+  });
   const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
     ...data,
   });

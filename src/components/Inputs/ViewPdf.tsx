@@ -20,7 +20,7 @@ export const ViewPdf = (props: ViewPdfProps) => {
     >
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <IconButton onClick={() => setViewPdf(false)}>
-          <Close />
+          <Close sx={{ color: 'white' }} />
         </IconButton>
       </Box>
       <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>

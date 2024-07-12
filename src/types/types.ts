@@ -309,7 +309,7 @@ export type SingleProvider = {
 
 export type Provider = {
   id: string;
-  proveedor: SingleProvider;
+  proveedor: string;
 };
 
 export interface IRegisterOrderPurchase {
@@ -337,18 +337,16 @@ enum ConceptPayment {
 
 export interface IPurchaseOrder {
   id_OrdenCompra: string;
-  conceptoPago: ConceptPayment;
-  estatus: StatusPurchaseOrder;
-  usuarioSolicitado: string;
-  fechaSolicitud: string;
   folio_Extension: string;
-  ordenCompraArticulo: IPurchaseOrderArticle[];
-  precioTotalOrden: number;
-  proveedor: { id_Proveedor: string; nombre: string; estatus?: number | null };
-  id_Almacen: string;
-  fueAutorizada: boolean;
-  notas?: string;
-  cotizacion?: string;
+  usuarioSolicitado: string;
+  proveedor: string;
+  total: string;
+  fechaSolicitud: string;
+  estatusConcepto: string;
+  estatus: number;
+  fueAutorizada: boolean | null;
+  cotizacion: boolean;
+  articulos: IPurchaseOrderArticle[] | null;
 }
 
 export interface IPurchaseOrderArticle {
