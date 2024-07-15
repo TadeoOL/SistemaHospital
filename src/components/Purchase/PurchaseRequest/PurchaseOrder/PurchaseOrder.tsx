@@ -465,7 +465,7 @@ export const PurchaseOrder = () => {
                                             });
                                             setOpenQuoteModal(true);
                                             // order.proveedor.estatus = order.estatus;
-                                            setProviders([order.proveedor]);
+                                            setProviders(order.proveedor);
                                           }}
                                         >
                                           <UploadFileIcon />
@@ -545,7 +545,7 @@ export const PurchaseOrder = () => {
                                           OrderId: order.id_OrdenCompra,
                                         });
                                         setOpenQuoteModal(true);
-                                        setProviders([order.proveedor]);
+                                        setProviders(order.proveedor);
                                       }}
                                     >
                                       <Visibility />

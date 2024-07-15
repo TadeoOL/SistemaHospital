@@ -913,26 +913,13 @@ export const waitingpackageChangeStatus = async (data: {
     ...data,
   });
   return res.data;
-export const waitingpackageChangeStatus = async (data: {
-  Estatus: number;
-  Id_HistorialMovimiento: string;
-  Lotes?: any;
-}) => {
-  const res = await axios.put(`/api/Almacen/estatus-espera-paquete`, {
-    ...data,
-  });
-  return res.data;
-};
+}
 
-export const articlesOutputToWarehouseToWarehouse = async (data: {
+
 export const articlesOutputToWarehouseToWarehouse = async (data: {
   id_almacenOrigen: string;
   id_almacenDestino: string;
   Lotes: {
-    Id_ArticuloExistente: string;
-    EnEspera?: boolean;
-    Cantidad: number;
-  }[];
     Id_ArticuloExistente: string;
     EnEspera?: boolean;
     Cantidad: number;
@@ -1100,9 +1087,6 @@ export const updateStatusNurseRequest = async (data: {
   Id_Enfermero?: string; 
   Lotes?: any; 
 }) => {
-  const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
-    ...data,
-  });
   const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
     ...data,
   });
