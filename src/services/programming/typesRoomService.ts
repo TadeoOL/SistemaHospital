@@ -12,6 +12,7 @@ export const registerTypeRoom = async (data: {
   configuracionLimpieza?: string;
   configuracionPrecioHora?: string;
   tipo: number;
+  precio?: number;
 }) => {
   const res = await axios.post(`${apiTypeRoom}/registrar-tipo-cuarto`, data);
   return res.data;
@@ -24,6 +25,7 @@ export const modifyTypeRoom = async (data: {
   configuracionLimpieza?: string;
   configuracionPrecioHora?: string;
   tipo: number;
+  precio?: number;
 }) => {
   const res = await axios.put(`${apiTypeRoom}/editar-tipo-cuarto`, data);
   return res.data;

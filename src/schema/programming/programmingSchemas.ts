@@ -72,7 +72,6 @@ export const roomSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
   roomType: z.string().min(1, 'El tipo de cuarto es requerido'),
   description: z.string().min(1, 'La descripción es requerida'),
-  price: priceSchema,
 });
 
 export const surgeryProcedureSchema = z.object({
@@ -169,10 +168,19 @@ const priceByTimeRange = z
   )
   .optional();
 
-export const typeRoomSchema = z.object({
-  name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
-  description: z.string().optional(),
-  reservedSpaceTime: zodDay,
-  priceByTimeRange: z.array(priceByTimeRange).optional(),
-  type: z.string(),
-});
+export const typeRoomSchema = z
+  .object({
+    name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
+    description: z.string().optional(),
+    reservedSpaceTime: zodDay,
+    priceByTimeRange: z.array(priceByTimeRange).optional(),
+    type: z.string(),
+    priceRoom: z
+      .string()
+      .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
+      .optional(),
+  })
+  .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
+    message: 'El precio del cuarto es necesario',
+    path: ['priceRoom'],
+  });

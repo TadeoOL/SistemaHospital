@@ -25,7 +25,7 @@ import { Delete, Edit, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { deleteTypeRoom } from '../../../services/programming/typesRoomService.ts';
 import { IRecoveryRoomOperatingRoom } from '../../../types/operatingRoomTypes.ts';
-const TABLE_HEADERS = ['Nombre', 'Intervalo de limpieza', 'Descripcion', 'Acciones'];
+const TABLE_HEADERS = ['Nombre', 'Intervalo de limpieza', 'Precio', 'Descripción', 'Acciones'];
 const TABLE_CONFIG_HEADERS = ['Inicio', 'Fin', 'Precio'];
 
 const useGetData = () => {
@@ -62,9 +62,9 @@ export const TypesRoom = () => {
     <>
       <Box sx={{ bgcolor: 'background.paper', p: 4, rowGap: 2, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <SearchBar searchState={setSearch} title="Buscar tipo de cuarto" sx={{ flex: 2 }} />
+          <SearchBar searchState={setSearch} title="Buscar categoría" sx={{ flex: 2 }} />
           <Button variant="contained" onClick={() => setOpen(true)}>
-            Agregar
+            Agregar categoría
           </Button>
         </Box>
         <TypesRoomTable />
@@ -111,7 +111,7 @@ const TypesRoomTable = () => {
           )}
         </Table>
       </TableContainer>
-      {data.length === 0 && <NoDataInTableInfo infoTitle="No hay tipos de cuarto" />}
+      {data.length === 0 && <NoDataInTableInfo infoTitle="No hay categorías de espacios hospitalarios" />}
     </Card>
   );
 };
@@ -125,6 +125,7 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
   const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
   const [open, setOpen] = useState(false);
   const [expand, setExpand] = useState(false);
+  const operatingRoomConfig = data.configuracionPrecioHora && data.configuracionPrecioHora.length > 0;
 
   const handleDelete = async () => {
     try {
@@ -142,11 +143,14 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
       <TableRow>
         <TableCell>
           <Box>
-            <IconButton onClick={() => setExpand(!expand)}>{!expand ? <ExpandMore /> : <ExpandLess />}</IconButton>
+            {operatingRoomConfig && (
+              <IconButton onClick={() => setExpand(!expand)}>{!expand ? <ExpandMore /> : <ExpandLess />}</IconButton>
+            )}
             {data.nombre}
           </Box>
         </TableCell>
-        <TableCell>{data.configuracionLimpieza}</TableCell>
+        <TableCell>{data.configuracionLimpieza ? data.configuracionLimpieza : 'Sin configuración'}</TableCell>
+        <TableCell>{data.precio ? data.precio : 'Configuración'}</TableCell>
         <TableCell>{data.descripcion}</TableCell>
         <TableCell>
           <Box>
@@ -163,13 +167,15 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
           </Box>
         </TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell colSpan={4} sx={{ p: 0 }}>
-          <Collapse in={expand}>
-            <ConfigRoomTable data={data.configuracionPrecioHora} />
-          </Collapse>
-        </TableCell>
-      </TableRow>
+      {operatingRoomConfig && (
+        <TableRow>
+          <TableCell colSpan={4} sx={{ p: 0 }}>
+            <Collapse in={expand}>
+              <ConfigRoomTable data={data.configuracionPrecioHora} />
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      )}
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
           <AddTypeRoomModal setOpen={setOpen} editData={data} />

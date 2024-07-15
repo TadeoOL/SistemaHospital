@@ -2,12 +2,7 @@ import axios from '../../libs/axios';
 import { IRoomEvent } from '../../types/types';
 const apiRoom = '/api/Cuartos';
 
-export const registerRoom = async (data: {
-  nombre: string;
-  descripcion: string;
-  id_TipoCuarto: string;
-  precio: number;
-}) => {
+export const registerRoom = async (data: { nombre: string; descripcion: string; id_TipoCuarto: string }) => {
   const res = await axios.post(`${apiRoom}/registrar-cuarto`, data);
   return res.data;
 };
@@ -17,13 +12,7 @@ export const getRoomsPagination = async (params: string) => {
   return res.data;
 };
 
-export const modifyRoom = async (data: {
-  nombre: string;
-  descripcion: string;
-  id_TipoCuarto: string;
-  id: string;
-  precio: number;
-}) => {
+export const modifyRoom = async (data: { nombre: string; descripcion: string; id_TipoCuarto: string; id: string }) => {
   const res = await axios.put(`${apiRoom}/editar-cuarto`, data);
   return res.data;
 };

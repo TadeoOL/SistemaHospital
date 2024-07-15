@@ -4,11 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { roomSchema } from '../../../../schema/programming/programmingSchemas';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { modifyRoom, registerRoom } from '../../../../services/programming/roomsService';
 import { IRoom } from '../../../../types/types';
 import { useRoomsPaginationStore } from '../../../../store/programming/roomsPagination';
-import { isValidFloat } from '../../../../utils/functions/dataUtils';
 import { useGetAllTypesRoom } from '../../../../hooks/programming/useGetAllTypesRoom';
 const style = {
   position: 'absolute',
@@ -27,7 +26,6 @@ type Inputs = {
   name: string;
   roomType: string;
   description: string;
-  price: string;
 };
 
 interface AddRoomModalProps {
@@ -50,9 +48,8 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     resolver: zodResolver(roomSchema),
     defaultValues: {
       name: editData ? editData.nombre : '',
-      roomType: editData ? editData.tipoCuarto : '',
+      roomType: '',
       description: editData ? editData.descripcion : '',
-      price: editData ? editData.precio.toString() : '',
     },
   });
 
@@ -66,28 +63,34 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
           nombre: data.name,
           id_TipoCuarto: data.roomType,
           descripcion: data.description,
-          precio: parseFloat(data.price),
         });
-        toast.success('Cuarto dado de alta correctamente');
+        toast.success('Espacio hospitalario dado de alta correctamente');
       } else {
         await modifyRoom({
           nombre: data.name,
           id_TipoCuarto: data.roomType,
           descripcion: data.description,
           id: editData.id,
-          precio: parseFloat(data.price),
         });
-        toast.success('Cuarto modificado correctamente');
+        toast.success('Espacio hospitalario modificado correctamente');
       }
       refetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      editData ? toast.error('Error al modificar el cuarto') : toast.error('Error al intentar dar de alta el cuarto');
+      editData
+        ? toast.error('Error al modificar el espacio hospitalario')
+        : toast.error('Error al intentar dar de alta el espacio hospitalario');
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!editData) return;
+    const roomType = data.find((d) => d.nombre === editData.tipoCuarto);
+    setValue('roomType', roomType ? roomType.id : '');
+  }, [editData]);
 
   if (isLoadingTypeRoom)
     return (
@@ -97,7 +100,10 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     );
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar cuarto' : 'Agregar cuarto'} />
+      <HeaderModal
+        setOpen={props.setOpen}
+        title={editData ? 'Modificar espacio hospitalario' : 'Agregar espacio hospitalario'}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
           <Grid container spacing={1}>
@@ -112,9 +118,9 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Typography>Tipo de cuarto</Typography>
+              <Typography>Categoría de espacio hospitalario</Typography>
               <TextField
-                label="Selecciona un tipo de cuarto"
+                label="Selecciona una categoría de espacio hospitalario"
                 fullWidth
                 select
                 error={!!errors.roomType?.message}
@@ -130,25 +136,6 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                   );
                 })}
               </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography>Precio del cuarto</Typography>
-              <TextField
-                label="Precio"
-                fullWidth
-                error={!!errors.price?.message}
-                helperText={errors.price?.message}
-                value={watch('price')}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (!isValidFloat(value)) return;
-                  if (value === '.') {
-                    setValue('price', '');
-                    return;
-                  }
-                  setValue('price', value);
-                }}
-              />
             </Grid>
             <Grid item xs={12}>
               <Typography>Descripción</Typography>

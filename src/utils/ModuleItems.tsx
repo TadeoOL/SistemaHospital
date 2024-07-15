@@ -227,14 +227,14 @@ export const ModuleList: IModuleItemsList[] = [
         topLevel: true,
         children: [
           {
-            title: 'Cuartos',
-            path: '/programacion/cuartos',
+            title: 'Gestión de espacios hospitalarios',
+            path: '/programacion/gestion-espacios-hospitalarios',
             icon: <Hotel sx={{ color: '#fff' }} />,
             protectedRoles: supplyRoles,
           },
           {
-            title: 'Tipos de Cuarto',
-            path: '/programacion/tipos-cuarto',
+            title: 'Categorías de espacios hospitalarios',
+            path: '/programacion/categorias-espacios-hospitalarios',
             icon: <FaHouseChimneyMedical />,
             protectedRoles: supplyRoles,
           },
@@ -252,12 +252,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <HowToReg sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
       },
-      {
+      /*       {
         title: 'Configuración',
         path: '/programacion/configuracion',
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
-      },
+      }, */
       {
         title: 'Solicitud de programacion',
         path: '/programacion/solicitud-programacion',

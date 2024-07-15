@@ -82,7 +82,7 @@ export const RoomsTable = () => {
           )}
         </Table>
       </TableContainer>
-      {data.length < 1 && <NoDataInTableInfo infoTitle="No hay cuartos" />}
+      {data.length < 1 && <NoDataInTableInfo infoTitle="No hay espacios hospitalarios" />}
     </Card>
   );
 };
@@ -144,7 +144,7 @@ const TableRowRooms = (props: TableRowRoomsProps) => {
       <TableRow>
         <TableCell>{room.nombre}</TableCell>
         <TableCell>{room.tipoCuarto}</TableCell>
-        <TableCell>{room.precio}</TableCell>
+        <TableCell>{room.precio ? room.precio : 'Configuración'}</TableCell>
         <TableCell>{room.descripcion}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

@@ -25,10 +25,10 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { typeRoomSchema } from '../../../../schema/programming/programmingSchemas';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ITypeRoom } from '../../../../types/admissionTypes';
 import { useTypesRoomPaginationStore } from '../../../../store/programming/typesRoomPagination';
 import { IRecoveryRoomOperatingRoom } from '../../../../types/operatingRoomTypes';
@@ -63,6 +63,7 @@ type Inputs = {
   reservedSpaceTime: Dayjs | null;
   priceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
+  priceRoom: string;
 };
 
 interface AddTypeRoomModalProps {
@@ -75,6 +76,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
   const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
+  const headerRef = useRef();
 
   const {
     register,
@@ -91,6 +93,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       priceByTimeRange: editData ? editData.configuracionPrecioHora : [],
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
+      priceRoom: editData ? editData.precio?.toString() : '0',
     },
   });
 
@@ -107,8 +110,9 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             : undefined,
           configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
           tipo: parseInt(data.type),
+          precio: parseFloat(data.priceRoom),
         });
-        toast.success('Tipo de cuarto dado de alta correctamente');
+        toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
         await modifyTypeRoom({
           nombre: data.name,
@@ -119,16 +123,17 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
           id: editData.id,
           tipo: parseInt(data.type),
+          precio: parseFloat(data.priceRoom),
         });
-        toast.success('Tipo de cuarto modificado correctamente');
+        toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
       refetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
       editData
-        ? toast.error('Error al modificar el tipo de cuarto')
-        : toast.error('Error al intentar dar de alta el tipo de cuarto');
+        ? toast.error('Error al modificar la categoría de espacio hospitalario')
+        : toast.error('Error al intentar dar de alta la categoría de espacio hospitalario');
     } finally {
       setIsLoading(false);
     }
@@ -138,13 +143,22 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
     setValue('priceByTimeRange', [...config]);
   };
 
+  const handleAddPriceRoom = (price: string) => {
+    setValue('priceRoom', price);
+  };
+
   useEffect(() => {
     setValue('reservedSpaceTime', dayjs(editData?.configuracionLimpieza, 'HH:mm:ss'));
   }, [editData]);
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar tipo de cuarto' : 'Agregar tipo de cuarto'} />
+      <HeaderModal
+        setOpen={props.setOpen}
+        title={
+          editData ? 'Modificar la categoría de espacio hospitalario' : 'Agregar la categoría de espacio hospitalario'
+        }
+      />
       <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1" />
       <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
         <Grid container spacing={1}>
@@ -205,7 +219,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           </Grid>
           <Grid item xs={12} md={6}>
             <FormControl>
-              <FormLabel>Tipo</FormLabel>
+              <FormLabel>Categoría</FormLabel>
               <Controller
                 control={control}
                 name="type"
@@ -219,11 +233,19 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             </FormControl>
           </Grid>
           <Grid item xs={12}>
-            <RoomHourCostTable
-              xs={xs}
-              updateRecoveryConfig={handleAddNewPriceByTimeRange}
-              data={watch('priceByTimeRange')}
-            />
+            {watch('type') === '1' ? (
+              <RoomHourCostTable
+                xs={xs}
+                updateRecoveryConfig={handleAddNewPriceByTimeRange}
+                data={watch('priceByTimeRange')}
+              />
+            ) : (
+              <AddPriceHospitalizationRoom
+                priceRoom={watch('priceRoom')}
+                updatePriceRoom={handleAddPriceRoom}
+                error={errors}
+              />
+            )}
           </Grid>
         </Grid>
       </Box>
@@ -312,7 +334,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
 
   return (
     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography variant="h6">Precio hora recuperación</Typography>
+      <Typography variant="h6">Precio hora quirófano</Typography>
       <Card sx={{ flex: 1 }}>
         <TableContainer>
           <Table>
@@ -410,6 +432,27 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
           </Box>
         </Box>
       </Box>
+    </Box>
+  );
+};
+
+const AddPriceHospitalizationRoom = (props: {
+  updatePriceRoom: (price: string) => void;
+  priceRoom: string;
+  error: FieldErrors<Inputs>;
+}) => {
+  return (
+    <Box>
+      <TextField
+        label="Precio"
+        value={props.priceRoom}
+        onChange={(e) => {
+          if (!isValidFloat(e.target.value)) return;
+          props.updatePriceRoom(e.target.value);
+        }}
+        error={!!props.error.priceRoom?.message}
+        helperText={props.error.priceRoom?.message}
+      />
     </Box>
   );
 };

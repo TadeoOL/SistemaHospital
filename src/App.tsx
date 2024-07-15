@@ -109,8 +109,8 @@ function App() {
             </Route>
             // ---------------------------Programacion------------------------------------- //
             <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
-            <Route path="programacion/cuartos" element={<RoomsView />} />
-            <Route path="programacion/tipos-cuarto" element={<TypesRoomView />} />
+            <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
+            <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
             <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
             <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
             <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
