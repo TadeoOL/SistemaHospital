@@ -14,16 +14,11 @@ const priceSchema = z
   });
 
 export const patientRegistrationSchema = z.object({
-  name: z.string().min(1, 'Nombre es requerido'),
-  lastName: z.string().min(1, 'Apellido Paterno es requerido'),
-  secondLastName: z.string().min(1, 'Apellido Materno es requerido'),
-  age: z
-    .string()
-    .min(1, 'La edad es necesaria')
-    .refine((val) => parseInt(val, 10) > 0, {
-      message: 'La edad tiene que ser mayor a 0',
-    }),
-  genere: z.string().min(1, 'Genero es requerido'),
+  name: z.string().optional(),
+  lastName: z.string().optional(),
+  secondLastName: z.string().optional(),
+  age: z.string().optional(),
+  genere: z.string().optional(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 
@@ -50,10 +45,10 @@ export const patientModifySchema = z.object({
 });
 
 export const clinicalDataSchema = z.object({
-  reasonForAdmission: z.string().min(1, 'El motivo de ingreso es requerido'),
-  admissionDiagnosis: z.string().min(1, 'El diagnóstico de ingreso es requerido'),
-  allergies: z.string().min(1, 'El procedimiento es requerido'),
-  bloodType: z.string().min(1, 'El tipo de sangre es requerido'),
+  reasonForAdmission: z.string().optional(),
+  admissionDiagnosis: z.string().optional(),
+  allergies: z.string().optional(),
+  bloodType: z.string().optional(),
   comments: z.string().optional(),
 });
 
@@ -88,13 +83,8 @@ export const surgeryProcedureSchema = z.object({
     .refine((val) => parseInt(val, 10) > 0, {
       message: 'La duración de hospitalización tiene que ser mayor a 0',
     }),
-  description: z.string().min(1, 'La descripción es requerida'),
-  price: z
-    .string()
-    .min(1, 'El precio es necesario')
-    .refine((val) => parseInt(val, 10) > 0, {
-      message: 'El precio tiene que ser mayor a 0',
-    }),
+  description: z.string().optional(),
+  price: z.string().optional(),
 });
 
 export const addRoomReservation = z

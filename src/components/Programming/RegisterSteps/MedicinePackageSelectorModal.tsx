@@ -150,13 +150,6 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
 
   const handleSubmit = () => {
     if (articlesSelected.length === 0) return toast.warning('Agrega artículos al paquete');
-    // if (
-    //   articlesSelected.some(
-    //     (a) => (a.cantidadDisponible as number) < 1 || (a.cantidadDisponible as number) < a.cantidad
-    //   )
-    // ) {
-    //   return toast.warning('No hay suficiente stock de alguno de los artículos seleccionados');
-    // }
     toast.success('Artículos agregados con éxito!');
     setStep(step + 1);
   };
@@ -342,8 +335,6 @@ const MedicineSelectedTableRow = (props: {
   };
 
   const handleSaveEditArticle = () => {
-    if (parseInt(editedAmount) > (data.cantidadDisponible as number))
-      return toast.warning('La cantidad excede el stock actual!');
     setArticlesSelected(
       articlesSelected.map((a) => (a.id === data.id ? { ...a, cantidad: parseInt(editedAmount) } : a))
     );
@@ -376,16 +367,7 @@ const MedicineSelectedTableRow = (props: {
         </Box>
       </TableCell>
       <TableCell>
-        {edit ? (
-          <TextField
-            label="Cantidad"
-            helperText={`Cantidad disponible ${data.cantidadDisponible as number}`}
-            value={editedAmount}
-            onChange={handleAmountChange}
-          />
-        ) : (
-          data.cantidad
-        )}
+        {edit ? <TextField label="Cantidad" value={editedAmount} onChange={handleAmountChange} /> : data.cantidad}
       </TableCell>
       <TableCell>
         <Box>

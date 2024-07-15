@@ -64,8 +64,9 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
   const biomedicalEquipmentsList = [...medicPersonalBiomedicalEquipment, ...biomedicalEquipmentsSelected];
 
   const handleAddBiomedicalEquipment = () => {
-    if (!biomedicalEquipmentSelected) return toast.warning('Por favor selecciona un equipo biomedico');
-    setBiomedicalEquipmentsSelected([...biomedicalEquipmentsSelected, biomedicalEquipmentSelected]);
+    if (biomedicalEquipmentSelected) {
+      setBiomedicalEquipmentsSelected([...biomedicalEquipmentsSelected, biomedicalEquipmentSelected]);
+    }
     setBiomedicalEquipmentSelected(null);
   };
 
@@ -91,7 +92,6 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
   };
 
   const handleNextStep = () => {
-    if (biomedicalEquipmentsList.length < 1) return toast.warning('Es necesario seleccionar el equipo biomedico!');
     setStep(step + 1);
   };
 
@@ -101,7 +101,7 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
       <Box sx={{ backgroundColor: 'background.paper', p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <FormControl>
-            <FormLabel>¿Se utilizara el equipo biomedico del hospital?</FormLabel>
+            <FormLabel>¿Se utilizara el equipo biomédico del hospital?</FormLabel>
             <RadioGroup
               value={hospitalEquipment}
               onChange={(e) => {
@@ -117,7 +117,7 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
         </Box>
         {hospitalEquipment === 'yes' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography>Seleccion de equipo biomedico:</Typography>
+            <Typography>Selección de equipo biomédico:</Typography>
             <Box
               sx={{
                 display: 'flex',
@@ -254,9 +254,7 @@ const BiomedicalEquipmentSelectedTableRow = (props: { data: IBiomedicalEquipment
   );
 
   const handleRemoveBiomedicalEquipment = () => {
-    console.log({ data });
     if (data.esPersonal) {
-      console.log({ medicPersonalBiomedicalEquipment });
       setMedicPersonalBiomedicalEquipment(medicPersonalBiomedicalEquipment.filter((bed) => bed.id !== data.id));
     } else {
       setBiomedicalEquipmentsSelected(biomedicalEquipmentsSelected.filter((bed) => bed.id !== data.id));
