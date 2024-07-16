@@ -110,17 +110,17 @@ function App() {
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
               <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
               <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
+              // ---------------------------Programacion------------------------------------- //
+              <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
+              <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
+              <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
+              <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
+              <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
+              <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
+              <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
+              <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
+              <Route path="/configuracion" element={<AccountView />} />
             </Route>
-            // ---------------------------Programacion------------------------------------- //
-            <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
-            <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
-            <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
-            <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
-            <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
-            <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
-            <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
-            <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
-            <Route path="/configuracion" element={<AccountView />} />
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />

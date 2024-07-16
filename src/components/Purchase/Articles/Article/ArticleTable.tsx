@@ -194,7 +194,9 @@ export const ArticleTable = () => {
               <TableCell width={'10%'}>
                 <SortComponent tableCellLabel="Precio Venta" headerName="precioVenta" setSortFunction={setSort} />
               </TableCell>
-
+              <TableCell width={'10%'}>
+                <SortComponent tableCellLabel="Precio Interno" headerName="precioVentaPI" setSortFunction={setSort} />
+              </TableCell>
               <TableCell width={'22%'}>
                 <SortComponent tableCellLabel="Sub categoria" headerName="subCategoria" setSortFunction={setSort} />
               </TableCell>
@@ -215,6 +217,7 @@ export const ArticleTable = () => {
                         <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>$ {article.precioCompra}</TableCell>
                         <TableCell>$ {article.precioVenta}</TableCell>
+                        <TableCell>$ {article.precioVentaPI}</TableCell>
                         <TableCell>{article.subCategoria as string}</TableCell>
                         <TableCell>
                           <Tooltip title="Editar">

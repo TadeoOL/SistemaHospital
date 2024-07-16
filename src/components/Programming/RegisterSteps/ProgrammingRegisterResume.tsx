@@ -100,15 +100,15 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   const handleCalcAnticipo = () => {
     let total: number = 0;
     articlesSelected.forEach((articleElement) => {
-      console.log('articulo', articleElement.precioVenta);
+      // console.log('articulo', articleElement.precioVenta);
       total += articleElement.precioVenta * articleElement.cantidad;
     });
     biomedicalEquipment.forEach((bmEquip) => {
-      console.log('Equipbm', bmEquip.precio);
+      // console.log('Equipbm', bmEquip.precio);
       total += bmEquip.precio;
     });
     medicPersonalBiomedicalEquipment.forEach((medicPersonalBmEquip) => {
-      console.log('Equipbm', medicPersonalBmEquip.precio);
+      // console.log('Equipbm', medicPersonalBmEquip.precio);
       total += medicPersonalBmEquip.precio;
     });
     proceduresList.forEach((procedureE) => {

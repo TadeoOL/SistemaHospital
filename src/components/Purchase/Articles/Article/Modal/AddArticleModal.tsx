@@ -220,7 +220,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          console.log(precioVentaString);
           setInputValueIP(precioVentaString);
         } else {
           setInputValueIP('0');
