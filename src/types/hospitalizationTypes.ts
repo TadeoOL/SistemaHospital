@@ -24,6 +24,18 @@ export interface IXRay {
   precio: number;
 }
 
+export interface IXRayRequest {
+  id: string;
+  folio: string;
+  id_Solicitante: string;
+  nombreSolicitante: string;
+  nombrePaciente: string;
+  nombre: string;
+  precio: number;
+  fechaSolicitud: string;
+  estatus: number;
+}
+
 export interface IMedic {
   id: string;
   nombres: string;

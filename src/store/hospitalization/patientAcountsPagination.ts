@@ -1,7 +1,7 @@
-import { InurseRequest } from '../../../types/types';
-import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { getNurseRequestPending, getNurseEmiterRequestPending } from '../../../api/api.routes';
+import axios, { CancelTokenSource } from 'axios';
+import { IPatientAccount } from '../../types/admissionTypes';
+import { getPatientsWithAccountPagination } from '../../services/programming/patientService';
 
 interface State {
   count: number;
@@ -9,14 +9,11 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: InurseRequest[];
+  data: IPatientAccount[];
   loading: boolean;
-  status: number;
-  search: string;
   enabled: boolean;
+  search: string;
   cancelToken: CancelTokenSource | null;
-  startDate: string;
-  endDate: string;
   sort: string;
 }
 
@@ -24,14 +21,11 @@ interface Action {
   setPageCount: (pageCount: number) => void;
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
+  setEnabled: (setEnabled: boolean) => void;
   setSearch: (search: string) => void;
-  setStatus: (status: number) => void;
-  setStartDate: (startDate: string) => void;
-  setEndDate: (endDate: string) => void;
-  fetchData: (isNurse: boolean) => void;
-  setEnabled: (enabled: boolean) => void;
-  clearFilters: () => void;
+  fetchData: () => void;
   setSort: (sort: string) => void;
+  clearFilters: () => void;
   clearData: () => void;
 }
 
@@ -40,31 +34,25 @@ const initialValues = {
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  status: 1,
   pageSize: 10,
   data: [],
   loading: false,
   enabled: true,
   search: '',
   cancelToken: null as CancelTokenSource | null,
-  startDate: '',
-  endDate: '',
   sort: '',
 };
 
-export const useNurseRequestPaginationStore = create<State & Action>((set, get) => ({
+export const usePatientAccountPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
   setPageSize: (pageSize: number) => set({ pageSize }),
-  setStatus: (status: number) => set({ status }),
-  setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
-  setStartDate: (startDate: string) => set({ startDate, pageIndex: 0 }),
-  setEndDate: (endDate: string) => set({ endDate, pageIndex: 0 }),
   setSort: (sort: string) => set({ sort }),
-  fetchData: async (isNurse: boolean) => {
-    const { enabled, search, pageIndex, pageSize, status, sort } = get();
+  setEnabled: (enabled: boolean) => set({ enabled }),
+  fetchData: async () => {
+    const { search, pageIndex, pageSize, enabled } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -75,19 +63,9 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
     set({ cancelToken: cancelToken });
 
     try {
-      let res: any;
-      if(isNurse){
-        console.log("enfermero");
-        res = await getNurseRequestPending(
-          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&sort=${sort}`
-        );
-      }else{
-        res = await getNurseEmiterRequestPending(
-          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}`
-        );
-      }
+      const res = await getPatientsWithAccountPagination(
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
+      );
       set({
         data: res.data,
         pageSize: res.pageSize,
@@ -110,12 +88,10 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
     set({
       pageCount: 0,
       pageIndex: 0,
-      status: 1,
       pageSize: 10,
       search: '',
       loading: true,
-      startDate: '',
-      endDate: '',
+      sort: '',
     });
   },
   clearData: () => {

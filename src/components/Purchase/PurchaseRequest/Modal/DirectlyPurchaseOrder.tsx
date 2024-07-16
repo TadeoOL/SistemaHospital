@@ -232,7 +232,7 @@ export const BuildOrder = (props: { setOpen: Function }) => {
           display: 'flex',
           flex: 1,
           justifyContent: 'space-between',
-          alignContent: "center",
+          alignContent: 'center',
           columnGap: 2,
           flexDirection: { xs: 'column', sm: 'row' },
           rowGap: { xs: 2, sm: 0 },
@@ -285,14 +285,13 @@ export const BuildOrder = (props: { setOpen: Function }) => {
             }}
           />
         </Stack>
-        <Box sx={{mt:'auto'}} >
-        <AnimateButton>
-          <Button size="medium" variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticles()}>
-            Agregar
-          </Button>
-        </AnimateButton>
+        <Box sx={{ mt: 'auto' }}>
+          <AnimateButton>
+            <Button size="medium" variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticles()}>
+              Agregar
+            </Button>
+          </AnimateButton>
         </Box>
-        
       </Box>
       <ArticlesTable setWarehouseError={setWarehouseError} setOpen={props.setOpen} />
     </Stack>
@@ -953,7 +952,7 @@ const StepThree = (props: { setOpen: Function }) => {
           };
         }),
         notas: note,
-        PDFCadena: pdf,
+        cotizacion: pdf,
       };
       try {
         await addDirectlyPurchaseOrder(object);

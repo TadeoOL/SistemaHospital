@@ -50,6 +50,9 @@ import {
   OperatingRoomView,
   TypesRoomView,
   DailyOperatingView,
+  XRayRequestView,
+  XRayRequestManagementView,
+  HospitalizationConfigView,
   RecoveryRoomsView,
 } from './utils/LazyRoutes';
 import {
@@ -57,6 +60,7 @@ import {
   ProtectedRoutePharmacyManager,
 } from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePharmacy';
 import { CheckoutRoute } from './utils/CheckoutRoute';
+import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 
 function App() {
   return (
@@ -120,10 +124,14 @@ function App() {
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
+            <Route path="hospitalizacion/radiografias-solicitud" element={<XRayRequestView />} />
+            <Route path="hospitalizacion/radiografias-administracion" element={<XRayRequestManagementView />} />
             <Route path="hospitalizacion/radiografias" element={<XRayView />} />
             <Route path="hospitalizacion/medicos" element={<MedicView />} />
             <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
             <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
+            <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} />
+            <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
             // --------------------------------- OperatingRoom ------------------------------- //
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />

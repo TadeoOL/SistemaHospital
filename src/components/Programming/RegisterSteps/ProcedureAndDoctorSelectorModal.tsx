@@ -106,9 +106,13 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
     }
     const medicData = doctorsData.find((m) => m.id === data.medicId);
 
-    let proceduresMap: { [key: string]: { id: string; name: string } } = {};
+    let proceduresMap: { [key: string]: { id: string; name: string; price: number } } = {};
     for (let i = 0; i < proceduresRes.length; i++) {
-      proceduresMap[proceduresRes[i].id] = { id: proceduresRes[i].id, name: proceduresRes[i].nombre };
+      proceduresMap[proceduresRes[i].id] = {
+        id: proceduresRes[i].id,
+        name: proceduresRes[i].nombre,
+        price: proceduresRes[i].precio,
+      };
     }
 
     let proceduresList = [];

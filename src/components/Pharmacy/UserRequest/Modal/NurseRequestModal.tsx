@@ -228,8 +228,6 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
         Cuarto: roomSelected,
         Id_Paciente: userSelected.id_Paciente,
         Id_CuentaPaciente: userSelected.id_Cuenta,
-        Id_Enfermero: 'elenfermero',
-        NombreEnfermero: 'nombre we',
         SolicitadoEn: floorSelected,
         Id_AlmacenSolicitado: warehouseSelected,
         ListaSolicitud: data,
@@ -251,7 +249,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Petición de almacén" />
+      <HeaderModal setOpen={props.setOpen} title="Petición de enfermero" />
       <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
         <Box
           sx={{

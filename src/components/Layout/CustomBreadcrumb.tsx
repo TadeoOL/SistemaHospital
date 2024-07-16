@@ -5,6 +5,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import HomeIcon from '@mui/icons-material/Home';
 import GrainIcon from '@mui/icons-material/Grain';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useLocation } from 'react-router-dom';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
@@ -55,6 +56,8 @@ const TsxByModule: React.FC<TsxByModuleProps> = ({ module }) => {
       return <ViewRender icon={WarehouseIcon} title="Almacén" />;
     case 'ventas':
       return <ViewRender icon={PointOfSaleIcon} title="Ventas" />;
+    case 'hospitalizacion':
+      return <ViewRender icon={MonitorHeartIcon} title="Hospitalización" />;
     default:
       return <ViewRender icon={HomeIcon} title="Inicio" />;
   }

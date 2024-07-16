@@ -168,7 +168,7 @@ export const WaitingPackages = () => {
       });
   };
 
-  const acceptRequest = (idRequest: string, lotes: any) => {
+  const acceptRequest = (idRequest: string, lotes: any, id_CuentaPaciente?: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -185,6 +185,7 @@ export const WaitingPackages = () => {
             Estatus: 2,
             Id_HistorialMovimiento: idRequest,
             Lotes: lotes,
+            Id_CuentaPaciente: id_CuentaPaciente,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -327,27 +328,17 @@ export const WaitingPackages = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              {(movimiento.estatus as number) === STATUS_ENUM.Esperando ? (
-                                <>
-                                  <IconButton
-                                    onClick={() => {
-                                      acceptRequest(movimiento.id, movimiento.historialArticulos);
-                                    }}
-                                  >
-                                    <DoneIcon />
-                                  </IconButton>
-                                </>
-                              ) : (
-                                <>
-                                  <IconButton onClick={() => createPackage(movimiento.id)}>
-                                    <LuPackagePlus
-                                      style={{
-                                        color: '#8F959E',
-                                      }}
-                                    />
-                                  </IconButton>
-                                </>
-                              )}
+                              <IconButton
+                                onClick={() => {
+                                  acceptRequest(
+                                    movimiento.id,
+                                    movimiento.historialArticulos,
+                                    movimiento.id_CuentaPaciente
+                                  );
+                                }}
+                              >
+                                <DoneIcon />
+                              </IconButton>
                               <IconButton
                                 size="small"
                                 onClick={() => {

@@ -46,7 +46,7 @@ export const SearchBar = (props: ISearchBar) => {
             </IconButton>
           ),
         }}
-        sx={{ maxWidth: 500, backgroundColor: 'white' }}
+        sx={{ maxWidth: 500, backgroundColor: 'white', borderRadius: 3.5 }}
       />
     </Box>
   );

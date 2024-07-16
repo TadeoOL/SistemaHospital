@@ -71,6 +71,12 @@ export interface IPatientRegisterPagination {
   faltanDatos?: boolean;
 }
 
+export interface IPatientAccount {
+  id_Paciente: string;
+  nombreCompleto: string;
+  id_Cuenta: string;
+  id_ArticuloCuenta: string | null;
+}
 export interface IProgrammingRequestPagination {
   id: string;
   id_Paciente: string;

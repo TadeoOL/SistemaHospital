@@ -105,7 +105,6 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    console.log('entra el efects');
     fetchData(false);
   }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
   return {
@@ -159,7 +158,7 @@ export const NurseRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `¿Seguro que deseas cancelar esta solicitud de enfermero?`,
+        text: `¿Seguro que deseas cancelar esta solicitud de radiografia?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -181,7 +180,7 @@ export const NurseRequestManagementTable = () => {
           fetchData(false);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Salida cancelada',
+            text: 'Radiografía cancelada',
             icon: 'success',
           });
         } else {
@@ -193,11 +192,11 @@ export const NurseRequestManagementTable = () => {
       });
   };
 
-  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string) => {
+  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string, Id_PacientAccount: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
-        text: `¿Seguro que deseas marcar esta solicitud como entregada?`,
+        text: `¿Seguro que deseas aceptar esta radiografía?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -210,6 +209,8 @@ export const NurseRequestManagementTable = () => {
             Id_AlmacenOrigen: Id_warehouseRequest,
             EstadoSolicitud: 3,
             Id: idRequest,
+            Id_CuentaPaciente: Id_PacientAccount,
+            //Id_Enfermero : '',
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -219,12 +220,12 @@ export const NurseRequestManagementTable = () => {
           fetchData(false);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Salida marcada como entregada',
+            text: 'Radiografía aceptada',
             icon: 'success',
           });
         } else {
           withReactContent(Swal).fire({
-            title: 'No se marcó la salida como entregada',
+            title: 'No se acepto la radiografía',
             icon: 'info',
           });
         }
@@ -443,7 +444,11 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
             <Tooltip title="Marcar como Entregado">
               <IconButton
                 onClick={() => {
-                  markAsDelivered(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
+                  markAsDelivered(
+                    nurseRequest.id_SolicitudEnfermero,
+                    nurseRequest.id_AlmacenSolicitado,
+                    nurseRequest.id_CuentaPaciente
+                  );
                 }}
               >
                 <MarkunreadMailboxIcon sx={{ color: 'green' }} />
