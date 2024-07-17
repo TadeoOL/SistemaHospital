@@ -153,7 +153,7 @@ const TableRowSurgeryProcedure = (props: TableRowSurgeryProcedureProps) => {
         <TableCell>{surgeryProcedure.nombre}</TableCell>
         <TableCell>{surgeryProcedure.duracionHospitalizacion}</TableCell>
         <TableCell>{surgeryProcedure.duracionCirujia}</TableCell>
-        <TableCell>${surgeryProcedure.precioCirujia}</TableCell>
+        <TableCell>{surgeryProcedure.precioCirujia ? `$${surgeryProcedure.precioCirujia}` : 'Sin precio'}</TableCell>
         <TableCell>{surgeryProcedure.descripcion}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

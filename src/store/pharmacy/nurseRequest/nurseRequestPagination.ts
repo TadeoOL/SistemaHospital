@@ -88,8 +88,6 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
           }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}`
         );
       }
-      
-      console.log("weragonateikit enimor",res.data);
       set({
         data: res.data,
         pageSize: res.pageSize,

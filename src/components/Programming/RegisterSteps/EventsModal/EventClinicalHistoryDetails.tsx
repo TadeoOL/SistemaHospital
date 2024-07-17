@@ -21,14 +21,6 @@ export const EventClinicalHistoryDetails = (props: EventClinicalHistoryDetailsPr
         <Divider sx={{ my: 1 }} />
       </Grid>
       <Grid sx={gridStyle} item xs={12} md={6}>
-        <Typography sx={titleStyle}>Medico Tratante:</Typography>
-        <Typography sx={bodyStyle}>{clinicalHistory.medicoTratante}</Typography>
-      </Grid>
-      <Grid sx={gridStyle} item xs={12} md={6}>
-        <Typography sx={titleStyle}>Especialidad:</Typography>
-        <Typography sx={bodyStyle}>{clinicalHistory.especialidad}</Typography>
-      </Grid>
-      <Grid sx={gridStyle} item xs={12} md={6}>
         <Typography sx={titleStyle}>Motivo Ingreso:</Typography>
         <Typography sx={bodyStyle}>{clinicalHistory.motivoIngreso}</Typography>
       </Grid>
@@ -37,8 +29,12 @@ export const EventClinicalHistoryDetails = (props: EventClinicalHistoryDetailsPr
         <Typography sx={bodyStyle}>{clinicalHistory.diagnosticoIngreso}</Typography>
       </Grid>
       <Grid sx={gridStyle} item xs={12} md={6}>
-        <Typography sx={titleStyle}>Procedimiento:</Typography>
-        <Typography sx={bodyStyle}>{clinicalHistory.procedimiento}</Typography>
+        <Typography sx={titleStyle}>Alergias:</Typography>
+        <Typography sx={bodyStyle}>{clinicalHistory.alergias}</Typography>
+      </Grid>
+      <Grid sx={gridStyle} item xs={12} md={6}>
+        <Typography sx={titleStyle}>Tipo de sangre:</Typography>
+        <Typography sx={bodyStyle}>{clinicalHistory.tipoSangre}</Typography>
       </Grid>
       <Grid sx={gridStyle} item xs={12}>
         <Typography sx={titleStyle}>Comentarios:</Typography>

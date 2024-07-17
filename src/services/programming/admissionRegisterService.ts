@@ -5,7 +5,13 @@ const apiRegister = '/api/Registro';
 interface RegisterAdmission {
   pacienteId: string;
   historialClinicoId: string;
+  id_Medico: string | null;
+  id_Anestesiologo: string | null;
   procedimientos: string[];
+  radiografias: string[] | null;
+  equiposBiomedico: string[];
+  equipoBiomedicoHonorario?: string;
+  articulos: { articuloId: string; cantidad: number; notas?: string }[];
   fechaInicio: Date;
   fechaFin: Date;
   cuartos: Cuarto[];
@@ -15,7 +21,7 @@ interface Cuarto {
   cuartoId: string;
   horaInicio: Date;
   horaFin: Date;
-  tipoCuarto: string;
+  id_TipoCuarto: string;
 }
 
 export const createAdmission = async (data: RegisterAdmission) => {
@@ -53,5 +59,24 @@ export const modifyEventRoom = async (data: {
   horaFin: Date;
 }) => {
   const res = await axios.put(`${apiRegister}/modificar-registro-cuarto`, data);
+  return res.data;
+};
+
+export const modifyOperatingRoom = async (data: {
+  id_RegistroCuarto: string;
+  id_Medico?: string;
+  id_Anestesiologo?: string;
+  enfermeros?: string;
+}) => {
+  const res = await axios.put(`${apiRegister}/modificar-datos-quirofano`, data);
+  return res.data;
+};
+
+export const deleteRegister = async (registerId: string) => {
+  const res = await axios.delete(`${apiRegister}/eliminar-registro`, {
+    params: {
+      Id_Registro: registerId,
+    },
+  });
   return res.data;
 };

@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  Modal,
   Stack,
   Table,
   TableBody,
@@ -30,6 +31,22 @@ import Swal from 'sweetalert2';
 import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { SortComponent } from '../../Commons/SortComponent';
+import { LuPackagePlus } from 'react-icons/lu';
+import { CreatePackageModal } from './Modal/CreatePackageModal';
+import { IArticleHistory } from '../../../types/types';
+
+const STATUS: Record<number, string> = {
+  0: 'Cancelada',
+  2: 'Aceptada',
+  3: 'En espera',
+  4: 'Armar paquete',
+};
+enum STATUS_ENUM {
+  Cancelada = 0,
+  Aceptada = 2,
+  Esperando = 3,
+  ArmarPaquete = 4,
+}
 
 const useGetMovements = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
@@ -110,6 +127,9 @@ export const WaitingPackages = () => {
     setSort,
   } = useGetMovements();
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
+  const [packageSelected, setPackageSelected] = useState('');
+  const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
 
   const rejectRequest = (idRequest: string) => {
     withReactContent(Swal)
@@ -148,7 +168,7 @@ export const WaitingPackages = () => {
       });
   };
 
-  const acceptRequest = (idRequest: string, lotes: any) => {
+  const acceptRequest = (idRequest: string, lotes: any, id_CuentaPaciente?: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -165,6 +185,7 @@ export const WaitingPackages = () => {
             Estatus: 2,
             Id_HistorialMovimiento: idRequest,
             Lotes: lotes,
+            Id_CuentaPaciente: id_CuentaPaciente,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -186,6 +207,16 @@ export const WaitingPackages = () => {
         }
       });
   };
+
+  const createPackage = (id: string) => {
+    setOpenCreatePackageModal(true);
+    setPackageSelected(id);
+  };
+
+  useEffect(() => {
+    setProvisionalArticles(data?.find((d) => d.id === packageSelected)?.historialArticulos ?? []);
+  }, [packageSelected]);
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -287,17 +318,8 @@ export const WaitingPackages = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell> {movimiento.solicitadoPor} </TableCell>
-                          {
-                            //<TableCell> {movimiento.autorizadoPor} </TableCell>
-                          }
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
-                          <TableCell>
-                            {movimiento.estatus === 0
-                              ? 'Cancelada'
-                              : movimiento.estatus === 2
-                                ? 'Aceptada'
-                                : 'En espera'}
-                          </TableCell>
+                          <TableCell>{movimiento.estatus && STATUS[movimiento.estatus]}</TableCell>
                           <TableCell>
                             <Box
                               sx={{
@@ -306,12 +328,16 @@ export const WaitingPackages = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              <IconButton>
-                                <DoneIcon
-                                  onClick={() => {
-                                    acceptRequest(movimiento.id, movimiento.historialArticulos);
-                                  }}
-                                />
+                              <IconButton
+                                onClick={() => {
+                                  acceptRequest(
+                                    movimiento.id,
+                                    movimiento.historialArticulos,
+                                    movimiento.id_CuentaPaciente
+                                  );
+                                }}
+                              >
+                                <DoneIcon />
                               </IconButton>
                               <IconButton
                                 size="small"
@@ -399,6 +425,16 @@ export const WaitingPackages = () => {
           </Card>
         </Stack>
       </Stack>
+      <Modal open={openCreatePackageModal} onClose={() => setOpenCreatePackageModal(false)}>
+        <>
+          <CreatePackageModal
+            setOpen={setOpenCreatePackageModal}
+            articles={provisionalArticles}
+            movementHistoryId={packageSelected}
+            setArticles={setProvisionalArticles}
+          />
+        </>
+      </Modal>
     </>
   );
 };

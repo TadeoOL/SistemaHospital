@@ -1,6 +1,5 @@
-import { Backdrop, Box, Button, Chip, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { Cancel } from '@mui/icons-material';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -8,11 +7,10 @@ import { RoomReservationTable } from './RoomReservationTable';
 import dayjs, { Dayjs } from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addRoomReservation, procedureSchema } from '../../../schema/programming/programmingSchemas';
+import { addRoomReservation } from '../../../schema/programming/programmingSchemas';
 import { useGetAllRooms } from '../../../hooks/programming/useGetAllRooms';
 import { IRegisterRoom } from '../../../types/types';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
-import { useGetAllSurgeryProcedures } from '../../../hooks/programming/useGetAllSurgeryProcedure';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
@@ -24,7 +22,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 650 },
+  width: { xs: 380, sm: 550, md: 750 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
@@ -38,28 +36,22 @@ interface RoomsInput {
   endDate: Dayjs;
 }
 
-interface Inputs {
-  proceduresId: string[];
-}
-
 interface RoomReservationModalProps {
   setOpen: Function;
 }
 
 export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const { data: roomsRes, isLoadingRooms } = useGetAllRooms();
-  const { data: proceduresRes, isLoadingProcedures } = useGetAllSurgeryProcedures();
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
-  const setProcedures = useProgrammingRegisterStore((state) => state.setProcedures);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
   const events = useProgrammingRegisterStore((state) => state.events);
-  const procedures = useProgrammingRegisterStore((state) => state.procedures);
   const appointmentStartDate = useProgrammingRegisterStore((state) => state.appointmentStartDate);
   const appointmentEndDate = useProgrammingRegisterStore((state) => state.appointmentEndDate);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
+  const setStartDateSurgery = useProgrammingRegisterStore((state) => state.setStartDateSurgery);
   const step = useProgrammingRegisterStore((state) => state.step);
 
   const {
@@ -101,7 +93,8 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       const roomObj: IRegisterRoom = {
         id: roomFound.id,
         nombre: roomFound.nombre,
-        tipoCuarto: roomFound.tipoCuarto,
+        id_TipoCuarto: roomFound.id_TipoCuarto,
+        precio: roomFound.precio,
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
@@ -113,30 +106,17 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     setValueRooms('room', '');
   };
 
-  const {
-    register: registerProcedures,
-    handleSubmit: handleSubmitProcedures,
-    watch: watchProcedures,
-    setValue: setValueProcedures,
-    formState: { errors: errorsProcedures },
-  } = useForm<Inputs>({
-    defaultValues: {
-      proceduresId: procedures,
-    },
-    resolver: zodResolver(procedureSchema),
-  });
-  const watchProceduresId = watchProcedures('proceduresId');
-
-  const onSubmitProcedures: SubmitHandler<Inputs> = async (data) => {
+  const onSubmitProcedures = async () => {
     if (roomValues.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
-    const procedureNames = data.proceduresId
-      .map((id) => {
-        const procedure = proceduresRes.find((p) => p.id === id);
-        return procedure ? procedure.nombre : '';
-      })
-      .filter((name) => name);
 
-    const procedureNamesString = procedureNames.join(', ');
+    let startDate = roomValues[0].horaInicio;
+    for (let i = 1; i < roomValues.length; i++) {
+      if (roomValues[i].horaInicio < startDate) {
+        startDate = roomValues[i].horaInicio;
+      }
+    }
+    setStartDateSurgery(startDate);
+
     const roomObj = roomValues
       .map((r) => {
         return {
@@ -144,14 +124,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
           roomId: r.id,
           start: r.horaInicio,
           end: r.horaFin,
-          title: r.nombre + ' - ' + procedureNamesString,
+          title: r.nombre,
           source: 'local',
         };
       })
       .filter((room) => !events.some((event) => event.id === room.id));
     setEvents([...events, ...roomObj]);
-    setProcedures(data.proceduresId);
     toast.success('Datos registrados correctamente!');
+    console.log({ roomObj });
     setStep(step + 1);
   };
 
@@ -222,7 +202,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     return false;
   };
 
-  if (isLoadingRooms || isLoadingProcedures)
+  if (isLoadingRooms)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -246,48 +226,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
             Fecha seleccionada: {appointmentStartDate.toLocaleDateString()} - {appointmentEndDate.toLocaleDateString()}
           </Typography>
         </Box>
-        <form onSubmit={handleSubmitProcedures(onSubmitProcedures)} id="form1">
-          <Box>
-            <Typography>Seleccione los procedimientos:</Typography>
-            <TextField
-              select
-              SelectProps={{
-                multiple: true,
-                renderValue: (selected: any) => {
-                  return (
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                      {selected &&
-                        selected.map((value: string) => (
-                          <Chip
-                            key={value}
-                            label={proceduresRes.find((v) => v.id === value)?.nombre}
-                            style={{ margin: 2 }}
-                            onDelete={() => {
-                              const procedureList = watchProceduresId.filter((p) => p !== value);
-                              setValueProcedures('proceduresId', procedureList);
-                            }}
-                            deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
-                          />
-                        ))}
-                    </div>
-                  );
-                },
-              }}
-              label="Procedimientos"
-              fullWidth
-              error={!!errorsProcedures.proceduresId?.message}
-              helperText={errorsProcedures.proceduresId?.message}
-              value={watchProceduresId}
-              {...registerProcedures('proceduresId')}
-            >
-              {proceduresRes.map((p) => (
-                <MenuItem key={p.id} value={p.id}>
-                  {p.nombre}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-        </form>
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
@@ -395,7 +333,13 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: 1,
+                  justifyContent: 'flex-end',
+                }}
+              >
                 <Button variant="outlined" type="button" onClick={handleSubmitRooms(onSubmitRooms)}>
                   Agregar
                 </Button>
@@ -419,8 +363,8 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cerrar
         </Button>
-        <Button variant="contained" type="submit" form="form1">
-          Aceptar
+        <Button variant="contained" onClick={onSubmitProcedures}>
+          Siguiente
         </Button>
       </Box>
     </Box>

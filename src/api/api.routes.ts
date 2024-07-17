@@ -6,6 +6,7 @@ import {
   ICategory,
   IProvider,
   IPurchaseConfig,
+  IPurchaseInternConfig,
   IRegisterOrderPurchase,
   ISubCategory,
   IUpdateUsers,
@@ -346,6 +347,7 @@ export const addNewArticle = async (article: IArticle) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -360,6 +362,7 @@ export const addNewArticle = async (article: IArticle) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -623,6 +626,11 @@ export const getOrderRequestById = async (idQuote: string) => {
   return res.data;
 };
 
+export const getOrdenCotizacionbyId = async (idQuote: string) => {
+  const res = await axios.get(`/api/Compras/obtener-cotizacion-orden-compra/${idQuote}`);
+  return res.data;
+};
+
 // Messages Response
 
 export const obtenerMensajes = async (modulo: string) => {
@@ -734,6 +742,7 @@ export const addDirectlyPurchaseOrder = async (OrdenCompra: {
     PrecioVenta: number;
   }[];
   notas?: string;
+  cotizacion?: string;
 }) => {
   const res = await axios.post(`/api/Compras/registrar-orden-compra-directa`, {
     OrdenCompra,
@@ -869,17 +878,21 @@ export const modifyMinStockExistingArticle = async (data: {
   return res.data;
 };
 
-export const articlesOutputToWarehouse = async (
-  data: {
-    id_almacenOrigen?: string;
-    id_almacenDestino?: string;
-    /*Lotes?: {
+export const articlesOutputToWarehouse = async (data: {
+  id_almacenOrigen?: string;
+  id_almacenDestino?: string;
+  /*Lotes?: {
+export const articlesOutputToWarehouse = async (data: {
+  id_almacenOrigen?: string;
+  id_almacenDestino?: string;
+  /*Lotes?: {
       Id_ArticuloExistente: string;
       Cantidad: string;
     }[];*/
     Lotes?: any;
     Estatus: number;
     Id_HistorialMovimiento?: string;
+    Id_CuentaPaciente?: string;
     SolicitadoPor?: string;
     Mensaje?: string;
   }
@@ -891,35 +904,36 @@ export const articlesOutputToWarehouse = async (
   
 };
 
-export const waitingpackageChangeStatus = async (
-  data: {
-    Estatus: number;
-    Id_HistorialMovimiento: string;
-    Lotes?: any;
-  }
-) => {
-    const res = await axios.put(`/api/Almacen/estatus-espera-paquete`, {
-      ...data,
-    });
-    return res.data;
-};
+export const waitingpackageChangeStatus = async (data: {
+  Estatus: number;
+  Id_HistorialMovimiento: string;
+  Lotes?: any;
+}) => {
+  const res = await axios.put(`/api/Almacen/estatus-espera-paquete`, {
+    ...data,
+  });
+  return res.data;
+}
 
-export const articlesOutputToWarehouseToWarehouse = async ( 
-  data: {
+
+export const articlesOutputToWarehouseToWarehouse = async (data: {
   id_almacenOrigen: string;
   id_almacenDestino: string;
   Lotes: {
-  Id_ArticuloExistente: string;
-  EnEspera?: boolean;
-  Cantidad: number;
-    }[];
+    Id_ArticuloExistente: string;
+    EnEspera?: boolean;
+    Cantidad: number;
+  }[];
   SalidaMotivo?: string;
+  SolicitadoPor?: string;
+  Id_Enfermero?: string;
+  Id_CuentaPaciente?: string;
 }) => {
   const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
     ...data,
   });
   return res.data;
-}
+};
 
 export const addArticlesPackage = async (packagePost: {
   Contenido: string;
@@ -927,7 +941,6 @@ export const addArticlesPackage = async (packagePost: {
   Descripcion: string;
   Id_Almacen: string;
 }) => {
-  console.log(packagePost);
   const res = await axios.post(`/api/Almacen/registrar-paquete`, {
     ...packagePost,
   });
@@ -941,7 +954,6 @@ export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
 
 export const getPackagesByWarehouseId = async (id: string) => {
   const res = await axios.get(`/api/Almacen/obtener-paquetes?Id=${id}`);
-  console.log("datapack",res.data);
   return res.data;
 };
 
@@ -1010,6 +1022,8 @@ export const articlesEntryToWarehouse = async (data: {
     fechaCaducidad: string;
   }[];
   IngresoMotivo: string;
+  NombreEnfermero: string;
+  Id_CuentaPaciente: string;
 }) => {
   const res = await axios.put(`/api/ArticuloExistente/entrada-manual-lote`, {
     ...data,
@@ -1031,7 +1045,6 @@ export const articlesLoteUpdate = async (data: {
   return res.data;
 };
 export const articlesLoteDelete = async (data: { Id_ArticuloExistente: string }) => {
-  console.log(data);
   const res = await axios.put(`/api/ArticuloExistente/inhabilitar-lote-existente`, {
     ...data,
   });
@@ -1050,8 +1063,6 @@ export const addNurseRequest = async (article: any) => {
     Cuarto,
     Id_Paciente,
     Id_CuentaPaciente,
-    Id_Enfermero,
-    NombreEnfermero,
     SolicitadoEn,
     Id_AlmacenSolicitado,
     ListaSolicitud,
@@ -1061,8 +1072,6 @@ export const addNurseRequest = async (article: any) => {
     Cuarto,
     Id_Paciente,
     Id_CuentaPaciente,
-    Id_Enfermero,
-    NombreEnfermero,
     SolicitadoEn,
     Id_AlmacenSolicitado,
     ListaSolicitud,
@@ -1074,11 +1083,13 @@ export const updateStatusNurseRequest = async (data: {
   Id: string; 
   EstadoSolicitud: number; 
   Id_AlmacenOrigen: string; 
+  Id_CuentaPaciente?: string; 
+  Id_Enfermero?: string; 
   Lotes?: any; 
 }) => {
-  const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`,{
-    ...data}
-  );
+  const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
+    ...data,
+  });
   return res.data;
 };
 
@@ -1090,4 +1101,18 @@ export const getNurseRequestPending = async (paramUrl: string) => {
 export const getNurseEmiterRequestPending = async (paramUrl: string) => {
   const res = await axios.get(`/api/SolicitudEnfemero/paginacion-solicitud-enfermero-emisor?${paramUrl}`);
   return res.data;
+};
+
+export const buildPackage = async (data: {
+  id_HistorialMovimiento: string;
+  id_AlmacenOrigen: string;
+  lotes: { Id_ArticuloExistente: string; Cantidad: number }[];
+}) => {
+  const res = await axios.post(`/api/Almacen/armar-paquete`, data);
+  return res.data;
+};
+
+export const getHospitalizationConfig = async () => {
+  const res = await axios.get('/api/ConfiguracionHospitalizacion/obtener-configuracion-hospitalizacion');
+  return res.data as IPurchaseInternConfig;
 };

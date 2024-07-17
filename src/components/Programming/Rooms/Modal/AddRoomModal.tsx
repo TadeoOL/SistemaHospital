@@ -4,10 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { roomSchema } from '../../../../schema/programming/programmingSchemas';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { modifyRoom, registerRoom } from '../../../../services/programming/roomsService';
 import { IRoom } from '../../../../types/types';
 import { useRoomsPaginationStore } from '../../../../store/programming/roomsPagination';
+import { useGetAllTypesRoom } from '../../../../hooks/programming/useGetAllTypesRoom';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -20,8 +21,6 @@ const style = {
   flexDirection: 'column',
   maxHeight: { xs: 900 },
 };
-
-const ROOM_TYPES = ['Hospitalización', 'Quirófano'];
 
 type Inputs = {
   name: string;
@@ -37,17 +36,19 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useRoomsPaginationStore((state) => state.fetchData);
+  const { isLoadingTypeRoom, data } = useGetAllTypesRoom();
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(roomSchema),
     defaultValues: {
       name: editData ? editData.nombre : '',
-      roomType: editData ? editData.tipoCuarto : '',
+      roomType: '',
       description: editData ? editData.descripcion : '',
     },
   });
@@ -58,30 +59,51 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
     setIsLoading(true);
     try {
       if (!editData) {
-        await registerRoom({ nombre: data.name, tipoCuarto: data.roomType, descripcion: data.description });
-        toast.success('Cuarto dado de alta correctamente');
+        await registerRoom({
+          nombre: data.name,
+          id_TipoCuarto: data.roomType,
+          descripcion: data.description,
+        });
+        toast.success('Espacio hospitalario dado de alta correctamente');
       } else {
         await modifyRoom({
           nombre: data.name,
-          tipoCuarto: data.roomType,
+          id_TipoCuarto: data.roomType,
           descripcion: data.description,
           id: editData.id,
         });
-        toast.success('Cuarto modificado correctamente');
+        toast.success('Espacio hospitalario modificado correctamente');
       }
       refetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      editData ? toast.error('Error al modificar el cuarto') : toast.error('Error al intentar dar de alta el cuarto');
+      editData
+        ? toast.error('Error al modificar el espacio hospitalario')
+        : toast.error('Error al intentar dar de alta el espacio hospitalario');
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (!editData) return;
+    const roomType = data.find((d) => d.nombre === editData.tipoCuarto);
+    setValue('roomType', roomType ? roomType.id : '');
+  }, [editData]);
+
+  if (isLoadingTypeRoom)
+    return (
+      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title={editData ? 'Modificar cuarto' : 'Agregar cuarto'} />
+      <HeaderModal
+        setOpen={props.setOpen}
+        title={editData ? 'Modificar espacio hospitalario' : 'Agregar espacio hospitalario'}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
           <Grid container spacing={1}>
@@ -96,9 +118,9 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Typography>Tipo de cuarto</Typography>
+              <Typography>Categoría de espacio hospitalario</Typography>
               <TextField
-                label="Selecciona un tipo de cuarto"
+                label="Selecciona una categoría de espacio hospitalario"
                 fullWidth
                 select
                 error={!!errors.roomType?.message}
@@ -106,10 +128,10 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 {...register('roomType')}
                 value={watchRoomType}
               >
-                {ROOM_TYPES.map((roomType) => {
+                {data.map((roomType) => {
                   return (
-                    <MenuItem value={roomType} key={roomType}>
-                      {roomType}
+                    <MenuItem value={roomType.id} key={roomType.id}>
+                      {roomType.nombre}
                     </MenuItem>
                   );
                 })}

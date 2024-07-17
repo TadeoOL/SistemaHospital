@@ -22,6 +22,9 @@ import dayjs from 'dayjs';
 import { Check, Close, Edit, Info } from '@mui/icons-material';
 import { PatientInfoModal } from './Modal/PatientInfoModal';
 import { SelectEditOptionModal } from './Modal/SelectEditOptionModal';
+import Swal from 'sweetalert2';
+import { deleteRegister } from '../../../services/programming/admissionRegisterService';
+
 const headers = ['Clave paciente', 'Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Datos Clinicos', 'Acciones'];
 
 interface TableBodyHospitalizationProps {
@@ -107,6 +110,46 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [valueView, setValueView] = useState(0);
   const [registerRoomId, setRegisterRoomId] = useState('');
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+
+  const handleDelete = () => {
+    Swal.fire({
+      title: '¿Estás seguro que deseas eliminar el paciente?',
+      text: 'Esta acción eliminará el paciente y todos sus registros dentro',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+    }).then(async (res) => {
+      if (res.isConfirmed) {
+        try {
+          await deleteRegister(data.id);
+          Swal.fire({
+            title: 'Eliminado!',
+            text: 'El paciente ha sido eliminado con éxito',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+            timer: 1000,
+            timerProgressBar: true,
+          });
+          refetch();
+        } catch (error) {
+          console.error(error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'Hubo un error al eliminar el paciente',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            timer: 1000,
+            timerProgressBar: true,
+          });
+        }
+      }
+    });
+  };
 
   useEffect(() => {
     if (!openEdit) setValueView(0);
@@ -161,7 +204,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
               </IconButton>
             </Tooltip>
             <Tooltip title="Rechazar">
-              <IconButton>
+              <IconButton onClick={handleDelete}>
                 <Close color="error" />
               </IconButton>
             </Tooltip>

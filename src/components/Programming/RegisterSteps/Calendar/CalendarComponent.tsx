@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import { Calendar, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
+import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar.css';
 import { Box, CircularProgress, Modal } from '@mui/material';
@@ -32,17 +32,18 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
   const [open, setOpen] = useState(false);
   const [openManyEvents, setOpenManyEvents] = useState(false);
   const [openSpecificEvent, setOpenSpecificEvent] = useState(false);
-  const [isFiltering, setIsFiltering] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
   const setAppointmentStartDate = useProgrammingRegisterStore((state) => state.setAppointmentStartDate);
   const setAppointmentEndDate = useProgrammingRegisterStore((state) => state.setAppointmentEndDate);
   const [view, setView] = useState<View>('month');
   const [specificEventId, setSpecificEventId] = useState('');
   const [myEvents, setMyEvents] = useState<IEventsCalendar[]>(props.events);
+  const [hashCleanRoomEvents, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
 
   const handleClickSlot = (slotInfo: SlotInfo) => {
     const { start, end } = slotInfo;
     const now = dayjs();
-    if (dayjs(start).isBefore(now, 'seconds')) {
+    if (dayjs(end).isBefore(now, 'seconds')) {
       toast.warning('No se puede poner una cita posterior a la fecha actual');
       return;
     }
@@ -92,12 +93,16 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
   };
 
   const onNavigate = useCallback(
-    (newDate: Date, view: View) => {
+    (newDate: Date, view: View, action: NavigateAction) => {
       const dateJs = dayjs(props.date).format('DD/MM/YYYY HH:mm:ss');
       const newDateJs = dayjs(newDate).format('DD/MM/YYYY HH:mm:ss');
       if (dateJs === newDateJs) return;
-      setView(view);
-      props.setDate(newDate);
+      if (action === 'DATE') {
+        setView('day');
+      } else {
+        setView(view);
+      }
+      props.setDate(dayjs(newDate));
     },
     [props.date]
   );
@@ -121,20 +126,33 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         const existing = myEvents.find((ev) => ev.id === event.id);
         const cleanRoom = myEvents.find((ev) => ev.roomId === event.id);
         const filtered = myEvents.filter((ev) => ev.id !== event.id).filter((ev) => ev.roomId !== event.id);
-        if (!existing || !cleanRoom) return [...myEvents];
-        const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
-        const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
-        props.setEvents([
-          ...filtered,
-          { ...existing, start: drop.start as Date, end: drop.end as Date },
-          { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
-        ]);
+        if (!cleanRoom && Object.keys(hashCleanRoomEvents).length > 0) {
+          const cleanRoomInHashMap = hashCleanRoomEvents[existing?.id as string];
+          const cleanRoomDuration = cleanRoomInHashMap.end.getTime() - cleanRoomInHashMap.start.getTime();
+          const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
+          props.setEvents([
+            ...filtered,
+            { ...existing, start: drop.start as Date, end: drop.end as Date },
+            { ...cleanRoomInHashMap, start: drop.end as Date, end: newEndCleanRoom },
+          ]);
+        } else if (cleanRoom) {
+          const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
+          const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
+          props.setEvents([
+            ...filtered,
+            { ...existing, start: drop.start as Date, end: drop.end as Date },
+            { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
+          ]);
+        } else {
+          props.setEvents([...filtered, { ...existing, start: drop.start as Date, end: drop.end as Date }]);
+        }
       } catch (error) {
-        const errorMsg = error as any;
-        toast.error(errorMsg.response.data as string);
+        console.log({ error });
+        // const errorMsg = error as any;
+        // toast.error(errorMsg.response.data as string);
       }
     },
-    [myEvents]
+    [myEvents, hashCleanRoomEvents]
   );
 
   useEffect(() => {
@@ -142,11 +160,19 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
   }, [props.events]);
 
   useEffect(() => {
+    const newHashCleanRoomEvents: { [key: string]: IEventsCalendar } = {};
     if (view === 'month') {
       const eventsWithoutCleanRooms = props.events.filter((event) => event.title.toLocaleLowerCase() !== 'limpieza');
+      for (let i = 0; i < props.events.length; i++) {
+        if (i % 2 !== 0) {
+          newHashCleanRoomEvents[props.events[i - 1].id] = props.events[i];
+        }
+      }
       setMyEvents(eventsWithoutCleanRooms);
+      setHashCleanRoomEvents(newHashCleanRoomEvents);
     } else {
       setMyEvents(props.events);
+      setHashCleanRoomEvents(newHashCleanRoomEvents);
     }
     setIsFiltering(false);
   }, [props.events, view]);
@@ -210,6 +236,8 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         }}
         onEventDrop={eventModify}
         onEventResize={eventModify}
+        // endAccessor={({ end }) => new Date(end.getTime() - 1)}
+        showMultiDayTimes={true}
       />
       <Modal open={open}>
         <>

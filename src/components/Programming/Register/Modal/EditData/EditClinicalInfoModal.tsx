@@ -83,16 +83,18 @@ export const EditClinicalInfoModal = (props: EditClinicalInfoModalProps) => {
     formState: { errors },
   } = useForm<IClinicalData>({
     resolver: zodResolver(clinicalDataModifySchema),
+    defaultValues: {
+      bloodType: '',
+    },
   });
 
   useEffect(() => {
     if (!clinicalData) return;
     setValue('admissionDiagnosis', clinicalData.diagnosticoIngreso);
     setValue('comments', clinicalData.comentarios);
-    setValue('medicName', clinicalData.medicoTratante);
-    setValue('procedure', clinicalData.procedimiento);
     setValue('reasonForAdmission', clinicalData.motivoIngreso);
-    setValue('specialty', clinicalData.especialidad);
+    setValue('bloodType', clinicalData.tipoSangre);
+    setValue('allergies', clinicalData.alergias);
   }, [isLoading, clinicalData]);
 
   const watchBloodType = watch('bloodType');
@@ -103,10 +105,7 @@ export const EditClinicalInfoModal = (props: EditClinicalInfoModalProps) => {
       id,
       diagnosticoIngreso: data.admissionDiagnosis,
       comentarios: data.comments,
-      medicoTratante: data.medicName,
-      procedimiento: data.procedure,
       motivoIngreso: data.reasonForAdmission,
-      especialidad: data.specialty,
       alergias: data.allergies,
       tipoSangre: data.bloodType,
     };
@@ -171,26 +170,6 @@ export const EditClinicalInfoModal = (props: EditClinicalInfoModalProps) => {
           <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Datos Clínicos</Typography>
           <Divider sx={{ my: 1 }} />
           <Grid container spacing={2}>
-            <Grid item xs={12} md={7}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Medico tratante</Typography>
-              <TextField
-                fullWidth
-                placeholder="Medico tratante..."
-                {...register('medicName')}
-                error={!!errors.medicName?.message}
-                helperText={errors.medicName?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Especialidad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Especialidad..."
-                {...register('specialty')}
-                error={!!errors.specialty?.message}
-                helperText={errors.specialty?.message}
-              />
-            </Grid>
             <Grid item xs={12}>
               <Typography sx={TYPOGRAPHY_STYLE}>Motivo de ingreso</Typography>
               <TextField
@@ -238,16 +217,6 @@ export const EditClinicalInfoModal = (props: EditClinicalInfoModalProps) => {
                   </MenuItem>
                 ))}
               </TextField>
-            </Grid>
-            <Grid item xs={12} md={12}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Procedimiento</Typography>
-              <TextField
-                fullWidth
-                placeholder="Procedimiento..."
-                {...register('procedure')}
-                error={!!errors.procedure?.message}
-                helperText={errors.procedure?.message}
-              />
             </Grid>
             <Grid item xs={12} md={12}>
               <Typography sx={TYPOGRAPHY_STYLE}>Comentarios</Typography>
