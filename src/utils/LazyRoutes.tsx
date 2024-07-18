@@ -44,3 +44,6 @@ export const OperatingRoomView = lazy(() => import('../views/OperatingRoom/Opera
 export const TypesRoomView = lazy(() => import('../views/Programming/TypesRoomView'));
 export const DailyOperatingView = lazy(() => import('../views/OperatingRoom/DailyOperatingView'));
 export const RecoveryRoomsView = lazy(() => import('../views/OperatingRoom/RecoveryRoomsView'));
+export const HospitalRoomsView = lazy(() => import('../views/Hospitalization/HospitalRoomsView'));
+export const AssignedRoomsView = lazy(() => import('../views/Hospitalization/AssignedRoomsView'));
+export const HospitalRoomsCalendarView = lazy(() => import('../views/Hospitalization/HospitalRoomsCalendarView'));

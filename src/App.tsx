@@ -54,6 +54,9 @@ import {
   XRayRequestManagementView,
   HospitalizationConfigView,
   RecoveryRoomsView,
+  HospitalRoomsView,
+  AssignedRoomsView,
+  HospitalRoomsCalendarView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -132,6 +135,9 @@ function App() {
             <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
             <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} />
             <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
+            <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
+            <Route path="hospitalizacion/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
+            <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
             // --------------------------------- OperatingRoom ------------------------------- //
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />

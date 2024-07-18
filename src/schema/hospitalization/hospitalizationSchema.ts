@@ -150,3 +150,15 @@ export const anesthesiologistShiftRegisterSchema = z
     message: 'La fecha de finalización debe ser mayor a la fecha de inicio',
     path: ['endShift'],
   });
+
+export const nurseSchema = z.object({
+  nurse: z.object(
+    {
+      id_Enfermero: z.string(),
+      nombre: z.string(),
+    },
+    {
+      invalid_type_error: 'El enfermero es necesario',
+    }
+  ),
+});

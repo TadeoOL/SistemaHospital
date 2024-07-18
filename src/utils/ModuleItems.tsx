@@ -24,6 +24,7 @@ import {
 } from './dataRoles';
 import {
   AirlineSeatFlat,
+  CalendarMonth,
   GroupAdd,
   History,
   Hotel,
@@ -42,6 +43,7 @@ import { FaUserDoctor } from 'react-icons/fa6';
 import { FaLaptopMedical } from 'react-icons/fa';
 import { GiMedicalDrip } from 'react-icons/gi';
 import { FaHouseChimneyMedical } from 'react-icons/fa6';
+import { FaHospitalSymbol } from 'react-icons/fa';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -314,7 +316,7 @@ export const ModuleList: IModuleItemsList[] = [
       {
         title: 'Administrar Radiografías',
         path: '/hospitalizacion/radiografias-administracion',
-        icon: <FactCheckIcon />,
+        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: nurseRole, //Cambiar aca por admin de radiografia-radiologo
       },
       {
@@ -328,6 +330,24 @@ export const ModuleList: IModuleItemsList[] = [
         path: '/hospitalizacion/guardias-anestesiologos',
         icon: <GiMedicalDrip />,
         protectedRoles: checkout,
+      },
+      {
+        title: 'Cuartos Hospitalarios',
+        path: '/hospitalizacion/cuartos-hospitalarios',
+        icon: <FaHospitalSymbol />,
+        protectedRoles: nurseRole,
+      },
+      {
+        title: 'Cuartos Asignados',
+        path: '/hospitalizacion/cuartos-hospitalarios-asignados',
+        icon: <FaHospitalSymbol />,
+        protectedRoles: nurseRole,
+      },
+      {
+        title: 'Calendario de cuartos',
+        path: '/hospitalizacion/calendario-cuartos-asignados',
+        icon: <CalendarMonth sx={{ color: '#fff' }} />,
+        protectedRoles: nurseRole,
       },
       {
         title: 'Cierre de cuenta',
@@ -354,12 +374,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <GiMedicalDrip />,
         protectedRoles: checkout,
       },
-      // {
-      //   title: 'Configuración',
-      //   path: '/quirofano/configuracion',
-      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
-      //   protectedRoles: checkout,
-      // },
+      {
+        title: 'Configuración',
+        path: '/quirofano/configuracion',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
       {
         title: 'Recuperación',
         path: '/quirofano/recuperacion',

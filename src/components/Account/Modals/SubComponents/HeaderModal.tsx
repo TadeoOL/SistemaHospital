@@ -25,8 +25,8 @@ export const HeaderModal = (props: IHeaderModal) => {
     <Header
       sx={{
         bgcolor: 'neutral.700',
-        borderTopLeftRadius: 15,
-        borderTopRightRadius: { xs: 0, lg: 15 },
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: { xs: 0, sm: 10 },
         p: 1,
       }}
     >

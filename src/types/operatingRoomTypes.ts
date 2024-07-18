@@ -2,7 +2,6 @@ import { HistorialClinico, Paciente } from './admissionTypes';
 import { IAnesthesiologist, IMedic } from './hospitalizationTypes';
 
 export interface IOperatingRoomConfig {
-  configuracionQuirofano: IRecoveryRoomOperatingRoom[];
   configuracionRecuperacion: IRecoveryRoomOperatingRoom[];
 }
 
@@ -12,7 +11,7 @@ export interface IRecoveryRoomOperatingRoom {
   precio: string;
 }
 
-export interface IDailyOperatingRoom {
+export interface IRoomInformation {
   id: string;
   nombre: string;
   medico?: IMedic;

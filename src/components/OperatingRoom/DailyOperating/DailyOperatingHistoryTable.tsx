@@ -108,7 +108,7 @@ const DailyOperatingHistoryTableRow = (props: { data: ISurgeryHistory }) => {
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <AllSurgeryInfoModal setOpen={setOpen} surgeryId={data.id} />
+          <AllSurgeryInfoModal setOpen={setOpen} roomId={data.id} />
         </>
       </Modal>
     </>

@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { IRoomInformation } from '../../types/operatingRoomTypes';
-import { getDailyOperatingRooms } from '../../services/operatingRoom/dailyOperatingRoomService';
+import { getAssignedRoomsPagination } from '../../services/hospitalization/hospitalRoomsService';
 
 interface State {
   count: number;
@@ -14,7 +14,6 @@ interface State {
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
-  operatingRoomId: string;
 }
 
 interface Action {
@@ -25,7 +24,6 @@ interface Action {
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
   clearData: () => void;
-  setOperatingRoomId: (operatingRoomId: string) => void;
 }
 
 const initialValues = {
@@ -39,19 +37,17 @@ const initialValues = {
   enabled: true,
   search: '',
   cancelToken: null as CancelTokenSource | null,
-  operatingRoomId: '',
 };
 
-export const useDailyOperatingRoomsPaginationStore = create<State & Action>((set, get) => ({
+export const useAssignedRoomsPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
-  setOperatingRoomId: (operatingRoomId: string) => set({ operatingRoomId }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, operatingRoomId } = get();
+    const { enabled, search, pageIndex, pageSize } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -62,8 +58,8 @@ export const useDailyOperatingRoomsPaginationStore = create<State & Action>((set
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getDailyOperatingRooms(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Quirofano=${operatingRoomId}`
+      const res = await getAssignedRoomsPagination(
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}`
       );
 
       set({
