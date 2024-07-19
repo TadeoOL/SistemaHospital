@@ -76,7 +76,7 @@ export const Layout: React.FC = () => {
     '/ventas/emitir-recibo': 'Pase a caja',
     '/ventas/historial-cortes': 'Historial de cortes de caja',
     '/hospitalizacion/radiografias-solicitud': 'Solicitud de radiografías',
-    '/hospitalizacion/radiografias-administracion': 'Autorización de radiografías',
+    '/hospitalizacion/solicitudes-administracion': 'Autorización de electrocardiogramas',
   };
 
   const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

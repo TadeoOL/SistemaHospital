@@ -15,13 +15,13 @@ import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { Delete, Edit } from '@mui/icons-material';
 import { AddAndEditXRay } from './Modal/AddAndEditXRay';
 import { useEffect, useState } from 'react';
-import { IXRay } from '../../../types/hospitalizationTypes';
+import { IXRay, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
 import Swal from 'sweetalert2';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useXRayPaginationStore } from '../../../store/hospitalization/xrayPagination';
 import { disableXRay } from '../../../services/hospitalization/xrayService';
-const HEADERS = ['Nombre', 'Descripción', 'Precio', 'Acciones'];
+const HEADERS = ['Nombre', 'Descripción', 'Precio', 'Tipo', 'Acciones'];
 interface XRayTableBodyProps {
   data: IXRay[];
 }
@@ -77,7 +77,7 @@ export const XRayTable = () => {
           )}
         </Table>
       </TableContainer>
-      {data.length === 0 && <NoDataInTableInfo infoTitle="No hay radiografías" />}
+      {data.length === 0 && <NoDataInTableInfo infoTitle="No hay tipos de solicitudes" />}
     </Card>
   );
 };
@@ -102,7 +102,7 @@ const XRayTableRow = (props: XRayTableRowProps) => {
   const handleDelete = () => {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: 'No podrás revertir esta acción',
+      text: 'Estas apunto de eliminar este tipo de solicitud',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -116,7 +116,7 @@ const XRayTableRow = (props: XRayTableRowProps) => {
           refetch();
           Swal.fire({
             title: 'Eliminado!',
-            text: `La radiografía se ha eliminado con éxito!`,
+            text: `El tipo de solicitud se ha eliminado con éxito!`,
             icon: 'success',
             showConfirmButton: false,
             timer: 1000,
@@ -137,6 +137,7 @@ const XRayTableRow = (props: XRayTableRowProps) => {
         <TableCell>{data.nombre}</TableCell>
         <TableCell>{data.descripcion}</TableCell>
         <TableCell>${data.precio}</TableCell>
+        <TableCell>{REQUEST_TYPES[data.tipo]}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Modificar">

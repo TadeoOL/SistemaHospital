@@ -245,7 +245,7 @@ export const XRayRequestTable = () => {
                     >
                       <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                       <Typography variant="h2" color="gray">
-                        No solicitudes de radiografía
+                        No hay solicitudes
                       </Typography>
                     </Box>
                   ))}

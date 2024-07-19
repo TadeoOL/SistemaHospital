@@ -58,6 +58,7 @@ import {
   HospitalRoomsView,
   AssignedRoomsView,
   HospitalRoomsCalendarView,
+  RequestsConfigView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -132,8 +133,8 @@ function App() {
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
             <Route path="hospitalizacion/radiografias-solicitud" element={<XRayRequestView />} />
-            <Route path="hospitalizacion/radiografias-administracion" element={<XRayRequestManagementView />} />
-            <Route path="hospitalizacion/radiografias" element={<XRayView />} />
+            <Route path="hospitalizacion/solicitudes-administracion" element={<XRayRequestManagementView />} />
+            <Route path="hospitalizacion/solicitudes" element={<XRayView />} />
             <Route path="hospitalizacion/medicos" element={<MedicView />} />
             <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
             <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
@@ -141,6 +142,7 @@ function App() {
             <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
             <Route path="hospitalizacion/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
             <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
+            <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
             // --------------------------------- OperatingRoom ------------------------------- //
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
