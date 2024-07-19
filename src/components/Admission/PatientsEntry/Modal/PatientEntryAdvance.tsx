@@ -43,6 +43,7 @@ const style2 = {
 };
 interface PatientEntryAdvanceModalProps {
   setOpen: Function;
+  isEntryPayment: boolean; //Si es true es el anticipo para darle admision, si no es un abono a la cuenta normal
   id_Registro: string;
   id_Paciente: string;
 }
@@ -244,6 +245,26 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                   { key: 'precioVenta', header: 'Precio de Venta' },
                 ]}
               />
+              {!props.isEntryPayment && (
+                <DataTable
+                  title="Pagos de la Cuenta"
+                  data={accountInfo.pagosCuenta}
+                  columns={[
+                    { key: 'folio', header: 'Folio' },
+                    { key: 'total', header: 'Monto' },
+                  ]}
+                />
+              )}
+              {!props.isEntryPayment && accountInfo.totalPagoCuentaAbonos && accountInfo.totalPagoCuentaRestante && (
+                <>
+                  <Typography textAlign={'center'} variant="h4">
+                    <b>Cuenta Actual:</b> {accountInfo?.totalPagoCuenta}
+                  </Typography>
+                  <Typography textAlign={'center'} variant="h4">
+                    <b>Abonos:</b> {accountInfo?.totalPagoCuentaAbonos}
+                  </Typography>
+                </>
+              )}
             </Box>
           )
         )}
@@ -253,14 +274,26 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
         <Box
           sx={{ display: 'flex', py: 2, bgcolor: 'background.paper', alignContent: 'center', justifyContent: 'center' }}
         >
-          <Typography sx={{ py: 2 }} textAlign={'center'} variant="h5">
-            <b>Total Cuenta:</b> {accountInfo?.totalPagoCuenta}
-          </Typography>
-          <Typography sx={{ py: 2 }} variant="h6" textAlign={'center'}>
-            <b>Anticipo: {advance} (anticipo sugerido)</b>
-          </Typography>
+          {!props.isEntryPayment &&
+          accountInfo &&
+          accountInfo.totalPagoCuentaAbonos &&
+          accountInfo.totalPagoCuentaRestante ? (
+            <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
+              <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
+            </Typography>
+          ) : (
+            <Typography sx={{ py: 2, my: 'auto' }} textAlign={'center'} variant="h5">
+              <b>Total Cuenta:</b> {accountInfo?.totalPagoCuenta}
+            </Typography>
+          )}
+
+          {props.isEntryPayment && (
+            <Typography sx={{ py: 2 }} variant="h6" textAlign={'center'}>
+              <b>Anticipo: {advance} (anticipo sugerido)</b>
+            </Typography>
+          )}
           <TextField
-            sx={{ mr: 2, py: 2 }}
+            sx={{ mx: 2, py: 2 }}
             variant="outlined"
             inputRef={inputRef}
             onKeyDown={handleKeyDown}
