@@ -13,7 +13,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  TextField,
   Typography,
   styled,
 } from '@mui/material';
@@ -26,9 +25,6 @@ import { createClinicalHistory } from '../../../services/programming/clinicalHis
 import { createAdmission } from '../../../services/programming/admissionRegisterService';
 import { toast } from 'react-toastify';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
-import { useEffect, useRef, useState } from 'react';
-import { registerSell } from '../../../services/checkout/checkoutService';
-import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 
 const styleBar = {
   '&::-webkit-scrollbar': {
@@ -82,11 +78,11 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   const anesthesiologistId = useProgrammingRegisterStore((state) => state.anesthesiologistId);
   const articlesSelected = useProgrammingRegisterStore((state) => state.articlesSelected);
   const biomedicalEquipment = useProgrammingRegisterStore((state) => state.biomedicalEquipmentsSelected);
+  const evidencePdf = useProgrammingRegisterStore((state) => state.evidencePdf);
+  const rejectedMedicId = useProgrammingRegisterStore((state) => state.rejectedMedicId);
   const medicPersonalBiomedicalEquipment = useProgrammingRegisterStore(
     (state) => state.medicPersonalBiomedicalEquipment
   );
-  const conn = useConnectionSocket((state) => state.conn);
-  const inputRef = useRef<HTMLInputElement>(null);
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const medicData = JSON.parse(localStorage.getItem('medicData') as string);
   const proceduresList: { id: string; name: string; price: number }[] = JSON.parse(
@@ -95,9 +91,8 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   const xrayList = JSON.parse(localStorage.getItem('xrayList') as string);
   const anesthesiologistData = JSON.parse(localStorage.getItem('anesthesiologist') as string);
   const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
-  const [advance, setAdvance] = useState('');
 
-  const handleCalcAnticipo = () => {
+  /*const handleCalcAnticipo = () => {
     let total: number = 0;
     articlesSelected.forEach((articleElement) => {
       // console.log('articulo', articleElement.precioVenta);
@@ -119,61 +114,9 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
     console.log('Total calculado', total);
     console.log('anticipo 20%', total * 0.2);
     return (total * 0.2).toFixed(2);
-  };
+  };*/
 
-  useEffect(() => {
-    setAdvance(handleCalcAnticipo());
-  }, []);
-
-  /*
   const handleSubmit = async () => {
-    if (!conn) return;
-    if (!personNameRef.current || !totalAmountRef.current) return;
-    if (personNameRef.current.value.trim() === '') return setPersonNameError(true);
-    if (totalAmountRef.current.value.trim() === '') return setTotalAmountError(true);
-    if (conceptSelected === '') return setConceptError(true);
-
-    try {
-      const object = {
-        paciente: personNameRef.current.value,
-        totalVenta: parseFloat(totalAmountRef.current.value),
-        moduloProveniente: conceptSelected,
-        notas: note.trim() === '' ? undefined : note,
-        pdfCadena: pdf.trim() === '' ? undefined : pdf,
-      };
-      const res = await registerSell(object);
-      const resObj = {
-        estatus: res.estadoVenta,
-        folio: res.folio,
-        id_VentaPrincipal: res.id,
-        moduloProveniente: res.moduloProveniente,
-        paciente: res.paciente,
-        totalVenta: res.totalVenta,
-        tipoPago: res.tipoPago,
-        id_UsuarioPase: res.id_UsuarioPase,
-        nombreUsuario: res.nombreUsuario,
-      };
-      conn.invoke('SendSell', resObj);
-      refetch();
-      toast.success('Pase de Caja generado correctamente.');
-      props.setOpen(false);
-      setTotalAmountError(false);
-      personNameRef.current.value = '';
-      totalAmountRef.current.value = '';
-    } catch (error: any) {
-      console.log(error);
-    }
-  };
-  */
-  const handleSubmit = async () => {
-    if (inputRef.current === null || inputRef.current.value === undefined || inputRef.current.value === '0') {
-      toast.error('Ingresa un monto valido parar el anticipo');
-      return;
-    }
-    if (conn === null) {
-      toast.error('Error, sin conexión al websocket');
-      return;
-    }
     let startDate = roomValues[0].horaInicio;
     let endDate = roomValues[0].horaFin;
 
@@ -197,10 +140,15 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
         TipoSangre: clinicalData.bloodType,
       };
       const clinicalDataRes = await createClinicalHistory(registerClinicalHistoryObj);
+      const objectRejectedAppointment = {
+        MotivoRechazo: evidencePdf,
+        Id_Medico: rejectedMedicId,
+      };
       const registerAdmissionObj = {
         pacienteId: patientRes.id,
         historialClinicoId: clinicalDataRes.id,
         procedimientos: procedures,
+        motivoRechazo: rejectedMedicId && evidencePdf ? JSON.stringify(objectRejectedAppointment) : undefined,
         fechaInicio: startDate,
         fechaFin: endDate,
         cuartos: roomValues.map((r) => {
@@ -225,52 +173,20 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
               nombre: mpbe.nombre,
               precio: mpbe.precio,
               id_Medico: medicId,
+              notas: mpbe.notas,
             };
           })
         ),
         id_Medico: medicId === '' ? null : medicId,
         id_Anestesiologo: anesthesiologistId === '' ? null : anesthesiologistId,
       };
-      const admisionResponse = await createAdmission(registerAdmissionObj);
-      const object = {
-        paciente: patient.name + ' ' + patient.lastName + ' ' + patient.secondLastName,
-        totalVenta: parseFloat(inputRef.current ? inputRef.current.value : '0'),
-        moduloProveniente: 'Admision',
-        id_CuentaPaciente: admisionResponse.id_CuentaPaciente,
-        //notas: note.trim() === '' ? undefined : note,
-        //pdfCadena: pdf.trim() === '' ? undefined : pdf,
-      };
-      const res = await registerSell(object);
-      const resObj = {
-        estatus: res.estadoVenta,
-        folio: res.folio,
-        id_VentaPrincipal: res.id,
-        moduloProveniente: res.moduloProveniente,
-        paciente: res.paciente,
-        totalVenta: res.totalVenta,
-        tipoPago: res.tipoPago,
-        id_UsuarioPase: res.id_UsuarioPase,
-        nombreUsuario: res.nombreUsuario,
-      };
-      conn.invoke('SendSell', resObj);
-
+      await createAdmission(registerAdmissionObj);
       refetch();
       toast.success('Paciente dado de alta correctamente');
       props.setOpen(false);
     } catch (error) {
       console.log(error);
       toast.error('Error al dar de alta al paciente');
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const { key } = event;
-    const regex = /^[0-9.]$/;
-    if (
-      (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
-      (event.key === '.' && inputRef.current && inputRef.current.value.includes('.')) //punto y ya incluye punto
-    ) {
-      event.preventDefault(); // Evitar la entrada si no es válida
     }
   };
 
@@ -374,20 +290,6 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
           {xrayList.map((p: { id: string; name: string }) => (
             <Chip key={p.id} label={p.name} />
           ))}
-        </Box>
-        <Box sx={{ my: 1 }}>
-          <SubtitleTypography>Anticipo: {advance} (anticipo sugerido)</SubtitleTypography>
-          <TextField
-            variant="outlined"
-            inputRef={inputRef}
-            onKeyDown={handleKeyDown}
-            inputProps={{
-              inputMode: 'decimal',
-              pattern: '[0-9]*',
-            }}
-            size="small"
-            placeholder="Anticipo"
-          />
         </Box>
       </Box>
       <Box sx={{ bgcolor: 'background.paper', p: 1, display: 'flex', justifyContent: 'space-between' }}>

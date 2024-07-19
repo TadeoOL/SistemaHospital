@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { IDailyOperatingRoom } from '../../../types/operatingRoomTypes';
+import { IRoomInformation } from '../../../types/operatingRoomTypes';
 import { useDailyOperatingRoomsPaginationStore } from '../../../store/operatingRoom/dailyOperatingRoomsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
@@ -106,7 +106,7 @@ export const DailyOperatingTable = () => {
 };
 
 interface DailyOperatingTableRowProps {
-  data: IDailyOperatingRoom;
+  data: IRoomInformation;
 }
 const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   const { data } = props;

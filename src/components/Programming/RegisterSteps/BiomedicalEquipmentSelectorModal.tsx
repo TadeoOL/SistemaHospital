@@ -4,19 +4,16 @@ import {
   Button,
   Card,
   Divider,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   Grid,
   IconButton,
-  Radio,
-  RadioGroup,
   Stack,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
+  Tabs,
   TextField,
   Tooltip,
   Typography,
@@ -28,7 +25,6 @@ import { Delete } from '@mui/icons-material';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useGetAllBiomedicalEquipment } from '../../../hooks/hospitalization/useGetAllBiomedicalEquipment';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { isValidFloat } from '../../../utils/functions/dataUtils';
@@ -42,6 +38,7 @@ interface BiomedicalEquipmentSelectorModalProps {
 interface Input {
   name: string;
   price: string;
+  notes?: string;
 }
 
 export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelectorModalProps) => {
@@ -74,6 +71,7 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
     setValue,
     formState: { errors },
     watch,
+    register,
     handleSubmit,
   } = useForm<Input>({
     resolver: zodResolver(medicPersonalBiomedicalEquipmentSchema),
@@ -85,7 +83,7 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
   const onSubmitPersonalEquipment: SubmitHandler<Input> = (data) => {
     setMedicPersonalBiomedicalEquipment([
       ...medicPersonalBiomedicalEquipment,
-      { id: uuidv4(), precio: parseFloat(data.price), nombre: data.name, esPersonal: true },
+      { id: uuidv4(), precio: parseFloat(data.price), nombre: data.name, esPersonal: true, notas: data.notes },
     ]);
     setValue('name', '');
     setValue('price', '0');
@@ -99,21 +97,18 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
     <>
       <HeaderModal setOpen={props.setOpen} title="Selección de equipo biomedico" />
       <Box sx={{ backgroundColor: 'background.paper', p: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <FormControl>
-            <FormLabel>¿Se utilizara el equipo biomédico del hospital?</FormLabel>
-            <RadioGroup
-              value={hospitalEquipment}
-              onChange={(e) => {
-                setHospitalEquipment(e.currentTarget.value);
-              }}
-              row
-              sx={{ justifyContent: 'center', display: 'flex' }}
-            >
-              <FormControlLabel value="yes" control={<Radio />} label="Si" />
-              <FormControlLabel value="not" control={<Radio />} label="No" />
-            </RadioGroup>
-          </FormControl>
+        <Box sx={{}}>
+          <Tabs
+            variant="fullWidth"
+            value={hospitalEquipment}
+            onChange={(_, e) => {
+              setHospitalEquipment(e);
+            }}
+            sx={{ mb: 1 }}
+          >
+            <Tab label="Equipo Biomédico" value="yes" />
+            <Tab label="Equipo Biomédico Honorario" value={'no'} />
+          </Tabs>
         </Box>
         {hospitalEquipment === 'yes' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -151,9 +146,6 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
         ) : (
           <form onSubmit={handleSubmit(onSubmitPersonalEquipment)}>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Equipo Biomedico del Medico</Typography>
-              </Grid>
               <Grid item xs={12} md={6}>
                 <Stack>
                   <Typography>Nombre del equipo:</Typography>
@@ -192,6 +184,9 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
                     value={watch('price')}
                   />
                 </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField multiline fullWidth label="Notas" {...register('notes')} />
               </Grid>
               <Grid item xs={12} sx={{ justifyContent: 'flex-end', display: 'flex' }}>
                 <Button variant="contained" type="submit">

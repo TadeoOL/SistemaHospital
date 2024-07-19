@@ -28,7 +28,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { typeRoomSchema } from '../../../../schema/programming/programmingSchemas';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ITypeRoom } from '../../../../types/admissionTypes';
 import { useTypesRoomPaginationStore } from '../../../../store/programming/typesRoomPagination';
 import { IRecoveryRoomOperatingRoom } from '../../../../types/operatingRoomTypes';
@@ -76,7 +76,6 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
   const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
-  const headerRef = useRef();
 
   const {
     register,

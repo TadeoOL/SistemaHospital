@@ -3,6 +3,10 @@ import * as XLSX from 'xlsx';
 type DataItem = { [key: string]: any };
 
 export const CommonSpreadSheet: React.FC<CommonExportProps> = ({ title, header, data }) => {
+
+if (data == null) {
+  return <></>
+} else {
   const handleOnExport = () => {
     function mapData(header: HeaderItem[], data: any): DataItem[] {
       return data.map((item: any) => {
@@ -28,4 +32,5 @@ export const CommonSpreadSheet: React.FC<CommonExportProps> = ({ title, header, 
   };
 
   return <div onClick={handleOnExport}>Excel</div>;
+}
 };

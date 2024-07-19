@@ -133,6 +133,7 @@ export const procedureAndDoctorSelectorSchema = z.object({
 export const medicPersonalBiomedicalEquipmentSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   price: priceSchema,
+  notes: z.string().optional(),
 });
 
 const priceByTimeRange = z

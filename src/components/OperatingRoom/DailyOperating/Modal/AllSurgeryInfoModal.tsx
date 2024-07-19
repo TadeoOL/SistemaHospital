@@ -19,6 +19,8 @@ import { HistorialClinico, Paciente } from '../../../../types/admissionTypes';
 import dayjs from 'dayjs';
 import { IAnesthesiologist, IMedic } from '../../../../types/hospitalizationTypes';
 import { RiNurseFill } from 'react-icons/ri';
+import { useGetHospitalizationRoomInfo } from '../../../../hooks/hospitalization/useGetHospitalizationRoomInfo';
+import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 
 const style = {
   position: 'absolute',
@@ -47,8 +49,12 @@ const styleBar = {
   },
 };
 
-export const AllSurgeryInfoModal = (props: { setOpen: Function; surgeryId: string }) => {
-  const { data, isLoading } = useGetOperatingRoomInfo(props.surgeryId);
+export const AllSurgeryInfoModal = (props: { setOpen: Function; roomId: string; isHospitalizationRoom?: boolean }) => {
+  const hospitalizationRoomInfo = useGetHospitalizationRoomInfo(props.roomId);
+  const operatingRoomInfo = useGetOperatingRoomInfo(props.roomId);
+
+  const data = props.isHospitalizationRoom ? hospitalizationRoomInfo.data : operatingRoomInfo.data;
+  const isLoading = props.isHospitalizationRoom ? hospitalizationRoomInfo.isLoading : operatingRoomInfo.isLoading;
   const COLLAPSE_BODIES = [
     {
       title: 'Paciente',
@@ -83,7 +89,7 @@ export const AllSurgeryInfoModal = (props: { setOpen: Function; surgeryId: strin
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Información de cirugía" />
+      <HeaderModal setOpen={props.setOpen} title="Información general" />
       <Box
         sx={{
           bgcolor: 'background.paper',
@@ -163,9 +169,12 @@ const PersonalServiceSurgeryInfo = (props: {
   nurses?: { id_Enfermero: string; nombre: string }[];
 }) => {
   const { surgeon, anesthesiologist, nurses } = props;
-  const surgeonName = surgeon?.nombres + ' ' + surgeon?.apellidoPaterno + ' ' + surgeon?.apellidoMaterno;
-  const anesthesiologistName =
-    anesthesiologist?.nombres + ' ' + anesthesiologist?.apellidoPaterno + ' ' + anesthesiologist?.apellidoMaterno;
+  const surgeonName = surgeon
+    ? surgeon?.nombres + ' ' + surgeon?.apellidoPaterno + ' ' + surgeon?.apellidoMaterno
+    : 'Sin asignar';
+  const anesthesiologistName = anesthesiologist
+    ? anesthesiologist?.nombres + ' ' + anesthesiologist?.apellidoPaterno + ' ' + anesthesiologist?.apellidoMaterno
+    : 'Sin asignar';
   return (
     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', rowGap: 2 }}>
       <Grid container>
@@ -174,15 +183,15 @@ const PersonalServiceSurgeryInfo = (props: {
         </Grid>
         <Grid item xs={12} md={4} sm={6}>
           <Typography variant="subtitle1">Nombre:</Typography>
-          <Typography>{surgeonName ?? ''}</Typography>
+          <Typography>{surgeonName}</Typography>
         </Grid>
         <Grid item xs={12} md={4} sm={6}>
           <Typography variant="subtitle1">Email:</Typography>
-          <Typography>{surgeon?.email ?? ''}</Typography>
+          <Typography>{surgeon?.email ?? 'Sin asignar'}</Typography>
         </Grid>
         <Grid item xs={12} md={4} sm={6}>
           <Typography variant="subtitle1">Teléfono:</Typography>
-          <Typography>{surgeon?.telefono ?? ''}</Typography>
+          <Typography>{surgeon?.telefono ?? 'Sin asignar'}</Typography>
         </Grid>
       </Grid>
       <Divider />
@@ -192,15 +201,15 @@ const PersonalServiceSurgeryInfo = (props: {
         </Grid>
         <Grid item xs={12} md={4} sm={6}>
           <Typography variant="subtitle1">Nombre:</Typography>
-          <Typography>{anesthesiologistName ?? ''}</Typography>
+          <Typography>{anesthesiologistName}</Typography>
         </Grid>
         <Grid item xs={12} md={4} sm={6}>
           <Typography variant="subtitle1">Email:</Typography>
-          <Typography>{anesthesiologist?.email ?? ''}</Typography>
+          <Typography>{anesthesiologist?.email ?? 'Sin asignar'}</Typography>
         </Grid>
         <Grid item xs={12} md={4} sm={6}>
           <Typography variant="subtitle1">Teléfono:</Typography>
-          <Typography>{anesthesiologist?.telefono ?? ''}</Typography>
+          <Typography>{anesthesiologist?.telefono ?? 'Sin asignar'}</Typography>
         </Grid>
       </Grid>
       <Divider />
@@ -227,6 +236,11 @@ const NursesComponent = (props: { nurses?: { id_Enfermero: string; nombre: strin
           </Box>
         </Grid>
       ))}
+      {nurses?.length === 0 && (
+        <Grid item xs={12}>
+          <NoDataInTableInfo infoTitle="No " />
+        </Grid>
+      )}
     </Grid>
   );
 };

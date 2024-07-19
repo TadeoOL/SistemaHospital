@@ -318,10 +318,10 @@ const MedicSelectComponent = <T extends Inputs>({
     <Box sx={{ display: 'flex', columnGap: 4 }}>
       <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
         <FormControl>
-          <FormLabel>¿El paciente entro por su cuenta?</FormLabel>
+          <FormLabel>Tipo de Ingreso</FormLabel>
           <RadioGroup value={valueRadioButton} onChange={handleChange} row>
-            <FormControlLabel value="si" control={<Radio />} label="Si" />
-            <FormControlLabel value="no" control={<Radio />} label="No" />
+            <FormControlLabel value="si" control={<Radio />} label="Ingreso mediante el Hospital" />
+            <FormControlLabel value="no" control={<Radio />} label="Ingreso por Médico Asociado" />
           </RadioGroup>
         </FormControl>
         <Box>
