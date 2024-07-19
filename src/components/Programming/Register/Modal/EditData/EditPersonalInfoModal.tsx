@@ -120,7 +120,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
 
     Swal.fire({
       title: '¿Estas seguro?',
-      text: 'Esta acción no se puede revertir',
+      text: 'Estas a punto de modificar los datos',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

@@ -111,7 +111,7 @@ export const EditClinicalInfoModal = (props: EditClinicalInfoModalProps) => {
     };
     Swal.fire({
       title: '¿Estas seguro?',
-      text: 'Esta acción no se puede revertir',
+      text: 'Estas a punto de modificar los datos',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -154,7 +154,7 @@ export const EditClinicalInfoModal = (props: EditClinicalInfoModalProps) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Datos Clínicos" />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))}>
         <Box
           sx={{
             display: 'flex',
