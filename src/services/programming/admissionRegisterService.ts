@@ -80,3 +80,31 @@ export const deleteRegister = async (registerId: string) => {
   });
   return res.data;
 };
+
+export const getAccountFullInformation = async (params: string) => {
+  const res = await axios.get(`${apiRegister}/obtener-informacion-completa-registro?${params}`);
+  return res.data;
+};
+
+export const getAccountAdmissionInformation = async (params: string) => {
+  const res = await axios.get(`${apiRegister}/obtener-informacion-admision?${params}`);
+  return res.data;
+};
+
+export const closeRegisterAndAccount = async (data: {
+  Id_Registro: string;
+  Id_Paciente: string;
+  Id_CuentaPaciente: string;
+  TotalCuenta: number;
+  Descuento?: number;
+}) => {
+  const res = await axios.put(`${apiRegister}/cerrar-registro`, data);
+  return res.data;
+};
+
+export const admitRegister = async (data: {
+  Id_Registro: string;
+}) => {
+  const res = await axios.put(`${apiRegister}/admitir-registro`, data);
+  return res.data;
+};

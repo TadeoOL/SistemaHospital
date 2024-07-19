@@ -271,6 +271,19 @@ export const ModuleList: IModuleItemsList[] = [
     path: 'programacion',
   },
   {
+    categoryTitle: 'Admisión',
+    icon: <MonitorHeart />,
+    moduleItems: [
+      {
+        title: 'Ingreso de pacientes',
+        path: '/admision/ingreso-pacientes',
+        icon: <LiaXRaySolid />,
+        protectedRoles: nurseRole,
+      },
+    ],
+    path: 'admision',
+  },
+  {
     categoryTitle: 'Hospitalización',
     icon: <MonitorHeart />,
     moduleItems: [
