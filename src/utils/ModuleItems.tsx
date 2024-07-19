@@ -16,6 +16,7 @@ import {
   checkoutAdmin,
   checkoutSell,
   nurseRole,
+  operatingRoom,
   pharmacyDirectorRole,
   pharmacyManager,
   purchaseGlobalRoles,
@@ -283,6 +284,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <MeetingRoom />,
         protectedRoles: nurseRole,
       },
+      {
+        title: 'Cierre de cuenta',
+        path: '/hospitalizacion/cierre-de-cuenta',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: checkout,
+      },
     ],
     path: 'admision',
   },
@@ -321,6 +328,12 @@ export const ModuleList: IModuleItemsList[] = [
             icon: <FaUserDoctor />,
             protectedRoles: supplyRoles,
           },
+          {
+            title: 'Guardias Medicos',
+            path: '/hospitalizacion/guardias-medicos',
+            icon: <FaLaptopMedical />,
+            protectedRoles: checkout, //Hospitalizacion
+          },
         ],
       },
       {
@@ -334,12 +347,6 @@ export const ModuleList: IModuleItemsList[] = [
         path: '/hospitalizacion/radiografias-administracion',
         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: nurseRole, //Cambiar aca por admin de radiografia-radiologo
-      },
-      {
-        title: 'Guardias Medicos',
-        path: '/hospitalizacion/guardias-medicos',
-        icon: <FaLaptopMedical />,
-        protectedRoles: checkout,
       },
       {
         title: 'Guardias Anestesiologos',
@@ -366,12 +373,6 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: nurseRole,
       },
       {
-        title: 'Cierre de cuenta',
-        path: '/hospitalizacion/cierre-de-cuenta',
-        icon: <Receipt sx={{ color: '#fff' }} />,
-        protectedRoles: checkout,
-      },
-      {
         title: 'Configuración',
         path: '/hospitalizacion/configuracion-hospitalizacion',
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
@@ -388,19 +389,19 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Operaciones del dia',
         path: '/quirofano/operaciones-del-dia',
         icon: <GiMedicalDrip />,
-        protectedRoles: checkout,
+        protectedRoles: operatingRoom,
       },
       {
         title: 'Configuración',
         path: '/quirofano/configuracion',
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
-        protectedRoles: checkout,
+        protectedRoles: operatingRoom,
       },
       {
         title: 'Recuperación',
         path: '/quirofano/recuperacion',
         icon: <AirlineSeatFlat sx={{ color: '#fff' }} />,
-        protectedRoles: checkout,
+        protectedRoles: operatingRoom,
       },
     ],
     path: 'quirofano',

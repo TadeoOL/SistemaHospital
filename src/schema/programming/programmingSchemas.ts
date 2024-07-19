@@ -53,14 +53,11 @@ export const clinicalDataSchema = z.object({
 });
 
 export const clinicalDataModifySchema = z.object({
-  medicName: z.string().nullable(),
-  specialty: z.string().nullable(),
   reasonForAdmission: z.string().nullable(),
   admissionDiagnosis: z.string().nullable(),
   allergies: z.string().nullable(),
   bloodType: z.string().nullable(),
   comments: z.string().nullable(),
-  procedure: z.string().nullable(),
 });
 
 export const roomSchema = z.object({

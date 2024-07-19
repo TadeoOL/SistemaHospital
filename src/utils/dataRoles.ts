@@ -10,3 +10,13 @@ export const pharmacyManager = [...pharmacyDirectorRole, 'ENCARGADOFARMACIA'];
 export const checkoutAdmin = [...purchaseGlobalRoles, 'ADMINISTRADORCAJA'];
 export const checkoutSell = [...purchaseGlobalRoles, 'PASECAJA'];
 export const checkout = [...purchaseGlobalRoles, 'CAJA'];
+//Roles Hospitalizacion
+export const hospitalization = [...purchaseGlobalRoles, 'HOSPITALIZACION'];
+
+//Roles Admision
+export const admission = [...purchaseGlobalRoles, 'ADMISION'];
+export const closeAccount = [...purchaseGlobalRoles, 'CERRARCUENTA'];
+
+//Roles Quirofano
+export const operatingRoom = [...purchaseGlobalRoles, 'QUIROFANO'];
+
