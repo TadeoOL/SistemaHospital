@@ -328,17 +328,31 @@ export const WaitingPackages = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              <IconButton
-                                onClick={() => {
-                                  acceptRequest(
-                                    movimiento.id,
-                                    movimiento.historialArticulos,
-                                    movimiento.id_CuentaPaciente
-                                  );
-                                }}
-                              >
-                                <DoneIcon />
-                              </IconButton>
+                              {(movimiento.estatus as number) === STATUS_ENUM.Esperando ? (
+                                <>
+                                  <IconButton
+                                    onClick={() => {
+                                      acceptRequest(
+                                        movimiento.id,
+                                        movimiento.historialArticulos,
+                                        movimiento.id_CuentaPaciente
+                                      );
+                                    }}
+                                  >
+                                    <DoneIcon />
+                                  </IconButton>
+                                </>
+                              ) : (
+                                <>
+                                  <IconButton onClick={() => createPackage(movimiento.id)}>
+                                    <LuPackagePlus
+                                      style={{
+                                        color: '#8F959E',
+                                      }}
+                                    />
+                                  </IconButton>
+                                </>
+                              )}
                               <IconButton
                                 size="small"
                                 onClick={() => {

@@ -35,6 +35,7 @@ import {
   CloseCheckoutHistoryView,
   CloseCheckoutView,
   ProgrammingRegisterView,
+  PacientsEntryView,
   RoomsView,
   SurgeryProcedureView,
   ProgrammingCalendarView,
@@ -123,6 +124,9 @@ function App() {
               <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
+              <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
+              // ---------------------------Admision------------------------------------- //
+              <Route path="Admision/ingreso-pacientes" element={<PacientsEntryView />} />
             </Route>
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
@@ -134,7 +138,6 @@ function App() {
             <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
             <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
             <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} />
-            <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
             <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
             <Route path="hospitalizacion/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
             <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />

@@ -1,31 +1,18 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  CircularProgress,
-  FormControlLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { IAcountAllInformation, IPatientInAccount } from '../../../../types/hospitalizationTypes';
+import { IAcountAllInformationAdmission } from '../../../../types/hospitalizationTypes';
 import { toast } from 'react-toastify';
 import { useEffect, useRef, useState } from 'react';
-import { useBiomedicalEquipmentPaginationStore } from '../../../../store/hospitalization/biomedicalEquipmentPagination';
 import {
-  closeRegisterAndAccount,
-  getAccountFullInformation,
+  admitRegister,
+  getAccountAdmissionInformation,
 } from '../../../../services/programming/admissionRegisterService';
 import { registerSell } from '../../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
+import { DataTable, PatientInformation } from '../../../Hospitalization/AcountsManagement/Modal/CloseAccount';
+import { usePatientRegisterPaginationStore } from '../../../../store/programming/patientRegisterPagination';
 
 const style = {
   position: 'absolute',
@@ -54,28 +41,29 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-interface CloseAccountModalProps {
+interface PatientEntryAdvanceModalProps {
   setOpen: Function;
-  id_Cuenta: string;
+  id_Registro: string;
   id_Paciente: string;
 }
 
-export const CloseAccountModal = (props: CloseAccountModalProps) => {
+export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) => {
   const conn = useConnectionSocket((state) => state.conn);
   const [isLoading, setIsLoading] = useState(false);
-  const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
-  const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+  const [accountInfo, setAccountInfo] = useState<IAcountAllInformationAdmission | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [discountflag, setDiscountflag] = useState(false);
-  const [discount, setDiscount] = useState('');
+  const [advance, setAdvance] = useState('');
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
 
   useEffect(() => {
     const fetchAccountInfo = async () => {
       setIsLoading(true);
       try {
-        const paramURL = `Id_Paciente=${props.id_Paciente}&Id_CuentaPaciente=${props.id_Cuenta}`;
-        const accountRes = await getAccountFullInformation(paramURL);
+        const paramURL = `Id_Paciente=${props.id_Paciente}&Id_Registro=${props.id_Registro}`;
+        const accountRes = await getAccountAdmissionInformation(paramURL);
         setAccountInfo(accountRes);
+        setAdvance(handleCalcAnticipo(accountRes.totalPagoCuenta as number));
       } catch (error) {
         console.log(error);
         console.log('La cuenta aun no se puede cerrar');
@@ -87,17 +75,23 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     fetchAccountInfo();
   }, []);
 
+  const handleCalcAnticipo = (total: number) => {
+    const result = (total * 0.2).toFixed(2);
+    return result;
+  };
+
   const handleSubmit = async () => {
+    setIsLoadingSubmit(true);
     if (!accountInfo) {
       toast.error('No se encontro la cuenta');
       return;
     }
     if (
-      discountflag &&
-      (inputRef.current === null ||
-        inputRef.current.value === undefined ||
-        isNaN(Number(inputRef.current.value)) ||
-        inputRef.current.value === '')
+      inputRef.current === null ||
+      inputRef.current.value === undefined ||
+      isNaN(Number(inputRef.current.value)) ||
+      inputRef.current.value === '' ||
+      Number(inputRef.current.value) <= 0
     ) {
       toast.error('Ingresa un monto valido parar el descuento');
       return;
@@ -107,18 +101,12 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       return;
     }
     try {
-      await closeRegisterAndAccount({
-        Id_Registro: accountInfo.id,
-        Id_Paciente: props.id_Paciente,
-        Id_CuentaPaciente: props.id_Cuenta,
-        TotalCuenta: accountInfo.totalPagoCuenta,
-        Descuento: discountflag && inputRef.current ? Number(inputRef.current.value) : undefined,
-      });
+      await admitRegister({ Id_Registro: accountInfo.id });
       const object = {
         paciente: `${accountInfo.paciente.nombre || ''} ${accountInfo.paciente.apellidoPaterno || ''} ${accountInfo.paciente.apellidoPaterno || ''}`,
-        totalVenta: parseFloat(discountflag ? discount : accountInfo.totalPagoCuentaRestante.toString()),
-        moduloProveniente: 'Cierre de cuenta',
-        id_CuentaPaciente: props.id_Cuenta,
+        totalVenta: parseFloat(inputRef.current.value),
+        moduloProveniente: 'Admision',
+        id_CuentaPaciente: accountInfo.id_CuentaPaciente,
       };
       const res = await registerSell(object);
       const resObj = {
@@ -133,20 +121,21 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         nombreUsuario: res.nombreUsuario,
       };
       conn.invoke('SendSell', resObj);
-
       refetch();
-      toast.success('Cierre de cuenta y Pase a caja generado correctamente');
+      toast.success('Anticipo y Pase a caja generado correctamente');
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error('Error al cerrar la cuenta');
+      toast.error('Error al generar anticipo');
+    } finally {
+      setIsLoadingSubmit(false);
     }
   };
 
   const acceptRequest = () => {
     withReactContent(Swal).fire({
       title: 'Confirmación',
-      text: `¿Estás seguro de cerrar la cuenta?`,
+      text: `¿Estás seguro de generar el anticipo?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
@@ -166,20 +155,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     const regex = /^[0-9.]$/;
     if (
       (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
-      (event.key === '.' && inputRef.current && inputRef.current.value.includes('.')) || //punto y ya incluye punto
-      (inputRef.current && Number(inputRef.current.value + event.key) > 100)
+      (event.key === '.' && inputRef.current && inputRef.current.value.includes('.')) //punto y ya incluye punto
     ) {
       event.preventDefault(); // Evitar la entrada si no es válida
-    } else if (
-      inputRef.current &&
-      !isNaN(Number(inputRef.current.value + event.key)) /* && (inputRef.current.value ! || event.key)*/
-    ) {
-      setDiscount(
-        (
-          (accountInfo?.totalPagoCuentaRestante || 0) -
-          (accountInfo?.totalPagoCuentaRestante || 0) * (Number(inputRef.current.value + event.key) / 100)
-        ).toFixed(2)
-      );
     }
   };
 
@@ -187,7 +165,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     <Box sx={style}>
       <HeaderModal
         setOpen={props.setOpen}
-        title={`Cierre de cuenta ${
+        title={`Admisión paciente ${
           accountInfo ? ` - Paciente: ${accountInfo.paciente.nombre} ${accountInfo.paciente.apellidoPaterno}` : ''
         }`}
       />
@@ -215,7 +193,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.quirofanos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'tiempoCirugia', header: 'Tiempo de Cirujía' },
+                  { key: 'tiempoCirugia', header: 'Tiempo de Cirugia' },
                   { key: 'precioHora', header: 'Precio por Hora' },
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
@@ -225,8 +203,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.procedimientos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'duracionCirujia', header: 'Duración de Crujía' },
-                  { key: 'duracionHospitalizacion', header: 'Duración de la Hospitalización' },
+                  { key: 'duracionCirujia', header: 'Duracion de Cirujia' },
+                  { key: 'duracionHospitalizacion', header: 'Duracion de laHospitalizacion' },
                   { key: 'precio', header: 'Precio Total' },
                 ]}
               />
@@ -266,68 +244,35 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioVenta', header: 'Precio de Venta' },
                 ]}
               />
-              <DataTable
-                title="Pagos de la Cuenta"
-                data={accountInfo.pagosCuenta}
-                columns={[
-                  { key: 'folio', header: 'Folio' },
-                  { key: 'total', header: 'Monto' },
-                ]}
-              />
-              <Typography textAlign={'center'} variant="h4">
-                <b>Cuenta Actual:</b> {accountInfo?.totalPagoCuenta}
-              </Typography>
-              <Typography textAlign={'center'} variant="h4">
-                <b>Abonos:</b> {accountInfo?.totalPagoCuentaAbonos}
-              </Typography>
             </Box>
           )
         )}
       </Box>
-      <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
-        <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
-      </Typography>
-      <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-          <FormControlLabel
-            required
-            control={
-              <Checkbox
-                onChange={() => {
-                  setDiscountflag(!discountflag);
-                }}
-              />
-            }
-            label="Aplicar descuento"
+
+      {!isLoading && (
+        <Box
+          sx={{ display: 'flex', py: 2, bgcolor: 'background.paper', alignContent: 'center', justifyContent: 'center' }}
+        >
+          <Typography sx={{ py: 2 }} textAlign={'center'} variant="h5">
+            <b>Total Cuenta:</b> {accountInfo?.totalPagoCuenta}
+          </Typography>
+          <Typography sx={{ py: 2 }} variant="h6" textAlign={'center'}>
+            <b>Anticipo: {advance} (anticipo sugerido)</b>
+          </Typography>
+          <TextField
+            sx={{ mr: 2, py: 2 }}
+            variant="outlined"
+            inputRef={inputRef}
+            onKeyDown={handleKeyDown}
+            inputProps={{
+              inputMode: 'decimal',
+              pattern: '[0-9]*',
+            }}
+            size="small"
+            placeholder="Anticipo"
           />
-          {discountflag && (
-            <Box>
-              <Typography>Descuento en porcentaje</Typography>
-              <TextField
-                variant="outlined"
-                inputRef={inputRef}
-                onKeyDown={handleKeyDown}
-                inputProps={{
-                  inputMode: 'decimal',
-                  pattern: '[0-9]*',
-                }}
-                size="small"
-                placeholder="Descuento"
-              />
-            </Box>
-          )}
         </Box>
-
-        {discountflag && (
-          <Box sx={{ my: 1 }}>
-            <Typography textAlign={'center'} variant="h5">
-              Total con descuento:
-              {discount}
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
+      )}
       <Box
         sx={{
           bgcolor: 'background.paper',
@@ -344,89 +289,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         <Button
           variant="contained"
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || isLoadingSubmit}
           onClick={() => {
             acceptRequest();
           }}
         >
-          {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
+          {isLoading || isLoadingSubmit ? <CircularProgress size={25} /> : 'Generar anticipo'}
         </Button>
       </Box>
     </Box>
   );
 };
-
-interface PatientInformationProps {
-  patient: IPatientInAccount;
-}
-
-export const PatientInformation: React.FC<PatientInformationProps> = ({ patient }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', mx: 4, mt: 2.5 }}>
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h6">
-        <b>Información del Paciente</b>
-      </Typography>
-      <Typography>
-        <b>Nombre:</b> {`${patient.nombre} ${patient.apellidoPaterno} ${patient.apellidoMaterno}`}
-      </Typography>
-    </Box>
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography>
-        <b>Edad:</b> {patient.edad}
-      </Typography>
-      <Typography>
-        <b>Género:</b> {patient.genero}
-      </Typography>
-    </Box>
-  </Box>
-);
-
-interface DataTableProps<T> {
-  title: string;
-  data: T[];
-  columns: Column<T>[];
-}
-interface Column<T> {
-  key: keyof T;
-  header: string;
-}
-
-export const DataTable = <T,>({ title, data, columns }: DataTableProps<T>) => (
-  <Box sx={{ p: 1, width: '100%', margin: 'auto', fontSize: '0.875rem' }}>
-    <Typography variant="h6" sx={{ mb: 2, fontSize: '1.1rem' }}>
-      {title}
-    </Typography>
-    <TableContainer sx={{ border: '1px solid #ccc', borderRadius: '4px', fontSize: '0.875rem' }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {columns.map((col) => (
-              <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
-                {col.header}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.length > 0 ? (
-            data.map((row, index) => (
-              <TableRow key={index}>
-                {columns.map((col) => (
-                  <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
-                    {String(row[col.key])}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} sx={{ p: 1, fontSize: '0.875rem', textAlign: 'center' }}>
-                No hay datos disponibles
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </Box>
-);
