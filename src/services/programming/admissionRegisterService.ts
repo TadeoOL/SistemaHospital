@@ -8,6 +8,7 @@ interface RegisterAdmission {
   id_Medico: string | null;
   id_Anestesiologo: string | null;
   procedimientos: string[];
+  motivoRechazo?: string;
   radiografias: string[] | null;
   equiposBiomedico: string[];
   equipoBiomedicoHonorario?: string;

@@ -3,8 +3,8 @@ import {
   Box,
   Button,
   CircularProgress,
-  ClickAwayListener,
-  Collapse,
+  // ClickAwayListener,
+  // Collapse,
   IconButton,
   Modal,
   Stack,
@@ -128,11 +128,11 @@ export const QuoteModal = (props: QuoteModalProps) => {
 export const QuotePdf = (props: { providers: string; purchaseRequestId: string; setOpen: Function }) => {
   const { providers, purchaseRequestId } = props;
   const { providersData, isLoading } = useFetchPdfProviders(providers, purchaseRequestId);
-  const setProviderSelected = usePurchaseOrderRequestModals(useShallow((state) => state.setProviderSelected));
+  // const setProviderSelected = usePurchaseOrderRequestModals(useShallow((state) => state.setProviderSelected));
   const [viewPdf, setViewPdf] = useState(false);
   const [pdfOpen, setPdfOpen] = useState('');
   const [providerQuoteRequest, setProviderQuoteRequest] = useState('');
-  const [openCollapse, setOpenCollapse] = useState<{ [key: string]: boolean }>({});
+  // const [openCollapse, setOpenCollapse] = useState<{ [key: string]: boolean }>({});
   const [providersClone, setProvidersClone] = useState<typeof providersData>(structuredClone(providersData));
   const [inputKey, setInputKey] = useState(0);
 

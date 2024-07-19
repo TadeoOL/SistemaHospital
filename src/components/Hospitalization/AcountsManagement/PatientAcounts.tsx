@@ -1,6 +1,5 @@
-import { Box, Button, Modal } from '@mui/material';
+import { Box } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { useState } from 'react';
 import { PatientAccountTable } from './PatientAcountsTable';
 
 export const PatientAcounts = () => {

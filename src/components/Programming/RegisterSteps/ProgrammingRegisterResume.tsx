@@ -78,6 +78,8 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   const anesthesiologistId = useProgrammingRegisterStore((state) => state.anesthesiologistId);
   const articlesSelected = useProgrammingRegisterStore((state) => state.articlesSelected);
   const biomedicalEquipment = useProgrammingRegisterStore((state) => state.biomedicalEquipmentsSelected);
+  const evidencePdf = useProgrammingRegisterStore((state) => state.evidencePdf);
+  const rejectedMedicId = useProgrammingRegisterStore((state) => state.rejectedMedicId);
   const medicPersonalBiomedicalEquipment = useProgrammingRegisterStore(
     (state) => state.medicPersonalBiomedicalEquipment
   );
@@ -138,10 +140,15 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
         TipoSangre: clinicalData.bloodType,
       };
       const clinicalDataRes = await createClinicalHistory(registerClinicalHistoryObj);
+      const objectRejectedAppointment = {
+        MotivoRechazo: evidencePdf,
+        Id_Medico: rejectedMedicId,
+      };
       const registerAdmissionObj = {
         pacienteId: patientRes.id,
         historialClinicoId: clinicalDataRes.id,
         procedimientos: procedures,
+        motivoRechazo: rejectedMedicId && evidencePdf ? JSON.stringify(objectRejectedAppointment) : undefined,
         fechaInicio: startDate,
         fechaFin: endDate,
         cuartos: roomValues.map((r) => {
@@ -166,6 +173,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
               nombre: mpbe.nombre,
               precio: mpbe.precio,
               id_Medico: medicId,
+              notas: mpbe.notas,
             };
           })
         ),
@@ -173,7 +181,6 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
         id_Anestesiologo: anesthesiologistId === '' ? null : anesthesiologistId,
       };
       await createAdmission(registerAdmissionObj);
-
       refetch();
       toast.success('Paciente dado de alta correctamente');
       props.setOpen(false);

@@ -1,29 +1,75 @@
-import { Box, Modal } from '@mui/material';
+import { Backdrop, Box, CircularProgress, Modal } from '@mui/material';
 import dayjs from 'dayjs';
-import { Calendar, dayjsLocalizer } from 'react-big-calendar';
+import { Calendar, dayjsLocalizer, NavigateAction, View, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useGetHospitalizationRoomsCalendar } from '../../../hooks/hospitalization/useGetHospitalizationRoomsCalendar';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { EventDetailsModal } from '../../Programming/RegisterSteps/EventsModal/EventDetailsModal';
+import { IEventsCalendar } from '../../../types/types';
+dayjs.locale('es-mx');
 
 export const HospitalRoomsCalendar = () => {
   const localizer = dayjsLocalizer(dayjs);
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(dayjs());
   const [eventId, setEventId] = useState('');
   const [openEvent, setOpenEvent] = useState(false);
-  const { data, isLoading } = useGetHospitalizationRoomsCalendar(now);
+  const [view, setView] = useState<View>('month');
+  const [events, setEvents] = useState<IEventsCalendar[]>([]);
+  const { data, isLoading } = useGetHospitalizationRoomsCalendar(now.toDate());
 
-  const events =
-    data?.map((event) => {
-      return {
+  useEffect(() => {
+    if (!data) return;
+
+    const existingEventIds = events.map((event) => event.id);
+
+    const newEvents = data
+      .filter((event) => !existingEventIds.includes(event.id))
+      .map((event) => ({
         title: event.nombre,
         start: new Date(event.inicio),
         end: new Date(event.fin),
         id: event.id,
         roomId: event.id_Cuarto,
-      };
-    }) ?? [];
+      }));
 
+    setEvents((prevEvents) => {
+      const mergedEvents = [...prevEvents];
+
+      newEvents.forEach((newEvent) => {
+        const existingEventIndex = mergedEvents.findIndex((event) => event.id === newEvent.id);
+
+        if (existingEventIndex === -1) {
+          mergedEvents.push(newEvent);
+        } else {
+          mergedEvents[existingEventIndex] = newEvent;
+        }
+      });
+
+      return mergedEvents;
+    });
+  }, [data]);
+
+  const onNavigate = useCallback(
+    (newDate: Date, view: View, action: NavigateAction) => {
+      const dateJs = dayjs(now).format('DD/MM/YYYY HH:mm:ss');
+      const newDateJs = dayjs(newDate).format('DD/MM/YYYY HH:mm:ss');
+      if (dateJs === newDateJs) return;
+      if (action === 'DATE') {
+        setView('day');
+      } else {
+        setView(view);
+      }
+      setNow(dayjs(newDate));
+    },
+    [now]
+  );
+
+  if (isLoading && events.length === 0)
+    return (
+      <Backdrop open>
+        <CircularProgress />
+      </Backdrop>
+    );
   return (
     <>
       <Box
@@ -40,9 +86,9 @@ export const HospitalRoomsCalendar = () => {
         <Calendar
           localizer={localizer}
           views={['day', 'week', 'month']}
-          // view={view}
-          // onView={(v) => setView(v)}
-          // defaultView={Views.MONTH}
+          view={view}
+          onView={(v) => setView(v)}
+          defaultView={Views.MONTH}
           formats={{
             timeGutterFormat: 'HH:mm',
           }}
@@ -51,8 +97,8 @@ export const HospitalRoomsCalendar = () => {
             width: '100%',
             height: '760px',
           }}
-          date={new Date()}
-          // onNavigate={onNavigate}
+          // date={new Date()}
+          onNavigate={onNavigate}
           // onSelectSlot={(slot) => handleClickSlot(slot)}
           // dayPropGetter={dayPropGetter}
           onSelectEvent={(e: any) => {

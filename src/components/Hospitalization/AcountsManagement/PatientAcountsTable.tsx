@@ -102,7 +102,6 @@ const PatientAccountTableBody = (props: PatientAccountTableBodyProps) => {
 const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const [open, setOpen] = useState(false);
   const { data } = props;
-  const refetch = usePatientAccountPaginationStore((state) => state.fetchData);
 
   const handleEdit = () => {
     setOpen(true);

@@ -1,5 +1,4 @@
 import { Box, Card, Stack } from '@mui/material';
-import { useState } from 'react';
 import { TablePatientsEntry } from './PatientsEntryTable';
 // import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
 
