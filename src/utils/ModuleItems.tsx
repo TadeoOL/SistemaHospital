@@ -24,6 +24,9 @@ import {
 } from './dataRoles';
 import {
   AirlineSeatFlat,
+  Receipt,
+  MeetingRoom,
+  SensorDoor,
   CalendarMonth,
   GroupAdd,
   History,
@@ -272,12 +275,12 @@ export const ModuleList: IModuleItemsList[] = [
   },
   {
     categoryTitle: 'Admisión',
-    icon: <MonitorHeart />,
+    icon: <SensorDoor />,
     moduleItems: [
       {
         title: 'Ingreso de pacientes',
         path: '/admision/ingreso-pacientes',
-        icon: <LiaXRaySolid />,
+        icon: <MeetingRoom />,
         protectedRoles: nurseRole,
       },
     ],
@@ -365,7 +368,7 @@ export const ModuleList: IModuleItemsList[] = [
       {
         title: 'Cierre de cuenta',
         path: '/hospitalizacion/cierre-de-cuenta',
-        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        icon: <Receipt sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
       },
       {
