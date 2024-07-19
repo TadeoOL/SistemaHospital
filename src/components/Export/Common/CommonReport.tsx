@@ -60,7 +60,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export const CommonReport = ({ title, header, data }: CommonExportProps) => (
+export const CommonReport = ({ title, header, data }: CommonExportProps) => {
+  console.log({data})
+if (data == null) {
+  return <></>
+} else {
+return(
+  <>
   <Document>
     <Page style={styles.page}>
       <Text style={styles.title}>{title}</Text>
@@ -72,7 +78,7 @@ export const CommonReport = ({ title, header, data }: CommonExportProps) => (
             </Text>
           ))}
         </View>
-        {data.map((item: any, index: number) => (
+        {data?.map((item: any, index: number) => (
           <View style={styles.tableRow} key={index}>
             {header.map((headerItem: HeaderItem, headerIndex) => (
               <Text
@@ -87,4 +93,5 @@ export const CommonReport = ({ title, header, data }: CommonExportProps) => (
       </View>
     </Page>
   </Document>
-);
+  </>
+)}}

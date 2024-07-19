@@ -29,7 +29,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloseIcon from '@mui/icons-material/Close';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { StatusPurchaseOrder } from '../../../../types/types';
-import { changeOrderStatus, getOrdenCotizacionbyId, getOrderRequestById } from '../../../../api/api.routes';
+import { changeOrderStatus, getOrdenCotizacionbyId, getOrderRequestById, getPurchaseOrder } from '../../../../api/api.routes';
 import { usePurchaseOrderPagination } from '../../../../store/purchaseStore/purchaseOrderPagination';
 import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 import { QuoteModal } from './Modal/QuoteModal';
@@ -47,6 +47,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { CommonReport } from '../../../Export/Common/CommonReport';
 import { CommonSpreadSheet } from '../../../Export/Common/CommonSpreadSheet';
 import { ViewPdf } from '../../../Inputs/ViewPdf';
+import { wasAuth } from '../../../../utils/functions/dataUtils';
 
 enum authFilter {
   'Todas las ordenes' = 0,
@@ -112,6 +113,7 @@ export const PurchaseOrder = () => {
   const [articlesForEdition, setArticlesForEdition] = useState<any>([]);
   const [purchaseWarehouseId, setPurchaseWarehouseId] = useState('');
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
+  const [reportData, setReportData] = useState<any>()
   const { openPurchaseRequestOrder, setPaymentMethod, setNote, clearAllStates } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       openPurchaseRequestOrder: state.openPurchaseRequestOrder,
@@ -241,11 +243,29 @@ export const PurchaseOrder = () => {
 
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
+    obtenerPaginacionReporte()
+
   };
 
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const obtenerPaginacionReporte = async () => {
+    try {
+    const res = await getPurchaseOrder(
+        `${pageIndex === 0 ? '' : 'pageIndex=' + pageIndex}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
+        }&search=${search}&habilitado=${true}&estatus=${
+          parseInt(status) > -1 ? status : ''
+        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&fueAutorizada=${wasAuth(requiredAuth)}&paginacion=${false}`
+      );
+      setReportData(res.data)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   return (
     <>
@@ -339,7 +359,7 @@ export const PurchaseOrder = () => {
             >
               <MenuItem onClick={handleClose}>
                 <PDFDownloadLink
-                  document={<CommonReport title={title} header={header} data={data} />}
+                  document={<CommonReport title={title} header={header} data={reportData} />}
                   fileName={`${Date.now()}.pdf`}
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
@@ -347,7 +367,7 @@ export const PurchaseOrder = () => {
                 </PDFDownloadLink>
               </MenuItem>
               <MenuItem onClick={handleClose}>
-                <CommonSpreadSheet title={`${Date.now()}`} header={header} data={data} />
+                <CommonSpreadSheet title={`${Date.now()}`} header={header} data={reportData} />
               </MenuItem>
             </Menu>
           </Box>
