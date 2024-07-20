@@ -269,6 +269,28 @@ export const PurchaseOrder = () => {
     }
   };
 
+  const fetchPurcharseOrderInfo = async (idPurchase: string) => {
+    setPdfIsLoading(true);
+    try {
+      const orderRes = await getOrderRequestById(idPurchase);
+      setProvidersForEdition([orderRes.proveedor.nombre]);
+      setArticlesForEdition(
+        orderRes.ordenCompraArticulo.map((article: any) => ({
+          id: article.id_Articulo,
+          name: article.nombre.trim(),
+          amount: article.cantidad,
+          price: article.precioVenta,
+          stock: article.unidadesPorCaja,
+        }))
+      );
+      setPurchaseWarehouseId(orderRes.id_Almacen);
+      setPurchaseOrderId(orderRes.id_OrdenCompra);
+      setOpenUpdateOrderModal(true);
+    } catch (error) {
+    } finally {
+      setPdfIsLoading(false);
+    }
+  };
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: 'auto' }}>
@@ -462,7 +484,11 @@ export const PurchaseOrder = () => {
                                 <>
                                   {!order.fueAutorizada && order.estatus === 1 && (
                                     <Tooltip title="Editar">
-                                      <IconButton onClick={() => {}}>
+                                      <IconButton
+                                        onClick={() => {
+                                          fetchPurcharseOrderInfo(order.id_OrdenCompra);
+                                        }}
+                                      >
                                         <Edit />
                                       </IconButton>
                                     </Tooltip>
@@ -514,7 +540,7 @@ export const PurchaseOrder = () => {
                                   <IconButton
                                     size="small"
                                     onClick={() => {
-                                      if (order.cotizacion) {
+                                      if (order.cotizacion && order.estatus === 1) {
                                         handleOpenPdf(order.id_OrdenCompra);
                                       }
                                     }}

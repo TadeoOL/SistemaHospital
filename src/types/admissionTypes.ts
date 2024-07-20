@@ -69,7 +69,7 @@ export interface IPatientRegisterPagination {
   id_Paciente: string;
   id_HistorialClinico: string;
   faltanDatos?: boolean;
-  Admitido?: boolean;
+  admitido?: boolean;
 }
 
 export interface IPatientAccount {

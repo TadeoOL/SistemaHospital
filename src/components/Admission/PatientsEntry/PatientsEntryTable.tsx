@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { IPatientRegisterPagination } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
-import { Check, Edit, Info } from '@mui/icons-material';
+import { Check, Edit, Info, Paid } from '@mui/icons-material';
 import { PatientInfoModal } from '../../Programming/Register/Modal/PatientInfoModal';
 import { SelectEditOptionModal } from '../../Programming/Register/Modal/SelectEditOptionModal';
 import { PatientEntryAdvanceModal } from './Modal/PatientEntryAdvance';
@@ -108,6 +108,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
   const [clinicalHistoryId, setClinicalHistoryId] = useState<string>();
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdvance, setOpenAdvance] = useState(false);
+  const [isAdvanceFlag, setIsAdvanceFlag] = useState(false);
   const [valueView, setValueView] = useState(0);
   const [registerRoomId, setRegisterRoomId] = useState('');
 
@@ -147,24 +148,40 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.faltanDatos ? (
+            {data.faltanDatos && (
               <Tooltip title="Faltan datos por llenar">
                 <Info color="warning" />
               </Tooltip>
-            ) : (
-              data.Admitido! && (
-                <Tooltip title="Aceptar">
-                  <IconButton onClick={() => setOpenAdvance(true)}>
-                    <Check color="success" />
-                  </IconButton>
-                </Tooltip>
-              )
+            )}
+            {!data.admitido && !data.faltanDatos && (
+              <Tooltip title="Aceptar">
+                <IconButton
+                  onClick={() => {
+                    setIsAdvanceFlag(true);
+                    setOpenAdvance(true);
+                  }}
+                >
+                  <Check color="success" />
+                </IconButton>
+              </Tooltip>
             )}
             <Tooltip title="Editar">
               <IconButton onClick={() => setOpenEdit(true)}>
                 <Edit />
               </IconButton>
             </Tooltip>
+            {data.admitido && (
+              <Tooltip title="Agregar Abono">
+                <IconButton
+                  onClick={() => {
+                    setIsAdvanceFlag(false);
+                    setOpenAdvance(true);
+                  }}
+                >
+                  <Paid />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>
@@ -189,7 +206,12 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
       </Modal>
       <Modal open={openAdvance} onClose={() => setOpenAdvance(false)}>
         <>
-          <PatientEntryAdvanceModal id_Registro={data.id} id_Paciente={data.id_Paciente} setOpen={setOpenAdvance} />
+          <PatientEntryAdvanceModal
+            id_Registro={data.id}
+            id_Paciente={data.id_Paciente}
+            setOpen={setOpenAdvance}
+            isEntryPayment={isAdvanceFlag}
+          />
         </>
       </Modal>
     </>

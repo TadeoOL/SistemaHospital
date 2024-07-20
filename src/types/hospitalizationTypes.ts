@@ -91,8 +91,11 @@ export interface IAcountAllInformationAdmission {
   registrosEquiposBiomedicos: IBiomedicalEquipmentAccount[];
   registrosEquiposBiomedicosHonorario: IExternalBiomedicalEquipmentAccount[];
   paciente: IPatientInAccount;
+  pagosCuenta: IPaymentsAccount[];
   articulos: IArticlesAccount[];
   totalPagoCuenta: number;
+  totalPagoCuentaAbonos?: number;
+  totalPagoCuentaRestante?: number;
 }
 export interface IRoomsAccount {
   id_RegistroCuarto: string;

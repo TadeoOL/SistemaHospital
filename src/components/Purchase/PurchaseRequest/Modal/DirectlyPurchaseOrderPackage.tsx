@@ -94,7 +94,6 @@ export const UpdateDirectlyPurchaseOrder = (props: {
   const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(props.purcharseOrderWarehouseId);
   useEffect(() => {
     setArticles(props.initialArticles);
-    console.log(props.purcharseOrderWarehouseId);
   }, []);
   useEffect(() => {
     setArticlesFetched(
@@ -419,7 +418,6 @@ const ArticlesTable = (props: {
           }),
         },
       };
-      console.log(object);
       await modifyDirectOrderPurcharse(object);
       toast.success('Orden de compra exitosa!');
       props.clearData();
