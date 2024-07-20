@@ -17,18 +17,18 @@ import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../
 import { v4 as uuidv4 } from 'uuid';
 dayjs.extend(localizedFormat);
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 750 },
-  borderRadius: 2,
-  boxShadow: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: { xs: 900 },
-};
+// const style = {
+//   position: 'absolute',
+//   top: '50%',
+//   left: '50%',
+//   transform: 'translate(-50%, -50%)',
+//   width: { xs: 350, sm: 550, md: 750 },
+//   borderRadius: 2,
+//   boxShadow: 24,
+//   display: 'flex',
+//   flexDirection: 'column',
+//   maxHeight: { xs: 700, sm: 900 },
+// };
 
 interface RoomsInput {
   room: string;
@@ -209,7 +209,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       </Backdrop>
     );
   return (
-    <Box sx={style}>
+    <Box sx={{}}>
       <HeaderModal setOpen={props.setOpen} title="Seleccione un horario" />
       <Box
         sx={{

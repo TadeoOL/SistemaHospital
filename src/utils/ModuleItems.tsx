@@ -324,10 +324,16 @@ export const ModuleList: IModuleItemsList[] = [
             protectedRoles: hospitalization,
           },
           {
-            title: 'Radiografías',
-            path: '/hospitalizacion/radiografias',
+            title: 'Solicitudes',
+            path: '/hospitalizacion/solicitudes',
             icon: <LiaXRaySolid />,
             protectedRoles: hospitalization,
+          },
+          {
+            title: 'Configuración de solicitudes',
+            path: '/hospitalizacion/configuracion-solicitudes',
+            icon: <SettingsIcon />,
+            protectedRoles: supplyRoles,
           },
           {
             title: 'Medicos',
@@ -344,14 +350,14 @@ export const ModuleList: IModuleItemsList[] = [
         ],
       },
       {
-        title: 'Solicitar Radiografía',
+        title: 'Solicitar Electrocardiograma',
         path: '/hospitalizacion/radiografias-solicitud',
         icon: <LiaXRaySolid />,
         protectedRoles: hospitalizationANDnurse,
       },
       {
-        title: 'Administrar Radiografías',
-        path: '/hospitalizacion/radiografias-administracion',
+        title: 'Administrar Solicitudes de Electrocardiogramas',
+        path: '/hospitalizacion/solicitudes-administracion',
         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
       },

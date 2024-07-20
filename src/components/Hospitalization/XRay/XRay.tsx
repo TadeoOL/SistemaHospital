@@ -20,7 +20,7 @@ export const XRay = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={() => {}} title="Buscar la radiografía..." />
+          <SearchBar searchState={() => {}} title="Buscar la solicitud..." />
           <Button variant="contained" onClick={() => setOpen(true)}>
             Agregar
           </Button>

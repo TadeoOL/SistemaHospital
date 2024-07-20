@@ -25,7 +25,7 @@ import { shallow } from 'zustand/shallow';
 //import { NurseRequestModal } from './Modal/NurseRequestModal';
 //import { InurseRequest, IArticleInRequest } from '../../../types/types';
 //import { SearchBar } from '../../../Inputs/SearchBar';
-import { IXRayRequest } from '../../../../types/hospitalizationTypes';
+import { IXRayRequest, REQUEST_TYPES } from '../../../../types/hospitalizationTypes';
 import { useXRayRequestPaginationStore } from '../../../../store/hospitalization/xrayRequestPagination';
 import { getStatus } from '../../../../utils/XRayRequestUtils';
 import { SearchBar } from '../../../Inputs/SearchBar';
@@ -164,7 +164,7 @@ export const XRayRequestTable = () => {
                 startIcon={<AddCircleIcon />}
                 onClick={() => setOpenModal(!openModal)}
               >
-                Solicitar Radiografía
+                Solicitar Electrocardiograma
               </Button>
             </Box>
           </Box>
@@ -221,6 +221,7 @@ export const XRayRequestTable = () => {
                       <TableCell>Precio</TableCell>
                       <TableCell>Fecha Solicitud</TableCell>
                       <TableCell>Estatus</TableCell>
+                      <TableCell>Tipo</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
@@ -245,7 +246,7 @@ export const XRayRequestTable = () => {
                     >
                       <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                       <Typography variant="h2" color="gray">
-                        No solicitudes de radiografía
+                        No hay solicitudes
                       </Typography>
                     </Box>
                   ))}
@@ -328,6 +329,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
         <TableCell>{nurseRequest.precio}</TableCell>
         <TableCell>{formatDate(nurseRequest.fechaSolicitud)}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
+        <TableCell>{REQUEST_TYPES[nurseRequest.tipo]}</TableCell>
         <TableCell>
           {
             <Tooltip title="Cancelar solicitud">

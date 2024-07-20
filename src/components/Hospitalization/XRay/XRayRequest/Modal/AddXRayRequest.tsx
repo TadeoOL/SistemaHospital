@@ -1,4 +1,14 @@
-import { Autocomplete, Box, Button, Divider, Stack, TextField, Typography, createFilterOptions } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Divider,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+  createFilterOptions,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Cancel, Save } from '@mui/icons-material';
@@ -6,7 +16,7 @@ import { IPatientFromSearch } from '../../../../../types/types';
 import { getPatientsWithAccount } from '../../../../../services/programming/patientService';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useXRayPaginationStore } from '../../../../../store/hospitalization/xrayPagination';
-import { IXRay } from '../../../../../types/hospitalizationTypes';
+import { IXRay, REQUEST_TYPES } from '../../../../../types/hospitalizationTypes';
 import { addXRayRequest } from '../../../../../services/hospitalization/xrayService';
 
 const OPTIONS_LIMIT = 10;
@@ -50,10 +60,14 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const [patientSearch, setPatientSearch] = useState('');
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
+  const [requestSelected, setRequestSelected] = useState<number>(0);
   const [xraySelected, setXRaySelected] = useState<null | IXRay>(null);
   const [userError, setUserError] = useState(false);
+  const [requestError, setRequestError] = useState(false);
   const [xrayError, setXRayError] = useState(false);
   const { data, isLoading, setSearchXray } = useGetXRayData();
+  const setType = useXRayPaginationStore(state=>state.setType)
+  const refetch = useXRayPaginationStore(state=>state.fetchData)
 
   useEffect(() => {
     patientsCall();
@@ -84,9 +98,13 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
         setUserError(true);
         return toast.warning('Selecciona un paciente!');
       }
+      if (!requestSelected) {
+        setRequestError(true);
+        return toast.warning('Selecciona un tipo electrocardiograma!');
+      }
       if (!xraySelected) {
         setXRayError(true);
-        return toast.warning('Selecciona una radiografía!');
+        return toast.warning('Selecciona una electrocardiograma!');
       }
       const object = {
         Id_Paciente: userSelected.id_Paciente,
@@ -106,7 +124,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Solicitud de Radiografía" />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de electrocardiograma" />
       <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
         <Box
           sx={{
@@ -157,9 +175,38 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
           <Divider />
           <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
             <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar radiografía</Typography>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de electrocardiograma</Typography>
+              <TextField
+                select
+                label="Seleccionar el tipo de electrocardiograma"
+                value={requestSelected}
+                error={requestError}
+                helperText={requestError && 'Selecciona un tipo de electrocardiograma'}
+                onChange={(e) => {
+                  setRequestSelected(parseInt(e.target.value))
+                  setType(parseInt(e.target.value))
+                  setXRaySelected(null)
+                  refetch()
+                }}
+              >
+                <MenuItem key={0} value={0} disabled>
+                  Seleccionar
+                </MenuItem>
+                {Object.keys(REQUEST_TYPES).map((r) => (
+                  <MenuItem key={r} value={r}>
+                    {REQUEST_TYPES[r as any as number]}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          </Box>
+          <Divider />
+          <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar electrocardiograma</Typography>
               <Autocomplete
                 disablePortal
+                disabled={!requestSelected}
                 fullWidth
                 filterOptions={filterXRayOptions}
                 onChange={(e, val) => {
@@ -172,13 +219,13 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 getOptionLabel={(option) => option.nombre}
                 options={data}
                 value={xraySelected}
-                noOptionsText="No se encontraron radiografías"
+                noOptionsText="No se encontraron electrocardiogramas"
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     error={xrayError}
-                    helperText={xrayError && 'Selecciona un tipo de radiografía'}
-                    placeholder="Radiografías"
+                    helperText={xrayError && 'Selecciona un tipo de electrocardiograma'}
+                    placeholder={REQUEST_TYPES[requestSelected]}
                     sx={{ width: '100%' }}
                     onChange={(e) => {
                       if (e.target.value === null) {

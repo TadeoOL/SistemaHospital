@@ -14,6 +14,7 @@ interface State {
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
+  type: number;
 }
 
 interface Action {
@@ -21,6 +22,7 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setType: (type: number) => void;
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
   clearData: () => void;
@@ -37,18 +39,21 @@ const initialValues = {
   enabled: true,
   search: '',
   cancelToken: null as CancelTokenSource | null,
+  type: 0,
 };
 
 export const useXRayPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setType: (type: number) => set({ type }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize } = get();
+    const { enabled, search, pageIndex, pageSize, type } = get();
     const index = pageIndex + 1;
+    const typeString = type.toString()
     set({ loading: true });
 
     const cancelToken = axios.CancelToken.source();
@@ -59,7 +64,7 @@ export const useXRayPaginationStore = create<State & Action>((set, get) => ({
 
     try {
       const res = await getXRayPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Tipo=${typeString}`
       );
 
       set({

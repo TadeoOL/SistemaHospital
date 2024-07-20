@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { IXRay } from '../../../../types/hospitalizationTypes';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -8,6 +8,21 @@ import { useState } from 'react';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
 import { createXRay, modifyXRay } from '../../../../services/hospitalization/xrayService';
 import { xraySchema } from '../../../../schema/hospitalization/hospitalizationSchema';
+
+const REQUEST_TYPES = [
+  {
+    value: 1,
+    label: 'Laboratorio',
+  },
+  {
+    value: 2,
+    label: 'Radiografía',
+  },
+  {
+    value: 3,
+    label: 'Ultra sonido',
+  },
+];
 
 const style = {
   position: 'absolute',
@@ -30,6 +45,7 @@ interface Inputs {
   id?: string;
   name: string;
   price: number;
+  type: number;
   description: string;
 }
 export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
@@ -39,6 +55,8 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
@@ -46,6 +64,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
       description: xray?.descripcion ?? '',
       name: xray?.nombre ?? '',
       price: xray?.precio ?? 0,
+      type: xray?.tipo ?? 0,
     },
     resolver: zodResolver(xraySchema),
   });
@@ -59,25 +78,28 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
+            tipo: data.type,
           })
         : await createXRay({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
+            tipo: data.type,
           });
-      toast.success(`Radiografía ${xray ? 'modificado' : 'agregado'} correctamente`);
+      toast.success(`Solicitud ${xray ? 'modificado' : 'agregado'} correctamente`);
       refetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error(`Error al ${xray ? 'modificar' : 'agregar'} el radiografía.`);
+      toast.error(`Error al ${xray ? 'modificar' : 'agregar'} la solicitud.`);
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title={props.xray ? 'Modificar radiografía' : 'Agregar radiografía'} />
+      <HeaderModal setOpen={props.setOpen} title={props.xray ? 'Modificar la solicitud' : 'Agregar la solicitud'} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ bgcolor: 'background.paper', p: 2, display: 'flex' }}>
           <Grid container spacing={2}>
@@ -101,6 +123,27 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
                 error={!!errors.price?.message}
                 helperText={errors.price?.message}
               />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>Tipo de solicitud</Typography>
+              <TextField
+                label="Tipo..."
+                select
+                fullWidth
+                value={watch('type')}
+                onChange={(e) => setValue('type', parseInt(e.target.value))}
+                error={!!errors.type?.message}
+                helperText={errors.type?.message}
+              >
+                <MenuItem key={0} value={0} disabled>
+                  Seleccionar
+                </MenuItem>
+                {REQUEST_TYPES.map((r) => (
+                  <MenuItem key={r.value} value={r.value}>
+                    {r.label}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12}>
               <Typography>Descripción</Typography>

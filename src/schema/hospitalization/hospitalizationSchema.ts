@@ -63,6 +63,7 @@ export const xraySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Nombre es requerido'),
   description: z.string().optional(),
+  type: z.number().min(1, 'El tipo es requerido'),
   price: z
     .union([
       z.string().refine((p) => p.trim() !== '', {
