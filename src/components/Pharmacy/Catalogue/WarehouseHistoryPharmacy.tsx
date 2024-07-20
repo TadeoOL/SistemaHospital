@@ -27,6 +27,7 @@ import { SearchBar } from '../../Inputs/SearchBar';
 import { AddSubWarehouseModal } from '../../Warehouse/WarehouseSelected/TabsView/Modal/AddSubWarehouseModal';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { returnExpireDate } from '../../../utils/expireDate';
+import { SortComponent } from '../../Commons/SortComponent';
 
 const useGetMovements = () => {
   const {
@@ -45,6 +46,8 @@ const useGetMovements = () => {
     setEndDate,
     setSearch,
     search,
+    setSort,
+    sort,
   } = useWarehouseMovementPaginationStore((state) => ({
     data: state.data,
     fetchWareHouseMovements: state.fetchWarehouseMovements,
@@ -61,12 +64,14 @@ const useGetMovements = () => {
     search: state.search,
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
+    setSort: state.setSort,
+    sort: state.sort,
   }));
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
 
   useEffect(() => {
     fetchWareHouseMovements(warehouseIdSeted);
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
+  }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
   return {
     data,
     isLoading,
@@ -80,6 +85,7 @@ const useGetMovements = () => {
     setEndDate,
     setPageIndex,
     setPageSize,
+    setSort,
   };
 };
 
@@ -98,6 +104,7 @@ export const WarehouseHistoryPharmacy = () => {
     startDate,
     setPageIndex,
     setPageSize,
+    setSort,
   } = useGetMovements();
 
   return (
@@ -152,13 +159,47 @@ export const WarehouseHistoryPharmacy = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">Folio</TableCell>
-                    <TableCell>Proveniente de</TableCell>
-                    <TableCell>Solicitado por</TableCell>
-                    <TableCell>Autorizado por</TableCell>
-                    <TableCell>Dirigido a</TableCell>
-                    <TableCell>Fecha Solicitud</TableCell>
-                    <TableCell>Estatus</TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Proveniente de"
+                        headerName="almacenProveniente"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Solicitado Por"
+                        headerName="solicitadoPor"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Autorizado Por"
+                        headerName="autorizadoPor"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Dirigido a"
+                        headerName="almacenDirigido"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Fecha de Solicitud"
+                        headerName="fechaSolicitud"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Estado" headerName="estado" setSortFunction={setSort} />
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

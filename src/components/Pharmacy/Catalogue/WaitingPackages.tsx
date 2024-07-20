@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  Modal,
   Stack,
   Table,
   TableBody,
@@ -29,6 +30,23 @@ import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
 import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { SortComponent } from '../../Commons/SortComponent';
+import { LuPackagePlus } from 'react-icons/lu';
+import { CreatePackageModal } from './Modal/CreatePackageModal';
+import { IArticleHistory } from '../../../types/types';
+
+const STATUS: Record<number, string> = {
+  0: 'Cancelada',
+  2: 'Aceptada',
+  3: 'En espera',
+  4: 'Armar paquete',
+};
+enum STATUS_ENUM {
+  Cancelada = 0,
+  Aceptada = 2,
+  Esperando = 3,
+  ArmarPaquete = 4,
+}
 
 const useGetMovements = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
@@ -48,6 +66,8 @@ const useGetMovements = () => {
     setEndDate,
     setSearch,
     search,
+    sort,
+    setSort,
   } = useWarehouseMovementPackagesPaginationStore((state) => ({
     data: state.data,
     fetchWareHouseMovements: state.fetchWarehouseMovements,
@@ -64,11 +84,13 @@ const useGetMovements = () => {
     search: state.search,
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
+    sort: state.sort,
+    setSort: state.setSort,
   }));
 
   useEffect(() => {
     fetchWareHouseMovements(warehouseIdSeted);
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search]);
+  }, [pageCount, pageSize, pageIndex, startDate, sort, endDate, search]);
   return {
     data,
     isLoading,
@@ -82,6 +104,7 @@ const useGetMovements = () => {
     setEndDate,
     setPageIndex,
     setPageSize,
+    setSort,
     fetchWareHouseMovements,
   };
 };
@@ -101,8 +124,12 @@ export const WaitingPackages = () => {
     setPageIndex,
     setPageSize,
     fetchWareHouseMovements,
+    setSort,
   } = useGetMovements();
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
+  const [packageSelected, setPackageSelected] = useState('');
+  const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
 
   const rejectRequest = (idRequest: string) => {
     withReactContent(Swal)
@@ -141,7 +168,7 @@ export const WaitingPackages = () => {
       });
   };
 
-  const acceptRequest = (idRequest: string, lotes: any) => {
+  const acceptRequest = (idRequest: string, lotes: any, id_CuentaPaciente?: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -158,6 +185,7 @@ export const WaitingPackages = () => {
             Estatus: 2,
             Id_HistorialMovimiento: idRequest,
             Lotes: lotes,
+            Id_CuentaPaciente: id_CuentaPaciente,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -179,6 +207,16 @@ export const WaitingPackages = () => {
         }
       });
   };
+
+  const createPackage = (id: string) => {
+    setOpenCreatePackageModal(true);
+    setPackageSelected(id);
+  };
+
+  useEffect(() => {
+    setProvisionalArticles(data?.find((d) => d.id === packageSelected)?.historialArticulos ?? []);
+  }, [packageSelected]);
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -231,10 +269,22 @@ export const WaitingPackages = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">Folio</TableCell>
-                    <TableCell>Solicitado por</TableCell>
-                    <TableCell>Fecha Solicitud</TableCell>
-                    <TableCell>Estatus</TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Solicitado por" headerName="enfermero" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Fecha Solicitud"
+                        headerName="fechaSolicitud"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
+                    </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
@@ -268,17 +318,8 @@ export const WaitingPackages = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell> {movimiento.solicitadoPor} </TableCell>
-                          {
-                            //<TableCell> {movimiento.autorizadoPor} </TableCell>
-                          }
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
-                          <TableCell>
-                            {movimiento.estatus === 0
-                              ? 'Cancelada'
-                              : movimiento.estatus === 2
-                                ? 'Aceptada'
-                                : 'En espera'}
-                          </TableCell>
+                          <TableCell>{movimiento.estatus && STATUS[movimiento.estatus]}</TableCell>
                           <TableCell>
                             <Box
                               sx={{
@@ -287,13 +328,31 @@ export const WaitingPackages = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              <IconButton>
-                                <DoneIcon
-                                  onClick={() => {
-                                    acceptRequest(movimiento.id, movimiento.historialArticulos);
-                                  }}
-                                />
-                              </IconButton>
+                              {(movimiento.estatus as number) === STATUS_ENUM.Esperando ? (
+                                <>
+                                  <IconButton
+                                    onClick={() => {
+                                      acceptRequest(
+                                        movimiento.id,
+                                        movimiento.historialArticulos,
+                                        movimiento.id_CuentaPaciente
+                                      );
+                                    }}
+                                  >
+                                    <DoneIcon />
+                                  </IconButton>
+                                </>
+                              ) : (
+                                <>
+                                  <IconButton onClick={() => createPackage(movimiento.id)}>
+                                    <LuPackagePlus
+                                      style={{
+                                        color: '#8F959E',
+                                      }}
+                                    />
+                                  </IconButton>
+                                </>
+                              )}
                               <IconButton
                                 size="small"
                                 onClick={() => {
@@ -351,7 +410,7 @@ export const WaitingPackages = () => {
                             <>
                               <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                               <Typography variant="h2" color="gray">
-                                No hay movimientos
+                                No hay paquetes en espera
                               </Typography>
                             </>
                           )}
@@ -380,6 +439,16 @@ export const WaitingPackages = () => {
           </Card>
         </Stack>
       </Stack>
+      <Modal open={openCreatePackageModal} onClose={() => setOpenCreatePackageModal(false)}>
+        <>
+          <CreatePackageModal
+            setOpen={setOpenCreatePackageModal}
+            articles={provisionalArticles}
+            movementHistoryId={packageSelected}
+            setArticles={setProvisionalArticles}
+          />
+        </>
+      </Modal>
     </>
   );
 };

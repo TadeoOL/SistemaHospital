@@ -12,9 +12,9 @@ export const Rooms = () => {
     <>
       <Box sx={{ bgcolor: 'background.paper', p: 4, rowGap: 2, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', flex: 1, alignItems: 'start', justifyContent: 'space-between' }}>
-          <SearchBar title="Buscar cuarto..." searchState={setSearch} />
+          <SearchBar title="Buscar espacio hospitalario..." searchState={setSearch} />
           <Button variant="contained" onClick={() => setOpen(true)}>
-            Agregar cuarto
+            Agregar espacio hospitalario
           </Button>
         </Box>
         <RoomsTable />

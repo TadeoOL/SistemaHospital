@@ -6,11 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { clinicalDataSchema } from '../../../schema/programming/programmingSchemas';
 import { toast } from 'react-toastify';
 import { IClinicalData } from '../../../types/types';
-import { useEffect } from 'react';
-import { createPatient } from '../../../services/programming/patientService';
-import { createAdmission } from '../../../services/programming/admissionRegisterService';
-import { createClinicalHistory } from '../../../services/programming/clinicalHistoryService';
-import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 
 const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
 const BLOOD_TYPE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -37,12 +32,9 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
   const step = useProgrammingRegisterStore((state) => state.step);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const clinicalData = useProgrammingRegisterStore((state) => state.clinicalData);
-  const patient = useProgrammingRegisterStore((state) => state.patient);
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
-  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
-  const procedures = useProgrammingRegisterStore((state) => state.procedures);
   const setClinicalData = useProgrammingRegisterStore((state) => state.setClinicalData);
-  const { admissionDiagnosis, comments, medicName, reasonForAdmission, specialty, allergies, bloodType } = clinicalData;
+  const { admissionDiagnosis, comments, reasonForAdmission, allergies, bloodType } = clinicalData;
 
   const {
     register,
@@ -54,20 +46,12 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
     defaultValues: {
       admissionDiagnosis,
       comments,
-      medicName,
       reasonForAdmission,
-      specialty,
       allergies,
       bloodType,
     },
   });
-  const watchAdmissionDiagnosis = watch('admissionDiagnosis');
-  const watchComments = watch('comments');
-  const watchMedicName = watch('medicName');
-  const watchAllergies = watch('allergies');
   const watchBloodType = watch('bloodType');
-  const watchReasonForAdmission = watch('reasonForAdmission');
-  const watchSpecialty = watch('specialty');
 
   const onSubmit: SubmitHandler<IClinicalData> = async (data) => {
     if (roomValues.length < 1) return toast.error('Debes seleccionar un cuarto para dar de alta al paciente');
@@ -82,64 +66,16 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
         endDate = roomValues[i].horaFin;
       }
     }
-    try {
-      const patientRes = await createPatient(patient);
-      const registerClinicalHistoryObj = {
-        Id_Paciente: patientRes.id,
-        MedicoTratante: data.medicName,
-        Especialidad: data.specialty,
-        MotivoIngreso: data.reasonForAdmission,
-        DiagnosticoIngreso: data.admissionDiagnosis,
-        Comentarios: data.comments,
-        Alergias: data.allergies,
-        TipoSangre: data.bloodType,
-      };
-      const clinicalDataRes = await createClinicalHistory(registerClinicalHistoryObj);
-      const registerAdmissionObj = {
-        pacienteId: patientRes.id,
-        historialClinicoId: clinicalDataRes.id,
-        procedimientos: procedures,
-        fechaInicio: startDate,
-        fechaFin: endDate,
-        cuartos: roomValues.map((r) => {
-          return {
-            cuartoId: r.id,
-            horaInicio: r.horaInicio,
-            horaFin: r.horaFin,
-            tipoCuarto: r.tipoCuarto,
-          };
-        }),
-      };
-      console;
-      await createAdmission(registerAdmissionObj);
-      refetch();
-      toast.success('Paciente dado de alta correctamente');
-      props.setOpen(false);
-    } catch (error) {
-      console.log(error);
-      toast.error('Error al dar de alta al paciente');
-    }
-  };
-
-  useEffect(() => {
     setClinicalData({
-      admissionDiagnosis: watchAdmissionDiagnosis,
-      comments: watchComments,
-      medicName: watchMedicName,
-      reasonForAdmission: watchReasonForAdmission,
-      specialty: watchSpecialty,
-      allergies: watchAllergies,
-      bloodType: watchBloodType,
+      admissionDiagnosis: data.admissionDiagnosis,
+      comments: data.comments,
+      reasonForAdmission: data.reasonForAdmission,
+      allergies: data.allergies,
+      bloodType: data.bloodType,
     });
-  }, [
-    watchAdmissionDiagnosis,
-    watchComments,
-    watchMedicName,
-    watchReasonForAdmission,
-    watchSpecialty,
-    watchAllergies,
-    watchBloodType,
-  ]);
+    toast.success('Datos registrados correctamente');
+    setStep(step + 1);
+  };
 
   return (
     <>
@@ -160,26 +96,6 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
           <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Datos Clínicos</Typography>
           <Divider sx={{ my: 1 }} />
           <Grid container spacing={2}>
-            <Grid item xs={12} md={7}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Medico tratante</Typography>
-              <TextField
-                fullWidth
-                placeholder="Medico tratante..."
-                {...register('medicName')}
-                error={!!errors.medicName?.message}
-                helperText={errors.medicName?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Especialidad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Especialidad..."
-                {...register('specialty')}
-                error={!!errors.specialty?.message}
-                helperText={errors.specialty?.message}
-              />
-            </Grid>
             <Grid item xs={12}>
               <Typography sx={TYPOGRAPHY_STYLE}>Motivo de ingreso</Typography>
               <TextField
@@ -256,7 +172,7 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
             Regresar
           </Button>
           <Button type="submit" variant="contained">
-            Registrar Paciente
+            Siguiente
           </Button>
         </Box>
       </form>

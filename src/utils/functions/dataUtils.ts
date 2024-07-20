@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import { ArticleObject } from '../../types/types';
 
 export const addArticlesPrice = (arrayDeObjetos: ArticleObject[]) => {
@@ -26,7 +27,7 @@ export const convertBase64 = (file: File): Promise<string> => {
 
 export const isValidInteger = (value: string) => {
   if (value.trim() === '') return true;
-  const regex = /^[1-9][0-9]*$/;
+  const regex = /^([1-9][0-9]*)$/;
   return regex.test(value);
 };
 
@@ -67,4 +68,14 @@ export const wasAuth = (value: number) => {
     default:
       break;
   }
+};
+
+export const debouncedSetSearch = debounce((set, search) => {
+  set({ search, pageIndex: 0 });
+}, 250);
+
+export const isValidIntegerIncludeZero = (value: string) => {
+  if (value.trim() === '') return true;
+  const regex = /^([0-9][0-9]*)$/;
+  return regex.test(value);
 };

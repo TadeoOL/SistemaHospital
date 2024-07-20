@@ -2,18 +2,23 @@ import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 const toDate = (val: any) => (dayjs.isDayjs(val) ? val.toDate() : val);
+const zodDay = z.custom<Dayjs>((val) => val instanceof dayjs, 'Fecha invalida').optional();
+
+const priceSchema = z
+  .string()
+  .refine((p) => parseFloat(p) !== 0, {
+    message: 'El precio tiene que ser mayor a 0',
+  })
+  .refine((p) => p !== '', {
+    message: 'El precio tiene que ser mayor a 0',
+  });
 
 export const patientRegistrationSchema = z.object({
-  name: z.string().min(1, 'Nombre es requerido'),
-  lastName: z.string().min(1, 'Apellido Paterno es requerido'),
-  secondLastName: z.string().min(1, 'Apellido Materno es requerido'),
-  age: z
-    .string()
-    .min(1, 'La edad es necesaria')
-    .refine((val) => parseInt(val, 10) > 0, {
-      message: 'La edad tiene que ser mayor a 0',
-    }),
-  genere: z.string().min(1, 'Genero es requerido'),
+  name: z.string().optional(),
+  lastName: z.string().optional(),
+  secondLastName: z.string().optional(),
+  age: z.string().optional(),
+  genere: z.string().optional(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 
@@ -40,24 +45,19 @@ export const patientModifySchema = z.object({
 });
 
 export const clinicalDataSchema = z.object({
-  medicName: z.string().min(1, 'El nombre del médico es requerido'),
-  specialty: z.string().min(1, 'La especialidad es requerida'),
-  reasonForAdmission: z.string().min(1, 'El motivo de ingreso es requerido'),
-  admissionDiagnosis: z.string().min(1, 'El diagnóstico de ingreso es requerido'),
-  allergies: z.string().min(1, 'El procedimiento es requerido'),
-  bloodType: z.string().min(1, 'El tipo de sangre es requerido'),
+  reasonForAdmission: z.string().optional(),
+  admissionDiagnosis: z.string().optional(),
+  allergies: z.string().optional(),
+  bloodType: z.string().optional(),
   comments: z.string().optional(),
 });
 
 export const clinicalDataModifySchema = z.object({
-  medicName: z.string().nullable(),
-  specialty: z.string().nullable(),
   reasonForAdmission: z.string().nullable(),
   admissionDiagnosis: z.string().nullable(),
   allergies: z.string().nullable(),
   bloodType: z.string().nullable(),
   comments: z.string().nullable(),
-  procedure: z.string().nullable(),
 });
 
 export const roomSchema = z.object({
@@ -80,13 +80,8 @@ export const surgeryProcedureSchema = z.object({
     .refine((val) => parseInt(val, 10) > 0, {
       message: 'La duración de hospitalización tiene que ser mayor a 0',
     }),
-  description: z.string().min(1, 'La descripción es requerida'),
-  price: z
-    .string()
-    .min(1, 'El precio es necesario')
-    .refine((val) => parseInt(val, 10) > 0, {
-      message: 'El precio tiene que ser mayor a 0',
-    }),
+  description: z.string().optional(),
+  price: z.string().optional(),
 });
 
 export const addRoomReservation = z
@@ -108,3 +103,72 @@ export const procedureSchema = z.object({
     .array(z.string().min(1, 'El ID del procedimiento no puede estar vacío'))
     .nonempty('El procedimiento es requerido'),
 });
+
+export const programmingRegisterSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  lastName: z.string().min(1, 'El apellido paterno es requerido'),
+  secondLastName: z.string().min(1, 'El apellido materno es requerido'),
+  age: z
+    .string()
+    .min(1, 'La edad es requerida')
+    .refine((e) => parseInt(e) != 0, {
+      message: 'La edad tiene que ser mayor a 0',
+    }),
+  doctorId: z.string().min(1, 'El medico es requerido'),
+  notes: z.string().optional(),
+  surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
+  date: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+});
+
+export const procedureAndDoctorSelectorSchema = z.object({
+  proceduresId: z.string().array().nonempty('Los procedimientos son requeridos'),
+  xrayIds: z.string().array().nullable(),
+  medicId: z.string().nullable(),
+  anesthesiologistId: z.string().nullable(),
+});
+
+export const medicPersonalBiomedicalEquipmentSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  price: priceSchema,
+  notes: z.string().optional(),
+});
+
+const priceByTimeRange = z
+  .object({
+    inicio: z.string().min(1, 'La hora inicio es necesaria'),
+    fin: z.string().nullable(),
+    precio: z.number().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'El precio debe ser un número decimal positivo',
+    }),
+    noneHour: z.boolean().optional(),
+  })
+  .refine(
+    (val) => {
+      if (!val.noneHour && val.fin) {
+        return val.inicio <= val.fin;
+      }
+      return true;
+    },
+    {
+      message: 'La hora inicial debe ser menor a la final',
+      path: ['inicio'],
+    }
+  )
+  .optional();
+
+export const typeRoomSchema = z
+  .object({
+    name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
+    description: z.string().optional(),
+    reservedSpaceTime: zodDay,
+    priceByTimeRange: z.array(priceByTimeRange).optional(),
+    type: z.string(),
+    priceRoom: z
+      .string()
+      .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
+      .optional(),
+  })
+  .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
+    message: 'El precio del cuarto es necesario',
+    path: ['priceRoom'],
+  });

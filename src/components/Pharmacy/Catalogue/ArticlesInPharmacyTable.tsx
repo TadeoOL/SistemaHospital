@@ -27,6 +27,7 @@ import { shallow } from 'zustand/shallow';
 import { warning } from '../../../theme/colors';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { IExistingArticle, IExistingArticleList } from '../../../types/types';
 import { returnExpireDate } from '../../../utils/expireDate';
@@ -189,7 +190,7 @@ export const ArticlesPharmacyTable = () => {
               <Button
                 sx={{ minWidth: 200 }}
                 variant="contained"
-                startIcon={<AddCircleIcon />}
+                startIcon={<TurnLeftIcon />}
                 onClick={() => {
                   setExitArticlesM(true);
                   setOpenModal(!openModal);

@@ -32,6 +32,7 @@ export const registerSell = async (data: {
   moduloProveniente: string;
   notas?: string;
   pdfCadena?: string;
+  id_CuentaPaciente?: string;
 }) => {
   const res = await axios.post(`${apiCheckout}/registrar-venta`, data);
   return res.data;

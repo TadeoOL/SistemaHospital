@@ -2,9 +2,9 @@ import {
   Box,
   Card,
   CircularProgress,
-  ClickAwayListener,
   Collapse,
   IconButton,
+  Menu,
   MenuItem,
   Modal,
   Stack,
@@ -19,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Close, Edit } from '@mui/icons-material';
+import { Edit } from '@mui/icons-material';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -29,11 +29,15 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloseIcon from '@mui/icons-material/Close';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { StatusPurchaseOrder } from '../../../../types/types';
-import { changeOrderStatus } from '../../../../api/api.routes';
+import {
+  changeOrderStatus,
+  getOrdenCotizacionbyId,
+  getOrderRequestById,
+  getPurchaseOrder,
+} from '../../../../api/api.routes';
 import { usePurchaseOrderPagination } from '../../../../store/purchaseStore/purchaseOrderPagination';
 import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 import { QuoteModal } from './Modal/QuoteModal';
-import { OrderModal } from './Modal/OrderModal';
 import Swal from 'sweetalert2';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Assignment, Visibility, DoneAll, Info, RemoveRedEye } from '@mui/icons-material';
@@ -43,7 +47,11 @@ import { ArticlesEntry } from './Modal/ArticlesEntry';
 import { SortComponent } from '../../../Commons/SortComponent';
 import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrderPackage';
 import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
-import { toast } from 'react-toastify';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { CommonReport } from '../../../Export/Common/CommonReport';
+import { CommonSpreadSheet } from '../../../Export/Common/CommonSpreadSheet';
+import { ViewPdf } from '../../../Inputs/ViewPdf';
+import { wasAuth } from '../../../../utils/functions/dataUtils';
 
 enum authFilter {
   'Todas las ordenes' = 0,
@@ -93,13 +101,13 @@ const handleRemoveOrder = async (Id_OrdenCompra: string) => {
 export const PurchaseOrder = () => {
   // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
-  const [openOrderModal, setOpenOrderModal] = useState(false);
   const [openUpdateOrderModal, setOpenUpdateOrderModal] = useState(false);
   const [openArticlesEntry, setOpenArticlesEntry] = useState(false);
   const [orderSelectedId, setOrderSelectedId] = useState('');
-  const [providers, setProviders] = useState<any[]>([]);
-  const [viewPdf, setViewPdf] = useState(false);
+  const [providers, setProviders] = useState('');
   const [pdfOpen, setPdfOpen] = useState('');
+  const [viewPdf, setViewPdf] = useState(false);
+  const [pdfIsLoading, setPdfIsLoading] = useState(false);
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [orderSelected, setOrderSelected] = useState<{
     folio: string;
@@ -109,6 +117,7 @@ export const PurchaseOrder = () => {
   const [articlesForEdition, setArticlesForEdition] = useState<any>([]);
   const [purchaseWarehouseId, setPurchaseWarehouseId] = useState('');
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
+  const [reportData, setReportData] = useState<any>();
   const { openPurchaseRequestOrder, setPaymentMethod, setNote, clearAllStates } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       openPurchaseRequestOrder: state.openPurchaseRequestOrder,
@@ -200,16 +209,88 @@ export const PurchaseOrder = () => {
     fetch();
   }, [pageIndex, pageSize, search, handleChange, startDate, status, endDate, sort, requiredAuth]);
 
-    const handleOpenPdf = async (quoteId: string) => {
+  const handleOpenPdf = async (OrderId: string) => {
     try {
-      if (quoteId === '') return toast.warning('Esta orden no cuenta con cotización');
-      setPdfOpen(quoteId as string);
+      const res = await getOrdenCotizacionbyId(OrderId);
+      console.log(res);
+      setPdfOpen(res as string);
       setViewPdf(true);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const pdfFetch = async (OrderId: string) => {
+    try {
+      setPdfIsLoading(true);
+      const res = await getOrderRequestById(OrderId);
+      setPdfOpen(res.pdfCadena as string);
+      setViewPdf(true);
+    } catch (error) {
+      console.log(error);
+    }
+    setPdfIsLoading(false);
+  };
+
+  const title = 'Reporte de Orden de Compra';
+  const header = [
+    { key: 'folio_Extension', nameHeader: 'Orden de Compra' },
+    { key: 'usuarioSolicitado', nameHeader: 'Creado por' },
+    { key: 'proveedor', nameHeader: 'Proveedor' },
+    { key: 'fechaSolicitud', nameHeader: 'Fecha de Solicitud' },
+    { key: 'total', nameHeader: 'Total' },
+    { key: 'estatusConcepto', nameHeader: 'Estatus' },
+  ];
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+    obtenerPaginacionReporte();
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const obtenerPaginacionReporte = async () => {
+    try {
+      const res = await getPurchaseOrder(
+        `${pageIndex === 0 ? '' : 'pageIndex=' + pageIndex}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
+        }&search=${search}&habilitado=${true}&estatus=${
+          parseInt(status) > -1 ? status : ''
+        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&fueAutorizada=${wasAuth(requiredAuth)}&paginacion=${false}`
+      );
+      setReportData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchPurcharseOrderInfo = async (idPurchase: string) => {
+    setPdfIsLoading(true);
+    try {
+      const orderRes = await getOrderRequestById(idPurchase);
+      setProvidersForEdition([orderRes.proveedor.nombre]);
+      setArticlesForEdition(
+        orderRes.ordenCompraArticulo.map((article: any) => ({
+          id: article.id_Articulo,
+          name: article.nombre.trim(),
+          amount: article.cantidad,
+          price: article.precioVenta,
+          stock: article.unidadesPorCaja,
+        }))
+      );
+      setPurchaseWarehouseId(orderRes.id_Almacen);
+      setPurchaseOrderId(orderRes.id_OrdenCompra);
+      setOpenUpdateOrderModal(true);
+    } catch (error) {
+    } finally {
+      setPdfIsLoading(false);
+    }
+  };
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: 'auto' }}>
@@ -283,6 +364,37 @@ export const PurchaseOrder = () => {
               <FilterListOffIcon />
             </IconButton>
           </Box>
+          <Box>
+            <IconButton onClick={handleClick}>
+              <DownloadIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <MenuItem onClick={handleClose}>
+                <PDFDownloadLink
+                  document={<CommonReport title={title} header={header} data={reportData} />}
+                  fileName={`${Date.now()}.pdf`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  PDF
+                </PDFDownloadLink>
+              </MenuItem>
+              <MenuItem onClick={handleClose}>
+                <CommonSpreadSheet title={`${Date.now()}`} header={header} data={reportData} />
+              </MenuItem>
+            </Menu>
+          </Box>
         </Box>
         <Card sx={{ minWidth: { xs: 950, xl: 0 } }}>
           <TableContainer>
@@ -352,49 +464,29 @@ export const PurchaseOrder = () => {
                               <ProviderNameChip
                                 provider={[
                                   {
-                                    id: order.proveedor.id_Proveedor,
-                                    name: order.proveedor.nombre,
+                                    id: '',
+                                    name: order.proveedor,
                                   },
                                 ]}
                               />
                             </TableCell>
-                            <TableCell>{order.fechaSolicitud.split('T')[0]}</TableCell>
-                            <TableCell>${order.precioTotalOrden}</TableCell>
-                            <TableCell>{StatusPurchaseOrder[order.estatus]}</TableCell>
+                            <TableCell>{order.fechaSolicitud}</TableCell>
+                            <TableCell>{order.total}</TableCell>
+                            <TableCell>{order.estatusConcepto}</TableCell>
                             <TableCell>
                               {order.estatus === 0 ? (
-                                <Tooltip title="Cancelado">
+                                <Tooltip title="Orden Cancelada">
                                   <IconButton>
                                     <Info />
                                   </IconButton>
                                 </Tooltip>
                               ) : (
                                 <>
-                                  {(!order.fueAutorizada && order.estatus === 1) && (
+                                  {!order.fueAutorizada && order.estatus === 1 && (
                                     <Tooltip title="Editar">
                                       <IconButton
                                         onClick={() => {
-                                          setOrderSelected({
-                                            folio: order.folio_Extension,
-                                            OrderId: order.id_OrdenCompra,
-                                          });
-                                          setPaymentMethod(order.conceptoPago);
-                                          setNote(order.notas || '');
-                                          setPurchaseOrderId(order.id_OrdenCompra);
-                                          setPurchaseWarehouseId(order.id_Almacen);
-                                          setOpenUpdateOrderModal(true);
-                                          order.proveedor.estatus = order.estatus;
-                                          setProviders([order.proveedor]);
-                                          setProvidersForEdition([order.proveedor.id_Proveedor]);
-                                          setArticlesForEdition(
-                                            order.ordenCompraArticulo.map((art) => ({
-                                              id: art.id_Articulo,
-                                              name: art.nombre,
-                                              amount: art.cantidad,
-                                              price: art.precioProveedor,
-                                              stock: undefined,
-                                            }))
-                                          );
+                                          fetchPurcharseOrderInfo(order.id_OrdenCompra);
                                         }}
                                       >
                                         <Edit />
@@ -403,14 +495,10 @@ export const PurchaseOrder = () => {
                                   )}
                                   {order.estatus === 1 && (
                                     <>
-                                      <Tooltip title="Ver orden de compra">
+                                      <Tooltip title="PDF de Orden de Compra">
                                         <IconButton
                                           onClick={() => {
-                                            setOrderSelected({
-                                              folio: order.folio_Extension,
-                                              OrderId: order.id_OrdenCompra,
-                                            });
-                                            setOpenOrderModal(true);
+                                            pdfFetch(order.id_OrdenCompra);
                                           }}
                                         >
                                           <DownloadIcon />
@@ -424,8 +512,8 @@ export const PurchaseOrder = () => {
                                               OrderId: order.id_OrdenCompra,
                                             });
                                             setOpenQuoteModal(true);
-                                            order.proveedor.estatus = order.estatus;
-                                            setProviders([order.proveedor]);
+                                            // order.proveedor.estatus = order.estatus;
+                                            setProviders(order.proveedor);
                                           }}
                                         >
                                           <UploadFileIcon />
@@ -448,13 +536,13 @@ export const PurchaseOrder = () => {
                                 </Tooltip>
                               )}
                               {order.estatus === 1 && order.cotizacion && (
-                                 <Tooltip title="Ver Cotización">
+                                <Tooltip title="Ver Cotización">
                                   <IconButton
                                     size="small"
-                                    onClick={() => { 
-                                      if (order.cotizacion) {
-                                      handleOpenPdf(order.cotizacion);
-                                    }
+                                    onClick={() => {
+                                      if (order.cotizacion && order.estatus === 1) {
+                                        handleOpenPdf(order.id_OrdenCompra);
+                                      }
                                     }}
                                   >
                                     <RemoveRedEye />
@@ -471,8 +559,7 @@ export const PurchaseOrder = () => {
                                           OrderId: order.id_OrdenCompra,
                                         });
                                         setOpenQuoteModal(true);
-                                        order.proveedor.estatus = order.estatus;
-                                        setProviders([order.proveedor]);
+                                        setProviders(order.proveedor);
                                       }}
                                     >
                                       <UploadFileIcon />
@@ -493,12 +580,12 @@ export const PurchaseOrder = () => {
                               )}
                               {order.estatus === 3 && (
                                 <>
-                                <Tooltip title="Artículos dados de alta en almacen">
-                                  <IconButton>
-                                   <DoneAll sx={{ color: 'green' }} />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Ver Factura">
+                                  <Tooltip title="Artículos dados de alta en almacen">
+                                    <IconButton>
+                                      <DoneAll sx={{ color: 'green' }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Ver Factura">
                                     <IconButton
                                       onClick={() => {
                                         setOrderSelected({
@@ -506,8 +593,7 @@ export const PurchaseOrder = () => {
                                           OrderId: order.id_OrdenCompra,
                                         });
                                         setOpenQuoteModal(true);
-                                        order.proveedor.estatus = order.estatus;
-                                        setProviders([order.proveedor]);
+                                        setProviders(order.proveedor);
                                       }}
                                     >
                                       <Visibility />
@@ -529,7 +615,7 @@ export const PurchaseOrder = () => {
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
-                                    {order.ordenCompraArticulo.map((orderArticle) => (
+                                    {order.articulos?.map((orderArticle) => (
                                       <TableRow key={orderArticle.id_OrdenCompraArticulo}>
                                         <TableCell align="center">{orderArticle.nombre}</TableCell>
                                         <TableCell align="center">{orderArticle.cantidad}</TableCell>
@@ -592,11 +678,6 @@ export const PurchaseOrder = () => {
           </TableContainer>
         </Card>
       </Stack>
-      <Modal open={openOrderModal} onClose={() => setOpenOrderModal(false)}>
-        <>
-          <OrderModal purchaseData={orderSelected} open={setOpenOrderModal} />
-        </>
-      </Modal>
 
       <Modal open={openQuoteModal} onClose={() => setOpenQuoteModal(false)}>
         <>
@@ -627,41 +708,24 @@ export const PurchaseOrder = () => {
         </>
       </Modal>
 
+      {pdfIsLoading ? (
+        <Modal open={true}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh',
+            }}
+          >
+            <CircularProgress />
+          </div>
+        </Modal>
+      ) : (
         <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
-        <Stack
-          sx={{
-            display: 'flex',
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <IconButton onClick={() => setViewPdf(false)}>
-              <Close />
-            </IconButton>
-          </Box>
-          <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={() => setViewPdf(false)}>
-            <Box
-              sx={{
-                display: 'flex',
-                flex: 10,
-                mx: 7,
-                mb: 3,
-              }}
-            >
-              <embed
-                src={pdfOpen}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                }}
-              />
-            </Box>
-          </ClickAwayListener>
-        </Stack>
-      </Modal>
+          <ViewPdf pdf={pdfOpen} setViewPdf={setViewPdf} />
+        </Modal>
+      )}
     </>
   );
 };

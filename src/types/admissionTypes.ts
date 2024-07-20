@@ -1,3 +1,5 @@
+import { IRecoveryRoomOperatingRoom } from './operatingRoomTypes';
+
 export interface IEventDetails {
   id: string;
   horaInicio: string;
@@ -30,12 +32,11 @@ export interface Procedimiento {
 export interface HistorialClinico {
   id: string;
   id_Paciente: string;
-  medicoTratante: string;
-  especialidad: string;
   motivoIngreso: string;
   diagnosticoIngreso: string;
-  procedimiento: string;
   comentarios: string;
+  tipoSangre: string;
+  alergias: string;
 }
 
 export interface Paciente {
@@ -68,4 +69,33 @@ export interface IPatientRegisterPagination {
   id_Paciente: string;
   id_HistorialClinico: string;
   faltanDatos?: boolean;
+  admitido?: boolean;
+}
+
+export interface IPatientAccount {
+  id_Paciente: string;
+  nombreCompleto: string;
+  id_Cuenta: string;
+  id_ArticuloCuenta: string | null;
+}
+export interface IProgrammingRequestPagination {
+  id: string;
+  id_Paciente: string;
+  id_Medico: string;
+  nombrePaciente: string;
+  nombreMedico: string;
+  fechaSugerida: Date;
+  recomendacionMedica: boolean;
+  notas?: string;
+  procedimientos: { id: string; nombre: string }[];
+}
+
+export interface ITypeRoom {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  configuracionLimpieza?: string;
+  configuracionPrecioHora?: IRecoveryRoomOperatingRoom[];
+  tipo: number;
+  precio?: number;
 }

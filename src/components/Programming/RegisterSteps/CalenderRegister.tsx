@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { CalendarComponent } from './Calendar/CalendarComponent';
@@ -11,23 +11,38 @@ import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 import { useGetDate } from '../../../hooks/programming/useGetDate';
 dayjs.locale('es');
-interface CalenderRegisterProps {
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: 380, sm: 550, md: 900 },
+  borderRadius: 2,
+  boxShadow: 24,
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: { xs: 900 },
+};
+
+interface CalendarRegisterProps {
   setOpen: Function;
 }
 
-export const CalenderRegister = (props: CalenderRegisterProps) => {
+export const CalendarRegister = (props: CalendarRegisterProps) => {
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
   const currentDate: any = dayjs(new Date());
-  const { isLoading } = useGetDate(date);
+  useGetDate(date);
   const events = useProgrammingRegisterStore((state) => state.events);
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
+  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
 
   const sameDate = useMemo(() => {
     if (!date) return true;
-    const formattedCurrentDate = currentDate['$M'] + currentDate['$y'];
-    const formattedSelectedDate = date['$M'] + date['$y'];
+    const formattedCurrentDate = currentDate['$M'] + currentDate['$y'] + currentDate['$D'];
+    const formattedSelectedDate = date['$M'] + date['$y'] + date['$D'];
     return formattedCurrentDate === formattedSelectedDate;
   }, [date]);
 
@@ -36,18 +51,11 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
     setStep(step + 1);
   };
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
   return (
-    <>
+    <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />
       <Box
         sx={{
-          display: 'flex',
           flex: 1,
           flexDirection: 'column',
           p: 2,
@@ -57,7 +65,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
         }}
       >
         <Stack>
-          <Box sx={{ display: 'flex' }}>
+          <Box>
             <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10 }}>
               <Box sx={{ display: 'flex', flex: 1 }}>
                 {!sameDate && (
@@ -66,7 +74,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
                   </Button>
                 )}
               </Box>
-              <Box sx={{ display: 'flex', flex: 2 }}>
+              <Box sx={{ flex: 2 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     views={['year', 'month']}
@@ -80,9 +88,7 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
               </Box>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-            <CalendarComponent date={date} events={events} setDate={setDate} />
-          </Box>
+          <CalendarComponent date={date} events={events} setDate={setDate} setEvents={setEvents} />
         </Stack>
       </Box>
       <Box
@@ -102,6 +108,6 @@ export const CalenderRegister = (props: CalenderRegisterProps) => {
           Siguiente
         </Button>
       </Box>
-    </>
+    </Box>
   );
 };

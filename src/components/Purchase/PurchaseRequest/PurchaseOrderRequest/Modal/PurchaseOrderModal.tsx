@@ -51,7 +51,7 @@ export const PurchaseOrderModal = (props: PurchaseOrderModaProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal title={'Enviar orden de compra - Solicitud No. ' + purchaseData.folio} setOpen={open} />
+        <HeaderModal title={'Enviar Solicitud de Compra - Solicitud No. ' + purchaseData.folio} setOpen={open} />
         <Stack
           sx={{
             bgcolor: 'white',

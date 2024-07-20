@@ -13,7 +13,7 @@ export const useGetAllSurgeryProcedures = () => {
 
   return {
     isLoadingProcedures: isLoading,
-    data: data as { id: string; nombre: string }[],
+    data: data as { id: string; nombre: string; precio: number; }[],
     isError,
   };
 };
