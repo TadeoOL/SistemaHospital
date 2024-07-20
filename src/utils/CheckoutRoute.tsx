@@ -33,9 +33,10 @@ const useJoinRoom = (
           .configureLogging(LogLevel.Information)
           .withAutomaticReconnect([0, 2000, 10000, 15000,20000, 30000, 60000, 120000, 150000])
           .build();
-
-        conn.on('JoinSpecificChatRoom', () => {
-        });
+          
+          await conn.start().catch(err=>console.log({err}));
+          conn.on('JoinSpecificChatRoom', () => {
+          });
 
         conn.on('ReceiveSpecificSell', (sell: ICheckoutSell) => {
           const sellObject = {
@@ -74,7 +75,6 @@ const useJoinRoom = (
           setConn(conn);//cambio de reconexion
         await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         });
-        await conn.start();
         await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         setConn(conn);
       } catch (error) {

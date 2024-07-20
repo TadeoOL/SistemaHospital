@@ -36,6 +36,7 @@ export interface IXRayRequest {
   precio: number;
   fechaSolicitud: string;
   estatus: number;
+  tipo:number
 }
 
 export interface IMedic {

@@ -350,7 +350,7 @@ export const ModuleList: IModuleItemsList[] = [
         ],
       },
       {
-        title: 'Solicitar Radiografía',
+        title: 'Solicitar Electrocardiograma',
         path: '/hospitalizacion/radiografias-solicitud',
         icon: <LiaXRaySolid />,
         protectedRoles: hospitalizationANDnurse,

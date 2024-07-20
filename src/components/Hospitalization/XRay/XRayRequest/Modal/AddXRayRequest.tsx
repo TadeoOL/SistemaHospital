@@ -66,6 +66,8 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [requestError, setRequestError] = useState(false);
   const [xrayError, setXRayError] = useState(false);
   const { data, isLoading, setSearchXray } = useGetXRayData();
+  const setType = useXRayPaginationStore(state=>state.setType)
+  const refetch = useXRayPaginationStore(state=>state.fetchData)
 
   useEffect(() => {
     patientsCall();
@@ -180,7 +182,12 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 value={requestSelected}
                 error={requestError}
                 helperText={requestError && 'Selecciona un tipo de electrocardiograma'}
-                onChange={(e) => setRequestSelected(parseInt(e.target.value))}
+                onChange={(e) => {
+                  setRequestSelected(parseInt(e.target.value))
+                  setType(parseInt(e.target.value))
+                  setXRaySelected(null)
+                  refetch()
+                }}
               >
                 <MenuItem key={0} value={0} disabled>
                   Seleccionar
@@ -212,12 +219,12 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 getOptionLabel={(option) => option.nombre}
                 options={data}
                 value={xraySelected}
-                noOptionsText="No se encontraron radiografías"
+                noOptionsText="No se encontraron electrocardiogramas"
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     error={xrayError}
-                    helperText={xrayError && 'Selecciona un tipo de radiografía'}
+                    helperText={xrayError && 'Selecciona un tipo de electrocardiograma'}
                     placeholder={REQUEST_TYPES[requestSelected]}
                     sx={{ width: '100%' }}
                     onChange={(e) => {
