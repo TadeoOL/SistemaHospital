@@ -70,9 +70,9 @@ export const surgeryProcedureSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
   surgeryDuration: z
     .string()
-    .min(1, 'La duración de la crujía es requerida')
+    .min(1, 'La duración de la cirugía es requerida')
     .refine((val) => val !== '00:00:00', {
-      message: 'La duración de la crujía es requerida',
+      message: 'La duración de la cirugía es requerida',
     }),
   hospitalizationDuration: z
     .string()
