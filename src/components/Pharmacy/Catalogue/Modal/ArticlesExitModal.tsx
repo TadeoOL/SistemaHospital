@@ -408,7 +408,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Salida paquete de artículos cambial" />
+      <HeaderModal setOpen={props.setOpen} title="Salida de artículos" />
       <Box sx={style2}>
         {isLoadingWarehouse ? (
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>

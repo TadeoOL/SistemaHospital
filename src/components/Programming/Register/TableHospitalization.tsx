@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { IPatientRegisterPagination } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
-import { Check, Close, Edit, Info } from '@mui/icons-material';
+import { Close, Edit, Info } from '@mui/icons-material';
 import { PatientInfoModal } from './Modal/PatientInfoModal';
 import { SelectEditOptionModal } from './Modal/SelectEditOptionModal';
 import Swal from 'sweetalert2';
@@ -192,11 +192,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
                 <Info color="warning" />
               </Tooltip>
             ) : (
-              <Tooltip title="Aceptar">
-                <IconButton>
-                  <Check color="success" />
-                </IconButton>
-              </Tooltip>
+              <></>
             )}
             <Tooltip title="Editar">
               <IconButton onClick={() => setOpenEdit(true)}>

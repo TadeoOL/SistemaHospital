@@ -210,7 +210,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                 ]}
               />
               <DataTable
-                title="Radiografías"
+                title="Estudios de Gabinete"
                 data={accountInfo.registrosRadiografias}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },

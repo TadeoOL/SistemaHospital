@@ -75,37 +75,6 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   const [amountText, setAmountText] = useState('');
   const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
   const [warehouseError, setWarehouseError] = useState(false);
-  const [roomSelected, setRoomSelected] = useState<string | null>();
-  const [roomError, setRoomError] = useState(false);
-  const [floorSelected, setFloorSelected] = useState<string | null>();
-  const [floorError, setFloorError] = useState(false);
-  //const defaultRoomsQuirofano = [];
-  //const defaultRoomsHospitalizacion = [
-  const defaultRooms = [
-    'C-1',
-    'C-2',
-    'C-3',
-    'C-4',
-    'EndoPro',
-    'LPR', //Quirofano
-    'C-104', //Hosp
-    'C-105',
-    'C-201',
-    'C-202',
-    'C-203',
-    'C-204',
-    'C-205',
-    'C-206',
-    'C-207',
-    'C-208',
-    'C-209',
-    'C-210',
-    'C-211',
-    'c-212',
-    'C-213',
-    'C-214',
-  ];
-  const defaultFloors = ['Piso 1', 'Piso 2', 'Piso 3'];
 
   const { setArticles, articles, setWarehouseSelected, warehouseSelected } = useRequestOrderStore(
     (state) => ({
@@ -225,10 +194,10 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
         return toast.warning('Añade un articulo!');
       }
       const object = {
-        Cuarto: roomSelected,
+        Cuarto: '',
         Id_Paciente: userSelected.id_Paciente,
         Id_CuentaPaciente: userSelected.id_Cuenta,
-        SolicitadoEn: floorSelected,
+        SolicitadoEn: '',
         Id_AlmacenSolicitado: warehouseSelected,
         ListaSolicitud: data,
       };
@@ -289,53 +258,6 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
                     ))}
                 </TextField>
               )}
-            </Stack>
-
-            <Stack sx={{ display: 'flex', flex: 1, pl: 3 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccion de cuarto</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setRoomSelected(val as string);
-                  setRoomError(false);
-                }}
-                options={defaultRooms}
-                value={roomSelected}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={roomError}
-                    helperText={roomError && 'Selecciona un cuarto'}
-                    placeholder="Cuartos"
-                    sx={{ width: '50%' }}
-                  />
-                )}
-              />
-            </Stack>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccion de cuarto</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setFloorSelected(val as string);
-                  setFloorError(false);
-                }}
-                options={defaultFloors}
-                value={floorSelected}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={floorError}
-                    helperText={floorError && 'Selecciona un Piso'}
-                    placeholder="Pisos"
-                    sx={{ width: '50%' }}
-                  />
-                )}
-              />
             </Stack>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>

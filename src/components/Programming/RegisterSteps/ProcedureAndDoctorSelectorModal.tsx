@@ -204,7 +204,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
               </TextField>
             </Box>
             <Box sx={{ flex: 1 }}>
-              <Typography>Seleccione las radiografías:</Typography>
+              <Typography>Seleccione los estudios de gabinete:</Typography>
               <Autocomplete
                 disablePortal
                 fullWidth
@@ -212,7 +212,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
                 getOptionLabel={(option) => option.nombre}
                 options={xrayData}
                 multiple
-                noOptionsText="No se encontraron radiografías"
+                noOptionsText="No se encontraron estudios de gabinete"
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 onChange={(_, val) => {
                   setValue('xrayIds', val.flatMap((x) => x.id) ?? '');
