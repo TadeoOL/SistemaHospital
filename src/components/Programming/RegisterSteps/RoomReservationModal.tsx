@@ -131,7 +131,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       .filter((room) => !events.some((event) => event.id === room.id));
     setEvents([...events, ...roomObj]);
     toast.success('Datos registrados correctamente!');
-    console.log({ roomObj });
     setStep(step + 1);
   };
 
@@ -209,16 +208,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       </Backdrop>
     );
   return (
-    <Box sx={{}}>
+    <>
       <HeaderModal setOpen={props.setOpen} title="Seleccione un horario" />
       <Box
         sx={{
-          display: 'flex',
-          flex: 1,
-          flexDirection: 'column',
           bgcolor: 'background.paper',
           p: 3,
-          rowGap: 4,
+          overflowY: 'auto',
+          maxHeight: { xs: 500, md: 600 },
         }}
       >
         <Box sx={{ display: 'flex', flex: 1 }}>
@@ -258,6 +255,9 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                     <DateTimePicker
                       label="Hora admisión"
                       ampm={false}
+                      sx={{
+                        width: '100%',
+                      }}
                       value={value}
                       onMonthChange={(e) => {
                         const date = e.toDate();
@@ -347,10 +347,8 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
             </Grid>
           </Grid>
         </form>
-
         <RoomReservationTable />
       </Box>
-
       <Box
         sx={{
           display: 'flex',
@@ -367,6 +365,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
           Siguiente
         </Button>
       </Box>
-    </Box>
+    </>
   );
 };

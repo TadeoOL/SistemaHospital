@@ -193,7 +193,15 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   return (
     <>
       <HeaderModal setOpen={props.setOpen} title="Resumen del registro" />
-      <Box sx={{ bgcolor: 'background.paper', p: 2, overflowY: 'auto', height: 600, ...styleBar }}>
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          p: 2,
+          overflowY: 'auto',
+          maxHeight: { xs: 500, sm: 600, lg: 700, xl: 800 },
+          ...styleBar,
+        }}
+      >
         <CustomDivider />
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <TitleTypography>Datos del paciente</TitleTypography>

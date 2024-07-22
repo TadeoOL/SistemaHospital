@@ -31,6 +31,23 @@ interface MedicinePackageSelectorProps {
   setOpen: Function;
 }
 
+const styleBar = {
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+    zIndex: 1,
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    zIndex: 1,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+    zIndex: 1,
+  },
+};
+
 const useGetPrincipalWarehouseId = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [principalWarehouseId, setPrincipalWarehouseId] = useState('');
@@ -276,7 +293,11 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
           </Box>
         </Box>
         <Divider sx={{ my: 1 }} />
-        <MedicineSelectedTable data={articlesSelected} articlesRes={articlesRes} />
+        <Box sx={{ overflowY: 'auto', ...styleBar }}>
+          <Box sx={{ maxHeight: { xs: 300, md: 400, xl: 700 } }}>
+            <MedicineSelectedTable data={articlesSelected} articlesRes={articlesRes} />
+          </Box>
+        </Box>
       </Box>
       <Box
         sx={{

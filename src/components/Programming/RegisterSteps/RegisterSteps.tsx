@@ -19,7 +19,6 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 500 },
 };
 
 interface RegisterStepsProps {
