@@ -320,8 +320,8 @@ const MedicSelectComponent = <T extends Inputs>({
         <FormControl>
           <FormLabel>Tipo de Ingreso</FormLabel>
           <RadioGroup value={valueRadioButton} onChange={handleChange} row>
-            <FormControlLabel value="si" control={<Radio />} label="Ingreso mediante el Hospital" />
-            <FormControlLabel value="no" control={<Radio />} label="Ingreso por Médico Asociado" />
+            <FormControlLabel value="si" control={<Radio />} label="Ingreso por SAMI" />
+            <FormControlLabel value="no" control={<Radio />} label="Ingreso por Médico" />
           </RadioGroup>
         </FormControl>
         <Box>
