@@ -130,6 +130,8 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Si, cambiar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
       }).then(async (res) => {
         if (res.isConfirmed) {
           try {
