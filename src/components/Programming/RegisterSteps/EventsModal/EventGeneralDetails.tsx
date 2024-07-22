@@ -79,7 +79,7 @@ const ProcedureDetails = (props: ProcedureDetailsProps) => {
         <Typography sx={bodyStyle}>{procedureDetails.duracionHospitalizacion}</Typography>
       </Grid>
       <Grid item xs={12} sx={gridStyle}>
-        <Typography sx={titleStyle}>Duración Crujía: </Typography>
+        <Typography sx={titleStyle}>Duración Cirugía: </Typography>
         <Typography sx={bodyStyle}>{procedureDetails.duracionCirujia}</Typography>
       </Grid>
     </Grid>

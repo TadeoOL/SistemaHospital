@@ -16,6 +16,7 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { modifyEventRoom } from '../../../../services/programming/admissionRegisterService';
 dayjs.locale('es-mx');
+import Swal from 'sweetalert2';
 
 interface CalendarComponentProps {
   date: Date;
@@ -121,36 +122,64 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         horaInicio: drop.start as Date,
         horaFin: drop.end as Date,
       };
-      try {
-        await modifyEventRoom(eventObj);
-        const existing = myEvents.find((ev) => ev.id === event.id);
-        const cleanRoom = myEvents.find((ev) => ev.roomId === event.id);
-        const filtered = myEvents.filter((ev) => ev.id !== event.id).filter((ev) => ev.roomId !== event.id);
-        if (!cleanRoom && Object.keys(hashCleanRoomEvents).length > 0) {
-          const cleanRoomInHashMap = hashCleanRoomEvents[existing?.id as string];
-          const cleanRoomDuration = cleanRoomInHashMap.end.getTime() - cleanRoomInHashMap.start.getTime();
-          const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
-          props.setEvents([
-            ...filtered,
-            { ...existing, start: drop.start as Date, end: drop.end as Date },
-            { ...cleanRoomInHashMap, start: drop.end as Date, end: newEndCleanRoom },
-          ]);
-        } else if (cleanRoom) {
-          const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
-          const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
-          props.setEvents([
-            ...filtered,
-            { ...existing, start: drop.start as Date, end: drop.end as Date },
-            { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
-          ]);
-        } else {
-          props.setEvents([...filtered, { ...existing, start: drop.start as Date, end: drop.end as Date }]);
+      Swal.fire({
+        title: '¿Estás seguro de cambiar la fecha?',
+        text: `El cambio del evento "${event.title}" se asignara del día ${dayjs(drop.start).format('DD/MM/YYYY HH:mm:ss')} hasta ${dayjs(drop.end).format('DD/MM/YYYY HH:mm:ss')}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, cambiar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+      }).then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await modifyEventRoom(eventObj);
+            const existing = myEvents.find((ev) => ev.id === event.id);
+            const cleanRoom = myEvents.find((ev) => ev.roomId === event.id);
+            const filtered = myEvents.filter((ev) => ev.id !== event.id).filter((ev) => ev.roomId !== event.id);
+            if (!cleanRoom && Object.keys(hashCleanRoomEvents).length > 0) {
+              const cleanRoomInHashMap = hashCleanRoomEvents[existing?.id as string];
+              const cleanRoomDuration = cleanRoomInHashMap.end.getTime() - cleanRoomInHashMap.start.getTime();
+              const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
+              props.setEvents([
+                ...filtered,
+                { ...existing, start: drop.start as Date, end: drop.end as Date },
+                { ...cleanRoomInHashMap, start: drop.end as Date, end: newEndCleanRoom },
+              ]);
+            } else if (cleanRoom) {
+              const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
+              const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
+              props.setEvents([
+                ...filtered,
+                { ...existing, start: drop.start as Date, end: drop.end as Date },
+                { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
+              ]);
+            } else {
+              props.setEvents([...filtered, { ...existing, start: drop.start as Date, end: drop.end as Date }]);
+            }
+            Swal.fire({
+              title: 'Cita modificada',
+              text: 'La fecha del evento ha sido cambiada exitosamente.',
+              icon: 'success',
+              timer: 1000,
+              showConfirmButton: false,
+            });
+          } catch (error) {
+            console.log({ error });
+            Swal.fire({
+              title: 'Error al modificar la cita',
+              text: 'Hubo un error al intentar cambiar la fecha del evento.',
+              icon: 'error',
+              timer: 1000,
+              showConfirmButton: false,
+            });
+            // const errorMsg = error as any;
+            // toast.error(errorMsg.response.data as string);
+          }
         }
-      } catch (error) {
-        console.log({ error });
-        // const errorMsg = error as any;
-        // toast.error(errorMsg.response.data as string);
-      }
+      });
     },
     [myEvents, hashCleanRoomEvents]
   );

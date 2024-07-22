@@ -135,7 +135,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography>Duración de crujía</Typography>
+              <Typography>Duración de Cirugía</Typography>
               <Controller
                 control={control}
                 name="surgeryDuration"
@@ -159,14 +159,14 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
               />
             </Grid>
             <Grid item xs={6}>
-              <Typography>Precio de la crujía</Typography>
+              <Typography>Precio de la Cirugía</Typography>
               <Controller
                 control={control}
                 name="price"
                 defaultValue={editData ? editData.precioCirujia.toString() : ''}
                 render={({ field: { onChange, value } }) => (
                   <TextField
-                    placeholder="Precio crujía"
+                    placeholder="Precio Cirugía"
                     value={value}
                     type={'number'}
                     onChange={onChange}

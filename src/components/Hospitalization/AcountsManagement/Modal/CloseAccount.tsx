@@ -225,7 +225,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.procedimientos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'duracionCirujia', header: 'Duración de Crujía' },
+                  { key: 'duracionCirujia', header: 'Duración de Cirugía' },
                   { key: 'duracionHospitalizacion', header: 'Duración de la Hospitalización' },
                   { key: 'precio', header: 'Precio Total' },
                 ]}

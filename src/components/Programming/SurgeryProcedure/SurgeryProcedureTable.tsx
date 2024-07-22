@@ -25,8 +25,8 @@ import { AddSurgeryProcedureModal } from './Modal/AddSurgeryProcedureModal';
 const HEADERS = [
   'Nombre',
   'Duración de Hospitalización',
-  'Duración de Crujía',
-  'Precio Crujía',
+  'Duración de Cirugía',
+  'Precio Cirugía',
   'Descripción',
   'Acciones',
 ];

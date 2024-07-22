@@ -17,12 +17,12 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 900 },
+  width: { xs: 380, sm: 550, md: 900, lg: 1100 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 650, sm: 700, xl: 900 },
 };
 
 interface CalendarRegisterProps {
@@ -56,11 +56,9 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />
       <Box
         sx={{
-          flex: 1,
           flexDirection: 'column',
           p: 2,
           bgcolor: 'background.paper',
-          maxHeight: 750,
           overflowY: 'auto',
         }}
       >

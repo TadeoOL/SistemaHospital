@@ -66,11 +66,14 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [requestError, setRequestError] = useState(false);
   const [xrayError, setXRayError] = useState(false);
   const { data, isLoading, setSearchXray } = useGetXRayData();
-  const setType = useXRayPaginationStore(state=>state.setType)
-  const refetch = useXRayPaginationStore(state=>state.fetchData)
+  const setType = useXRayPaginationStore((state) => state.setType);
+  const refetch = useXRayPaginationStore((state) => state.fetchData);
 
   useEffect(() => {
     patientsCall();
+    return () => {
+      setType(0);
+    };
   }, [patientSearch]);
 
   useEffect(() => {
@@ -183,10 +186,10 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 error={requestError}
                 helperText={requestError && 'Selecciona un tipo de electrocardiograma'}
                 onChange={(e) => {
-                  setRequestSelected(parseInt(e.target.value))
-                  setType(parseInt(e.target.value))
-                  setXRaySelected(null)
-                  refetch()
+                  setRequestSelected(parseInt(e.target.value));
+                  setType(parseInt(e.target.value));
+                  setXRaySelected(null);
+                  refetch();
                 }}
               >
                 <MenuItem key={0} value={0} disabled>
