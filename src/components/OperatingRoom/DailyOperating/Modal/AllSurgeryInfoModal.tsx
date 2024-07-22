@@ -99,9 +99,11 @@ export const AllSurgeryInfoModal = (props: { setOpen: Function; roomId: string; 
           ...styleBar,
         }}
       >
-        {COLLAPSE_BODIES.map((d, i) => (
-          <CollapseInfo key={i} title={d.title} body={d.body} />
-        ))}
+        <Box sx={{ maxHeight: { xs: 500 } }}>
+          {COLLAPSE_BODIES.map((d, i) => (
+            <CollapseInfo key={i} title={d.title} body={d.body} />
+          ))}
+        </Box>
       </Box>
       <Box sx={{ bgcolor: 'background.paper', p: 1, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
         <Button onClick={() => props.setOpen(false)} variant="outlined">

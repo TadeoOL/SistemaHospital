@@ -14,12 +14,12 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { md: 450 },
+  width: { xs: 380, sm: 600, md: 700 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 800, sm: 900 },
 };
 
 type Inputs = {

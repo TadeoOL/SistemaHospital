@@ -120,7 +120,7 @@ export const EventDetailsModal = (props: EventDetailsModalProps) => {
         </Tabs>
       </Box>
       <Box sx={{ bgcolor: 'background.paper', p: 4, overflowY: 'auto', ...scrollBarStyle }}>
-        {renderViewByTabValue(tabValue, eventDetails)}
+        <Box sx={{ maxHeight: { xs: 450 } }}>{renderViewByTabValue(tabValue, eventDetails)}</Box>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1, bgcolor: 'background.paper' }}>
         <Button variant="contained" onClick={() => props.setOpen(false)}>
