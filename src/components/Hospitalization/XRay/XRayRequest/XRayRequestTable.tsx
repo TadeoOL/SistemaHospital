@@ -123,6 +123,8 @@ export const XRayRequestTable = () => {
   } = useGetNursesRequest();
   const [openModal, setOpenModal] = useState(false);
 
+  console.log({ data });
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -169,7 +171,7 @@ export const XRayRequestTable = () => {
             </Box>
           </Box>
           <Card>
-            {isLoading && data.length === 0 ? (
+            {isLoading ? (
               <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
                 <CircularProgress size={30} />
               </Box>
@@ -232,24 +234,25 @@ export const XRayRequestTable = () => {
                       ))}
                   </TableBody>
                 </Table>
-                {!data ||
-                  (data.length === 0 && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        p: 5,
-                        columnGap: 1,
-                      }}
-                    >
-                      <Info sx={{ width: 40, height: 40, color: 'gray' }} />
-                      <Typography variant="h2" color="gray">
-                        No hay solicitudes
-                      </Typography>
-                    </Box>
-                  ))}
+                {!data || data.length === 0 ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      p: 5,
+                      columnGap: 1,
+                    }}
+                  >
+                    <Info sx={{ width: 40, height: 40, color: 'gray' }} />
+                    <Typography variant="h2" color="gray">
+                      No hay solicitudes
+                    </Typography>
+                  </Box>
+                ) : (
+                  <></>
+                )}
                 <TablePagination
                   component="div"
                   count={count}

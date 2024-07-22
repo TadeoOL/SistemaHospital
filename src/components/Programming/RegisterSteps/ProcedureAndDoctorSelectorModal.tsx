@@ -256,10 +256,10 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
               loading={isLoadingAnesthesiologistShifts}
               getOptionLabel={(option) => option.nombre}
               options={anesthesiologistShiftsData}
-              value={anesthesiologistShiftsData.find((a) => a.id === watchAnesthesiologistId) ?? null}
+              value={anesthesiologistShiftsData.find((a) => a.id_Anestesiologo === watchAnesthesiologistId) ?? null}
               noOptionsText="No se encontraron anestesiólogos en guardia"
               onChange={(_, val) => {
-                setValue('anesthesiologistId', val?.id ?? '');
+                setValue('anesthesiologistId', val?.id_Anestesiologo ?? '');
               }}
               renderInput={(params) => (
                 <TextField
