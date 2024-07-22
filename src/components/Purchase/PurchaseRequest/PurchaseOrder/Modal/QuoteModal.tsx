@@ -14,13 +14,11 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { addBillQuote, changeOrderStatus, deleteBillQuote, getBillPdf } from '../../../../../api/api.routes';
-import { KeyboardArrowUp, CloudUpload, KeyboardArrowDown, Close, Delete } from '@mui/icons-material';
+import { CloudUpload, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { convertBase64 } from '../../../../../utils/functions/dataUtils';
-import { usePurchaseOrderRequestModals } from '../../../../../store/purchaseStore/purchaseOrderRequestModals';
 import { Provider } from '../../../../../types/types';
 import { useDropzone } from 'react-dropzone';
-import { useShallow } from 'zustand/react/shallow';
 import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
 import { ViewPdf } from '../../../../Inputs/ViewPdf';
 
@@ -131,10 +129,10 @@ export const QuotePdf = (props: { providers: string; purchaseRequestId: string; 
   // const setProviderSelected = usePurchaseOrderRequestModals(useShallow((state) => state.setProviderSelected));
   const [viewPdf, setViewPdf] = useState(false);
   const [pdfOpen, setPdfOpen] = useState('');
-  const [providerQuoteRequest, setProviderQuoteRequest] = useState('');
+  const providerQuoteRequest = '';
   // const [openCollapse, setOpenCollapse] = useState<{ [key: string]: boolean }>({});
   const [providersClone, setProvidersClone] = useState<typeof providersData>(structuredClone(providersData));
-  const [inputKey, setInputKey] = useState(0);
+  const inputKey = 0;
 
   useEffect(() => {
     if (!providersData) return;

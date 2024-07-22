@@ -330,12 +330,12 @@ export interface OrdenCompraArticulo {
   nombre?: string;
 }
 
-enum ConceptPayment {
-  'Contado' = 0,
-  'Credito' = 1,
-}
+// enum ConceptPayment {
+//   'Contado' = 0,
+//   'Credito' = 1,
+// }
 
-export interface IPurchaseOrder {
+export interface IPurchaseOrderPagination {
   id_OrdenCompra: string;
   folio_Extension: string;
   usuarioSolicitado: string;
@@ -347,6 +347,52 @@ export interface IPurchaseOrder {
   fueAutorizada: boolean | null;
   cotizacion: boolean;
   articulos: IPurchaseOrderArticle[] | null;
+}
+
+export interface IPurchaseOrder {
+  id_OrdenCompra: string;
+  id_Proveedor: any;
+  folio_Extension: string;
+  usuarioSolicitado: string;
+  estatus: number;
+  precioTotalOrden: number;
+  conceptoPago: number;
+  instruccionEntrega: any;
+  notas: string;
+  pdfCadena: string;
+  id_Almacen: string;
+  almacen: Almacen2;
+  proveedor: Proveedor2;
+  ordenCompraArticulo: OrdenCompraArticulo2[];
+  fechaSolicitud: string;
+  fueAutorizada: boolean;
+  cotizacion: any;
+}
+
+export interface Almacen2 {
+  id: string;
+  nombre: string;
+  descripcion: any;
+  usuarioEncargado: any;
+}
+
+export interface Proveedor2 {
+  id_Proveedor: string;
+  nombre: string;
+}
+
+export interface OrdenCompraArticulo2 {
+  id_OrdenCompraArticulo: string;
+  id_Articulo: string;
+  cantidad: number;
+  nombre: string;
+  precioProveedor: number;
+  precioVenta: number;
+  factorAplicado: number;
+  unidadesPorCaja: number;
+  codigoBarras: any;
+  unidadesTotal: number;
+  fechaCaducidad?: string;
 }
 
 export interface IPurchaseOrderArticle {

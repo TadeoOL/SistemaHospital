@@ -105,7 +105,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
     []
   );
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [search, setSearch] = useState('');
+  // const [search, setSearch] = useState('');
   const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const [patientSearch, setPatientSearch] = useState('');
   const [nurseSearch, setNurseSearch] = useState('');
@@ -385,9 +385,9 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
                         {...params}
                         error={articleError}
                         helperText={articleError && 'Selecciona un articulo'}
-                        onChange={(e) => {
-                          setSearch(e.target.value);
-                        }}
+                        // onChange={(e) => {
+                        //   setSearch(e.target.value);
+                        // }}
                         placeholder="Artículos"
                         sx={{ width: '100%' }}
                       />

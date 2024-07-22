@@ -118,14 +118,12 @@ export const PurchaseOrder = () => {
   const [purchaseWarehouseId, setPurchaseWarehouseId] = useState('');
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
   const [reportData, setReportData] = useState<any>();
-  const { openPurchaseRequestOrder, setPaymentMethod, setNote, clearAllStates } = useDirectlyPurchaseRequestOrderStore(
-    (state) => ({
-      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
-      setPaymentMethod: state.setPaymentMethod,
-      setNote: state.setNote,
-      clearAllStates: state.clearAllStates,
-    })
-  );
+  const { openPurchaseRequestOrder, clearAllStates } = useDirectlyPurchaseRequestOrderStore((state) => ({
+    openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+    setPaymentMethod: state.setPaymentMethod,
+    setNote: state.setNote,
+    clearAllStates: state.clearAllStates,
+  }));
 
   const {
     isLoading,
