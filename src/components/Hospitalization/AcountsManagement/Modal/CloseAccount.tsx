@@ -14,7 +14,11 @@ import {
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { IAcountAllInformation, IPatientInAccount } from '../../../../types/hospitalizationTypes';
+import {
+  IAcountAllInformation,
+  IPatientInAccount,
+  IOperatingRoomsAccount,
+} from '../../../../types/hospitalizationTypes';
 import { toast } from 'react-toastify';
 import { useEffect, useRef, useState } from 'react';
 import { useBiomedicalEquipmentPaginationStore } from '../../../../store/hospitalization/biomedicalEquipmentPagination';
@@ -37,7 +41,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 530 },
+  maxHeight: { xs: 650 },
 };
 const style2 = {
   bgcolor: 'background.paper',
@@ -65,9 +69,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
   const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRefDiscount = useRef<HTMLInputElement>(null);
+  const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
+
   const [discountflag, setDiscountflag] = useState(false);
   const [discount, setDiscount] = useState('');
+  const [discountSurgeryRoomFlag, setDiscountSurgeryRoomFlag] = useState(false);
+  const [surgeryPrice, setSurgeryPrice] = useState('');
+  const [initialSurgeryPrice, setInitialSurgeryPrice] = useState(0);
 
   useEffect(() => {
     const fetchAccountInfo = async () => {
@@ -76,6 +85,11 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         const paramURL = `Id_Paciente=${props.id_Paciente}&Id_CuentaPaciente=${props.id_Cuenta}`;
         const accountRes = await getAccountFullInformation(paramURL);
         setAccountInfo(accountRes);
+        let totalQuirofanos = 0;
+        accountRes.quirofanos.forEach((quirofano: IOperatingRoomsAccount) => {
+          totalQuirofanos += quirofano.precioTotal;
+        });
+        setInitialSurgeryPrice(totalQuirofanos);
       } catch (error) {
         console.log(error);
         console.log('La cuenta aun no se puede cerrar');
@@ -87,17 +101,17 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     fetchAccountInfo();
   }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (totalVentaV: number) => {
     if (!accountInfo) {
       toast.error('No se encontro la cuenta');
       return;
     }
     if (
       discountflag &&
-      (inputRef.current === null ||
-        inputRef.current.value === undefined ||
-        isNaN(Number(inputRef.current.value)) ||
-        inputRef.current.value === '')
+      (inputRefDiscount.current === null ||
+        inputRefDiscount.current.value === undefined ||
+        isNaN(Number(inputRefDiscount.current.value)) ||
+        inputRefDiscount.current.value === '')
     ) {
       toast.error('Ingresa un monto valido parar el descuento');
       return;
@@ -112,11 +126,11 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         Id_Paciente: props.id_Paciente,
         Id_CuentaPaciente: props.id_Cuenta,
         TotalCuenta: accountInfo.totalPagoCuenta,
-        Descuento: discountflag && inputRef.current ? Number(inputRef.current.value) : undefined,
+        Descuento: discountflag && inputRefDiscount.current ? Number(inputRefDiscount.current.value) : undefined,
       });
       const object = {
         paciente: `${accountInfo.paciente.nombre || ''} ${accountInfo.paciente.apellidoPaterno || ''} ${accountInfo.paciente.apellidoPaterno || ''}`,
-        totalVenta: parseFloat(discountflag ? discount : accountInfo.totalPagoCuentaRestante.toString()),
+        totalVenta: totalVentaV,
         moduloProveniente: 'Cierre de cuenta',
         id_CuentaPaciente: props.id_Cuenta,
       };
@@ -144,9 +158,22 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   };
 
   const acceptRequest = () => {
+    let totalVentaV = 0;
+    if (discountflag) {
+      totalVentaV = parseFloat(discount);
+    } else if (discountSurgeryRoomFlag) {
+      totalVentaV = parseFloat(
+        (
+          (accountInfo ? accountInfo.totalPagoCuentaRestante : 0) -
+          (initialSurgeryPrice - Number(surgeryPrice))
+        ).toFixed(2)
+      );
+    } else {
+      totalVentaV = accountInfo ? accountInfo.totalPagoCuentaRestante : 0;
+    }
     withReactContent(Swal).fire({
       title: 'Confirmación',
-      text: `¿Estás seguro de cerrar la cuenta?`,
+      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de ${totalVentaV}?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
@@ -155,31 +182,56 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       reverseButtons: true,
       showLoaderOnConfirm: true,
       preConfirm: () => {
-        handleSubmit();
+        handleSubmit(totalVentaV);
       },
       allowOutsideClick: () => !Swal.isLoading(),
     });
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDownDiscount = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const { key } = event;
     const regex = /^[0-9.]$/;
     if (
       (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
-      (event.key === '.' && inputRef.current && inputRef.current.value.includes('.')) || //punto y ya incluye punto
-      (inputRef.current && Number(inputRef.current.value + event.key) > 100)
+      (event.key === '.' && inputRefDiscount.current && inputRefDiscount.current.value.includes('.')) || //punto y ya incluye punto
+      (inputRefDiscount.current && Number(inputRefDiscount.current.value + event.key) > 100)
     ) {
       event.preventDefault(); // Evitar la entrada si no es válida
     } else if (
-      inputRef.current &&
-      !isNaN(Number(inputRef.current.value + event.key)) /* && (inputRef.current.value ! || event.key)*/
+      inputRefDiscount.current &&
+      !isNaN(Number(inputRefDiscount.current.value + event.key)) /* && (inputRefDiscount.current.value ! || event.key)*/
     ) {
       setDiscount(
-        (
-          (accountInfo?.totalPagoCuentaRestante || 0) -
-          (accountInfo?.totalPagoCuentaRestante || 0) * (Number(inputRef.current.value + event.key) / 100)
-        ).toFixed(2)
+        discountSurgeryRoomFlag
+          ? (
+              (accountInfo?.totalPagoCuentaRestante || 0) -
+              (initialSurgeryPrice - Number(surgeryPrice)) -
+              ((accountInfo?.totalPagoCuentaRestante || 0) - (initialSurgeryPrice - Number(surgeryPrice))) *
+                (Number(inputRefDiscount.current.value + event.key) / 100)
+            ).toFixed(2)
+          : (
+              (accountInfo?.totalPagoCuentaRestante || 0) -
+              (accountInfo?.totalPagoCuentaRestante || 0) * (Number(inputRefDiscount.current.value + event.key) / 100)
+            ).toFixed(2)
       );
+    }
+  };
+
+  const handleKeyDownSurgery = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const { key } = event;
+    const regex = /^[0-9.]$/;
+    if (
+      (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
+      (inputRefSurgeryDiscount.current &&
+        Number(inputRefSurgeryDiscount.current.value + event.key) > initialSurgeryPrice) || // Mayor que el coste de quirofano
+      (event.key === '.' && inputRefSurgeryDiscount.current && inputRefSurgeryDiscount.current.value.includes('.')) //punto y ya incluye punto
+    ) {
+      event.preventDefault(); // Evitar la entrada si no es válida
+    } else if (
+      (inputRefSurgeryDiscount.current && !isNaN(Number(inputRefSurgeryDiscount.current.value + event.key))) ||
+      (inputRefSurgeryDiscount.current && (event.key === 'Backspace' || event.key === '0'))
+    ) {
+      setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
     }
   };
 
@@ -220,6 +272,35 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
               />
+              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
+                <FormControlLabel
+                  required
+                  control={
+                    <Checkbox
+                      onChange={() => {
+                        setDiscountSurgeryRoomFlag(!discountSurgeryRoomFlag);
+                      }}
+                    />
+                  }
+                  label="Cambiar precio de quirofano"
+                />
+                {discountSurgeryRoomFlag && (
+                  <Box>
+                    <Typography>Precio de quirofano en total:</Typography>
+                    <TextField
+                      variant="outlined"
+                      inputRef={inputRefSurgeryDiscount}
+                      onKeyDown={handleKeyDownSurgery}
+                      inputProps={{
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*',
+                      }}
+                      size="small"
+                      placeholder="Monto"
+                    />
+                  </Box>
+                )}
+              </Box>
               <DataTable
                 title="Procedimientos"
                 data={accountInfo.procedimientos}
@@ -231,7 +312,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 ]}
               />
               <DataTable
-                title="Radiografías"
+                title="Estudios de Gabinete"
                 data={accountInfo.registrosRadiografias}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
@@ -286,6 +367,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       </Box>
       <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
         <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
+        {discountSurgeryRoomFlag ? ` - ${(initialSurgeryPrice - Number(surgeryPrice)).toFixed(2)}` : ``}
       </Typography>
       <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
@@ -305,8 +387,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               <Typography>Descuento en porcentaje</Typography>
               <TextField
                 variant="outlined"
-                inputRef={inputRef}
-                onKeyDown={handleKeyDown}
+                inputRef={inputRefDiscount}
+                onKeyDown={handleKeyDownDiscount}
                 inputProps={{
                   inputMode: 'decimal',
                   pattern: '[0-9]*',

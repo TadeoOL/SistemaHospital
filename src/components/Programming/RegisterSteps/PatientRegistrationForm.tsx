@@ -8,7 +8,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
-dayjs.locale('es');
+dayjs.locale('es-MX');
 
 // const CIVIL_STATUS = ['Soltero(a)', 'Casado(a)', 'Divorciado(a)', 'Viudo(a)'];
 const GENERE = ['Hombre', 'Mujer'];

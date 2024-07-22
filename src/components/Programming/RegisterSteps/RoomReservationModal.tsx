@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
 import { v4 as uuidv4 } from 'uuid';
 dayjs.extend(localizedFormat);
+dayjs.locale('es-MX');
 
 // const style = {
 //   position: 'absolute',

@@ -294,7 +294,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
           </Box>
         </Box>
         <Box sx={{ my: 1 }}>
-          <SubtitleTypography>Radiografías:</SubtitleTypography>
+          <SubtitleTypography>Estudios de Gabinete:</SubtitleTypography>
           {xrayList.map((p: { id: string; name: string }) => (
             <Chip key={p.id} label={p.name} />
           ))}
