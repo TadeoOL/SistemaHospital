@@ -150,26 +150,24 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  // precioVenta: z
-  //   .any()
-  //   .nullable() // Permitir valores nulos
-  //   .refine(
-  //     (value) => {
-  //       console.log(value)
-  //       if (value === null) {
-
-  //         return false; // Rechazar valores nulos
-  //       }
-  //       const parsedValue = parseFloat(value);
-  //       return !isNaN(parsedValue) && parsedValue > 0;
-  //     },
-  //     { message: 'Escribe una cantidad válida y mayor que cero' }
-  //   ),
+  precioVenta: z
+    .any()
+    .nullable() // Permitir valores nulos
+    .refine(
+      (value) => {
+        if (value === null) {
+          return false; // Rechazar valores nulos
+        }
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: 'Escribe una cantidad válida y mayor que cero' }
+    ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
   codigoBarras: z.string().nullable(),
 });
 
-export const addArticleBox= z.object({
+export const addArticleBox = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().nullable(),
   stockMinimo: z
@@ -198,18 +196,16 @@ export const addArticleBox= z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-    unidadesPorCaja: z
-    .string()
-    .refine(
-      (value) => {
-        if (value === null) {
-          return false; // Rechazar valores nulos
-        }
-        const parsedValue = parseInt(value);
-        return !isNaN(parsedValue) && parsedValue > 0;
-      },
-      { message: 'Escribe una cantidad válida y mayor que cero' }
-    ),
+  unidadesPorCaja: z.string().refine(
+    (value) => {
+      if (value === null) {
+        return false; // Rechazar valores nulos
+      }
+      const parsedValue = parseInt(value);
+      return !isNaN(parsedValue) && parsedValue > 0;
+    },
+    { message: 'Escribe una cantidad válida y mayor que cero' }
+  ),
   unidadMedida: z.string().min(1, 'Selecciona una presentación.'),
   precioCompra: z
     .string()

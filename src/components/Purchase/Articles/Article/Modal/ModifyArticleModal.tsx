@@ -114,7 +114,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const { subCategories, isLoading } = useGetSubCategories();
   const [textValue, setTextValue] = useState('');
   const [subCategory, setSubCategory] = useState('');
-  const [inputValue, setInputValue] = useState<string>();
   const config = useGetPurchaseConfig();
   const [isBox, setIsBox] = useState(esCaja || false);
   let textQuantityRef = useRef<HTMLTextAreaElement>(null);
@@ -127,6 +126,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const {
     register,
     handleSubmit,
+    watch,
     getValues,
     setValue,
     formState: { errors },
@@ -187,8 +187,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       if (!isBox) {
         data.unidadesPorCaja = undefined;
       }
-      data.precioVenta = inputValue || '';
+      // data.precioVenta = inputValue ?? '0';
       const idForm = getValues('id');
+      console.log({ data });
       await modifyArticle({ ...data, id: idForm, esCaja: isBox });
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo modificado con éxito!');
@@ -240,9 +241,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValue(precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue('0');
+          setValue('precioVenta', '0');
         }
       } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
         const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
@@ -251,9 +252,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValue(precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue('0');
+          setValue('precioVenta', '0');
         }
       }
     });
@@ -267,9 +268,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       const precioVentaC = precioComprac * factorMultiplicador;
       if (!isNaN(precioVentaC)) {
         const precioVentaString = precioVentaC.toFixed(2).toString();
-        setInputValue(precioVentaString);
+        setValue('precioVenta', precioVentaString);
       } else {
-        setInputValue('0');
+        setValue('precioVenta', '0');
       }
     });
   };
@@ -277,7 +278,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const boxConvertion = (flag: boolean) => {
     if (flag) {
       //De caja a articulo normal
-      setInputValue((Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
+      setValue('precioVenta', (Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
     }
   };
 
@@ -336,7 +337,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                       min: 0,
                     }}
                     onChange={() => {
-                      handleAmountChange(inputValue);
+                      handleAmountChange(watch('precioVenta'));
                     }}
                   />
                 </Box>
@@ -389,14 +390,14 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   fullWidth
                   error={!!errors.precioVenta}
                   helperText={errors?.precioVenta?.message}
+                  disabled
                   size="small"
-                  value={inputValue}
+                  value={watch('precioVenta')}
                   inputProps={{
                     maxLength: 10,
                   }}
-                  // onChange={(e: any) => handleInputDecimalChange(e)}
                   placeholder="Escriba un Precio de Venta"
-                  {...register('precioVenta')}
+                  // {...register('precioVenta')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
