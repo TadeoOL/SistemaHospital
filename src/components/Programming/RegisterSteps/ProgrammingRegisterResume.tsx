@@ -198,7 +198,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
           bgcolor: 'background.paper',
           p: 2,
           overflowY: 'auto',
-          maxHeight: { xs: 500, sm: 600, lg: 700, xl: 800 },
+          maxHeight: 500,
           ...styleBar,
         }}
       >
