@@ -57,16 +57,49 @@ export const ReceiptEmitter = () => {
     <>
       <Card sx={{ p: 3 }}>
         <Stack spacing={4}>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flex: 1,
+              justifyContent: 'space-between',
+              width: '100%',
+              minWidth: 350,
+              alignItems: 'center',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 1,
+                columnGap: 2,
+                p: 2,
+                justifyContent: 'flex-start',
+                minWidth: '100%',
+                overflowX: 'scroll',
+                whiteSpace: 'nowrap',
+                width: '100%',
+                '&::-webkit-scrollbar': {
+                  height: '0.4em',
+                },
+                '&::-webkit-scrollbar-track': {
+                  boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+                  webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: 'rgba(0,0,0,.1)',
+                  outline: '1px solid slategrey',
+                },
+              }}
+            >
               <SearchBar
                 title="Buscar venta..."
                 searchState={setSearch}
                 sx={{ display: 'flex', flex: 1 }}
                 size="small"
               />
-              <FormControl component="fieldset" sx={{ width: 200 }}>
+              <FormControl component="fieldset" sx={{ minWidth: 100, maxWidth: 200 }}>
                 <TextField
+                  sx={{ width: 'auto' }}
                   select
                   label="Método de Pago"
                   value={status}
@@ -84,6 +117,7 @@ export const ReceiptEmitter = () => {
                 size="small"
                 type="date"
                 value={startDate}
+                sx={{ minWidth: 100, maxWidth: 200 }}
                 InputLabelProps={{ shrink: true }}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -94,6 +128,7 @@ export const ReceiptEmitter = () => {
                 size="small"
                 type="date"
                 value={endDate}
+                sx={{ minWidth: 100, maxWidth: 200 }}
                 InputLabelProps={{ shrink: true }}
                 onChange={(e) => {
                   setEndDate(e.target.value);
@@ -102,7 +137,7 @@ export const ReceiptEmitter = () => {
               <IconButton onClick={() => clearFilters()}>
                 <FilterListOff />
               </IconButton>
-              <Button variant="contained" onClick={() => setOpen(true)}>
+              <Button variant="contained" onClick={() => setOpen(true)} sx={{ minWidth: 170, maxWidth: 250 }}>
                 Generar Pase a Caja
               </Button>
             </Box>

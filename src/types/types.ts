@@ -497,6 +497,12 @@ export interface IArticlesPackage {
   id_Almacen: string;
   almacen?: string;
 }
+
+export interface IArticlesPackageSearch {
+  id_PaqueteArticulo: string;
+  nombre: string;
+}
+
 export interface Articulos_contenidos {
   id_Articulo: string;
   nombre: string;
