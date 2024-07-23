@@ -198,7 +198,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
           bgcolor: 'background.paper',
           p: 2,
           overflowY: 'auto',
-          maxHeight: { xs: 500, sm: 600, lg: 700, xl: 800 },
+          maxHeight: 500,
           ...styleBar,
         }}
       >
@@ -217,12 +217,6 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
             <Stack>
               <SubtitleTypography>Fecha de Nacimiento:</SubtitleTypography>
               <TextTypography>{dayjs(patient.birthDate).format('DD/MM/YYYY')}</TextTypography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Stack>
-              <SubtitleTypography>Edad:</SubtitleTypography>
-              <TextTypography>{patient.age}</TextTypography>
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>

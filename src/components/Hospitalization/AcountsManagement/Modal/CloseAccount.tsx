@@ -454,9 +454,6 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({ patient 
     </Box>
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography>
-        <b>Edad:</b> {patient.edad}
-      </Typography>
-      <Typography>
         <b>Género:</b> {patient.genero}
       </Typography>
     </Box>

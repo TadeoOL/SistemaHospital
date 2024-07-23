@@ -34,8 +34,8 @@ import {
   articlesOutputToWarehouseToWarehouse,
   getArticlesFromWarehouseSearch,
   getNursesUsers,
-  getPackagesByWarehouseId,
   getExistingArticles,
+  getPackageById,
 } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
@@ -43,6 +43,7 @@ import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore, WarningAmber 
 import {
   IArticleFromSearch,
   IArticlesPackage,
+  IArticlesPackageSearch,
   IExistingArticleList,
   IPatientFromSearch,
 } from '../../../../types/types';
@@ -50,12 +51,14 @@ import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/M
 import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
 import { getPatientsWithAccount } from '../../../../services/programming/patientService';
-
+import { usePackageNamesPaginationStore } from '../../../../store/warehouseStore/packagesNamesPagination';
+import { shallow } from 'zustand/shallow';
+///cambiar esta fokin she
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearch>({
   limit: OPTIONS_LIMIT,
 });
-const filterPackageOptions = createFilterOptions<IArticlesPackage>({
+const filterPackageOptions = createFilterOptions<IArticlesPackageSearch>({
   limit: OPTIONS_LIMIT,
 });
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
@@ -67,7 +70,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, md: 900 },
 
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -110,10 +113,32 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const useGetAllData = () => {
+  const { isLoading, data, searchPack, setSearchPack, fetchWarehousePackages } = usePackageNamesPaginationStore(
+    (state) => ({
+      searchPack: state.search,
+      setSearchPack: state.setSearch,
+      data: state.data,
+      isLoading: state.isLoading,
+      fetchWarehousePackages: state.fetchWarehousePackages,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    fetchWarehousePackages();
+  }, [searchPack]);
+
+  return {
+    isLoading,
+    data,
+    setSearchPack,
+  };
+};
+
 export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
-  const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearch[]>([]);
   const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<
     IArticleFromSearch[]
@@ -123,32 +148,13 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
-  const [articlesFetchedAM, setArticlesFetchedAM] = useState<ArticlesFetched[] | []>([]);
   const [search, setSearch] = useState('');
-  const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
 
+  const { data, isLoading, setSearchPack } = useGetAllData();
+
+  const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
-  /*
-  const defaultRoomsQuirofano = ['C-1', 'C-2', 'C-3', 'C-4', 'EndoPro', 'LPR'];
-  const defaultRoomsHospitalizacion = [
-    'C-104',
-    'C-105',
-    'C-201',
-    'C-202',
-    'C-203',
-    'C-204',
-    'C-205',
-    'C-206',
-    'C-207',
-    'C-208',
-    'C-209',
-    'C-210',
-    'C-211',
-    'c-212',
-    'C-213',
-    'C-214',
-  ];*/
 
   useEffect(() => {
     setWarehouseId(props.warehouseId);
@@ -158,16 +164,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        const res = await getExistingArticles(
-          `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
-        );
-        setArticlesFetchedAM(
-          res.data.map((a: IArticleFromSearch) => {
-            return { ...a };
-          })
-        );
         handleFetchArticlesFromWareHouse();
-        handleFetchArticlesPackagesFromWareHouse(props.warehouseId);
+        handleFetchArticlesPackagesFromWareHouse();
         patientsCall();
       } catch (error) {
         console.log(error);
@@ -181,7 +179,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     const fetch = async () => {
       try {
         const res = await getExistingArticles(
-          `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
+          `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
         );
         setDataWerehouseArticlesSelected(
           res.data.map((a: IArticleFromSearch) => {
@@ -318,11 +316,9 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     }
   };
 
-  const handleFetchArticlesPackagesFromWareHouse = async (wareH: string) => {
+  const handleFetchArticlesPackagesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getPackagesByWarehouseId(wareH);
-      setDataWerehousePackagesSelected(res);
       const resNurses = await getNursesUsers();
       setNursesData(resNurses);
     } catch (error) {
@@ -409,12 +405,21 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Salida de artículos" />
-      <Box sx={style2}>
-        {isLoadingWarehouse ? (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
-            <CircularProgress size={40} />
-          </Box>
-        ) : (
+      {isLoadingWarehouse ? (
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            display: 'flex',
+            justifyContent: 'center',
+            alignContent: 'center',
+            width: '100%',
+            height: 300,
+          }}
+        >
+          <CircularProgress size={40} sx={{ my: 'auto' }} />
+        </Box>
+      ) : (
+        <Box sx={style2}>
           <form noValidate onSubmit={handleSubmit(onSubmit)}>
             <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
               <Stack sx={{ display: 'flex', flex: 1 }}>
@@ -423,20 +428,31 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   disablePortal
                   fullWidth
                   filterOptions={filterPackageOptions}
-                  onChange={(e, val) => {
+                  onChange={async (e, val) => {
                     e.stopPropagation();
-                    setPackageSelected(val);
                     if (val !== null) {
-                      handleAddArticlesFromPackage(val as IArticlesPackage);
+                      setIsLoadingWarehouse(true);
+                      const packageProm = await getPackageById(val?.id_PaqueteArticulo as string);
+                      setPackageSelected(packageProm);
+                      handleAddArticlesFromPackage(packageProm);
+                      setIsLoadingWarehouse(false);
                     }
+                    setPackageSelected(null);
                   }}
-                  loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
+                  loading={isLoading}
                   getOptionLabel={(option) => option.nombre}
-                  options={dataWerehouseSelectedPackages}
+                  options={data ? data : []}
                   value={packageSelected}
                   noOptionsText="No se encontraron paquetes"
                   renderInput={(params) => (
-                    <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
+                    <TextField
+                      {...params}
+                      placeholder="Paquetes de artículos"
+                      sx={{ width: '100%' }}
+                      onChange={(e) => {
+                        setSearchPack(e.target.value);
+                      }}
+                    />
                   )}
                 />
               </Stack>
@@ -486,7 +502,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                           setSearch(e.target.value);
                         }}
                         placeholder="Artículos"
-                        sx={{ width: '50%' }}
+                        sx={{ width: '100%' }}
                       />
                     )}
                   />
@@ -495,7 +511,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
               <ArticlesTable
                 setOpen={props.setOpen}
                 submitData={onSubmit}
-                initialData={articlesFetchedAM}
                 setLoteEditing={setLoteEditing}
                 setLoteSelected={setLoteSelected}
                 setArticleSelected={setArticleSelected}
@@ -638,8 +653,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
               </Box>
             </Stack>
           </form>
-        )}
-      </Box>
+        </Box>
+      )}
       <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
         <>
           <LoteSelectionRemake2
@@ -661,7 +676,6 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
 const ArticlesTable = (props: {
   setOpen: Function;
   submitData: Function;
-  initialData: ArticlesFetched[];
   articles: ArticlesFetched[];
   setArticles: Function;
   setArticleId: Function;

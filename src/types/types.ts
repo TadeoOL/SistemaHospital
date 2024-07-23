@@ -497,6 +497,12 @@ export interface IArticlesPackage {
   id_Almacen: string;
   almacen?: string;
 }
+
+export interface IArticlesPackageSearch {
+  id_PaqueteArticulo: string;
+  nombre: string;
+}
+
 export interface Articulos_contenidos {
   id_Articulo: string;
   nombre: string;
@@ -702,7 +708,6 @@ export interface IPatient {
   name: string;
   lastName: string;
   secondLastName: string;
-  age: string;
   genere?: string;
   birthDate?: Date;
   civilStatus?: string;

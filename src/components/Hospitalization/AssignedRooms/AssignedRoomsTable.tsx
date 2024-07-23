@@ -22,7 +22,6 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 const TABLE_HEADERS = [
   'Cuarto',
   'Paciente',
-  'Edad',
   'Cirugía',
   'Medico',
   'Fecha de entrada',
@@ -116,7 +115,6 @@ const AssignedRoomsTableRow = (props: { data: IRoomInformation }) => {
       >
         <TableCell>{data.nombre}</TableCell>
         <TableCell>{data.paciente?.nombre ? patientName : 'Sin asignar'}</TableCell>
-        <TableCell>{data.paciente?.edad ?? 'No hay registro'}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data.procedimientos ?? []} />
         </TableCell>

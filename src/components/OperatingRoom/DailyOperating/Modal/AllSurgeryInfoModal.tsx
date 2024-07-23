@@ -153,10 +153,6 @@ const PatientInfoComponent = (props: { patient?: Paciente }) => {
         {dayjs(patient?.fechaNacimiento).format('DD/MM/YYYY')}
       </Grid>
       <Grid item xs={12} md={4} sm={6}>
-        <Typography variant="subtitle1">Edad:</Typography>
-        {patient?.edad ?? ''}
-      </Grid>
-      <Grid item xs={12} md={4} sm={6}>
         <Typography variant="subtitle1">Genero:</Typography>
         {patient?.genero ?? ''}
       </Grid>

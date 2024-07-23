@@ -40,7 +40,6 @@ const TABLE_HEADERS = [
   'Hora',
   'Quirófano',
   'Paciente',
-  'Edad',
   'Cirugía',
   'Cirujano',
   'Anestesiólogo',
@@ -214,7 +213,6 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
         <TableCell>{dayjs(data.horaInicio).format('HH:mm')}</TableCell>
         <TableCell>{data.nombre}</TableCell>
         <TableCell>{patientName}</TableCell>
-        <TableCell>{data.paciente?.edad ?? 'No hay registro'}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data.procedimientos ?? []} />
         </TableCell>

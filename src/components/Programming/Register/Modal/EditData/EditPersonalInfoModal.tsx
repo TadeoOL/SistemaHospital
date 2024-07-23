@@ -35,7 +35,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 650, md: 900 },
+  maxHeight: { xs: 650, md: 800 },
 };
 
 const scrollBarStyle = {
@@ -53,14 +53,13 @@ const scrollBarStyle = {
 };
 
 const GENERE = ['Hombre', 'Mujer'];
-const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
+const TYPOGRAPHY_STYLE = { fontSize: 13, fontWeight: 600 };
 
 type Inputs = {
   name: string;
   lastName: string;
   secondLastName: string;
   birthDate: Date;
-  age: string;
   genere: string;
   civilStatus: string;
   phoneNumber: string;
@@ -182,7 +181,6 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     personInChargeNeighborhood: personalData?.coloniaResponsable,
     address: personalData?.direccion,
     personInChargeAddress: personalData?.domicilioResponsable,
-    age: personalData?.edad.toString(),
     civilStatus: personalData?.estadoCivil,
     personInCharge: personalData?.nombreResponsable,
     occupation: personalData?.ocupacion,
@@ -266,7 +264,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
             p: 3,
             bgcolor: 'background.paper',
             overflowY: 'auto',
-            maxHeight: { xs: 500, md: 750 },
+            maxHeight: { xs: 500, md: 500 },
             ...scrollBarStyle,
           }}
         >
@@ -303,16 +301,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.secondLastName?.message}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Edad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Edad..."
-                {...register('age')}
-                error={!!errors.age?.message}
-                helperText={errors.age?.message}
-              />
-            </Grid>
+
             <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Genero</Typography>
               <TextField

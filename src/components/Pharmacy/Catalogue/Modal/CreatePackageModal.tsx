@@ -40,6 +40,21 @@ const style = {
   flexDirection: 'column',
   maxHeight: 600,
 };
+const style2 = {
+  bgcolor: 'background.paper',
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
+};
 
 interface CreatePackageModalProps {
   setOpen: Function;
@@ -87,9 +102,8 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Crear paquete" />
-      <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
-        <Typography>Armado de paquete</Typography>
+      <HeaderModal setOpen={props.setOpen} title="Armado de paquete" />
+      <Box sx={style2 }>
         <CreatePackageModalTable
           articles={props.articles}
           movementHistoryId={props.movementHistoryId}

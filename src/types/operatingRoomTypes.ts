@@ -47,7 +47,6 @@ export interface ISurgeryHistory {
   horaInicio: Date;
   horaFin: Date;
   duracion: string;
-  edad: number;
 }
 
 export interface IRecoveryRoom {
@@ -56,7 +55,6 @@ export interface IRecoveryRoom {
   medico: string;
   anestesiologo: string;
   paciente: Paciente;
-  edad: number;
   horaInicio: Date;
   horaFin: Date;
   datosClinicos: HistorialClinico;

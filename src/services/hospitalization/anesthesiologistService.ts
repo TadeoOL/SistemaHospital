@@ -12,7 +12,6 @@ export const createAnesthesiologist = async (data: {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }) => {
   const res = await axios.post(`${apiAnesthesiologist}/registrar-anestesiologo`, data);
@@ -26,7 +25,6 @@ export const modifyAnesthesiologist = async (data: {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }) => {
   const res = await axios.put(`${apiAnesthesiologist}/modificar-anestesiologo`, data);

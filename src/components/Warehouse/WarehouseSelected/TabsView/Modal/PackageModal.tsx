@@ -44,7 +44,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, md: 800 },
 
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -217,7 +217,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
             <Grid component="span" container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={12}>
                 <Typography>Nombre</Typography>
                 <TextField
                   fullWidth
@@ -265,7 +265,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
                 rowGap: { xs: 2, sm: 0 },
               }}
             >
-              <Stack sx={{ display: 'flex', flex: 1 }}>
+              <Stack sx={{ display: 'flex', flex: 2 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
                 <Autocomplete
                   disablePortal
@@ -287,7 +287,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
                       error={articleError}
                       helperText={articleError && 'Selecciona un articulo'}
                       placeholder="Artículos"
-                      sx={{ width: '50%' }}
+                      sx={{ width: '100%' }}
                       onChange={(e) => {
                         setSerch(e.target.value);
                       }}
@@ -298,7 +298,6 @@ export const PackageModal = (props: { setOpen: Function }) => {
               <Stack sx={{ display: 'flex', flex: 1 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
                 <TextField
-                  sx={{ width: '60%' }}
                   size="small"
                   fullWidth
                   placeholder="Cantidad"
@@ -316,8 +315,6 @@ export const PackageModal = (props: { setOpen: Function }) => {
             <Box
               sx={{
                 display: 'flex',
-                flex: 1,
-                justifyContent: 'flex-end',
                 mt: 2,
               }}
             >

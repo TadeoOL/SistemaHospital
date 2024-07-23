@@ -32,7 +32,6 @@ type Inputs = {
   name: string;
   lastName: string;
   secondLastName: string;
-  age: string;
   genere: string;
   birthDate: Date;
 };
@@ -44,7 +43,7 @@ export const PatientRegistrationForm = (props: PatientRegistrationFormProps) => 
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const patient = useProgrammingRegisterStore((state) => state.patient);
   const setPatient = useProgrammingRegisterStore((state) => state.setPatient);
-  const { secondLastName, lastName, age, genere, name } = patient;
+  const { secondLastName, lastName, genere, name } = patient;
 
   const {
     control,
@@ -59,7 +58,6 @@ export const PatientRegistrationForm = (props: PatientRegistrationFormProps) => 
       lastName,
       secondLastName,
       genere,
-      age,
       birthDate: new Date(),
     },
   });
@@ -119,16 +117,6 @@ export const PatientRegistrationForm = (props: PatientRegistrationFormProps) => 
                 {...register('secondLastName')}
                 error={!!errors.secondLastName?.message}
                 helperText={errors.secondLastName?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Edad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Edad..."
-                {...register('age')}
-                error={!!errors.age?.message}
-                helperText={errors.age?.message}
               />
             </Grid>
             <Grid item xs={12} md={4}>

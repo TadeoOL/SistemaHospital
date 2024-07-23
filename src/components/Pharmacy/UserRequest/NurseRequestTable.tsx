@@ -257,7 +257,7 @@ export const NurseRequestTable = () => {
                     >
                       <Info sx={{ width: 40, height: 40, color: 'gray' }} />
                       <Typography variant="h2" color="gray">
-                        No hay artículos existentes
+                        No hay solicitudes existentes
                       </Typography>
                     </Box>
                   ))}

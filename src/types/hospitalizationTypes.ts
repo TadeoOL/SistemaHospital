@@ -14,7 +14,6 @@ export interface IAnesthesiologist {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }
 
@@ -36,7 +35,7 @@ export interface IXRayRequest {
   precio: number;
   fechaSolicitud: string;
   estatus: number;
-  tipo:number
+  tipo: number;
 }
 
 export interface IMedic {
@@ -46,7 +45,6 @@ export interface IMedic {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }
 
@@ -139,7 +137,6 @@ export interface IExternalBiomedicalEquipmentAccount {
 }
 export interface IPatientInAccount {
   nombre: string;
-  edad: number;
   genero: string;
   apellidoPaterno: string;
   apellidoMaterno: string;

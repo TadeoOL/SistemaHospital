@@ -3,6 +3,7 @@ import {
   IAddSubWarehouse,
   IAddUser,
   IArticle,
+  IArticlesPackage,
   ICategory,
   IProvider,
   IPurchaseConfig,
@@ -952,6 +953,11 @@ export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
   return res.data;
 };
 
+export const getPackagesNamesByWarehouseIdAndSearch = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/obtener-paquetes-nombres?&${paramUrl}`);
+  return res.data;
+};
+
 export const getPackagesByWarehouseId = async (id: string) => {
   const res = await axios.get(`/api/Almacen/obtener-paquetes?Id=${id}`);
   return res.data;
@@ -959,7 +965,7 @@ export const getPackagesByWarehouseId = async (id: string) => {
 
 export const getPackageById = async (packageId: string) => {
   const res = await axios.get(`/api/Almacen/paquete-articulo?Id=${packageId}`);
-  return res.data;
+  return res.data as IArticlesPackage ;
 };
 
 export const modifyPackage = async (data: {
