@@ -17,7 +17,6 @@ export const createMedic = async (data: {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }) => {
   const res = await axios.post(`${apiMedic}/registrar-medico`, data);
@@ -31,7 +30,6 @@ export const modifyMedic = async (data: {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }) => {
   const res = await axios.put(`${apiMedic}/modificar-medico`, data);

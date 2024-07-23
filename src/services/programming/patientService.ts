@@ -8,7 +8,6 @@ export const createPatient = async (data: IPatient) => {
     nombre: data.name,
     apellidoPaterno: data.lastName,
     apellidoMaterno: data.secondLastName,
-    edad: data.age,
     genero: data.genere,
     fechaNacimiento: data.birthDate,
     estadoCivil: data.civilStatus,
@@ -42,7 +41,6 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
     nombre: data.name,
     apellidoPaterno: data.lastName,
     apellidoMaterno: data.secondLastName,
-    edad: data.age,
     genero: data.genere,
     estadoCivil: data.civilStatus,
     fechaNacimiento: data.birthDate,
@@ -63,10 +61,10 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
 
 export const getPatientsWithAccount = async (url: string) => {
   const res = await axios.get(`${apiPatient}/obtener-paciente-activo?${url}`);
-  return res.data as IPatientFromSearch[] ;
-}
+  return res.data as IPatientFromSearch[];
+};
 
 export const getPatientsWithAccountPagination = async (url: string) => {
   const res = await axios.get(`${apiPatient}/obtener-cuentas?${url}`);
   return res.data;
-}
+};

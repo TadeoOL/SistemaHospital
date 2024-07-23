@@ -37,7 +37,6 @@ interface Inputs {
   lastName: string;
   secondLastName: string;
   email: string;
-  age: number;
   birthDate: Date | Dayjs;
   phoneNumber: string;
 }
@@ -59,7 +58,6 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
       lastName: medic?.apellidoPaterno ?? '',
       secondLastName: medic?.apellidoMaterno ?? '',
       email: medic?.email ?? '',
-      age: medic?.edad ?? 0,
       birthDate: dayjs(medic?.fechaNacimiento) ?? new Date(),
       phoneNumber: medic?.telefono ?? '',
     },
@@ -76,7 +74,6 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
             apellidoPaterno: data.lastName,
             apellidoMaterno: data.secondLastName,
             email: data.email,
-            edad: data.age,
             fechaNacimiento: data.birthDate as Date,
             telefono: data.phoneNumber,
           })
@@ -85,7 +82,6 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
             apellidoPaterno: data.lastName,
             apellidoMaterno: data.secondLastName,
             email: data.email,
-            edad: data.age,
             fechaNacimiento: data.birthDate as Date,
             telefono: data.phoneNumber,
           });
@@ -153,17 +149,6 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
                 {...register('email')}
                 error={!!errors.email?.message}
                 helperText={errors.email?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography>Edad</Typography>
-              <TextField
-                label="Escribe la edad..."
-                type="number"
-                fullWidth
-                {...register('age')}
-                error={!!errors.age?.message}
-                helperText={errors.age?.message}
               />
             </Grid>
             <Grid item xs={12}>

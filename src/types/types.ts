@@ -708,7 +708,6 @@ export interface IPatient {
   name: string;
   lastName: string;
   secondLastName: string;
-  age: string;
   genere?: string;
   birthDate?: Date;
   civilStatus?: string;

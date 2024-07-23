@@ -30,7 +30,7 @@ import { modifyOperatingRoomRegister } from '../../../services/operatingRoom/ope
 import { HistorialClinico } from '../../../types/admissionTypes';
 import { ClinicalDataInfo } from './Modal/ClinicalDataInfo';
 
-const HEADERS = ['Hora', 'Quirófano', 'Paciente', 'Edad', 'Cirugía', 'Cirujano', 'Datos Clínicos', 'Acciones'];
+const HEADERS = ['Hora', 'Quirófano', 'Paciente', 'Cirugía', 'Cirujano', 'Datos Clínicos', 'Acciones'];
 
 const useGetRecoveryRooms = () => {
   const fetch = useRecoveryRoomsPaginationStore((state) => state.fetchData);
@@ -111,7 +111,6 @@ const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
         <TableCell>{dayjs(data?.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
         <TableCell>{data?.nombre}</TableCell>
         <TableCell>{patientName}</TableCell>
-        <TableCell>{data?.paciente.edad}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data?.procedimientos ?? []} />
         </TableCell>

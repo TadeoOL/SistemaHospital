@@ -221,12 +221,6 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <Stack>
-              <SubtitleTypography>Edad:</SubtitleTypography>
-              <TextTypography>{patient.age}</TextTypography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Stack>
               <SubtitleTypography>Genero:</SubtitleTypography>
               <TextTypography>{patient.genere}</TextTypography>
             </Stack>

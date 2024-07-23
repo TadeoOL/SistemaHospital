@@ -33,10 +33,6 @@ export const EventPatientDetails = (props: EventPatientDetailsProps) => {
           <Typography sx={bodyStyle}>{patientData.apellidoMaterno}</Typography>
         </Grid>
         <Grid sx={gridStyle} item xs={12} md={6}>
-          <Typography sx={titleStyle}>Edad:</Typography>
-          <Typography sx={bodyStyle}>{patientData.edad}</Typography>
-        </Grid>
-        <Grid sx={gridStyle} item xs={12} md={6}>
           <Typography sx={titleStyle}>Genero:</Typography>
           <Typography sx={bodyStyle}>{patientData.genero}</Typography>
         </Grid>

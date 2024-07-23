@@ -60,7 +60,6 @@ type Inputs = {
   lastName: string;
   secondLastName: string;
   birthDate: Date;
-  age: string;
   genere: string;
   civilStatus: string;
   phoneNumber: string;
@@ -182,7 +181,6 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     personInChargeNeighborhood: personalData?.coloniaResponsable,
     address: personalData?.direccion,
     personInChargeAddress: personalData?.domicilioResponsable,
-    age: personalData?.edad.toString(),
     civilStatus: personalData?.estadoCivil,
     personInCharge: personalData?.nombreResponsable,
     occupation: personalData?.ocupacion,
@@ -303,16 +301,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.secondLastName?.message}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Edad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Edad..."
-                {...register('age')}
-                error={!!errors.age?.message}
-                helperText={errors.age?.message}
-              />
-            </Grid>
+
             <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Genero</Typography>
               <TextField

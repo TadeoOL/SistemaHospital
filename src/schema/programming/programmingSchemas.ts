@@ -17,7 +17,6 @@ export const patientRegistrationSchema = z.object({
   name: z.string().optional(),
   lastName: z.string().optional(),
   secondLastName: z.string().optional(),
-  age: z.string().optional(),
   genere: z.string().optional(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
@@ -26,7 +25,6 @@ export const patientModifySchema = z.object({
   name: z.string().nullable(),
   lastName: z.string().nullable(),
   secondLastName: z.string().nullable(),
-  age: z.string().nullable(),
   genere: z.string().nullable(),
   civilStatus: z.string().nullable(),
   phoneNumber: z.string().nullable(),
@@ -108,13 +106,6 @@ export const programmingRegisterSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   lastName: z.string().min(1, 'El apellido paterno es requerido'),
   secondLastName: z.string().min(1, 'El apellido materno es requerido'),
-  age: z
-    .string()
-    .min(1, 'La edad es requerida')
-    .refine((e) => parseInt(e) != 0, {
-      message: 'La edad tiene que ser mayor a 0',
-    }),
-  doctorId: z.string().min(1, 'El medico es requerido'),
   notes: z.string().optional(),
   surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
   date: z.preprocess((val) => toDate(val as Dayjs), z.date()),

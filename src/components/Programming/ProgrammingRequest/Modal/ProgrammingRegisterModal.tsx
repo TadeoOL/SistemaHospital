@@ -46,7 +46,6 @@ interface Inputs {
   name: string;
   lastName: string;
   secondLastName: string;
-  age: string;
   doctorId: string;
   date: Dayjs;
   wasRecommended: boolean;
@@ -69,7 +68,6 @@ export const ProgrammingRegisterModal = (props: ProgrammingRegisterModalProps) =
   } = useForm<Inputs>({
     resolver: zodResolver(programmingRegisterSchema),
     defaultValues: {
-      age: '',
       wasRecommended: false,
       surgeryProcedures: [],
       date: dayjs(),
@@ -85,7 +83,6 @@ export const ProgrammingRegisterModal = (props: ProgrammingRegisterModalProps) =
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
     const patientObj: IPatient = {
-      age: data.age,
       lastName: data.lastName,
       name: data.name,
       secondLastName: data.secondLastName,
@@ -156,16 +153,6 @@ export const ProgrammingRegisterModal = (props: ProgrammingRegisterModalProps) =
                 {...register('secondLastName')}
                 error={!!errors.secondLastName?.message}
                 helperText={errors.secondLastName?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Edad</Typography>
-              <TextField
-                label="Edad"
-                type="number"
-                {...register('age')}
-                error={!!errors.age?.message}
-                helperText={errors.age?.message}
               />
             </Grid>
             <Grid item xs={12}>
