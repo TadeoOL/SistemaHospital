@@ -66,7 +66,7 @@ const styleBar = {
   },
 };
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterSubWarehousesOptions = createFilterOptions<any>({
   limit: OPTIONS_LIMIT,
 });

@@ -51,7 +51,7 @@ import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsV
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
 import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearch>({
   limit: OPTIONS_LIMIT,
 });

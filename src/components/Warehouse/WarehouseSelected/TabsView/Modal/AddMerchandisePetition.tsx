@@ -38,7 +38,7 @@ type Article = {
   nombre: string;
   stock: number;
 };
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<Article>({
   limit: OPTIONS_LIMIT,
 });
