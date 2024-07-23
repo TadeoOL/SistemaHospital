@@ -35,7 +35,7 @@ import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticle>({
   limit: OPTIONS_LIMIT,
 });
@@ -227,7 +227,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Editar paquete de articulos" />
-      <Box sx={{ style2 }}>
+      <Box sx={style2}>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
             <Grid component="span" container spacing={2}>

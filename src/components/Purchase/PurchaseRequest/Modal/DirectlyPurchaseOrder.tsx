@@ -86,7 +86,7 @@ const style = {
   maxHeight: { xs: 600 },
 };
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<Article>({
   limit: OPTIONS_LIMIT,
 });

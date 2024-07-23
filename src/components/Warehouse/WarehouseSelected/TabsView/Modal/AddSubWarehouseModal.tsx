@@ -24,7 +24,7 @@ const style = {
   flexDirection: 'column',
 };
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterOptions = createFilterOptions<string>({
   limit: OPTIONS_LIMIT,
 });
