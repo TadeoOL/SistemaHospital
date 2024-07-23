@@ -47,3 +47,12 @@ export const modifyAnesthesiologistShifts = async (data: {
   const res = await axios.put(`${apiAnesthesiologistShift}/modificar-guardia-anestesiologo`, data);
   return res.data;
 };
+
+export const disableAnesthesiologistShift = async (id: string) => {
+  const res = await axios.delete(`${apiAnesthesiologistShift}/deshabilitar-guardia-anestesiologo`, {
+    params: {
+      id,
+    },
+  });
+  return res.data;
+};

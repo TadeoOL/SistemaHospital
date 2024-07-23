@@ -7,10 +7,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { MedicalShiftRegisterModal } from './Modal/MedicalShiftRegisterModal';
 import { IMedicalShift } from '../../../types/hospitalizationTypes';
 import { getRegisteredMedicalShifts, modifyMedicalShifts } from '../../../services/hospitalization/medicalShift';
 import { toast } from 'react-toastify';
+import 'dayjs/locale/es';
 dayjs.locale('es-mx');
 
 const DnDCalendar = withDragAndDrop(Calendar);
@@ -181,7 +183,7 @@ export const MedicalShiftCalendar = () => {
           defaultView={Views.MONTH}
           onNavigate={onNavigate}
           step={CALENDAR_STEP}
-          resizable
+          resizable={true}
           events={myEvents}
           date={date}
           formats={{
@@ -199,12 +201,13 @@ export const MedicalShiftCalendar = () => {
           // onNavigate={onNavigate}
           onSelectSlot={(slot) => handleClickSlot(slot)}
           dayPropGetter={dayPropGetter}
-          // onSelectEvent={(e: any) => {
-          //   if (e.source) return toast.warning('Todavía no hay información respecto a este evento!');
-          //   if (e.title.toLowerCase() === 'limpieza') return;
-          //   setSpecificEventId(e.id);
-          //   setOpenSpecificEvent(true);
-          // }}
+          onSelectEvent={(e: any) => {
+            console.log({ e });
+            // if (e.source) return toast.warning('Todavía no hay información respecto a este evento!');
+            // if (e.title.toLowerCase() === 'limpieza') return;
+            // setSpecificEventId(e.id);
+            // setOpenSpecificEvent(true);
+          }}
           // onShowMore={(_, date) => {
           //   props.setDate(date);
           //   setView('day');
@@ -224,6 +227,7 @@ export const MedicalShiftCalendar = () => {
           }}
           onEventDrop={eventModify}
           onEventResize={eventModify}
+          showMultiDayTimes={true}
         />
       </Box>
       <Modal open={open} onClose={() => setOpen(!open)}>

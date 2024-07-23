@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/es';
 import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar.css';
@@ -15,6 +14,7 @@ import { RegisterSteps } from '../RegisterSteps';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { modifyEventRoom } from '../../../../services/programming/admissionRegisterService';
+import 'dayjs/locale/es-mx';
 dayjs.locale('es-mx');
 import Swal from 'sweetalert2';
 
@@ -230,7 +230,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
           width: '100%',
           height: view === 'month' ? 700 : '100%',
         }}
-        selectable={true}
+        selectable
         enableAutoScroll={false}
         date={props.date}
         draggableAccessor={(event: any) => {
