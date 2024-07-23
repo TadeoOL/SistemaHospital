@@ -30,7 +30,7 @@ import { Note } from './Note';
 import { IProvider } from '../../../../types/types';
 import { useGetAllProvidersBySearch } from '../../../../hooks/useGetAllProvidersBySearch';
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterProviderOptions = createFilterOptions<IProvider>({
   limit: OPTIONS_LIMIT,
 });

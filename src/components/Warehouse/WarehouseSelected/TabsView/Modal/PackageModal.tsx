@@ -35,7 +35,7 @@ import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticle>({
   limit: OPTIONS_LIMIT,
 });

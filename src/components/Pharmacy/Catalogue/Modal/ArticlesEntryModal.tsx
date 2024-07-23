@@ -42,7 +42,7 @@ import { useExistingArticleLotesPagination } from '../../../../store/warehouseSt
 import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getArticlesFromAcountId } from '../../../../store/programming/AcountArticlesService';
 
-const OPTIONS_LIMIT = 10;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearchWithBarCode>({
   limit: OPTIONS_LIMIT,
 });

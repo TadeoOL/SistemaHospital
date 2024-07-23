@@ -19,7 +19,7 @@ import { useXRayPaginationStore } from '../../../../../store/hospitalization/xra
 import { IXRay, REQUEST_TYPES } from '../../../../../types/hospitalizationTypes';
 import { addXRayRequest } from '../../../../../services/hospitalization/xrayService';
 
-const OPTIONS_LIMIT = 10;
+const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
   limit: OPTIONS_LIMIT,
 });
