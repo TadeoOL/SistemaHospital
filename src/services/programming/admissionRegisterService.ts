@@ -103,9 +103,7 @@ export const closeRegisterAndAccount = async (data: {
   return res.data;
 };
 
-export const admitRegister = async (data: {
-  Id_Registro: string;
-}) => {
+export const admitRegister = async (data: { Id_Registro: string }) => {
   const res = await axios.put(`${apiRegister}/admitir-registro`, data);
   return res.data;
 };

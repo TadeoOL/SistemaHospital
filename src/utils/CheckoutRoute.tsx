@@ -18,7 +18,7 @@ const useJoinRoom = (
   conn: HubConnection | null,
   setConn: Function,
   updateData: Function,
-  updateDataEmitter: Function,
+  updateDataEmitter: Function
 ) => {
   const profile = useAuthStore((state) => state.profile);
 
@@ -31,12 +31,11 @@ const useJoinRoom = (
             transport: HttpTransportType.WebSockets,
           })
           .configureLogging(LogLevel.Information)
-          .withAutomaticReconnect([0, 2000, 10000, 15000,20000, 30000, 60000, 120000, 150000])
+          .withAutomaticReconnect([0, 2000, 10000, 15000, 20000, 30000, 60000, 120000, 150000])
           .build();
-          
-          await conn.start().catch(err=>console.log({err}));
-          conn.on('JoinSpecificChatRoom', () => {
-          });
+
+        await conn.start().catch((err) => console.log({ err }));
+        conn.on('JoinSpecificChatRoom', () => {});
 
         conn.on('ReceiveSpecificSell', (sell: ICheckoutSell) => {
           const sellObject = {
@@ -72,8 +71,8 @@ const useJoinRoom = (
         });
 
         conn.onreconnected(async () => {
-          setConn(conn);//cambio de reconexion
-        await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
+          setConn(conn); //cambio de reconexion
+          await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         });
         await conn.invoke('JoinSpecificChatRoom', { userId, chatRoom });
         setConn(conn);

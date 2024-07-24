@@ -18,7 +18,6 @@ const Category = () => {
   return (
     <Box sx={{ pt: 2 }}>
       <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-        
         <Stack
           sx={{
             flexDirection: 'row',
@@ -30,17 +29,17 @@ const Category = () => {
           }}
         >
           <SearchBar title="Busca la categoría..." searchState={setSearch} sx={{ width: '30%' }} />
-            <Button
-              onClick={() => {
-                setEnabled(!enabled);
-              }}
-              startIcon={<ClassOutlinedIcon />}
-            >
-              {enabled ? 'Mostrar categorías deshabilitadas' : 'Mostrar categorías habilitados'}
-            </Button>
-            <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => setOpen(!open)}>
-              Agregar
-            </Button>
+          <Button
+            onClick={() => {
+              setEnabled(!enabled);
+            }}
+            startIcon={<ClassOutlinedIcon />}
+          >
+            {enabled ? 'Mostrar categorías deshabilitadas' : 'Mostrar categorías habilitados'}
+          </Button>
+          <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => setOpen(!open)}>
+            Agregar
+          </Button>
         </Stack>
       </Box>
       <CategoryTable />

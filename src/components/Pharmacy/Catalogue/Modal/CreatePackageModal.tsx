@@ -103,7 +103,7 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Armado de paquete" />
-      <Box sx={style2 }>
+      <Box sx={style2}>
         <CreatePackageModalTable
           articles={props.articles}
           movementHistoryId={props.movementHistoryId}

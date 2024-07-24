@@ -163,6 +163,19 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
+  precioVentaPI: z
+    .any()
+    .nullable() // Permitir valores nulos
+    .refine(
+      (value) => {
+        if (value === null) {
+          return false; // Rechazar valores nulos
+        }
+        const parsedValue = parseFloat(value);
+        return !isNaN(parsedValue) && parsedValue > 0;
+      },
+      { message: 'Escribe una cantidad válida y mayor que cero' }
+    ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
   codigoBarras: z.string().nullable(),
 });

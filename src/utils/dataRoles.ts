@@ -18,11 +18,11 @@ export const hospitalizationANDnurse = [...nurseRole, 'HOSPITALIZACION'];
 export const admission = [...purchaseGlobalRoles, 'ADMISION'];
 export const closeAccount = [...purchaseGlobalRoles, 'CERRARCUENTA'];
 //Roles programacion
-export const programation = [...purchaseGlobalRoles,'PROGRAMACION'];
+export const programation = [...purchaseGlobalRoles, 'PROGRAMACION'];
 
 //Roles Quirofano
 export const operatingRoom = [...purchaseGlobalRoles, 'QUIROFANO'];
 export const operatingRoomANDnurse = [...nurseRole, 'QUIROFANO'];
 
 //Roles radiografia??? wea para ultrasonido, analisis radiografia etc
-export const xrayAdmin = [...purchaseGlobalRoles,'RAYOSXADMIN'];
+export const xrayAdmin = [...purchaseGlobalRoles, 'RAYOSXADMIN'];

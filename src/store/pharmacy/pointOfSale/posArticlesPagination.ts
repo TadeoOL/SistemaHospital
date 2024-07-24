@@ -74,9 +74,10 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
       const res = await getExistingArticlesPOS(
         `&pageIndex=${pageIndex}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&id_Almacen=${warehouseId
+        }&search=${search}&habilitado=${enabled}&id_Almacen=${
+          warehouseId
         }&id_AlmacenPrincipal=${warehouseId}&Id_SubCategoria=${subCategoryId}`
-      )
+      );
 
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,

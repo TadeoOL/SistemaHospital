@@ -316,6 +316,7 @@ export const modifyArticle = async (article: IArticle) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -331,6 +332,7 @@ export const modifyArticle = async (article: IArticle) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     esCaja,
     unidadesPorCaja,
     codigoBarras,
@@ -890,19 +892,17 @@ export const articlesOutputToWarehouse = async (data: {
       Id_ArticuloExistente: string;
       Cantidad: string;
     }[];*/
-    Lotes?: any;
-    Estatus: number;
-    Id_HistorialMovimiento?: string;
-    Id_CuentaPaciente?: string;
-    SolicitadoPor?: string;
-    Mensaje?: string;
-  }
-) => {
-    const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
-      ...data,
-    });
-    return res.data;
-  
+  Lotes?: any;
+  Estatus: number;
+  Id_HistorialMovimiento?: string;
+  Id_CuentaPaciente?: string;
+  SolicitadoPor?: string;
+  Mensaje?: string;
+}) => {
+  const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
+    ...data,
+  });
+  return res.data;
 };
 
 export const waitingpackageChangeStatus = async (data: {
@@ -914,8 +914,7 @@ export const waitingpackageChangeStatus = async (data: {
     ...data,
   });
   return res.data;
-}
-
+};
 
 export const articlesOutputToWarehouseToWarehouse = async (data: {
   id_almacenOrigen: string;
@@ -965,7 +964,7 @@ export const getPackagesByWarehouseId = async (id: string) => {
 
 export const getPackageById = async (packageId: string) => {
   const res = await axios.get(`/api/Almacen/paquete-articulo?Id=${packageId}`);
-  return res.data as IArticlesPackage ;
+  return res.data as IArticlesPackage;
 };
 
 export const modifyPackage = async (data: {
@@ -1065,14 +1064,7 @@ export const getLotesFromExistingArticles = async (paramUrl: string) => {
 //SolicitudEnfemero
 
 export const addNurseRequest = async (article: any) => {
-  const {
-    Cuarto,
-    Id_Paciente,
-    Id_CuentaPaciente,
-    SolicitadoEn,
-    Id_AlmacenSolicitado,
-    ListaSolicitud,
-  } = article;
+  const { Cuarto, Id_Paciente, Id_CuentaPaciente, SolicitadoEn, Id_AlmacenSolicitado, ListaSolicitud } = article;
 
   const res = await axios.post(`/api/SolicitudEnfemero/registrar-solicitud-enfermero`, {
     Cuarto,
@@ -1086,12 +1078,12 @@ export const addNurseRequest = async (article: any) => {
 };
 
 export const updateStatusNurseRequest = async (data: {
-  Id: string; 
-  EstadoSolicitud: number; 
-  Id_AlmacenOrigen: string; 
-  Id_CuentaPaciente?: string; 
-  Id_Enfermero?: string; 
-  Lotes?: any; 
+  Id: string;
+  EstadoSolicitud: number;
+  Id_AlmacenOrigen: string;
+  Id_CuentaPaciente?: string;
+  Id_Enfermero?: string;
+  Lotes?: any;
 }) => {
   const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
     ...data,

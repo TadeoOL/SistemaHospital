@@ -248,6 +248,7 @@ export interface IArticlesAlert {
 export interface IPurchaseConfig {
   cantidadOrdenDirecta: number;
   factor: IFactor[];
+  factorInterno: IFactor[];
   cantidadLicitacionDirecta: number;
   activarLicitacion?: boolean;
 }
@@ -255,6 +256,7 @@ export interface IPurchaseConfig {
 export interface IPurchaseInternConfig {
   //cantidadOrdenDirecta: number;
   factor: IFactor[] | null;
+  factorInterno: IFactor[] | null;
   //cantidadLicitacionDirecta: number;
   //activarLicitacion?: boolean;
 }

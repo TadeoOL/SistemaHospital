@@ -132,7 +132,7 @@ export const ProvidersTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell width={'26%'} >
+              <TableCell width={'26%'}>
                 <SortComponent
                   tableCellLabel="Nombre de la Compañía"
                   headerName="nombreCompania"

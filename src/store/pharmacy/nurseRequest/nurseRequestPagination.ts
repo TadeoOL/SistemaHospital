@@ -76,15 +76,17 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
 
     try {
       let res: any;
-      if(isNurse){
-        console.log("enfermero");
+      if (isNurse) {
+        console.log('enfermero');
         res = await getNurseRequestPending(
-          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
+          `&pageIndex=${index}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&sort=${sort}`
         );
-      }else{
+      } else {
         res = await getNurseEmiterRequestPending(
-          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
+          `&pageIndex=${index}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}`
         );
       }

@@ -261,8 +261,8 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
             </Stack>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar paciente</Typography>
+            <Stack sx={{ display: 'flex', flex: 1 }}>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
               <Autocomplete
                 disablePortal
                 fullWidth
