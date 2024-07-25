@@ -644,6 +644,7 @@ export interface ICheckoutSell {
   estatus: number;
   id_UsuarioPase: string;
   notas?: string;
+  fechaCreacion: string;
   montoPago?: number;
   nombreUsuario?: string;
   pdfCadena?: string;
