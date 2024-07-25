@@ -63,6 +63,7 @@ import {
 import {
   ProtectedRoutePharmacyDirector,
   ProtectedRoutePharmacyManager,
+  ProtectedRoutePharmacyNurse,
 } from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePharmacy';
 import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
@@ -102,6 +103,8 @@ function App() {
               <Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+              </Route>
+              <Route element={<ProtectedRoutePharmacyNurse />}>
                 <Route path="/farmacia/solicitud-enfermero" element={<NurseRequestView />} />
               </Route>
               {/*<Route element={<ProtectedRoutePharmacyManager />}>

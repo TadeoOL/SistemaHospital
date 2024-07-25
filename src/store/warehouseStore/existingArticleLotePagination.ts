@@ -67,7 +67,7 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSort: (sort: string) => set({ sort }),
-  setData: () => set({ data: []}),
+  setData: () => set({ data: [] }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
@@ -82,16 +82,16 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
       const res = await getLotesFromExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId
-        }&Id_Articulo=${articleId
-        }${inhabilitados === null ? '' : `&LoteHabilitado=${inhabilitados}` }`
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_Articulo=${
+          articleId
+        }${inhabilitados === null ? '' : `&LoteHabilitado=${inhabilitados}`}`
       );
       set(() => ({
         data: res.data,
         count: res.count,
         pageSize: res.pageSize,
         enabled: res.habilitado,
-        pageCount: res.pageCount
+        pageCount: res.pageCount,
       }));
     } catch (error) {
       console.log(error);

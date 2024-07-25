@@ -14,12 +14,12 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
-import { IArticle, IPurchaseConfig, IPurchaseInternConfig } from '../../../../../types/types';
+import { IArticle, IPurchaseConfig } from '../../../../../types/types';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
-import { addNewArticle, getHospitalizationConfig, getPurchaseConfig } from '../../../../../api/api.routes';
+import { addNewArticle, getPurchaseConfig } from '../../../../../api/api.routes';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 
@@ -69,22 +69,6 @@ const useGetPurchaseConfig = () => {
   return config;
 };
 
-const useGetHospitalizationConfig = () => {
-  const [configHos, setConfig] = useState<IPurchaseInternConfig>();
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const configHosRes = await getHospitalizationConfig();
-        setConfig(configHosRes);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetch();
-  }, []);
-  return configHos;
-};
-
 interface IAddArticleModal {
   open: Function;
 }
@@ -93,10 +77,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const { open } = props;
   const { subCategories, isLoading } = useGetSubCategories();
   const config = useGetPurchaseConfig();
-  const configHos = useGetHospitalizationConfig();
   const [valueState, setValueState] = useState('');
-  const [inputValue, setInputValue] = useState<string>('');
-  const [inputValueIP, setInputValueIP] = useState<string>('');
   const [subCategory, setSubCategory] = useState('');
   const textQuantityRef = useRef<HTMLTextAreaElement>();
 
@@ -109,7 +90,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const {
     register,
     handleSubmit,
-    //setValue,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues: {
@@ -143,8 +125,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       }
       data.esCaja = isBox;
       data.unidadesPorCaja = textQuantityRef.current?.value || undefined;
-      data.precioVenta = inputValue;
-      data.precioVentaPI = inputValueIP;
+      // data.precioVenta = precioVenta;
+      // data.precioVentaPI = precioVentaPI;
       await addNewArticle(data);
       console.log('art', data);
       setHandleChangeArticle(!handleChangeArticle);
@@ -180,6 +162,13 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       // Si no es un número, eliminar el último carácter ingresado
       event.target.value = inputValue.slice(0, -1);
     }
+
+    const inputValuePI = event.target.value;
+    const isNumberPI = /^\d*$/.test(inputValuePI);
+    if (!isNumberPI) {
+      // Si no es un número, eliminar el último carácter ingresado
+      event.target.value = inputValuePI.slice(0, -1);
+    }
   };
 
   const handleInputDecimalChange = (event: any) => {
@@ -196,9 +185,9 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
           console.log(precioVentaString);
-          setInputValue(precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue('0');
+          setValue('precioVenta', '0');
         }
       } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
@@ -207,34 +196,33 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValue(precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue('0');
+          setValue('precioVenta', '0');
         }
       }
     });
-    configHos?.factor?.forEach((factor) => {
+    config?.factorInterno?.forEach((factor) => {
       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
-        const precioVenta = precioCompra * factorMultiplicador;
-        if (!isNaN(precioVenta)) {
-          const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValueIP(precioVentaString);
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
         } else {
-          setInputValueIP('0');
+          setValue('precioVentaPI', '0');
         }
       } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
-        const precioVenta = precioCompra * factorMultiplicador;
-        if (!isNaN(precioVenta)) {
-          const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValue(precioVentaString);
-          setInputValueIP(precioVentaString);
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
         } else {
-          setInputValueIP('0');
+          setValue('precioVentaPI', '0');
         }
       }
     });
@@ -338,34 +326,34 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   {...register('precioCompra')}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={3}>
                 <Typography>Precio de Venta</Typography>
                 <TextField
                   fullWidth
                   error={!!errors.precioVenta}
                   helperText={errors?.precioVenta?.message}
                   size="small"
-                  value={inputValue}
+                  value={watch('precioVenta')}
                   inputProps={{
                     maxLength: 10,
                   }}
                   placeholder="Escriba un Precio de Venta"
-                  {...register('precioVenta')}
+                  // {...register('precioVenta')}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography>Precio de Venta Interno</Typography>
+              <Grid item xs={12} md={3}>
+                <Typography>Venta Interna</Typography>
                 <TextField
                   fullWidth
                   error={!!errors.precioVentaPI}
                   helperText={errors?.precioVentaPI?.message}
                   size="small"
-                  value={inputValueIP}
+                  value={watch('precioVentaPI')}
                   inputProps={{
                     maxLength: 10,
                   }}
                   placeholder="Escriba un Precio de Venta PI"
-                  {...register('precioVentaPI')}
+                  // {...register('precioVentaPI')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>

@@ -107,6 +107,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     unidadesPorCaja,
     esCaja,
   } = article ?? {};
@@ -141,6 +142,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       unidadMedida: unidadMedida,
       precioCompra: precioCompra,
       precioVenta: precioVenta,
+      precioVentaPI: precioVentaPI,
       unidadesPorCaja: unidadesPorCaja,
       esCaja: esCaja,
     },
@@ -187,7 +189,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       if (!isBox) {
         data.unidadesPorCaja = undefined;
       }
-      // data.precioVenta = inputValue ?? '0';
       const idForm = getValues('id');
       console.log({ data });
       await modifyArticle({ ...data, id: idForm, esCaja: isBox });
@@ -258,6 +259,31 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         }
       }
     });
+
+    config?.factorInterno.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+        const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      }
+    });
   };
 
   const handleAmountChange = (salePrice?: string) => {
@@ -273,12 +299,26 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         setValue('precioVenta', '0');
       }
     });
+
+    config?.factorInterno.forEach((factor) => {
+      const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
+      const precioComprac = parseFloat(precioCompra || salePrice || '1') / parseFloat(unidadesPorCaja);
+      const factorMultiplicador = factor.factorMultiplicador as number;
+      const precioVentaC = precioComprac * factorMultiplicador;
+      if (!isNaN(precioVentaC)) {
+        const precioVentaString = precioVentaC.toFixed(2).toString();
+        setValue('precioVentaPI', precioVentaString);
+      } else {
+        setValue('precioVentaPI', '0');
+      }
+    });
   };
 
   const boxConvertion = (flag: boolean) => {
     if (flag) {
       //De caja a articulo normal
       setValue('precioVenta', (Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
+      setValue('precioVentaPI', (Number(precioVentaPI || '1') * Number(unidadesPorCaja || '1')).toString());
     }
   };
 
@@ -337,7 +377,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                       min: 0,
                     }}
                     onChange={() => {
-                      handleAmountChange(watch('precioVenta'));
+                      handleAmountChange(watch('precioVenta' || 'precioVentaPI'));
                     }}
                   />
                 </Box>
@@ -384,7 +424,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   {...register('precioCompra')}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={3}>
                 <Typography>Precio de Venta</Typography>
                 <TextField
                   fullWidth
@@ -397,7 +437,21 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                     maxLength: 10,
                   }}
                   placeholder="Escriba un Precio de Venta"
-                  // {...register('precioVenta')}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Typography>Venta Interna</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.precioVentaPI}
+                  helperText={errors?.precioVentaPI?.message}
+                  disabled
+                  size="small"
+                  value={watch('precioVentaPI')}
+                  inputProps={{
+                    maxLength: 10,
+                  }}
+                  placeholder="Escriba un Precio de Venta Interno"
                 />
               </Grid>
               <Grid item xs={12} md={6}>

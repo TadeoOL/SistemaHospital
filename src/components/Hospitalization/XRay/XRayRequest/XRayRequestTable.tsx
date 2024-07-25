@@ -166,7 +166,7 @@ export const XRayRequestTable = () => {
                 startIcon={<AddCircleIcon />}
                 onClick={() => setOpenModal(!openModal)}
               >
-                Solicitar Electrocardiograma
+                Solicitar Estudio de Gabinete
               </Button>
             </Box>
           </Box>

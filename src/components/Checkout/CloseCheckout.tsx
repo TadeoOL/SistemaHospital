@@ -1,4 +1,4 @@
-import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, Stack } from '@mui/material';
 import { useEffect } from 'react';
 import { CheckoutTableComponent } from './CheckoutTableComponent';
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +53,7 @@ export const CloseCheckout = () => {
               >
                 Regresar
               </Button>
-              <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del dia 5</Typography>
+              {/* <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Caja del día</Typography> */}
             </Box>
             <ReporteCaja id_CajaPrincipal={idCaja} />
           </Box>

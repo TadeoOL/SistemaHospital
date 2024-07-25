@@ -38,6 +38,7 @@ const messagesByLink: Record<string, string> = {
   '/ventas/caja': 'Caja',
   '/ventas/emitir-recibo': 'Pase a caja',
   '/ventas/historial-cortes': 'Cortes de caja',
+  '/ventas/corte-caja': 'Caja del Día',
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

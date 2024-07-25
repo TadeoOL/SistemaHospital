@@ -61,37 +61,39 @@ const styles = StyleSheet.create({
 });
 
 export const CommonReport = ({ title, header, data }: CommonExportProps) => {
-  console.log({data})
-if (data == null) {
-  return <></>
-} else {
-return(
-  <>
-  <Document>
-    <Page style={styles.page}>
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.table}>
-        <View style={styles.tableRow}>
-          {header.map((item, index: number) => (
-            <Text style={styles.tableCellHeader} key={index}>
-              {item.nameHeader}
-            </Text>
-          ))}
-        </View>
-        {data?.map((item: any, index: number) => (
-          <View style={styles.tableRow} key={index}>
-            {header.map((headerItem: HeaderItem, headerIndex) => (
-              <Text
-                key={headerIndex}
-                style={[styles.tableCell, index % 2 ? styles.tableCellOdd : styles.tableCellEven]}
-              >
-                {headerItem.key in item ? item[headerItem.key] : ''}
-              </Text>
-            ))}
-          </View>
-        ))}
-      </View>
-    </Page>
-  </Document>
-  </>
-)}}
+  console.log({ data });
+  if (data == null) {
+    return <></>;
+  } else {
+    return (
+      <>
+        <Document>
+          <Page style={styles.page}>
+            <Text style={styles.title}>{title}</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                {header.map((item, index: number) => (
+                  <Text style={styles.tableCellHeader} key={index}>
+                    {item.nameHeader}
+                  </Text>
+                ))}
+              </View>
+              {data?.map((item: any, index: number) => (
+                <View style={styles.tableRow} key={index}>
+                  {header.map((headerItem: HeaderItem, headerIndex) => (
+                    <Text
+                      key={headerIndex}
+                      style={[styles.tableCell, index % 2 ? styles.tableCellOdd : styles.tableCellEven]}
+                    >
+                      {headerItem.key in item ? item[headerItem.key] : ''}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </Page>
+        </Document>
+      </>
+    );
+  }
+};

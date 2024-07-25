@@ -39,6 +39,7 @@ const headTitlesCaja = [
   'Monto de Pago',
   'Tipo de pago',
   'Estatus',
+  'Fecha Emisión',
   'Acciones',
 ];
 const headTitlesAdmin = [
@@ -50,6 +51,7 @@ const headTitlesAdmin = [
   'Monto de Pago',
   'Tipo de pago',
   'Estatus',
+  'Fecha Emisión',
   'Notas',
   'Acciones',
 ];
@@ -62,6 +64,7 @@ const headTitlesFarmacia = [
   'Monto de Pago',
   'Tipo de pago',
   'Estatus',
+  'Fecha Emisión',
   'Notas',
   'Acciones',
 ];
@@ -255,6 +258,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         <TableCell>{data.montoPago ? '$ ' + data.montoPago : 'No se ha cobrado'}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
         <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
+        <TableCell>{data.fechaCreacion}</TableCell>
         {(admin || props.fromPointOfSale) && <TableCell>{data.notas}</TableCell>}
         <TableCell>
           {!props.hideActions ? (

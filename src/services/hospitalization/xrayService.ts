@@ -22,7 +22,7 @@ export const modifyXRay = async (data: {
   precio: number;
   tipo: number;
 }) => {
-  const res = await axios.post(`${apiXRay}/modificar-radiografia`, data);
+  const res = await axios.put(`${apiXRay}/modificar-radiografia`, data);
   return res.data;
 };
 

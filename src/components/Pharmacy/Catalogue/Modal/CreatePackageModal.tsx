@@ -25,6 +25,8 @@ import { toast } from 'react-toastify';
 import { useGetPharmacyConfig } from '../../../../hooks/useGetPharmacyConfig';
 import { useWarehouseMovementPackagesPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaquetesPaginacion';
 import { buildPackage } from '../../../../api/api.routes';
+import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 const TABLE_HEADERS = ['Nombre Articulo', 'Cantidad', 'Fecha de Caducidad', 'Acciones'];
 const style = {
@@ -100,10 +102,680 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
     }
   };
 
+  const articulos = [
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '68d11add-5085-4cd0-a41d-5634d5db68a5',
+      nombre: 'ABATELENGUAS 15 CM  C/ 25 PZS',
+      cantidadSeleccionar: 2,
+      cantidad: 4,
+      lote: [
+        {
+          id_ArticuloExistente: 'e093e572-450f-4957-9f7d-6596ef93c020',
+          id_Articulo: '68d11add-5085-4cd0-a41d-5634d5db68a5',
+          nombre: 'ABATELENGUAS 15 CM  C/ 25 PZS',
+          cantidad: 1,
+          fechaCaducidad: '10/08/2024',
+        },
+        {
+          id_ArticuloExistente: 'e093e572-450f-4957-9f7d-6596ef93c020',
+          id_Articulo: '68d11add-5085-4cd0-a41d-5634d5db68a5',
+          nombre: 'ABATELENGUAS 15 CM  C/ 25 PZS',
+          cantidad: 3,
+          fechaCaducidad: '01/10/2025',
+        },
+      ],
+    },
+    {
+      id_Articulo: 'cc4056d8-3d0c-49fb-b738-40f74c3a22b3',
+      nombre: '\t BREDELIN  500 MG/ 100 MG. SOL. INY.',
+      cantidadSeleccionar: 3,
+      cantidad: 3,
+      lote: [
+        {
+          id_ArticuloExistente: '146927d4-52a2-44aa-bc00-3f6ddbd39d19',
+          id_Articulo: 'cc4056d8-3d0c-49fb-b738-40f74c3a22b3',
+          nombre: '\t BREDELIN  500 MG/ 100 MG. SOL. INY.',
+          cantidad: 3,
+          fechaCaducidad: '10/08/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: 'FF51EDAA-3CF3-473D-A21D-48D315EB78B1',
+      nombre: 'BOLSA DESECHABLE  1000 ML',
+      cantidadSeleccionar: 5,
+      cantidad: 5,
+      lote: [
+        {
+          id_ArticuloExistente: 'b946275d-c10a-420e-9d89-df728e323c57',
+          id_Articulo: 'FF51EDAA-3CF3-473D-A21D-48D315EB78B1',
+          nombre: 'BOLSA DESECHABLE  1000 ML',
+          cantidad: 5,
+          fechaCaducidad: '01/01/4000',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+    {
+      id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+      nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+      cantidadSeleccionar: 1,
+      cantidad: 1,
+      lote: [
+        {
+          id_ArticuloExistente: '428e4720-6ad3-4f7e-bd90-9c13f0d2771c',
+          id_Articulo: '4d6a1d4b-5e56-4cdd-ac66-0c7941f55bfc',
+          nombre: ' CYTOTEC  200 MCG TAB SUELTA',
+          cantidad: 1,
+          fechaCaducidad: '24/07/2024',
+        },
+      ],
+    },
+  ];
+
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Armado de paquete" />
-      <Box sx={style2 }>
+      <Box sx={style2}>
         <CreatePackageModalTable
           articles={props.articles}
           movementHistoryId={props.movementHistoryId}
@@ -120,6 +792,13 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
         <Button variant="contained" onClick={handleSubmit}>
           {isLoading ? <CircularProgress size={25} /> : 'Aceptar'}
         </Button>
+        <PDFDownloadLink
+          document={<PackageReport articulos={articulos} />}
+          fileName={`${Date.now()}.pdf`}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+        </PDFDownloadLink>
       </Box>
     </Box>
   );

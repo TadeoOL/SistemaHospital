@@ -9,7 +9,7 @@ interface State {
   data: any[];
   isLoading: boolean;
   search: string;
-  sort: string
+  sort: string;
   enabled: boolean;
   handleChangeArticle: boolean;
   warehouseSelected: string;
@@ -38,8 +38,8 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   data: [],
   isLoading: true,
   search: '',
-  sort:'',
-  warehouseSelected: 'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5',//harcodeo insano de farmacia
+  sort: '',
+  warehouseSelected: 'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5', //harcodeo insano de farmacia
   enabled: true,
   handleChangeArticle: false,
   setHandleChangeArticle: (handleChangeArticle: boolean) => set({ handleChangeArticle }),
@@ -48,9 +48,9 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
-  setSort: (sort: string) => set ({ sort }),
+  setSort: (sort: string) => set({ sort }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  setWarehouseSelected: (warehouseSelected: string)=> set({warehouseSelected}),
+  setWarehouseSelected: (warehouseSelected: string) => set({ warehouseSelected }),
   fetchArticles: async () => {
     const { pageIndex, pageSize, enabled, search, sort, warehouseSelected } = get();
     set(() => ({ isLoading: true }));
@@ -59,10 +59,11 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
       const res = await getArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&sort=${sort}&habilitado=${enabled
+        }&search=${search}&sort=${sort}&habilitado=${
+          enabled
         }&id_AlmacenPrincipal=${warehouseSelected}&id_Almacen=${warehouseSelected}`
       );
-      console.log("llamada",res);
+      console.log('llamada', res);
       set(() => ({
         data: res.data,
         count: res.count,

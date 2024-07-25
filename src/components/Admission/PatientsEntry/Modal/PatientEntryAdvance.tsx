@@ -204,7 +204,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                 data={accountInfo.procedimientos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'duracionCirujia', header: 'Duracion de Cirujia' },
+                  { key: 'duracionCirujia', header: 'Duracion de Cirugía' },
                   { key: 'duracionHospitalizacion', header: 'Duracion de laHospitalizacion' },
                   { key: 'precio', header: 'Precio Total' },
                 ]}

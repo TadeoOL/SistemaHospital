@@ -103,11 +103,11 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
       }
       if (!requestSelected) {
         setRequestError(true);
-        return toast.warning('Selecciona un tipo electrocardiograma!');
+        return toast.warning('Selecciona un tipo de estudio de gabinete!');
       }
       if (!xraySelected) {
         setXRayError(true);
-        return toast.warning('Selecciona una electrocardiograma!');
+        return toast.warning('Selecciona un estudio de gabinete!');
       }
       const object = {
         Id_Paciente: userSelected.id_Paciente,
@@ -127,7 +127,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Solicitud de electrocardiograma" />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Estudio de Gabinete" />
       <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
         <Box
           sx={{
@@ -178,13 +178,13 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
           <Divider />
           <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
             <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de electrocardiograma</Typography>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de Estudio de Gabinete</Typography>
               <TextField
                 select
-                label="Seleccionar el tipo de electrocardiograma"
+                label="Seleccionar el estudio de gabinete"
                 value={requestSelected}
                 error={requestError}
-                helperText={requestError && 'Selecciona un tipo de electrocardiograma'}
+                helperText={requestError && 'Selecciona un tipo de estudio de gabinete'}
                 onChange={(e) => {
                   setRequestSelected(parseInt(e.target.value));
                   setType(parseInt(e.target.value));
@@ -206,7 +206,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
           <Divider />
           <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
             <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar electrocardiograma</Typography>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Estudio de Gabinete</Typography>
               <Autocomplete
                 disablePortal
                 disabled={!requestSelected}
@@ -222,12 +222,12 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 getOptionLabel={(option) => option.nombre}
                 options={data}
                 value={xraySelected}
-                noOptionsText="No se encontraron electrocardiogramas"
+                noOptionsText="No se encontraron estudios de gabinete"
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     error={xrayError}
-                    helperText={xrayError && 'Selecciona un tipo de electrocardiograma'}
+                    helperText={xrayError && 'Selecciona un tipo de estudio de gabinete'}
                     placeholder={REQUEST_TYPES[requestSelected]}
                     sx={{ width: '100%' }}
                     onChange={(e) => {
