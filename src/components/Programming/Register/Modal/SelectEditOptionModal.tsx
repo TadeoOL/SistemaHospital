@@ -1,8 +1,9 @@
-import { Close, PermIdentity, TextSnippet } from '@mui/icons-material';
-import { Box, IconButton, Stack, Typography } from '@mui/material';
+import { AirlineSeatFlatOutlined, Close, PermIdentity, TextSnippet } from '@mui/icons-material';
+import { Box, Grid, IconButton, Stack, Typography } from '@mui/material';
 import { EditPersonalInfoModal } from './EditData/EditPersonalInfoModal';
 import { EditClinicalInfoModal } from './EditData/EditClinicalInfoModal';
 import { SelectRoomToEdit } from './EditData/SelectRoomToEdit';
+import { EditCalendarEventModal } from './EditData/EditCalendarEventModal';
 
 const style = {
   position: 'absolute',
@@ -69,7 +70,7 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
     case 2:
       return <EditClinicalInfoModal clinicalDataId={props.clinicalHistoryId} setOpen={props.setOpen} />;
     case 3:
-      return <h1>Calendario</h1>;
+      return <EditCalendarEventModal setOpen={props.setOpen} registerId={props.registerId} />;
     case 4:
       return (
         <SelectRoomToEdit
@@ -96,37 +97,21 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
             <Close sx={{ top: 'auto', left: 'auto' }} />
           </IconButton>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 4,
-            flexDirection: {
-              xs: 'column',
-              md: 'row',
-            },
-          }}
-        >
-          {/* <Box
+        <Grid container spacing={2} justifyContent="space-around" alignItems="center">
+          <Grid
             sx={cardStyle}
-            onClick={() => {
-              props.setValue(4);
-            }}
-          >
-            <CalendarMonth sx={iconStyle} />
-            <Typography sx={typographyStyle}>Calendario</Typography>
-          </Box> */}
-          <Box
-            sx={cardStyle}
+            item
+            md={5}
             onClick={() => {
               props.setValue(1);
             }}
           >
             <PermIdentity sx={iconStyle} />
             <Typography sx={typographyStyle}>Información personal</Typography>
-          </Box>
-          <Box
+          </Grid>
+          <Grid
+            item
+            md={5}
             sx={cardStyle}
             onClick={() => {
               props.setValue(2);
@@ -134,8 +119,19 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
           >
             <TextSnippet sx={iconStyle} />
             <Typography sx={typographyStyle}>Información clínica</Typography>
-          </Box>
-        </Box>
+          </Grid>
+          <Grid
+            item
+            md={5}
+            sx={cardStyle}
+            onClick={() => {
+              props.setValue(3);
+            }}
+          >
+            <AirlineSeatFlatOutlined sx={iconStyle} />
+            <Typography sx={typographyStyle}>Cuartos</Typography>
+          </Grid>
+        </Grid>
       </Stack>
     </Box>
   );

@@ -14,6 +14,8 @@ import {
   registerSurgeryProcedure,
 } from '../../../../services/programming/surgeryProcedureService';
 import { useSurgeryProcedurePaginationStore } from '../../../../store/programming/surgeryProcedurePagination';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
 
 const style = {
   position: 'absolute',

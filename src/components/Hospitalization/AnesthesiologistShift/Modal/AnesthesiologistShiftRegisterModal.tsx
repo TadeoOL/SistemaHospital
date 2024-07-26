@@ -9,6 +9,8 @@ import { anesthesiologistShiftRegisterSchema } from '../../../../schema/hospital
 import { toast } from 'react-toastify';
 import { useGetAnesthesiologists } from '../../../../hooks/hospitalization/useGetAnesthesiologists';
 import { registerAnesthesiologistShift } from '../../../../services/hospitalization/anesthesiologistShift';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
 
 const style = {
   position: 'absolute',

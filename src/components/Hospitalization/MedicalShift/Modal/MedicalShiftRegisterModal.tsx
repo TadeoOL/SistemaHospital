@@ -9,6 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { medicalShiftRegisterSchema } from '../../../../schema/hospitalization/hospitalizationSchema';
 import { registerMedicalShift } from '../../../../services/hospitalization/medicalShift';
 import { toast } from 'react-toastify';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
 
 const style = {
   position: 'absolute',

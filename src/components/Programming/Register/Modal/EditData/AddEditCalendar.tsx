@@ -1,45 +1,94 @@
-import dayjs from 'dayjs';
-import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './calendar.css';
-import { Box, CircularProgress, Modal } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { useProgrammingRegisterStore } from '../../../../store/programming/programmingRegister';
+import { IEventsCalendar } from '../../../../../types/types';
+import { Calendar, dayjsLocalizer, NavigateAction, SlotInfo, stringOrDate, View } from 'react-big-calendar';
+import dayjs from 'dayjs';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import { toast } from 'react-toastify';
+import { useProgrammingRegisterStore } from '../../../../../store/programming/programmingRegister';
+import { RoomReservationModal } from '../../../RegisterSteps/RoomReservationModal';
 import classNames from 'classnames';
-import { IEventsCalendar } from '../../../../types/types';
-import { ManyEventsModal } from '../EventsModal/ManyEventsModal';
-import { EventDetailsModal } from '../EventsModal/EventDetailsModal';
-import { RegisterSteps } from '../RegisterSteps';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
-import { modifyEventRoom } from '../../../../services/programming/admissionRegisterService';
-import 'dayjs/locale/es-mx';
-dayjs.locale('es-mx');
 import Swal from 'sweetalert2';
+import { modifyEventRoom } from '../../../../../services/programming/admissionRegisterService';
 
-interface CalendarComponentProps {
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: 380, sm: 550, md: 650 },
+  borderRadius: 2,
+  boxShadow: 24,
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: { xs: 650, md: 800 },
+};
+
+interface AddEditCalendarProps {
   date: Date;
   events: IEventsCalendar[];
   calendarHeight?: number | string;
   calendarWidth?: number | string;
   setDate: Function;
   setEvents: Function;
+  registerId?: string;
+  isEdit?: boolean;
+  registerRoomId?: string;
+  eventView?: Date;
+  refetch?: Function;
 }
+const dayPropGetter = (date: Date) => {
+  const now = dayjs();
+  const isBeforeToday = dayjs(date).isBefore(now, 'seconds');
+  return {
+    className: classNames({
+      'rbc-off-range-bg': isBeforeToday,
+    }),
+    style: isBeforeToday
+      ? {
+          className: 'rbc-off-range',
+          pointerEvents: 'none' as 'none',
+        }
+      : {},
+  };
+};
+
 const DnDCalendar = withDragAndDrop(Calendar);
 
-export const CalendarComponent = (props: CalendarComponentProps) => {
+const eventStyleGetter = (event: any) => {
+  let backgroundColor = event.source === 'local' ? '#ff7f50' : event.title === 'Limpieza' ? '#f47f50' : '#3174ad';
+  let style = {
+    backgroundColor: backgroundColor,
+    borderRadius: '0px',
+    opacity: 0.8,
+    color: 'white',
+    border: '0px',
+    display: 'block',
+    '&:hover': {
+      backgroundColor: 'red',
+      borderRadius: '0px',
+      opacity: 0.2,
+      color: 'white',
+      border: '0px',
+      display: 'block',
+      cursor: 'pointer',
+    },
+  };
+  return {
+    style: style,
+  };
+};
+
+export const AddEditCalendar = (props: AddEditCalendarProps) => {
+  const [myEvents, setMyEvents] = useState<IEventsCalendar[]>(props.events);
   const localizer = dayjsLocalizer(dayjs);
-  const [open, setOpen] = useState(false);
-  const [openManyEvents, setOpenManyEvents] = useState(false);
-  const [openSpecificEvent, setOpenSpecificEvent] = useState(false);
-  const [isFiltering, setIsFiltering] = useState(false);
+  //   const [hashCleanRoomEvents, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
+  const [view, setView] = useState<View>(props.eventView ? 'day' : 'month');
+  const [isFiltering, setIsFiltering] = useState(true);
   const setAppointmentStartDate = useProgrammingRegisterStore((state) => state.setAppointmentStartDate);
   const setAppointmentEndDate = useProgrammingRegisterStore((state) => state.setAppointmentEndDate);
-  const [view, setView] = useState<View>('month');
-  const [specificEventId, setSpecificEventId] = useState('');
-  const [myEvents, setMyEvents] = useState<IEventsCalendar[]>(props.events);
   const [hashCleanRoomEvents, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
+  const [open, setOpen] = useState(false);
 
   const handleClickSlot = (slotInfo: SlotInfo) => {
     const { start, end } = slotInfo;
@@ -51,46 +100,6 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
     setAppointmentStartDate(start);
     setAppointmentEndDate(end);
     setOpen(true);
-  };
-
-  const dayPropGetter = (date: Date) => {
-    const now = dayjs();
-    const isBeforeToday = dayjs(date).isBefore(now, 'seconds');
-    return {
-      className: classNames({
-        'rbc-off-range-bg': isBeforeToday,
-      }),
-      style: isBeforeToday
-        ? {
-            className: 'rbc-off-range',
-            pointerEvents: 'none' as 'none',
-          }
-        : {},
-    };
-  };
-
-  const eventStyleGetter = (event: any) => {
-    let backgroundColor = event.source === 'local' ? '#ff7f50' : event.title === 'Limpieza' ? '#f47f50' : '#3174ad';
-    let style = {
-      backgroundColor: backgroundColor,
-      borderRadius: '0px',
-      opacity: 0.8,
-      color: 'white',
-      border: '0px',
-      display: 'block',
-      '&:hover': {
-        backgroundColor: 'red',
-        borderRadius: '0px',
-        opacity: 0.2,
-        color: 'white',
-        border: '0px',
-        display: 'block',
-        cursor: 'pointer',
-      },
-    };
-    return {
-      style: style,
-    };
   };
 
   const onNavigate = useCallback(
@@ -163,20 +172,20 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
               title: 'Cita modificada',
               text: 'La fecha del evento ha sido cambiada exitosamente.',
               icon: 'success',
-              timer: 1000,
+              timer: 1500,
               showConfirmButton: false,
+            }).finally(() => {
+              if (props.refetch) props.refetch();
             });
-          } catch (error) {
+          } catch (error: any) {
             console.log({ error });
             Swal.fire({
               title: 'Error al modificar la cita',
-              text: 'Hubo un error al intentar cambiar la fecha del evento.',
+              text: `${error.request.response}`,
               icon: 'error',
-              timer: 1000,
+              timer: 1500,
               showConfirmButton: false,
             });
-            // const errorMsg = error as any;
-            // toast.error(errorMsg.response.data as string);
           }
         }
       });
@@ -189,6 +198,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
   }, [props.events]);
 
   useEffect(() => {
+    setIsFiltering(true);
     const newHashCleanRoomEvents: { [key: string]: IEventsCalendar } = {};
     if (view === 'month') {
       const eventsWithoutCleanRooms = props.events.filter((event) => event.title.toLocaleLowerCase() !== 'limpieza');
@@ -206,6 +216,12 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
     setIsFiltering(false);
   }, [props.events, view]);
 
+  useEffect(() => {
+    if (props.eventView) {
+      props.setDate(props.eventView);
+    }
+  }, [props.eventView]);
+
   if (isFiltering)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -213,76 +229,60 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
       </Box>
     );
   return (
-    <Box>
-      <DnDCalendar
-        localizer={localizer}
-        views={['day', 'week', 'month']}
-        view={view}
-        onView={(v) => setView(v)}
-        defaultView={Views.MONTH}
-        step={15}
-        resizable
-        formats={{
-          timeGutterFormat: 'HH:mm',
-        }}
-        events={myEvents}
-        style={{
-          width: '100%',
-          height: view === 'month' ? (props.calendarHeight ? props.calendarHeight : 700) : '100%',
-        }}
-        selectable
-        enableAutoScroll={false}
-        date={props.date}
-        draggableAccessor={(event: any) => {
-          return event.title !== 'Limpieza';
-        }}
-        scrollToTime={dayjs().set('hour', 5).set('minute', 0).toDate()}
-        onNavigate={onNavigate}
-        onSelectSlot={(slot) => handleClickSlot(slot)}
-        dayPropGetter={dayPropGetter}
-        onSelectEvent={(e: any) => {
-          if (e.source) return toast.warning('Todavía no hay información respecto a este evento!');
-          if (e.title.toLowerCase() === 'limpieza') return;
-          setSpecificEventId(e.id);
-          setOpenSpecificEvent(true);
-        }}
-        onShowMore={(_, date) => {
-          props.setDate(date);
-          setView('day');
-        }}
-        eventPropGetter={eventStyleGetter}
-        messages={{
-          showMore: (count) => `${count} citas mas`,
-          next: 'Siguiente',
-          previous: 'Anterior',
-          today: 'Hoy',
-          month: 'Mes',
-          week: 'Semana',
-          day: 'Dia',
-          allDay: 'Todo el dia',
-          yesterday: 'Ayer',
-          noEventsInRange: 'No hay eventos',
-        }}
-        onEventDrop={eventModify}
-        onEventResize={eventModify}
-        // endAccessor={({ end }) => new Date(end.getTime() - 1)}
-        showMultiDayTimes={true}
-      />
+    <>
+      <Box>
+        <DnDCalendar
+          localizer={localizer}
+          views={['day', 'week', 'month']}
+          view={view}
+          onView={(v) => setView(v)}
+          defaultDate={props.eventView ? props.eventView : props.date}
+          step={15}
+          formats={{
+            timeGutterFormat: 'HH:mm',
+          }}
+          events={myEvents}
+          style={{
+            width: '100%',
+            height: props.calendarHeight ? props.calendarHeight : 700,
+          }}
+          selectable={!props.isEdit}
+          enableAutoScroll={false}
+          draggableAccessor={(event: any) => {
+            if (props.isEdit) {
+              return event.id === props.registerRoomId;
+            } else {
+              return event.title !== 'Limpieza';
+            }
+          }}
+          date={props.date}
+          scrollToTime={dayjs().set('hour', 5).set('minute', 0).toDate()}
+          onNavigate={onNavigate}
+          onSelectSlot={(slot) => handleClickSlot(slot)}
+          dayPropGetter={dayPropGetter}
+          eventPropGetter={eventStyleGetter}
+          messages={{
+            showMore: (count) => `${count} citas mas`,
+            next: 'Siguiente',
+            previous: 'Anterior',
+            today: 'Hoy',
+            month: 'Mes',
+            week: 'Semana',
+            day: 'Dia',
+            allDay: 'Todo el dia',
+            yesterday: 'Ayer',
+            noEventsInRange: 'No hay eventos',
+          }}
+          onEventDrop={eventModify}
+          onEventResize={eventModify}
+          showMultiDayTimes={true}
+        />
+      </Box>
       <Modal open={open}>
-        <>
-          <RegisterSteps setOpen={setOpen} />
-        </>
+        <Box sx={style}>
+          <RoomReservationModal setOpen={setOpen} isEdit registerId={props.registerId} setEvents={setMyEvents} />
+        </Box>
       </Modal>
-      <Modal open={openManyEvents}>
-        <>
-          <ManyEventsModal setOpen={setOpenManyEvents} />
-        </>
-      </Modal>
-      <Modal open={openSpecificEvent}>
-        <>
-          <EventDetailsModal setOpen={setOpenSpecificEvent} eventId={specificEventId} />
-        </>
-      </Modal>
-    </Box>
+    </>
   );
 };

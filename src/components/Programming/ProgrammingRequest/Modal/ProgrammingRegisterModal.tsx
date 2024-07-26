@@ -26,6 +26,8 @@ import { createProgrammingRequest } from '../../../../services/programming/progr
 import { useGetMedics } from '../../../../hooks/programming/useGetDoctors';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { programmingRegisterSchema } from '../../../../schema/programming/programmingSchemas';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
 
 const style = {
   position: 'absolute',

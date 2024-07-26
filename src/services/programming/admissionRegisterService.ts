@@ -116,3 +116,15 @@ export const getDocumentData = async (registerId: string) => {
   });
   return res.data;
 };
+
+export const addRegisterRoom = async (data: {
+  id_Registro: string;
+  Cuartos: {
+    cuartoId: string;
+    horaInicio: Date;
+    horaFin: Date;
+  }[];
+}) => {
+  const res = await axios.put(`${apiRegister}/agregar-registro-cuarto`, data);
+  return res.data;
+};
