@@ -30,6 +30,8 @@ import { registerSell } from '../../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 
 const style = {
   position: 'absolute',
@@ -235,6 +237,102 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     }
   };
 
+  const cierreCuenta = {
+    "id": "4edbcd31-6944-4f7a-8da8-8551067c9739",
+   "cuartos": [
+        {
+            "id_RegistroCuarto": "69e8673a-2ea7-4e81-9bf2-787dc4250839",
+            "nombre": "noombre cuarto",
+            "cantidadDias": "1 Dia",
+            "precioDia": 120,
+            "precioTotal": 120
+        }
+    ],
+    "quirofanos": [
+        {
+            "id_RegistroCuarto": "69e8673a-2ea7-4e81-9bf2-787dc4250839",
+            "nombre": "Quirofano 1",
+            "tiempoCirugia": "1 Horas",
+            "precioHora": 120,
+            "precioTotal": 120
+        }
+    ],
+    "procedimientos": [
+        {
+            "id": "bf393348-9e0d-45a5-87a0-56951444b88f",
+            "nombre": "operacion x",
+            "duracionCirujia": "00:20:00",
+            "duracionHospitalizacion": 2,
+            "precio": 8000.00
+        }
+    ],
+    "registrosRadiografias": [],
+    "registrosEquiposBiomedicos": [
+        {
+            "id_RegistroEquipoBiomedico": "b3efd7ba-b0f4-4497-9d63-5ebf78410659",
+            "nombre": "pinzas",
+            "precio": 80.00
+        }
+    ],
+    "registrosEquiposBiomedicosHonorario": [],
+    "paciente": {
+        "nombre": "nnnn",
+        "apellidoPaterno": "ppp",
+        "apellidoMaterno": "mmm",
+        "genero": "Hombre",
+        "estadoCivil": null,
+        "telefono": null,
+        "ocupacion": null,
+        "codigoPostal": null,
+        "colonia": null,
+        "direccion": null,
+        "nombreResponsable": null,
+        "parentesco": null,
+        "domicilioResponsable": null,
+        "coloniaResponsable": null,
+        "codigoPostalResponsable": null,
+        "telefonoResponsable": null,
+        "id": "24ce1ba6-9c4a-4419-a8aa-7c8f907a40b9"
+    },
+    "articulos": [
+        {
+            "id": "12504c23-c32c-462a-b74c-c00e22932dcf",
+            "nombre": "CUBREBOCAS 3 PLIEGUES",
+            "cantidad": 1,
+            "precioVenta": 54.00
+        },
+        {
+            "id": "8ebbb072-13b1-456f-ad09-3e3b79950201",
+            "nombre": "IBUPROFENO ",
+            "cantidad": 1,
+            "precioVenta": 25.91
+        },
+        {
+            "id": "c078ef20-c140-4879-94ef-6d13bdd65ed8",
+            "nombre": "MEDIA ANTIEMBOLICA",
+            "cantidad": 1,
+            "precioVenta": 891.71
+        },
+        {
+            "id": "c4370a0b-1c04-467f-9193-d9f9e4dd168b",
+            "nombre": "FUNDA ",
+            "cantidad": 1,
+            "precioVenta": 165.60
+        }
+    ],
+    "pagosCuenta": [
+        {
+            "id": "a13d1a81-06b4-4d57-9bf1-78ff1a917d91",
+            "folio": "SCP000109",
+            "pagado": true,
+            "total": 1900.00
+        }
+    ],
+    "totalPagoCuenta": 10137.22,
+    "totalPagoCuentaAbonos": 1900.00,
+    "totalPagoCuentaRestante": 8237.22
+};
+
   return (
     <Box sx={style}>
       <HeaderModal
@@ -433,6 +531,13 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         >
           {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
         </Button>
+        <PDFDownloadLink
+              document={<BillCloseReport cierreCuenta={cierreCuenta as any} />}
+              fileName={`${Date.now()}.pdf`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+            </PDFDownloadLink>
       </Box>
     </Box>
   );
