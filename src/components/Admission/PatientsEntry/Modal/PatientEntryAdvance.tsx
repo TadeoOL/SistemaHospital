@@ -258,8 +258,11 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
               {!props.isEntryPayment && accountInfo.totalPagoCuentaAbonos && accountInfo.totalPagoCuentaRestante && (
                 <>
                   <Typography textAlign={'center'} variant="h4">
+                    <b>Subtotal:</b> {accountInfo?.subtotalPagoCuenta}
+              </Typography>
+              <Typography textAlign={'center'} variant="h4">
                     <b>Cuenta Actual:</b> {accountInfo?.totalPagoCuenta}
-                  </Typography>
+              </Typography>
                   <Typography textAlign={'center'} variant="h4">
                     <b>Abonos:</b> {accountInfo?.totalPagoCuentaAbonos}
                   </Typography>

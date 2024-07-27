@@ -405,7 +405,10 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 ]}
               />
               <Typography textAlign={'center'} variant="h4">
-                <b>Cuenta Actual:</b> {accountInfo?.totalPagoCuenta}
+                    <b>Subtotal:</b> {accountInfo?.subtotalPagoCuenta}
+              </Typography>
+              <Typography textAlign={'center'} variant="h4">
+                    <b>Cuenta Actual:</b> {accountInfo?.totalPagoCuenta}
               </Typography>
               <Typography textAlign={'center'} variant="h4">
                 <b>Abonos:</b> {accountInfo?.totalPagoCuentaAbonos}

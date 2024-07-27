@@ -164,9 +164,11 @@ type CierreCuenta = {
   paciente: Paciente;
   articulos: Articulo[];
   pagosCuenta: Pago[];
+  subtotalPagoCuenta: number;
   totalPagoCuenta: number;
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
+  subtotalPagoCuentaRestante: number;
 };
 
 type Props = {
@@ -298,6 +300,8 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
           ))}
         </View>
         <Text style={styles.header}>Totales</Text>
+        <Text>SubTotal: {cierreCuenta.subtotalPagoCuenta}</Text>
+        <Text>Impuesto: {(cierreCuenta.totalPagoCuenta - cierreCuenta.subtotalPagoCuenta).toFixed(2)}   IVA: 16%</Text>
         <Text>Total Pago Cuenta: $ {cierreCuenta.totalPagoCuenta}</Text>
         <Text>Total Abonos: $ {cierreCuenta.totalPagoCuentaAbonos}</Text>
         {descuento && <Text>Descuento: {descuento}%</Text>}
