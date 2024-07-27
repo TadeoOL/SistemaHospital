@@ -75,7 +75,10 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
 
   const [discountflag, setDiscountflag] = useState(false);
+  const [errorflag, setErrorflag] = useState(true);
   const [discount, setDiscount] = useState('');
+  const [discountPercent, setDiscountPrecent] = useState('');
+
   const [discountSurgeryRoomFlag, setDiscountSurgeryRoomFlag] = useState(false);
   const [surgeryPrice, setSurgeryPrice] = useState('');
   const [initialSurgeryPrice, setInitialSurgeryPrice] = useState(0);
@@ -92,7 +95,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           totalQuirofanos += quirofano.precioTotal;
         });
         setInitialSurgeryPrice(totalQuirofanos);
+        setErrorflag(false);
       } catch (error) {
+        setErrorflag(true);
         console.log(error);
         console.log('La cuenta aun no se puede cerrar');
       } finally {
@@ -216,6 +221,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               (accountInfo?.totalPagoCuentaRestante || 0) * (Number(inputRefDiscount.current.value + event.key) / 100)
             ).toFixed(2)
       );
+      setDiscountPrecent(inputRefDiscount.current.value + event.key);
     }
   };
 
@@ -224,8 +230,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     const regex = /^[0-9.]$/;
     if (
       (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
-      (inputRefSurgeryDiscount.current &&
-        Number(inputRefSurgeryDiscount.current.value + event.key) > initialSurgeryPrice) || // Mayor que el coste de quirofano
       (event.key === '.' && inputRefSurgeryDiscount.current && inputRefSurgeryDiscount.current.value.includes('.')) //punto y ya incluye punto
     ) {
       event.preventDefault(); // Evitar la entrada si no es válida
@@ -236,102 +240,49 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
     }
   };
-
-  const cierreCuenta = {
-    "id": "4edbcd31-6944-4f7a-8da8-8551067c9739",
-   "cuartos": [
-        {
-            "id_RegistroCuarto": "69e8673a-2ea7-4e81-9bf2-787dc4250839",
-            "nombre": "noombre cuarto",
-            "cantidadDias": "1 Dia",
-            "precioDia": 120,
-            "precioTotal": 120
-        }
-    ],
-    "quirofanos": [
-        {
-            "id_RegistroCuarto": "69e8673a-2ea7-4e81-9bf2-787dc4250839",
-            "nombre": "Quirofano 1",
-            "tiempoCirugia": "1 Horas",
-            "precioHora": 120,
-            "precioTotal": 120
-        }
-    ],
-    "procedimientos": [
-        {
-            "id": "bf393348-9e0d-45a5-87a0-56951444b88f",
-            "nombre": "operacion x",
-            "duracionCirujia": "00:20:00",
-            "duracionHospitalizacion": 2,
-            "precio": 8000.00
-        }
-    ],
-    "registrosRadiografias": [],
-    "registrosEquiposBiomedicos": [
-        {
-            "id_RegistroEquipoBiomedico": "b3efd7ba-b0f4-4497-9d63-5ebf78410659",
-            "nombre": "pinzas",
-            "precio": 80.00
-        }
-    ],
-    "registrosEquiposBiomedicosHonorario": [],
-    "paciente": {
-        "nombre": "nnnn",
-        "apellidoPaterno": "ppp",
-        "apellidoMaterno": "mmm",
-        "genero": "Hombre",
-        "estadoCivil": null,
-        "telefono": null,
-        "ocupacion": null,
-        "codigoPostal": null,
-        "colonia": null,
-        "direccion": null,
-        "nombreResponsable": null,
-        "parentesco": null,
-        "domicilioResponsable": null,
-        "coloniaResponsable": null,
-        "codigoPostalResponsable": null,
-        "telefonoResponsable": null,
-        "id": "24ce1ba6-9c4a-4419-a8aa-7c8f907a40b9"
-    },
-    "articulos": [
-        {
-            "id": "12504c23-c32c-462a-b74c-c00e22932dcf",
-            "nombre": "CUBREBOCAS 3 PLIEGUES",
-            "cantidad": 1,
-            "precioVenta": 54.00
-        },
-        {
-            "id": "8ebbb072-13b1-456f-ad09-3e3b79950201",
-            "nombre": "IBUPROFENO ",
-            "cantidad": 1,
-            "precioVenta": 25.91
-        },
-        {
-            "id": "c078ef20-c140-4879-94ef-6d13bdd65ed8",
-            "nombre": "MEDIA ANTIEMBOLICA",
-            "cantidad": 1,
-            "precioVenta": 891.71
-        },
-        {
-            "id": "c4370a0b-1c04-467f-9193-d9f9e4dd168b",
-            "nombre": "FUNDA ",
-            "cantidad": 1,
-            "precioVenta": 165.60
-        }
-    ],
-    "pagosCuenta": [
-        {
-            "id": "a13d1a81-06b4-4d57-9bf1-78ff1a917d91",
-            "folio": "SCP000109",
-            "pagado": true,
-            "total": 1900.00
-        }
-    ],
-    "totalPagoCuenta": 10137.22,
-    "totalPagoCuentaAbonos": 1900.00,
-    "totalPagoCuentaRestante": 8237.22
-};
+  const CaclTotalBill = () => {
+    let result = 0;
+    if (discountflag && discountSurgeryRoomFlag) {
+      result = parseFloat(discount);
+    } else if (discountSurgeryRoomFlag) {
+      result =
+        (accountInfo?.totalPagoCuentaRestante ?? 0) +
+        (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice);
+    } else if (discountflag) {
+      result = parseFloat(discount);
+    } else {
+      result = accountInfo?.totalPagoCuentaRestante ?? 0;
+    }
+    return result;
+  };
+  if (errorflag && !isLoading) {
+    return (
+      <Box sx={style}>
+        <HeaderModal
+          setOpen={props.setOpen}
+          title={`Cierre de cuenta ${
+            accountInfo ? ` - Paciente: ${accountInfo.paciente.nombre} ${accountInfo.paciente.apellidoPaterno}` : ''
+          }`}
+        />
+        <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
+          <b>La información de la cuenta del paciente no esta completa</b>
+        </Typography>
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            display: 'flex',
+            p: 1,
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+          }}
+        >
+          <Button sx={{ ml: 'auto' }} variant="outlined" color="error" onClick={() => props.setOpen(false)}>
+            Cerrar
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={style}>
@@ -342,7 +293,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         }`}
       />
       <Box sx={style2}>
-        {isLoading ? (
+        {isLoading && !errorflag ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress size={35} />
           </Box>
@@ -464,8 +415,19 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         )}
       </Box>
       <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
-        <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
-        {discountSurgeryRoomFlag ? ` - ${(initialSurgeryPrice - Number(surgeryPrice)).toFixed(2)}` : ``}
+        {discountSurgeryRoomFlag ? (
+          <>
+            <b>Total Restante:</b>{' '}
+            {(
+              (accountInfo?.totalPagoCuentaRestante ?? 0) +
+              (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice)
+            ).toFixed(2)}{' '}
+          </>
+        ) : (
+          <>
+            <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
+          </>
+        )}
       </Typography>
       <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
@@ -531,13 +493,30 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         >
           {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
         </Button>
-        <PDFDownloadLink
-              document={<BillCloseReport cierreCuenta={cierreCuenta as any} />}
-              fileName={`${Date.now()}.pdf`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-            </PDFDownloadLink>
+        {!isLoading && !errorflag && (
+          <PDFDownloadLink
+            document={
+              <BillCloseReport
+                cierreCuenta={accountInfo as any}
+                descuento={discountPercent !== '' ? discountPercent : undefined}
+                total={CaclTotalBill()}
+                notas={
+                  discountflag && discountSurgeryRoomFlag
+                    ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
+                    : discountflag
+                      ? 'Se le hizo descuento'
+                      : discountSurgeryRoomFlag
+                        ? 'Se cambio el precio de quirofano'
+                        : ''
+                }
+              />
+            }
+            fileName={`${Date.now()}.pdf`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+          </PDFDownloadLink>
+        )}
       </Box>
     </Box>
   );

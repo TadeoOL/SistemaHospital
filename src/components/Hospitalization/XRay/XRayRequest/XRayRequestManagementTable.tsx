@@ -146,7 +146,7 @@ export const XRayRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `¿Seguro que deseas cancelar esta solicitud de enfermero?`,
+        text: `¿Seguro que deseas cancelar esta solicitud de estudios?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -183,7 +183,7 @@ export const XRayRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
-        text: `¿Estás seguro de aceptar esta salida de artículos?`,
+        text: `¿Estás seguro de aceptar esta solicitud de estudios?`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Aceptar',

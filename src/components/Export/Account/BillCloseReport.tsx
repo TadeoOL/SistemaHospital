@@ -79,7 +79,6 @@ const styles = StyleSheet.create({
   },
 });
 
-
 type Cuarto = {
   id_RegistroCuarto: string;
   nombre: string;
@@ -124,6 +123,16 @@ type Pago = {
   total: number;
 };
 
+type EstudiosDeGabinete = {
+  id_RegistroRadiografia: string;
+  folio: string;
+  nombreSolicitante: string;
+  nombre: string;
+  pagado: boolean;
+  precio: number;
+  estatus: number;
+};
+
 type Paciente = {
   nombre: string;
   apellidoPaterno: string;
@@ -149,7 +158,7 @@ type CierreCuenta = {
   cuartos: Cuarto[];
   quirofanos: Quirofano[];
   procedimientos: Procedimiento[];
-  registrosRadiografias: any[];
+  registrosRadiografias: EstudiosDeGabinete[];
   registrosEquiposBiomedicos: EquipoBiomedico[];
   registrosEquiposBiomedicosHonorario: any[];
   paciente: Paciente;
@@ -162,14 +171,20 @@ type CierreCuenta = {
 
 type Props = {
   cierreCuenta: CierreCuenta;
+  descuento?: string;
+  total: number | string;
+  notas?: string;
 };
 
-export const BillCloseReport = ({ cierreCuenta }: Props) => (
+export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props) => (
   <Document>
     <Page style={styles.page}>
       <View style={styles.section}>
         <Text style={styles.header}>Información del Paciente</Text>
-        <Text>Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno} {cierreCuenta.paciente.apellidoMaterno}</Text>
+        <Text>
+          Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno}{' '}
+          {cierreCuenta.paciente.apellidoMaterno}
+        </Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.header}>Detalles de la Cuenta</Text>
@@ -224,6 +239,21 @@ export const BillCloseReport = ({ cierreCuenta }: Props) => (
             </View>
           ))}
         </View>
+        <Text style={styles.header}>Estudios de Gabinete</Text>
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCol}>Folio</Text>
+            <Text style={styles.tableCol}>Nombre</Text>
+            <Text style={styles.tableCol}>Precio</Text>
+          </View>
+          {cierreCuenta.registrosRadiografias.map((estudio, index) => (
+            <View style={styles.tableRow} key={index}>
+              <Text style={styles.tableCell}>{estudio.folio}</Text>
+              <Text style={styles.tableCell}>{estudio.nombre}</Text>
+              <Text style={styles.tableCell}>$ {estudio.precio}</Text>
+            </View>
+          ))}
+        </View>
         <Text style={styles.header}>Equipos Biomédicos</Text>
         <View style={styles.table}>
           <View style={styles.tableRow}>
@@ -270,7 +300,9 @@ export const BillCloseReport = ({ cierreCuenta }: Props) => (
         <Text style={styles.header}>Totales</Text>
         <Text>Total Pago Cuenta: $ {cierreCuenta.totalPagoCuenta}</Text>
         <Text>Total Abonos: $ {cierreCuenta.totalPagoCuentaAbonos}</Text>
-        <Text>Total Restante: $ {cierreCuenta.totalPagoCuentaRestante}</Text>
+        {descuento && <Text>Descuento: {descuento}%</Text>}
+        <Text>Total Restante: $ {total}</Text>
+        <Text>Notas: {notas}</Text>
       </View>
     </Page>
   </Document>
