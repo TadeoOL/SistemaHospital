@@ -697,6 +697,7 @@ export interface IRoomEvent {
   nombre: string;
   fechaInicio: string;
   fechaFin: string;
+  tipoCuarto?: string;
 }
 export interface IEventsCalendar {
   id: string;

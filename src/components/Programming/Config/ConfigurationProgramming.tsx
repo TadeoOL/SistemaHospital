@@ -8,6 +8,9 @@ import { modifyModuleConfig } from '../../../api/api.routes';
 import { useEffect, useState } from 'react';
 import { getAdmissionConfig } from '../../../services/programming/configAdmissionService';
 import { parseDuration } from '../../../utils/admission/admissionUtils';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
+
 interface Inputs {
   timeRooms: Dayjs;
   timeOperatingRooms: Dayjs;

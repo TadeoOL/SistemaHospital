@@ -41,6 +41,8 @@ import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
+import 'dayjs/locale/es-mx';
+dayjs.locale('es-mx');
 
 const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
 

@@ -9,12 +9,15 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addRoomReservation } from '../../../schema/programming/programmingSchemas';
 import { useGetAllRooms } from '../../../hooks/programming/useGetAllRooms';
-import { IRegisterRoom } from '../../../types/types';
+import { IEventsCalendar, IRegisterRoom } from '../../../types/types';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
 import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2';
+import { addRegisterRoom } from '../../../services/programming/admissionRegisterService';
+import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -39,6 +42,9 @@ interface RoomsInput {
 
 interface RoomReservationModalProps {
   setOpen: Function;
+  isEdit?: boolean;
+  registerId?: string;
+  setEvents?: (eventsCalendar: IEventsCalendar[]) => void;
 }
 
 export const RoomReservationModal = (props: RoomReservationModalProps) => {
@@ -46,6 +52,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+  const clearAllData = useProgrammingRegisterStore((state) => state.clearAllData);
   const events = useProgrammingRegisterStore((state) => state.events);
   const appointmentStartDate = useProgrammingRegisterStore((state) => state.appointmentStartDate);
   const appointmentEndDate = useProgrammingRegisterStore((state) => state.appointmentEndDate);
@@ -54,6 +61,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const setStartDateSurgery = useProgrammingRegisterStore((state) => state.setStartDateSurgery);
   const step = useProgrammingRegisterStore((state) => state.step);
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
 
   const {
     control: controlRooms,
@@ -117,7 +125,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       }
     }
     setStartDateSurgery(startDate);
-
+    console.log({ roomValues });
     const roomObj = roomValues
       .map((r) => {
         return {
@@ -131,8 +139,62 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       })
       .filter((room) => !events.some((event) => event.id === room.id));
     setEvents([...events, ...roomObj]);
-    toast.success('Datos registrados correctamente!');
-    setStep(step + 1);
+    if (props.isEdit) {
+      Swal.fire({
+        title: 'Los espacios reservados son correctos?',
+        text: 'Verifica que los espacios reservados estén correctamente asignados.',
+        icon: 'question',
+        confirmButtonText: 'Aceptar',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        allowOutsideClick: false,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await addRegisterRoom({
+              id_Registro: props.registerId as string,
+              Cuartos: roomObj.map((event) => {
+                return {
+                  cuartoId: event.roomId,
+                  horaFin: event.end,
+                  horaInicio: event.start,
+                };
+              }),
+            });
+            Swal.fire({
+              title: 'Reservación exitosa!',
+              text: 'Los espacios reservados ha sido guardado correctamente.',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            }).finally(() => {
+              if (props.setEvents) {
+                props.setEvents(roomObj);
+              }
+              clearAllData();
+              refetch();
+              props.setOpen(false);
+            });
+          } catch (error) {
+            Swal.fire({
+              title: 'Error al guardar los espacios!',
+              text: 'Hubo un error al guardar los espacios reservados. Intente nuevamente.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
+          }
+        }
+      });
+    } else {
+      toast.success('Datos registrados correctamente!');
+      setStep(step + 1);
+    }
   };
 
   useEffect(() => {
@@ -201,6 +263,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
 
     return false;
   };
+
+  useEffect(() => {
+    return () => {
+      if (props.isEdit) {
+        clearAllData();
+      }
+    };
+  }, []);
 
   if (isLoadingRooms)
     return (
