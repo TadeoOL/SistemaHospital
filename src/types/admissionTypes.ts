@@ -69,6 +69,7 @@ export interface IPatientRegisterPagination {
   id_HistorialClinico: string;
   faltanDatos?: boolean;
   admitido?: boolean;
+  procedimientos?: Procedimiento[];
 }
 
 export interface IPatientAccount {
