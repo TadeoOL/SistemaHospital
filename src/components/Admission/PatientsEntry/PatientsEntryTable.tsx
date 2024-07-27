@@ -20,7 +20,7 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
-import { IPatientRegisterPagination } from '../../../types/admissionTypes';
+import { IPatientRegisterPagination, Procedimiento } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
 import { Check, DocumentScanner, Edit, Info, Paid, Print } from '@mui/icons-material';
 import { PatientInfoModal } from '../../Programming/Register/Modal/PatientInfoModal';
@@ -32,7 +32,15 @@ import {
   generateSurgeryDoc,
 } from '../../Documents/AdmissionDocs/AdmissionDoc';
 
-const headers = ['Clave paciente', 'Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Datos Clinicos', 'Acciones'];
+const headers = [
+  'Clave paciente',
+  'Nombre Paciente',
+  'Procedimiento',
+  'Fecha Ingreso',
+  'Datos Paciente',
+  'Datos Clinicos',
+  'Acciones',
+];
 
 interface TableBodyPatientsEntryProps {
   data: IPatientRegisterPagination[];
@@ -137,6 +145,14 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
       <TableRow>
         <TableCell>{data.clavePaciente}</TableCell>
         <TableCell>{data.nombrePaciente}</TableCell>
+        <TableCell>
+          {data.procedimientos?.map((procedimiento: Procedimiento, index: number) => (
+            <span key={index}>
+              {procedimiento.nombre}
+              {index < (data.procedimientos?.length || 0) - 1 && ', '}
+            </span>
+          ))}
+        </TableCell>
         <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
         <TableCell>
           <Button

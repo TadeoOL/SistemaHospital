@@ -76,8 +76,10 @@ export interface IAcountAllInformation {
   articulos: IArticlesAccount[];
   pagosCuenta: IPaymentsAccount[];
   totalPagoCuenta: number;
+  subtotalPagoCuenta: number;
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
+  subtotalPagoCuentaRestante: number;
 }
 
 export interface IAcountAllInformationAdmission {
@@ -92,9 +94,11 @@ export interface IAcountAllInformationAdmission {
   paciente: IPatientInAccount;
   pagosCuenta: IPaymentsAccount[];
   articulos: IArticlesAccount[];
+  subtotalPagoCuenta: number;
   totalPagoCuenta: number;
   totalPagoCuentaAbonos?: number;
   totalPagoCuentaRestante?: number;
+  subtotalPagoCuentaRestante: number;
 }
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
