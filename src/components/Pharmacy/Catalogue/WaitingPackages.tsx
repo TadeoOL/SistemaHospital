@@ -28,12 +28,14 @@ import withReactContent from 'sweetalert2-react-content';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
-import { articlesOutputToWarehouse, waitingpackageChangeStatus } from '../../../api/api.routes';
+import { articlesOutputToWarehouse, getPackagePreBuilded, waitingpackageChangeStatus } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { SortComponent } from '../../Commons/SortComponent';
 import { LuPackagePlus } from 'react-icons/lu';
-import { CreatePackageModal } from './Modal/CreatePackageModal';
+//import { CreatePackageModal } from './Modal/CreatePackageModal';
 import { IArticleHistory } from '../../../types/types';
+import { RequestBuildingModalMutation } from './Modal/CreatePackageModalMutation';
+import { ArticlesToSelectLote } from '../UserRequest/Modal/RequestBuildingModal';
 
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
@@ -130,6 +132,7 @@ export const WaitingPackages = () => {
   const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
   const [packageSelected, setPackageSelected] = useState('');
   const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
+  const [prebuildedArticles, setPrebuildedArticles] = useState<ArticlesToSelectLote[] | null>(null);
 
   const rejectRequest = (idRequest: string) => {
     withReactContent(Swal)
@@ -208,7 +211,8 @@ export const WaitingPackages = () => {
       });
   };
 
-  const createPackage = (id: string) => {
+  const createPackage = (id: string, request: ArticlesToSelectLote[]) => {
+    setPrebuildedArticles(request);
     setOpenCreatePackageModal(true);
     setPackageSelected(id);
   };
@@ -344,7 +348,17 @@ export const WaitingPackages = () => {
                                 </>
                               ) : (
                                 <>
-                                  <IconButton onClick={() => createPackage(movimiento.id)}>
+                                  <IconButton
+                                    onClick={async () => {
+                                      try {
+                                        //Agregar Loader
+                                        const packRes = await getPackagePreBuilded(movimiento.id);
+                                        createPackage(movimiento.id, packRes);
+                                      } catch (error) {
+                                        console.log(error);
+                                      }
+                                    }}
+                                  >
                                     <LuPackagePlus
                                       style={{
                                         color: '#8F959E',
@@ -441,11 +455,19 @@ export const WaitingPackages = () => {
       </Stack>
       <Modal open={openCreatePackageModal} onClose={() => setOpenCreatePackageModal(false)}>
         <>
-          <CreatePackageModal
+          {/*<CreatePackageModal
             setOpen={setOpenCreatePackageModal}
             articles={provisionalArticles}
             movementHistoryId={packageSelected}
             setArticles={setProvisionalArticles}
+            preLoadedArticles={prebuildedArticles ?? []}
+          />*/}
+          <RequestBuildingModalMutation
+            setOpen={setOpenCreatePackageModal}
+            requestedItems={provisionalArticles}
+            refetch={fetchWareHouseMovements}
+            preLoadedArticles={prebuildedArticles ?? ([] as ArticlesToSelectLote[])}
+            movementHistoryId={packageSelected}
           />
         </>
       </Modal>

@@ -291,7 +291,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
   const rejectRequest = (Id_Request: string) => {
     Swal.fire({
       title: 'Advertencia',
-      text: `¿Seguro que deseas cancelar esta solicitud de enfermero?`,
+      text: `¿Seguro que deseas cancelar esta solicitud de estudios?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Si',

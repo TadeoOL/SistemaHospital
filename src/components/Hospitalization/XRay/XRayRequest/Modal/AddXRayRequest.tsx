@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Collapse,
   Divider,
   MenuItem,
   Stack,
@@ -62,6 +63,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
   const [requestSelected, setRequestSelected] = useState<number>(0);
   const [xraySelected, setXRaySelected] = useState<null | IXRay>(null);
+  const [priceSami, setPriceSami] = useState<string>('');
   const [userError, setUserError] = useState(false);
   const [requestError, setRequestError] = useState(false);
   const [xrayError, setXRayError] = useState(false);
@@ -209,7 +211,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Estudio de Gabinete</Typography>
               <Autocomplete
                 disablePortal
-                disabled={!requestSelected}
+                disabled={!requestSelected || requestSelected === 4}
                 fullWidth
                 filterOptions={filterXRayOptions}
                 onChange={(e, val) => {
@@ -241,6 +243,14 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
               />
             </Stack>
           </Box>
+          <Collapse in={requestSelected === 4} unmountOnExit>
+            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+              <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Precio de SAMI:</Typography>
+                <TextField label="Escribe un precio" />
+              </Stack>
+            </Box>
+          </Collapse>
         </Box>
 
         <Box

@@ -48,6 +48,7 @@ export const HospitalizationConfig = () => {
     } else {
       setConfigPurchase({
         factor: [],
+        factorInterno: [],
       });
     }
   }, [config]);

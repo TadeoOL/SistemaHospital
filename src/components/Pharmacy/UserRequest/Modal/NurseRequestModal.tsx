@@ -58,7 +58,21 @@ const style = {
   flexDirection: 'column',
   maxHeight: { xs: 600 },
 };
-
+const style2 = {
+  bgcolor: 'background.paper',
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
+};
 export const NurseRequestModal = (props: { setOpen: Function; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
@@ -219,198 +233,199 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Petición de enfermero" />
-      <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            justifyContent: 'space-between',
-            columnGap: 2,
-            flexDirection: 'column',
-            rowGap: { xs: 2, sm: 0 },
-          }}
-        >
-          <Box sx={{ display: 'flex', flexDirection: 'row', mb: 1 }}>
-            <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
-
-              {!isLoadingWarehouse && (
-                <TextField
-                  select
-                  label="Almacén"
-                  size="small"
-                  error={warehouseError}
-                  helperText={warehouseError && 'Selecciona un almacén'}
-                  value={warehouseSelected}
-                  onChange={(e) => {
-                    setWarehouseError(false);
-                    setWarehouseSelected(e.target.value);
-                    handleFetchArticlesFromWareHouse(e.target.value);
-                    setArticles([]);
-                  }}
-                >
-                  {warehousesFetched &&
-                    warehousesFetched?.length > 0 &&
-                    warehousesFetched.map((warehouse) => (
-                      <MenuItem key={warehouse.id} value={warehouse.id}>
-                        {warehouse.nombre}
-                      </MenuItem>
-                    ))}
-                </TextField>
-              )}
-            </Stack>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterPatientOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setUserSelected(val);
-                  setUserError(false);
-                }}
-                //cambiar loading
-                loading={isLoadingArticlesWareH && usersData.length === 0}
-                getOptionLabel={(option) => option.nombreCompleto}
-                options={usersData}
-                value={userSelected}
-                noOptionsText="No se encontraron pacientes"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={userError}
-                    helperText={userError && 'Selecciona un paciente'}
-                    placeholder="Pacientes"
-                    sx={{ width: '100%' }}
-                    onChange={(e) => {
-                      if (e.target.value === null) {
-                        setPatientSearch('');
-                      }
-                      setPatientSearch(e.target.value);
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-          </Box>
-          <Divider />
-          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterArticleOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setArticleSelected(val);
-                  setArticleError(false);
-                }}
-                loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
-                getOptionLabel={(option) => option.nombre}
-                options={dataWerehouseSelectedArticles}
-                value={articleSelected}
-                noOptionsText="No se encontraron artículos"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={articleError}
-                    helperText={articleError && 'Selecciona un articulo'}
-                    placeholder="Artículos"
-                    sx={{ width: '95%' }}
-                    onChange={(e) => {
-                      if (e.target.value === null) {
-                        setSearch('');
-                      }
-                      setSearch(e.target.value);
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-            <Stack sx={{ display: 'flex', flex: 1 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14, width: '60%', ml: 'auto' }}>
-                Ingresar cantidad
-              </Typography>
-              <TextField
-                sx={{ width: '60%', ml: 'auto' }}
-                size="small"
-                fullWidth
-                placeholder="Cantidad"
-                value={amountText}
-                error={amountError}
-                helperText={amountError && 'Agrega una cantidad'}
-                onChange={(e) => {
-                  if (!isValidInteger(e.target.value)) return;
-                  setAmountText(e.target.value);
-                  setAmountError(false);
-                }}
-              />
-              {articleSelected?.id && (
-                <Typography sx={{ fontWeight: 500, fontSize: 14, width: '60%', ml: 'auto' }}>
-                  Stock Disponible : {articleSelected?.stock}{' '}
-                </Typography>
-              )}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flex: 1,
-                  justifyContent: 'flex-end',
-                  mt: 2,
-                }}
-              >
-                <AnimateButton>
-                  <Button
-                    size="medium"
-                    variant="contained"
-                    startIcon={<AddCircleIcon />}
-                    onClick={() => handleAddArticles()}
-                  >
-                    Agregar
-                  </Button>
-                </AnimateButton>
-              </Box>
-            </Stack>
-          </Box>
-        </Box>
-
-        <ArticlesTable setEditingRow={() => {}} />
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            justifyContent: 'space-between',
-            mt: 2,
-            bottom: 0,
-          }}
-        >
-          <Button
-            variant="outlined"
-            startIcon={<Cancel />}
-            color="error"
-            onClick={() => {
-              //props.setOpen(false);
+      <Box sx={style2}>
+        <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flex: 1,
+              justifyContent: 'space-between',
+              columnGap: 2,
+              flexDirection: 'column',
+              rowGap: { xs: 2, sm: 0 },
             }}
           >
-            Cancelar
-          </Button>
-          <Button
-            variant="contained"
-            endIcon={<Save />}
-            //disabled={editingIds.size > 0 || articles.length === 0}
-            onClick={() => {
-              onSubmit(
-                articles.map((art) => ({
-                  Id_Articulo: art.id,
-                  Nombre: art.name,
-                  Cantidad: art.amount,
-                  FechaCaducidad: null,
-                }))
-              );
-              /*submitData({
+            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 1 }}>
+              <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
+
+                {!isLoadingWarehouse && (
+                  <TextField
+                    select
+                    label="Almacén"
+                    size="small"
+                    error={warehouseError}
+                    helperText={warehouseError && 'Selecciona un almacén'}
+                    value={warehouseSelected}
+                    onChange={(e) => {
+                      setWarehouseError(false);
+                      setWarehouseSelected(e.target.value);
+                      handleFetchArticlesFromWareHouse(e.target.value);
+                      setArticles([]);
+                    }}
+                  >
+                    {warehousesFetched &&
+                      warehousesFetched?.length > 0 &&
+                      warehousesFetched.map((warehouse) => (
+                        <MenuItem key={warehouse.id} value={warehouse.id}>
+                          {warehouse.nombre}
+                        </MenuItem>
+                      ))}
+                  </TextField>
+                )}
+              </Stack>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterPatientOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setUserSelected(val);
+                    setUserError(false);
+                  }}
+                  //cambiar loading
+                  loading={isLoadingArticlesWareH && usersData.length === 0}
+                  getOptionLabel={(option) => option.nombreCompleto}
+                  options={usersData}
+                  value={userSelected}
+                  noOptionsText="No se encontraron pacientes"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={userError}
+                      helperText={userError && 'Selecciona un paciente'}
+                      placeholder="Pacientes"
+                      sx={{ width: '100%' }}
+                      onChange={(e) => {
+                        if (e.target.value === null) {
+                          setPatientSearch('');
+                        }
+                        setPatientSearch(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+            </Box>
+            <Divider />
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterArticleOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setArticleSelected(val);
+                    setArticleError(false);
+                  }}
+                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  getOptionLabel={(option) => option.nombre}
+                  options={dataWerehouseSelectedArticles}
+                  value={articleSelected}
+                  noOptionsText="No se encontraron artículos"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={articleError}
+                      helperText={articleError && 'Selecciona un articulo'}
+                      placeholder="Artículos"
+                      sx={{ width: '95%' }}
+                      onChange={(e) => {
+                        if (e.target.value === null) {
+                          setSearch('');
+                        }
+                        setSearch(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14, width: '60%', ml: 'auto' }}>
+                  Ingresar cantidad
+                </Typography>
+                <TextField
+                  sx={{ width: '60%', ml: 'auto' }}
+                  size="small"
+                  fullWidth
+                  placeholder="Cantidad"
+                  value={amountText}
+                  error={amountError}
+                  helperText={amountError && 'Agrega una cantidad'}
+                  onChange={(e) => {
+                    if (!isValidInteger(e.target.value)) return;
+                    setAmountText(e.target.value);
+                    setAmountError(false);
+                  }}
+                />
+                {articleSelected?.id && (
+                  <Typography sx={{ fontWeight: 500, fontSize: 14, width: '60%', ml: 'auto' }}>
+                    Stock Disponible : {articleSelected?.stock}{' '}
+                  </Typography>
+                )}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flex: 1,
+                    justifyContent: 'flex-end',
+                    mt: 2,
+                  }}
+                >
+                  <AnimateButton>
+                    <Button
+                      size="medium"
+                      variant="contained"
+                      startIcon={<AddCircleIcon />}
+                      onClick={() => handleAddArticles()}
+                    >
+                      Agregar
+                    </Button>
+                  </AnimateButton>
+                </Box>
+              </Stack>
+            </Box>
+          </Box>
+
+          <ArticlesTable setEditingRow={() => {}} />
+          <Box
+            sx={{
+              display: 'flex',
+              flex: 1,
+              justifyContent: 'space-between',
+              mt: 2,
+              bottom: 0,
+            }}
+          >
+            <Button
+              variant="outlined"
+              startIcon={<Cancel />}
+              color="error"
+              onClick={() => {
+                //props.setOpen(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="contained"
+              endIcon={<Save />}
+              //disabled={editingIds.size > 0 || articles.length === 0}
+              onClick={() => {
+                onSubmit(
+                  articles.map((art) => ({
+                    Id_Articulo: art.id,
+                    Nombre: art.name,
+                    Cantidad: art.amount,
+                    FechaCaducidad: null,
+                  }))
+                );
+                /*submitData({
               almacenDestino: warehouseSelected,
               historialArticulos: articles.map((art) => ({
                 Id_ArticuloExistente: art.id,
@@ -419,12 +434,13 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
                 FechaCaducidad: null,
               })),
             });*/
-            }}
-          >
-            Guardar
-          </Button>
-        </Box>
-      </Stack>
+              }}
+            >
+              Guardar
+            </Button>
+          </Box>
+        </Stack>
+      </Box>
     </Box>
   );
 };

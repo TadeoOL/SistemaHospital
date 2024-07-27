@@ -30,6 +30,8 @@ import { registerSell } from '../../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 
 const style = {
   position: 'absolute',
@@ -73,7 +75,10 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
 
   const [discountflag, setDiscountflag] = useState(false);
+  const [errorflag, setErrorflag] = useState(true);
   const [discount, setDiscount] = useState('');
+  const [discountPercent, setDiscountPrecent] = useState('');
+
   const [discountSurgeryRoomFlag, setDiscountSurgeryRoomFlag] = useState(false);
   const [surgeryPrice, setSurgeryPrice] = useState('');
   const [initialSurgeryPrice, setInitialSurgeryPrice] = useState(0);
@@ -90,7 +95,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           totalQuirofanos += quirofano.precioTotal;
         });
         setInitialSurgeryPrice(totalQuirofanos);
+        setErrorflag(false);
       } catch (error) {
+        setErrorflag(true);
         console.log(error);
         console.log('La cuenta aun no se puede cerrar');
       } finally {
@@ -214,6 +221,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               (accountInfo?.totalPagoCuentaRestante || 0) * (Number(inputRefDiscount.current.value + event.key) / 100)
             ).toFixed(2)
       );
+      setDiscountPrecent(inputRefDiscount.current.value + event.key);
     }
   };
 
@@ -222,8 +230,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     const regex = /^[0-9.]$/;
     if (
       (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
-      (inputRefSurgeryDiscount.current &&
-        Number(inputRefSurgeryDiscount.current.value + event.key) > initialSurgeryPrice) || // Mayor que el coste de quirofano
       (event.key === '.' && inputRefSurgeryDiscount.current && inputRefSurgeryDiscount.current.value.includes('.')) //punto y ya incluye punto
     ) {
       event.preventDefault(); // Evitar la entrada si no es válida
@@ -234,6 +240,49 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
     }
   };
+  const CaclTotalBill = () => {
+    let result = 0;
+    if (discountflag && discountSurgeryRoomFlag) {
+      result = parseFloat(discount);
+    } else if (discountSurgeryRoomFlag) {
+      result =
+        (accountInfo?.totalPagoCuentaRestante ?? 0) +
+        (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice);
+    } else if (discountflag) {
+      result = parseFloat(discount);
+    } else {
+      result = accountInfo?.totalPagoCuentaRestante ?? 0;
+    }
+    return result;
+  };
+  if (errorflag && !isLoading) {
+    return (
+      <Box sx={style}>
+        <HeaderModal
+          setOpen={props.setOpen}
+          title={`Cierre de cuenta ${
+            accountInfo ? ` - Paciente: ${accountInfo.paciente.nombre} ${accountInfo.paciente.apellidoPaterno}` : ''
+          }`}
+        />
+        <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
+          <b>La información de la cuenta del paciente no esta completa</b>
+        </Typography>
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            display: 'flex',
+            p: 1,
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+          }}
+        >
+          <Button sx={{ ml: 'auto' }} variant="outlined" color="error" onClick={() => props.setOpen(false)}>
+            Cerrar
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={style}>
@@ -244,7 +293,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         }`}
       />
       <Box sx={style2}>
-        {isLoading ? (
+        {isLoading && !errorflag ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress size={35} />
           </Box>
@@ -366,8 +415,19 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         )}
       </Box>
       <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
-        <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
-        {discountSurgeryRoomFlag ? ` - ${(initialSurgeryPrice - Number(surgeryPrice)).toFixed(2)}` : ``}
+        {discountSurgeryRoomFlag ? (
+          <>
+            <b>Total Restante:</b>{' '}
+            {(
+              (accountInfo?.totalPagoCuentaRestante ?? 0) +
+              (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice)
+            ).toFixed(2)}{' '}
+          </>
+        ) : (
+          <>
+            <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
+          </>
+        )}
       </Typography>
       <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
@@ -433,6 +493,30 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         >
           {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
         </Button>
+        {!isLoading && !errorflag && (
+          <PDFDownloadLink
+            document={
+              <BillCloseReport
+                cierreCuenta={accountInfo as any}
+                descuento={discountPercent !== '' ? discountPercent : undefined}
+                total={CaclTotalBill()}
+                notas={
+                  discountflag && discountSurgeryRoomFlag
+                    ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
+                    : discountflag
+                      ? 'Se le hizo descuento'
+                      : discountSurgeryRoomFlag
+                        ? 'Se cambio el precio de quirofano'
+                        : ''
+                }
+              />
+            }
+            fileName={`${Date.now()}.pdf`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+          </PDFDownloadLink>
+        )}
       </Box>
     </Box>
   );

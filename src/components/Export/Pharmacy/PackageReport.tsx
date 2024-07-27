@@ -46,9 +46,9 @@ type Lote = {
 type Articulo = {
   id_Articulo: string;
   nombre: string;
-  cantidadSeleccionar: number;
+  cantidadSeleccionar: string;
   cantidad: number;
-  lote: Lote[];
+  lote?: Lote[];
 };
 
 type Props = {
@@ -56,7 +56,6 @@ type Props = {
 };
 
 export const PackageReport = ({ articulos }: Props) => {
-  console.log(articulos);
   if (articulos == null) {
     return <></>;
   } else {
@@ -88,7 +87,7 @@ export const PackageReport = ({ articulos }: Props) => {
               </View>
               {/* Cuerpo de la tabla */}
               {articulos.map((articulo) =>
-                articulo.lote.map((lote, index) => (
+                articulo.lote?.map((lote, index) => (
                   <View style={styles.tableRow} key={`${articulo.id_Articulo}-${index}`}>
                     <View style={styles.tableCol}>
                       <Text style={styles.tableCell}>{articulo.nombre}</Text>

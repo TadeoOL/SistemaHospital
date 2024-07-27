@@ -1114,3 +1114,8 @@ export const getHospitalizationConfig = async () => {
   const res = await axios.get('/api/ConfiguracionHospitalizacion/obtener-configuracion-hospitalizacion');
   return res.data as IPurchaseInternConfig;
 };
+
+export const getPackagePreBuilded = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/prearmado-solicitud-paquete?Id_historialPaquete=${paramUrl}`);
+  return res.data.articulosSolicitados;
+};

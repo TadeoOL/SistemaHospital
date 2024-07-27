@@ -107,3 +107,24 @@ export const admitRegister = async (data: { Id_Registro: string }) => {
   const res = await axios.put(`${apiRegister}/admitir-registro`, data);
   return res.data;
 };
+
+export const getDocumentData = async (registerId: string) => {
+  const res = await axios.get(`${apiRegister}/obtener-informacion-documentos`, {
+    params: {
+      id_Registro: registerId,
+    },
+  });
+  return res.data;
+};
+
+export const addRegisterRoom = async (data: {
+  id_Registro: string;
+  Cuartos: {
+    cuartoId: string;
+    horaInicio: Date;
+    horaFin: Date;
+  }[];
+}) => {
+  const res = await axios.put(`${apiRegister}/agregar-registro-cuarto`, data);
+  return res.data;
+};

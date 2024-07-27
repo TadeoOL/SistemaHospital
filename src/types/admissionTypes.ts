@@ -98,3 +98,19 @@ export interface ITypeRoom {
   tipo: number;
   precio?: number;
 }
+
+export interface IDocumentsInfo {
+  paciente: Paciente;
+  nombreMedico: string;
+  especialidad: string;
+  diagnosticoIngreso: string;
+  motivoIngreso: string;
+  fechaIngreso: string;
+  horaIngreso: string;
+  procedimientos: string;
+  clavePaciente: string;
+  alergias: string;
+  nombreCuarto: string;
+  nombreQuirofano: string;
+  nombreAnestesiologo: string;
+}

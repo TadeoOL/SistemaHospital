@@ -18,16 +18,20 @@ import {
   styled,
   alpha,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import withReactContent from 'sweetalert2-react-content';
-import { updateStatusNurseRequest } from '../../../../api/api.routes';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { InurseRequest, IArticleFromSearch, IExistingArticleList } from '../../../../types/types';
+import { IArticleFromSearch, IExistingArticleList, IArticleHistory } from '../../../../types/types';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import Swal from 'sweetalert2';
 import { returnExpireDate } from '../../../../utils/expireDate';
 import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
+import { ArticlesToSelectLote } from '../../UserRequest/Modal/RequestBuildingModal';
+import { useGetPharmacyConfig } from '../../../../hooks/useGetPharmacyConfig';
+import { buildPackage } from '../../../../api/api.routes';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
 
 const style = {
   position: 'absolute',
@@ -73,28 +77,22 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export type ArticlesToSelectLote = {
-  id_Articulo: string;
-  nombre: string;
-  cantidadSeleccionar: string;
-  cantidad: number;
-  lote?: IExistingArticleList[];
-};
-
 interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
-  request: InurseRequest;
+  requestedItems: IArticleHistory[];
+  preLoadedArticles: ArticlesToSelectLote[];
+  movementHistoryId: string;
 }
 
-export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
+export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) => {
   const [articles, setArticles] = useState<ArticlesToSelectLote[]>(
-    props.request.articulos.map((art) => ({
+    props.requestedItems.map((art) => ({
       nombre: art.nombre,
       cantidadSeleccionar: art.cantidad.toString(),
       cantidad: 0,
       lote: undefined,
-      id_Articulo: art.id_Articulo,
+      id_Articulo: art.id_Articulo ?? '',
     }))
   );
   const [value, setValue] = useState(0);
@@ -103,43 +101,38 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
   const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearch>(null);
   const [loteEditing, setLoteEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { data } = useGetPharmacyConfig();
   const [loteSelected, setLoteSelected] = useState<
     { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
   >(null);
-  const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
+  /*const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
 
   useEffect(() => {
     setWarehouseId(props.request.id_AlmacenSolicitado);
-  }, []);
+  }, []); no se papu */
 
   const handleSubmit = async () => {
     setLoading(true);
+    const existingArticlesList: { Id_ArticuloExistente: string; Cantidad: number }[] = [];
+    articles.forEach((art) => {
+      if (art.lote && art.lote.length > 0) {
+        art.lote.forEach((artEx) => {
+          existingArticlesList.push({ Id_ArticuloExistente: artEx.id_ArticuloExistente, Cantidad: artEx.cantidad });
+        });
+      }
+    });
     const object = {
-      Id: props.request.id_SolicitudEnfermero,
-      Lotes: articles
-        .map((art) =>
-          art?.lote?.map((loteArt) => ({
-            Id_ArticuloExistente: loteArt.id_ArticuloExistente,
-            Cantidad: loteArt.cantidad.toString(),
-          }))
-        )
-        .flat(1) as {
-        Id_ArticuloExistente: string;
-        Cantidad: string;
-      }[],
-      EstadoSolicitud: 2,
-      Id_AlmacenOrigen: props.request.id_AlmacenSolicitado,
-      Id_CuentaPaciente: props.request.id_CuentaPaciente,
+      id_HistorialMovimiento: props.movementHistoryId,
+      lotes: existingArticlesList,
+      id_AlmacenOrigen: data.id_Almacen,
     };
     try {
-      //await articlesOutputToWarehouse(object);
-      await updateStatusNurseRequest(object);
-      props.refetch(false);
-      toast.success('Solicitud aceptada');
-      props.setOpen(false);
+      await buildPackage(object);
+      toast.success('Agregado correctamente!');
+      showAlert();
     } catch (error) {
       console.log(error);
-      toast.error('Error al dar salida a artículos!');
+      toast.error('Error al agregar los artículos!');
     } finally {
       setLoading(false);
     }
@@ -203,13 +196,91 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
       });
       if (totalToSendByArticle < Number(article.cantidadSeleccionar)) diferentNumbers = true;
     });
-    if (diferentNumbers || articles.length !== props.request.articulos.length) {
+    if (diferentNumbers || articles.length !== props.requestedItems.length) {
       continueRequest();
       return;
     } else {
       handleSubmit();
     }
   };
+
+  const showAlert = () => {
+    const MySwal = withReactContent(Swal);
+    MySwal.fire({
+      title: 'Agregado correctamente!',
+      text: '¿Qué te gustaría hacer ahora?',
+      icon: 'success',
+      showCancelButton: true,
+      confirmButtonText: 'Imprimir',
+      cancelButtonText: 'Continuar',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        MySwal.fire({
+          title: 'Imprimir',
+          html: (
+            <PDFDownloadLink
+              onClick={() => {
+                props.setOpen(false);
+                props.refetch();
+              }}
+              document={<PackageReport articulos={articles as any} />}
+              fileName={`${Date.now()}.pdf`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+            </PDFDownloadLink>
+          ),
+          showConfirmButton: false,
+          showCancelButton: false,
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        props.setOpen(false);
+        props.refetch();
+      }
+    });
+  };
+
+  const checkPreloadedQuantyties = () => {
+    const quantityMap: {
+      [key: string]: { cantidad: number; lotes: { id_ArticuloExistente: string; cantidad: number }[] };
+    } = {};
+    let flag = true;
+    props.preLoadedArticles.forEach((article) => {
+      if (!quantityMap[article.id_Articulo ?? '']) {
+        quantityMap[article.id_Articulo ?? ''] = {
+          cantidad: 0,
+          lotes: [],
+        };
+      }
+      if (article.lote && article.lote.length > 0) {
+        article.lote.forEach((artEx) => {
+          quantityMap[article.id_Articulo ?? ''].cantidad += artEx.cantidad;
+          quantityMap[article.id_Articulo ?? ''].lotes.push({
+            id_ArticuloExistente: artEx.id_ArticuloExistente ?? '',
+            cantidad: artEx.cantidad,
+          });
+        });
+      }
+    });
+
+    // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
+    for (const article of props.requestedItems) {
+      const requiredQuantity = article.cantidad;
+      const availableArticle = quantityMap[article.id_Articulo ?? ''];
+
+      if (!availableArticle || availableArticle.cantidad < requiredQuantity) {
+        flag = false; // Falta cantidad o artículo
+      }
+    }
+    setArticles(props.preLoadedArticles);
+    return flag; // Todo está bien
+  };
+
+  useEffect(() => {
+    if (checkPreloadedQuantyties()) {
+    }
+  }, []);
 
   return (
     <Box sx={{ ...style }}>
@@ -267,7 +338,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
         <Button
           variant="contained"
           //cambiar aqui despues condicion de deshabilitar un boton
-          disabled={props.request.articulos.length < 1 || loading}
+          disabled={props.requestedItems.length < 1 || loading}
           onClick={() => {
             if (articles.length === 0) return toast.error('Agrega artículos!');
             if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0))
