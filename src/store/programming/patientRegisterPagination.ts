@@ -61,7 +61,6 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
       const res = await getPatientRegisterPagination(
         `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
       );
-
       set({
         data: res.data,
         pageSize: res.pageSize,
