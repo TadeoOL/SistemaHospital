@@ -16,7 +16,7 @@
     "@microsoft/signalr": "^8.0.7",
     "@mui/icons-material": "^5.15.4",
     "@mui/lab": "^5.0.0-alpha.165",
-    "@mui/material": "^5.16.4",
+    "@mui/material": "^5.16.5",
     "@mui/styled-engine-sc": "^6.0.0-alpha.12",
     "@mui/x-date-pickers": "^7.5.0",
     "@react-pdf/renderer": "^3.4.4",

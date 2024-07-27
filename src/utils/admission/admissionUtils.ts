@@ -9,7 +9,7 @@ export const parseDuration = (duration: string) => {
   return dayjs().hour(hours).minute(minutes).second(seconds);
 };
 
-export const calculateAge = (birthDate: string | Date): number | string => {
+export const calculateAge = (birthDate: string | Date | undefined): number | string => {
   if (!birthDate) {
     return '';
   }
@@ -19,7 +19,6 @@ export const calculateAge = (birthDate: string | Date): number | string => {
   } else {
     birth = birthDate;
   }
-
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const monthDifference = today.getMonth() - birth.getMonth();
