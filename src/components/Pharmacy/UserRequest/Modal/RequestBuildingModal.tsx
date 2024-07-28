@@ -85,6 +85,7 @@ interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
   request: InurseRequest;
+  preLoadedArticles: ArticlesToSelectLote[];
 }
 
 export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
@@ -210,6 +211,48 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
       handleSubmit();
     }
   };
+
+  const checkPreloadedQuantyties = () => {
+    const quantityMap: {
+      [key: string]: { cantidad: number; lotes: { id_ArticuloExistente: string; cantidad: number }[] };
+    } = {};
+    let flag = true;
+    props.preLoadedArticles.forEach((article) => {
+      if (!quantityMap[article.id_Articulo ?? '']) {
+        quantityMap[article.id_Articulo ?? ''] = {
+          cantidad: 0,
+          lotes: [],
+        };
+      }
+      if (article.lote && article.lote.length > 0) {
+        article.lote.forEach((artEx) => {
+          quantityMap[article.id_Articulo ?? ''].cantidad += artEx.cantidad;
+          quantityMap[article.id_Articulo ?? ''].lotes.push({
+            id_ArticuloExistente: artEx.id_ArticuloExistente ?? '',
+            cantidad: artEx.cantidad,
+          });
+        });
+      }
+    });
+
+    // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
+    for (const article of props.request.articulos) {
+      const requiredQuantity = article.cantidad;
+      const availableArticle = quantityMap[article.id_Articulo ?? ''];
+
+      if (!availableArticle || availableArticle.cantidad < requiredQuantity) {
+        flag = false; // Falta cantidad o artículo
+      }
+    }
+    setArticles(props.preLoadedArticles);
+    return flag; // Todo está bien
+  };
+
+  useEffect(() => {
+    if (checkPreloadedQuantyties()) {
+    }
+  }, []);
+
 
   return (
     <Box sx={{ ...style }}>

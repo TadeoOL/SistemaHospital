@@ -32,8 +32,8 @@ import Swal from 'sweetalert2';
 import { useNurseRequestPaginationStore } from '../../../store/pharmacy/nurseRequest/nurseRequestPagination';
 import { IArticleInRequest, InurseRequest } from '../../../types/types';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
-import { updateStatusNurseRequest } from '../../../api/api.routes';
+import { ArticlesToSelectLote, RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
+import { getNurseRequestPreBuilded, updateStatusNurseRequest } from '../../../api/api.routes';
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { SortComponent } from '../../Commons/SortComponent';
 
@@ -149,6 +149,7 @@ export const NurseRequestManagementTable = () => {
   } = useGetNursesRequest();
   const [openModalBuild, setOpenModalBuild] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
+  const [prebuildedArticles, setPrebuildedArticles] = useState<ArticlesToSelectLote[] | null>(null);
   //setWarehouseId
   useEffect(() => {
     fetchData(false);
@@ -231,6 +232,8 @@ export const NurseRequestManagementTable = () => {
         }
       });
   };
+
+  
 
   return (
     <>
@@ -334,6 +337,7 @@ export const NurseRequestManagementTable = () => {
                           nurseRequest={request}
                           setOpenModalBuild={setOpenModalBuild}
                           setNurseRequest={setNurseRequest}
+                          setPrebuildedArticles={setPrebuildedArticles}
                           markAsDelivered={markAsDelivered}
                           key={request.id_SolicitudEnfermero}
                           rejectRequest={rejectRequest}
@@ -387,6 +391,7 @@ export const NurseRequestManagementTable = () => {
             setOpen={setOpenModalBuild}
             refetch={fetchData}
             request={nurseRequest as InurseRequest}
+            preLoadedArticles={prebuildedArticles ?? ([] as ArticlesToSelectLote[])}
           />
         </>
       </Modal>
@@ -398,6 +403,7 @@ interface TableRowComponentProps {
   nurseRequest: InurseRequest;
   setOpenModalBuild: Function;
   setNurseRequest: Function;
+  setPrebuildedArticles: Function;
   rejectRequest: Function;
   markAsDelivered: Function;
 }
@@ -405,11 +411,20 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
   setOpenModalBuild,
   setNurseRequest,
+  setPrebuildedArticles,
   rejectRequest,
   markAsDelivered,
 }) => {
   const [open, setOpen] = useState(false);
+
   //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
+  const createPackage = (request: ArticlesToSelectLote[]) => {
+    setPrebuildedArticles(request);
+    setNurseRequest(nurseRequest);
+    setOpenModalBuild(true)
+  };
+
+
 
   return (
     <React.Fragment>
@@ -431,9 +446,15 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
           {nurseRequest.estatus === 1 && (
             <Tooltip title={'Armar solicitud'}>
               <IconButton
-                onClick={() => {
-                  setOpenModalBuild(true);
-                  setNurseRequest(nurseRequest);
+                onClick={async() => {
+                  try {
+                    //Agregar Loader
+                    const packRes = await getNurseRequestPreBuilded(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
+                    createPackage(packRes);
+                  } catch (error) {
+                    console.log(error);
+                  }
+                  
                 }}
               >
                 <AddCircleIcon sx={{ color: 'green' }} />
