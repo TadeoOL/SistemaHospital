@@ -112,7 +112,7 @@ function App() {
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
               </Route>*/}
             </Route>
-            <Route element={<CheckoutRoute />}>
+            {/*<Route element={<CheckoutRoute />}>*/}
               <Route path="ventas/caja" element={<PointOfSaleCheckoutView />} />
               <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
@@ -130,8 +130,8 @@ function App() {
               <Route path="/configuracion" element={<AccountView />} />
               <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
               // ---------------------------Admision------------------------------------- //
-              <Route path="Admision/ingreso-pacientes" element={<PacientsEntryView />} />
-            </Route>
+              <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
+             {/*</Route>*/}
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />

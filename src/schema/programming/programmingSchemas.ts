@@ -42,6 +42,25 @@ export const patientModifySchema = z.object({
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 
+export const patientSAMISchema = z.object({
+  name: z.string().min(1, 'Es necesario el nombre'),
+  lastName: z.string().min(1, 'Es necesario el apellido paterno'),
+  secondLastName: z.string().min(1, 'Es necesario materno'),
+  genere: z.string().min(1, 'Es necesario el genero'),
+  civilStatus: z.string().min(1, 'Es necesario estado civil'),
+  phoneNumber: z.string().min(1, 'Es necesario telefono'),
+  zipCode: z.string().min(1, 'Es necesario codigo postal'),
+  neighborhood: z.string().min(1, 'Es necesario colonia'),
+  address: z.string().min(1, 'Es necesario la direccion'),
+  birthDate: z.preprocess(
+    (val) => toDate(val as Dayjs),
+    z.date({
+      invalid_type_error: 'Escribe una fecha de nacimiento',
+    })
+  ),
+  personInCharge: z.string().min(1, 'Es necesario el nombre del responsable'),
+});
+
 export const clinicalDataSchema = z.object({
   reasonForAdmission: z.string().optional(),
   admissionDiagnosis: z.string().optional(),

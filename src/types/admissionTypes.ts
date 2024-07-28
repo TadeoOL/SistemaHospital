@@ -115,3 +115,24 @@ export interface IDocumentsInfo {
   nombreQuirofano: string;
   nombreAnestesiologo: string;
 }
+
+export interface ISAMI {
+  id: string;
+  paciente: ISAMIPatient;
+  fechaIngreso: string;
+}
+
+export interface ISAMIPatient {
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  fechaNacimiento: Date;
+  genero: string;
+  telefono: string;
+  id: string;
+  direccion: string;
+  colonia: string;
+  codigoPostal: string;
+  nombreResponsable: string;
+  estadoCivil: string;
+}

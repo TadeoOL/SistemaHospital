@@ -255,3 +255,74 @@ export const generateSurgeryDoc = async (registerId: string) => {
     }
   });
 };
+
+export const generateSamiDoc = async (data: {
+  name?: string;
+  lastName?: string;
+  secondLastName?: string;
+  birthDate?: Date;
+  genere?: string;
+  civilStatus?: string;
+  phoneNumber?: string;
+  zipCode?: string;
+  neighborhood?: string;
+  address?: string;
+  personInCharge?: string;
+}) => {
+  loadFile('/FORMATO_SAMI.docx', async (err: any, content: any) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    const {
+      address,
+      birthDate,
+      civilStatus,
+      neighborhood,
+      genere,
+      lastName,
+      personInCharge,
+      phoneNumber,
+      secondLastName,
+      zipCode,
+      name,
+    } = data;
+
+    const zip = new PizZip(content);
+    expressionParser.filters.upper = function (input) {
+      if (!input) {
+        return input;
+      }
+      return input.toUpperCase();
+    };
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      parser: expressionParser,
+    });
+    console.log({ data });
+
+    doc.render({
+      genero: genere,
+      nombrePaciente: name + ' ' + lastName + ' ' + secondLastName,
+      edoCivil: civilStatus ?? '',
+      nombreRepresentante: personInCharge ?? '',
+      direccion: address ?? '',
+      colonia: neighborhood ?? '',
+      codigoPostal: zipCode ?? '',
+      telefono: phoneNumber ?? '',
+      fechaNacimiento: birthDate ? dayjs(birthDate).format('DD/MM/YYYY') : '',
+      fechaIngreso: dayjs().format('DD/MM/YYYY'),
+      horaIngreso: dayjs().format('HH:mm:ss'),
+      edad: calculateAge(birthDate),
+    });
+
+    const out = doc.getZip().generate({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    });
+
+    saveAs(out, 'Sami_Paciente.docx');
+  });
+};
