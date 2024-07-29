@@ -57,7 +57,7 @@ const useGetMedicData = () => {
 export const MedicTable = () => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetMedicData();
 
-  if (isLoading && data.length === 0)
+  if (isLoading)
     return (
       <Box sx={{ display: 'flex', p: 4, justifyContent: 'center' }}>
         <CircularProgress size={35} />
