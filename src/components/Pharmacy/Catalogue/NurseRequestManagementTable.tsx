@@ -249,7 +249,7 @@ export const NurseRequestManagementTable = () => {
             <FormControlLabel
               control={
                 <Switch
-                  defaultChecked
+                  checked={status === 1}
                   onChange={(val) => {
                     if (val.target.checked) {
                       setStatus(1);

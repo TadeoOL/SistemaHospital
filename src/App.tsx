@@ -128,8 +128,8 @@ function App() {
               <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
-              <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
               // ---------------------------Admision------------------------------------- //
+              <Route path="admision/cierre-de-cuenta" element={<PatientAcountsView />} />
               <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
              </Route>
             // ------------------------------ Hospitalization-------------------------------- //

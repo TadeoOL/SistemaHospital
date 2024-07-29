@@ -1,8 +1,13 @@
-import { Box } from '@mui/material';
+import { Box, FormControlLabel, Switch } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { PatientAccountTable } from './PatientAcountsTable';
+import { usePatientAccountPaginationStore } from '../../../store/hospitalization/patientAcountsPagination';
 
 export const PatientAcounts = () => {
+  const setSearch = usePatientAccountPaginationStore((state) => state.setSearch);
+  const setStatus = usePatientAccountPaginationStore((state) => state.setStatus);
+  const status = usePatientAccountPaginationStore((state) => state.status);
+
   return (
     <>
       <Box
@@ -17,7 +22,22 @@ export const PatientAcounts = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={() => {}} title="Buscar la cuenta..." />
+          <SearchBar searchState={setSearch} size='medium' sx={{ width : '100%' }} title="Buscar la cuenta..." />
+          <FormControlLabel
+              control={
+                <Switch
+                  checked={status === 1}
+                  onChange={(val) => {
+                    if (val.target.checked) {
+                      setStatus(1);
+                    } else {
+                      setStatus(2);
+                    }
+                  }}
+                />
+              }
+              label="Pendientes"
+            />
         </Box>
         <PatientAccountTable />
       </Box>

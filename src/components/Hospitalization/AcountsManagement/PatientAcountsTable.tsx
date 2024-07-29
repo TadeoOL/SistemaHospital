@@ -26,7 +26,7 @@ import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 
-const HEADERS = ['Nombre Completo', 'ID Paciente', 'ID Cuenta', 'Acciones'];
+const HEADERS = ['Nombre Completo', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
 interface PatientAccountTableBodyProps {
   data: IPatientAccount[];
@@ -40,6 +40,7 @@ const useGetPatientAccountData = () => {
   const fetchData = usePatientAccountPaginationStore((state) => state.fetchData);
   const data = usePatientAccountPaginationStore((state) => state.data);
   const search = usePatientAccountPaginationStore((state) => state.search);
+  const status = usePatientAccountPaginationStore((state) => state.status);
   const pageSize = usePatientAccountPaginationStore((state) => state.pageSize);
   const pageIndex = usePatientAccountPaginationStore((state) => state.pageIndex);
   const setPageIndex = usePatientAccountPaginationStore((state) => state.setPageIndex);
@@ -49,7 +50,7 @@ const useGetPatientAccountData = () => {
 
   useEffect(() => {
     fetchData();
-  }, [search, pageIndex, pageSize]);
+  }, [search, pageIndex, pageSize, status]);
 
   return {
     data,
@@ -135,8 +136,8 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     <>
       <TableRow>
         <TableCell>{data.nombreCompleto}</TableCell>
-        <TableCell>{data.id_Paciente}</TableCell>
-        <TableCell>{data.id_Cuenta}</TableCell>
+        <TableCell>{data.fechaApertura}</TableCell>
+        <TableCell>{data.estatus === 1 ? 'Pendiente' : 'Cerrada'}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             { data.estatus === 1 ? (<Tooltip title="Cerrar">
