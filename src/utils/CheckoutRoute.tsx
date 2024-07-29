@@ -26,7 +26,7 @@ const useJoinRoom = (
     const connect = async (userId: string, chatRoom: string) => {
       try {
         const conn = new HubConnectionBuilder()
-          .withUrl(`${API_ENV}/Chat`, {
+          .withUrl(`${API_ENV}Chat`, {
             skipNegotiation: true,
             transport: HttpTransportType.WebSockets,
           })
