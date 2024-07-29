@@ -19,6 +19,8 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { useXRayPaginationStore } from '../../../../../store/hospitalization/xrayPagination';
 import { IXRay, REQUEST_TYPES } from '../../../../../types/hospitalizationTypes';
 import { addXRayRequest } from '../../../../../services/hospitalization/xrayService';
+import { isValidFloat } from '../../../../../utils/functions/dataUtils';
+import { createSamiSell } from '../../../../../services/sami/samiSellService';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
@@ -63,7 +65,9 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
   const [requestSelected, setRequestSelected] = useState<number>(0);
   const [xraySelected, setXRaySelected] = useState<null | IXRay>(null);
-  // const [priceSami, setPriceSami] = useState<string>('');
+  const [priceSami, setPriceSami] = useState<string>('');
+  const [priceSamiError, setPriceSamiError] = useState(false);
+  const [samiNote, setSamiNote] = useState<string>('');
   const [userError, setUserError] = useState(false);
   const [requestError, setRequestError] = useState(false);
   const [xrayError, setXRayError] = useState(false);
@@ -99,6 +103,10 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
 
   const onSubmit = async () => {
     try {
+      if (requestSelected === 4 && !priceSami.trim()) {
+        setPriceSamiError(true);
+        return toast.warning('Ingresa el precio de Sami');
+      }
       if (!userSelected) {
         setUserError(true);
         return toast.warning('Selecciona un paciente!');
@@ -107,7 +115,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
         setRequestError(true);
         return toast.warning('Selecciona un tipo de estudio de gabinete!');
       }
-      if (!xraySelected) {
+      if (!xraySelected && requestSelected !== 4) {
         setXRayError(true);
         return toast.warning('Selecciona un estudio de gabinete!');
       }
@@ -116,7 +124,15 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
         Id_CuentaPaciente: userSelected.id_Cuenta,
         Id_Radiografia: xraySelected?.id || '',
       };
-      await addXRayRequest(object);
+      if (requestSelected === 4) {
+        await createSamiSell({
+          id_CuentaPaciente: userSelected.id_Cuenta,
+          venta_Total: priceSami,
+          nota: samiNote,
+        });
+      } else {
+        await addXRayRequest(object);
+      }
       toast.success('Solicitud creada');
       props.refetch(true);
       props.setOpen(false);
@@ -159,6 +175,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 options={usersData}
                 value={userSelected}
                 noOptionsText="No se encontraron pacientes"
+                isOptionEqualToValue={(op, val) => op.id_Paciente === val.id_Paciente}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -244,10 +261,31 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
             </Stack>
           </Box>
           <Collapse in={requestSelected === 4} unmountOnExit>
-            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
               <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Precio de SAMI:</Typography>
-                <TextField label="Escribe un precio" />
+                <TextField
+                  label="Escribe un precio"
+                  helperText={priceSamiError && 'Es necesario escribir un precio'}
+                  error={priceSamiError}
+                  value={priceSami}
+                  onChange={(e) => {
+                    if (!isValidFloat(e.target.value)) return;
+                    setPriceSamiError(false);
+                    setPriceSami(e.target.value);
+                  }}
+                />
+              </Stack>
+              <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
+                <Typography>Nota:</Typography>
+                <TextField
+                  label="Escribe una nota"
+                  value={samiNote}
+                  multiline
+                  onChange={(e) => {
+                    setSamiNote(e.target.value);
+                  }}
+                />
               </Stack>
             </Box>
           </Collapse>

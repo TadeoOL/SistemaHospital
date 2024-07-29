@@ -80,6 +80,7 @@ export interface IAcountAllInformation {
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
   subtotalPagoCuentaRestante: number;
+  totalPagoSami: number;
 }
 
 export interface IAcountAllInformationAdmission {
