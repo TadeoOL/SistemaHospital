@@ -64,6 +64,7 @@ type Inputs = {
   description: string;
   reservedSpaceTime: Dayjs | null;
   priceByTimeRange: IRecoveryRoomOperatingRoom[];
+  recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
 };
@@ -92,6 +93,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       name: editData ? editData.nombre : '',
       description: editData ? editData.descripcion : '',
       priceByTimeRange: editData ? editData.configuracionPrecioHora : [],
+      recoveryPriceByTimeRange: editData ? editData.configuracionRecuperacion : [],
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
       priceRoom: editData ? editData.precio?.toString() : '0',
@@ -110,6 +112,9 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             ? data.reservedSpaceTime.format('HH:mm:00')
             : undefined,
           configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+          configuracionRecuperacion: data.recoveryPriceByTimeRange
+            ? JSON.stringify(data.recoveryPriceByTimeRange)
+            : undefined,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
         });
@@ -122,6 +127,9 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             ? data.reservedSpaceTime.format('HH:mm:00')
             : undefined,
           configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+          configuracionRecuperacion: data.recoveryPriceByTimeRange
+            ? JSON.stringify(data.recoveryPriceByTimeRange)
+            : undefined,
           id: editData.id,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
@@ -144,6 +152,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
     setValue('priceByTimeRange', [...config]);
   };
 
+  const handleAddNewRecoveryPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
+    setValue('recoveryPriceByTimeRange', [...config]);
+  };
+
   const handleAddPriceRoom = (price: string) => {
     setValue('priceRoom', price);
   };
@@ -161,8 +173,17 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
         }
       />
       <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1" />
-      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
-        <Grid container spacing={1}>
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 1,
+          flexDirection: 'column',
+          bgcolor: 'background.paper',
+          p: 3,
+          overflowY: 'auto',
+        }}
+      >
+        <Grid container spacing={1} sx={{ maxHeight: { xs: 500, xl: 700 } }}>
           <Grid item xs={12}>
             <Typography>Nombre</Typography>
             <TextField
@@ -235,11 +256,21 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           </Grid>
           <Grid item xs={12}>
             {watch('type') === '1' ? (
-              <RoomHourCostTable
-                xs={xs}
-                updateRecoveryConfig={handleAddNewPriceByTimeRange}
-                data={watch('priceByTimeRange')}
-              />
+              <>
+                <RoomHourCostTable
+                  xs={xs}
+                  updateRecoveryConfig={handleAddNewPriceByTimeRange}
+                  data={watch('priceByTimeRange')}
+                  formKey="formOperatingRoom"
+                />
+                <RoomHourCostTable
+                  xs={xs}
+                  updateRecoveryConfig={handleAddNewRecoveryPriceByTimeRange}
+                  data={watch('recoveryPriceByTimeRange')}
+                  isRecovery
+                  formKey="formRecoveryRoom"
+                />
+              </>
             ) : (
               <AddPriceHospitalizationRoom
                 priceRoom={watch('priceRoom')}
@@ -273,6 +304,8 @@ interface RoomHourCostTableProps {
   data: IRecoveryRoomOperatingRoom[];
   xs: boolean;
   updateRecoveryConfig: (config: IRecoveryRoomOperatingRoom[]) => void;
+  isRecovery?: boolean;
+  formKey: string;
 }
 
 const RoomHourCostTable = (props: RoomHourCostTableProps) => {
@@ -335,7 +368,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
 
   return (
     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography variant="h6">Precio hora quirófano</Typography>
+      <Typography variant="h5">{props.isRecovery ? 'Precio hora recuperacion' : 'Precio hora quirófano'}</Typography>
       <Card sx={{ flex: 1 }}>
         <TableContainer>
           <Table>
@@ -368,7 +401,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
       <Box sx={{ mt: 1, display: 'flex' }}>
         <Box sx={{ flex: { xs: 1, md: 2 } }}>
           <Collapse in={open}>
-            <form id="form2" onSubmit={handleSubmit(handleSave)}>
+            <form id={props.formKey} onSubmit={handleSubmit(handleSave)}>
               <Box
                 sx={{
                   display: 'flex',
@@ -422,7 +455,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
         </Box>
         <Box sx={{ flex: 1, justifyContent: 'flex-end', display: 'flex' }}>
           <Box>
-            <Button variant="contained" form="form2" type="submit">
+            <Button variant="contained" form={props.formKey} type="submit">
               {!open ? 'Agregar' : 'Guardar'}
             </Button>
             <Collapse in={open} sx={{ mt: 1 }}>

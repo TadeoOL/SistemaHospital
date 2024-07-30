@@ -172,6 +172,7 @@ export const typeRoomSchema = z
     description: z.string().optional(),
     reservedSpaceTime: zodDay,
     priceByTimeRange: z.array(priceByTimeRange).optional(),
+    recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
     priceRoom: z
       .string()
