@@ -32,6 +32,8 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
+import { useAuthStore } from '../../../../store/auth';
+import { useShallow } from 'zustand/react/shallow';
 
 const style = {
   position: 'absolute',
@@ -73,6 +75,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
   const inputRefDiscount = useRef<HTMLInputElement>(null);
   const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
+  const profile = useAuthStore(useShallow((state) => state.profile));
 
   const [discountflag, setDiscountflag] = useState(false);
   const [errorflag, setErrorflag] = useState(true);
@@ -405,13 +408,13 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 ]}
               />
               <Typography textAlign={'center'} variant="h4">
-                    <b>Subtotal:</b> {accountInfo?.subtotalPagoCuenta}
+                <b>Pago SAMI:</b> ${accountInfo?.totalPagoSami ?? 0}
               </Typography>
               <Typography textAlign={'center'} variant="h4">
-                    <b>Cuenta Actual:</b> {accountInfo?.totalPagoCuenta}
+                <b>Cuenta Actual:</b> ${accountInfo?.totalPagoCuenta}
               </Typography>
               <Typography textAlign={'center'} variant="h4">
-                <b>Abonos:</b> {accountInfo?.totalPagoCuentaAbonos}
+                <b>Abonos:</b> ${accountInfo?.totalPagoCuentaAbonos}
               </Typography>
             </Box>
           )
@@ -420,7 +423,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
         {discountSurgeryRoomFlag ? (
           <>
-            <b>Total Restante:</b>{' '}
+            <b>Total Restante:</b> $
             {(
               (accountInfo?.totalPagoCuentaRestante ?? 0) +
               (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice)
@@ -428,40 +431,42 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           </>
         ) : (
           <>
-            <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
+            <b>Total Restante:</b> ${accountInfo?.totalPagoCuentaRestante}
           </>
         )}
       </Typography>
       <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-          <FormControlLabel
-            required
-            control={
-              <Checkbox
-                onChange={() => {
-                  setDiscountflag(!discountflag);
-                }}
-              />
-            }
-            label="Aplicar descuento"
-          />
-          {discountflag && (
-            <Box>
-              <Typography>Descuento en porcentaje</Typography>
-              <TextField
-                variant="outlined"
-                inputRef={inputRefDiscount}
-                onKeyDown={handleKeyDownDiscount}
-                inputProps={{
-                  inputMode: 'decimal',
-                  pattern: '[0-9]*',
-                }}
-                size="small"
-                placeholder="Descuento"
-              />
-            </Box>
-          )}
-        </Box>
+        {profile?.roles.includes('ADMIN') && (
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
+            <FormControlLabel
+              required
+              control={
+                <Checkbox
+                  onChange={() => {
+                    setDiscountflag(!discountflag);
+                  }}
+                />
+              }
+              label="Aplicar descuento"
+            />
+            {discountflag && (
+              <Box>
+                <Typography>Descuento en porcentaje</Typography>
+                <TextField
+                  variant="outlined"
+                  inputRef={inputRefDiscount}
+                  onKeyDown={handleKeyDownDiscount}
+                  inputProps={{
+                    inputMode: 'decimal',
+                    pattern: '[0-9]*',
+                  }}
+                  size="small"
+                  placeholder="Descuento"
+                />
+              </Box>
+            )}
+          </Box>
+        )}
 
         {discountflag && (
           <Box sx={{ my: 1 }}>

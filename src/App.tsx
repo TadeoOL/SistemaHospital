@@ -112,7 +112,7 @@ function App() {
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
               </Route>*/}
             </Route>
-            {/*<Route element={<CheckoutRoute />}>*/}
+            <Route element={<CheckoutRoute />}>
               <Route path="ventas/caja" element={<PointOfSaleCheckoutView />} />
               <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
@@ -128,10 +128,10 @@ function App() {
               <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
-              <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
               // ---------------------------Admision------------------------------------- //
+              <Route path="admision/cierre-de-cuenta" element={<PatientAcountsView />} />
               <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
-             {/*</Route>*/}
+            </Route>
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />

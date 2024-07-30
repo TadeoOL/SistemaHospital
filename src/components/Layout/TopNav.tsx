@@ -44,7 +44,7 @@ export const TopNav: React.FC<{
         component="header"
         sx={{
           backdropFilter: 'blur(6px)',
-          backgroundColor: (theme) => alpha(theme.palette.background.default, 0.8),
+          backgroundColor: (theme: any) => alpha(theme.palette.background.default, 0.8),
           position: 'sticky',
           left: {
             lg: `${SIDE_NAV_WIDTH}px`,
@@ -53,7 +53,7 @@ export const TopNav: React.FC<{
           width: {
             lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`,
           },
-          zIndex: (theme) => theme.zIndex.appBar,
+          zIndex: (theme: any) => theme.zIndex.appBar,
           height: 60,
           alignItems: 'center',
           display: 'flex',

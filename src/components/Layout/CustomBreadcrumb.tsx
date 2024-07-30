@@ -6,6 +6,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import GrainIcon from '@mui/icons-material/Grain';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useLocation } from 'react-router-dom';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
@@ -39,6 +40,8 @@ const messagesByLink: Record<string, string> = {
   '/ventas/emitir-recibo': 'Pase a caja',
   '/ventas/historial-cortes': 'Cortes de caja',
   '/ventas/corte-caja': 'Caja del Día',
+  '/admision/ingreso-pacientes': 'Ingreso de pacientes',
+  '/admision/cierre-de-cuenta': 'Cierre de cuenta',
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
@@ -59,6 +62,8 @@ const TsxByModule: React.FC<TsxByModuleProps> = ({ module }) => {
       return <ViewRender icon={PointOfSaleIcon} title="Ventas" />;
     case 'hospitalizacion':
       return <ViewRender icon={MonitorHeartIcon} title="Hospitalización" />;
+    case 'admision':
+      return <ViewRender icon={ContactEmergencyIcon} title="Admisión" />;
     default:
       return <ViewRender icon={HomeIcon} title="Inicio" />;
   }

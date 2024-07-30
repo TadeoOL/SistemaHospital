@@ -293,7 +293,7 @@ export const ModuleList: IModuleItemsList[] = [
       },
       {
         title: 'Cierre de cuenta',
-        path: '/hospitalizacion/cierre-de-cuenta',
+        path: '/admision/cierre-de-cuenta',
         icon: <Receipt sx={{ color: '#fff' }} />,
         protectedRoles: closeAccount,
       },

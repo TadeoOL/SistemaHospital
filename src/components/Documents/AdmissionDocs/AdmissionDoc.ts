@@ -49,7 +49,6 @@ export const generateHospitalizationDoc = async (registerId: string) => {
         linebreaks: true,
         parser: expressionParser,
       });
-      console.log({ data });
 
       doc.render({
         genero: paciente.genero ?? '',
@@ -130,7 +129,6 @@ export const generateAdmissionDoc = async (registerId: string) => {
         linebreaks: true,
         parser: expressionParser,
       });
-      console.log({ data });
 
       doc.render({
         genero: paciente.genero ?? '',
@@ -211,7 +209,6 @@ export const generateSurgeryDoc = async (registerId: string) => {
         linebreaks: true,
         parser: expressionParser,
       });
-      console.log({ data });
 
       doc.render({
         genero: paciente.genero ?? '',

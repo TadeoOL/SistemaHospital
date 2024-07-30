@@ -77,6 +77,8 @@ export interface IPatientAccount {
   nombreCompleto: string;
   id_Cuenta: string;
   id_ArticuloCuenta: string | null;
+  estatus: number;
+  fechaApertura: string;
 }
 export interface IProgrammingRequestPagination {
   id: string;

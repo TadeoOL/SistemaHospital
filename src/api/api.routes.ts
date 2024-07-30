@@ -1119,3 +1119,8 @@ export const getPackagePreBuilded = async (paramUrl: string) => {
   const res = await axios.get(`/api/Almacen/prearmado-solicitud-paquete?Id_historialPaquete=${paramUrl}`);
   return res.data.articulosSolicitados;
 };
+
+export const getNurseRequestPreBuilded = async (id_solicitud: string, id_Almacen: string) => {
+  const res = await axios.get(`/api/SolicitudEnfemero/prearmado-solicitud-enfermero?Id_SolicitudEnfermero=${id_solicitud}&Id_Almacen=${id_Almacen}`);
+  return res.data.articulosSolicitados;
+};
