@@ -11,6 +11,7 @@ export const registerTypeRoom = async (data: {
   descripcion: string;
   configuracionLimpieza?: string;
   configuracionPrecioHora?: string;
+  configuracionRecuperacion?: string;
   tipo: number;
   precio?: number;
 }) => {
@@ -24,6 +25,7 @@ export const modifyTypeRoom = async (data: {
   id: string;
   configuracionLimpieza?: string;
   configuracionPrecioHora?: string;
+  configuracionRecuperacion?: string;
   tipo: number;
   precio?: number;
 }) => {

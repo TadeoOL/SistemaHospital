@@ -98,6 +98,7 @@ export interface ITypeRoom {
   descripcion?: string;
   configuracionLimpieza?: string;
   configuracionPrecioHora?: IRecoveryRoomOperatingRoom[];
+  configuracionRecuperacion?: IRecoveryRoomOperatingRoom[];
   tipo: number;
   precio?: number;
 }
