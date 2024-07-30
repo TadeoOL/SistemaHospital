@@ -187,7 +187,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
 
   if (isLoading || !providerData)
     return (
-      <Backdrop open sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <Backdrop open sx={{ color: '#fff', zIndex: (theme: any) => theme.zIndex.drawer + 1 }}>
         <CircularProgress />
       </Backdrop>
     );

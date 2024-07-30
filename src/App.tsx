@@ -131,7 +131,7 @@ function App() {
               // ---------------------------Admision------------------------------------- //
               <Route path="admision/cierre-de-cuenta" element={<PatientAcountsView />} />
               <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
-             </Route>
+            </Route>
             // ------------------------------ Hospitalization-------------------------------- //
             <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
             <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
