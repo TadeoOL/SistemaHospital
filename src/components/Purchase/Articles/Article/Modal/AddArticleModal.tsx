@@ -177,6 +177,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     if (!isValidInput) {
       event.target.value = precio.slice(0, -1);
     }
+    const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
     config?.factor.forEach((factor) => {
       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
@@ -189,8 +190,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         } else {
           setValue('precioVenta', '0');
         }
-      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
-        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+      } else if (isBox && (parseFloat(precio) / parseFloat(unidadesPorCaja)) >= (factor.cantidadMinima as number) &&
+      (parseFloat(precio) / parseFloat(unidadesPorCaja)) <= (factor.cantidadMaxima as number) ) {
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -213,7 +214,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         } else {
           setValue('precioVentaPI', '0');
         }
-      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
+      } else if (isBox && (parseFloat(precio) / parseFloat(unidadesPorCaja)) >= (factor.cantidadMinima as number) &&
+      (parseFloat(precio) / parseFloat(unidadesPorCaja)) <= (factor.cantidadMaxima as number)) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
