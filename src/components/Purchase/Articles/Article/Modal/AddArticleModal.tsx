@@ -80,6 +80,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const [valueState, setValueState] = useState('');
   const [subCategory, setSubCategory] = useState('');
   const textQuantityRef = useRef<HTMLTextAreaElement>();
+  const precioQuantityRef = useRef<HTMLTextAreaElement>();
 
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
@@ -237,6 +238,72 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     });
   };
 
+  const handleInputBox = (event: any) => {
+    let unidadesPorCaja = event.target.value;
+    const precio = (precioQuantityRef.current?.value as string) ?? '1';
+    const isValidInput = /^\d*\.?\d*$/.test(precio);
+    if (!isValidInput) {
+      event.target.value = precio.slice(0, -1);
+    }
+    config?.factor.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          console.log(precioVentaString);
+          setValue('precioVenta', precioVentaString);
+        } else {
+          setValue('precioVenta', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setValue('precioVenta', precioVentaString);
+        } else {
+          setValue('precioVenta', '0');
+        }
+      }
+    });
+    config?.factorInterno?.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      }
+    });
+  };
+
   return (
     <Box sx={style}>
       <HeaderModal setOpen={open} title="Agregar articulo" />
@@ -289,6 +356,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                       pattern: '[0-9]*',
                       inputMode: 'numeric',
                       min: 0,
+                      onInput: (e: any) => handleInputBox(e),
                     }}
                   />
                 </Box>
@@ -326,6 +394,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   fullWidth
                   error={!!errors.precioCompra}
                   helperText={errors?.precioCompra?.message}
+                  inputRef={precioQuantityRef}
                   size="small"
                   inputProps={{
                     maxLength: 10,
