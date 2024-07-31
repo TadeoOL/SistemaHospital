@@ -190,8 +190,12 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         } else {
           setValue('precioVenta', '0');
         }
-      } else if (isBox && (parseFloat(precio) / parseFloat(unidadesPorCaja)) >= (factor.cantidadMinima as number) &&
-      (parseFloat(precio) / parseFloat(unidadesPorCaja)) <= (factor.cantidadMaxima as number) ) {
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -214,8 +218,11 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         } else {
           setValue('precioVentaPI', '0');
         }
-      } else if (isBox && (parseFloat(precio) / parseFloat(unidadesPorCaja)) >= (factor.cantidadMinima as number) &&
-      (parseFloat(precio) / parseFloat(unidadesPorCaja)) <= (factor.cantidadMaxima as number)) {
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
