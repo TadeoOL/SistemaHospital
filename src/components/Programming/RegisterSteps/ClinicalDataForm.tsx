@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { IClinicalData } from '../../../types/types';
 
 const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
-const BLOOD_TYPE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const BLOOD_TYPE = ['PENDIENTE', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const scrollBarStyle = {
   '&::-webkit-scrollbar': {
