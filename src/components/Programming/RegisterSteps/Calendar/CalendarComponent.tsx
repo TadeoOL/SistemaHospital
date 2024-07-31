@@ -48,6 +48,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
       toast.warning('No se puede poner una cita posterior a la fecha actual');
       return;
     }
+    console.log({ slotInfo });
     setAppointmentStartDate(start);
     setAppointmentEndDate(end);
     setOpen(true);

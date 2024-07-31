@@ -4,6 +4,7 @@ import {
   Card,
   CircularProgress,
   IconButton,
+  MenuItem,
   Modal,
   Stack,
   Table,
@@ -13,6 +14,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -27,7 +29,7 @@ import { shallow } from 'zustand/shallow';
 //import { SearchBar } from '../../../Inputs/SearchBar';
 import { IXRayRequest, REQUEST_TYPES } from '../../../../types/hospitalizationTypes';
 import { useXRayRequestPaginationStore } from '../../../../store/hospitalization/xrayRequestPagination';
-import { getStatus } from '../../../../utils/XRayRequestUtils';
+import { XRAY_REQUEST_STATUS } from '../../../../utils/XRayRequestUtils';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { AddXRayRequestModal } from './Modal/AddXRayRequest';
 import { formatDate } from '../../../../utils/pointOfSaleUtils';
@@ -51,6 +53,8 @@ export const useGetNursesRequest = () => {
     isLoading,
     pageIndex,
     count,
+    setStatus,
+    status,
   } = useXRayRequestPaginationStore(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -71,6 +75,8 @@ export const useGetNursesRequest = () => {
       isLoading: state.loading,
       //sort: state.sort,
       //setSort: state.setSort,
+      setStatus: state.setStatus,
+      status: state.status,
     }),
     shallow
   );
@@ -83,7 +89,7 @@ export const useGetNursesRequest = () => {
 
   useEffect(() => {
     fetchData(true);
-  }, [search, /*startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex]);
+  }, [search, /*startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex, status]);
   return {
     data,
     setSearch,
@@ -100,6 +106,8 @@ export const useGetNursesRequest = () => {
     pageIndex,
     count,
     fetchData,
+    setStatus,
+    status,
   };
 };
 export const XRayRequestTable = () => {
@@ -120,22 +128,38 @@ export const XRayRequestTable = () => {
     pageIndex,
     count,
     fetchData,
+    setStatus,
+    status,
   } = useGetNursesRequest();
   const [openModal, setOpenModal] = useState(false);
-
-  console.log({ data });
 
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
         <Stack spacing={2} sx={{ minWidth: 950 }}>
-          <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-            <SearchBar
-              title="Buscar solicitud..."
-              searchState={setSearch}
-              sx={{ display: 'flex', flex: 1 }}
-              size="small"
-            />
+          <Box sx={{ display: 'flex', columnGap: 2 }}>
+            <SearchBar title="Buscar solicitud..." searchState={setSearch} sx={{ flex: 2 }} size="small" />
+            <TextField
+              value={status === null ? 4 : status}
+              select
+              sx={{ flex: 1 }}
+              onChange={(e) => setStatus(parseInt(e.target.value) == 4 ? null : parseInt(e.target.value))}
+              label="Estatus"
+              SelectProps={{
+                sx: {
+                  backgroundColor: 'background.paper',
+                },
+              }}
+            >
+              <MenuItem key={4} value={4}>
+                Todos
+              </MenuItem>
+              {Object.keys(XRAY_REQUEST_STATUS).map((xr) => (
+                <MenuItem key={xr} value={xr}>
+                  {XRAY_REQUEST_STATUS[parseInt(xr)]}
+                </MenuItem>
+              ))}
+            </TextField>
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
               {/*<TextField
                 label="Fecha inicio"
@@ -331,10 +355,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
         <TableCell>{nurseRequest.nombre}</TableCell>
         <TableCell>{nurseRequest.precio}</TableCell>
         <TableCell>{formatDate(nurseRequest.fechaSolicitud)}</TableCell>
-        <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
+        <TableCell>{XRAY_REQUEST_STATUS[nurseRequest.estatus]}</TableCell>
         <TableCell>{REQUEST_TYPES[nurseRequest.tipo]}</TableCell>
         <TableCell>
-          {
+          {nurseRequest.estatus === 1 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
                 onClick={() => {
@@ -344,7 +368,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
                 <Cancel sx={{ color: 'red' }} />
               </IconButton>
             </Tooltip>
-          }
+          )}
         </TableCell>
       </TableRow>
     </React.Fragment>
