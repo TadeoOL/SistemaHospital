@@ -39,8 +39,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
 import withReactContent from 'sweetalert2-react-content';
-dayjs.locale('es-mx');
 dayjs.extend(localizedFormat);
+dayjs.locale('es-mx');
 
 const TABLE_HEADERS = [
   'Estado',
@@ -165,7 +165,9 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   };
 
   const [startOperatingRoom, setStartOperatingRoom] = useState<string>(
-    dayjs(data.horaInicio).format('YYYY-MM-DDTHH:mm')
+    data.registroQuirofano?.horaInicio
+      ? dayjs(data.registroQuirofano.horaInicio).format('YYYY-MM-DDTHH:mm')
+      : dayjs(data.horaInicio).format('YYYY-MM-DDTHH:mm')
   );
   const [endOperatingRoom, setEndOperatingRoom] = useState<string>(
     dayjs(data.registroQuirofano?.horaInicio).format('YYYY-MM-DDTHH:mm')
@@ -204,6 +206,8 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   };
 
   const handleModifyOperatingRoom = async () => {
+    console.log({ endOperatingRoom });
+    console.log({ startOperatingRoom });
     if (dayjs(endOperatingRoom).isBefore(startOperatingRoom)) {
       return Swal.fire({
         title: 'Error al modificar la fecha de finalización',
@@ -383,7 +387,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
             <DateTimePicker
               label="Fecha y Hora"
               value={dayjs(startOperatingRoom)}
-              onChange={(newValue) => setStartOperatingRoom(dayjs(newValue).format('DD-MM-YYYYTHH:mm'))}
+              onChange={(newValue) => setStartOperatingRoom(dayjs(newValue).format('YYYY-MM-DDTHH:mm'))}
               format="DD/MM/YYYY HH:mm"
               ampm={false}
             />
@@ -428,7 +432,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
             <DateTimePicker
               label="Fecha y Hora"
               value={dayjs(endOperatingRoom)}
-              onChange={(newValue) => setEndOperatingRoom(dayjs(newValue).format('DD-MM-YYYYTHH:mm'))}
+              onChange={(newValue) => setEndOperatingRoom(dayjs(newValue).format('YYYY-MM-DDTHH:mm'))}
               format="DD/MM/YYYY HH:mm"
               ampm={false}
             />
