@@ -56,7 +56,7 @@ const useGetData = () => {
 
   useEffect(() => {
     fetchData();
-  }, [search, setPageIndex, setPageSize]);
+  }, [search, pageIndex, pageSize]);
   return {
     data,
     pageIndex,

@@ -110,7 +110,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       };
       setRoomValues([...roomValues, roomObj]);
     }
-    setValueRooms('endDate', dayjs(appointmentEndDate).add(1, 'day'));
+    setValueRooms('endDate', dayjs(appointmentEndDate));
     setValueRooms('startTime', dayjs(appointmentStartDate));
     setValueRooms('room', '');
   };

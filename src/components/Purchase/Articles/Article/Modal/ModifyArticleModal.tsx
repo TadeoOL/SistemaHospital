@@ -117,8 +117,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const [subCategory, setSubCategory] = useState('');
   const config = useGetPurchaseConfig();
   const [isBox, setIsBox] = useState(esCaja || false);
-  let textQuantityRef = useRef<HTMLTextAreaElement>(null);
-
+  const textQuantityRef = useRef<HTMLTextAreaElement>();
+  const precioQuantityRef = useRef<HTMLTextAreaElement>();
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
     handleChangeArticle: state.handleChangeArticle,
@@ -229,12 +229,13 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   };
 
   const handleInputDecimalChange = (event: any) => {
-    // Validar si el valor ingresado es un número con punto decimal
     let precio = event.target.value;
+    console.log(precio);
     const isValidInput = /^\d*\.?\d*$/.test(precio);
     if (!isValidInput) {
       event.target.value = precio.slice(0, -1);
     }
+    const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
     config?.factor.forEach((factor) => {
       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
@@ -242,12 +243,17 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
+          console.log(precioVentaString);
           setValue('precioVenta', precioVentaString);
         } else {
           setValue('precioVenta', '0');
         }
-      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
-        const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
@@ -259,8 +265,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         }
       }
     });
-
-    config?.factorInterno.forEach((factor) => {
+    config?.factorInterno?.forEach((factor) => {
       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
@@ -271,8 +276,12 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         } else {
           setValue('precioVentaPI', '0');
         }
-      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
-        const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVentaPI = precioCompra * factorMultiplicador;
@@ -286,30 +295,68 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     });
   };
 
-  const handleAmountChange = (salePrice?: string) => {
+  const handleInputBox = (event: any) => {
+    let unidadesPorCaja = event.target.value;
+    const precio = (precioQuantityRef.current?.value as string) ?? '1';
+    const isValidInput = /^\d*\.?\d*$/.test(precio);
+    if (!isValidInput) {
+      event.target.value = precio.slice(0, -1);
+    }
     config?.factor.forEach((factor) => {
-      const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
-      const precioComprac = parseFloat(precioCompra || salePrice || '1') / parseFloat(unidadesPorCaja);
-      const factorMultiplicador = factor.factorMultiplicador as number;
-      const precioVentaC = precioComprac * factorMultiplicador;
-      if (!isNaN(precioVentaC)) {
-        const precioVentaString = precioVentaC.toFixed(2).toString();
-        setValue('precioVenta', precioVentaString);
-      } else {
-        setValue('precioVenta', '0');
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          console.log(precioVentaString);
+          setValue('precioVenta', precioVentaString);
+        } else {
+          setValue('precioVenta', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setValue('precioVenta', precioVentaString);
+        } else {
+          setValue('precioVenta', '0');
+        }
       }
     });
-
-    config?.factorInterno.forEach((factor) => {
-      const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
-      const precioComprac = parseFloat(precioCompra || salePrice || '1') / parseFloat(unidadesPorCaja);
-      const factorMultiplicador = factor.factorMultiplicador as number;
-      const precioVentaC = precioComprac * factorMultiplicador;
-      if (!isNaN(precioVentaC)) {
-        const precioVentaString = precioVentaC.toFixed(2).toString();
-        setValue('precioVentaPI', precioVentaString);
-      } else {
-        setValue('precioVentaPI', '0');
+    config?.factorInterno?.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
       }
     });
   };
@@ -375,9 +422,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                       pattern: '[0-9]*',
                       inputMode: 'numeric',
                       min: 0,
-                    }}
-                    onChange={() => {
-                      handleAmountChange(watch('precioVenta' || 'precioVentaPI'));
+                      onInput: (e: any) => handleInputBox(e),
                     }}
                   />
                 </Box>
@@ -414,6 +459,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   fullWidth
                   error={!!errors.precioCompra}
                   helperText={errors?.precioCompra?.message}
+                  inputRef={precioQuantityRef}
                   size="small"
                   inputProps={{
                     maxLength: 10,

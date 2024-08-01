@@ -57,7 +57,7 @@ const useGetAnesthesiologistData = () => {
 export const AnesthesiologistTable = () => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetAnesthesiologistData();
 
-  if (isLoading && data.length === 0)
+  if (isLoading)
     return (
       <Box sx={{ display: 'flex', p: 4, justifyContent: 'center' }}>
         <CircularProgress size={35} />

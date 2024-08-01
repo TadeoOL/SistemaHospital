@@ -3,9 +3,11 @@ import { SearchBar } from '../../Inputs/SearchBar';
 import { useState } from 'react';
 import { MedicTable } from './MedicTable';
 import { AddAndEditMedic } from './Modal/AddAndEditMedic';
+import { useMedicPaginationStore } from '../../../store/hospitalization/medicPagination';
 
 export const Medic = () => {
   const [open, setOpen] = useState(false);
+  const setSearch = useMedicPaginationStore((state) => state.setSearch);
   return (
     <>
       <Box
@@ -20,7 +22,7 @@ export const Medic = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={() => {}} title="Buscar el medico..." />
+          <SearchBar searchState={setSearch} title="Buscar el medico..." sx={{ flex: 1 }} />
           <Button variant="contained" onClick={() => setOpen(true)}>
             Agregar
           </Button>
