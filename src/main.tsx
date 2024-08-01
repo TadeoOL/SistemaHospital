@@ -7,9 +7,12 @@ import { CssBaseline } from '@mui/material';
 import { createTheme } from '../src/theme/index.tsx';
 import 'react-toastify/dist/ReactToastify.css';
 import { IconContext } from 'react-icons/lib';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es-mx'; // Importa los locales que necesites
 
 const theme = createTheme();
 const queryClient = new QueryClient();
+dayjs.locale('es-mx');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
