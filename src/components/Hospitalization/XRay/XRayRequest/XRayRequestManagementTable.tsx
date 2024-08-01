@@ -390,7 +390,7 @@ interface TableRowComponentProps {
   nurseRequest: IXRayRequest;
   rejectRequest: Function;
   acceptRequest: Function;
-  status: number;
+  status: number | null;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
