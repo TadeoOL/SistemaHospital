@@ -33,7 +33,7 @@ const initialValues = {
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  status: 1,
+  status: null,
   pageSize: 10,
   data: [],
   loading: false,

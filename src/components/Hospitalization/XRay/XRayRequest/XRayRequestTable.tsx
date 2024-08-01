@@ -358,7 +358,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
         <TableCell>{XRAY_REQUEST_STATUS[nurseRequest.estatus]}</TableCell>
         <TableCell>{REQUEST_TYPES[nurseRequest.tipo]}</TableCell>
         <TableCell>
-          {nurseRequest.estatus === 1 && (
+          {nurseRequest.estatus !== 0 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
                 onClick={() => {
