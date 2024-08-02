@@ -60,6 +60,35 @@ export interface Paciente {
   id: string;
 }
 
+export interface PacienteInfo { //Agregar mas cosas
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  genero: string;
+  fechaNacimiento: Date;
+  estadoCivil: string;
+  telefono: string;
+  ocupacion: string;
+  codigoPostal: string;
+  colonia: string;
+  direccion: string;
+  nombreResponsable: string;
+  parentesco: string;
+  domicilioResponsable: string;
+  coloniaResponsable: string;
+  codigoPostalResponsable: string;
+  telefonoResponsable: string;
+  id: string;
+  informacionCuartos? : ICuartosInfo[];
+}
+
+export interface ICuartosInfo {
+  id_Cuarto: string;
+  nombre: string;
+  horaFin: string;
+  horaInicio: string;
+}
+
 export interface IPatientRegisterPagination {
   id: string;
   clavePaciente: string;

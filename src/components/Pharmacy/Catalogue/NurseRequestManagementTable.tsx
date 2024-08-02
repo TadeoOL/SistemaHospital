@@ -21,11 +21,12 @@ import {
   tableCellClasses,
   FormControlLabel,
   Switch,
+  Button,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel, LocalPrintshopOutlined } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -36,6 +37,9 @@ import { ArticlesToSelectLote, RequestBuildingModal } from '../UserRequest/Modal
 import { getNurseRequestPreBuilded, updateStatusNurseRequest } from '../../../api/api.routes';
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { SortComponent } from '../../Commons/SortComponent';
+import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { NurseRequestReport } from '../../Export/Pharmacy/NurseRequestReport';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -148,6 +152,7 @@ export const NurseRequestManagementTable = () => {
     status,
   } = useGetNursesRequest();
   const [openModalBuild, setOpenModalBuild] = useState(false);
+  const [openPrint, setOpenPrint] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
   const [prebuildedArticles, setPrebuildedArticles] = useState<ArticlesToSelectLote[] | null>(null);
   //setWarehouseId
@@ -336,6 +341,7 @@ export const NurseRequestManagementTable = () => {
                         <TableRowComponent
                           nurseRequest={request}
                           setOpenModalBuild={setOpenModalBuild}
+                          setOpenPrint={setOpenPrint}
                           setNurseRequest={setNurseRequest}
                           setPrebuildedArticles={setPrebuildedArticles}
                           markAsDelivered={markAsDelivered}
@@ -395,6 +401,40 @@ export const NurseRequestManagementTable = () => {
           />
         </>
       </Modal>
+      <Modal open={openPrint} onClose={() => {setOpenPrint(false)}}>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: 380, sm: 550 },
+        borderRadius: 2,
+        boxShadow: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: { xs: 650 },
+      }} >
+        <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
+        <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
+      {nurseRequest !== null && !isLoading ? 
+      (<PDFDownloadLink
+            document={
+              <NurseRequestReport
+                request={nurseRequest}
+              />
+            }
+            fileName={`${Date.now()}.pdf`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            {({ loading }) => <Button variant="contained" >{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+        </PDFDownloadLink>) : 
+        (<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress size={35} />
+        </Box>)
+        }
+        </Box>
+      </Box>
+      </Modal>
     </>
   );
 };
@@ -402,6 +442,7 @@ export const NurseRequestManagementTable = () => {
 interface TableRowComponentProps {
   nurseRequest: InurseRequest;
   setOpenModalBuild: Function;
+  setOpenPrint: Function;
   setNurseRequest: Function;
   setPrebuildedArticles: Function;
   rejectRequest: Function;
@@ -410,6 +451,7 @@ interface TableRowComponentProps {
 const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
   setOpenModalBuild,
+  setOpenPrint,
   setNurseRequest,
   setPrebuildedArticles,
   rejectRequest,
@@ -486,6 +528,18 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
                 <Cancel sx={{ color: 'red' }} />
               </IconButton>
             </Tooltip>
+          )}
+          {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 1 && (
+            <Tooltip title="Imprimir solicitud">
+            <IconButton
+              onClick={() => {
+                setNurseRequest(nurseRequest)
+                setOpenPrint(true);
+              }}
+            >
+              <LocalPrintshopOutlined />
+            </IconButton>
+          </Tooltip>
           )}
         </TableCell>
       </TableRow>

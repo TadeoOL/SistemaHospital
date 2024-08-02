@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { Paciente } from '../../types/admissionTypes';
+import { Paciente, PacienteInfo } from '../../types/admissionTypes';
 import { IPatient, IPatientFromSearch } from '../../types/types';
 const apiPatient = '/api/Paciente';
 
@@ -67,4 +67,13 @@ export const getPatientsWithAccount = async (url: string) => {
 export const getPatientsWithAccountPagination = async (url: string) => {
   const res = await axios.get(`${apiPatient}/obtener-cuentas?${url}`);
   return res.data;
+};
+
+export const getPatientInfoById = async (patientId: string) => {
+  const res = await axios.get(`${apiPatient}/obtener-paciente-info`, {
+    params: {
+      id_Paciente: patientId,
+    },
+  });
+  return res.data as PacienteInfo;
 };
