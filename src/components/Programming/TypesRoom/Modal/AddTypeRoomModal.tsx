@@ -102,7 +102,6 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
-    console.log({ data });
     try {
       if (!editData) {
         await registerTypeRoom({

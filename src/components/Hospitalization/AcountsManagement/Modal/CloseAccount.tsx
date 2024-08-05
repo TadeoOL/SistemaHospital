@@ -4,6 +4,7 @@ import {
   Checkbox,
   CircularProgress,
   FormControlLabel,
+  Grid,
   Table,
   TableBody,
   TableCell,
@@ -34,21 +35,23 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
+import dayjs from 'dayjs';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550 },
+  width: { xs: 380, sm: 550, md: 750, xl: 850 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 650 },
+  maxHeight: { xs: 650, xl: 900 },
 };
 const style2 = {
   bgcolor: 'background.paper',
+  p: 2,
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     width: '0.4em',
@@ -76,6 +79,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const inputRefDiscount = useRef<HTMLInputElement>(null);
   const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   const profile = useAuthStore(useShallow((state) => state.profile));
+  const [notes, setNotes] = useState('');
 
   const [discountflag, setDiscountflag] = useState(false);
   const [errorflag, setErrorflag] = useState(true);
@@ -303,7 +307,11 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         ) : (
           accountInfo && (
             <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-              <PatientInformation patient={accountInfo.paciente} />
+              <PatientInformation
+                patient={accountInfo.paciente}
+                medic={accountInfo.medico}
+                isHospitalization={accountInfo.esHospitalizacion}
+              />
               <DataTable
                 title="Cuartos"
                 data={accountInfo.cuartos}
@@ -311,18 +319,22 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidadDias', header: 'Cantidad de Dias' },
                   { key: 'precioDia', header: 'Precio por Dia' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'IVA' },
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
               />
               <DataTable
-                title="Quirofanos"
+                title="Quirofanos / Recuperacion"
                 data={accountInfo.quirofanos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'tiempoCirugia', header: 'Tiempo de Cirujía' },
-                  { key: 'precioHora', header: 'Precio por Hora' },
+                  { key: 'tiempoCirugia', header: 'Tiempo' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'IVA' },
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
+                isOperatingRoom
               />
               <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
                 <FormControlLabel
@@ -358,20 +370,24 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.procedimientos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'duracionCirujia', header: 'Duración de Cirugía' },
-                  { key: 'duracionHospitalizacion', header: 'Duración de la Hospitalización' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'IVA' },
                   { key: 'precio', header: 'Precio Total' },
+                  // { key: 'estatus', header: 'Estatus' },
                 ]}
               />
+
               <DataTable
                 title="Estudios de Gabinete"
                 data={accountInfo.registrosRadiografias}
                 columns={[
+                  { key: 'folio', header: 'Folio' },
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'nombreSolicitante', header: 'Nombre del Solicitante' },
-                  { key: 'precio', header: 'Precio' },
-                  { key: 'estatus', header: 'Estatus' },
-                  { key: 'folio', header: 'Folio' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'IVA' },
+                  { key: 'precio', header: 'Precio Total' },
+                  // { key: 'estatus', header: 'Estatus' },
                 ]}
               />
               <DataTable
@@ -379,7 +395,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.registrosEquiposBiomedicos}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precio', header: 'Precio' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'IVA' },
+                  { key: 'precio', header: 'Precio Total' },
                 ]}
               />
               <DataTable
@@ -387,7 +405,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.registrosEquiposBiomedicosHonorario}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precio', header: 'Precio' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'IVA' },
+                  { key: 'precio', header: 'Precio Total' },
                 ]}
               />
               <DataTable
@@ -396,7 +416,10 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidad', header: 'Cantidad' },
-                  { key: 'precioVenta', header: 'Precio de Venta' },
+                  { key: 'precioVenta', header: 'Precio Unitario' },
+                  { key: 'precioNeto', header: 'Precio Neto' },
+                  { key: 'precioIVA', header: 'Precio IVA' },
+                  { key: 'precioTotal', header: 'Precio Total' },
                 ]}
               />
               <DataTable
@@ -407,15 +430,27 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'total', header: 'Monto' },
                 ]}
               />
-              <Typography textAlign={'center'} variant="h4">
+              <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', p: 1 }}>
+                <Box sx={{ boxShadow: 5, border: 1, display: 'flex', flex: 1, p: 1, borderColor: 'GrayText' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal: ${accountInfo.subTotal}</Typography>
+                </Box>
+                <Box sx={{ boxShadow: 5, border: 1, display: 'flex', flex: 1, p: 1, borderColor: 'GrayText' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA: ${accountInfo.iva}</Typography>
+                </Box>
+                <Box sx={{ boxShadow: 5, border: 1, display: 'flex', flex: 1, p: 1, borderColor: 'GrayText' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total: ${accountInfo.totalPagoCuenta}</Typography>
+                </Box>
+              </Box>
+              <Typography textAlign={'start'} variant="h4">
                 <b>Pago SAMI:</b> ${accountInfo?.totalPagoSami ?? 0}
               </Typography>
-              <Typography textAlign={'center'} variant="h4">
-                <b>Cuenta Actual:</b> ${accountInfo?.totalPagoCuenta}
+              <Typography textAlign={'start'} variant="h4">
+                <b>Total Abonos:</b> ${accountInfo?.totalPagoCuentaAbonos}
               </Typography>
-              <Typography textAlign={'center'} variant="h4">
-                <b>Abonos:</b> ${accountInfo?.totalPagoCuentaAbonos}
-              </Typography>
+
+              <Box sx={{ display: 'flex', flex: 1, mt: 2 }}>
+                <TextField multiline label="Notas" fullWidth value={notes} onChange={(e) => setNotes(e.target.value)} />
+              </Box>
             </Box>
           )
         )}
@@ -505,7 +540,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           <PDFDownloadLink
             document={
               <BillCloseReport
-                cierreCuenta={accountInfo as any}
+                cierreCuenta={{ ...accountInfo, notas: notes } as any}
                 descuento={discountPercent !== '' ? discountPercent : undefined}
                 total={CaclTotalBill()}
                 notas={
@@ -532,37 +567,52 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
 
 interface PatientInformationProps {
   patient: IPatientInAccount;
+  medic: string;
+  isHospitalization: boolean;
 }
 
-export const PatientInformation: React.FC<PatientInformationProps> = ({ patient }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', mx: 4, mt: 2.5 }}>
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+export const PatientInformation: React.FC<PatientInformationProps> = ({ patient, medic, isHospitalization }) => (
+  <Grid container sx={{ p: 1 }} spacing={1}>
+    <Grid item xs={12}>
       <Typography variant="h6">
         <b>Información del Paciente</b>
       </Typography>
+    </Grid>
+    <Grid item xs={6}>
       <Typography>
         <b>Nombre:</b> {`${patient.nombre} ${patient.apellidoPaterno} ${patient.apellidoMaterno}`}
       </Typography>
-    </Box>
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    </Grid>
+    <Grid item xs={6}>
       <Typography>
-        <b>Género:</b> {patient.genero}
+        <b>Fecha:</b> {dayjs().format('DD/MM/YYYY - HH:mm')}
       </Typography>
-    </Box>
-  </Box>
+    </Grid>
+    <Grid item xs={12}>
+      <Typography>
+        <b>Nombre Doctor:</b> {medic}
+      </Typography>
+    </Grid>
+    <Grid item xs={12}>
+      <Typography>
+        <b>Tipo:</b> {isHospitalization ? 'Hospitalización' : 'Ambulatoria o Endopro'}
+      </Typography>
+    </Grid>
+  </Grid>
 );
 
 interface DataTableProps<T> {
   title: string;
   data: T[];
   columns: Column<T>[];
+  isOperatingRoom?: boolean;
 }
 interface Column<T> {
   key: keyof T;
   header: string;
 }
 
-export const DataTable = <T,>({ title, data, columns }: DataTableProps<T>) => (
+export const DataTable = <T,>({ title, data, columns, isOperatingRoom }: DataTableProps<T>) => (
   <Box sx={{ p: 1, width: '100%', margin: 'auto', fontSize: '0.875rem' }}>
     <Typography variant="h6" sx={{ mb: 2, fontSize: '1.1rem' }}>
       {title}
@@ -576,23 +626,31 @@ export const DataTable = <T,>({ title, data, columns }: DataTableProps<T>) => (
                 {col.header}
               </TableCell>
             ))}
+            {isOperatingRoom && <TableCell sx={{ p: 1, fontSize: '0.875rem' }}>Acciones</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
           {data.length > 0 ? (
             data.map((row, index) => (
               <TableRow key={index}>
-                {columns.map((col) => (
-                  <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
-                    {String(row[col.key])}
-                  </TableCell>
-                ))}
+                {columns.map((col) => {
+                  const cellValue = row[col.key];
+                  const formattedValue =
+                    (col.key as String).toLowerCase().includes('precio') && typeof cellValue === 'number'
+                      ? `$${cellValue}`
+                      : String(cellValue);
+                  return (
+                    <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
+                      {formattedValue}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} sx={{ p: 1, fontSize: '0.875rem', textAlign: 'center' }}>
-                No hay datos disponibles
+                Sin registros
               </TableCell>
             </TableRow>
           )}
