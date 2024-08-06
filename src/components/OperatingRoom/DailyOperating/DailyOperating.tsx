@@ -2,7 +2,7 @@ import { Autocomplete, Box, TextField } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { DailyOperatingTable } from './DailyOperatingTable';
 import { useDailyOperatingRoomsPaginationStore } from '../../../store/operatingRoom/dailyOperatingRoomsPagination';
-import { useGetAllOperatingRooms } from '../../../hooks/operatingRoom/useGetAllOperatingRoom';
+import { useGetAllOperatingRooms } from '../../../hooks/operatingRoom/useGetAllOperatingRoomTypes';
 
 export const DailyOperating = () => {
   const setSearch = useDailyOperatingRoomsPaginationStore((state) => state.setSearch);
