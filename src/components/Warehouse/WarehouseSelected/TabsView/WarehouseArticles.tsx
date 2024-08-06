@@ -294,7 +294,7 @@ interface TableRowComponentProps {
   article: IExistingArticle;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
-  const [open, setOpen] = useState(false);
+  //const [open, setOpen] = useState(false);
   const [openNewLote, setOpenNewLote] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingSubRow, setIsEditingSubRow] = useState(false);
@@ -338,13 +338,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>
-              {article.listaArticuloExistente && article.listaArticuloExistente.length > 0 && !open ? (
-                <ExpandMore />
-              ) : (
-                <ExpandLess />
-              )}
-            </IconButton>
             {article.nombre}
           </Box>
         </TableCell>
@@ -391,9 +384,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           <Tooltip title="Añadir lote">
             <IconButton
               onClick={() => {
-                setOpen(true);
-                setOpenNewLote(true);
-                setIsEditingSubRow(true);
+                //setOpen(true);
+                //setOpenNewLote(true);
+                //setIsEditingSubRow(true);
               }}
               disabled={openNewLote || isEditing || isEditingSubRow}
             >
@@ -402,24 +395,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           </Tooltip>
         </TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell colSpan={8} sx={{ padding: 0 }}>
-          <Collapse in={open} unmountOnExit>
-            <SubItemsTable
-              article={article.listaArticuloExistente}
-              setOpenNewLote={setOpenNewLote}
-              isEditingSubRow={isEditingSubRow}
-              setIsEditingSubRow={setIsEditingSubRow}
-              openNewLote={openNewLote}
-              idArticle={article.id_Articulo}
-            />
-          </Collapse>
-        </TableCell>
-      </TableRow>
     </React.Fragment>
   );
 };
-
+/*
 interface SubItemsTableProps {
   article: IExistingArticleList[];
   idArticle: string;
@@ -431,6 +410,7 @@ interface SubItemsTableProps {
 interface InputFieldRef {
   value: string;
 }
+
 const SubItemsTable: React.FC<SubItemsTableProps> = ({
   idArticle,
   article,
@@ -777,3 +757,4 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
     </TableRow>
   );
 };
+*/

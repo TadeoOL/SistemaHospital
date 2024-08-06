@@ -146,7 +146,8 @@ const renderOutputView = (
 interface ArticlesViewProps {
   setOpen: Function;
 }
-
+//Cambiar esta fokin chingadera
+//akkki
 export const ArticlesView = (props: ArticlesViewProps) => {
   const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
   const [reasonMessage, setReasonMessage] = useState('');

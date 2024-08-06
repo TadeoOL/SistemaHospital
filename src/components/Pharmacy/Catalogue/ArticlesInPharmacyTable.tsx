@@ -108,6 +108,8 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
     setWarehouseId(warehouseId);
     setPrincipalWarehouseId(principalWarehouseId);
     fetchExistingArticles();
+    //akkki
+    console.log("fokin deita",data);
   }, [search, startDate, endDate, clearFilters, sort, pageIndex, pageSize]);
 
   return {
@@ -209,6 +211,17 @@ export const ArticlesPharmacyTable = () => {
               >
                 Entrada de artículos
               </Button>
+              <Button
+                sx={{ minWidth: 200 }}
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => {
+                  setExitArticlesM(false);
+                  setOpenModal(!openModal);
+                }}
+              >
+                nuevo boton
+              </Button>
             </Box>
           </Box>
           <Card>
@@ -302,20 +315,12 @@ interface TableRowComponentProps {
   article: IExistingArticle;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
-  const [open, setOpen] = useState(false);
 
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>
-              {article.listaArticuloExistente && article.listaArticuloExistente.length > 0 && !open ? (
-                <ExpandMore />
-              ) : (
-                <ExpandLess />
-              )}
-            </IconButton>
             {article.nombre}
           </Box>
         </TableCell>
@@ -334,43 +339,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
         <TableCell>{article.stockActual}</TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell colSpan={8} sx={{ padding: 0 }}>
-          <Collapse in={open} unmountOnExit>
-            <SubItemsTable article={article.listaArticuloExistente} />
-          </Collapse>
-        </TableCell>
-      </TableRow>
     </React.Fragment>
-  );
-};
-
-interface SubItemsTableProps {
-  article: IExistingArticleList[];
-}
-const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
-  return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <StyledTableCell align="center">Fecha de compra de lote</StyledTableCell>
-            <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
-            <StyledTableCell align="center">Stock</StyledTableCell>
-            <StyledTableCell align="center">Código de barras</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {article.map((a) => (
-            <TableRow key={a.id_ArticuloExistente}>
-              <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
-              <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
-              <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
-              {/*<StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>*/}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
   );
 };

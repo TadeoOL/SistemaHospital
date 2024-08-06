@@ -153,7 +153,8 @@ export interface IArticleFromSearchWithBarCode {
   codigoBarras?: string;
   cantidad: number;
 }
-
+//ta fokin cosa va cambiar
+//akkki
 export interface IExistingArticle {
   id_Articulo: string;
   cantidad: number;
@@ -166,10 +167,10 @@ export interface IExistingArticle {
   stockMinimo: number;
   fechaCaducidad: string;
   nombre: string;
-  listaArticuloExistente: IExistingArticleList[];
+  //listaArticuloExistente: IExistingArticleList[];
   codigoBarras?: string;
 }
-
+//kill
 export interface IExistingArticleList {
   //Lote
   id_ArticuloExistente: string;
