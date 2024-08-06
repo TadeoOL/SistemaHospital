@@ -22,7 +22,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { lg: 500, xl: 900 },
+  maxHeight: { xs: 550, xl: 900 },
 };
 
 interface CalendarRegisterProps {
