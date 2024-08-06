@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import dayjs from 'dayjs';
 
 // Estilos para el documento PDF
 const styles = StyleSheet.create({
@@ -85,6 +86,8 @@ type Cuarto = {
   cantidadDias: string;
   precioDia: number;
   precioTotal: number;
+  precioNeto: number;
+  precioIVA: number;
 };
 
 type Quirofano = {
@@ -93,6 +96,8 @@ type Quirofano = {
   tiempoCirugia: string;
   precioHora: number;
   precioTotal: number;
+  precioNeto: number;
+  precioIVA: number;
 };
 
 type Procedimiento = {
@@ -101,12 +106,16 @@ type Procedimiento = {
   duracionCirujia: string;
   duracionHospitalizacion: number;
   precio: number;
+  precioNeto: number;
+  precioIVA: number;
 };
 
 type EquipoBiomedico = {
   id_RegistroEquipoBiomedico: string;
   nombre: string;
   precio: number;
+  precioNeto: number;
+  precioIVA: number;
 };
 
 type Articulo = {
@@ -114,6 +123,9 @@ type Articulo = {
   nombre: string;
   cantidad: number;
   precioVenta: number;
+  precioNeto: number;
+  precioIVA: number;
+  precioTotal: number;
 };
 
 type Pago = {
@@ -130,6 +142,8 @@ type EstudiosDeGabinete = {
   nombre: string;
   pagado: boolean;
   precio: number;
+  precioNeto: number;
+  precioIVA: number;
   estatus: number;
 };
 
@@ -169,6 +183,12 @@ type CierreCuenta = {
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
   subtotalPagoCuentaRestante: number;
+  medico: string;
+  tipoOperacion: string;
+  esHospitalizacion: string;
+  notas: string;
+  iva: number;
+  subTotal: number;
 };
 
 type Props = {
@@ -183,131 +203,257 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
     <Page style={styles.page}>
       <View style={styles.section}>
         <Text style={styles.header}>Información del Paciente</Text>
-        <Text>
-          Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno}{' '}
-          {cierreCuenta.paciente.apellidoMaterno}
+        <View style={{ display: 'flex', justifyContent: 'space-between', flex: 1, flexDirection: 'row' }}>
+          <Text>
+            Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno}{' '}
+            {cierreCuenta.paciente.apellidoMaterno}
+          </Text>
+          <Text>Fecha: {dayjs().format('DD/MM/YYYY - HH:mm')}</Text>
+        </View>
+        <Text style={{ marginTop: 10 }}>Nombre Doctor: {cierreCuenta.medico}</Text>
+        <Text style={{ marginTop: 10 }}>
+          Tipo: {cierreCuenta.esHospitalizacion ? 'Hospitalización' : 'Ambulatoria o Endopro'}
         </Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.header}>Detalles de la Cuenta</Text>
-        <Text style={styles.header}>Cuartos</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Nombre</Text>
-            <Text style={styles.tableCol}>Cantidad Días</Text>
-            <Text style={styles.tableCol}>Precio por Día</Text>
-            <Text style={styles.tableCol}>Precio Total</Text>
-          </View>
-          {cierreCuenta.cuartos.map((cuarto, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{cuarto.nombre}</Text>
-              <Text style={styles.tableCell}>{cuarto.cantidadDias}</Text>
-              <Text style={styles.tableCell}>$ {cuarto.precioDia}</Text>
-              <Text style={styles.tableCell}>$ {cuarto.precioTotal}</Text>
+        {cierreCuenta.cuartos && cierreCuenta.cuartos.length > 0 && (
+          <>
+            <Text style={styles.header}>Cuartos</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Cantidad Días</Text>
+                <Text style={styles.tableCol}>Precio por Día</Text>
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              {cierreCuenta.cuartos.map((cuarto, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{cuarto.nombre}</Text>
+                  <Text style={styles.tableCell}>{cuarto.cantidadDias}</Text>
+                  <Text style={styles.tableCell}>${cuarto.precioDia}</Text>
+                  <Text style={styles.tableCell}>${cuarto.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${cuarto.precioIVA}</Text>
+                  <Text style={styles.tableCell}>${cuarto.precioTotal}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-        <Text style={styles.header}>Quirófanos</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Nombre</Text>
-            <Text style={styles.tableCol}>Tiempo Cirugía</Text>
-            <Text style={styles.tableCol}>Precio por Hora</Text>
-            <Text style={styles.tableCol}>Precio Total</Text>
-          </View>
-          {cierreCuenta.quirofanos.map((quirofano, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{quirofano.nombre}</Text>
-              <Text style={styles.tableCell}>{quirofano.tiempoCirugia}</Text>
-              <Text style={styles.tableCell}>{quirofano.precioHora}</Text>
-              <Text style={styles.tableCell}>$ {quirofano.precioTotal}</Text>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: ${CalculateTotal(cierreCuenta.cuartos.flatMap((x) => x.precioTotal))}
+              </Text>
             </View>
-          ))}
-        </View>
-        <Text style={styles.header}>Procedimientos</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Nombre</Text>
-            <Text style={styles.tableCol}>Duración Cirugía</Text>
-            <Text style={styles.tableCol}>Duración Hospitalización</Text>
-            <Text style={styles.tableCol}>Precio</Text>
-          </View>
-          {cierreCuenta.procedimientos.map((procedimiento, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{procedimiento.nombre}</Text>
-              <Text style={styles.tableCell}>{procedimiento.duracionCirujia}</Text>
-              <Text style={styles.tableCell}>{procedimiento.duracionHospitalizacion}</Text>
-              <Text style={styles.tableCell}>$ {procedimiento.precio}</Text>
+          </>
+        )}
+        {cierreCuenta.quirofanos && cierreCuenta.quirofanos.length > 0 && (
+          <>
+            <Text style={styles.header}>Quirófanos</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Tiempo Cirugía</Text>
+                {/* <Text style={styles.tableCol}>Precio por Hora</Text> */}
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              {cierreCuenta.quirofanos.map((quirofano, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{quirofano.nombre}</Text>
+                  <Text style={styles.tableCell}>{quirofano.tiempoCirugia}</Text>
+                  {/* <Text style={styles.tableCell}>${quirofano.precioHora}</Text> */}
+                  <Text style={styles.tableCell}>${quirofano.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${quirofano.precioIVA}</Text>
+                  <Text style={styles.tableCell}>$ {quirofano.precioTotal}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-        <Text style={styles.header}>Estudios de Gabinete</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Folio</Text>
-            <Text style={styles.tableCol}>Nombre</Text>
-            <Text style={styles.tableCol}>Precio</Text>
-          </View>
-          {cierreCuenta.registrosRadiografias.map((estudio, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{estudio.folio}</Text>
-              <Text style={styles.tableCell}>{estudio.nombre}</Text>
-              <Text style={styles.tableCell}>$ {estudio.precio}</Text>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: ${CalculateTotal(cierreCuenta.quirofanos.flatMap((x) => x.precioTotal))}
+              </Text>
             </View>
-          ))}
-        </View>
-        <Text style={styles.header}>Equipos Biomédicos</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Nombre</Text>
-            <Text style={styles.tableCol}>Precio</Text>
-          </View>
-          {cierreCuenta.registrosEquiposBiomedicos.map((equipo, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{equipo.nombre}</Text>
-              <Text style={styles.tableCell}>$ {equipo.precio}</Text>
+          </>
+        )}
+        {cierreCuenta.procedimientos && cierreCuenta.procedimientos.length > 0 && (
+          <>
+            <Text style={styles.header}>Procedimientos</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              {cierreCuenta.procedimientos.map((procedimiento, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{procedimiento.nombre}</Text>
+                  <Text style={styles.tableCell}>${procedimiento.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${procedimiento.precioIVA}</Text>
+                  <Text style={styles.tableCell}>${procedimiento.precio}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-        <Text style={styles.header}>Artículos</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Nombre</Text>
-            <Text style={styles.tableCol}>Cantidad</Text>
-            <Text style={styles.tableCol}>Precio Venta</Text>
-          </View>
-          {cierreCuenta.articulos.map((articulo, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{articulo.nombre}</Text>
-              <Text style={styles.tableCell}>{articulo.cantidad}</Text>
-              <Text style={styles.tableCell}>$ {articulo.precioVenta}</Text>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: ${CalculateTotal(cierreCuenta.procedimientos.flatMap((x) => x.precio))}
+              </Text>
             </View>
-          ))}
-        </View>
-        <Text style={styles.header}>Pagos</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCol}>Folio</Text>
-            <Text style={styles.tableCol}>Pagado</Text>
-            <Text style={styles.tableCol}>Total</Text>
-          </View>
-          {cierreCuenta.pagosCuenta.map((pago, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{pago.folio}</Text>
-              <Text style={styles.tableCell}>{pago.pagado ? 'Sí' : 'No'}</Text>
-              <Text style={styles.tableCell}>$ {pago.total}</Text>
+          </>
+        )}
+        {((cierreCuenta.registrosRadiografias && cierreCuenta.registrosRadiografias.length > 0) ||
+          (cierreCuenta.registrosEquiposBiomedicosHonorario &&
+            cierreCuenta.registrosEquiposBiomedicosHonorario.length > 0)) && (
+          <>
+            <Text style={styles.header}>Estudios de Gabinete y/o Equipo Honorario</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              {cierreCuenta.registrosRadiografias.map((estudio, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{estudio.nombre}</Text>
+                  <Text style={styles.tableCell}>${estudio.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${estudio.precioIVA}</Text>
+                  <Text style={styles.tableCell}>${estudio.precio}</Text>
+                </View>
+              ))}
+              {cierreCuenta.registrosEquiposBiomedicosHonorario.map((equipo, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{equipo.nombre}</Text>
+                  <Text style={styles.tableCell}>${equipo.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${equipo.precioIVA}</Text>
+                  <Text style={styles.tableCell}>${equipo.precio}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: $
+                {CalculateTotal(
+                  cierreCuenta.registrosEquiposBiomedicosHonorario
+                    .flatMap((x) => x.precio)
+                    .concat(cierreCuenta.registrosRadiografias.flatMap((x) => x.precio))
+                )}
+              </Text>
+            </View>
+          </>
+        )}
+        {cierreCuenta.registrosEquiposBiomedicos && cierreCuenta.registrosEquiposBiomedicos.length > 0 && (
+          <>
+            <Text style={styles.header}>Equipos Biomédicos</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              {cierreCuenta.registrosEquiposBiomedicos.map((equipo, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{equipo.nombre}</Text>
+                  <Text style={styles.tableCell}>${equipo.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${equipo.precioIVA}</Text>
+                  <Text style={styles.tableCell}>${equipo.precio}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: ${CalculateTotal(cierreCuenta.registrosEquiposBiomedicos.flatMap((x) => x.precio))}
+              </Text>
+            </View>
+          </>
+        )}
+        {cierreCuenta.articulos && cierreCuenta.articulos.length > 0 && (
+          <>
+            <Text style={styles.header}>Artículos</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Cantidad</Text>
+                <Text style={styles.tableCol}>Precio Unitario</Text>
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              {cierreCuenta.articulos.map((articulo, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{articulo.nombre}</Text>
+                  <Text style={styles.tableCell}>{articulo.cantidad}</Text>
+                  <Text style={styles.tableCell}>${articulo.precioVenta}</Text>
+                  <Text style={styles.tableCell}>${articulo.precioNeto}</Text>
+                  <Text style={styles.tableCell}>${articulo.precioIVA}</Text>
+                  <Text style={styles.tableCell}>${articulo.precioTotal}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: ${CalculateTotal(cierreCuenta.articulos.flatMap((x) => x.precioTotal))}
+              </Text>
+            </View>
+          </>
+        )}
+        {cierreCuenta.pagosCuenta && cierreCuenta.pagosCuenta.length > 0 && (
+          <>
+            <Text style={styles.header}>Pagos</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Folio</Text>
+                <Text style={styles.tableCol}>Pagado</Text>
+                <Text style={styles.tableCol}>Total</Text>
+              </View>
+              {cierreCuenta.pagosCuenta.map((pago, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{pago.folio}</Text>
+                  <Text style={styles.tableCell}>{pago.pagado ? 'Sí' : 'No'}</Text>
+                  <Text style={styles.tableCell}>$ {pago.total}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+              <Text style={{ textAlign: 'right' }}>
+                Total: ${CalculateTotal(cierreCuenta.pagosCuenta.flatMap((x) => x.total))}
+              </Text>
+            </View>
+          </>
+        )}
         <Text style={styles.header}>Totales</Text>
-        <Text>SubTotal: {cierreCuenta.subtotalPagoCuenta}</Text>
-        <Text>Impuesto: {(cierreCuenta.totalPagoCuenta - cierreCuenta.subtotalPagoCuenta).toFixed(2)}   IVA: 16%</Text>
-        <Text>Total Pago Cuenta: $ {cierreCuenta.totalPagoCuenta}</Text>
-        <Text>Total Abonos: $ {cierreCuenta.totalPagoCuentaAbonos}</Text>
-        {descuento && <Text>Descuento: {descuento}%</Text>}
-        <Text>Total Restante: $ {total}</Text>
-        <Text>Notas: {notas}</Text>
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
+          <View style={{ border: 1, borderRadius: 5, padding: 5, width: 'auto', minWidth: 150 }}>
+            <Text>SubTotal: ${cierreCuenta.subTotal}</Text>
+            <Text>IVA: ${cierreCuenta.iva}</Text>
+            <Text>Total Pago Cuenta: ${cierreCuenta.totalPagoCuenta}</Text>
+          </View>
+        </View>
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
+          <View style={{ border: 1, borderRadius: 5, padding: 5, width: 'auto', minWidth: 150 }}>
+            <Text>Total Abonos: ${cierreCuenta.totalPagoCuentaAbonos}</Text>
+            {descuento && <Text>Descuento: {descuento}%</Text>}
+            <Text>Total Restante: ${total}</Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={{
+          display: 'flex',
+          flex: 1,
+          border: 1,
+          borderRadius: 5,
+        }}
+      >
+        <Text style={{ padding: 2 }}>Notas: {notas + ' ' + cierreCuenta.notas}</Text>
       </View>
     </Page>
   </Document>
 );
+
+function CalculateTotal(data: any[]) {
+  return data.reduce((arg, sum) => arg + sum, 0);
+}
