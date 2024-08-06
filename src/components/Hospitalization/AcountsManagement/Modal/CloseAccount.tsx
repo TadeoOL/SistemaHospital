@@ -430,17 +430,56 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'total', header: 'Monto' },
                 ]}
               />
-              <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', p: 1 }}>
-                <Box sx={{ boxShadow: 5, border: 1, display: 'flex', flex: 1, p: 1, borderColor: 'GrayText' }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal: ${accountInfo.subTotal}</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal:</Typography>
+                  </Box>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.subTotal}</Typography>
+                  </Box>
                 </Box>
-                <Box sx={{ boxShadow: 5, border: 1, display: 'flex', flex: 1, p: 1, borderColor: 'GrayText' }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA: ${accountInfo.iva}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
+                  </Box>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.iva}</Typography>
+                  </Box>
                 </Box>
-                <Box sx={{ boxShadow: 5, border: 1, display: 'flex', flex: 1, p: 1, borderColor: 'GrayText' }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total: ${accountInfo.totalPagoCuenta}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
+                  </Box>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.totalPagoCuenta}</Typography>
+                  </Box>
                 </Box>
               </Box>
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
+                  </Box>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                      ${accountInfo?.totalPagoCuentaAbonos}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Restante:</Typography>
+                  </Box>
+                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                      ${accountInfo?.totalPagoCuenta - accountInfo.totalPagoCuentaAbonos}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
               <Typography textAlign={'start'} variant="h4">
                 <b>Pago SAMI:</b> ${accountInfo?.totalPagoSami ?? 0}
               </Typography>

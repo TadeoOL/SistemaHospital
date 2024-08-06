@@ -430,6 +430,10 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
             <Text>SubTotal: ${cierreCuenta.subTotal}</Text>
             <Text>Impuesto: ${cierreCuenta.iva} IVA: 16%</Text>
             <Text>Total Pago Cuenta: ${cierreCuenta.totalPagoCuenta}</Text>
+          </View>
+        </View>
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
+          <View style={{ border: 1, borderRadius: 5, padding: 5, width: 'auto', minWidth: 150 }}>
             <Text>Total Abonos: ${cierreCuenta.totalPagoCuentaAbonos}</Text>
             {descuento && <Text>Descuento: {descuento}%</Text>}
             <Text>Total Restante: ${total}</Text>
