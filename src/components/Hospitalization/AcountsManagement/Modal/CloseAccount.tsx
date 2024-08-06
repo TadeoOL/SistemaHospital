@@ -42,7 +42,9 @@ import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import dayjs from 'dayjs';
 import { Settings } from '@mui/icons-material';
+import { useGetAllOperatingRooms } from '../../../../hooks/operatingRoom/useGetAllOperatingRoom';
 import { useQuery } from '@tanstack/react-query';
+import { getAllOperatingRooms } from '../../../../services/operatingRoom/dailyOperatingRoomService';
 import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
 
@@ -86,7 +88,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
   const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
   const inputRefDiscount = useRef<HTMLInputElement>(null);
-  // const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
+  const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   const profile = useAuthStore(useShallow((state) => state.profile));
   const [notes, setNotes] = useState('');
 
@@ -96,7 +98,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const [discountPercent, setDiscountPrecent] = useState('');
 
   const [discountSurgeryRoomFlag, _] = useState(false);
-  const [surgeryPrice, __] = useState('');
+  const [surgeryPrice, setSurgeryPrice] = useState('');
   const [initialSurgeryPrice, setInitialSurgeryPrice] = useState(0);
   const [modified, setModified] = useState(false);
 
@@ -242,21 +244,21 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     }
   };
 
-  // const handleKeyDownSurgery = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  //   const { key } = event;
-  //   const regex = /^[0-9.]$/;
-  //   if (
-  //     (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
-  //     (event.key === '.' && inputRefSurgeryDiscount.current && inputRefSurgeryDiscount.current.value.includes('.')) //punto y ya incluye punto
-  //   ) {
-  //     event.preventDefault(); // Evitar la entrada si no es válida
-  //   } else if (
-  //     (inputRefSurgeryDiscount.current && !isNaN(Number(inputRefSurgeryDiscount.current.value + event.key))) ||
-  //     (inputRefSurgeryDiscount.current && (event.key === 'Backspace' || event.key === '0'))
-  //   ) {
-  //     setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
-  //   }
-  // };
+  const handleKeyDownSurgery = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const { key } = event;
+    const regex = /^[0-9.]$/;
+    if (
+      (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
+      (event.key === '.' && inputRefSurgeryDiscount.current && inputRefSurgeryDiscount.current.value.includes('.')) //punto y ya incluye punto
+    ) {
+      event.preventDefault(); // Evitar la entrada si no es válida
+    } else if (
+      (inputRefSurgeryDiscount.current && !isNaN(Number(inputRefSurgeryDiscount.current.value + event.key))) ||
+      (inputRefSurgeryDiscount.current && (event.key === 'Backspace' || event.key === '0'))
+    ) {
+      setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
+    }
+  };
   const CaclTotalBill = () => {
     let result = 0;
     if (discountflag && discountSurgeryRoomFlag) {
