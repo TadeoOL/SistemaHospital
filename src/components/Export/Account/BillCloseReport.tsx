@@ -395,7 +395,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
             </View>
             <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
               <Text style={{ textAlign: 'right' }}>
-                Total: ${CalculateTotal(cierreCuenta.articulos.flatMap((x) => x.precioVenta))}
+                Total: ${CalculateTotal(cierreCuenta.articulos.flatMap((x) => x.precioTotal))}
               </Text>
             </View>
           </>
