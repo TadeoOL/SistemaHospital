@@ -27,7 +27,6 @@ import {
 } from '../../../../types/hospitalizationTypes';
 import { toast } from 'react-toastify';
 import { useEffect, useRef, useState } from 'react';
-import { useBiomedicalEquipmentPaginationStore } from '../../../../store/hospitalization/biomedicalEquipmentPagination';
 import {
   closeRegisterAndAccount,
   getAccountFullInformation,
@@ -36,8 +35,8 @@ import { registerSell } from '../../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
+// import { PDFDownloadLink } from '@react-pdf/renderer';
+// import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import dayjs from 'dayjs';
@@ -45,6 +44,7 @@ import { Settings } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
+import { usePatientAccountPaginationStore } from '../../../../store/hospitalization/patientAcountsPagination';
 
 const style = {
   position: 'absolute',
@@ -84,7 +84,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const conn = useConnectionSocket((state) => state.conn);
   const [isLoading, setIsLoading] = useState(false);
   const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
-  const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
+  const refetch = usePatientAccountPaginationStore((state) => state.fetchData);
   const inputRefDiscount = useRef<HTMLInputElement>(null);
   // const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   const profile = useAuthStore(useShallow((state) => state.profile));
@@ -93,7 +93,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const [discountflag, setDiscountflag] = useState(false);
   const [errorflag, setErrorflag] = useState(true);
   const [discount, setDiscount] = useState('');
-  const [discountPercent, setDiscountPrecent] = useState('');
+  const [___, setDiscountPrecent] = useState('');
 
   const [discountSurgeryRoomFlag, _] = useState(false);
   const [surgeryPrice, __] = useState('');
@@ -257,21 +257,21 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   //     setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
   //   }
   // };
-  const CaclTotalBill = () => {
-    let result = 0;
-    if (discountflag && discountSurgeryRoomFlag) {
-      result = parseFloat(discount);
-    } else if (discountSurgeryRoomFlag) {
-      result =
-        (accountInfo?.totalPagoCuentaRestante ?? 0) +
-        (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice);
-    } else if (discountflag) {
-      result = parseFloat(discount);
-    } else {
-      result = accountInfo?.totalPagoCuentaRestante ?? 0;
-    }
-    return result;
-  };
+  // const CaclTotalBill = () => {
+  //   let result = 0;
+  //   if (discountflag && discountSurgeryRoomFlag) {
+  //     result = parseFloat(discount);
+  //   } else if (discountSurgeryRoomFlag) {
+  //     result =
+  //       (accountInfo?.totalPagoCuentaRestante ?? 0) +
+  //       (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice);
+  //   } else if (discountflag) {
+  //     result = parseFloat(discount);
+  //   } else {
+  //     result = accountInfo?.totalPagoCuentaRestante ?? 0;
+  //   }
+  //   return result;
+  // };
   if (errorflag && !isLoading) {
     return (
       <Box sx={style}>
@@ -585,7 +585,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         >
           {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
         </Button>
-        {!isLoading && !errorflag && (
+        {/* {!isLoading && !errorflag && (
           <PDFDownloadLink
             document={
               <BillCloseReport
@@ -608,7 +608,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           >
             {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
           </PDFDownloadLink>
-        )}
+        )} */}
       </Box>
     </Box>
   );
