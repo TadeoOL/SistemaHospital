@@ -606,6 +606,7 @@ export interface InurseRequest {
   pacienteNombre: string;
   articulos: IArticleInRequest[];
   lista_ArticulosEntregados: IArticlesDelivered[] | null;
+  fechaSolicitud : string;
 }
 
 export interface IArticleInRequest {
