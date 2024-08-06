@@ -78,6 +78,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
   const inputRefDiscount = useRef<HTMLInputElement>(null);
   const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
+  const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   const profile = useAuthStore(useShallow((state) => state.profile));
   const [notes, setNotes] = useState('');
 
@@ -232,6 +233,21 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     }
   };
 
+  const handleKeyDownSurgery = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const { key } = event;
+    const regex = /^[0-9.]$/;
+    if (
+      (!regex.test(key) && event.key !== 'Backspace') || //no numerico y que no sea backspace
+      (event.key === '.' && inputRefSurgeryDiscount.current && inputRefSurgeryDiscount.current.value.includes('.')) //punto y ya incluye punto
+    ) {
+      event.preventDefault(); // Evitar la entrada si no es válida
+    } else if (
+      (inputRefSurgeryDiscount.current && !isNaN(Number(inputRefSurgeryDiscount.current.value + event.key))) ||
+      (inputRefSurgeryDiscount.current && (event.key === 'Backspace' || event.key === '0'))
+    ) {
+      setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
+    }
+  };
   const handleKeyDownSurgery = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const { key } = event;
     const regex = /^[0-9.]$/;
