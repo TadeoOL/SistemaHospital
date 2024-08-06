@@ -483,9 +483,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               <Typography textAlign={'start'} variant="h4">
                 <b>Pago SAMI:</b> ${accountInfo?.totalPagoSami ?? 0}
               </Typography>
-              <Typography textAlign={'start'} variant="h4">
-                <b>Total Abonos:</b> ${accountInfo?.totalPagoCuentaAbonos}
-              </Typography>
 
               <Box sx={{ display: 'flex', flex: 1, mt: 2 }}>
                 <TextField multiline label="Notas" fullWidth value={notes} onChange={(e) => setNotes(e.target.value)} />
