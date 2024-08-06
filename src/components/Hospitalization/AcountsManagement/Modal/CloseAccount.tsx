@@ -5,6 +5,10 @@ import {
   CircularProgress,
   FormControlLabel,
   Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -12,6 +16,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
@@ -36,6 +41,12 @@ import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import dayjs from 'dayjs';
+import { Settings } from '@mui/icons-material';
+import { useGetAllOperatingRooms } from '../../../../hooks/operatingRoom/useGetAllOperatingRoom';
+import { useQuery } from '@tanstack/react-query';
+import { getAllOperatingRooms } from '../../../../services/operatingRoom/dailyOperatingRoomService';
+import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
+import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
 
 const style = {
   position: 'absolute',
@@ -86,9 +97,10 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const [discount, setDiscount] = useState('');
   const [discountPercent, setDiscountPrecent] = useState('');
 
-  const [discountSurgeryRoomFlag, setDiscountSurgeryRoomFlag] = useState(false);
+  const [discountSurgeryRoomFlag, _] = useState(false);
   const [surgeryPrice, setSurgeryPrice] = useState('');
   const [initialSurgeryPrice, setInitialSurgeryPrice] = useState(0);
+  const [modified, setModified] = useState(false);
 
   useEffect(() => {
     const fetchAccountInfo = async () => {
@@ -113,7 +125,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     };
 
     fetchAccountInfo();
-  }, []);
+  }, [modified]);
 
   const handleSubmit = async (totalVentaV: number) => {
     if (!accountInfo) {
@@ -335,8 +347,11 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
                 isOperatingRoom
+                modified={modified}
+                setModified={setModified}
+                id_PatientBill={props.id_Cuenta}
               />
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
+              {/* <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
                 <FormControlLabel
                   required
                   control={
@@ -364,7 +379,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     />
                   </Box>
                 )}
-              </Box>
+              </Box> */}
               <DataTable
                 title="Procedimientos"
                 data={accountInfo.procedimientos}
@@ -642,56 +657,156 @@ interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
   isOperatingRoom?: boolean;
+  modified?: boolean;
+  setModified?: Function;
+  id_PatientBill?: string;
 }
 interface Column<T> {
   key: keyof T;
   header: string;
 }
 
-export const DataTable = <T,>({ title, data, columns, isOperatingRoom }: DataTableProps<T>) => (
-  <Box sx={{ p: 1, width: '100%', margin: 'auto', fontSize: '0.875rem' }}>
-    <Typography variant="h6" sx={{ mb: 2, fontSize: '1.1rem' }}>
-      {title}
-    </Typography>
-    <TableContainer sx={{ border: '1px solid #ccc', borderRadius: '4px', fontSize: '0.875rem' }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {columns.map((col) => (
-              <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
-                {col.header}
-              </TableCell>
-            ))}
-            {isOperatingRoom && <TableCell sx={{ p: 1, fontSize: '0.875rem' }}>Acciones</TableCell>}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.length > 0 ? (
-            data.map((row, index) => (
-              <TableRow key={index}>
-                {columns.map((col) => {
-                  const cellValue = row[col.key];
-                  const formattedValue =
-                    (col.key as String).toLowerCase().includes('precio') && typeof cellValue === 'number'
-                      ? `$${cellValue}`
-                      : String(cellValue);
-                  return (
-                    <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
-                      {formattedValue}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))
-          ) : (
+export const DataTable = <T,>({
+  title,
+  data,
+  columns,
+  isOperatingRoom,
+  modified,
+  setModified,
+  id_PatientBill,
+}: DataTableProps<T>) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [tipoQuirofano, setTipoQuirofano] = useState<string>('');
+
+  const { data: operatingRoomsList = [] } = useQuery<{ id: string; nombre: string }[]>({
+    queryKey: ['allOperatingRoomsTypes'],
+    queryFn: getAllOperatingRoomsTypes,
+    enabled: !!anchorEl,
+  });
+
+  const handleClick = async (event: React.MouseEvent<HTMLElement>, row: any) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
+  const handleChangeTipoQuirofano = (event: any) => {
+    setTipoQuirofano(event.target.value as string);
+  };
+
+  const handleConfirm = async () => {
+    if (!tipoQuirofano) return handleClose();
+    console.log('Tipo de quirófano seleccionado:', tipoQuirofano);
+    console.log('Fila seleccionada:', selectedRow);
+    try {
+      await updateOperatingRoomType({
+        id_RegistroCuarto: selectedRow.id_RegistroCuarto,
+        id_TipoCuarto: tipoQuirofano,
+        id_CuentaPaciente: id_PatientBill as string,
+      });
+      if (setModified) setModified(!modified);
+      toast.success('Tipo de cuarto modificado correctamente');
+      handleClose();
+    } catch (error) {
+      console.log(error);
+      toast.error('Error al modificar el tipo de cuarto');
+    }
+  };
+
+  return (
+    <Box sx={{ p: 1, width: '100%', margin: 'auto', fontSize: '0.875rem' }}>
+      <Typography variant="h6" sx={{ mb: 2, fontSize: '1.1rem' }}>
+        {title}
+      </Typography>
+      <TableContainer sx={{ border: '1px solid #ccc', borderRadius: '4px', fontSize: '0.875rem' }}>
+        <Table>
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={columns.length} sx={{ p: 1, fontSize: '0.875rem', textAlign: 'center' }}>
-                Sin registros
-              </TableCell>
+              {columns.map((col) => (
+                <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
+                  {col.header}
+                </TableCell>
+              ))}
+              {isOperatingRoom && <TableCell sx={{ p: 1, fontSize: '0.875rem' }}>Acciones</TableCell>}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </Box>
-);
+          </TableHead>
+          <TableBody>
+            {data.length > 0 ? (
+              data.map((row: any, index) => (
+                <TableRow key={index}>
+                  {columns.map((col) => {
+                    const cellValue = row[col.key];
+                    const formattedValue =
+                      (col.key as String).toLowerCase().includes('precio') && typeof cellValue === 'number'
+                        ? `$${cellValue}`
+                        : String(cellValue);
+                    return (
+                      <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
+                        {formattedValue}
+                      </TableCell>
+                    );
+                  })}
+                  {isOperatingRoom && (
+                    <TableCell sx={{ p: 1, fontSize: '0.875rem' }}>
+                      {row['nombre'] !== 'Recuperacion' && (
+                        <Tooltip title="Cambiar configuración">
+                          <IconButton size="small" onClick={(event) => handleClick(event, row)}>
+                            <Settings fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} sx={{ p: 1, fontSize: '0.875rem', textAlign: 'center' }}>
+                  Sin registros
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        slotProps={{ paper: { sx: { p: 2, width: '250px' } } }}
+      >
+        {[
+          <Typography key="title" variant="subtitle1" gutterBottom>
+            Configurar Quirófano
+          </Typography>,
+          <Select
+            key="select"
+            value={tipoQuirofano}
+            onChange={(e) => handleChangeTipoQuirofano(e)}
+            displayEmpty
+            fullWidth
+            sx={{ mb: 2 }}
+          >
+            <MenuItem value="">
+              <em>Seleccionar tipo de quirófano</em>
+            </MenuItem>
+            {operatingRoomsList.map((opRoom) => (
+              <MenuItem key={opRoom.id} value={opRoom.id}>
+                {opRoom.nombre}
+              </MenuItem>
+            ))}
+          </Select>,
+          <Button key="button" variant="contained" color="primary" fullWidth onClick={handleConfirm}>
+            Aceptar
+          </Button>,
+        ]}
+      </Menu>
+    </Box>
+  );
+};
