@@ -254,7 +254,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
               <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Tiempo Cirugía</Text>
-                <Text style={styles.tableCol}>Precio por Hora</Text>
+                {/* <Text style={styles.tableCol}>Precio por Hora</Text> */}
                 <Text style={styles.tableCol}>Precio Neto</Text>
                 <Text style={styles.tableCol}>IVA</Text>
                 <Text style={styles.tableCol}>Precio Total</Text>
@@ -263,7 +263,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <View style={styles.tableRow} key={index}>
                   <Text style={styles.tableCell}>{quirofano.nombre}</Text>
                   <Text style={styles.tableCell}>{quirofano.tiempoCirugia}</Text>
-                  <Text style={styles.tableCell}>${quirofano.precioHora}</Text>
+                  {/* <Text style={styles.tableCell}>${quirofano.precioHora}</Text> */}
                   <Text style={styles.tableCell}>${quirofano.precioNeto}</Text>
                   <Text style={styles.tableCell}>${quirofano.precioIVA}</Text>
                   <Text style={styles.tableCell}>$ {quirofano.precioTotal}</Text>
@@ -428,7 +428,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
           <View style={{ border: 1, borderRadius: 5, padding: 5, width: 'auto', minWidth: 150 }}>
             <Text>SubTotal: ${cierreCuenta.subTotal}</Text>
-            <Text>Impuesto: ${cierreCuenta.iva} IVA: 16%</Text>
+            <Text>IVA: ${cierreCuenta.iva}</Text>
             <Text>Total Pago Cuenta: ${cierreCuenta.totalPagoCuenta}</Text>
           </View>
         </View>
