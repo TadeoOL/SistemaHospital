@@ -35,6 +35,7 @@ export const generateHospitalizationDoc = async (registerId: string) => {
         nombreCuarto,
         nombreQuirofano,
         nombreAnestesiologo,
+        sangre,
       } = data;
 
       const zip = new PizZip(content);
@@ -78,6 +79,7 @@ export const generateHospitalizationDoc = async (registerId: string) => {
         cuarto: nombreCuarto ?? '',
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
+        sangre: sangre,
       });
 
       const out = doc.getZip().generate({

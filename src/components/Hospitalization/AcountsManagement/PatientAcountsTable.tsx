@@ -78,7 +78,7 @@ export const PatientAccountTable = () => {
       <TableContainer>
         <Table>
           <TableHeaderComponent headers={HEADERS} />
-          <PatientAccountTableBody data={data}/>
+          <PatientAccountTableBody data={data} />
           {data.length > 0 && (
             <TableFooterComponent
               count={count}
@@ -117,9 +117,8 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     setOpen(true);
   };
 
-
   const fetchBillInfo = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const paramURL = `Id_Paciente=${data.id_Paciente}&Id_CuentaPaciente=${data.id_Cuenta}`;
       const accountRes = await getAccountFullInformation(paramURL);
@@ -130,7 +129,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -140,18 +139,25 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
         <TableCell>{data.estatus === 1 ? 'Pendiente' : 'Cerrada'}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            { data.estatus === 1 ? (<Tooltip title="Cerrar">
-              <IconButton onClick={handleEdit}>
-                <Edit color="primary" />
-              </IconButton>
-            </Tooltip>)
-            :(<Tooltip title="Imprimir">
-              <IconButton onClick={() => {setOpenPrint(true); fetchBillInfo(); }} disabled={isLoading}>
-                <Print color="primary" />
-              </IconButton>
-            </Tooltip>)
-            }
-            
+            {data.estatus === 1 ? (
+              <Tooltip title="Cerrar">
+                <IconButton onClick={handleEdit}>
+                  <Edit color="primary" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Imprimir">
+                <IconButton
+                  onClick={() => {
+                    setOpenPrint(true);
+                    fetchBillInfo();
+                  }}
+                  disabled={isLoading}
+                >
+                  <Print color="primary" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>
@@ -160,42 +166,50 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
           <CloseAccountModal id_Cuenta={data.id_Cuenta} id_Paciente={data.id_Paciente} setOpen={setOpen} />
         </>
       </Modal>
-      <Modal open={openPrint} onClose={() => {setOpenPrint(false)}}>
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: 380, sm: 550 },
-        borderRadius: 2,
-        boxShadow: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        maxHeight: { xs: 650 },
-      }} >
-        <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
-        <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
-      {accountInfo !== null && !isLoading ? 
-      (<PDFDownloadLink
-            document={
-              <BillCloseReport
-                cierreCuenta={accountInfo as any}
-                descuento={undefined}
-                total={accountInfo.totalPagoCuentaRestante}
-                notas={undefined}
-              />
-            }
-            fileName={`${Date.now()}.pdf`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            {({ loading }) => <Button variant="contained" >{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-        </PDFDownloadLink>) : 
-        (<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress size={35} />
-        </Box>)
-        }
+      <Modal
+        open={openPrint}
+        onClose={() => {
+          setOpenPrint(false);
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: 380, sm: 550 },
+            borderRadius: 2,
+            boxShadow: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: { xs: 650 },
+          }}
+        >
+          <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
+          <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
+            {accountInfo !== null && !isLoading ? (
+              <PDFDownloadLink
+                document={
+                  <BillCloseReport
+                    cierreCuenta={accountInfo as any}
+                    descuento={undefined}
+                    total={accountInfo.totalPagoCuentaRestante}
+                    notas={undefined}
+                  />
+                }
+                fileName={`${Date.now()}.pdf`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+              </PDFDownloadLink>
+            ) : (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress size={35} />
+              </Box>
+            )}
+          </Box>
         </Box>
-      </Box>
       </Modal>
     </>
   );

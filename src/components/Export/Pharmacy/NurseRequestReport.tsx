@@ -5,20 +5,20 @@ import { InurseRequest } from '../../../types/types';
 const styles = StyleSheet.create({
   page: {
     padding: 30,
-    fontSize: 8,
+    fontSize: 12,
     fontFamily: 'Helvetica',
   },
   section: {
     marginBottom: 20,
   },
   header: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
   },
   subHeader: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 5,
   },
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   totalText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
     paddingRight: 10,
   },
@@ -90,14 +90,10 @@ export const NurseRequestReport = ({ request }: Props) => (
       <View style={styles.section}>
         <Text style={styles.header}>Solicitud de enfermero</Text>
         <Text>
-          Nombre del Paciente: {request.pacienteNombre}         Cuarto: {request.cuarto}
+          Nombre del Paciente: {request.pacienteNombre} Cuarto: {request.cuarto}
         </Text>
-        <Text>
-          Solicitado por: {request.usuarioEmisorNombre}
-        </Text>
-        {request.usuarioEntregoNombre !== '' && (<Text>
-          Armado por: {request.usuarioEntregoNombre}
-        </Text>)}
+        <Text>Solicitado por: {request.usuarioEmisorNombre}</Text>
+        {request.usuarioEntregoNombre !== '' && <Text>Armado por: {request.usuarioEntregoNombre}</Text>}
       </View>
       <View style={styles.section}>
         <Text style={styles.header}>Articulos</Text>
@@ -106,12 +102,13 @@ export const NurseRequestReport = ({ request }: Props) => (
             <Text style={styles.tableCol}>Nombre</Text>
             <Text style={styles.tableCol}>Cantidad</Text>
           </View>
-          {request.articulos !== null && (request.articulos.map((cuarto, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{cuarto.nombre}</Text>
-              <Text style={styles.tableCell}>{cuarto.cantidad}</Text>
-            </View>
-          )))}
+          {request.articulos !== null &&
+            request.articulos.map((cuarto, index) => (
+              <View style={styles.tableRow} key={index}>
+                <Text style={styles.tableCell}>{cuarto.nombre}</Text>
+                <Text style={styles.tableCell}>{cuarto.cantidad}</Text>
+              </View>
+            ))}
         </View>
         <Text>folio: {request.folio}</Text>
         <Text>fecha de solicitud: {request.fechaSolicitud}</Text>

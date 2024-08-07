@@ -60,7 +60,8 @@ export interface Paciente {
   id: string;
 }
 
-export interface PacienteInfo { //Agregar mas cosas
+export interface PacienteInfo {
+  //Agregar mas cosas
   nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
@@ -79,7 +80,7 @@ export interface PacienteInfo { //Agregar mas cosas
   codigoPostalResponsable: string;
   telefonoResponsable: string;
   id: string;
-  informacionCuartos? : ICuartosInfo[];
+  informacionCuartos?: ICuartosInfo[];
 }
 
 export interface ICuartosInfo {
@@ -143,6 +144,7 @@ export interface IDocumentsInfo {
   procedimientos: string;
   clavePaciente: string;
   alergias: string;
+  sangre: string;
   nombreCuarto: string;
   nombreQuirofano: string;
   nombreAnestesiologo: string;
