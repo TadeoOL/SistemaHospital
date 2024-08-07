@@ -148,6 +148,7 @@ export interface IDocumentsInfo {
   nombreCuarto: string;
   nombreQuirofano: string;
   nombreAnestesiologo: string;
+  tipoSangre: string;
 }
 
 export interface ISAMI {

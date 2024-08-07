@@ -35,7 +35,7 @@ export const generateHospitalizationDoc = async (registerId: string) => {
         nombreCuarto,
         nombreQuirofano,
         nombreAnestesiologo,
-        sangre,
+        tipoSangre,
       } = data;
 
       const zip = new PizZip(content);
@@ -79,7 +79,7 @@ export const generateHospitalizationDoc = async (registerId: string) => {
         cuarto: nombreCuarto ?? '',
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
-        sangre: sangre,
+        sangre: tipoSangre ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -117,6 +117,7 @@ export const generateAdmissionDoc = async (registerId: string) => {
         nombreAnestesiologo,
         nombreCuarto,
         nombreQuirofano,
+        tipoSangre,
       } = data;
 
       const zip = new PizZip(content);
@@ -160,6 +161,7 @@ export const generateAdmissionDoc = async (registerId: string) => {
         cuarto: nombreCuarto ?? '',
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
+        sangre: tipoSangre ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -197,6 +199,7 @@ export const generateSurgeryDoc = async (registerId: string) => {
         nombreAnestesiologo,
         nombreCuarto,
         nombreQuirofano,
+        tipoSangre,
       } = data;
 
       const zip = new PizZip(content);
@@ -240,6 +243,7 @@ export const generateSurgeryDoc = async (registerId: string) => {
         cuarto: nombreCuarto ?? '',
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
+        sangre: tipoSangre ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -267,6 +271,7 @@ export const generateSamiDoc = async (data: {
   neighborhood?: string;
   address?: string;
   personInCharge?: string;
+  bloodType?: string;
 }) => {
   loadFile('/FORMATO_SAMI.docx', async (err: any, content: any) => {
     if (err) {
@@ -286,6 +291,7 @@ export const generateSamiDoc = async (data: {
       secondLastName,
       zipCode,
       name,
+      bloodType,
     } = data;
 
     const zip = new PizZip(content);
@@ -300,7 +306,6 @@ export const generateSamiDoc = async (data: {
       linebreaks: true,
       parser: expressionParser,
     });
-    console.log({ data });
 
     doc.render({
       genero: genere,
@@ -315,6 +320,7 @@ export const generateSamiDoc = async (data: {
       fechaIngreso: dayjs().format('DD/MM/YYYY'),
       horaIngreso: dayjs().format('HH:mm:ss'),
       edad: calculateAge(birthDate),
+      sangre: bloodType ?? '',
     });
 
     const out = doc.getZip().generate({
