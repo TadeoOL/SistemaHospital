@@ -429,6 +429,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidad', header: 'Cantidad' },
+                  { key: 'solicitud', header: 'Solicitud' },
                   { key: 'precioVenta', header: 'Precio Unitario' },
                   { key: 'precioNeto', header: 'Precio Neto' },
                   { key: 'precioIVA', header: 'Precio IVA' },
