@@ -134,6 +134,7 @@ type Pago = {
   id: string;
   folio: string;
   pagado: boolean;
+  fechaPago: string;
   total: number;
 };
 
@@ -413,12 +414,14 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
               <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Folio</Text>
                 <Text style={styles.tableCol}>Pagado</Text>
-                <Text style={styles.tableCol}>Total</Text>
+                <Text style={styles.tableCol}>Fecha de Pago</Text>
+                <Text style={styles.tableCol}>Importe</Text>
               </View>
               {cierreCuenta.pagosCuenta.map((pago, index) => (
                 <View style={styles.tableRow} key={index}>
                   <Text style={styles.tableCell}>{pago.folio}</Text>
                   <Text style={styles.tableCell}>{pago.pagado ? 'Sí' : 'No'}</Text>
+                  <Text style={styles.tableCell}>{pago.fechaPago}</Text>
                   <Text style={styles.tableCell}>$ {pago.total}</Text>
                 </View>
               ))}

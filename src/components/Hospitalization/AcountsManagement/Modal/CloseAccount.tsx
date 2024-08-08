@@ -442,6 +442,12 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.pagosCuenta}
                 columns={[
                   { key: 'folio', header: 'Folio' },
+                  {
+                    key: 'pagado',
+                    header: 'Pagado',
+                    render: (row) => (row.pagado ? 'Sí' : 'No'), // Aquí agregamos la condición
+                  },
+                  { key: 'fechaPago', header: 'Fecha de Pago' },
                   { key: 'total', header: 'Monto' },
                 ]}
               />
@@ -664,6 +670,7 @@ interface DataTableProps<T> {
 interface Column<T> {
   key: keyof T;
   header: string;
+  render?: (row: T) => React.ReactNode;
 }
 
 export const DataTable = <T,>({

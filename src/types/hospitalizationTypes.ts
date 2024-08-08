@@ -183,6 +183,7 @@ export interface IArticlesAccount {
 export interface IPaymentsAccount {
   id: string;
   folio: string;
+  fechaPago: string;
   pagado: boolean;
   total: number;
 }
