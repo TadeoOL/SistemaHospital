@@ -126,6 +126,8 @@ type Articulo = {
   precioNeto: number;
   precioIVA: number;
   precioTotal: number;
+  solicitud: string;
+  fechaSolicitado: string;
 };
 
 type Pago = {
@@ -377,6 +379,8 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
               <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Cantidad</Text>
+                <Text style={styles.tableCol}>Solicitud</Text>
+                <Text style={styles.tableCol}>Fecha Solicitado</Text>
                 <Text style={styles.tableCol}>Precio Unitario</Text>
                 <Text style={styles.tableCol}>Precio Neto</Text>
                 <Text style={styles.tableCol}>IVA</Text>
@@ -386,6 +390,8 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <View style={styles.tableRow} key={index}>
                   <Text style={styles.tableCell}>{articulo.nombre}</Text>
                   <Text style={styles.tableCell}>{articulo.cantidad}</Text>
+                  <Text style={styles.tableCell}>{articulo.solicitud}</Text>
+                  <Text style={styles.tableCell}>{articulo.fechaSolicitado}</Text>
                   <Text style={styles.tableCell}>${articulo.precioVenta}</Text>
                   <Text style={styles.tableCell}>${articulo.precioNeto}</Text>
                   <Text style={styles.tableCell}>${articulo.precioIVA}</Text>

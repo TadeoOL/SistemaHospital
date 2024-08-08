@@ -178,6 +178,7 @@ export interface IArticlesAccount {
   precioIVA: number;
   precioTotal: number;
   solicitud: string;
+  fechaSolicitado: string;
 }
 export interface IPaymentsAccount {
   id: string;

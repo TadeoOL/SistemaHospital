@@ -259,6 +259,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidad', header: 'Cantidad' },
                   { key: 'solicitud', header: 'Solicitud' },
+                  { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
                   { key: 'precioVenta', header: 'Precio Unitario' },
                   { key: 'precioNeto', header: 'Precio Neto' },
                   { key: 'precioIVA', header: 'Precio IVA' },
