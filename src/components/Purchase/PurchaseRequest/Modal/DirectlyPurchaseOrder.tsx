@@ -520,21 +520,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
                         a.amount
                       )}
                     </TableCell>
-                    <TableCell>
-                      {editingIds.has(a.id) ? (
-                        <TextField
-                          label="Precio"
-                          size="small"
-                          InputLabelProps={{ style: { fontSize: 12 } }}
-                          value={prices[a.id] || ''}
-                          onChange={(e) => {
-                            handlePriceChange(a.id, e.target.value);
-                          }}
-                        />
-                      ) : (
-                        prices[a.id] || a.price
-                      )}
-                    </TableCell>
+                    <TableCell>{a.price}</TableCell>
                     <TableCell>
                       <>
                         <Tooltip title={editingIds.has(a.id) ? 'Guardar' : 'Editar'}>

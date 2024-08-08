@@ -26,7 +26,7 @@ import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 
-const HEADERS = ['Nombre Completo', 'Fecha Apertura', 'Estatus', 'Acciones'];
+const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
 interface PatientAccountTableBodyProps {
   data: IPatientAccount[];
@@ -135,6 +135,8 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     <>
       <TableRow>
         <TableCell>{data.nombreCompleto}</TableCell>
+        <TableCell>{data.cuartos}</TableCell>
+        <TableCell>{data.medico}</TableCell>
         <TableCell>{data.fechaApertura}</TableCell>
         <TableCell>{data.estatus === 1 ? 'Pendiente' : 'Cerrada'}</TableCell>
         <TableCell>

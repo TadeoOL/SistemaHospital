@@ -133,7 +133,7 @@ export const programmingRegisterSchema = z.object({
 export const procedureAndDoctorSelectorSchema = z.object({
   proceduresId: z.string().array().nonempty('Los procedimientos son requeridos'),
   xrayIds: z.string().array().nullable(),
-  medicId: z.string().nullable(),
+  medicId: z.string().min(1, 'Selecciona el medico'),
   anesthesiologistId: z.string().nullable(),
 });
 

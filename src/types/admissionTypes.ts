@@ -100,11 +100,15 @@ export interface IPatientRegisterPagination {
   faltanDatos?: boolean;
   admitido?: boolean;
   procedimientos?: Procedimiento[];
+  cuartos?: string;
+  medico?: string;
 }
 
 export interface IPatientAccount {
   id_Paciente: string;
   nombreCompleto: string;
+  cuartos: string;
+  medico: string;
   id_Cuenta: string;
   id_ArticuloCuenta: string | null;
   estatus: number;
