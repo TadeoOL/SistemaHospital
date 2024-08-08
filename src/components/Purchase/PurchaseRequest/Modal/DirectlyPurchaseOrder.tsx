@@ -47,7 +47,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useGetArticlesBySearch } from '../../../../hooks/useGetArticlesBySearch';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
-import { convertBase64, isValidFloat, isValidInteger } from '../../../../utils/functions/dataUtils';
+import { convertBase64, isValidInteger } from '../../../../utils/functions/dataUtils';
 import {
   addDirectlyPurchaseOrder,
   addPurchaseRequest,
@@ -431,15 +431,15 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
     setArticles(updatedArticles);
   };
 
-  const handlePriceChange = (id: string, value: string) => {
-    if (!isValidFloat(value)) return;
-    if (parseFloat(value) <= 0 || !value) {
-      setPrices({ ...prices, [id]: value });
-      return setPriceErrors((prev) => [...prev, id]);
-    }
-    if (priceErrors.some((p) => p === id)) setPriceErrors(priceErrors.filter((p) => p !== id));
-    setPrices({ ...prices, [id]: value });
-  };
+  // const handlePriceChange = (id: string, value: string) => {
+  //   if (!isValidFloat(value)) return;
+  //   if (parseFloat(value) <= 0 || !value) {
+  //     setPrices({ ...prices, [id]: value });
+  //     return setPriceErrors((prev) => [...prev, id]);
+  //   }
+  //   if (priceErrors.some((p) => p === id)) setPriceErrors(priceErrors.filter((p) => p !== id));
+  //   setPrices({ ...prices, [id]: value });
+  // };
 
   const handleNextStep = async () => {
     if (warehouseSelected.trim() === '') {
