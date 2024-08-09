@@ -240,6 +240,7 @@ const EventTableRow = (props: {
                     ampm={false}
                     label="Fecha inicio"
                     format="DD/MM/YYYY - HH:mm"
+                    minDate={dayjs().subtract(3, 'day')}
                     value={dayjs(value)}
                     onChange={onChange}
                     slotProps={{
@@ -268,6 +269,7 @@ const EventTableRow = (props: {
                     label="Fecha salida"
                     format="DD/MM/YYYY - HH:mm"
                     value={dayjs(value)}
+                    minDate={dayjs().subtract(3, 'day')}
                     onChange={onChange}
                     slotProps={{
                       textField: {
