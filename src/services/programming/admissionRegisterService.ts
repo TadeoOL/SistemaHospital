@@ -133,3 +133,11 @@ export const editRegisterProcedures = async (data: { id_Registro: string; id_Pro
   const res = await axios.put(`${apiRegister}/editar-registro-procedimientos`, data);
   return res.data;
 };
+
+export const modifyRoomsEvents = async (data: {
+  id_Registro: string;
+  listaRegistrosCuartos: { id_RegistroCuarto: string; fechaInicio: Date; fechaFin: Date }[];
+}) => {
+  const res = await axios.put(`${apiRegister}/modificar-lista-registros-cuartos`, data);
+  return res.data;
+};
