@@ -197,7 +197,7 @@ type CierreCuenta = {
 type Props = {
   cierreCuenta: CierreCuenta;
   descuento?: string;
-  total: number | string;
+  total?: number | string;
   notas?: string;
 };
 

@@ -43,7 +43,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
 import { usePatientAccountPaginationStore } from '../../../../store/hospitalization/patientAcountsPagination';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 
 const style = {
@@ -51,12 +51,11 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 750, xl: 850 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 650, xl: 900 },
+  maxHeight: { xs: 600, xl: 900 },
 };
 const style2 = {
   bgcolor: 'background.paper',
@@ -300,6 +299,36 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       </Box>
     );
   }
+
+  const handleOpenPDF = async () => {
+    setIsLoading(true);
+
+    const document = (
+      <BillCloseReport
+        cierreCuenta={{ ...accountInfo, notas: notes } as any}
+        descuento={discountPercent !== '' ? discountPercent : undefined}
+        total={CaclTotalBill()}
+        notas={
+          discountflag && discountSurgeryRoomFlag
+            ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
+            : discountflag
+              ? 'Se le hizo descuento'
+              : discountSurgeryRoomFlag
+                ? 'Se cambio el precio de quirofano'
+                : ''
+        }
+      />
+    );
+
+    // Generar el PDF en formato blob
+    const blob = await pdf(document).toBlob();
+
+    // Crear una URL para el blob y abrir una nueva pestaña
+    const url = URL.createObjectURL(blob);
+    window.open(url);
+
+    setIsLoading(false);
+  };
 
   return (
     <Box sx={style}>
@@ -594,28 +623,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
         </Button>
         {!isLoading && !errorflag && (
-          <PDFDownloadLink
-            document={
-              <BillCloseReport
-                cierreCuenta={{ ...accountInfo, notas: notes } as any}
-                descuento={discountPercent !== '' ? discountPercent : undefined}
-                total={CaclTotalBill()}
-                notas={
-                  discountflag && discountSurgeryRoomFlag
-                    ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
-                    : discountflag
-                      ? 'Se le hizo descuento'
-                      : discountSurgeryRoomFlag
-                        ? 'Se cambio el precio de quirofano'
-                        : ''
-                }
-              />
-            }
-            fileName={`${Date.now()}.pdf`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-          </PDFDownloadLink>
+          <Button variant="contained" color="primary" disabled={isLoading} onClick={handleOpenPDF}>
+            {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
+          </Button>
         )}
       </Box>
     </Box>

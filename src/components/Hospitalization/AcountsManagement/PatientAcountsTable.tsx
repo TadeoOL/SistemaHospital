@@ -21,7 +21,7 @@ import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { usePatientAccountPaginationStore } from '../../../store/hospitalization/patientAcountsPagination';
 import { CloseAccountModal } from './Modal/CloseAccount';
 import { IAcountAllInformation } from '../../../types/hospitalizationTypes';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
@@ -117,12 +117,30 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     setOpen(true);
   };
 
-  const fetchBillInfo = async () => {
+  const handleOpenPDF = async () => {
     setIsLoading(true);
     try {
       const paramURL = `Id_Paciente=${data.id_Paciente}&Id_CuentaPaciente=${data.id_Cuenta}`;
       const accountRes = await getAccountFullInformation(paramURL);
       setAccountInfo(accountRes);
+
+      const document = (
+        <BillCloseReport
+          cierreCuenta={accountInfo as any}
+          descuento={undefined}
+          total={accountInfo?.totalPagoCuentaRestante}
+          notas={undefined}
+        />
+      );
+
+      // Generar el PDF en formato blob
+      const blob = await pdf(document).toBlob();
+
+      // Crear una URL para el blob y abrir una nueva pestaña
+      const url = URL.createObjectURL(blob);
+      window.open(url);
+
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
       console.log('La cuenta aun no se puede cerrar');
@@ -151,8 +169,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
               <Tooltip title="Imprimir">
                 <IconButton
                   onClick={() => {
-                    setOpenPrint(true);
-                    fetchBillInfo();
+                    handleOpenPDF();
                   }}
                   disabled={isLoading}
                 >
@@ -191,20 +208,9 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
           <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
           <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
             {accountInfo !== null && !isLoading ? (
-              <PDFDownloadLink
-                document={
-                  <BillCloseReport
-                    cierreCuenta={accountInfo as any}
-                    descuento={undefined}
-                    total={accountInfo.totalPagoCuentaRestante}
-                    notas={undefined}
-                  />
-                }
-                fileName={`${Date.now()}.pdf`}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-              </PDFDownloadLink>
+              <Button variant="contained" color="primary" disabled={isLoading}>
+                {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
+              </Button>
             ) : (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress size={35} />
