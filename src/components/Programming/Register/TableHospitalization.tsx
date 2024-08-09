@@ -239,6 +239,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
             registerId={data.id}
             setRegisterRoomId={setRegisterRoomId}
             registerRoomId={registerRoomId}
+            procedures={data.procedimientos}
           />
         </>
       </Modal>

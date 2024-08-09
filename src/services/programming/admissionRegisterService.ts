@@ -128,3 +128,8 @@ export const addRegisterRoom = async (data: {
   const res = await axios.put(`${apiRegister}/agregar-registro-cuarto`, data);
   return res.data;
 };
+
+export const editRegisterProcedures = async (data: { id_Registro: string; id_Procedimientos: string[] }) => {
+  const res = await axios.put(`${apiRegister}/editar-registro-procedimientos`, data);
+  return res.data;
+};

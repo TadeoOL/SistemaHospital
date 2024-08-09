@@ -27,6 +27,7 @@ export interface Procedimiento {
   duracionCirujia: string;
   duracionHospitalizacion: string;
   descripcion: string;
+  precio?: number;
 }
 
 export interface HistorialClinico {
