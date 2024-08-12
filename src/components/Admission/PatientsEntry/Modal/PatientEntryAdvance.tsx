@@ -110,6 +110,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
         moduloProveniente: 'Admision',
         id_CuentaPaciente: accountInfo.id_CuentaPaciente,
       };
+      console.log({ object });
       const res = await registerSell(object);
       const resObj = {
         estatus: res.estadoVenta,

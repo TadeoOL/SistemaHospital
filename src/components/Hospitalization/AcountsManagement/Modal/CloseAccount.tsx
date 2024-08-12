@@ -471,11 +471,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.pagosCuenta}
                 columns={[
                   { key: 'folio', header: 'Folio' },
-                  {
-                    key: 'pagado',
-                    header: 'Pagado',
-                    render: (row) => (row.pagado ? 'Sí' : 'No'), // Aquí agregamos la condición
-                  },
                   { key: 'fechaPago', header: 'Fecha de Pago' },
                   { key: 'total', header: 'Monto' },
                 ]}
