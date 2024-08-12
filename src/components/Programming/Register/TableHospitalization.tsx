@@ -28,6 +28,7 @@ import { deleteRegister } from '../../../services/programming/admissionRegisterS
 const headers = [
   'Clave paciente',
   'Nombre Paciente',
+  'Nombre Doctor',
   'Procedimientos',
   'Fecha Ingreso',
   'Datos Paciente',
@@ -168,6 +169,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
       <TableRow>
         <TableCell>{data.clavePaciente}</TableCell>
         <TableCell>{data.nombrePaciente}</TableCell>
+        <TableCell>{data.medico}</TableCell>
         <TableCell>
           {data.procedimientos?.map((procedimiento: Procedimiento, index: number) => (
             <span key={index}>
