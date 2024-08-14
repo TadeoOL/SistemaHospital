@@ -162,7 +162,7 @@ export const WarehouseArticles = () => {
         <Stack spacing={2} sx={{ minWidth: 950 }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar orden de compra..."
+              title="Buscar articulo..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 1 }}
               size="small"
@@ -281,7 +281,7 @@ export const WarehouseArticles = () => {
           </Card>
         </Stack>
       </Stack>
-      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
+      <Modal open={openModal}>
         <>
           <ArticlesView setOpen={setOpenModal} />
         </>
@@ -298,30 +298,31 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
   const [openNewLote, setOpenNewLote] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingSubRow, setIsEditingSubRow] = useState(false);
-  const textRef = useRef<HTMLTextAreaElement>();
+  const [amountText, setAmountText] = useState(article.stockActual.toString());
+  const [minAmountText, setMinAmountText] = useState(article.stockMinimo.toString());
+
   const articlesData = useExistingArticlePagination(useShallow((state) => state.data));
 
   const handleSaveValue = async () => {
-    if (!textRef.current || textRef.current.value === '') return;
-    if (!isValidInteger(textRef.current.value)) return toast.error('Para guardar el valor escribe un numero valido!');
-    const value = textRef.current.value;
     const modified = {
-      stockMinimo: value,
+      stockMinimo: minAmountText,
+      stock: isNaN(Number(amountText)) ? article.stockActual : Number(amountText),
       id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
       id_articulo: article.id_Articulo,
     };
     try {
       await modifyMinStockExistingArticle(modified);
-      modifyArticle(value);
+      modifyArticle(minAmountText, modified.stock);
       toast.success('Articulo actualizado con exito!');
     } catch (error) {
       console.log(error);
     }
   };
 
-  const modifyArticle = (stockMin: string) => {
+  const modifyArticle = (stockMin: string, stockActual : number) => {
     const newArticle = {
       ...article,
+      stockActual: stockActual,
       stockMinimo: parseInt(stockMin),
     };
     const newArticlesList = articlesData.map((a) => {
@@ -344,10 +345,15 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
         <TableCell>
           {isEditing ? (
             <TextField
-              inputProps={{ className: 'tableCell' }}
-              className="tableCell"
-              placeholder="stock mínimo"
-              inputRef={textRef}
+            sx={{ width: '60%', ml: 'auto' }}
+            size="small"
+            fullWidth
+            placeholder="Stock Minimo"
+            value={minAmountText}
+            onChange={(e) => {
+              if (!isValidInteger(e.target.value)) return;
+              setMinAmountText(e.target.value);
+            }}
             />
           ) : (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
@@ -362,7 +368,23 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             </Box>
           )}
         </TableCell>
-        <TableCell>{article.stockActual}</TableCell>
+        <TableCell>{isEditing ? 
+        (
+        <TextField
+                  sx={{ width: '60%', ml: 'auto' }}
+                  size="small"
+                  fullWidth
+                  placeholder="Cantidad"
+                  value={amountText}
+                  onChange={(e) => {
+                    if (!isValidInteger(e.target.value)) return;
+                    setAmountText(e.target.value);
+                  }}
+                />
+        ) :
+        (article.stockActual)
+        }
+        </TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
         <TableCell>{article.codigoBarras}</TableCell>
         <TableCell>

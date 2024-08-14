@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getLotesFromExistingArticles } from '../../api/api.routes';
+import { getAmountForArticleInWarehouse } from '../../api/api.routes';
 import { IExistingArticleList } from '../../types/types';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
@@ -79,13 +79,14 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
     const page = pageIndex + 1;
     try {
       if (warehouseId === '') return;
-      const res = await getLotesFromExistingArticles(
+      const res = await getAmountForArticleInWarehouse(articleId, warehouseId)
+      /*const res = await getAmountForArticleInWarehouse(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_Articulo=${
           articleId
         }${inhabilitados === null ? '' : `&LoteHabilitado=${inhabilitados}`}`
-      );
+      );*/
       set(() => ({
         data: res.data,
         count: res.count,

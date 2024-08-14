@@ -47,10 +47,6 @@ export const WarehouseRequest = () => {
     count,
     setPageIndex,
     setPageSize,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
     setSearch,
     search,
     setSort,
@@ -63,10 +59,6 @@ export const WarehouseRequest = () => {
     pageIndex: state.pageIndex,
     pageSize: state.pageSize,
     count: state.count,
-    startDate: state.startDate,
-    setStartDate: state.setStartDate,
-    endDate: state.endDate,
-    setEndDate: state.setEndDate,
     setSearch: state.setSearch,
     search: state.search,
     setPageIndex: state.setPageIndex,
@@ -129,7 +121,7 @@ export const WarehouseRequest = () => {
 
   useEffect(() => {
     fetchEntryRequest();
-  }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
+  }, [pageCount, pageSize, pageIndex, search, sort]);
   return (
     <React.Fragment>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -141,30 +133,6 @@ export const WarehouseRequest = () => {
               sx={{ display: 'flex', flex: 1 }}
               size="small"
             />
-            <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              <TextField
-                label="Fecha inicio"
-                size="small"
-                type="date"
-                value={startDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                }}
-              />
-              <TextField
-                label=" Fecha final"
-                size="small"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                }}
-              />
-              <IconButton onClick={() => useWarehouseMovementPaginationStore.getState().clearFilters()}>
-                <FilterListOffIcon />
-              </IconButton>
-            </Box>
           </Box>
           <Card>
             <TableContainer>

@@ -388,6 +388,7 @@ export const getArticleById = async (articleId: string) => {
   return res.data;
 };
 
+//barra kill
 export const getExistingArticles = async (paramUrl: string) => {
   const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`);
   return res.data;
@@ -874,6 +875,7 @@ export const modifyMinStockExistingArticle = async (data: {
   id_almacen: string;
   id_articulo: string;
   stockMinimo: string;
+  stock: number;
 }) => {
   const res = await axios.put(`/api/ArticuloExistente/actualizar-articulo-existente`, {
     ...data,
@@ -882,21 +884,15 @@ export const modifyMinStockExistingArticle = async (data: {
 };
 
 export const articlesOutputToWarehouse = async (data: {
-  id_almacenOrigen?: string;
-  id_almacenDestino?: string;
-  /*Lotes?: {
-export const articlesOutputToWarehouse = async (data: {
-  id_almacenOrigen?: string;
-  id_almacenDestino?: string;
-  /*Lotes?: {
-      Id_ArticuloExistente: string;
-      Cantidad: string;
-    }[];*/
-  Lotes?: any;
+  ArticulosSalida?: {
+    Id_ArticuloAlmacenStock: string;
+    Id_Articulo: string;
+    Nombre: string;
+    Cantidad: number;
+  }[]
   Estatus: number;
-  Id_HistorialMovimiento?: string;
+  Id_HistorialMovimiento: string;
   Id_CuentaPaciente?: string;
-  SolicitadoPor?: string;
   Mensaje?: string;
 }) => {
   const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
@@ -919,9 +915,16 @@ export const waitingpackageChangeStatus = async (data: {
 export const articlesOutputToWarehouseToWarehouse = async (data: {
   id_almacenOrigen: string;
   id_almacenDestino: string;
-  Lotes: {
-    Id_ArticuloExistente: string;
-    EnEspera?: boolean;
+  Lotes?: {
+    Id_Articulo: string;
+    Id_ArticuloAlmacenStock: string;
+    Nombre: string;
+    Cantidad: number;
+  }[];
+  ArticulosSalida?: {
+    Id_Articulo: string;
+    Id_ArticuloAlmacenStock: string;
+    Nombre: string;
     Cantidad: number;
   }[];
   SalidaMotivo?: string;
@@ -1057,8 +1060,8 @@ export const articlesLoteDelete = async (data: { Id_ArticuloExistente: string })
   return res.data;
 };
 
-export const getLotesFromExistingArticles = async (paramUrl: string) => {
-  const res = await axios.get(`/api/ArticuloExistente/obtener-lotes?${paramUrl}`);
+export const getAmountForArticleInWarehouse = async (id_Articulo: string, Id_Almacen: string) => {
+  const res = await axios.get(`/api/ArticuloExistente/obtener-lotes?Id_Articulo=${id_Articulo}&Id_Almacen=${Id_Almacen}`);
   return res.data;
 };
 

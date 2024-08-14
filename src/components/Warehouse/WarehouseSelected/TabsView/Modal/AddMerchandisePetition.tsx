@@ -170,7 +170,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     try {
       if (!warehouseSelected) {
         setWarehouseError(true);
-        return toast.warning('Selecciona un almacen!');
+        toast.warning('Selecciona un almacen!');
+        return true;
       }
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
@@ -184,9 +185,11 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       setDataWerehouseArticlesSelected([]);
       setWarehouseSelected('');
       setArticleSelected(null);
+      return true;
     } catch (error) {
       console.log(error);
       toast.error('Algo salio mal');
+      return true;
     }
   };
 
@@ -256,7 +259,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   error={articleError}
                   helperText={articleError && 'Selecciona un articulo'}
                   placeholder="Artículos"
-                  sx={{ width: '50%' }}
+                  sx={{ width: '95%' }}
                   onChange={(e) => {
                     if (e.target.value === null) {
                       setSerch('');
@@ -267,7 +270,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               )}
             />
           </Stack>
-          <Stack sx={{ display: 'flex', flex: 1 }}>
+          <Stack sx={{ display: 'flex' }}>
             <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
             <TextField
               sx={{ width: '60%' }}
@@ -294,7 +297,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
           sx={{
             display: 'flex',
             flex: 1,
-            justifyContent: 'flex-end',
+            ml:'80%',
             mt: 2,
           }}
         >
@@ -327,6 +330,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
   const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
   const [quantity, setQuantity] = useState<any>({});
   const [isChargingPrices, setIsChargingPrices] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const updateArticlesData = () => {
     const newQuantity: any = {};
@@ -505,9 +509,10 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
         <Button
           variant="contained"
           endIcon={<Save />}
-          disabled={editingIds.size > 0 || articles.length === 0}
-          onClick={() => {
-            props.submitData({
+          disabled={editingIds.size > 0 || articles.length === 0 || isLoading}
+          onClick={async () => {
+            setIsLoading(true)
+            const cmamut= await props.submitData({
               almacenDestino: warehouseSelected,
               historialArticulos: articles.map((art) => ({
                 Id_ArticuloExistente: art.id,
@@ -516,6 +521,9 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                 FechaCaducidad: null,
               })),
             });
+            console.log("lo q retorna",cmamut);
+            setIsLoading(false)
+
           }}
         >
           Guardar
