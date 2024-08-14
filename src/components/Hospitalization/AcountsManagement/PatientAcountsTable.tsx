@@ -21,12 +21,12 @@ import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { usePatientAccountPaginationStore } from '../../../store/hospitalization/patientAcountsPagination';
 import { CloseAccountModal } from './Modal/CloseAccount';
 import { IAcountAllInformation } from '../../../types/hospitalizationTypes';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 
-const HEADERS = ['Nombre Completo', 'Fecha Apertura', 'Estatus', 'Acciones'];
+const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
 interface PatientAccountTableBodyProps {
   data: IPatientAccount[];
@@ -78,7 +78,7 @@ export const PatientAccountTable = () => {
       <TableContainer>
         <Table>
           <TableHeaderComponent headers={HEADERS} />
-          <PatientAccountTableBody data={data}/>
+          <PatientAccountTableBody data={data} />
           {data.length > 0 && (
             <TableFooterComponent
               count={count}
@@ -117,41 +117,66 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     setOpen(true);
   };
 
-
-  const fetchBillInfo = async () => {
-    setIsLoading(true)
+  const handleOpenPDF = async () => {
+    setIsLoading(true);
     try {
       const paramURL = `Id_Paciente=${data.id_Paciente}&Id_CuentaPaciente=${data.id_Cuenta}`;
       const accountRes = await getAccountFullInformation(paramURL);
       setAccountInfo(accountRes);
+
+      const document = (
+        <BillCloseReport
+          cierreCuenta={accountInfo as any}
+          descuento={undefined}
+          total={accountInfo?.totalPagoCuentaRestante}
+          notas={undefined}
+        />
+      );
+
+      // Generar el PDF en formato blob
+      const blob = await pdf(document).toBlob();
+
+      // Crear una URL para el blob y abrir una nueva pestaña
+      const url = URL.createObjectURL(blob);
+      window.open(url);
+
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
       console.log('La cuenta aun no se puede cerrar');
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
       <TableRow>
         <TableCell>{data.nombreCompleto}</TableCell>
+        <TableCell>{data.cuartos}</TableCell>
+        <TableCell>{data.medico}</TableCell>
         <TableCell>{data.fechaApertura}</TableCell>
         <TableCell>{data.estatus === 1 ? 'Pendiente' : 'Cerrada'}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            { data.estatus === 1 ? (<Tooltip title="Cerrar">
-              <IconButton onClick={handleEdit}>
-                <Edit color="primary" />
-              </IconButton>
-            </Tooltip>)
-            :(<Tooltip title="Imprimir">
-              <IconButton onClick={() => {setOpenPrint(true); fetchBillInfo(); }} disabled={isLoading}>
-                <Print color="primary" />
-              </IconButton>
-            </Tooltip>)
-            }
-            
+            {data.estatus === 1 ? (
+              <Tooltip title="Cerrar">
+                <IconButton onClick={handleEdit}>
+                  <Edit color="primary" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Imprimir">
+                <IconButton
+                  onClick={() => {
+                    handleOpenPDF();
+                  }}
+                  disabled={isLoading}
+                >
+                  <Print color="primary" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>
@@ -160,42 +185,39 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
           <CloseAccountModal id_Cuenta={data.id_Cuenta} id_Paciente={data.id_Paciente} setOpen={setOpen} />
         </>
       </Modal>
-      <Modal open={openPrint} onClose={() => {setOpenPrint(false)}}>
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: 380, sm: 550 },
-        borderRadius: 2,
-        boxShadow: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        maxHeight: { xs: 650 },
-      }} >
-        <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
-        <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
-      {accountInfo !== null && !isLoading ? 
-      (<PDFDownloadLink
-            document={
-              <BillCloseReport
-                cierreCuenta={accountInfo as any}
-                descuento={undefined}
-                total={accountInfo.totalPagoCuentaRestante}
-                notas={undefined}
-              />
-            }
-            fileName={`${Date.now()}.pdf`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            {({ loading }) => <Button variant="contained" >{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-        </PDFDownloadLink>) : 
-        (<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress size={35} />
-        </Box>)
-        }
+      <Modal
+        open={openPrint}
+        onClose={() => {
+          setOpenPrint(false);
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: 380, sm: 550 },
+            borderRadius: 2,
+            boxShadow: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: { xs: 650 },
+          }}
+        >
+          <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
+          <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
+            {accountInfo !== null && !isLoading ? (
+              <Button variant="contained" color="primary" disabled={isLoading}>
+                {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
+              </Button>
+            ) : (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress size={35} />
+              </Box>
+            )}
+          </Box>
         </Box>
-      </Box>
       </Modal>
     </>
   );

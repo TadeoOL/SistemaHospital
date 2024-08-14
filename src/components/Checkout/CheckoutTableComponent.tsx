@@ -1,8 +1,10 @@
-import { CheckCircle, Info, Visibility } from '@mui/icons-material';
+import { CheckCircle, Info, Print, Visibility } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  Backdrop,
   Box,
   Card,
+  CircularProgress,
   IconButton,
   Modal,
   Table,
@@ -30,6 +32,9 @@ import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
 import { SortComponent } from '../Commons/SortComponent';
 import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
+import { getArticlesSold } from '../../services/pharmacy/pointOfSaleService';
+import { ArticlesSoldReport } from '../Export/Checkout/ArticlesSoldReport';
+import { pdf } from '@react-pdf/renderer';
 
 const headTitlesCaja = [
   'Folio',
@@ -192,9 +197,10 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   const { data, admin } = props;
   const [open, setOpen] = useState(false);
   const checkoutId = useCheckoutDataStore((state) => state.id);
-  const fetch = useCheckoutPaginationStore((state) => state.fetchData);
+  const refetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
   const conn = useConnectionSocket((state) => state.conn);
   const [openDetails, setOpenDetails] = useState(false);
+  const [loadingPrint, setLoadingPrint] = useState(false);
 
   const rejectRequest = () => {
     withReactContent(Swal)
@@ -232,7 +238,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetch();
+          refetch();
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Pase a caja cancelado',
@@ -247,6 +253,28 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       });
   };
 
+  const handlePrint = async () => {
+    setLoadingPrint(true);
+    try {
+      const articlesRes = await getArticlesSold(data.id_VentaPrincipal);
+      const document = <ArticlesSoldReport articles={articlesRes} />;
+
+      const blob = await pdf(document).toBlob();
+
+      const url = URL.createObjectURL(blob);
+      window.open(url);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingPrint(false);
+    }
+  };
+  if (loadingPrint)
+    return (
+      <Backdrop open>
+        <CircularProgress />
+      </Backdrop>
+    );
   return (
     <>
       <TableRow>
@@ -291,6 +319,13 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
               {data.estatus === 2 && (
                 <Tooltip title="Pagado">
                   <Info color="primary" />
+                </Tooltip>
+              )}
+              {data.estatus === 1 && data.paciente === 'Punto de Venta' && (
+                <Tooltip title="Imprimir">
+                  <IconButton onClick={handlePrint}>
+                    <Print />
+                  </IconButton>
                 </Tooltip>
               )}
             </Box>

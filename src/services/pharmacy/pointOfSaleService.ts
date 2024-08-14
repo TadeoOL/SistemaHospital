@@ -90,3 +90,21 @@ export const getCheckoutHistory = async (paramUrl: string, cancelToken?: CancelT
   });
   return res.data;
 };
+
+export const getArticlesSold = async (id_VentaPrincipal: string) => {
+  const res = await axios.get(`${apiPos}/obtener-articulos-vendidos`, {
+    params: {
+      id_VentaPrincipal,
+    },
+  });
+  return res.data as {
+    id_DetalleVenta: string;
+    id_ArticuloExistente: string;
+    nombre: string;
+    cantidad: number;
+    precioIVA: number;
+    precioSubTotal: number;
+    precioUnitario: number;
+    precioTotal: number;
+  }[];
+};

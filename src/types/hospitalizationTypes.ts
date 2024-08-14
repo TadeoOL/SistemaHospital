@@ -177,10 +177,13 @@ export interface IArticlesAccount {
   precioNeto: number;
   precioIVA: number;
   precioTotal: number;
+  solicitud: string;
+  fechaSolicitado: string;
 }
 export interface IPaymentsAccount {
   id: string;
   folio: string;
+  fechaPago: string;
   pagado: boolean;
   total: number;
 }

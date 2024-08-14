@@ -30,7 +30,8 @@ import { useRequestOrderStore } from '../../../../store/pharmacy/nurseRequest/nu
 import { IWarehouseData, IPatientFromSearch } from '../../../../types/types';
 import { Cancel, Save, Edit, Delete, Info } from '@mui/icons-material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { getPatientsWithAccount } from '../../../../services/programming/patientService';
+import { getPatientInfoById, getPatientsWithAccount } from '../../../../services/programming/patientService';
+import { ICuartosInfo } from '../../../../types/admissionTypes';
 
 type Article = {
   id: string;
@@ -43,6 +44,9 @@ const filterArticleOptions = createFilterOptions<Article>({
   limit: OPTIONS_LIMIT,
 });
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
+  limit: OPTIONS_LIMIT,
+});
+const filterPatientRoomsOptions = createFilterOptions<ICuartosInfo>({
   limit: OPTIONS_LIMIT,
 });
 
@@ -75,6 +79,7 @@ const style2 = {
 };
 export const NurseRequestModal = (props: { setOpen: Function; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
   const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
@@ -83,9 +88,12 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   const warehouseId = usePosTabNavStore.getState().warehouseId;
   const [articleSelected, setArticleSelected] = useState<null | Article>(null);
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
+  const [roomSelected, setRoomSelected] = useState<null | ICuartosInfo>(null);
+  const [rooms, setRooms] = useState<ICuartosInfo[]>([]);
   const [userError, setUserError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
+  const [roomError, setRoomError] = useState(false);
   const [amountText, setAmountText] = useState('');
   const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
   const [warehouseError, setWarehouseError] = useState(false);
@@ -134,6 +142,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
       setDataWerehouseArticlesSelected([]);
       setArticles([]);
       setUserSelected(null);
+      ///ñaca
       setArticleSelected(null);
       setIsLoadingWarehouse(true);
       try {
@@ -168,6 +177,18 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
       setUsersData(res);
     }
   };
+
+  const fetchPatientRooms = async (id_Paciente: string) => {
+    setIsLoadingRooms(true)
+    const resCuartos = await getPatientInfoById(id_Paciente);
+    if(resCuartos && resCuartos.informacionCuartos && resCuartos.informacionCuartos.length > 0){
+      setRooms(resCuartos.informacionCuartos);
+    }
+    else{
+      setRooms([]);
+    }
+    setIsLoadingRooms(false)
+  }
 
   const handleAddArticles = () => {
     if (!articleSelected) {
@@ -204,11 +225,15 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
         setUserError(true);
         return toast.warning('Selecciona un paciente!');
       }
+      if (!roomSelected) {
+        setRoomError(true);
+        return toast.warning('Selecciona un cuarto!');
+      }
       if (!data || data.length < 1) {
         return toast.warning('Añade un articulo!');
       }
       const object = {
-        Cuarto: '',
+        Cuarto: roomSelected.nombre,
         Id_Paciente: userSelected.id_Paciente,
         Id_CuentaPaciente: userSelected.id_Cuenta,
         SolicitadoEn: '',
@@ -222,6 +247,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
       setDataWerehouseArticlesSelected([]);
       setArticles([]);
       setUserSelected(null);
+      //ñaca
       setArticleSelected(null);
       setWarehouseSelected('');
     } catch (error) {
@@ -245,6 +271,46 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
               rowGap: { xs: 2, sm: 0 },
             }}
           >
+            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterPatientOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setUserSelected(val);
+                    if(val?.id_Paciente !== undefined){
+                      fetchPatientRooms(val.id_Paciente)
+                    }
+                    setUserError(false);
+                  }}
+                  //cambiar loading
+                  loading={isLoadingArticlesWareH && usersData.length === 0}
+                  getOptionLabel={(option) => option.nombreCompleto}
+                  options={usersData}
+                  value={userSelected}
+                  noOptionsText="No se encontraron pacientes"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={userError}
+                      helperText={userError && 'Selecciona un paciente'}
+                      placeholder="Pacientes"
+                      sx={{ width: '100%' }}
+                      onChange={(e) => {
+                        if (e.target.value === null) {
+                          setPatientSearch('');
+                        }
+                        setPatientSearch(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+            </Box>
+            
             <Box sx={{ display: 'flex', flexDirection: 'row', mb: 1 }}>
               <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
@@ -274,38 +340,30 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
                   </TextField>
                 )}
               </Stack>
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-              <Stack sx={{ display: 'flex', flex: 1 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
-                <Autocomplete
+              <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300, ml:'auto' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
+
+                  <Autocomplete
                   disablePortal
                   fullWidth
-                  filterOptions={filterPatientOptions}
+                  filterOptions={filterPatientRoomsOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
-                    setUserSelected(val);
-                    setUserError(false);
+                    setRoomSelected(val);
+                    setRoomError(false);//ñaca
                   }}
-                  //cambiar loading
-                  loading={isLoadingArticlesWareH && usersData.length === 0}
-                  getOptionLabel={(option) => option.nombreCompleto}
-                  options={usersData}
-                  value={userSelected}
-                  noOptionsText="No se encontraron pacientes"
+                  loading={isLoadingRooms && rooms.length === 0}
+                  getOptionLabel={(option) => option.nombre}
+                  options={rooms}
+                  value={roomSelected}
+                  noOptionsText="No se encontraron cuartos"
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      error={userError}
-                      helperText={userError && 'Selecciona un paciente'}
-                      placeholder="Pacientes"
-                      sx={{ width: '100%' }}
-                      onChange={(e) => {
-                        if (e.target.value === null) {
-                          setPatientSearch('');
-                        }
-                        setPatientSearch(e.target.value);
-                      }}
+                      error={roomError}
+                      helperText={roomError && 'Selecciona un cuarto'}
+                      placeholder="Cuarto"
+                      sx={{ width: '95%' }}
                     />
                   )}
                 />

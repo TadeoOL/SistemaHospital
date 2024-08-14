@@ -36,9 +36,11 @@ const headers = [
   'Clave paciente',
   'Nombre Paciente',
   'Procedimiento',
+  'Cuartos/Quirófano',
+  'Medico',
   'Fecha Ingreso',
   'Datos Paciente',
-  'Datos Clinicos',
+  'Datos Clínicos',
   'Acciones',
 ];
 
@@ -153,6 +155,8 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
             </span>
           ))}
         </TableCell>
+        <TableCell>{data.cuartos}</TableCell>
+        <TableCell>{data.medico}</TableCell>
         <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
         <TableCell>
           <Button

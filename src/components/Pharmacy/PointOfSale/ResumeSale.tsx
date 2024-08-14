@@ -13,6 +13,7 @@ export const ResumeSale = () => {
   const setIva = usePosOrderArticlesStore((state) => state.setIva);
   const setTotal = usePosOrderArticlesStore((state) => state.setTotal);
   const [open, setOpen] = useState(false);
+
   const totalByArticle = (articleTocount: IArticle2) => {
     if (articleTocount.lote) {
       const arreglonumeros = articleTocount.lote.map((art) => art.cantidad);
@@ -23,13 +24,9 @@ export const ResumeSale = () => {
   };
   const { subTotal, iva } = articlesOnBasket.reduce(
     (acc, article) => {
-      const precioConIva =
-        article.iva && article.iva > 0 ? totalByArticle(article) * article.iva * 0.01 * Number(article.precioVenta) : 0;
-      const ivaArticulo = totalByArticle(article) * precioConIva;
-      const precioTotal =
-        article.iva && article.iva > 0
-          ? totalByArticle(article) * Number(article.precioVenta) - ivaArticulo
-          : totalByArticle(article) * Number(article.precioVenta);
+      const totalArticles = totalByArticle(article);
+      const precioTotal = totalArticles * Number(article.precioVenta);
+      const ivaArticulo = (article.iva ?? 0) * totalArticles;
 
       return {
         subTotal: acc.subTotal + precioTotal,
@@ -38,6 +35,7 @@ export const ResumeSale = () => {
     },
     { subTotal: 0, iva: 0 }
   );
+
   const subTotalFixed = parseFloat(subTotal.toFixed(2));
   const ivaFixed = parseFloat(iva.toFixed(2));
   const total = subTotalFixed + ivaFixed;

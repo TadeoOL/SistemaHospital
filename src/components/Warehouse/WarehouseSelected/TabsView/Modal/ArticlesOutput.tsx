@@ -92,6 +92,7 @@ const NestedTableCell = styled(TableCell)(({ theme }) => ({
 
 export type ArticlesFetched = {
   id_Articulo: string;
+  id_ArticuloCuenta: string;
   nombre: string;
   loteChanges?: loteFetch[]; //Lote cuyos valores se pueden manipular
   stockActual: string;

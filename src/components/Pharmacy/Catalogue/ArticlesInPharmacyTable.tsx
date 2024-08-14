@@ -14,7 +14,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
   alpha,
@@ -22,7 +21,7 @@ import {
   tableCellClasses,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Warning } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, Info, Warning } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import { warning } from '../../../theme/colors';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
@@ -137,15 +136,10 @@ export const ArticlesPharmacyTable = () => {
   const {
     data,
     setSearch,
-    setEndDate,
-    setStartDate,
-    clearFilters,
     setPageIndex,
     setPageSize,
     setSort,
     fetchExistingArticles,
-    startDate,
-    endDate,
     isLoading,
     pageCount,
     pageSize,
@@ -166,29 +160,6 @@ export const ArticlesPharmacyTable = () => {
               size="small"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              <TextField
-                label="Fecha inicio"
-                size="small"
-                type="date"
-                value={startDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                }}
-              />
-              <TextField
-                label=" Fecha final"
-                size="small"
-                type="date"
-                value={endDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                }}
-              />
-              <IconButton onClick={() => clearFilters()}>
-                <FilterListOff />
-              </IconButton>
               <Button
                 sx={{ minWidth: 200 }}
                 variant="contained"
@@ -298,7 +269,9 @@ export const ArticlesPharmacyTable = () => {
           </Card>
         </Stack>
       </Stack>
-      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
+      <Modal 
+        open={openModal} 
+      >
         <>
           {exitArticlesM ? (
             <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
