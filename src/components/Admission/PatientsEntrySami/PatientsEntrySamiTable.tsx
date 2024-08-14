@@ -60,7 +60,7 @@ export const PatientsEntrySamiTable = () => {
 
   if (isLoading)
     return (
-      <Box>
+      <Box sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Box>
     );
