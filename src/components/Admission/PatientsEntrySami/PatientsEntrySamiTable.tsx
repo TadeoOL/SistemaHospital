@@ -58,7 +58,7 @@ const useGetData = () => {
 export const PatientsEntrySamiTable = () => {
   const { data, isLoading, count, pageIndex, pageSize, setPageIndex, setPageSize } = useGetData();
 
-  if (isLoading && data.length < 1)
+  if (isLoading)
     return (
       <Box>
         <CircularProgress />
