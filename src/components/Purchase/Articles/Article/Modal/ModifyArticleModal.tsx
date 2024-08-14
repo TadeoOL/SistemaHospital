@@ -168,7 +168,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         }
       });
     }
-  }, [article, setValue]);
+  }, [article, setValue, textQuantityRef]);
 
   const handleError = (err: any) => {
     console.log({ err });
