@@ -20,10 +20,12 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import dayjs from 'dayjs';
 import { FaEye } from 'react-icons/fa';
-import { Edit, Print } from '@mui/icons-material';
+import { CheckCircle, Edit, Print } from '@mui/icons-material';
 import { generateSamiDoc } from '../../Documents/AdmissionDocs/AdmissionDoc';
 import { SamiPatientDetailsModal } from './Modal/SamiPatientDetailsModal';
 import { AddPatientsEntrySami } from './Modal/AddPatientsEntrySami';
+import Swal from 'sweetalert2';
+import { admitSamiPatientToHospital } from '../../../services/sami/samiEntryService';
 
 const TABLE_HEADER = ['Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Acciones'];
 
@@ -94,6 +96,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const refetch = useSamiPAtientsPaginationStore((state) => state.fetchData);
 
   const handlePrint = () => {
     generateSamiDoc({
@@ -108,6 +111,28 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
       neighborhood: data.paciente.colonia,
       address: data.paciente.direccion,
       personInCharge: data.paciente.nombreResponsable,
+    });
+  };
+
+  const handleAdmitSamiPatient = () => {
+    Swal.fire({
+      title: '¿Está seguro de admitir al paciente?',
+      text: 'Una vez admitido, no podrá modificar sus datos.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, admitir',
+    }).then(async (res) => {
+      if (res.isConfirmed) {
+        try {
+          await admitSamiPatientToHospital(data.paciente.id);
+          refetch();
+          Swal.fire('Paciente admitido correctamente', '', 'success');
+        } catch (error) {
+          Swal.fire('Error al admitir al paciente', '', 'error');
+        }
+      }
     });
   };
 
@@ -146,6 +171,13 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
                 <Print />
               </IconButton>
             </Tooltip>
+            {!data.admitido && (
+              <Tooltip title="Pasar a admisión">
+                <IconButton onClick={handleAdmitSamiPatient}>
+                  <CheckCircle color="success" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>
@@ -160,6 +192,8 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
               ocupacion: '',
               parentesco: '',
               telefonoResponsable: '',
+              ciudad: '',
+              estado: '',
             }}
             setOpen={setOpen}
           />

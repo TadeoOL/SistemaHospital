@@ -728,6 +728,8 @@ export interface IPatient {
   personInChargeNeighborhood?: string;
   personInChargeAddress?: string;
   personInChargePhoneNumber?: string;
+  state?: string;
+  city?: string;
 }
 
 export interface IClinicalData {
