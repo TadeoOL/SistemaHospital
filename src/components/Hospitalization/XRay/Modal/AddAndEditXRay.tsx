@@ -22,6 +22,10 @@ const REQUEST_TYPES = [
     value: 3,
     label: 'Ultra sonido',
   },
+  {
+    value: 5,
+    label: 'Electrocardiograma',
+  },
 ];
 
 const style = {

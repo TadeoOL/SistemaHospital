@@ -97,6 +97,8 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   const [amountText, setAmountText] = useState('');
   const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
   const [warehouseError, setWarehouseError] = useState(false);
+  const [samiPatient, setSamiPatient] = useState(false);
+  const [disableSelectedRoom, setDisableSelectedRoom] = useState(false);
 
   const { setArticles, articles, setWarehouseSelected, warehouseSelected } = useRequestOrderStore(
     (state) => ({
@@ -179,16 +181,30 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   };
 
   const fetchPatientRooms = async (id_Paciente: string) => {
-    setIsLoadingRooms(true)
+    setIsLoadingRooms(true);
     const resCuartos = await getPatientInfoById(id_Paciente);
-    if(resCuartos && resCuartos.informacionCuartos && resCuartos.informacionCuartos.length > 0){
+    console.log({ resCuartos });
+    if (resCuartos && resCuartos.informacionCuartos && resCuartos.informacionCuartos.length > 0) {
       setRooms(resCuartos.informacionCuartos);
-    }
-    else{
+    } else {
       setRooms([]);
     }
-    setIsLoadingRooms(false)
-  }
+    if (resCuartos.ingresoSami) {
+      setSamiPatient(true);
+    } else {
+      setSamiPatient(false);
+    }
+    setIsLoadingRooms(false);
+  };
+
+  useEffect(() => {
+    if (rooms && rooms.length === 1) {
+      setRoomSelected(rooms[0]);
+      setDisableSelectedRoom(true);
+    } else {
+      setDisableSelectedRoom(false);
+    }
+  }, [rooms]);
 
   const handleAddArticles = () => {
     if (!articleSelected) {
@@ -216,30 +232,30 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   };
 
   const onSubmit = async (data: any) => {
+    if (!warehouseSelected) {
+      setWarehouseError(true);
+      return toast.warning('Selecciona un almacen!');
+    }
+    if (!userSelected) {
+      setUserError(true);
+      return toast.warning('Selecciona un paciente!');
+    }
+    if (!roomSelected && !samiPatient) {
+      setRoomError(true);
+      return toast.warning('Selecciona un cuarto!');
+    }
+    if (!data || data.length < 1) {
+      return toast.warning('Añade un articulo!');
+    }
+    const object = {
+      Cuarto: samiPatient ? 'SAMI' : roomSelected!.nombre,
+      Id_Paciente: userSelected.id_Paciente,
+      Id_CuentaPaciente: userSelected.id_Cuenta,
+      SolicitadoEn: '',
+      Id_AlmacenSolicitado: warehouseSelected,
+      ListaSolicitud: data,
+    };
     try {
-      if (!warehouseSelected) {
-        setWarehouseError(true);
-        return toast.warning('Selecciona un almacen!');
-      }
-      if (!userSelected) {
-        setUserError(true);
-        return toast.warning('Selecciona un paciente!');
-      }
-      if (!roomSelected) {
-        setRoomError(true);
-        return toast.warning('Selecciona un cuarto!');
-      }
-      if (!data || data.length < 1) {
-        return toast.warning('Añade un articulo!');
-      }
-      const object = {
-        Cuarto: roomSelected.nombre,
-        Id_Paciente: userSelected.id_Paciente,
-        Id_CuentaPaciente: userSelected.id_Cuenta,
-        SolicitadoEn: '',
-        Id_AlmacenSolicitado: warehouseSelected,
-        ListaSolicitud: data,
-      };
       await addNurseRequest(object);
       toast.success('Solicitud creada');
       props.refetch(true);
@@ -281,8 +297,8 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
                   onChange={(e, val) => {
                     e.stopPropagation();
                     setUserSelected(val);
-                    if(val?.id_Paciente !== undefined){
-                      fetchPatientRooms(val.id_Paciente)
+                    if (val?.id_Paciente !== undefined) {
+                      fetchPatientRooms(val.id_Paciente);
                     }
                     setUserError(false);
                   }}
@@ -310,7 +326,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
                 />
               </Stack>
             </Box>
-            
+
             <Box sx={{ display: 'flex', flexDirection: 'row', mb: 1 }}>
               <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
@@ -340,34 +356,37 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
                   </TextField>
                 )}
               </Stack>
-              <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300, ml:'auto' }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
+              {!samiPatient && (
+                <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300, ml: 'auto' }}>
+                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
 
                   <Autocomplete
-                  disablePortal
-                  fullWidth
-                  filterOptions={filterPatientRoomsOptions}
-                  onChange={(e, val) => {
-                    e.stopPropagation();
-                    setRoomSelected(val);
-                    setRoomError(false);//ñaca
-                  }}
-                  loading={isLoadingRooms && rooms.length === 0}
-                  getOptionLabel={(option) => option.nombre}
-                  options={rooms}
-                  value={roomSelected}
-                  noOptionsText="No se encontraron cuartos"
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={roomError}
-                      helperText={roomError && 'Selecciona un cuarto'}
-                      placeholder="Cuarto"
-                      sx={{ width: '95%' }}
-                    />
-                  )}
-                />
-              </Stack>
+                    disablePortal
+                    fullWidth
+                    filterOptions={filterPatientRoomsOptions}
+                    onChange={(e, val) => {
+                      e.stopPropagation();
+                      setRoomSelected(val);
+                      setRoomError(false); //ñaca
+                    }}
+                    loading={isLoadingRooms && rooms.length === 0}
+                    getOptionLabel={(option) => option.nombre}
+                    options={rooms}
+                    value={roomSelected}
+                    disabled={disableSelectedRoom}
+                    noOptionsText="No se encontraron cuartos"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={roomError}
+                        helperText={roomError && 'Selecciona un cuarto'}
+                        placeholder="Cuarto"
+                        sx={{ width: '95%' }}
+                      />
+                    )}
+                  />
+                </Stack>
+              )}
             </Box>
             <Divider />
             <Box sx={{ display: 'flex', flexDirection: 'row' }}>

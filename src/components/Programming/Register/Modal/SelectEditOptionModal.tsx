@@ -1,9 +1,18 @@
-import { AirlineSeatFlatOutlined, Close, PermIdentity, TextSnippet } from '@mui/icons-material';
+import {
+  AirlineSeatFlatOutlined,
+  Close,
+  MedicalServices,
+  PermIdentity,
+  TextSnippet,
+  Vaccines,
+} from '@mui/icons-material';
 import { Box, Grid, IconButton, Stack, Typography } from '@mui/material';
 import { EditPersonalInfoModal } from './EditData/EditPersonalInfoModal';
 import { EditClinicalInfoModal } from './EditData/EditClinicalInfoModal';
-import { SelectRoomToEdit } from './EditData/SelectRoomToEdit';
+import { SelectProcedureToEdit } from './EditData/SelectProcedureToEdit';
 import { EditCalendarEventModal } from './EditData/EditCalendarEventModal';
+import { Procedimiento } from '../../../../types/admissionTypes';
+import { SelectMedicModal } from './EditData/SelectMedicModal';
 
 const style = {
   position: 'absolute',
@@ -60,6 +69,8 @@ interface SelectEditOptionModalProps {
   registerId: string;
   setRegisterRoomId: Function;
   registerRoomId: string;
+  procedures?: Procedimiento[];
+  medic: { id?: string; nombre?: string };
 }
 export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
   switch (props.value) {
@@ -73,11 +84,20 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
       return <EditCalendarEventModal setOpen={props.setOpen} registerId={props.registerId} />;
     case 4:
       return (
-        <SelectRoomToEdit
-          registerId={props.registerId}
+        <SelectProcedureToEdit
           setOpen={props.setOpen}
           setValue={props.setValue}
-          setRegisterRoomId={props.setRegisterRoomId}
+          procedures={props.procedures as Procedimiento[]}
+          registerId={props.registerId}
+        />
+      );
+    case 5:
+      return (
+        <SelectMedicModal
+          setOpen={props.setOpen}
+          setValue={props.setValue}
+          registerId={props.registerId}
+          surgeon={props.medic}
         />
       );
     default:
@@ -130,6 +150,28 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
           >
             <AirlineSeatFlatOutlined sx={iconStyle} />
             <Typography sx={typographyStyle}>Cuartos</Typography>
+          </Grid>
+          <Grid
+            item
+            md={5}
+            sx={cardStyle}
+            onClick={() => {
+              props.setValue(4);
+            }}
+          >
+            <Vaccines sx={iconStyle} />
+            <Typography sx={typographyStyle}>Procedimientos</Typography>
+          </Grid>
+          <Grid
+            item
+            md={5}
+            sx={cardStyle}
+            onClick={() => {
+              props.setValue(5);
+            }}
+          >
+            <MedicalServices sx={iconStyle} />
+            <Typography sx={typographyStyle}>Medico</Typography>
           </Grid>
         </Grid>
       </Stack>

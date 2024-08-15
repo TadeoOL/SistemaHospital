@@ -128,3 +128,30 @@ export const addRegisterRoom = async (data: {
   const res = await axios.put(`${apiRegister}/agregar-registro-cuarto`, data);
   return res.data;
 };
+
+export const editRegisterProcedures = async (data: { id_Registro: string; id_Procedimientos: string[] }) => {
+  const res = await axios.put(`${apiRegister}/editar-registro-procedimientos`, data);
+  return res.data;
+};
+
+export const modifyRoomsEvents = async (data: {
+  id_Registro: string;
+  listaRegistrosCuartos: { id_RegistroCuarto: string; fechaInicio: Date; fechaFin: Date }[];
+}) => {
+  const res = await axios.put(`${apiRegister}/modificar-lista-registros-cuartos`, data);
+  return res.data;
+};
+
+export const getRegisterValidation = async (registerId: string) => {
+  const res = await axios.get(`${apiRegister}/validar-registro`, {
+    params: {
+      id_Registro: registerId,
+    },
+  });
+  return res.data as boolean;
+};
+
+export const addMedicToRegister = async (data: { id_Registro: string; id_Medico: string }) => {
+  const res = await axios.put(`${apiRegister}/agregar-medico-registro`, data);
+  return res.data;
+};

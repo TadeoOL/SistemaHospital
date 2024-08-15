@@ -177,10 +177,13 @@ export interface IArticlesAccount {
   precioNeto: number;
   precioIVA: number;
   precioTotal: number;
+  solicitud: string;
+  fechaSolicitado: string;
 }
 export interface IPaymentsAccount {
   id: string;
   folio: string;
+  fechaPago: string;
   pagado: boolean;
   total: number;
 }
@@ -190,6 +193,7 @@ export const REQUEST_TYPES: Record<number, string> = {
   2: 'Radiografía',
   3: 'Ultra Sonido',
   4: 'SAMI',
+  5: 'Electrocardiograma',
 };
 
 export interface IRequestConfig {

@@ -123,3 +123,13 @@ export const nurseSchema = z.object({
     }
   ),
 });
+
+export const validateDates = z
+  .object({
+    startDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    endDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+  })
+  .refine((args) => args.endDate >= args.startDate, {
+    message: 'La fecha de finalización debe ser mayor a la fecha de inicio',
+    path: ['endDate'],
+  });

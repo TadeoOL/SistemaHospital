@@ -126,12 +126,15 @@ type Articulo = {
   precioNeto: number;
   precioIVA: number;
   precioTotal: number;
+  solicitud: string;
+  fechaSolicitado: string;
 };
 
 type Pago = {
   id: string;
   folio: string;
   pagado: boolean;
+  fechaPago: string;
   total: number;
 };
 
@@ -194,7 +197,7 @@ type CierreCuenta = {
 type Props = {
   cierreCuenta: CierreCuenta;
   descuento?: string;
-  total: number | string;
+  total?: number | string;
   notas?: string;
 };
 
@@ -377,6 +380,8 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
               <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Cantidad</Text>
+                <Text style={styles.tableCol}>Solicitud</Text>
+                <Text style={styles.tableCol}>Fecha Solicitado</Text>
                 <Text style={styles.tableCol}>Precio Unitario</Text>
                 <Text style={styles.tableCol}>Precio Neto</Text>
                 <Text style={styles.tableCol}>IVA</Text>
@@ -386,6 +391,8 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <View style={styles.tableRow} key={index}>
                   <Text style={styles.tableCell}>{articulo.nombre}</Text>
                   <Text style={styles.tableCell}>{articulo.cantidad}</Text>
+                  <Text style={styles.tableCell}>{articulo.solicitud}</Text>
+                  <Text style={styles.tableCell}>{articulo.fechaSolicitado}</Text>
                   <Text style={styles.tableCell}>${articulo.precioVenta}</Text>
                   <Text style={styles.tableCell}>${articulo.precioNeto}</Text>
                   <Text style={styles.tableCell}>${articulo.precioIVA}</Text>
@@ -407,12 +414,14 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
               <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Folio</Text>
                 <Text style={styles.tableCol}>Pagado</Text>
-                <Text style={styles.tableCol}>Total</Text>
+                <Text style={styles.tableCol}>Fecha de Pago</Text>
+                <Text style={styles.tableCol}>Importe</Text>
               </View>
               {cierreCuenta.pagosCuenta.map((pago, index) => (
                 <View style={styles.tableRow} key={index}>
                   <Text style={styles.tableCell}>{pago.folio}</Text>
                   <Text style={styles.tableCell}>{pago.pagado ? 'Sí' : 'No'}</Text>
+                  <Text style={styles.tableCell}>{pago.fechaPago}</Text>
                   <Text style={styles.tableCell}>$ {pago.total}</Text>
                 </View>
               ))}

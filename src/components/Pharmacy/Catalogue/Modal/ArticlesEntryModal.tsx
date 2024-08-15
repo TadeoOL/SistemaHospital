@@ -55,7 +55,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, md: 700, lg: 900 },
 
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -181,11 +181,17 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
 
   const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
     let totalQuantityByArticle = 0;
-    const updatedLote: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] = [];
+    const updatedLote: {
+      cantidad: number;
+      fechaCaducidad: string;
+      id_ArticuloCuenta: string;
+      id_ArticuloExistente: string;
+    }[] = [];
     lotesArticles.forEach((element) => {
       const nestedLote = {
         cantidad: element.cantidad,
         id_ArticuloExistente: element.id_ArticuloExistente,
+        id_ArticuloCuenta: articleSelected?.id_ArticuloCuenta as string,
         fechaCaducidad: element.fechaCaducidad,
       };
       updatedLote.push(nestedLote);
@@ -269,6 +275,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
         article.lote.forEach((loteA: any) => {
           articlesArticlesExit.push({
             Id_ArticuloExistente: loteA.id_ArticuloExistente,
+            Id_ArticuloCuenta: loteA.id_ArticuloCuenta,
             Cantidad: loteA.cantidad.toString(),
             fechaCaducidad: loteA.fechaCaducidad,
           });
@@ -278,6 +285,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
       const object = {
         Lotes: articlesArticlesExit.map((loteA: any) => ({
           Id_ArticuloExistente: loteA.Id_ArticuloExistente,
+          Id_ArticuloCuenta: loteA.Id_ArticuloCuenta,
           Cantidad: loteA.Cantidad,
           fechaCaducidad: loteA.fechaCaducidad,
         })),
@@ -346,7 +354,6 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
                         error={userError}
                         helperText={userError && 'Selecciona un paciente'}
                         placeholder="Pacientes"
-                        sx={{ width: '100%' }}
                         onChange={(e) => {
                           if (e.target.value === null) {
                             setPatientSearch('');
@@ -357,76 +364,76 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
                     )}
                   />
                 </Stack>
-
                 <Stack sx={{ display: 'flex', flex: 1 }}>
-                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
                   <Autocomplete
                     disablePortal
                     fullWidth
-                    filterOptions={filterArticleOptions}
                     onChange={(e, val) => {
                       e.stopPropagation();
-                      if (val !== null) {
-                        if (!articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
-                          setOpenLoteModal(true);
-                        }
-                        setArticleId(val.id_Articulo);
-                        setArticleSelected(val);
-                        setArticleError(false);
-                      }
+                      setNurseSelected(val);
+                      setArticleError(false);
                     }}
-                    loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                    loading={isLoadingArticlesWareH}
+                    options={nursesData}
                     getOptionLabel={(option) => option.nombre}
-                    options={dataWerehouseSelectedArticles}
-                    value={articleSelected}
-                    noOptionsText="No se encontraron artículos"
+                    value={nurseSelected}
+                    noOptionsText="No se encontraron enfermeros"
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         error={articleError}
-                        helperText={articleError && 'Selecciona un articulo'}
-                        // onChange={(e) => {
-                        //   setSearch(e.target.value);
-                        // }}
-                        placeholder="Artículos"
-                        sx={{ width: '100%' }}
+                        helperText={articleError && 'Selecciona un enfermero'}
+                        fullWidth
+                        placeholder="Enfermeros"
+                        onChange={(e) => {
+                          if (e.target.value === null) {
+                            setNurseSearch('');
+                          }
+                          setNurseSearch(e.target.value);
+                        }}
                       />
                     )}
                   />
                 </Stack>
               </Box>
-              <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
                 <Autocomplete
                   disablePortal
                   fullWidth
+                  filterOptions={filterArticleOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
-                    setNurseSelected(val);
-                    setArticleError(false);
+                    if (val !== null) {
+                      if (!articles.map((art) => art.id_ArticuloCuenta).includes(val.id_ArticuloCuenta)) {
+                        setOpenLoteModal(true);
+                      }
+                      setArticleId(val.id_Articulo);
+                      setArticleSelected(val);
+                      setArticleError(false);
+                    }
                   }}
-                  loading={isLoadingArticlesWareH}
-                  options={nursesData}
+                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
                   getOptionLabel={(option) => option.nombre}
-                  value={nurseSelected}
-                  noOptionsText="No se encontraron enfermeros"
+                  options={dataWerehouseSelectedArticles}
+                  value={articleSelected}
+                  noOptionsText="No se encontraron artículos"
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       error={articleError}
-                      helperText={articleError && 'Selecciona un enfermero'}
-                      placeholder="Enfermeros"
-                      sx={{ width: '50%' }}
-                      onChange={(e) => {
-                        if (e.target.value === null) {
-                          setNurseSearch('');
-                        }
-                        setNurseSearch(e.target.value);
-                      }}
+                      helperText={articleError && 'Selecciona un articulo'}
+                      // onChange={(e) => {
+                      //   setSearch(e.target.value);
+                      // }}
+                      placeholder="Artículos"
+                      sx={{ width: '100%' }}
                     />
                   )}
                 />
               </Stack>
+
               <ArticlesTable
                 setOpen={props.setOpen}
                 submitData={onSubmit}

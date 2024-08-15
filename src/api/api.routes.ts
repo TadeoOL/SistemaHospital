@@ -1023,6 +1023,7 @@ export const articlesEntryToWarehouse = async (data: {
   Id_Almacen: string;
   Lotes?: {
     Id_ArticuloExistente: string;
+    Id_ArticuloCuenta: string;
     Cantidad: string;
     fechaCaducidad: string;
   }[];
@@ -1121,6 +1122,8 @@ export const getPackagePreBuilded = async (paramUrl: string) => {
 };
 
 export const getNurseRequestPreBuilded = async (id_solicitud: string, id_Almacen: string) => {
-  const res = await axios.get(`/api/SolicitudEnfemero/prearmado-solicitud-enfermero?Id_SolicitudEnfermero=${id_solicitud}&Id_Almacen=${id_Almacen}`);
+  const res = await axios.get(
+    `/api/SolicitudEnfemero/prearmado-solicitud-enfermero?Id_SolicitudEnfermero=${id_solicitud}&Id_Almacen=${id_Almacen}`
+  );
   return res.data.articulosSolicitados;
 };

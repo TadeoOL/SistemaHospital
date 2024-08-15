@@ -27,10 +27,10 @@ const styles = StyleSheet.create({
   tableCell: {
     margin: 'auto',
     marginTop: 5,
-    fontSize: 8,
+    fontSize: 12,
   },
   header: {
-    fontSize: 8,
+    fontSize: 12,
     fontWeight: 'bold',
   },
 });

@@ -27,7 +27,6 @@ import {
 } from '../../../../types/hospitalizationTypes';
 import { toast } from 'react-toastify';
 import { useEffect, useRef, useState } from 'react';
-import { useBiomedicalEquipmentPaginationStore } from '../../../../store/hospitalization/biomedicalEquipmentPagination';
 import {
   closeRegisterAndAccount,
   getAccountFullInformation,
@@ -36,8 +35,6 @@ import { registerSell } from '../../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { useAuthStore } from '../../../../store/auth';
 import { useShallow } from 'zustand/react/shallow';
 import dayjs from 'dayjs';
@@ -45,18 +42,20 @@ import { Settings } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
+import { usePatientAccountPaginationStore } from '../../../../store/hospitalization/patientAcountsPagination';
+import { pdf } from '@react-pdf/renderer';
+import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 750, xl: 850 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 650, xl: 900 },
+  maxHeight: { xs: 600, xl: 900 },
 };
 const style2 = {
   bgcolor: 'background.paper',
@@ -84,7 +83,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const conn = useConnectionSocket((state) => state.conn);
   const [isLoading, setIsLoading] = useState(false);
   const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
-  const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
+  const refetch = usePatientAccountPaginationStore((state) => state.fetchData);
   const inputRefDiscount = useRef<HTMLInputElement>(null);
   // const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   const profile = useAuthStore(useShallow((state) => state.profile));
@@ -301,6 +300,36 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     );
   }
 
+  const handleOpenPDF = async () => {
+    setIsLoading(true);
+
+    const document = (
+      <BillCloseReport
+        cierreCuenta={{ ...accountInfo, notas: notes } as any}
+        descuento={discountPercent !== '' ? discountPercent : undefined}
+        total={CaclTotalBill()}
+        notas={
+          discountflag && discountSurgeryRoomFlag
+            ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
+            : discountflag
+              ? 'Se le hizo descuento'
+              : discountSurgeryRoomFlag
+                ? 'Se cambio el precio de quirofano'
+                : ''
+        }
+      />
+    );
+
+    // Generar el PDF en formato blob
+    const blob = await pdf(document).toBlob();
+
+    // Crear una URL para el blob y abrir una nueva pestaña
+    const url = URL.createObjectURL(blob);
+    window.open(url);
+
+    setIsLoading(false);
+  };
+
   return (
     <Box sx={style}>
       <HeaderModal
@@ -429,6 +458,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidad', header: 'Cantidad' },
+                  { key: 'solicitud', header: 'Solicitud' },
+                  { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
                   { key: 'precioVenta', header: 'Precio Unitario' },
                   { key: 'precioNeto', header: 'Precio Neto' },
                   { key: 'precioIVA', header: 'Precio IVA' },
@@ -440,6 +471,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 data={accountInfo.pagosCuenta}
                 columns={[
                   { key: 'folio', header: 'Folio' },
+                  { key: 'fechaPago', header: 'Fecha de Pago' },
                   { key: 'total', header: 'Monto' },
                 ]}
               />
@@ -586,28 +618,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
         </Button>
         {!isLoading && !errorflag && (
-          <PDFDownloadLink
-            document={
-              <BillCloseReport
-                cierreCuenta={{ ...accountInfo, notas: notes } as any}
-                descuento={discountPercent !== '' ? discountPercent : undefined}
-                total={CaclTotalBill()}
-                notas={
-                  discountflag && discountSurgeryRoomFlag
-                    ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
-                    : discountflag
-                      ? 'Se le hizo descuento'
-                      : discountSurgeryRoomFlag
-                        ? 'Se cambio el precio de quirofano'
-                        : ''
-                }
-              />
-            }
-            fileName={`${Date.now()}.pdf`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-          </PDFDownloadLink>
+          <Button variant="contained" color="primary" disabled={isLoading} onClick={handleOpenPDF}>
+            {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
+          </Button>
         )}
       </Box>
     </Box>
@@ -662,6 +675,7 @@ interface DataTableProps<T> {
 interface Column<T> {
   key: keyof T;
   header: string;
+  render?: (row: T) => React.ReactNode;
 }
 
 export const DataTable = <T,>({

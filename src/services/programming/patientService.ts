@@ -55,6 +55,8 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
     codigoPostalResponsable: data.personInChargeZipCode,
     coloniaResponsable: data.personInChargeNeighborhood,
     telefonoResponsable: data.personInChargePhoneNumber,
+    estado: data.state,
+    ciudad: data.city,
   });
   return res.data;
 };

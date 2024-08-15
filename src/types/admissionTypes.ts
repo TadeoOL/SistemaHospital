@@ -27,6 +27,7 @@ export interface Procedimiento {
   duracionCirujia: string;
   duracionHospitalizacion: string;
   descripcion: string;
+  precio?: number;
 }
 
 export interface HistorialClinico {
@@ -57,10 +58,13 @@ export interface Paciente {
   coloniaResponsable: string;
   codigoPostalResponsable: string;
   telefonoResponsable: string;
+  estado: string;
+  ciudad: string;
   id: string;
 }
 
-export interface PacienteInfo { //Agregar mas cosas
+export interface PacienteInfo {
+  //Agregar mas cosas
   nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
@@ -79,7 +83,8 @@ export interface PacienteInfo { //Agregar mas cosas
   codigoPostalResponsable: string;
   telefonoResponsable: string;
   id: string;
-  informacionCuartos? : ICuartosInfo[];
+  informacionCuartos?: ICuartosInfo[];
+  ingresoSami: boolean;
 }
 
 export interface ICuartosInfo {
@@ -99,11 +104,16 @@ export interface IPatientRegisterPagination {
   faltanDatos?: boolean;
   admitido?: boolean;
   procedimientos?: Procedimiento[];
+  cuartos?: string;
+  medico?: string;
+  id_Medico?: string;
 }
 
 export interface IPatientAccount {
   id_Paciente: string;
   nombreCompleto: string;
+  cuartos: string;
+  medico: string;
   id_Cuenta: string;
   id_ArticuloCuenta: string | null;
   estatus: number;
@@ -143,15 +153,18 @@ export interface IDocumentsInfo {
   procedimientos: string;
   clavePaciente: string;
   alergias: string;
+  sangre: string;
   nombreCuarto: string;
   nombreQuirofano: string;
   nombreAnestesiologo: string;
+  tipoSangre: string;
 }
 
 export interface ISAMI {
   id: string;
   paciente: ISAMIPatient;
   fechaIngreso: string;
+  admitido: boolean;
 }
 
 export interface ISAMIPatient {

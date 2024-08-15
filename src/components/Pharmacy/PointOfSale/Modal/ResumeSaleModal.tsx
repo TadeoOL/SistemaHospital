@@ -114,7 +114,6 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     setLoadingSubmit(true);
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
-    console.log(articlesOnBasket);
     let articlesFormatted: any = [];
     articlesOnBasket.forEach((article) => {
       article?.lote?.forEach((articleNested) => {
@@ -134,7 +133,6 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         };
       });
     });*/
-    console.log({ userSalesRegisterData });
     const saleObject = {
       id_Caja: userSalesRegisterData.id,
       tipoPago: 1,
@@ -142,7 +140,6 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
       montoPago: total,
       totalVenta: total,
     };
-    console.log('salewe', saleObject);
 
     try {
       const response = await registerSale(saleObject);
@@ -245,7 +242,6 @@ const TableHeaderResume = () => {
 
 const TableBodyResume = () => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
-  console.log('resume articlesOnBasket ', articlesOnBasket);
   return (
     <TableBody>
       {articlesOnBasket.map((article) => (
@@ -253,6 +249,9 @@ const TableBodyResume = () => {
           article={{
             ...article,
             cantidad: article.lote?.reduce((total, item) => total + item.cantidad, 0) || 0,
+            iva: parseFloat(
+              ((article.lote?.reduce((total, item) => total + item.cantidad, 0) ?? 0) * (article.iva ?? 0)).toFixed(2)
+            ),
           }}
           key={article.id_Articulo}
         />
@@ -272,7 +271,7 @@ const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
       <TableCell>{article.codigoBarras}</TableCell>
       <TableCell>{article.cantidad}</TableCell>
       <TableCell>{article.precioVenta}</TableCell>
-      <TableCell>{article.iva || 0}</TableCell>
+      <TableCell>{article.iva ?? 0}</TableCell>
       <TableCell>{totalPriceArticle}</TableCell>
     </TableRow>
   );

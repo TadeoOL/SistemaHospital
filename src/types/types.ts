@@ -174,6 +174,7 @@ export interface IExistingArticleList {
   //Lote
   id_ArticuloExistente: string;
   id_Articulo?: string;
+  id_ArticuloCuenta?: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;
@@ -606,7 +607,7 @@ export interface InurseRequest {
   pacienteNombre: string;
   articulos: IArticleInRequest[];
   lista_ArticulosEntregados: IArticlesDelivered[] | null;
-  fechaSolicitud : string;
+  fechaSolicitud: string;
 }
 
 export interface IArticleInRequest {
@@ -727,6 +728,8 @@ export interface IPatient {
   personInChargeNeighborhood?: string;
   personInChargeAddress?: string;
   personInChargePhoneNumber?: string;
+  state?: string;
+  city?: string;
 }
 
 export interface IClinicalData {

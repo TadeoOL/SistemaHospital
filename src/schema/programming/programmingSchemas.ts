@@ -39,6 +39,8 @@ export const patientModifySchema = z.object({
   personInChargeNeighborhood: z.string().nullable(),
   personInChargeAddress: z.string().nullable(),
   personInChargePhoneNumber: z.string().nullable(),
+  state: z.string().nullable(),
+  city: z.string().nullable(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 
@@ -133,7 +135,7 @@ export const programmingRegisterSchema = z.object({
 export const procedureAndDoctorSelectorSchema = z.object({
   proceduresId: z.string().array().nonempty('Los procedimientos son requeridos'),
   xrayIds: z.string().array().nullable(),
-  medicId: z.string().nullable(),
+  medicId: z.string().min(1, 'Selecciona el medico'),
   anesthesiologistId: z.string().nullable(),
 });
 
