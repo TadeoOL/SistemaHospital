@@ -21,7 +21,7 @@ import { IRoomEvent } from '../../../../../types/types';
 import dayjs from 'dayjs';
 import { Add, Edit, Save } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
-import { checkRoomAvailability, getRoomsEventsByDate } from '../../../../../services/programming/roomsService';
+import { checkRoomAvailabilityToEdit, getRoomsEventsByDate } from '../../../../../services/programming/roomsService';
 import { AddEditCalendar } from './AddEditCalendar';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -208,8 +208,9 @@ const EventTableRow = (props: {
       })
       .then(async (res) => {
         if (res.isConfirmed) {
-          const isAvailable = await checkRoomAvailability({
-            id: roomData.id_Cuarto,
+          const isAvailable = await checkRoomAvailabilityToEdit({
+            id_RegistroCuarto: roomData.id,
+            id_Cuarto: roomData.id_Cuarto,
             fechaInicio: dayjs(data.startDate).format('YYYY/MM/DDTHH:mm:ss'),
             fechaFin: dayjs(data.endDate).format('YYYY/MM/DDTHH:mm:ss'),
           });
