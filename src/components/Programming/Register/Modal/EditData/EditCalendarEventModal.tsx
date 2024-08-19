@@ -21,7 +21,7 @@ import { IRoomEvent } from '../../../../../types/types';
 import dayjs from 'dayjs';
 import { Add, Edit, Save } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
-import { getRoomsEventsByDate } from '../../../../../services/programming/roomsService';
+import { checkRoomAvailability, getRoomsEventsByDate } from '../../../../../services/programming/roomsService';
 import { AddEditCalendar } from './AddEditCalendar';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -180,7 +180,7 @@ const EventTableRow = (props: {
   setRooms: (rooms: IRoomEvent[]) => void;
   rooms: IRoomEvent[];
 }) => {
-  const { data } = props;
+  const { data: roomData } = props;
   const [edit, setEdit] = useState(false);
 
   const {
@@ -189,8 +189,8 @@ const EventTableRow = (props: {
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
-      startDate: dayjs(data.fechaInicio).toDate(),
-      endDate: dayjs(data.fechaFin).toDate(),
+      startDate: dayjs(roomData.fechaInicio).toDate(),
+      endDate: dayjs(roomData.fechaFin).toDate(),
     },
     resolver: zodResolver(validateDates),
   });
@@ -206,8 +206,23 @@ const EventTableRow = (props: {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Si, cambiar',
       })
-      .then((res) => {
+      .then(async (res) => {
         if (res.isConfirmed) {
+          const isAvailable = await checkRoomAvailability({
+            id: roomData.id_Cuarto,
+            fechaInicio: dayjs(data.startDate).format('YYYY/MM/DDTHH:mm:ss'),
+            fechaFin: dayjs(data.endDate).format('YYYY/MM/DDTHH:mm:ss'),
+          });
+          if (!isAvailable) {
+            const startTimeDayjs = dayjs(data.startDate).format('DD/MM/YYYY - HH:mm');
+            const endTimeDayjs = dayjs(data.endDate).format('DD/MM/YYYY - HH:mm');
+            return Swal.fire({
+              title: 'Error',
+              text: `El cuarto no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`,
+              icon: 'error',
+            });
+          }
+
           FindAndUpdateRoom(props.data.id, props.rooms, props.setRooms, data);
           Swal.fire({
             title: 'Cambiado!',
@@ -223,13 +238,13 @@ const EventTableRow = (props: {
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} id={data.id} />
+      <form onSubmit={handleSubmit(onSubmit)} id={roomData.id} />
       <TableRow>
-        <TableCell>{data.nombre}</TableCell>
-        <TableCell>{data.tipoCuarto}</TableCell>
+        <TableCell>{roomData.nombre}</TableCell>
+        <TableCell>{roomData.tipoCuarto}</TableCell>
         <TableCell>
           {!edit ? (
-            dayjs(data.fechaInicio).format('DD/MM/YYYY - hh:mm a')
+            dayjs(roomData.fechaInicio).format('DD/MM/YYYY - hh:mm a')
           ) : (
             <Controller
               name="startDate"
@@ -257,7 +272,7 @@ const EventTableRow = (props: {
         </TableCell>
         <TableCell>
           {!edit ? (
-            dayjs(data.fechaFin).format('DD/MM/YYYY - hh:mm a')
+            dayjs(roomData.fechaFin).format('DD/MM/YYYY - hh:mm a')
           ) : (
             <Controller
               name="endDate"
@@ -298,7 +313,7 @@ const EventTableRow = (props: {
             </Tooltip>
           ) : (
             <Tooltip title="Guardar">
-              <IconButton type="submit" form={data.id}>
+              <IconButton type="submit" form={roomData.id}>
                 <Save />
               </IconButton>
             </Tooltip>
