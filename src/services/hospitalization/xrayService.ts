@@ -10,6 +10,7 @@ export const addXRayRequest = async (data: {
   Id_Paciente: string;
   Id_CuentaPaciente: string;
   Id_Radiografia: string;
+  CantidadHorasNeonatal?: string;
 }) => {
   const res = await axios.post(`${apiXRay}/crear-solicitud-radiografia`, data);
   return res.data;

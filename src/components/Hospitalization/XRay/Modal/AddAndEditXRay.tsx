@@ -26,6 +26,10 @@ const REQUEST_TYPES = [
     value: 5,
     label: 'Electrocardiograma',
   },
+  {
+    value: 6,
+    label: 'Cuidado Neonatal',
+  },
 ];
 
 const style = {

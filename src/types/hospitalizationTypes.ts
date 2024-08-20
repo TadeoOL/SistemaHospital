@@ -194,6 +194,7 @@ export const REQUEST_TYPES: Record<number, string> = {
   3: 'Ultra Sonido',
   4: 'SAMI',
   5: 'Electrocardiograma',
+  6: 'Cuidado Neonatal',
 };
 
 export interface IRequestConfig {

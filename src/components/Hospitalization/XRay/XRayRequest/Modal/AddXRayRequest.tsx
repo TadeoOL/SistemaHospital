@@ -19,7 +19,7 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { useXRayPaginationStore } from '../../../../../store/hospitalization/xrayPagination';
 import { IXRay, REQUEST_TYPES } from '../../../../../types/hospitalizationTypes';
 import { addXRayRequest } from '../../../../../services/hospitalization/xrayService';
-import { isValidFloat } from '../../../../../utils/functions/dataUtils';
+import { isValidFloat, isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { createSamiSell } from '../../../../../services/sami/samiSellService';
 
 const OPTIONS_LIMIT = 30;
@@ -66,7 +66,9 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [requestSelected, setRequestSelected] = useState<number>(0);
   const [xraySelected, setXRaySelected] = useState<null | IXRay>(null);
   const [priceSami, setPriceSami] = useState<string>('');
+  const [hours, setHours] = useState<string>('');
   const [priceSamiError, setPriceSamiError] = useState(false);
+  const [hoursError, setHoursError] = useState(false);
   const [samiNote, setSamiNote] = useState<string>('');
   const [userError, setUserError] = useState(false);
   const [requestError, setRequestError] = useState(false);
@@ -107,6 +109,10 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
         setPriceSamiError(true);
         return toast.warning('Ingresa el precio de Sami');
       }
+      if (requestSelected === 6 && !hours.trim()) {
+        setHoursError(true);
+        return toast.warning('Ingresa la cantidad de horas');
+      }
       if (!userSelected) {
         setUserError(true);
         return toast.warning('Selecciona un paciente!');
@@ -123,6 +129,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
         Id_Paciente: userSelected.id_Paciente,
         Id_CuentaPaciente: userSelected.id_Cuenta,
         Id_Radiografia: xraySelected?.id || '',
+        CantidadHorasNeonatal: !hours ? undefined : hours,
       };
       if (requestSelected === 4) {
         await createSamiSell({
@@ -288,6 +295,22 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 />
               </Stack>
             </Box>
+          </Collapse>
+          <Collapse in={requestSelected === 6} unmountOnExit>
+            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Cantidad de horas:</Typography>
+              <TextField
+                label="Escribe un precio"
+                helperText={hoursError && 'Es necesario escribir una hora'}
+                error={hoursError}
+                value={hours}
+                onChange={(e) => {
+                  if (!isValidInteger(e.target.value)) return;
+                  setHoursError(false);
+                  setHours(e.target.value);
+                }}
+              />
+            </Stack>
           </Collapse>
         </Box>
 
