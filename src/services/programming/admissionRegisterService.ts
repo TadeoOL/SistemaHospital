@@ -98,6 +98,8 @@ export const closeRegisterAndAccount = async (data: {
   Id_CuentaPaciente: string;
   TotalCuenta: number;
   Descuento?: number;
+  SubTotal: number;
+  IVA: number;
 }) => {
   const res = await axios.put(`${apiRegister}/cerrar-registro`, data);
   return res.data;

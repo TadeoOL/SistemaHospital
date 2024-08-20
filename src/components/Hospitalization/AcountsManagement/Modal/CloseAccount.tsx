@@ -150,6 +150,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         Id_CuentaPaciente: props.id_Cuenta,
         TotalCuenta: accountInfo.totalPagoCuenta,
         Descuento: discountflag && inputRefDiscount.current ? Number(inputRefDiscount.current.value) : undefined,
+        SubTotal: accountInfo.subTotal,
+        IVA: accountInfo.iva,
       });
       const object = {
         paciente: `${accountInfo.paciente.nombre || ''} ${accountInfo.paciente.apellidoPaterno || ''} ${accountInfo.paciente.apellidoPaterno || ''}`,
