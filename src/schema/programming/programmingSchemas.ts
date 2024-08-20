@@ -39,6 +39,8 @@ export const patientModifySchema = z.object({
   personInChargeNeighborhood: z.string().nullable(),
   personInChargeAddress: z.string().nullable(),
   personInChargePhoneNumber: z.string().nullable(),
+  state: z.string().nullable(),
+  city: z.string().nullable(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 

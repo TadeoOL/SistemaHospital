@@ -80,6 +80,8 @@ export const generateHospitalizationDoc = async (registerId: string) => {
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
         sangre: tipoSangre ?? '',
+        ciudad: paciente.ciudad ?? '',
+        estado: paciente.estado ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -162,6 +164,8 @@ export const generateAdmissionDoc = async (registerId: string) => {
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
         sangre: tipoSangre ?? '',
+        ciudad: paciente.ciudad ?? '',
+        estado: paciente.estado ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -244,6 +248,8 @@ export const generateSurgeryDoc = async (registerId: string) => {
         quirofano: nombreQuirofano ?? '',
         nombreAnestesiologo: nombreAnestesiologo ?? '',
         sangre: tipoSangre ?? '',
+        ciudad: paciente.ciudad,
+        estado: paciente.estado,
       });
 
       const out = doc.getZip().generate({
@@ -272,6 +278,8 @@ export const generateSamiDoc = async (data: {
   address?: string;
   personInCharge?: string;
   bloodType?: string;
+  state?: string;
+  city?: string;
 }) => {
   loadFile('/FORMATO_SAMI.docx', async (err: any, content: any) => {
     if (err) {
@@ -292,6 +300,8 @@ export const generateSamiDoc = async (data: {
       zipCode,
       name,
       bloodType,
+      city,
+      state,
     } = data;
 
     const zip = new PizZip(content);
@@ -321,6 +331,8 @@ export const generateSamiDoc = async (data: {
       horaIngreso: dayjs().format('HH:mm:ss'),
       edad: calculateAge(birthDate),
       sangre: bloodType ?? '',
+      ciudad: city,
+      estado: state,
     });
 
     const out = doc.getZip().generate({

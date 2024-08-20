@@ -52,3 +52,15 @@ export const checkRoomAvailability = async (data: { id: string; fechaInicio: str
   });
   return res.data as IRoomEvent[];
 };
+
+export const checkRoomAvailabilityToEdit = async (data: {
+  id_RegistroCuarto: string;
+  id_Cuarto: string;
+  fechaInicio: string;
+  fechaFin: string;
+}) => {
+  const res = await axios.get(`${apiRoom}/verificar-disponibilidad-cuarto-editar`, {
+    params: data,
+  });
+  return res.data as IRoomEvent[];
+};

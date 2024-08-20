@@ -141,3 +141,17 @@ export const modifyRoomsEvents = async (data: {
   const res = await axios.put(`${apiRegister}/modificar-lista-registros-cuartos`, data);
   return res.data;
 };
+
+export const getRegisterValidation = async (registerId: string) => {
+  const res = await axios.get(`${apiRegister}/validar-registro`, {
+    params: {
+      id_Registro: registerId,
+    },
+  });
+  return res.data as boolean;
+};
+
+export const addMedicToRegister = async (data: { id_Registro: string; id_Medico: string }) => {
+  const res = await axios.put(`${apiRegister}/agregar-medico-registro`, data);
+  return res.data;
+};

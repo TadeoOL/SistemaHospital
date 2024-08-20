@@ -59,6 +59,7 @@ import {
   AssignedRoomsView,
   HospitalRoomsCalendarView,
   RequestsConfigView,
+  InvoiceView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -150,6 +151,8 @@ function App() {
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
             <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
+            // ---------------------------------------- Invoice ------------------------------//
+            <Route path="/facturas" element={<InvoiceView />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

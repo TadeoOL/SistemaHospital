@@ -58,6 +58,8 @@ export interface Paciente {
   coloniaResponsable: string;
   codigoPostalResponsable: string;
   telefonoResponsable: string;
+  estado: string;
+  ciudad: string;
   id: string;
 }
 
@@ -82,6 +84,7 @@ export interface PacienteInfo {
   telefonoResponsable: string;
   id: string;
   informacionCuartos?: ICuartosInfo[];
+  ingresoSami: boolean;
 }
 
 export interface ICuartosInfo {
@@ -103,6 +106,7 @@ export interface IPatientRegisterPagination {
   procedimientos?: Procedimiento[];
   cuartos?: string;
   medico?: string;
+  id_Medico?: string;
 }
 
 export interface IPatientAccount {
@@ -160,6 +164,7 @@ export interface ISAMI {
   id: string;
   paciente: ISAMIPatient;
   fechaIngreso: string;
+  admitido: boolean;
 }
 
 export interface ISAMIPatient {
