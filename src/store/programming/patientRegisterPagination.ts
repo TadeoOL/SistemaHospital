@@ -14,6 +14,8 @@ interface State {
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
+  startDate: string;
+  endDate: string;
 }
 
 interface Action {
@@ -22,8 +24,11 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   fetchData: () => void;
+  setStartDate: (startDate: string) => void;
+  setEndDate: (endDate: string) => void;
   setEnabled: (enabled: boolean) => void;
   clearData: () => void;
+  clearFilters: () => void;
 }
 
 const initialValues = {
@@ -37,17 +42,21 @@ const initialValues = {
   enabled: true,
   search: '',
   cancelToken: null as CancelTokenSource | null,
+  startDate: '',
+  endDate: '',
 };
 
 export const usePatientRegisterPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize } = get();
+    const { enabled, search, pageIndex, pageSize, startDate, endDate } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -59,7 +68,7 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
 
     try {
       const res = await getPatientRegisterPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}`
       );
       set({
         data: res.data,
@@ -81,5 +90,8 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
   },
   clearData: () => {
     set({ ...initialValues });
+  },
+  clearFilters: () => {
+    set({ startDate: '', endDate: '', search: '' });
   },
 }));

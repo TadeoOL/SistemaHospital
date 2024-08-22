@@ -5,17 +5,22 @@ import { Clear } from '@mui/icons-material';
 
 interface ISearchBar {
   searchState: Function;
+  search?: string;
   title: string;
   size?: 'small' | 'medium';
   sx?: any;
 }
 export const SearchBar = (props: ISearchBar) => {
-  const { title, searchState, size, sx } = props;
+  const { title, searchState, size, sx, search } = props;
   const [text, setText] = useState('');
   const handleChange = (event: any) => {
     setText(event.currentTarget.value);
     event.preventDefault();
   };
+
+  useEffect(() => {
+    setText(search || '');
+  }, [search]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
