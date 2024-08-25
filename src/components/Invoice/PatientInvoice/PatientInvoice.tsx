@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { PatientInvoiceTable } from './PatientInvoiceTable';
 
