@@ -2,7 +2,13 @@ import axios from '../../libs/axios';
 import { IRoomEvent } from '../../types/types';
 const apiRoom = '/api/Cuartos';
 
-export const registerRoom = async (data: { nombre: string; descripcion: string; id_TipoCuarto: string }) => {
+export const registerRoom = async (data: {
+  nombre: string;
+  descripcion: string;
+  id_TipoCuarto: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+}) => {
   const res = await axios.post(`${apiRoom}/registrar-cuarto`, data);
   return res.data;
 };
@@ -12,7 +18,14 @@ export const getRoomsPagination = async (params: string) => {
   return res.data;
 };
 
-export const modifyRoom = async (data: { nombre: string; descripcion: string; id_TipoCuarto: string; id: string }) => {
+export const modifyRoom = async (data: {
+  nombre: string;
+  descripcion: string;
+  id_TipoCuarto: string;
+  id: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+}) => {
   const res = await axios.put(`${apiRoom}/editar-cuarto`, data);
   return res.data;
 };
@@ -22,8 +35,8 @@ export const deleteRoom = async (roomId: string) => {
   return res.data;
 };
 
-export const getAllRooms = async () => {
-  const res = await axios.get(`${apiRoom}/lista-cuarto?`);
+export const getAllRooms = async (tipoCuarto?: string) => {
+  const res = await axios.get(`${apiRoom}/lista-cuarto?tipoCuarto=${tipoCuarto ? tipoCuarto : ''}`);
   return res.data;
 };
 
@@ -37,10 +50,11 @@ export const getUnavailableRoomsByIdAndDate = async (roomId: string, date: Date)
   return res.data;
 };
 
-export const getRoomsEventsByDate = async (date: string) => {
+export const getRoomsEventsByDate = async (date: string, tipoCuarto?: number) => {
   const res = await axios.get(`${apiRoom}/obtener-todos-registros-cuarto-por-fecha`, {
     params: {
       fecha: date,
+      tipoCuarto,
     },
   });
   return res.data as IRoomEvent[];

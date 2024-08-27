@@ -83,6 +83,8 @@ export const roomSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
   roomType: z.string().min(1, 'El tipo de cuarto es requerido'),
   description: z.string().min(1, 'La descripción es requerida'),
+  codigoContpaqi: z.string().nullable(),
+  codigoSAT: z.string().nullable(),
 });
 
 export const surgeryProcedureSchema = z.object({
@@ -101,6 +103,8 @@ export const surgeryProcedureSchema = z.object({
     }),
   description: z.string().optional(),
   price: z.string().optional(),
+  codigoContpaqi: z.string().nullable(),
+  codigoSAT: z.string().nullable(),
 });
 
 export const addRoomReservation = z
@@ -176,6 +180,8 @@ export const typeRoomSchema = z
     priceByTimeRange: z.array(priceByTimeRange).optional(),
     recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
+    codigoContpaqiRecuperacion: z.string().optional(),
+    codigoSATRecuperacion: z.string().optional(),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))

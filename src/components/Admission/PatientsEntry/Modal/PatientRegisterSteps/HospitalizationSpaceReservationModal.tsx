@@ -1,39 +1,62 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
-import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import {
+  Backdrop,
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Grid,
+  IconButton,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { RoomReservationTable } from './RoomReservationTable';
-import dayjs, { Dayjs } from 'dayjs';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addRoomReservation } from '../../../schema/programming/programmingSchemas';
-import { useGetAllRooms } from '../../../hooks/programming/useGetAllRooms';
-import { IEventsCalendar, IRegisterRoom } from '../../../types/types';
-import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
+import dayjs, { Dayjs } from 'dayjs';
+import { addRoomReservation } from '../../../../../schema/programming/programmingSchemas';
+import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
+import { useGetAllRooms } from '../../../../../hooks/programming/useGetAllRooms';
 import { toast } from 'react-toastify';
-import { useEffect, useState } from 'react';
-import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
+import {
+  checkRoomAvailability,
+  getUnavailableRoomsByIdAndDate,
+} from '../../../../../services/programming/roomsService';
+import { IRegisterRoom } from '../../../../../types/types';
 import { v4 as uuidv4 } from 'uuid';
-import Swal from 'sweetalert2';
-import { addRegisterRoom } from '../../../services/programming/admissionRegisterService';
-import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
+import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
+import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
+import { Delete } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
-// const style = {
-//   position: 'absolute',
-//   top: '50%',
-//   left: '50%',
-//   transform: 'translate(-50%, -50%)',
-//   width: { xs: 350, sm: 550, md: 750 },
-//   borderRadius: 2,
-//   boxShadow: 24,
-//   display: 'flex',
-//   flexDirection: 'column',
-//   maxHeight: { xs: 700, sm: 900 },
-// };
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: 380, sm: 550, md: 900, lg: 1100 },
+  borderRadius: 2,
+  boxShadow: 24,
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: { xs: 550, xl: 900 },
+};
+
+interface HospitalizationSpaceReservationModalProps {
+  setOpen: Function;
+}
 
 interface RoomsInput {
   room: string;
@@ -41,29 +64,19 @@ interface RoomsInput {
   endDate: Dayjs;
 }
 
-interface RoomReservationModalProps {
-  setOpen: Function;
-  isEdit?: boolean;
-  registerId?: string;
-  setEvents?: (eventsCalendar: IEventsCalendar[]) => void;
-  isOperatingRoomReservation?: boolean;
-}
+const HEADERS = ['Cuarto', 'Hora Inicio', 'Hora Fin', 'Acciones'];
 
-export const RoomReservationModal = (props: RoomReservationModalProps) => {
-  const { data: roomsRes, isLoadingRooms } = useGetAllRooms();
-  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
-  const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
-  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
-  const clearAllData = useProgrammingRegisterStore((state) => state.clearAllData);
-  const events = useProgrammingRegisterStore((state) => state.events);
-  const appointmentStartDate = useProgrammingRegisterStore((state) => state.appointmentStartDate);
-  const appointmentEndDate = useProgrammingRegisterStore((state) => state.appointmentEndDate);
-  const [currentDate, setCurrentDate] = useState(new Date());
+export const HospitalizationSpaceReservationModal = ({ setOpen }: HospitalizationSpaceReservationModalProps) => {
+  const { data: roomsRes, isLoadingRooms } = useGetAllRooms('0');
+  const appointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.appointmentStartDate);
+  const appointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.appointmentEndDate);
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
-  const setStep = useProgrammingRegisterStore((state) => state.setStep);
-  const setStartDateSurgery = useProgrammingRegisterStore((state) => state.setStartDateSurgery);
-  const step = useProgrammingRegisterStore((state) => state.step);
-  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const setRoomsRegistered = usePatientEntryRegisterStepsStore((state) => state.setRoomsRegistered);
+  const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
+  const setStartDateSurgery = usePatientEntryRegisterStepsStore((state) => state.setStartDateSurgery);
+  const events = usePatientEntryRegisterStepsStore((state) => state.events);
+  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
 
   const {
     control: controlRooms,
@@ -110,24 +123,24 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         horaInicio: startTime,
         provisionalId: uuidv4(),
       };
-      setRoomValues([...roomValues, roomObj]);
+      setRoomsRegistered([...roomsRegistered, roomObj]);
     }
     setValueRooms('endDate', dayjs(appointmentEndDate));
     setValueRooms('startTime', dayjs(appointmentStartDate));
     setValueRooms('room', '');
   };
 
-  const onSubmitProcedures = async () => {
-    if (roomValues.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
+  const onSubmit = async () => {
+    if (roomsRegistered.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
 
-    let startDate = roomValues[0].horaInicio;
-    for (let i = 1; i < roomValues.length; i++) {
-      if (roomValues[i].horaInicio < startDate) {
-        startDate = roomValues[i].horaInicio;
+    let startDate = roomsRegistered[0].horaInicio;
+    for (let i = 1; i < roomsRegistered.length; i++) {
+      if (roomsRegistered[i].horaInicio < startDate) {
+        startDate = roomsRegistered[i].horaInicio;
       }
     }
     setStartDateSurgery(startDate);
-    const roomObj = roomValues
+    const roomObj = roomsRegistered
       .map((r) => {
         return {
           id: r.provisionalId as string,
@@ -140,69 +153,20 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       })
       .filter((room) => !events.some((event) => event.id === room.id));
     setEvents([...events, ...roomObj]);
-    if (props.isEdit) {
-      Swal.fire({
-        title: 'Los espacios reservados son correctos?',
-        text: 'Verifica que los espacios reservados estén correctamente asignados.',
-        icon: 'question',
-        confirmButtonText: 'Aceptar',
-        showCancelButton: true,
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true,
-        allowOutsideClick: false,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-      }).then(async (res) => {
-        if (res.isConfirmed) {
-          try {
-            await addRegisterRoom({
-              id_Registro: props.registerId as string,
-              Cuartos: roomObj.map((event) => {
-                return {
-                  cuartoId: event.roomId,
-                  horaFin: event.end,
-                  horaInicio: event.start,
-                };
-              }),
-            });
-            Swal.fire({
-              title: 'Reservación exitosa!',
-              text: 'Los espacios reservados ha sido guardado correctamente.',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-              timerProgressBar: true,
-            }).finally(() => {
-              if (props.setEvents) {
-                props.setEvents(roomObj);
-              }
-              clearAllData();
-              refetch();
-              props.setOpen(false);
-            });
-          } catch (error) {
-            Swal.fire({
-              title: 'Error al guardar los espacios!',
-              text: 'Hubo un error al guardar los espacios reservados. Intente nuevamente.',
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 1500,
-              timerProgressBar: true,
-            });
-          }
-        }
-      });
-    } else {
-      toast.success('Datos registrados correctamente!');
-      setStep(step + 1);
-    }
+
+    toast.success('Datos registrados correctamente!');
+    setOpen(false);
   };
 
   useEffect(() => {
     if (!watchRoomId) return;
     const fetchUnavailableDays = async () => {
-      const res = await getUnavailableRoomsByIdAndDate(watchRoomId, currentDate);
-      setUnavailableTimes(res);
+      try {
+        const res = await getUnavailableRoomsByIdAndDate(watchRoomId, currentDate);
+        setUnavailableTimes(res);
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchUnavailableDays();
   }, [watchRoomId, currentDate]);
@@ -265,14 +229,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     return false;
   };
 
-  useEffect(() => {
-    return () => {
-      if (props.isEdit) {
-        clearAllData();
-      }
-    };
-  }, []);
-
   if (isLoadingRooms)
     return (
       <Backdrop open>
@@ -280,16 +236,9 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       </Backdrop>
     );
   return (
-    <>
-      <HeaderModal setOpen={props.setOpen} title="Seleccione un horario" />
-      <Box
-        sx={{
-          bgcolor: 'background.paper',
-          p: 3,
-          overflowY: 'auto',
-          maxHeight: { xs: 500, md: 600 },
-        }}
-      >
+    <Box sx={style}>
+      <HeaderModal setOpen={setOpen} title="Reservación de espacio hospitalario" />
+      <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
         <Box sx={{ display: 'flex', flex: 1 }}>
           <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
             Fecha seleccionada: {appointmentStartDate.toLocaleDateString()} - {appointmentEndDate.toLocaleDateString()}
@@ -298,7 +247,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>{'Habitaciones disponibles'}</Typography>
+              <Typography>Habitaciones disponibles</Typography>
               <TextField
                 select
                 label="Habitaciones"
@@ -309,7 +258,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                 helperText={errorsRooms.room?.message}
               >
                 {roomsRes
-                  .filter((rm) => !roomValues.some((reservedRoom) => reservedRoom.id === rm.id))
+                  .filter((rm) => !roomsRegistered.some((reservedRoom) => reservedRoom.id === rm.id))
                   .map((rm) => (
                     <MenuItem key={rm.id} value={rm.id}>
                       {rm.nombre}
@@ -405,13 +354,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flex: 1,
-                  justifyContent: 'flex-end',
-                }}
-              >
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
                 <Button variant="outlined" type="button" onClick={handleSubmitRooms(onSubmitRooms)}>
                   Agregar
                 </Button>
@@ -419,24 +362,86 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
             </Grid>
           </Grid>
         </form>
-        <RoomReservationTable isOperatingRoomReservation={props.isOperatingRoomReservation} />
+        <HospitalizationSpaceReservedTable />
       </Box>
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          bgcolor: 'background.paper',
+          borderBottomLeftRadius: 10,
+          borderBottomRightRadius: 10,
           p: 1,
+          bgcolor: 'background.paper',
         }}
       >
-        <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
-          Cerrar
+        <Button variant="outlined" color="error">
+          Cancelar
         </Button>
-        <Button variant="contained" onClick={onSubmitProcedures}>
-          Siguiente
+        <Button variant="contained" onClick={onSubmit}>
+          Guardar
         </Button>
       </Box>
-    </>
+    </Box>
+  );
+};
+
+const HospitalizationSpaceReservedTable = () => {
+  const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
+
+  return (
+    <Card>
+      <TableContainer>
+        <Table>
+          <TableHeaderComponent headers={HEADERS} />
+          <HospitalizationSpaceReservedTableBody />
+        </Table>
+      </TableContainer>
+      {roomsRegistered.length < 1 && (
+        <NoDataInTableInfo infoTitle="No hay cuartos registrados" sizeIcon={30} variantText="h4" />
+      )}
+    </Card>
+  );
+};
+
+const HospitalizationSpaceReservedTableBody = () => {
+  const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
+
+  return (
+    <TableBody>
+      {roomsRegistered.map((room) => (
+        <HospitalizationSpaceReservedTableRow key={room.id} data={room} />
+      ))}
+    </TableBody>
+  );
+};
+interface HospitalizationSpaceReservedTableRowProps {
+  data: IRegisterRoom;
+}
+const HospitalizationSpaceReservedTableRow = ({ data }: HospitalizationSpaceReservedTableRowProps) => {
+  const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
+  const setRoomsRegistered = usePatientEntryRegisterStepsStore((state) => state.setRoomsRegistered);
+  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
+  const events = usePatientEntryRegisterStepsStore((state) => state.events);
+
+  const handleRemove = () => {
+    setRoomsRegistered(roomsRegistered.filter((room) => room.id !== data.id));
+    setEvents(events.filter((e) => e.roomId !== data.id));
+  };
+
+  return (
+    <TableRow>
+      <TableCell>{data.nombre}</TableCell>
+      <TableCell>{dayjs(data.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
+      <TableCell>{dayjs(data.horaFin).format('DD/MM/YYYY - HH:mm')}</TableCell>
+      <TableCell>
+        <Box>
+          <Tooltip title="Eliminar">
+            <IconButton onClick={handleRemove}>
+              <Delete color="error" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </TableCell>
+    </TableRow>
   );
 };

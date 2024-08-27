@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useProgrammingRegisterStore } from '../../store/programming/programmingRegister';
 import { getRoomsEventsByDate } from '../../services/programming/roomsService';
 import { usePatientRegisterPaginationStore } from '../../store/programming/patientRegisterPagination';
+import { usePatientEntryRegisterStepsStore } from '../../store/admission/usePatientEntryRegisterSteps';
 
-export const useGetDate = (date: Date) => {
-  const events = useProgrammingRegisterStore((state) => state.events);
-  const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+export const useGetHospitalizationAppointments = (date: Date) => {
+  const events = usePatientEntryRegisterStepsStore((state) => state.events);
+  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
   // const fetchEvents = useProgrammingRegisterStore((state) => state.fetchEvents);
   const [isLoading, setIsLoading] = useState(false);
   const eventsFetched = usePatientRegisterPaginationStore((state) => state.data);
@@ -14,8 +14,7 @@ export const useGetDate = (date: Date) => {
       setIsLoading(true);
       try {
         const formattedDate = date.toISOString();
-        const res = await getRoomsEventsByDate(formattedDate);
-        console.log({ res });
+        const res = await getRoomsEventsByDate(formattedDate, 0);
         if (res.length > 0) {
           const formattedRes = res.map((event) => {
             return {

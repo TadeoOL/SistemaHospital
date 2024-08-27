@@ -36,6 +36,8 @@ type Inputs = {
   hospitalizationDuration: string;
   description: string;
   price: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 };
 
 interface AddSurgeryProcedureModalProps {
@@ -60,6 +62,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
       hospitalizationDuration: editData ? editData.duracionHospitalizacion.toString() : '',
       description: editData ? editData.descripcion : '',
       price: editData ? editData.precioCirujia.toString() : '',
+      codigoContpaqi: editData?.codigoContpaqi ?? '',
+      codigoSAT: editData?.codigoSAT ?? '',
     },
   });
 
@@ -73,6 +77,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
           precioCirujia: parseFloat(data.price),
+          codigoContpaqi: data.codigoContpaqi,
+          codigoSAT: data.codigoSAT,
         });
         toast.success('Procedimiento dado de alta correctamente');
       } else {
@@ -83,6 +89,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           descripcion: data.description,
           precioCirujia: parseFloat(data.price),
           id: editData.id,
+          codigoContpaqi: data.codigoContpaqi,
+          codigoSAT: data.codigoSAT,
         });
         toast.success('Procedimiento modificado correctamente');
       }
@@ -187,6 +195,26 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 error={!!errors.description?.message}
                 helperText={errors.description?.message}
                 {...register('description')}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Contpaqi</Typography>
+              <TextField
+                placeholder="Escriba un codigo de Contpaqi"
+                fullWidth
+                error={!!errors.codigoContpaqi?.message}
+                helperText={errors.codigoContpaqi?.message}
+                {...register('codigoContpaqi')}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de SAT</Typography>
+              <TextField
+                placeholder="Escriba un codigo de SAT"
+                fullWidth
+                error={!!errors.codigoSAT?.message}
+                helperText={errors.codigoSAT?.message}
+                {...register('codigoSAT')}
               />
             </Grid>
           </Grid>

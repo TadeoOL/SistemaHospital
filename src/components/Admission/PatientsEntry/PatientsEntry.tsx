@@ -1,13 +1,15 @@
-import { Box, Card, IconButton, Stack, Tooltip } from '@mui/material';
+import { Box, Button, Card, IconButton, Modal, Stack, Tooltip } from '@mui/material';
 import { TablePatientsEntry } from './PatientsEntryTable';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { DateFilterComponent } from '../../Commons/DateFilterComponent';
 import { FilterList } from '@mui/icons-material';
+import { useState } from 'react';
+import { PatientRegisterStepsComponent } from './Modal/PatientRegisterSteps/PatientRegisterStepsComponent';
 // import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
 
 export const PatientsEntry = () => {
-  //const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const setSearch = usePatientRegisterPaginationStore((state) => state.setSearch);
   const search = usePatientRegisterPaginationStore((state) => state.search);
   const setStartDate = usePatientRegisterPaginationStore((state) => state.setStartDate);
@@ -18,8 +20,13 @@ export const PatientsEntry = () => {
 
   return (
     <>
-      <Card sx={{ px: 2, pt: 4, pb: 2 }}>
+      <Card sx={{ p: 2 }}>
         <Stack spacing={2}>
+          {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="contained" onClick={() => setOpen(true)}>
+              Ingresar Paciente
+            </Button>
+          </Box> */}
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
             <SearchBar
               searchState={setSearch}
@@ -45,6 +52,11 @@ export const PatientsEntry = () => {
           <TablePatientsEntry />
         </Stack>
       </Card>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <>
+          <PatientRegisterStepsComponent setOpen={setOpen} />
+        </>
+      </Modal>
     </>
   );
 };

@@ -59,7 +59,7 @@ export const HospitalizationRegister = () => {
       </Card>
       <Modal open={open}>
         <>
-          <CalendarRegister setOpen={setOpen} />
+          <CalendarRegister setOpen={setOpen} isOperatingRoomReservation />
         </>
       </Modal>
     </>

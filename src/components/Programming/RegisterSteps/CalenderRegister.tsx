@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { CalendarComponent } from './Calendar/CalendarComponent';
@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 import { useGetDate } from '../../../hooks/programming/useGetDate';
+import { useGetAllOperatingRooms } from '../../../hooks/operatingRoom/useGetAllOperatingRoom';
 dayjs.locale('es');
 
 const style = {
@@ -27,9 +28,11 @@ const style = {
 
 interface CalendarRegisterProps {
   setOpen: Function;
+  isOperatingRoomReservation?: boolean;
 }
 
 export const CalendarRegister = (props: CalendarRegisterProps) => {
+  const { data, isLoading } = useGetAllOperatingRooms();
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
@@ -64,7 +67,7 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
       >
         <Stack>
           <Box>
-            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10 }}>
+            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10, mb: 2 }}>
               <Box sx={{ display: 'flex', flex: 1 }}>
                 {!sameDate && (
                   <Button variant="outlined" onClick={() => setDate(currentDate)} size="small">
@@ -84,9 +87,32 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
                   />
                 </LocalizationProvider>
               </Box>
+              {props.isOperatingRoomReservation && (
+                <Box sx={{ flex: 1 }}>
+                  <TextField select label="Quirófanos" fullWidth>
+                    {isLoading ? (
+                      <MenuItem>
+                        <tr>Cargando...</tr>
+                      </MenuItem>
+                    ) : (
+                      data.map((or) => (
+                        <MenuItem key={or.id} value={or.id}>
+                          {or.nombre}
+                        </MenuItem>
+                      ))
+                    )}
+                  </TextField>
+                </Box>
+              )}
             </Box>
           </Box>
-          <CalendarComponent date={date} events={events} setDate={setDate} setEvents={setEvents} />
+          <CalendarComponent
+            date={date}
+            events={events}
+            setDate={setDate}
+            setEvents={setEvents}
+            isOperatingRoomReservation={props.isOperatingRoomReservation}
+          />
         </Stack>
       </Box>
       <Box

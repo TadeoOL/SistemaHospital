@@ -23,6 +23,7 @@ const style = {
 
 interface RegisterStepsProps {
   setOpen: Function;
+  isOperatingRoomReservation?: boolean;
 }
 
 export const RegisterSteps = (props: RegisterStepsProps) => {
@@ -31,7 +32,7 @@ export const RegisterSteps = (props: RegisterStepsProps) => {
   const step = useProgrammingRegisterStore((state) => state.step);
 
   const renderStepView: Record<number, JSX.Element> = {
-    0: <RoomReservationModal setOpen={props.setOpen} />,
+    0: <RoomReservationModal setOpen={props.setOpen} isOperatingRoomReservation={props.isOperatingRoomReservation} />,
     1: <PatientRegistrationForm setOpen={props.setOpen} />,
     2: <ProcedureAndDoctorSelectorModal setOpen={props.setOpen} />,
     3: <MedicinePackageSelectorModal setOpen={props.setOpen} />,

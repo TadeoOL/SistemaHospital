@@ -118,6 +118,8 @@ export interface IArticle {
   subCategoria: ISubCategory | string;
   stockActual?: string;
   codigoBarras?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
@@ -664,6 +666,8 @@ export interface IRoom {
   nombre: string;
   descripcion: string;
   precio: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 
 export interface ISurgeryProcedure {
@@ -673,6 +677,8 @@ export interface ISurgeryProcedure {
   precioCirujia: number;
   duracionCirujia: string;
   descripcion: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 
 export interface IRegisterRoom {
