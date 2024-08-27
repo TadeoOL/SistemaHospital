@@ -1,8 +1,11 @@
 import { Box } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { PatientInvoiceTable } from './PatientInvoiceTable';
+import { useInvoicePatientBillPaginationStore } from '../../../store/invoice/invoicePatientBillPagination';
 
 export const PatientInvoice = () => {
+  const setSearch = useInvoicePatientBillPaginationStore((state) => state.setSearch);
+
   return (
     <>
       <Box
@@ -17,7 +20,7 @@ export const PatientInvoice = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={() => {}} title="Buscar la solicitud..." sx={{ flex: 1 }} />
+          <SearchBar searchState={setSearch} title="Buscar la solicitud..." sx={{ flex: 1 }} />
         </Box>
         <PatientInvoiceTable />
       </Box>

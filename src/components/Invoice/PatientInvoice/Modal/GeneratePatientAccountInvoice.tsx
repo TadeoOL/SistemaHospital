@@ -24,6 +24,7 @@ import { useGetAccountFullInformation } from '../../../../hooks/programming/useG
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
 import { IAcountAllInformation } from '../../../../types/hospitalizationTypes';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
+import { useGetAllDocumentConcepts } from '../../../../hooks/contpaqi/useGetDocumentConcepts';
 
 const INVOICE_TABLE_HEADERS = ['Nombre', 'Precio Unitario', 'Cantidad', 'Precio Neto', 'IVA', 'Precio Total'];
 const style = {
@@ -31,7 +32,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, xl: 1100 },
+  width: { xs: 380, sm: 650, xl: 1100 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
@@ -71,7 +72,9 @@ export const GeneratePatientAccountInvoice = ({
   patientId,
 }: GeneratePatientAccountInvoiceProps) => {
   const { data, isLoading } = useGetAccountFullInformation(patientId, patientAccountId);
+  const { isLoadingConcepts, documentConcepts } = useGetAllDocumentConcepts();
   const [invoiceMethodSelected, setInvoiceMethodSelected] = useState(0);
+  const [typeOfInvoiceSelected, setTypeOfInvoiceSelected] = useState(0);
   const [loadingGenerateInvoice, setLoadingGenerateInvoice] = useState(false);
   const refetch = useInvoicePatientBillPaginationStore((state) => state.fetchData);
 
@@ -81,11 +84,13 @@ export const GeneratePatientAccountInvoice = ({
 
   const handleGenerateInvoice = async () => {
     if (!invoiceMethodSelected) return toast.warning('Es necesario seleccionar un tipo de facturación');
+    if (!typeOfInvoiceSelected) return toast.warning('Es necesario seleccionar un tipo de concepto para facturar');
     setLoadingGenerateInvoice(true);
     try {
       await generatePatientBillInvoice({
         id_CuentaPaciente: patientAccountId,
         tipoFacturacion: invoiceMethodSelected,
+        tipoPedido: typeOfInvoiceSelected,
       });
       toast.success('Factura generada correctamente');
       setOpen(false);
@@ -102,7 +107,7 @@ export const GeneratePatientAccountInvoice = ({
     }
   };
 
-  if (isLoading)
+  if (isLoading || isLoadingConcepts)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -123,25 +128,50 @@ export const GeneratePatientAccountInvoice = ({
               </Typography>
             </Stack>
             <Box sx={{ flex: 1 }}>
-              <TextField
-                select
-                label="Opciones a facturar"
-                fullWidth
-                value={invoiceMethodSelected}
-                onChange={(e) => setInvoiceMethodSelected(e.target.value as any as number)}
-              >
-                <MenuItem key={0} value={0}>
-                  Seleccionar
-                </MenuItem>
-                {INVOICE_OPTIONS.map((i, index) => (
-                  <MenuItem key={index} value={i.value}>
-                    {i.label}
+              <Stack spacing={2}>
+                <TextField
+                  select
+                  label="Opciones a facturar"
+                  fullWidth
+                  value={invoiceMethodSelected}
+                  onChange={(e) => setInvoiceMethodSelected(e.target.value as any as number)}
+                >
+                  <MenuItem key={0} value={0}>
+                    Seleccionar
                   </MenuItem>
-                ))}
-              </TextField>
+                  {INVOICE_OPTIONS.map((i, index) => (
+                    <MenuItem key={index} value={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Stack>
+                  <Typography>Selecciona el tipo de facturación:</Typography>
+                  <TextField
+                    select
+                    label="Tipo de facturación"
+                    fullWidth
+                    value={typeOfInvoiceSelected}
+                    onChange={(e) => setTypeOfInvoiceSelected(e.target.value as any as number)}
+                  >
+                    <MenuItem key={0} value={0}>
+                      Seleccionar
+                    </MenuItem>
+                    {documentConcepts.map((i) => (
+                      <MenuItem key={i.cidconceptodocumento} value={i.cidconceptodocumento}>
+                        {i.cnombreconcepto.trim()}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Stack>
+              </Stack>
             </Box>
           </Box>
-          <ItemsToBeInvoiced invoiceMethodSelected={invoiceMethodSelected} data={data} />
+          <Box sx={{ overflowY: 'auto' }}>
+            <Box sx={{ maxHeight: { xs: 400, lg: 600 } }}>
+              <ItemsToBeInvoiced invoiceMethodSelected={invoiceMethodSelected} data={data} />
+            </Box>
+          </Box>
         </Box>
         <Box
           sx={{

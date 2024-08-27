@@ -6,6 +6,10 @@ export const getInvoicePatientBillPagination = async (params: string) => {
   return res.data;
 };
 
-export const generatePatientBillInvoice = (data: { id_CuentaPaciente: string; tipoFacturacion: number }) => {
+export const generatePatientBillInvoice = (data: {
+  id_CuentaPaciente: string;
+  tipoFacturacion: number;
+  tipoPedido: number;
+}) => {
   return axios.post(`${apiInvoicePatientBill}/crear-facturacion-cuenta-paciente`, data);
 };
