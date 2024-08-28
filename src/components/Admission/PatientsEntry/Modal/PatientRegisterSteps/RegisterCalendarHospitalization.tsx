@@ -25,7 +25,7 @@ const style = {
 export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHospitalizationProps) => {
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
-  const [day, setDay] = useState(new Date());
+  const [day, _] = useState(new Date());
   useGetHospitalizationAppointments(day);
 
   const handleNextStep = () => {

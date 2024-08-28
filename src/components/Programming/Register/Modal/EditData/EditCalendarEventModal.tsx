@@ -51,10 +51,29 @@ const styleCalendar = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 500, lg: 800, xl: 1100 },
+  width: { xs: 380, sm: 550, md: 900, lg: 1100 },
   borderRadius: 2,
   boxShadow: 24,
-  height: { xs: 300, xl: 800 },
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: { xs: 550, xl: 900 },
+};
+
+const style2 = {
+  bgcolor: 'background.paper',
+  overflowY: 'auto',
+  p: 2,
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
 };
 
 interface EditCalendarEventModalProps {
@@ -383,7 +402,7 @@ const AddCalendarEvent = (props: { setOpen: Function; registerId: string }) => {
   return (
     <Box sx={styleCalendar}>
       <HeaderModal setOpen={props.setOpen} title="Selección de horario" />
-      <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
+      <Box sx={style2}>
         <Box>
           <AddEditCalendar
             date={date}
@@ -394,9 +413,6 @@ const AddCalendarEvent = (props: { setOpen: Function; registerId: string }) => {
             registerId={props.registerId}
           />
         </Box>
-      </Box>
-      <Box sx={{ bgcolor: 'background.paper', p: 1, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
-        <Button>Aceptar</Button>
       </Box>
     </Box>
   );

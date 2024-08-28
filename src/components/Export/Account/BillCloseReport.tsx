@@ -224,7 +224,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
           <>
             <Text style={styles.header}>Cuartos</Text>
             <View style={styles.table}>
-              <View style={styles.tableRow}>
+              <View>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Cantidad Días</Text>
                 <Text style={styles.tableCol}>Precio por Día</Text>
@@ -254,7 +254,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
           <>
             <Text style={styles.header}>Quirófanos</Text>
             <View style={styles.table}>
-              <View style={styles.tableRow}>
+              <View>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Tiempo Cirugía</Text>
                 {/* <Text style={styles.tableCol}>Precio por Hora</Text> */}

@@ -1,4 +1,4 @@
-import { Box, Button, Card, IconButton, Modal, Stack, Tooltip } from '@mui/material';
+import { Box, Card, IconButton, Modal, Stack, Tooltip } from '@mui/material';
 import { TablePatientsEntry } from './PatientsEntryTable';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
