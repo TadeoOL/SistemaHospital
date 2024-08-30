@@ -26,6 +26,7 @@ interface CalendarComponentProps {
   setDate: Function;
   setEvents: Function;
   isOperatingRoomReservation?: boolean;
+  justInformative?: boolean;
 }
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -227,7 +228,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         onView={(v) => setView(v)}
         defaultView={Views.MONTH}
         step={15}
-        resizable
+        resizable={!props.justInformative}
         formats={{
           timeGutterFormat: 'HH:mm',
         }}
@@ -236,7 +237,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
           width: '100%',
           height: view === 'month' ? (props.calendarHeight ? props.calendarHeight : 700) : '100%',
         }}
-        selectable
+        selectable={!props.justInformative}
         enableAutoScroll={false}
         date={props.date}
         draggableAccessor={(event: any) => {

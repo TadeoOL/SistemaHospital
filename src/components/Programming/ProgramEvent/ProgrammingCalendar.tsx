@@ -49,7 +49,7 @@ export const ProgrammingCalendar = () => {
               </Button>
             )}
           </Box>
-          <Box sx={{ display: 'flex', flex: 1 }}>
+          <Box sx={{ flex: 1 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
               <DatePicker
                 views={['year', 'month']}
@@ -66,6 +66,7 @@ export const ProgrammingCalendar = () => {
               />
             </LocalizationProvider>
           </Box>
+          <Box sx={{ flex: 1 }} />
         </Box>
       </Box>
       <Box>
@@ -76,6 +77,7 @@ export const ProgrammingCalendar = () => {
           calendarWidth={'100%'}
           setDate={setDate}
           setEvents={setEvents}
+          justInformative
         />
       </Box>
     </Card>
