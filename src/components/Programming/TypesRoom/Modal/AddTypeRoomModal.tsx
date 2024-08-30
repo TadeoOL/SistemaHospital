@@ -69,6 +69,8 @@ type Inputs = {
   priceRoom: string;
   codigoContpaqiRecuperacion?: string;
   codigoSATRecuperacion?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 };
 
 interface AddTypeRoomModalProps {
@@ -101,6 +103,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       priceRoom: editData ? editData.precio?.toString() : '0',
       codigoContpaqiRecuperacion: editData?.codigoContpaqiRecuperacion,
       codigoSATRecuperacion: editData?.codigoSATRecuperacion,
+      codigoContpaqi: editData?.codigoContpaqi,
+      codigoSAT: editData?.codigoSAT,
     },
   });
 
@@ -122,6 +126,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           precio: parseFloat(data.priceRoom),
           codigoContpaqiRecuperacion: data.codigoContpaqiRecuperacion,
           codigoSATRecuperacion: data.codigoSATRecuperacion,
+          codigoContpaqi: data.codigoContpaqi,
+          codigoSAT: data.codigoSAT,
         });
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
@@ -140,6 +146,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           precio: parseFloat(data.priceRoom),
           codigoContpaqiRecuperacion: data.codigoContpaqiRecuperacion,
           codigoSATRecuperacion: data.codigoSATRecuperacion,
+          codigoContpaqi: data.codigoContpaqi,
+          codigoSAT: data.codigoSAT,
         });
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
@@ -314,6 +322,26 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               </Grid>
             </>
           )}
+          <Grid item xs={6}>
+            <Typography>Código de Contpaqi</Typography>
+            <TextField
+              placeholder="Escribe una código de Contpaqi"
+              fullWidth
+              error={!!errors.codigoContpaqi?.message}
+              helperText={errors.codigoContpaqi?.message}
+              {...register('codigoContpaqi')}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography>Código de SAT</Typography>
+            <TextField
+              placeholder="Escribe un código de SAT"
+              fullWidth
+              error={!!errors.codigoSAT?.message}
+              helperText={errors.codigoSAT?.message}
+              {...register('codigoSAT')}
+            />
+          </Grid>
         </Grid>
       </Box>
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>

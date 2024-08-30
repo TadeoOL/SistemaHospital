@@ -142,6 +142,8 @@ export interface ITypeRoom {
   precio?: number;
   codigoContpaqiRecuperacion?: string;
   codigoSATRecuperacion?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 
 export interface IDocumentsInfo {

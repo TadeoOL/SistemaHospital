@@ -132,6 +132,7 @@ export const validateDates = z
   .object({
     startDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
     endDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    roomId: z.string().min(1, 'Selecciona un espacio reservado'),
   })
   .refine((args) => args.endDate >= args.startDate, {
     message: 'La fecha de finalización debe ser mayor a la fecha de inicio',

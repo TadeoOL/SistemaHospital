@@ -1,9 +1,9 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
-import { CalendarPatientRegisterComponent } from './Calendar/CalendarPatientRegisterComponent';
 import { useGetHospitalizationAppointments } from '../../../../../hooks/admission/useGetHospitalizationAppointments';
 import { useState } from 'react';
+import { CalendarHospitalizationPatientRegisterComponent } from './Calendar/CalendarHospitalizationPatientRegisterComponent';
 
 interface RegisterCalendarHospitalizationProps {
   setOpen: Function;
@@ -25,18 +25,42 @@ const style = {
 export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHospitalizationProps) => {
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
+  const hospitalizationEvents = usePatientEntryRegisterStepsStore((state) => state.hospitalizationEvents);
+  const originalHospitalizationEvents = usePatientEntryRegisterStepsStore(
+    (state) => state.originalHospitalizationEvents
+  );
+  const setHospitalizationEvents = usePatientEntryRegisterStepsStore((state) => state.setHospitalizationEvents);
+  const setOriginalHospitalizationEvents = usePatientEntryRegisterStepsStore(
+    (state) => state.setOriginalHospitalizationEvents
+  );
   const [day, _] = useState(new Date());
-  useGetHospitalizationAppointments(day);
+  useGetHospitalizationAppointments(
+    day,
+    setHospitalizationEvents,
+    hospitalizationEvents,
+    0,
+    originalHospitalizationEvents,
+    setOriginalHospitalizationEvents
+  );
 
+  const handleBackStep = () => {
+    setStep(step - 1);
+  };
   const handleNextStep = () => {
     setStep(step + 1);
   };
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={setOpen} title="Ingresar Paciente" />
+      <HeaderModal setOpen={setOpen} title="Seleccionar Espacio Hospitalario" />
       <Box sx={{ bgcolor: 'background.paper', p: 1, overflowY: 'auto' }}>
-        <CalendarPatientRegisterComponent />
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Typography variant="h3" color={'CaptionText'}>
+            Selección de Espacio Hospitalario
+          </Typography>
+        </Box>
+
+        <CalendarHospitalizationPatientRegisterComponent />
       </Box>
       <Box
         sx={{
@@ -48,8 +72,8 @@ export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHos
           bgcolor: 'background.paper',
         }}
       >
-        <Button color="error" variant="outlined" onClick={() => setOpen(false)}>
-          Cancelar
+        <Button variant="outlined" onClick={handleBackStep}>
+          Regresar
         </Button>
         <Button variant="contained" onClick={handleNextStep}>
           Siguiente

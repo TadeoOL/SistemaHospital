@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react';
 import { getRoomsEventsByDate } from '../../services/programming/roomsService';
-import { usePatientRegisterPaginationStore } from '../../store/programming/patientRegisterPagination';
-import { usePatientEntryRegisterStepsStore } from '../../store/admission/usePatientEntryRegisterSteps';
+// import { usePatientRegisterPaginationStore } from '../../store/programming/patientRegisterPagination';
+import { IEventsCalendar } from '../../types/types';
 
-export const useGetHospitalizationAppointments = (date: Date) => {
-  const events = usePatientEntryRegisterStepsStore((state) => state.events);
-  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
+export const useGetHospitalizationAppointments = (
+  date: Date,
+  setEvents: Function,
+  events: IEventsCalendar[],
+  roomType: number,
+  originalEvents: IEventsCalendar[],
+  setOriginalEvents: Function
+) => {
   // const fetchEvents = useProgrammingRegisterStore((state) => state.fetchEvents);
   const [isLoading, setIsLoading] = useState(false);
-  const eventsFetched = usePatientRegisterPaginationStore((state) => state.data);
+  // const eventsFetched = usePatientRegisterPaginationStore((state) => state.data);
   useEffect(() => {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
         const formattedDate = date.toISOString();
-        const res = await getRoomsEventsByDate(formattedDate, 0);
+        const res = await getRoomsEventsByDate(formattedDate, roomType);
         if (res.length > 0) {
           const formattedRes = res.map((event) => {
             return {
@@ -27,8 +32,10 @@ export const useGetHospitalizationAppointments = (date: Date) => {
           });
           // const eventsFiltered = events.filter((e) => !formattedRes.some((resEvent) => resEvent.id === e.id));
           setEvents([...formattedRes]);
+          setOriginalEvents([...formattedRes]);
         } else {
           setEvents([...events]);
+          setOriginalEvents([...originalEvents]);
         }
       } catch (error) {
         console.log(error);
@@ -37,7 +44,7 @@ export const useGetHospitalizationAppointments = (date: Date) => {
       }
     };
     fetchEvents();
-  }, [date, eventsFetched]);
+  }, [date]);
   return {
     isLoading,
   };

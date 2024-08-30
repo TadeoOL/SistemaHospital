@@ -56,6 +56,7 @@ const style = {
 
 interface HospitalizationSpaceReservationModalProps {
   setOpen: Function;
+  roomType: string;
 }
 
 interface RoomsInput {
@@ -66,8 +67,8 @@ interface RoomsInput {
 
 const HEADERS = ['Cuarto', 'Hora Inicio', 'Hora Fin', 'Acciones'];
 
-export const HospitalizationSpaceReservationModal = ({ setOpen }: HospitalizationSpaceReservationModalProps) => {
-  const { data: roomsRes, isLoadingRooms } = useGetAllRooms('0');
+export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpaceReservationModalProps) => {
+  const { data: roomsRes, isLoadingRooms } = useGetAllRooms(roomType);
   const appointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.appointmentStartDate);
   const appointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.appointmentEndDate);
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
@@ -75,8 +76,10 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
   const setRoomsRegistered = usePatientEntryRegisterStepsStore((state) => state.setRoomsRegistered);
   const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
   const setStartDateSurgery = usePatientEntryRegisterStepsStore((state) => state.setStartDateSurgery);
-  const events = usePatientEntryRegisterStepsStore((state) => state.events);
-  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
+  const step = usePatientEntryRegisterStepsStore((state) => state.step);
+  const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
+  const events = usePatientEntryRegisterStepsStore((state) => state.hospitalizationEvents);
+  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setHospitalizationEvents);
 
   const {
     control: controlRooms,
@@ -109,7 +112,7 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
     });
     if (!isAvailable)
       return toast.warning(
-        `El cuarto no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
+        `El ${roomType == '0' ? 'cuarto' : 'quirófano'} no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
       );
 
     const roomFound = roomsRes.find((r) => r.id === room);
@@ -122,6 +125,7 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
+        tipoCuarto: roomType == '0' ? 0 : 1,
       };
       setRoomsRegistered([...roomsRegistered, roomObj]);
     }
@@ -131,7 +135,8 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
   };
 
   const onSubmit = async () => {
-    if (roomsRegistered.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
+    if ((roomType != '0' && roomsRegistered.length < 1) || !roomsRegistered.some((r) => r.tipoCuarto == 1))
+      return toast.warning(`Es necesario agregar un ${roomType == '0' ? 'cuarto' : 'quirófano'} para continuar`);
 
     let startDate = roomsRegistered[0].horaInicio;
     for (let i = 1; i < roomsRegistered.length; i++) {
@@ -155,6 +160,10 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
     setEvents([...events, ...roomObj]);
 
     toast.success('Datos registrados correctamente!');
+    setStep(step + 1);
+    setOpen(false);
+  };
+  const handleClose = () => {
     setOpen(false);
   };
 
@@ -171,14 +180,34 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
     fetchUnavailableDays();
   }, [watchRoomId, currentDate]);
 
-  const verifyTime = (date: Dayjs): boolean => {
+  const shouldDisableMinute = (time: Dayjs): boolean => {
     if (!unavailableTimes || unavailableTimes.length < 1) return false;
-    const selectedDate = date.toDate();
 
-    for (const time of unavailableTimes) {
-      const horaInicio = new Date(time.horaInicio);
-      const horaFin = new Date(time.horaFin);
+    const selectedDate = time.toDate();
+
+    for (const event of unavailableTimes) {
+      const horaInicio = new Date(event.horaInicio);
+      const horaFin = new Date(event.horaFin);
+
       if (selectedDate >= horaInicio && selectedDate < horaFin) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const shouldDisableHour = (time: Dayjs): boolean => {
+    if (!unavailableTimes || unavailableTimes.length < 1) return false;
+
+    const selectedHourStart = time.startOf('hour').toDate();
+    const selectedHourEnd = time.endOf('hour').toDate();
+
+    for (const event of unavailableTimes) {
+      const horaInicio = new Date(event.horaInicio);
+      const horaFin = new Date(event.horaFin);
+
+      if (selectedHourStart >= horaInicio && selectedHourEnd <= horaFin) {
         return true;
       }
     }
@@ -237,7 +266,7 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
     );
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={setOpen} title="Reservación de espacio hospitalario" />
+      <HeaderModal setOpen={setOpen} title="Reservación de Espacio" />
       <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
         <Box sx={{ display: 'flex', flex: 1 }}>
           <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
@@ -247,10 +276,10 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>Habitaciones disponibles</Typography>
+              <Typography>{roomType == '0' ? 'Habitaciones' : 'Quirófanos'} disponibles</Typography>
               <TextField
                 select
-                label="Habitaciones"
+                label={`${roomType == '0' ? 'Habitaciones' : 'Quirófanos'}`}
                 fullWidth
                 {...registerRooms('room')}
                 value={watchRoomId}
@@ -302,10 +331,18 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
                           helperText: !!errorsRooms.startTime?.message ? errorsRooms.startTime.message : null,
                         },
                       }}
-                      shouldDisableTime={(date) => verifyTime(date)}
+                      shouldDisableTime={(time, view) => {
+                        if (view === 'minutes') {
+                          return shouldDisableMinute(dayjs(time));
+                        }
+                        if (view === 'hours') {
+                          return shouldDisableHour(dayjs(time));
+                        }
+                        return false;
+                      }}
                       shouldDisableDate={(date) => verifyDate(date)}
                       onAccept={(e) => {
-                        if (verifyTime(e as Dayjs)) {
+                        if (shouldDisableMinute(e as Dayjs)) {
                           toast.error('La fecha no es valida!');
                           onChange(dayjs());
                         }
@@ -340,10 +377,18 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
                           helperText: !!errorsRooms.endDate?.message ? errorsRooms.endDate.message : null,
                         },
                       }}
-                      shouldDisableTime={(date) => verifyTime(date)}
+                      shouldDisableTime={(time, view) => {
+                        if (view === 'minutes') {
+                          return shouldDisableMinute(dayjs(time));
+                        }
+                        if (view === 'hours') {
+                          return shouldDisableHour(dayjs(time));
+                        }
+                        return false;
+                      }}
                       shouldDisableDate={(date) => verifyDate(date)}
                       onAccept={(e) => {
-                        if (verifyTime(e as Dayjs)) {
+                        if (shouldDisableMinute(e as Dayjs)) {
                           toast.error('La fecha no es valida!');
                           onChange(dayjs().add(1, 'hour'));
                         }
@@ -374,7 +419,7 @@ export const HospitalizationSpaceReservationModal = ({ setOpen }: Hospitalizatio
           bgcolor: 'background.paper',
         }}
       >
-        <Button variant="outlined" color="error">
+        <Button variant="outlined" color="error" onClick={handleClose}>
           Cancelar
         </Button>
         <Button variant="contained" onClick={onSubmit}>
@@ -420,8 +465,8 @@ interface HospitalizationSpaceReservedTableRowProps {
 const HospitalizationSpaceReservedTableRow = ({ data }: HospitalizationSpaceReservedTableRowProps) => {
   const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
   const setRoomsRegistered = usePatientEntryRegisterStepsStore((state) => state.setRoomsRegistered);
-  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
-  const events = usePatientEntryRegisterStepsStore((state) => state.events);
+  const setEvents = usePatientEntryRegisterStepsStore((state) => state.setHospitalizationEvents);
+  const events = usePatientEntryRegisterStepsStore((state) => state.hospitalizationEvents);
 
   const handleRemove = () => {
     setRoomsRegistered(roomsRegistered.filter((room) => room.id !== data.id));

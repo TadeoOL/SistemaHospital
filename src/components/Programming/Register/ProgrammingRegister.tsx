@@ -2,12 +2,12 @@ import { Box, Button, Card, IconButton, Modal, Stack, Tooltip } from '@mui/mater
 import { TableHospitalization } from './TableHospitalization';
 import { useState } from 'react';
 // import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
-import { CalendarRegister } from '../RegisterSteps/CalenderRegister';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { DateFilterComponent } from '../../Commons/DateFilterComponent';
 import { OperatingRoomFilterComponent } from '../../Commons/OperatingRoomFilterComponent';
 import { FilterListOff } from '@mui/icons-material';
+import { PatientRegisterStepsComponent } from '../../Admission/PatientsEntry/Modal/PatientRegisterSteps/PatientRegisterStepsComponent';
 
 export const HospitalizationRegister = () => {
   const [open, setOpen] = useState(false);
@@ -59,7 +59,7 @@ export const HospitalizationRegister = () => {
       </Card>
       <Modal open={open}>
         <>
-          <CalendarRegister setOpen={setOpen} isOperatingRoomReservation />
+          <PatientRegisterStepsComponent setOpen={setOpen} />
         </>
       </Modal>
     </>

@@ -1,11 +1,11 @@
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
-import { Calendar, dayjsLocalizer, SlotInfo, View } from 'react-big-calendar';
+import { useCallback, useEffect, useState } from 'react';
+import { Calendar, dayjsLocalizer, NavigateAction, SlotInfo, View } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { toast } from 'react-toastify';
 import { usePatientEntryRegisterStepsStore } from '../../../../../../store/admission/usePatientEntryRegisterSteps';
-import { HospitalizationSpaceReservationModal } from '../HospitalizationSpaceReservationModal';
+import { SpaceReservationModal } from '../SpaceReservationModal';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
 import classNames from 'classnames';
@@ -13,15 +13,23 @@ import { IEventsCalendar } from '../../../../../../types/types';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
-export const CalendarPatientRegisterComponent = () => {
+interface CalendarSurgeryPatientRegisterComponentProps {
+  day: Date;
+  setDay: Function;
+}
+export const CalendarSurgeryPatientRegisterComponent = ({
+  day,
+  setDay,
+}: CalendarSurgeryPatientRegisterComponentProps) => {
   const localizer = dayjsLocalizer(dayjs);
   const [view, setView] = useState<View>('month');
   const setAppointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.setAppointmentEndDate);
   const setAppointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.setAppointmentStartDate);
-  const events = usePatientEntryRegisterStepsStore((state) => state.events);
-  // const setEvents = usePatientEntryRegisterStepsStore((state) => state.setEvents);
-  const [_, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
+  const events = usePatientEntryRegisterStepsStore((state) => state.surgeryEvents);
+  // const setEvents = usePatientEntryRegisterStepsStore((state) => state.setSurgeryEvents);
+  // const [hashCleanRoomEvents, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
   const [myEvents, setMyEvents] = useState<IEventsCalendar[]>([]);
+  const [filteringEvents, setFilteringEvents] = useState(true);
 
   const [open, setOpen] = useState(false);
 
@@ -82,11 +90,27 @@ export const CalendarPatientRegisterComponent = () => {
     };
   };
 
-  useEffect(() => {
-    setMyEvents(events);
-  }, [events]);
+  const onNavigate = useCallback(
+    (newDate: Date, view: View, action: NavigateAction) => {
+      const dateJs = dayjs(day).format('DD/MM/YYYY HH:mm:ss');
+      const newDateJs = dayjs(newDate).format('DD/MM/YYYY HH:mm:ss');
+      if (dateJs === newDateJs) return;
+      if (action === 'DATE') {
+        setView('day');
+      } else {
+        setView(view);
+      }
+      setDay(dayjs(newDate));
+    },
+    [day]
+  );
+
+  // useEffect(() => {
+  //   setMyEvents(events);
+  // }, [events]);
 
   useEffect(() => {
+    setFilteringEvents(true);
     const newHashCleanRoomEvents: { [key: string]: IEventsCalendar } = {};
     if (view === 'month') {
       const eventsWithoutCleanRooms = events.filter((event) => event.title.toLocaleLowerCase() !== 'limpieza');
@@ -96,14 +120,21 @@ export const CalendarPatientRegisterComponent = () => {
         }
       }
       setMyEvents(eventsWithoutCleanRooms);
-      setHashCleanRoomEvents(newHashCleanRoomEvents);
+      // setHashCleanRoomEvents(newHashCleanRoomEvents);
     } else {
       setMyEvents(events);
-      setHashCleanRoomEvents(newHashCleanRoomEvents);
+      // setHashCleanRoomEvents(newHashCleanRoomEvents);
     }
+    setFilteringEvents(false);
     // setIsFiltering(false);
   }, [events, view]);
 
+  if (filteringEvents)
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   return (
     <>
       <Box sx={{ maxHeight: 700 }}>
@@ -112,6 +143,8 @@ export const CalendarPatientRegisterComponent = () => {
           localizer={localizer}
           style={{ width: '100%', height: view == 'month' ? 700 : '100%' }}
           views={['day', 'week', 'month']}
+          date={day}
+          onNavigate={onNavigate}
           selectable
           step={15}
           dayPropGetter={dayPropGetter}
@@ -123,11 +156,23 @@ export const CalendarPatientRegisterComponent = () => {
           onSelectSlot={(slot) => handleClickSlot(slot)}
           eventPropGetter={eventStyleGetter}
           showMultiDayTimes={true}
+          messages={{
+            showMore: (count) => `${count} citas mas`,
+            next: 'Siguiente',
+            previous: 'Anterior',
+            today: 'Hoy',
+            month: 'Mes',
+            week: 'Semana',
+            day: 'Dia',
+            allDay: 'Todo el dia',
+            yesterday: 'Ayer',
+            noEventsInRange: 'No hay eventos',
+          }}
         />
       </Box>
       <Modal open={open}>
         <>
-          <HospitalizationSpaceReservationModal setOpen={setOpen} />
+          <SpaceReservationModal setOpen={setOpen} roomType="1" />
         </>
       </Modal>
     </>

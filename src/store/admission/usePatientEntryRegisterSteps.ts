@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
+import { IBiomedicalEquipment } from '../../types/hospitalizationTypes';
 
 const initialPatientValues: IPatient = {
   name: '',
@@ -26,10 +27,14 @@ interface State {
   appointmentStartDate: Date;
   appointmentEndDate: Date;
   roomsRegistered: IRegisterRoom[];
-  events: IEventsCalendar[];
+  hospitalizationEvents: IEventsCalendar[];
+  originalHospitalizationEvents: IEventsCalendar[];
+  surgeryEvents: IEventsCalendar[];
+  originalSurgeryEvents: IEventsCalendar[];
   startDateSurgery: Date;
   patient: IPatient;
   procedures: string[];
+  cabinetStudiesSelected: { id: string; nombre: string }[];
   medicId: string;
   articlesSelected: {
     id: string;
@@ -38,6 +43,7 @@ interface State {
     precioVenta: number;
     cantidadDisponible?: number;
   }[];
+  medicPersonalBiomedicalEquipment: IBiomedicalEquipment[];
 }
 
 interface Actions {
@@ -45,7 +51,10 @@ interface Actions {
   setAppointmentStartDate: (appointmentStartDate: Date) => void;
   setAppointmentEndDate: (appointmentEndDate: Date) => void;
   setRoomsRegistered: (roomsRegistered: IRegisterRoom[]) => void;
-  setEvents: (events: IEventsCalendar[]) => void;
+  setHospitalizationEvents: (hospitalizationEvents: IEventsCalendar[]) => void;
+  setOriginalHospitalizationEvents: (originalHospitalizationEvents: IEventsCalendar[]) => void;
+  setSurgeryEvents: (surgeryEvents: IEventsCalendar[]) => void;
+  setOriginalSurgeryEvents: (surgeryEvents: IEventsCalendar[]) => void;
   clearStore: () => void;
   setStartDateSurgery: (startDateSurgery: Date) => void;
   setPatient: (patient: IPatient) => void;
@@ -60,6 +69,8 @@ interface Actions {
       cantidadDisponible?: number;
     }[]
   ) => void;
+  setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) => void;
+  setCabinetStudiesSelected: (cabinetStudiesSelected: { id: string; nombre: string }[]) => void;
 }
 
 const initialValues = {
@@ -67,16 +78,25 @@ const initialValues = {
   appointmentStartDate: new Date(),
   appointmentEndDate: new Date(),
   roomsRegistered: [],
-  events: [],
+  hospitalizationEvents: [],
+  originalHospitalizationEvents: [],
+  surgeryEvents: [],
+  originalSurgeryEvents: [],
   startDateSurgery: new Date(),
   patient: initialPatientValues,
   procedures: [],
   medicId: '',
   articlesSelected: [],
+  medicPersonalBiomedicalEquipment: [],
+  cabinetStudiesSelected: [],
 };
 
 export const usePatientEntryRegisterStepsStore = create<State & Actions>((set) => ({
   ...initialValues,
+  setCabinetStudiesSelected: (cabinetStudiesSelected: { id: string; nombre: string }[]) =>
+    set({ cabinetStudiesSelected }),
+  setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) =>
+    set({ medicPersonalBiomedicalEquipment }),
   setArticlesSelected: (
     articlesSelected: {
       id: string;
@@ -93,7 +113,11 @@ export const usePatientEntryRegisterStepsStore = create<State & Actions>((set) =
   setAppointmentStartDate: (appointmentStartDate: Date) => set({ appointmentStartDate }),
   setAppointmentEndDate: (appointmentEndDate: Date) => set({ appointmentEndDate }),
   setRoomsRegistered: (roomsRegistered: IRegisterRoom[]) => set({ roomsRegistered }),
-  setEvents: (events: IEventsCalendar[]) => set({ events }),
+  setHospitalizationEvents: (hospitalizationEvents: IEventsCalendar[]) => set({ hospitalizationEvents }),
+  setOriginalHospitalizationEvents: (originalHospitalizationEvents: IEventsCalendar[]) =>
+    set({ originalHospitalizationEvents }),
+  setSurgeryEvents: (surgeryEvents: IEventsCalendar[]) => set({ surgeryEvents }),
+  setOriginalSurgeryEvents: (originalSurgeryEvents: IEventsCalendar[]) => set({ originalSurgeryEvents }),
   clearStore: () => set({ ...initialValues }),
   setStartDateSurgery: (startDateSurgery: Date) => set({ startDateSurgery }),
 }));

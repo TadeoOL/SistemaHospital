@@ -666,8 +666,6 @@ export interface IRoom {
   nombre: string;
   descripcion: string;
   precio: number;
-  codigoContpaqi?: string;
-  codigoSAT?: string;
 }
 
 export interface ISurgeryProcedure {
@@ -690,6 +688,7 @@ export interface IRegisterRoom {
   provisionalId?: string;
   id_Cuarto?: string;
   precio: number;
+  tipoCuarto?: number;
 }
 
 export interface IRoomsList {
@@ -706,6 +705,7 @@ export interface IRoomEvent {
   fechaInicio: string;
   fechaFin: string;
   tipoCuarto?: string;
+  id_TipoCuarto?: string;
 }
 export interface IEventsCalendar {
   id: string;

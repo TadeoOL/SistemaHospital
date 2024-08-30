@@ -5,11 +5,13 @@ import {
   Card,
   CircularProgress,
   IconButton,
+  MenuItem,
   Modal,
   Table,
   TableBody,
   TableCell,
   TableRow,
+  TextField,
   Tooltip,
   useMediaQuery,
   useTheme,
@@ -19,7 +21,7 @@ import { useGetRoomsByRegister } from '../../../../../hooks/admission/useGetRoom
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { IRoomEvent } from '../../../../../types/types';
 import dayjs from 'dayjs';
-import { Add, Edit, Save } from '@mui/icons-material';
+import { Add, Close, Edit, Save } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
 import { checkRoomAvailabilityToEdit, getRoomsEventsByDate } from '../../../../../services/programming/roomsService';
 import { AddEditCalendar } from './AddEditCalendar';
@@ -32,8 +34,10 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { modifyRoomsEvents } from '../../../../../services/programming/admissionRegisterService';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
+import { useGetAllOperatingRooms } from '../../../../../hooks/operatingRoom/useGetAllOperatingRoom';
+import { useGetAllRooms } from '../../../../../hooks/programming/useGetAllRooms';
 
-const TABLE_HEADERS = ['Cuarto', 'Tipo Cuarto', 'Hora Ingreso', 'Hora Salida', 'Acciones'];
+const TABLE_HEADERS = ['Cuarto', 'Hora Ingreso', 'Hora Salida', 'Acciones'];
 
 const style = {
   position: 'absolute',
@@ -100,6 +104,7 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
           id_RegistroCuarto: r.id,
           fechaInicio: dayjs(r.fechaInicio).toDate(),
           fechaFin: dayjs(r.fechaFin).toDate(),
+          id_Cuarto: r.id_Cuarto,
         };
       });
       await modifyRoomsEvents({ listaRegistrosCuartos: roomsObj, id_Registro: props.registerId });
@@ -142,7 +147,11 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
               Agregar
             </Button>
           </Box>
-          <EventTable data={rooms} refetch={refetch} setRooms={setRooms} />
+          <Box sx={{ overflow: 'auto' }}>
+            <Box sx={{ minWidth: '600px', maxHeight: '600px' }}>
+              <EventTable data={rooms} refetch={refetch} setRooms={setRooms} />
+            </Box>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -169,6 +178,7 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
 };
 
 const EventTable = (props: { data: IRoomEvent[]; refetch: Function; setRooms: (rooms: IRoomEvent[]) => void }) => {
+  const { data: rooms } = useGetAllRooms();
   return (
     <Card>
       <Table>
@@ -181,6 +191,11 @@ const EventTable = (props: { data: IRoomEvent[]; refetch: Function; setRooms: (r
               refetch={props.refetch}
               rooms={props.data}
               setRooms={props.setRooms}
+              operatingRooms={rooms
+                .filter((x) => x.id_TipoCuarto === row.id_TipoCuarto)
+                .map((x) => {
+                  return { id: x.id, nombre: x.nombre };
+                })}
             />
           ))}
         </TableBody>
@@ -192,24 +207,29 @@ const EventTable = (props: { data: IRoomEvent[]; refetch: Function; setRooms: (r
 interface Inputs {
   startDate: Date;
   endDate: Date;
+  roomId: string;
 }
 const EventTableRow = (props: {
   data: IRoomEvent;
   refetch: Function;
   setRooms: (rooms: IRoomEvent[]) => void;
   rooms: IRoomEvent[];
+  operatingRooms: { id: string; nombre: string }[];
 }) => {
-  const { data: roomData } = props;
+  const { data: roomData, operatingRooms } = props;
   const [edit, setEdit] = useState(false);
 
   const {
     control,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
       startDate: dayjs(roomData.fechaInicio).toDate(),
       endDate: dayjs(roomData.fechaFin).toDate(),
+      roomId: roomData.id_Cuarto,
     },
     resolver: zodResolver(validateDates),
   });
@@ -217,19 +237,21 @@ const EventTableRow = (props: {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     withReactContent(Swal)
       .fire({
-        title: '¿Estás seguro de cambiar la fecha?',
-        html: `La fecha de inicio sera <b>${dayjs(data.startDate).format('DD/MM/YYYY - HH:mm')}</b> y la fecha de finalización sera <b>${dayjs(data.endDate).format('DD/MM/YYYY - HH:mm')}</b>`,
+        title: '¿Estás seguro de editar el espacio?',
+        html: `La fecha de inicio sera <b>${dayjs(data.startDate).format('DD/MM/YYYY - HH:mm')}</b> y la fecha de finalización sera <b>${dayjs(data.endDate).format('DD/MM/YYYY - HH:mm')}</b>,<br/> y el espacio reservado sera el <b>${props.operatingRooms.find((x) => x.id === data.roomId)?.nombre}</b>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Si, cambiar',
+        cancelButtonText: 'No, cancelar',
+        reverseButtons: true,
       })
       .then(async (res) => {
         if (res.isConfirmed) {
           const isAvailable = await checkRoomAvailabilityToEdit({
             id_RegistroCuarto: roomData.id,
-            id_Cuarto: roomData.id_Cuarto,
+            id_Cuarto: data.roomId,
             fechaInicio: dayjs(data.startDate).format('YYYY/MM/DDTHH:mm:ss'),
             fechaFin: dayjs(data.endDate).format('YYYY/MM/DDTHH:mm:ss'),
           });
@@ -238,12 +260,11 @@ const EventTableRow = (props: {
             const endTimeDayjs = dayjs(data.endDate).format('DD/MM/YYYY - HH:mm');
             return Swal.fire({
               title: 'Error',
-              text: `El cuarto no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`,
+              text: `El espacio reservado no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`,
               icon: 'error',
             });
           }
-
-          FindAndUpdateRoom(props.data.id, props.rooms, props.setRooms, data);
+          await FindAndUpdateRoom(props.data.id, props.rooms, props.setRooms, data, operatingRooms);
           Swal.fire({
             title: 'Cambiado!',
             text: 'La fecha de reserva se ha modificado con éxito.',
@@ -257,100 +278,111 @@ const EventTableRow = (props: {
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)} id={roomData.id} />
-      <TableRow>
-        <TableCell>{roomData.nombre}</TableCell>
-        <TableCell>{roomData.tipoCuarto}</TableCell>
-        <TableCell>
-          {!edit ? (
-            dayjs(roomData.fechaInicio).format('DD/MM/YYYY - hh:mm a')
-          ) : (
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker
-                    ampm={false}
-                    label="Fecha inicio"
-                    format="DD/MM/YYYY - HH:mm"
-                    minDate={dayjs().subtract(3, 'day')}
-                    value={dayjs(value)}
-                    onChange={onChange}
-                    slotProps={{
-                      textField: {
-                        error: !!errors.startDate?.message,
-                        helperText: errors.startDate?.message,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              )}
-            />
-          )}
-        </TableCell>
-        <TableCell>
-          {!edit ? (
-            dayjs(roomData.fechaFin).format('DD/MM/YYYY - hh:mm a')
-          ) : (
-            <Controller
-              name="endDate"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker
-                    ampm={false}
-                    label="Fecha salida"
-                    format="DD/MM/YYYY - HH:mm"
-                    value={dayjs(value)}
-                    minDate={dayjs().subtract(3, 'day')}
-                    onChange={onChange}
-                    slotProps={{
-                      textField: {
-                        error: !!errors.endDate?.message,
-                        helperText: errors.endDate?.message,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              )}
-            />
-          )}
-        </TableCell>
-        <TableCell>
-          {!edit ? (
-            <Tooltip title="Editar">
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setEdit(true);
-                }}
-              >
-                <Edit />
-              </IconButton>
-            </Tooltip>
-          ) : (
+    <TableRow>
+      <TableCell sx={{ width: '25%' }}>
+        {!edit ? (
+          roomData.nombre
+        ) : (
+          <TextField
+            select
+            label="Espacios reservados"
+            fullWidth
+            value={watch('roomId')}
+            onChange={(e) => setValue('roomId', e.target.value)}
+          >
+            {props.operatingRooms.map((or) => (
+              <MenuItem key={or.id} value={or.id}>
+                {or.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
+      </TableCell>
+      <TableCell>
+        {!edit ? (
+          dayjs(roomData.fechaInicio).format('DD/MM/YYYY - hh:mm a')
+        ) : (
+          <Controller
+            name="startDate"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  ampm={false}
+                  label="Fecha inicio"
+                  format="DD/MM/YYYY - HH:mm"
+                  minDate={dayjs().subtract(3, 'day')}
+                  value={dayjs(value)}
+                  onChange={onChange}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.startDate?.message,
+                      helperText: errors.startDate?.message,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            )}
+          />
+        )}
+      </TableCell>
+      <TableCell>
+        {!edit ? (
+          dayjs(roomData.fechaFin).format('DD/MM/YYYY - hh:mm a')
+        ) : (
+          <Controller
+            name="endDate"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  ampm={false}
+                  label="Fecha salida"
+                  format="DD/MM/YYYY - HH:mm"
+                  value={dayjs(value)}
+                  minDate={dayjs().subtract(3, 'day')}
+                  onChange={onChange}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.endDate?.message,
+                      helperText: errors.endDate?.message,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            )}
+          />
+        )}
+      </TableCell>
+      <TableCell>
+        {!edit ? (
+          <Tooltip title="Editar">
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setEdit(true);
+              }}
+            >
+              <Edit />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <>
             <Tooltip title="Guardar">
-              <IconButton type="submit" form={roomData.id}>
+              <IconButton onClick={handleSubmit(onSubmit)}>
                 <Save />
               </IconButton>
             </Tooltip>
-          )}
-        </TableCell>
-      </TableRow>
-      {/* <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-        <EditCalendarEvent
-        registerRoomId={data.id}
-            setOpen={setOpen}
-            eventView={dayjs(data.fechaInicio).toDate()}
-            refetch={props.refetch}
-            />
-            </>
-            </Modal> */}
-    </>
+            <Tooltip title="Cancelar">
+              <IconButton onClick={() => setEdit(false)}>
+                <Close color="error" />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
+      </TableCell>
+    </TableRow>
   );
 };
 
@@ -461,18 +493,22 @@ const AddCalendarEvent = (props: { setOpen: Function; registerId: string }) => {
 //   );
 // };
 
-function FindAndUpdateRoom(
-  roomId: string,
+async function FindAndUpdateRoom(
+  registerRoomId: string,
   rooms: IRoomEvent[],
   setRooms: (rooms: IRoomEvent[]) => void,
-  dates: { startDate: Date; endDate: Date }
+  dates: { startDate: Date; endDate: Date; roomId: string },
+  operatingRooms: { id: string; nombre: string }[]
 ) {
   const newRooms = [...rooms];
-  const roomIndex = newRooms.findIndex((room) => room.id === roomId);
+  const roomIndex = newRooms.findIndex((room) => room.id === registerRoomId);
 
   if (roomIndex !== -1) {
+    const room = operatingRooms.find((or) => or.id === dates.roomId);
     newRooms[roomIndex] = {
       ...newRooms[roomIndex],
+      id_Cuarto: room?.id ?? '',
+      nombre: room?.nombre ?? '',
       fechaInicio: dayjs(dates.startDate).format('YYYY/MM/DDTHH:mm'),
       fechaFin: dayjs(dates.endDate).format('YYYY/MM/DDTHH:mm'),
     };

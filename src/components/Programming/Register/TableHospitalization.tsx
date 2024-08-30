@@ -182,7 +182,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
           ))}
         </TableCell>
         <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>
+        <TableCell align="center">
           <Tooltip title="Ver datos generales">
             <IconButton
               onClick={() => {
@@ -195,7 +195,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
             </IconButton>
           </Tooltip>
         </TableCell>
-        <TableCell>
+        <TableCell align="center">
           <Tooltip title="Ver datos clínicos">
             <IconButton
               onClick={() => {

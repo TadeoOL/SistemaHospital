@@ -159,7 +159,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         <TableCell>{data.cuartos}</TableCell>
         <TableCell>{data.medico}</TableCell>
         <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>
+        <TableCell align="center">
           <Tooltip title="Ver datos generales">
             <IconButton
               onClick={() => {
@@ -172,7 +172,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
             </IconButton>
           </Tooltip>
         </TableCell>
-        <TableCell>
+        <TableCell align="center">
           <Tooltip title="Ver datos clínicos">
             <IconButton
               onClick={() => {
@@ -193,9 +193,11 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
               </IconButton>
             </Tooltip>
             <Tooltip title="Imprimir Documentos">
-              <IconButton onClick={handleClick} disabled={data.faltanDatos}>
-                <Print />
-              </IconButton>
+              <>
+                <IconButton onClick={handleClick} disabled={data.faltanDatos}>
+                  <Print />
+                </IconButton>
+              </>
             </Tooltip>
             {!data.admitido && !data.faltanDatos && (
               <Tooltip title="Agregar anticipo">

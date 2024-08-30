@@ -6,6 +6,7 @@ import { MedicalAndProcedureSelectorModal } from './MedicalAndProcedureSelectorM
 import { AdmissionMedicinePackageSelectorModal } from './AdmissionMedicinePackageSelectorModal';
 import { CabinetStudyRequestModal } from './CabinetStudyRequestModal';
 import { PatientRegisterResumeModal } from './PatientRegisterResumeModal';
+import { RegisterCalendarSurgery } from './RegisterCalendarSurgery';
 interface PatientRegisterStepsComponentProps {
   setOpen: (open: boolean) => void;
 }
@@ -22,12 +23,13 @@ export const PatientRegisterStepsComponent = ({ setOpen }: PatientRegisterStepsC
   }, [clearStore]);
 
   const RENDER_VIEW: Record<number, JSX.Element> = {
-    0: <RegisterCalendarHospitalization setOpen={setOpen} />,
-    1: <RegisterPatientInfoComponent setOpen={setOpen} />,
-    2: <MedicalAndProcedureSelectorModal setOpen={setOpen} />,
-    3: <AdmissionMedicinePackageSelectorModal setOpen={setOpen} />,
-    4: <CabinetStudyRequestModal setOpen={setOpen} />,
-    5: <PatientRegisterResumeModal setOpen={setOpen} />,
+    0: <RegisterCalendarSurgery setOpen={setOpen} />,
+    1: <RegisterCalendarHospitalization setOpen={setOpen} />,
+    2: <RegisterPatientInfoComponent setOpen={setOpen} />,
+    3: <MedicalAndProcedureSelectorModal setOpen={setOpen} />,
+    4: <AdmissionMedicinePackageSelectorModal setOpen={setOpen} />,
+    5: <CabinetStudyRequestModal setOpen={setOpen} />,
+    6: <PatientRegisterResumeModal setOpen={setOpen} />,
   };
   return RENDER_VIEW[step];
 };

@@ -26,8 +26,6 @@ type Inputs = {
   name: string;
   roomType: string;
   description: string;
-  codigoContpaqi?: string;
-  codigoSAT?: string;
 };
 
 interface AddRoomModalProps {
@@ -52,8 +50,6 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       name: editData ? editData.nombre : '',
       roomType: '',
       description: editData ? editData.descripcion : '',
-      codigoContpaqi: editData?.codigoContpaqi ?? '',
-      codigoSAT: editData?.codigoSAT ?? '',
     },
   });
 
@@ -67,8 +63,6 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
           nombre: data.name,
           id_TipoCuarto: data.roomType,
           descripcion: data.description,
-          codigoContpaqi: data.codigoContpaqi,
-          codigoSAT: data.codigoSAT,
         });
         toast.success('Espacio hospitalario dado de alta correctamente');
       } else {
@@ -77,8 +71,6 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
           id_TipoCuarto: data.roomType,
           descripcion: data.description,
           id: editData.id,
-          codigoContpaqi: data.codigoContpaqi,
-          codigoSAT: data.codigoSAT,
         });
         toast.success('Espacio hospitalario modificado correctamente');
       }
@@ -154,26 +146,6 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 error={!!errors.description?.message}
                 helperText={errors.description?.message}
                 {...register('description')}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>Código de Contpaqi</Typography>
-              <TextField
-                placeholder="Escriba un codigo de Contpaqi"
-                fullWidth
-                error={!!errors.codigoContpaqi?.message}
-                helperText={errors.codigoContpaqi?.message}
-                {...register('codigoContpaqi')}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>Código de SAT</Typography>
-              <TextField
-                placeholder="Escriba un codigo de SAT"
-                fullWidth
-                error={!!errors.codigoSAT?.message}
-                helperText={errors.codigoSAT?.message}
-                {...register('codigoSAT')}
               />
             </Grid>
           </Grid>
