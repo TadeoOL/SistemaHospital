@@ -233,7 +233,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <Text style={styles.tableCol}>Precio Total</Text>
               </View>
               {cierreCuenta.cuartos.map((cuarto, index) => (
-                <View style={styles.tableRow} key={index}>
+                <View key={index}>
                   <Text style={styles.tableCell}>{cuarto.nombre}</Text>
                   <Text style={styles.tableCell}>{cuarto.cantidadDias}</Text>
                   <Text style={styles.tableCell}>${cuarto.precioDia}</Text>
@@ -263,7 +263,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <Text style={styles.tableCol}>Precio Total</Text>
               </View>
               {cierreCuenta.quirofanos.map((quirofano, index) => (
-                <View style={styles.tableRow} key={index}>
+                <View key={index}>
                   <Text style={styles.tableCell}>{quirofano.nombre}</Text>
                   <Text style={styles.tableCell}>{quirofano.tiempoCirugia}</Text>
                   {/* <Text style={styles.tableCell}>${quirofano.precioHora}</Text> */}
