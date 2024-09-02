@@ -37,11 +37,12 @@ export const getUnavailableRoomsByIdAndDate = async (roomId: string, date: Date)
   return res.data;
 };
 
-export const getRoomsEventsByDate = async (date: string, tipoCuarto?: number) => {
+export const getRoomsEventsByDate = async (date: string, tipoCuarto?: number | string, roomId?: string) => {
   const res = await axios.get(`${apiRoom}/obtener-todos-registros-cuarto-por-fecha`, {
     params: {
       fecha: date,
       tipoCuarto,
+      id_Cuarto: roomId,
     },
   });
   return res.data as IRoomEvent[];

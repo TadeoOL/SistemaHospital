@@ -6,6 +6,7 @@ import { EventGeneralDetails } from './EventGeneralDetails';
 import { IEventDetails } from '../../../../types/admissionTypes';
 import { EventPatientDetails } from './EventPatientDetails';
 import { EventClinicalHistoryDetails } from './EventClinicalHistoryDetails';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 
 // const StyledTab = styled(Tab)(({ theme }) => ({
 //   [`&.${tabClasses.root}`]: {
@@ -85,26 +86,7 @@ export const EventDetailsModal = (props: EventDetailsModalProps) => {
     );
   return (
     <Box sx={style}>
-      <Box
-        sx={{
-          display: 'flex',
-          flex: 1,
-          alignItems: 'start',
-          justifyContent: 'space-between',
-          bgcolor: 'background.paper',
-          p: 1,
-        }}
-      >
-        <Stack>
-          <Typography sx={{ fontSize: 18, fontWeight: 700 }}>Información detallada</Typography>
-          <Typography sx={{ fontSize: 12, fontWeight: 200, color: 'GrayText' }}>
-            Información del registro del paciente detallada.
-          </Typography>
-        </Stack>
-        <IconButton onClick={() => props.setOpen(false)}>
-          <Close />
-        </IconButton>
-      </Box>
+      <HeaderModal setOpen={props.setOpen} title="Información detallada" />
       <Box sx={{ bgcolor: 'background.paper', p: 3 }}>
         <Tabs
           value={tabValue}
@@ -122,7 +104,16 @@ export const EventDetailsModal = (props: EventDetailsModalProps) => {
       <Box sx={{ bgcolor: 'background.paper', p: 4, overflowY: 'auto', ...scrollBarStyle }}>
         <Box sx={{ maxHeight: { xs: 450 } }}>{renderViewByTabValue(tabValue, eventDetails)}</Box>
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1, bgcolor: 'background.paper' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          p: 1,
+          bgcolor: 'background.paper',
+          borderBottomLeftRadius: 10,
+          borderBottomRightRadius: 10,
+        }}
+      >
         <Button variant="contained" onClick={() => props.setOpen(false)}>
           Cerrar
         </Button>

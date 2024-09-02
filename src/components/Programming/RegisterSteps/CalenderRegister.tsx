@@ -37,10 +37,10 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
   const currentDate: any = dayjs(new Date());
-  useGetDate(date);
   const events = useProgrammingRegisterStore((state) => state.events);
-  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+  useGetDate(date, setEvents);
+  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
 
   const sameDate = useMemo(() => {
     if (!date) return true;
