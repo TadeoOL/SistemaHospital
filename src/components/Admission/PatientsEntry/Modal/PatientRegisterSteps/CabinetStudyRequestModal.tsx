@@ -143,7 +143,7 @@ export const CabinetStudyRequestModal = ({ setOpen }: CabinetStudyRequestModalPr
           </Tabs>
         </Box>
         <Box sx={{ overflowY: 'auto' }}>
-          <Box sx={{ maxHeight: { xs: 500, xl: 650 } }}>
+          <Box sx={{ maxHeight: { xs: 400, xl: 650 } }}>
             {isCabinetStudySelected == 'yes' ? (
               <Stack>
                 <Typography>Selecciona el estudio de gabinete:</Typography>
