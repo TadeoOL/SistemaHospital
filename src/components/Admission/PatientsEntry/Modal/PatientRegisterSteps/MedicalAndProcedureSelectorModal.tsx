@@ -6,7 +6,6 @@ import {
   Chip,
   CircularProgress,
   Divider,
-  MenuItem,
   TextField,
   Typography,
 } from '@mui/material';
@@ -65,7 +64,6 @@ export const MedicalAndProcedureSelectorModal = (props: MedicalAndProcedureSelec
     setValue,
     watch,
     formState: { errors },
-    register,
     handleSubmit,
   } = useForm<Inputs>({
     resolver: zodResolver(medicalAndProcedureSchema),
@@ -116,43 +114,46 @@ export const MedicalAndProcedureSelectorModal = (props: MedicalAndProcedureSelec
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, columnGap: 2, rowGap: 2 }}>
             <Box sx={{ flex: 1 }}>
               <Typography>Seleccione los procedimientos:</Typography>
-              <TextField
-                select
-                SelectProps={{
-                  multiple: true,
-                  renderValue: (selected: any) => {
-                    return (
-                      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        {selected &&
-                          selected.map((value: string) => (
-                            <Chip
-                              key={value}
-                              label={proceduresRes.find((v) => v.id === value)?.nombre}
-                              style={{ margin: 2 }}
-                              onDelete={() => {
-                                const procedureList = watchProceduresId.filter((p) => p !== value);
-                                setValue('proceduresId', procedureList);
-                              }}
-                              deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
-                            />
-                          ))}
-                      </div>
-                    );
-                  },
+              <Autocomplete
+                multiple
+                options={proceduresRes}
+                noOptionsText="No se encontró resultado"
+                getOptionLabel={(option) => option.nombre}
+                value={proceduresRes.filter((p) => watchProceduresId.includes(p.id))}
+                onChange={(_, newValue) => {
+                  const procedureIds = newValue.map((procedure) => procedure.id);
+                  setValue('proceduresId', procedureIds);
                 }}
-                label="Procedimientos"
-                fullWidth
-                error={!!errors.proceduresId?.message}
-                helperText={errors.proceduresId?.message}
-                value={watchProceduresId}
-                {...register('proceduresId')}
-              >
-                {proceduresRes.map((p) => (
-                  <MenuItem key={p.id} value={p.id}>
-                    {p.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderTags={(selected) =>
+                  selected.map((option, index) => (
+                    <Chip
+                      label={option.nombre}
+                      key={`${option.id}-${index}-${option.nombre}`}
+                      onDelete={() => {
+                        const procedureList = watchProceduresId.filter((p) => p !== option.id);
+                        setValue('proceduresId', procedureList);
+                      }}
+                      deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
+                      style={{ margin: 2 }}
+                    />
+                  ))
+                }
+                renderOption={(props, option) => (
+                  <li {...props} key={option.id}>
+                    <span>{option.nombre}</span>
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Procedimientos"
+                    placeholder="Seleccione..."
+                    error={!!errors.proceduresId?.message}
+                    helperText={errors.proceduresId?.message}
+                  />
+                )}
+              />
             </Box>
           </Box>
           <Divider sx={{ my: 1 }} />

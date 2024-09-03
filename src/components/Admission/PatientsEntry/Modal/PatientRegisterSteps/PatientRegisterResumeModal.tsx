@@ -61,6 +61,7 @@ const styleBar = {
 };
 interface RegisterResumeProps {
   setOpen: Function;
+  hospitalization?: boolean;
 }
 const HEADERS = ['Nombre', 'Hora Inicio', 'Hora Fin'];
 const ARTICLE_HEADERS = ['Nombre', 'Cantidad'];
@@ -78,15 +79,15 @@ const TitleTypography = styled(Typography)(({}) => ({
 }));
 
 const SubtitleTypography = styled(Typography)(({}) => ({
-  fontSize: 13,
-  fontWeight: 500,
+  fontSize: 12,
+  fontWeight: 600,
 }));
 
 const TextTypography = styled(Typography)(({}) => ({
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 500,
 }));
-export const PatientRegisterResumeModal = (props: RegisterResumeProps) => {
+export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: RegisterResumeProps) => {
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
   const patient = usePatientEntryRegisterStepsStore((state) => state.patient);
@@ -191,7 +192,7 @@ export const PatientRegisterResumeModal = (props: RegisterResumeProps) => {
       await createAdmission(registerAdmissionObj);
       refetch();
       toast.success('Paciente dado de alta correctamente');
-      props.setOpen(false);
+      setOpen(false);
     } catch (error) {
       console.log(error);
       toast.error('Error al dar de alta al paciente');
@@ -202,7 +203,7 @@ export const PatientRegisterResumeModal = (props: RegisterResumeProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Resumen del registro" />
+      <HeaderModal setOpen={setOpen} title="Resumen del registro" />
       <Box
         sx={{
           bgcolor: 'background.paper',
@@ -212,37 +213,121 @@ export const PatientRegisterResumeModal = (props: RegisterResumeProps) => {
           ...styleBar,
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <TitleTypography>Datos del paciente</TitleTypography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <TitleTypography variant="h5">Datos del paciente</TitleTypography>
         </Box>
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
-            <Stack>
-              <SubtitleTypography>Nombre:</SubtitleTypography>
-              <TextTypography>{patient.name + ' ' + patient.lastName + ' ' + patient.secondLastName}</TextTypography>
+            <Stack spacing={1}>
+              <SubtitleTypography variant="subtitle1">Nombre:</SubtitleTypography>
+              <TextTypography>
+                {patient.name || patient.lastName || patient.secondLastName
+                  ? patient.name + ' ' + patient.lastName + ' ' + patient.secondLastName
+                  : 'Sin definir'}
+              </TextTypography>
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <Stack>
-              <SubtitleTypography>Fecha de Nacimiento:</SubtitleTypography>
+            <Stack spacing={1}>
+              <SubtitleTypography variant="subtitle1">Fecha de Nacimiento:</SubtitleTypography>
               <TextTypography>{dayjs(patient.birthDate).format('DD/MM/YYYY')}</TextTypography>
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <Stack>
-              <SubtitleTypography>Genero:</SubtitleTypography>
-              <TextTypography>{patient.genere}</TextTypography>
+            <Stack spacing={1}>
+              <SubtitleTypography variant="subtitle1">Género:</SubtitleTypography>
+              <TextTypography>{patient.genere ? patient.genere : 'Sin definir'}</TextTypography>
             </Stack>
           </Grid>
+          {hospitalization && (
+            <>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Estado Civil:</SubtitleTypography>
+                  <TextTypography>{!patient.civilStatus ? 'Sin definir' : patient.civilStatus}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Teléfono:</SubtitleTypography>
+                  <TextTypography>{!patient.phoneNumber ? 'Sin definir' : patient.phoneNumber}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Ocupación/Empleo:</SubtitleTypography>
+                  <TextTypography>{patient.occupation ? patient.occupation : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Código Postal:</SubtitleTypography>
+                  <TextTypography>{patient.zipCode ? patient.zipCode : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Colonia:</SubtitleTypography>
+                  <TextTypography>{patient.neighborhood ? patient.neighborhood : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Dirección:</SubtitleTypography>
+                  <TextTypography>{patient.address ? patient.address : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Estado:</SubtitleTypography>
+                  <TextTypography>{patient.state ? patient.state : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Ciudad:</SubtitleTypography>
+                  <TextTypography>{patient.city ? patient.city : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Persona Responsable:</SubtitleTypography>
+                  <TextTypography>{patient.personInCharge ? patient.personInCharge : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Parentesco:</SubtitleTypography>
+                  <TextTypography>{patient.relationship ? patient.relationship : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Teléfono de la Persona Responsable:</SubtitleTypography>
+                  <TextTypography>
+                    {patient.personInChargePhoneNumber ? patient.personInChargePhoneNumber : 'Sin definir'}
+                  </TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">Dirección de la Persona Responsable:</SubtitleTypography>
+                  <TextTypography>
+                    {patient.personInChargeAddress ? patient.personInChargeAddress : 'Sin definir'}
+                  </TextTypography>
+                </Stack>
+              </Grid>
+            </>
+          )}
         </Grid>
-        <CustomDivider />
+        <CustomDivider sx={{ my: 2 }} />
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <TitleTypography>Datos del evento</TitleTypography>
+          <TitleTypography>Datos del Espacio Reservado</TitleTypography>
         </Box>
         <LocalEventsTable events={roomValues} />
-        <CustomDivider />
+        <CustomDivider sx={{ my: 2 }} />
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <TitleTypography>Datos medicos</TitleTypography>
+          <TitleTypography>Datos Medicos</TitleTypography>
         </Box>
         <Box sx={{ display: 'flex' }}>
           <Box sx={{ flex: 1 }}>
@@ -256,26 +341,32 @@ export const PatientRegisterResumeModal = (props: RegisterResumeProps) => {
             ))}
           </Box>
         </Box>
-        <Box sx={{ my: 1 }}>
-          <SubtitleTypography>Estudios de Gabinete:</SubtitleTypography>
-          {cabinetStudiesSelected.length > 0 ? (
-            cabinetStudiesSelected.map((p: { id: string; nombre: string }) => <Chip key={p.id} label={p.nombre} />)
-          ) : (
-            <Typography variant="caption">
-              <b>Sin estudios agregados</b>
-            </Typography>
-          )}
-        </Box>
-        <CustomDivider />
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <TitleTypography>Artículos agregados</TitleTypography>
-        </Box>
-        <ArticlesTable articlesSelected={articlesSelected} />
-        <CustomDivider />
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <TitleTypography>Equipo Biomedico</TitleTypography>
-        </Box>
-        <BiomedicalEquipmentTable equipmentList={medicPersonalBiomedicalEquipment} />
+        {!hospitalization && (
+          <Box sx={{ my: 1 }}>
+            <SubtitleTypography>Estudios de Gabinete:</SubtitleTypography>
+            {cabinetStudiesSelected.length > 0 ? (
+              cabinetStudiesSelected.map((p: { id: string; nombre: string }) => <Chip key={p.id} label={p.nombre} />)
+            ) : (
+              <Typography variant="caption">
+                <b>Sin estudios agregados</b>
+              </Typography>
+            )}
+          </Box>
+        )}
+        <CustomDivider sx={{ my: 2 }} />
+        {!hospitalization && (
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <TitleTypography>Artículos agregados</TitleTypography>
+            </Box>
+            <ArticlesTable articlesSelected={articlesSelected} />
+            <CustomDivider />
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <TitleTypography>Equipo Biomedico</TitleTypography>
+            </Box>
+            <BiomedicalEquipmentTable equipmentList={medicPersonalBiomedicalEquipment} />
+          </>
+        )}
       </Box>
       <Box sx={{ bgcolor: 'background.paper', p: 1, display: 'flex', justifyContent: 'space-between' }}>
         <Button variant="outlined" onClick={() => setStep(step - 1)}>

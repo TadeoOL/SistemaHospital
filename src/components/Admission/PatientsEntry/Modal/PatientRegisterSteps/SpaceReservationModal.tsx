@@ -135,7 +135,10 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
   };
 
   const onSubmit = async () => {
-    if ((roomType != '0' && roomsRegistered.length < 1) || !roomsRegistered.some((r) => r.tipoCuarto == 1))
+    if (
+      (roomType != '0' && roomsRegistered.length < 1) ||
+      (!roomsRegistered.some((r) => r.tipoCuarto == 1) && roomType != '0')
+    )
       return toast.warning(`Es necesario agregar un ${roomType == '0' ? 'cuarto' : 'quirófano'} para continuar`);
 
     let startDate = roomsRegistered[0].horaInicio;

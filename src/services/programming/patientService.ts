@@ -22,6 +22,8 @@ export const createPatient = async (data: IPatient) => {
     codigoPostalResponsable: data.personInChargeZipCode,
     coloniaResponsable: data.personInChargeNeighborhood,
     telefonoResponsable: data.personInChargePhoneNumber,
+    ciudad: data.city,
+    estado: data.state,
   });
   return res.data;
 };

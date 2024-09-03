@@ -77,9 +77,15 @@ export const RegisterCalendarSurgery = ({ setOpen }: RegisterCalendarHospitaliza
           <TextField
             select
             label="Quirófanos"
+            value={surgeryRoomSelected}
             sx={{ width: { xs: '50%', sm: '30%', md: '23%', lg: '18%' } }}
             onChange={handleChangeRoomSelected}
           >
+            {!isLoading && (
+              <MenuItem key={'0'} value={'0'}>
+                Todos
+              </MenuItem>
+            )}
             {isLoading ? (
               <MenuItem>
                 <tr>Cargando...</tr>
@@ -91,9 +97,6 @@ export const RegisterCalendarSurgery = ({ setOpen }: RegisterCalendarHospitaliza
                 </MenuItem>
               ))
             )}
-            <MenuItem key={'0'} value={'0'}>
-              Todos
-            </MenuItem>
           </TextField>
         </Box>
         <CalendarSurgeryPatientRegisterComponent day={day} setDay={setDay} />
