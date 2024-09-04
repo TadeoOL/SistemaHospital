@@ -81,3 +81,8 @@ export const getPatientInfoById = async (patientId: string) => {
   });
   return res.data as PacienteInfo;
 };
+
+export const getOutstandingBillsPagination = async (url: string) => {
+  const res = await axios.get(`${apiPatient}/obtener-cuentas-cerradas-por-pagar?${url}`);
+  return res.data;
+};

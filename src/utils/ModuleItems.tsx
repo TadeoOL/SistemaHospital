@@ -300,6 +300,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <Receipt sx={{ color: '#fff' }} />,
         protectedRoles: closeAccount,
       },
+      {
+        title: 'Cuentas Pendientes Por Pagar',
+        path: '/admision/cuentas-pendientes-por-pagar',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: purchaseGlobalRoles,
+      },
     ],
     path: 'admision',
   },
