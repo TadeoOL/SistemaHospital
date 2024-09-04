@@ -191,7 +191,7 @@ const EventTable = (props: { data: IRoomEvent[]; refetch: Function; setRooms: (r
               rooms={props.data}
               setRooms={props.setRooms}
               operatingRooms={rooms
-                .filter((x) => x.id_TipoCuarto === row.id_TipoCuarto)
+                .filter((x) => x.tipo === row.tipo)
                 .map((x) => {
                   return { id: x.id, nombre: x.nombre };
                 })}

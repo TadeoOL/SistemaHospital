@@ -696,6 +696,7 @@ export interface IRoomsList {
   id_TipoCuarto: string;
   nombre: string;
   precio: number;
+  tipo: number;
 }
 
 export interface IRoomEvent {
@@ -706,6 +707,7 @@ export interface IRoomEvent {
   fechaFin: string;
   tipoCuarto?: string;
   id_TipoCuarto?: string;
+  tipo?: number;
 }
 export interface IEventsCalendar {
   id: string;

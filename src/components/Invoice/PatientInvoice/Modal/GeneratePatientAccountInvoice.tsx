@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CircularProgress,
+  Divider,
   MenuItem,
   Stack,
   Table,
@@ -92,6 +93,9 @@ export const GeneratePatientAccountInvoice = ({
   const [typeOfInvoiceSelected, setTypeOfInvoiceSelected] = useState(0);
   const [loadingGenerateInvoice, setLoadingGenerateInvoice] = useState(false);
   const refetch = useInvoicePatientBillPaginationStore((state) => state.fetchData);
+  const [ivaValue, setIvaValue] = useState(0);
+  const [subTotalValue, setSubTotalValue] = useState(0);
+  const [totalValue, setTotalValue] = useState(0);
 
   const handleCloseModal = () => {
     setOpen(false);
@@ -135,12 +139,26 @@ export const GeneratePatientAccountInvoice = ({
         <Box sx={style2}>
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
             <Stack sx={{ flex: 1 }}>
-              <Typography>
-                Clave Paciente: <b>{patientKey}</b>
-              </Typography>
-              <Typography>
-                Nombre Paciente: <b>{patientName}</b>
-              </Typography>
+              <Stack>
+                <Typography>
+                  Clave Paciente: <b>{patientKey}</b>
+                </Typography>
+                <Typography>
+                  Nombre Paciente: <b>{patientName}</b>
+                </Typography>
+              </Stack>
+              <Divider sx={{ my: 1 }} />
+              <Stack>
+                <Typography>
+                  SubTotal: <b>{subTotalValue.toFixed(2)}</b>
+                </Typography>
+                <Typography>
+                  IVA: <b>{ivaValue.toFixed(2)}</b>
+                </Typography>
+                <Typography>
+                  Total: <b>{totalValue.toFixed(2)}</b>
+                </Typography>
+              </Stack>
             </Stack>
             <Box sx={{ flex: 1 }}>
               <Stack spacing={2}>
@@ -184,7 +202,13 @@ export const GeneratePatientAccountInvoice = ({
           </Box>
           <Box sx={{ overflowY: 'auto' }}>
             <Box sx={{ maxHeight: { xs: 400, lg: 600 } }}>
-              <ItemsToBeInvoiced invoiceMethodSelected={invoiceMethodSelected} data={data} />
+              <ItemsToBeInvoiced
+                invoiceMethodSelected={invoiceMethodSelected}
+                data={data}
+                setIva={setIvaValue}
+                setSubTotal={setSubTotalValue}
+                setTotal={setTotalValue}
+              />
             </Box>
           </Box>
         </Box>
@@ -214,8 +238,14 @@ export const GeneratePatientAccountInvoice = ({
   );
 };
 
-const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: { data: IAcountAllInformation; invoiceMethodSelected: number }) => {
-  const { data, invoiceMethodSelected } = ItemsToBeInvoicedProps;
+const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
+  data: IAcountAllInformation;
+  invoiceMethodSelected: number;
+  setIva: Function;
+  setSubTotal: Function;
+  setTotal: Function;
+}) => {
+  const { data, invoiceMethodSelected, setIva, setSubTotal, setTotal } = ItemsToBeInvoicedProps;
   const [items, setItems] = useState<
     {
       id: string;
@@ -337,15 +367,63 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: { data: IAcountAllInformation
     switch (invoiceMethodSelected) {
       case 1:
         setItems([...formatArticles()]);
+        setIva(
+          formatArticles()
+            .flatMap((a) => a.iva)
+            .reduce((prev, val) => prev + val, 0)
+        );
+        setSubTotal(
+          formatArticles()
+            .flatMap((a) => a.precioNeto)
+            .reduce((prev, val) => prev + val, 0)
+        );
+        setTotal(
+          formatArticles()
+            .flatMap((a) => a.precioTotal)
+            .reduce((prev, val) => prev + val, 0)
+        );
         break;
       case 2:
         setItems([...formatRooms()]);
+        setIva(
+          formatRooms()
+            .flatMap((a) => a.iva)
+            .reduce((prev, val) => prev + val, 0)
+        );
+        setSubTotal(
+          formatRooms()
+            .flatMap((a) => a.precioNeto)
+            .reduce((prev, val) => prev + val, 0)
+        );
+        setTotal(
+          formatRooms()
+            .flatMap((a) => a.precioTotal)
+            .reduce((prev, val) => prev + val, 0)
+        );
         break;
       case 3:
         setItems(formatAll());
+        setIva(
+          formatAll()
+            .flatMap((a) => a.iva)
+            .reduce((prev, val) => prev + val, 0)
+        );
+        setSubTotal(
+          formatAll()
+            .flatMap((a) => a.precioNeto)
+            .reduce((prev, val) => prev + val, 0)
+        );
+        setTotal(
+          formatAll()
+            .flatMap((a) => a.precioTotal)
+            .reduce((prev, val) => prev + val, 0)
+        );
         break;
       default:
         setItems([]);
+        setIva(0);
+        setSubTotal(0);
+        setTotal(0);
         break;
     }
   }, [invoiceMethodSelected]);
