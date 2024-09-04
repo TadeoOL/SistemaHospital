@@ -27,17 +27,32 @@ import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 import { useGetAllDocumentConcepts } from '../../../../hooks/contpaqi/useGetDocumentConcepts';
 
 const INVOICE_TABLE_HEADERS = ['Nombre', 'Precio Unitario', 'Cantidad', 'Precio Neto', 'IVA', 'Precio Total'];
+
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 650, xl: 1100 },
-  borderRadius: 2,
-  boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: `600px`, // Uso de la variable para mantener consistencia.
+};
+
+const style2 = {
+  bgcolor: 'background.paper',
+  overflowY: 'auto',
+  p: 2,
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
 };
 
 interface GeneratePatientAccountInvoiceProps {
@@ -117,7 +132,7 @@ export const GeneratePatientAccountInvoice = ({
     <>
       <Box sx={style}>
         <HeaderModal setOpen={setOpen} title={`Generar Factura - Paciente: ${patientName}`} />
-        <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
+        <Box sx={style2}>
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
             <Stack sx={{ flex: 1 }}>
               <Typography>

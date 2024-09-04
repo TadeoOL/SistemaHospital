@@ -1,5 +1,5 @@
-import { Close } from '@mui/icons-material';
-import { Backdrop, Box, Button, CircularProgress, IconButton, Stack, Tab, Tabs, Typography } from '@mui/material';
+// import { Close } from '@mui/icons-material';
+import { Backdrop, Box, Button, CircularProgress, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getEventDetails } from '../../../../services/programming/admissionRegisterService';
 import { EventGeneralDetails } from './EventGeneralDetails';

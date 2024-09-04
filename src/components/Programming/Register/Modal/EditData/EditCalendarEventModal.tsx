@@ -34,7 +34,6 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { modifyRoomsEvents } from '../../../../../services/programming/admissionRegisterService';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
-import { useGetAllOperatingRooms } from '../../../../../hooks/operatingRoom/useGetAllOperatingRoom';
 import { useGetAllRooms } from '../../../../../hooks/programming/useGetAllRooms';
 
 const TABLE_HEADERS = ['Cuarto', 'Hora Ingreso', 'Hora Salida', 'Acciones'];
