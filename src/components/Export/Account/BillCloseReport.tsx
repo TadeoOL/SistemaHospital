@@ -192,6 +192,9 @@ type CierreCuenta = {
   notas: string;
   iva: number;
   subTotal: number;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 };
 
 type Props = {
@@ -206,17 +209,18 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
     <Page style={styles.page}>
       <View style={styles.section}>
         <Text style={styles.header}>Información del Paciente</Text>
-        <View style={{ display: 'flex', justifyContent: 'space-between', flex: 1, flexDirection: 'row' }}>
-          <Text>
-            Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno}{' '}
-            {cierreCuenta.paciente.apellidoMaterno}
-          </Text>
-          <Text>Fecha: {dayjs().format('DD/MM/YYYY - HH:mm')}</Text>
-        </View>
-        <Text style={{ marginTop: 10 }}>Nombre Doctor: {cierreCuenta.medico}</Text>
-        <Text style={{ marginTop: 10 }}>
+        <Text>
+          Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno}{' '}
+          {cierreCuenta.paciente.apellidoMaterno}
+        </Text>
+        <Text>Fecha: {dayjs().format('DD/MM/YYYY - HH:mm')}</Text>
+        <Text>Nombre Doctor: {cierreCuenta.medico}</Text>
+        <Text style={{ marginBottom: 10 }}>
           Tipo: {cierreCuenta.esHospitalizacion ? 'Hospitalización' : 'Ambulatoria o Endopro'}
         </Text>
+        <Text>Total de Servicios y Estudios: ${cierreCuenta.ventaConcepto}</Text>
+        <Text>Total de Material: ${cierreCuenta.ventaArticuloIVA}</Text>
+        <Text>Total de Medicamento: ${cierreCuenta.ventaArticuloSinIVA}</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.header}>Detalles de la Cuenta</Text>
@@ -224,7 +228,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
           <>
             <Text style={styles.header}>Cuartos</Text>
             <View style={styles.table}>
-              <View>
+              <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Cantidad Días</Text>
                 <Text style={styles.tableCol}>Precio por Día</Text>
@@ -233,7 +237,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <Text style={styles.tableCol}>Precio Total</Text>
               </View>
               {cierreCuenta.cuartos.map((cuarto, index) => (
-                <View key={index}>
+                <View key={index} style={styles.tableRow}>
                   <Text style={styles.tableCell}>{cuarto.nombre}</Text>
                   <Text style={styles.tableCell}>{cuarto.cantidadDias}</Text>
                   <Text style={styles.tableCell}>${cuarto.precioDia}</Text>
@@ -254,7 +258,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
           <>
             <Text style={styles.header}>Quirófanos</Text>
             <View style={styles.table}>
-              <View>
+              <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Nombre</Text>
                 <Text style={styles.tableCol}>Tiempo Cirugía</Text>
                 {/* <Text style={styles.tableCol}>Precio por Hora</Text> */}
@@ -263,7 +267,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
                 <Text style={styles.tableCol}>Precio Total</Text>
               </View>
               {cierreCuenta.quirofanos.map((quirofano, index) => (
-                <View key={index}>
+                <View key={index} style={styles.tableRow}>
                   <Text style={styles.tableCell}>{quirofano.nombre}</Text>
                   <Text style={styles.tableCell}>{quirofano.tiempoCirugia}</Text>
                   {/* <Text style={styles.tableCell}>${quirofano.precioHora}</Text> */}
