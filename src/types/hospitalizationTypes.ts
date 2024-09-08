@@ -117,6 +117,9 @@ export interface IAcountAllInformationAdmission {
   iva: number;
   subTotal: number;
   esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
