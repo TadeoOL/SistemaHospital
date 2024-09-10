@@ -144,6 +144,8 @@ export interface ITypeRoom {
   codigoSATRecuperacion?: string;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
+  codigoUnidadMedidaRecuperacion?: string;
 }
 
 export interface IDocumentsInfo {

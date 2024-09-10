@@ -360,6 +360,7 @@ export const addNewArticle = async (article: IArticle) => {
     codigoBarras,
     codigoContpaqi,
     codigoSAT,
+    codigoUnidadMedida,
   } = article;
 
   const res = await axios.post(`/api/Articulo/registrar-articulo`, {
@@ -377,6 +378,7 @@ export const addNewArticle = async (article: IArticle) => {
     codigoBarras,
     codigoContpaqi,
     codigoSAT,
+    codigoUnidadMedida,
   });
   return res.data;
 };

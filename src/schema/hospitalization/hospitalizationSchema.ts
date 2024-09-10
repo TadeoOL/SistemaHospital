@@ -7,8 +7,9 @@ export const biomedicalEquipmentSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Nombre es requerido'),
   description: z.string().optional(),
-  codigoContpaqi: z.string().nullable(),
-  codigoSAT: z.string().nullable(),
+  codigoContpaqi: z.string().min(1, 'El código es necesario'),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
   price: z
     .union([
       z.string().refine((p) => p.trim() !== '', {
@@ -66,8 +67,9 @@ export const xraySchema = z.object({
       return p;
     })
     .refine((p) => p !== 0, { message: 'El numero debe ser mayor a 0' }),
-  codigoContpaqi: z.string().nullable(),
-  codigoSAT: z.string().nullable(),
+  codigoContpaqi: z.string().min(1, 'El código es necesario'),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
 });
 
 export const medicSchema = z.object({
@@ -138,3 +140,27 @@ export const validateDates = z
     message: 'La fecha de finalización debe ser mayor a la fecha de inicio',
     path: ['endDate'],
   });
+
+export const discountFormSchema = z
+  .object({
+    Id_CuentaPaciente: z.string().min(1, 'El id de la cuenta es necesario'),
+    MontoDescuento: z
+      .number({ invalid_type_error: 'El monto del descuento es necesario' })
+      .min(0, 'El monto del descuento es necesario'),
+    MotivoDescuento: z.string().optional(),
+    TipoDescuento: z
+      .number({ invalid_type_error: 'El tipo de descuento es necesario' })
+      .min(1, 'El tipo de descuento es necesario'),
+  })
+  .refine(
+    (data) => {
+      if (data.TipoDescuento === 1) {
+        return data.MontoDescuento <= 100;
+      }
+      return true;
+    },
+    {
+      message: 'El porcentaje de descuento no puede ser mayor a 100%',
+      path: ['MontoDescuento'],
+    }
+  );

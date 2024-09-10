@@ -101,8 +101,9 @@ export const surgeryProcedureSchema = z.object({
     }),
   description: z.string().optional(),
   price: z.string().optional(),
-  codigoContpaqi: z.string().nullable(),
-  codigoSAT: z.string().nullable(),
+  codigoContpaqi: z.string().min(1, 'El código es necesario'),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
 });
 
 export const addRoomReservation = z
@@ -180,8 +181,10 @@ export const typeRoomSchema = z
     type: z.string(),
     codigoContpaqiRecuperacion: z.string().optional(),
     codigoSATRecuperacion: z.string().optional(),
-    codigoSAT: z.string().optional(),
-    codigoContpaqi: z.string().optional(),
+    codigoSAT: z.string().min(1, 'El código es necesario'),
+    codigoContpaqi: z.string().min(1, 'El código es necesario'),
+    codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
+    codigoUnidadMedidaRecuperacion: z.string().min(1, 'El código es necesario'),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
@@ -190,4 +193,19 @@ export const typeRoomSchema = z
   .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
     message: 'El precio del cuarto es necesario',
     path: ['priceRoom'],
-  });
+  })
+  .refine(
+    (values) =>
+      values.type !== '1' || (values.codigoContpaqiRecuperacion && values.codigoContpaqiRecuperacion.length > 0),
+    {
+      message: 'El código de Contpaqi de Recuperación es necesario para quirófanos',
+      path: ['codigoContpaqiRecuperacion'],
+    }
+  )
+  .refine(
+    (values) => values.type !== '1' || (values.codigoSATRecuperacion && values.codigoSATRecuperacion.length > 0),
+    {
+      message: 'El código de SAT de Recuperación es necesario para quirófanos',
+      path: ['codigoSATRecuperacion'],
+    }
+  );

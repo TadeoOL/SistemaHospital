@@ -98,7 +98,6 @@ export const closeRegisterAndAccount = async (data: {
   Id_Paciente: string;
   Id_CuentaPaciente: string;
   TotalCuenta: number;
-  Descuento?: number;
   SubTotal: number;
   IVA: number;
 }) => {

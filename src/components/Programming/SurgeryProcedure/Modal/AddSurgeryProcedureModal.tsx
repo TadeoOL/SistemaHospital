@@ -38,6 +38,7 @@ type Inputs = {
   price: string;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 };
 
 interface AddSurgeryProcedureModalProps {
@@ -64,6 +65,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
       price: editData ? editData.precioCirujia.toString() : '',
       codigoContpaqi: editData?.codigoContpaqi ?? '',
       codigoSAT: editData?.codigoSAT ?? '',
+      codigoUnidadMedida: editData?.codigoUnidadMedida ?? '',
     },
   });
 
@@ -79,6 +81,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           precioCirujia: parseFloat(data.price),
           codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
         });
         toast.success('Procedimiento dado de alta correctamente');
       } else {
@@ -91,6 +94,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           id: editData.id,
           codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
         });
         toast.success('Procedimiento modificado correctamente');
       }
@@ -205,6 +209,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 error={!!errors.codigoContpaqi?.message}
                 helperText={errors.codigoContpaqi?.message}
                 {...register('codigoContpaqi')}
+                disabled={!!editData}
               />
             </Grid>
             <Grid item xs={6}>
@@ -215,6 +220,18 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 error={!!errors.codigoSAT?.message}
                 helperText={errors.codigoSAT?.message}
                 {...register('codigoSAT')}
+                disabled={!!editData}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Unidad de Medida</Typography>
+              <TextField
+                label="Escribe un codigo de Unidad de Medida"
+                fullWidth
+                error={!!errors.codigoUnidadMedida?.message}
+                helperText={errors.codigoUnidadMedida?.message}
+                {...register('codigoUnidadMedida')}
+                disabled={!!editData}
               />
             </Grid>
           </Grid>

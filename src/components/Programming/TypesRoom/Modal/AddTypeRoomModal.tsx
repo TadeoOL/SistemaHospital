@@ -71,6 +71,8 @@ type Inputs = {
   codigoSATRecuperacion?: string;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
+  codigoUnidadMedidaRecuperacion?: string;
 };
 
 interface AddTypeRoomModalProps {
@@ -105,6 +107,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       codigoSATRecuperacion: editData?.codigoSATRecuperacion,
       codigoContpaqi: editData?.codigoContpaqi,
       codigoSAT: editData?.codigoSAT,
+      codigoUnidadMedida: editData?.codigoUnidadMedida,
+      codigoUnidadMedidaRecuperacion: editData?.codigoUnidadMedidaRecuperacion,
     },
   });
 
@@ -128,6 +132,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           codigoSATRecuperacion: data.codigoSATRecuperacion,
           codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion,
         });
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
@@ -148,6 +154,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           codigoSATRecuperacion: data.codigoSATRecuperacion,
           codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion,
         });
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
@@ -330,6 +338,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               error={!!errors.codigoContpaqi?.message}
               helperText={errors.codigoContpaqi?.message}
               {...register('codigoContpaqi')}
+              disabled={!!editData}
             />
           </Grid>
           <Grid item xs={6}>
@@ -340,6 +349,33 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               error={!!errors.codigoSAT?.message}
               helperText={errors.codigoSAT?.message}
               {...register('codigoSAT')}
+              disabled={!!editData}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography>Código de Unidad de Medida</Typography>
+            <TextField
+              type="number"
+              label="Escribe un codigo de Unidad de Medida"
+              fullWidth
+              error={!!errors.codigoUnidadMedida?.message}
+              helperText={errors.codigoUnidadMedida?.message}
+              {...register('codigoUnidadMedida')}
+              disabled={!!editData}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography>
+              Código de Unidad de Medida de <b>Recuperación</b>
+            </Typography>
+            <TextField
+              type="number"
+              label="Escribe un codigo de Unidad de Medida de Recuperación"
+              fullWidth
+              error={!!errors.codigoUnidadMedidaRecuperacion?.message}
+              helperText={errors.codigoUnidadMedidaRecuperacion?.message}
+              {...register('codigoUnidadMedidaRecuperacion')}
+              disabled={!!editData}
             />
           </Grid>
         </Grid>

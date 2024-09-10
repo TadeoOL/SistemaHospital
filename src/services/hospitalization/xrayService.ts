@@ -8,6 +8,7 @@ export const createXRay = async (data: {
   tipo: number;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }) => {
   const res = await axios.post(`${apiXRay}/crear-radiografia`, data);
   return res.data;
@@ -31,6 +32,7 @@ export const modifyXRay = async (data: {
   tipo: number;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }) => {
   const res = await axios.put(`${apiXRay}/modificar-radiografia`, data);
   return res.data;

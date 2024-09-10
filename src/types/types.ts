@@ -123,6 +123,7 @@ export interface IArticle {
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
+  codigoUnidadMedida?: string;
 }
 
 export interface IArticle2 {
@@ -677,6 +678,7 @@ export interface ISurgeryProcedure {
   descripcion: string;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }
 
 export interface IRegisterRoom {

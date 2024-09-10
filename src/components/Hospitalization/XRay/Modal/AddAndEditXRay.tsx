@@ -57,6 +57,7 @@ interface Inputs {
   description: string;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }
 export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
   const { xray } = props;
@@ -77,6 +78,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
       type: xray?.tipo ?? 0,
       codigoContpaqi: xray?.codigoContpaqi ?? '',
       codigoSAT: xray?.codigoSAT ?? '',
+      codigoUnidadMedida: xray?.codigoUnidadMedida ?? '',
     },
     resolver: zodResolver(xraySchema),
   });
@@ -93,6 +95,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             tipo: data.type,
             codigoContpaqi: data.codigoContpaqi,
             codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
           })
         : await createXRay({
             descripcion: data.description,
@@ -101,6 +104,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             tipo: data.type,
             codigoContpaqi: data.codigoContpaqi,
             codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
           });
       toast.success(`Solicitud ${xray ? 'modificado' : 'agregado'} correctamente`);
       refetch();
@@ -167,11 +171,36 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             </Grid>
             <Grid item xs={6}>
               <Typography>Código de Contpaqi</Typography>
-              <TextField label="Escribe un codigo de Contpaqi" fullWidth {...register('codigoContpaqi')} />
+              <TextField
+                label="Escribe un codigo de Contpaqi"
+                fullWidth
+                {...register('codigoContpaqi')}
+                error={!!errors.codigoContpaqi?.message}
+                helperText={errors.codigoContpaqi?.message}
+                disabled={!!xray}
+              />
             </Grid>
             <Grid item xs={6}>
               <Typography>Código de SAT</Typography>
-              <TextField label="Escribe un codigo de SAT" fullWidth {...register('codigoSAT')} />
+              <TextField
+                label="Escribe un codigo de SAT"
+                fullWidth
+                {...register('codigoSAT')}
+                error={!!errors.codigoSAT?.message}
+                helperText={errors.codigoSAT?.message}
+                disabled={!!xray}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Unidad de Medida</Typography>
+              <TextField
+                label="Escribe un codigo de Unidad de Medida"
+                fullWidth
+                {...register('codigoUnidadMedida')}
+                error={!!errors.codigoUnidadMedida?.message}
+                helperText={errors.codigoUnidadMedida?.message}
+                disabled={!!xray}
+              />
             </Grid>
           </Grid>
         </Box>

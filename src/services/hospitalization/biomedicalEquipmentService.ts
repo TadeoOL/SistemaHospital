@@ -7,6 +7,7 @@ export const createBiomedicalEquipment = async (data: {
   precio: number;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }) => {
   const res = await axios.post(`${apiBiomedicalEquipment}/crear-equipo-biomedico`, data);
   return res.data;
@@ -19,6 +20,7 @@ export const modifyBiomedicalEquipment = async (data: {
   precio: number;
   codigoContpaqi?: string;
   codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }) => {
   const res = await axios.put(`${apiBiomedicalEquipment}/modificar-equipo-biomedico`, data);
   return res.data;
