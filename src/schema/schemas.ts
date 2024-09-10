@@ -178,6 +178,8 @@ export const addArticle = z.object({
     ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
   codigoBarras: z.string().nullable(),
+  codigoContpaqi: z.string().nullable(),
+  codigoSAT: z.string().nullable(),
 });
 
 export const addArticleBox = z.object({

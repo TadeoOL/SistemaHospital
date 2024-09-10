@@ -1,105 +1,133 @@
-import { Box, Button, Card, CircularProgress, Modal, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, IconButton, MenuItem, TextField, Tooltip, Typography } from '@mui/material';
 import { CalendarComponent } from '../RegisterSteps/Calendar/CalendarComponent';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { useGetDate } from '../../../hooks/programming/useGetDate';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
+import { useGetAllTypesRoom } from '../../../hooks/programming/useGetAllTypesRoom';
+import { useGetAllRooms } from '../../../hooks/programming/useGetAllRooms';
+import { ClearAll } from '@mui/icons-material';
 dayjs.locale('es');
 
 export const ProgrammingCalendar = () => {
-  const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
-  const currentDate: any = dayjs(new Date());
-  const setAppointmentStartDate = useProgrammingRegisterStore((state) => state.setAppointmentStartDate);
-  const setAppointmentEndDate = useProgrammingRegisterStore((state) => state.setAppointmentEndDate);
+  const [roomTypeId, setRoomTypeId] = useState('');
+  const [roomId, setRoomId] = useState('');
   const events = useProgrammingRegisterStore((state) => state.events);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
-  const { isLoading } = useGetDate(date);
+  useGetDate(date, setEvents, roomTypeId, roomId);
+  const { data, isLoadingTypeRoom } = useGetAllTypesRoom();
+  const { data: roomsData, isLoadingRooms } = useGetAllRooms(roomTypeId);
 
-  const handleRegisterEvent = () => {
-    setAppointmentStartDate(new Date());
-    setAppointmentEndDate(new Date());
-    setOpen(true);
+  const handleClearFilters = () => {
+    setRoomTypeId('');
+    setRoomId('');
+    setDate(new Date());
   };
 
-  const sameDate = useMemo(() => {
-    if (!date) return true;
-    const dateJs: any = dayjs(date);
-    const formattedCurrentDate = currentDate['$M'] + currentDate['$y'];
-    const formattedSelectedDate = dateJs['$M'] + dateJs['$y'];
-    return formattedCurrentDate === formattedSelectedDate;
-  }, [date]);
-
-  if (isLoading && events.length < 1)
+  if (isLoadingTypeRoom || isLoadingRooms)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
       </Box>
     );
   return (
-    <>
-      <Card sx={{ px: 2, pt: 4, pb: 2 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'start',
-            mb: 3,
-          }}
-        >
-          <Typography sx={{ fontSize: 22, fontWeight: 700, flex: 1 }}>Calendario</Typography>
-          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10 }}>
-            <Box sx={{ display: 'flex' }}>
-              {!sameDate && (
-                <Button variant="outlined" onClick={() => setDate(currentDate)} size="small">
-                  <Typography sx={{ fontSize: 10, fontWeight: 500 }}>Volver al dia actual</Typography>
-                </Button>
-              )}
-            </Box>
-            <Box sx={{ display: 'flex', flex: 1 }}>
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                <DatePicker
-                  views={['year', 'month']}
-                  label="Año y Mes"
-                  onMonthChange={(e: any) => {
-                    setDate(e);
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                    },
-                  }}
-                  value={dayjs(date) ?? dayjs()}
-                />
-              </LocalizationProvider>
-            </Box>
-          </Box>
-          <Box sx={{ flex: 1, justifyContent: 'flex-end', display: 'flex' }}>
-            <Button variant="contained" onClick={handleRegisterEvent}>
-              Registrar evento
-            </Button>
-          </Box>
+    <Card sx={{ p: 2 }}>
+      <Typography sx={{ fontSize: 24, fontWeight: 700, flex: 1 }}>Calendario de Espacios Reservados</Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: { sm: 'end', xs: undefined },
+          mb: 3,
+          columnGap: 4,
+          px: { sm: 10, xs: 4 },
+          py: 2,
+          flexDirection: { xs: 'column', sm: 'row' },
+        }}
+      >
+        <Box sx={{ flex: 0.5 }}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+            <DatePicker
+              views={['year', 'month']}
+              label="Año y Mes"
+              onMonthChange={(e: any) => {
+                setDate(e);
+              }}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  variant: 'standard',
+                },
+              }}
+              value={dayjs(date) ?? dayjs()}
+            />
+          </LocalizationProvider>
         </Box>
-        <Box>
-          <CalendarComponent
-            date={date}
-            events={events}
-            calendarHeight={700}
-            calendarWidth={'100%'}
-            setDate={setDate}
-            setEvents={setEvents}
-          />
+        <Box sx={{ flex: 1 }}>
+          <TextField
+            select
+            fullWidth
+            label="Tipo de Espacio"
+            size="small"
+            variant="standard"
+            value={roomTypeId}
+            onChange={(e) => setRoomTypeId(e.target.value)}
+          >
+            <MenuItem key={''} value="">
+              Todos
+            </MenuItem>
+            {data.map((x) => (
+              <MenuItem key={x.id} value={x.id}>
+                {x.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
         </Box>
-      </Card>
-      <Modal open={open}>
-        <>
-          <RegisterSteps setOpen={setOpen} />
-        </>
-      </Modal>
-    </>
+        <Box sx={{ flex: 1 }}>
+          <TextField
+            select
+            fullWidth
+            label="Espacio reservado"
+            value={roomId}
+            variant="standard"
+            size="small"
+            onChange={(e) => setRoomId(e.target.value)}
+          >
+            <MenuItem key={''} value="">
+              Todos
+            </MenuItem>
+            {roomsData.map((x) => (
+              <MenuItem key={x.id} value={x.id}>
+                {x.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
+        <Box sx={{ flex: 0.1 }}>
+          <Tooltip title="Limpiar filtros">
+            <Box>
+              <IconButton onClick={handleClearFilters} disabled={!roomId && !roomTypeId}>
+                <ClearAll color={!roomTypeId && !roomId ? undefined : 'error'} />
+              </IconButton>
+            </Box>
+          </Tooltip>
+        </Box>
+      </Box>
+      <Box>
+        <CalendarComponent
+          date={date}
+          events={events}
+          calendarHeight={700}
+          calendarWidth={'100%'}
+          setDate={setDate}
+          setEvents={setEvents}
+          justInformative
+        />
+      </Box>
+    </Card>
   );
 };

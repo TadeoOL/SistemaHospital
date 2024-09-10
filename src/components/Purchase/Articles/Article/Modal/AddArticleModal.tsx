@@ -106,6 +106,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       precioVenta: '',
       precioVentaPI: '',
       codigoBarras: '',
+      codigoContpaqi: '',
+      codigoSAT: '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -493,6 +495,28 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   size="small"
                   placeholder="Escriba un código de barras"
                   {...register('codigoBarras')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código Contpaqi</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoContpaqi}
+                  helperText={errors?.codigoContpaqi?.message}
+                  size="small"
+                  placeholder="Escriba un código de contpaqi"
+                  {...register('codigoContpaqi')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de SAT</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoSAT}
+                  helperText={errors?.codigoSAT?.message}
+                  size="small"
+                  placeholder="Escriba un código de SAT"
+                  {...register('codigoSAT')}
                 />
               </Grid>
             </Grid>

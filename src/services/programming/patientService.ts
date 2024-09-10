@@ -22,6 +22,8 @@ export const createPatient = async (data: IPatient) => {
     codigoPostalResponsable: data.personInChargeZipCode,
     coloniaResponsable: data.personInChargeNeighborhood,
     telefonoResponsable: data.personInChargePhoneNumber,
+    ciudad: data.city,
+    estado: data.state,
   });
   return res.data;
 };
@@ -78,4 +80,9 @@ export const getPatientInfoById = async (patientId: string) => {
     },
   });
   return res.data as PacienteInfo;
+};
+
+export const getOutstandingBillsPagination = async (url: string) => {
+  const res = await axios.get(`${apiPatient}/obtener-cuentas-cerradas-por-pagar?${url}`);
+  return res.data;
 };

@@ -67,6 +67,10 @@ type Inputs = {
   recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
+  codigoContpaqiRecuperacion?: string;
+  codigoSATRecuperacion?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 };
 
 interface AddTypeRoomModalProps {
@@ -97,6 +101,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
       priceRoom: editData ? editData.precio?.toString() : '0',
+      codigoContpaqiRecuperacion: editData?.codigoContpaqiRecuperacion,
+      codigoSATRecuperacion: editData?.codigoSATRecuperacion,
+      codigoContpaqi: editData?.codigoContpaqi,
+      codigoSAT: editData?.codigoSAT,
     },
   });
 
@@ -116,6 +124,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             : undefined,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
+          codigoContpaqiRecuperacion: data.codigoContpaqiRecuperacion,
+          codigoSATRecuperacion: data.codigoSATRecuperacion,
+          codigoContpaqi: data.codigoContpaqi,
+          codigoSAT: data.codigoSAT,
         });
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
@@ -132,6 +144,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           id: editData.id,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
+          codigoContpaqiRecuperacion: data.codigoContpaqiRecuperacion,
+          codigoSATRecuperacion: data.codigoSATRecuperacion,
+          codigoContpaqi: data.codigoContpaqi,
+          codigoSAT: data.codigoSAT,
         });
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
@@ -277,6 +293,54 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 error={errors}
               />
             )}
+          </Grid>
+          {watch('type') === '1' && (
+            <>
+              <Grid item xs={6}>
+                <Typography>
+                  Código de Contpaqi de <b>Recuperación</b>
+                </Typography>
+                <TextField
+                  placeholder="Escribe una código de Contpaqi para Recuperación"
+                  fullWidth
+                  error={!!errors.codigoContpaqiRecuperacion?.message}
+                  helperText={errors.codigoContpaqiRecuperacion?.message}
+                  {...register('codigoContpaqiRecuperacion')}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>
+                  Codigo de SAT de <b>Recuperación</b>
+                </Typography>
+                <TextField
+                  placeholder="Escribe un codigo de SAT para Recuperación"
+                  fullWidth
+                  error={!!errors.codigoSATRecuperacion?.message}
+                  helperText={errors.codigoSATRecuperacion?.message}
+                  {...register('codigoSATRecuperacion')}
+                />
+              </Grid>
+            </>
+          )}
+          <Grid item xs={6}>
+            <Typography>Código de Contpaqi</Typography>
+            <TextField
+              placeholder="Escribe una código de Contpaqi"
+              fullWidth
+              error={!!errors.codigoContpaqi?.message}
+              helperText={errors.codigoContpaqi?.message}
+              {...register('codigoContpaqi')}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography>Código de SAT</Typography>
+            <TextField
+              placeholder="Escribe un código de SAT"
+              fullWidth
+              error={!!errors.codigoSAT?.message}
+              helperText={errors.codigoSAT?.message}
+              {...register('codigoSAT')}
+            />
           </Grid>
         </Grid>
       </Box>

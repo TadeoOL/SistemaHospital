@@ -26,3 +26,4 @@ export const operatingRoomANDnurse = [...nurseRole, 'QUIROFANO'];
 
 //Roles radiografia??? wea para ultrasonido, analisis radiografia etc
 export const xrayAdmin = [...purchaseGlobalRoles, 'RAYOSXADMIN'];
+export const invoiceAdmin = [...purchaseGlobalRoles, 'FACTURACION'];

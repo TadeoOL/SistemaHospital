@@ -5,23 +5,34 @@ import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import dayjs from 'dayjs';
 import { Delete } from '@mui/icons-material';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
-const HEADERS = ['Cuarto', 'Precio', 'Hora Inicio', 'Hora Fin', 'Acciones'];
+
 interface RoomReservationTableRowProps {
   data: IRegisterRoom;
+  isOperatingRoomReservation?: boolean;
 }
+interface RoomReservationTableProps {
+  isOperatingRoomReservation?: boolean;
+}
+const HEADERS_OPERATING_ROOM = ['Quirófano', 'Hora Inicio', 'Hora Fin', 'Acciones'];
+const HEADERS = ['Cuarto', 'Hora Inicio', 'Hora Fin', 'Acciones'];
 
-export const RoomReservationTable = () => {
+export const RoomReservationTable = ({ isOperatingRoomReservation }: RoomReservationTableProps) => {
   const roomsValues = useProgrammingRegisterStore((state) => state.roomValues);
+
   return (
     <Card>
       <TableContainer>
         <Table>
-          <TableHeaderComponent headers={HEADERS} />
+          <TableHeaderComponent headers={isOperatingRoomReservation ? HEADERS_OPERATING_ROOM : HEADERS} />
           <RoomReservationTableBody />
         </Table>
       </TableContainer>
       {roomsValues.length < 1 && (
-        <NoDataInTableInfo infoTitle="No hay cuartos registrados" sizeIcon={30} variantText="h4" />
+        <NoDataInTableInfo
+          infoTitle={isOperatingRoomReservation ? 'No hay quirófanos registrados' : 'No hay cuartos registrados'}
+          sizeIcon={30}
+          variantText="h4"
+        />
       )}
     </Card>
   );
@@ -53,7 +64,6 @@ const RoomReservationTableRow = (props: RoomReservationTableRowProps) => {
   return (
     <TableRow>
       <TableCell>{data.nombre}</TableCell>
-      <TableCell>{data.precio}</TableCell>
       <TableCell>{dayjs(data.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
       <TableCell>{dayjs(data.horaFin).format('DD/MM/YYYY - HH:mm')}</TableCell>
       <TableCell>

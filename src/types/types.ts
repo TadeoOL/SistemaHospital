@@ -118,6 +118,8 @@ export interface IArticle {
   subCategoria: ISubCategory | string;
   stockActual?: string;
   codigoBarras?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
@@ -673,6 +675,8 @@ export interface ISurgeryProcedure {
   precioCirujia: number;
   duracionCirujia: string;
   descripcion: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 
 export interface IRegisterRoom {
@@ -684,6 +688,7 @@ export interface IRegisterRoom {
   provisionalId?: string;
   id_Cuarto?: string;
   precio: number;
+  tipoCuarto?: number;
 }
 
 export interface IRoomsList {
@@ -691,6 +696,7 @@ export interface IRoomsList {
   id_TipoCuarto: string;
   nombre: string;
   precio: number;
+  tipo: number;
 }
 
 export interface IRoomEvent {
@@ -700,6 +706,8 @@ export interface IRoomEvent {
   fechaInicio: string;
   fechaFin: string;
   tipoCuarto?: string;
+  id_TipoCuarto?: string;
+  tipo?: number;
 }
 export interface IEventsCalendar {
   id: string;

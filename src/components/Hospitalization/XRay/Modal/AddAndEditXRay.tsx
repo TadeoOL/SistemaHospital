@@ -26,6 +26,10 @@ const REQUEST_TYPES = [
     value: 5,
     label: 'Electrocardiograma',
   },
+  {
+    value: 6,
+    label: 'Cuidado Neonatal',
+  },
 ];
 
 const style = {
@@ -51,6 +55,8 @@ interface Inputs {
   price: number;
   type: number;
   description: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
   const { xray } = props;
@@ -69,6 +75,8 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
       name: xray?.nombre ?? '',
       price: xray?.precio ?? 0,
       type: xray?.tipo ?? 0,
+      codigoContpaqi: xray?.codigoContpaqi ?? '',
+      codigoSAT: xray?.codigoSAT ?? '',
     },
     resolver: zodResolver(xraySchema),
   });
@@ -83,12 +91,16 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             nombre: data.name,
             precio: data.price,
             tipo: data.type,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
           })
         : await createXRay({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
             tipo: data.type,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
           });
       toast.success(`Solicitud ${xray ? 'modificado' : 'agregado'} correctamente`);
       refetch();
@@ -152,6 +164,14 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             <Grid item xs={12}>
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Contpaqi</Typography>
+              <TextField label="Escribe un codigo de Contpaqi" fullWidth {...register('codigoContpaqi')} />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de SAT</Typography>
+              <TextField label="Escribe un codigo de SAT" fullWidth {...register('codigoSAT')} />
             </Grid>
           </Grid>
         </Box>

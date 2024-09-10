@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Card,
   CircularProgress,
   IconButton,
@@ -12,29 +11,29 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { IPatientRegisterPagination, Procedimiento } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
-import { Close, Edit, Info } from '@mui/icons-material';
+import { Close, Edit, Visibility } from '@mui/icons-material';
 import { PatientInfoModal } from './Modal/PatientInfoModal';
 import { SelectEditOptionModal } from './Modal/SelectEditOptionModal';
 import Swal from 'sweetalert2';
 import { deleteRegister } from '../../../services/programming/admissionRegisterService';
+import { BetterSortComponent } from '../../Commons/BetterSortComponent';
 
-const headers = [
-  'Clave paciente',
-  'Nombre Paciente',
-  'Nombre Doctor',
-  'Procedimientos',
-  'Fecha Ingreso',
-  'Datos Paciente',
-  'Datos Clinicos',
-  'Acciones',
-];
+const columns = {
+  clavePaciente: { label: 'Clave Paciente', sortKey: 'clavePaciente' },
+  nombrePaciente: { label: 'Nombre Paciente', sortKey: 'nombrePaciente' },
+  nombreDoctor: { label: 'Nombre Doctor', sortKey: 'nombreDoctor' },
+  procedimientos: { label: 'Procedimientos' },
+  fechaIngreso: { label: 'Fecha Ingreso', sortKey: 'fechaIngreso' },
+  datosPaciente: { label: 'Datos Paciente', isAction: true },
+  datosClinicos: { label: 'Datos Clinicos', isAction: true },
+  acciones: { label: 'Acciones', isAction: true },
+};
 
 interface TableBodyHospitalizationProps {
   data: IPatientRegisterPagination[];
@@ -53,11 +52,15 @@ const useGetData = () => {
   const setPageIndex = usePatientRegisterPaginationStore((state) => state.setPageIndex);
   const setPageSize = usePatientRegisterPaginationStore((state) => state.setPageSize);
   const count = usePatientRegisterPaginationStore((state) => state.count);
+  const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
+  const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
+  const operatingRoomFilter = usePatientRegisterPaginationStore((state) => state.operatingRoomFilter);
+  const sort = usePatientRegisterPaginationStore((state) => state.sort);
   const isLoading = usePatientRegisterPaginationStore((state) => state.loading);
 
   useEffect(() => {
     fetchData();
-  }, [search, pageIndex, pageSize]);
+  }, [search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort]);
   return {
     data,
     pageIndex,
@@ -70,20 +73,15 @@ const useGetData = () => {
 };
 export const TableHospitalization = () => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetData();
+  const setSort = usePatientRegisterPaginationStore((state) => state.setSort);
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-        <CircularProgress size={30} />
-      </Box>
-    );
   return (
     <Card>
       <TableContainer>
         <Table>
-          <TableHeaderComponent headers={headers} />
-          <TableBodyHospitalization data={data} />
-          {data.length > 0 && (
+          <BetterSortComponent columns={columns} setSortFunction={setSort} />
+          {!isLoading && <TableBodyHospitalization data={data} />}
+          {data.length > 0 && !isLoading && (
             <TableFooterComponent
               count={count}
               pageIndex={pageIndex}
@@ -94,7 +92,12 @@ export const TableHospitalization = () => {
           )}
         </Table>
       </TableContainer>
-      {data.length < 1 && <NoDataInTableInfo infoTitle="No hay pacientes registrados" />}
+      {isLoading && (
+        <Box sx={{ display: 'flex', p: 4, justifyContent: 'center' }}>
+          <CircularProgress />
+        </Box>
+      )}
+      {data.length < 1 && !isLoading && <NoDataInTableInfo infoTitle="No hay pacientes registrados" />}
     </Card>
   );
 };
@@ -179,42 +182,44 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
           ))}
         </TableCell>
         <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setOpen(true);
-              setPatientId(data.id_Paciente);
-              setClinicalHistoryId(undefined);
-            }}
-          >
-            Ver
-          </Button>
+        <TableCell align="center">
+          <Tooltip title="Ver datos generales">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setPatientId(data.id_Paciente);
+                setClinicalHistoryId(undefined);
+              }}
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
         </TableCell>
-        <TableCell>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setOpen(true);
-              setPatientId(undefined);
-              setClinicalHistoryId(data.id_HistorialClinico);
-            }}
-          >
-            Ver
-          </Button>
+        <TableCell align="center">
+          <Tooltip title="Ver datos clínicos">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setPatientId(undefined);
+                setClinicalHistoryId(data.id_HistorialClinico);
+              }}
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.faltanDatos ? (
+            {/* {data.faltanDatos ? (
               <Tooltip title="Faltan datos por llenar">
                 <Info color="warning" />
               </Tooltip>
             ) : (
               <></>
-            )}
+            )} */}
             <Tooltip title="Editar">
               <IconButton onClick={() => setOpenEdit(true)}>
-                <Edit />
+                <Edit color={data.faltanDatos ? 'warning' : undefined} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Rechazar">

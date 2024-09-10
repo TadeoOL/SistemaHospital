@@ -19,6 +19,7 @@ import {
   closeAccount,
   hospitalization,
   hospitalizationANDnurse,
+  invoiceAdmin,
   nurseRole,
   operatingRoom,
   operatingRoomANDnurse,
@@ -55,6 +56,8 @@ import { FaLaptopMedical } from 'react-icons/fa';
 import { GiMedicalDrip } from 'react-icons/gi';
 import { FaHouseChimneyMedical } from 'react-icons/fa6';
 import { FaHospitalSymbol } from 'react-icons/fa';
+import { FaFileInvoice } from 'react-icons/fa';
+import { LiaFileInvoiceDollarSolid } from 'react-icons/lia';
 
 export const ModuleList: IModuleItemsList[] = [
   {
@@ -297,6 +300,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <Receipt sx={{ color: '#fff' }} />,
         protectedRoles: closeAccount,
       },
+      {
+        title: 'Cuentas Pendientes Por Pagar',
+        path: '/admision/cuentas-pendientes-por-pagar',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: purchaseGlobalRoles,
+      },
     ],
     path: 'admision',
   },
@@ -418,5 +427,18 @@ export const ModuleList: IModuleItemsList[] = [
       },
     ],
     path: 'quirofano',
+  },
+  {
+    categoryTitle: 'Facturación',
+    icon: <FaFileInvoice />,
+    moduleItems: [
+      {
+        title: 'Facturaciones',
+        path: '/facturas',
+        icon: <LiaFileInvoiceDollarSolid />,
+        protectedRoles: invoiceAdmin,
+      },
+    ],
+    path: 'facturas',
   },
 ];

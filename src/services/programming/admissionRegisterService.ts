@@ -6,16 +6,17 @@ interface RegisterAdmission {
   pacienteId: string;
   historialClinicoId: string;
   id_Medico: string | null;
-  id_Anestesiologo: string | null;
+  id_Anestesiologo?: string | null;
   procedimientos: string[];
   motivoRechazo?: string;
-  radiografias: string[] | null;
+  radiografias?: string[] | null;
   equiposBiomedico: string[];
   equipoBiomedicoHonorario?: string;
   articulos: { articuloId: string; cantidad: number; notas?: string }[];
   fechaInicio: Date;
   fechaFin: Date;
   cuartos: Cuarto[];
+  estudiosGabinete?: string[];
 }
 
 interface Cuarto {
@@ -98,6 +99,8 @@ export const closeRegisterAndAccount = async (data: {
   Id_CuentaPaciente: string;
   TotalCuenta: number;
   Descuento?: number;
+  SubTotal: number;
+  IVA: number;
 }) => {
   const res = await axios.put(`${apiRegister}/cerrar-registro`, data);
   return res.data;
@@ -136,7 +139,7 @@ export const editRegisterProcedures = async (data: { id_Registro: string; id_Pro
 
 export const modifyRoomsEvents = async (data: {
   id_Registro: string;
-  listaRegistrosCuartos: { id_RegistroCuarto: string; fechaInicio: Date; fechaFin: Date }[];
+  listaRegistrosCuartos: { id_RegistroCuarto: string; fechaInicio: Date; fechaFin: Date; id_Cuarto: string }[];
 }) => {
   const res = await axios.put(`${apiRegister}/modificar-lista-registros-cuartos`, data);
   return res.data;

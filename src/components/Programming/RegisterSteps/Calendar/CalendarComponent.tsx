@@ -25,6 +25,8 @@ interface CalendarComponentProps {
   calendarWidth?: number | string;
   setDate: Function;
   setEvents: Function;
+  isOperatingRoomReservation?: boolean;
+  justInformative?: boolean;
 }
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -48,9 +50,13 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
       toast.warning('No se puede poner una cita posterior a la fecha actual');
       return;
     }
-    console.log({ slotInfo });
+    if (view == 'month') {
+      const newEnd = dayjs(start).add(3, 'hours').toDate();
+      setAppointmentEndDate(newEnd);
+    } else {
+      setAppointmentEndDate(end);
+    }
     setAppointmentStartDate(start);
-    setAppointmentEndDate(end);
     setOpen(true);
   };
 
@@ -222,7 +228,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         onView={(v) => setView(v)}
         defaultView={Views.MONTH}
         step={15}
-        resizable
+        resizable={!props.justInformative}
         formats={{
           timeGutterFormat: 'HH:mm',
         }}
@@ -231,7 +237,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
           width: '100%',
           height: view === 'month' ? (props.calendarHeight ? props.calendarHeight : 700) : '100%',
         }}
-        selectable
+        selectable={!props.justInformative}
         enableAutoScroll={false}
         date={props.date}
         draggableAccessor={(event: any) => {
@@ -271,7 +277,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
       />
       <Modal open={open}>
         <>
-          <RegisterSteps setOpen={setOpen} />
+          <RegisterSteps setOpen={setOpen} isOperatingRoomReservation={props.isOperatingRoomReservation} />
         </>
       </Modal>
       <Modal open={openManyEvents}>

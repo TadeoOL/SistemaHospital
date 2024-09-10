@@ -150,6 +150,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         Id_CuentaPaciente: props.id_Cuenta,
         TotalCuenta: accountInfo.totalPagoCuenta,
         Descuento: discountflag && inputRefDiscount.current ? Number(inputRefDiscount.current.value) : undefined,
+        SubTotal: accountInfo.subTotal,
+        IVA: accountInfo.iva,
       });
       const object = {
         paciente: `${accountInfo.paciente.nombre || ''} ${accountInfo.paciente.apellidoPaterno || ''} ${accountInfo.paciente.apellidoPaterno || ''}`,
@@ -350,6 +352,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 patient={accountInfo.paciente}
                 medic={accountInfo.medico}
                 isHospitalization={accountInfo.esHospitalizacion}
+                ventaConcepto={accountInfo.ventaConcepto}
+                ventaArticuloIVA={accountInfo.ventaArticuloIVA}
+                ventaArticuloSinIVA={accountInfo.ventaArticuloSinIVA}
               />
               <DataTable
                 title="Cuartos"
@@ -631,9 +636,19 @@ interface PatientInformationProps {
   patient: IPatientInAccount;
   medic: string;
   isHospitalization: boolean;
+  ventaConcepto: number;
+  ventaArticuloIVA: number;
+  ventaArticuloSinIVA: number;
 }
 
-export const PatientInformation: React.FC<PatientInformationProps> = ({ patient, medic, isHospitalization }) => (
+export const PatientInformation: React.FC<PatientInformationProps> = ({
+  patient,
+  medic,
+  isHospitalization,
+  ventaConcepto,
+  ventaArticuloIVA,
+  ventaArticuloSinIVA,
+}) => (
   <Grid container sx={{ p: 1 }} spacing={1}>
     <Grid item xs={12}>
       <Typography variant="h6">
@@ -658,6 +673,21 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({ patient,
     <Grid item xs={12}>
       <Typography>
         <b>Tipo:</b> {isHospitalization ? 'Hospitalización' : 'Ambulatoria o Endopro'}
+      </Typography>
+    </Grid>
+    <Grid item xs={12}>
+      <Typography>
+        <b>Total de Servicios y Estudios: </b>$ {ventaConcepto}
+      </Typography>
+    </Grid>
+    <Grid item xs={12}>
+      <Typography>
+        <b>Total de Material: </b>$ {ventaArticuloIVA}
+      </Typography>
+    </Grid>
+    <Grid item xs={12}>
+      <Typography>
+        <b>Total de Medicamento: </b>$ {ventaArticuloSinIVA}
       </Typography>
     </Grid>
   </Grid>

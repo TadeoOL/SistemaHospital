@@ -34,6 +34,8 @@ interface Inputs {
   name: string;
   price: number;
   description: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipmentProps) => {
   const { biomedicalEquipment } = props;
@@ -49,6 +51,8 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
       description: biomedicalEquipment?.descripcion ?? '',
       name: biomedicalEquipment?.nombre ?? '',
       price: biomedicalEquipment?.precio ?? 0,
+      codigoContpaqi: biomedicalEquipment?.codigoContpaqi ?? '',
+      codigoSAT: biomedicalEquipment?.codigoSAT ?? '',
     },
     resolver: zodResolver(biomedicalEquipmentSchema),
   });
@@ -56,18 +60,21 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
     try {
-      console.log(biomedicalEquipment);
       biomedicalEquipment
         ? await modifyBiomedicalEquipment({
             id: data.id as string,
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
           })
         : await createBiomedicalEquipment({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
           });
       toast.success(`Equipo biomédico ${biomedicalEquipment ? 'modificado' : 'agregado'} correctamente`);
       refetch();
@@ -112,6 +119,14 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
             <Grid item xs={12}>
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Contpaqi</Typography>
+              <TextField label="Escribe un codigo de Contpaqi" fullWidth {...register('codigoContpaqi')} />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de SAT</Typography>
+              <TextField label="Escribe un codigo de SAT" fullWidth {...register('codigoSAT')} />
             </Grid>
           </Grid>
         </Box>

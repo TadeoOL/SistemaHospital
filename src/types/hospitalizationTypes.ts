@@ -5,6 +5,8 @@ export interface IBiomedicalEquipment {
   precio: number;
   esPersonal?: boolean;
   notas?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 
 export interface IAnesthesiologist {
@@ -23,6 +25,8 @@ export interface IXRay {
   descripcion: string;
   precio: number;
   tipo: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
 }
 
 export interface IXRayRequest {
@@ -86,6 +90,9 @@ export interface IAcountAllInformation {
   iva: number;
   subTotal: number;
   esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 
 export interface IAcountAllInformationAdmission {
@@ -110,6 +117,9 @@ export interface IAcountAllInformationAdmission {
   iva: number;
   subTotal: number;
   esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
@@ -194,6 +204,7 @@ export const REQUEST_TYPES: Record<number, string> = {
   3: 'Ultra Sonido',
   4: 'SAMI',
   5: 'Electrocardiograma',
+  6: 'Cuidado Neonatal',
 };
 
 export interface IRequestConfig {
