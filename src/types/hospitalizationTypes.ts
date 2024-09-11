@@ -82,6 +82,7 @@ export interface IAcountAllInformation {
   articulos: IArticlesAccount[];
   pagosCuenta: IPaymentsAccount[];
   totalPagoCuenta: number;
+  totalPagoCuentaOriginal: number;
   subtotalPagoCuenta: number;
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;

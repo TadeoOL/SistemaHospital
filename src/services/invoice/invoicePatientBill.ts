@@ -10,6 +10,7 @@ export const generatePatientBillInvoice = (data: {
   id_CuentaPaciente: string;
   tipoFacturacion: number;
   tipoPedido: number;
+  porcentajeDescuento: number;
 }) => {
   return axios.post(`${apiInvoicePatientBill}/crear-facturacion-cuenta-paciente`, data);
 };
