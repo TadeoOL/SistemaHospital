@@ -26,6 +26,10 @@ const REQUEST_TYPES = [
     value: 5,
     label: 'Electrocardiograma',
   },
+  {
+    value: 6,
+    label: 'Cuidado Neonatal',
+  },
 ];
 
 const style = {
@@ -51,6 +55,9 @@ interface Inputs {
   price: number;
   type: number;
   description: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }
 export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
   const { xray } = props;
@@ -69,6 +76,9 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
       name: xray?.nombre ?? '',
       price: xray?.precio ?? 0,
       type: xray?.tipo ?? 0,
+      codigoContpaqi: xray?.codigoContpaqi ?? '',
+      codigoSAT: xray?.codigoSAT ?? '',
+      codigoUnidadMedida: xray?.codigoUnidadMedida ?? '',
     },
     resolver: zodResolver(xraySchema),
   });
@@ -83,12 +93,18 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             nombre: data.name,
             precio: data.price,
             tipo: data.type,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
           })
         : await createXRay({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
             tipo: data.type,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
           });
       toast.success(`Solicitud ${xray ? 'modificado' : 'agregado'} correctamente`);
       refetch();
@@ -152,6 +168,39 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             <Grid item xs={12}>
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Contpaqi</Typography>
+              <TextField
+                label="Escribe un codigo de Contpaqi"
+                fullWidth
+                {...register('codigoContpaqi')}
+                error={!!errors.codigoContpaqi?.message}
+                helperText={errors.codigoContpaqi?.message}
+                disabled={!!xray}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de SAT</Typography>
+              <TextField
+                label="Escribe un codigo de SAT"
+                fullWidth
+                {...register('codigoSAT')}
+                error={!!errors.codigoSAT?.message}
+                helperText={errors.codigoSAT?.message}
+                disabled={!!xray}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Unidad de Medida</Typography>
+              <TextField
+                label="Escribe un codigo de Unidad de Medida"
+                fullWidth
+                {...register('codigoUnidadMedida')}
+                error={!!errors.codigoUnidadMedida?.message}
+                helperText={errors.codigoUnidadMedida?.message}
+                disabled={!!xray}
+              />
             </Grid>
           </Grid>
         </Box>

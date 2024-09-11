@@ -2,14 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllRooms } from '../../services/programming/roomsService';
 import { IRoomsList } from '../../types/types';
 
-export const useGetAllRooms = () => {
+export const useGetAllRooms = (tipoCuarto?: string) => {
   const {
     data = [],
     isError,
     isLoading,
   } = useQuery({
-    queryKey: ['allRooms'],
-    queryFn: async () => getAllRooms(),
+    queryKey: ['allRooms', tipoCuarto],
+    queryFn: async () => getAllRooms(tipoCuarto),
   });
 
   return {

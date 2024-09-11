@@ -110,7 +110,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
             <Grid item xs={12}>
               <Typography>Nombre</Typography>
               <TextField
-                placeholder="Escribe un nombre..."
+                placeholder="Escriba un nombre..."
                 fullWidth
                 error={!!errors.name?.message}
                 helperText={errors.name?.message}
@@ -140,7 +140,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
             <Grid item xs={12}>
               <Typography>Descripción</Typography>
               <TextField
-                placeholder="Escribe una descripción..."
+                placeholder="Escriba una descripción..."
                 fullWidth
                 multiline
                 error={!!errors.description?.message}

@@ -9,6 +9,6 @@ interface Action {
 }
 
 export const useInvoiceTabStore = create<State & Action>((set) => ({
-  tabValue: 1,
+  tabValue: 0,
   setTabValue: (state: number) => set(() => ({ tabValue: state })),
 }));

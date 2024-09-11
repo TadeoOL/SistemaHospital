@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { Edit, Print } from '@mui/icons-material';
+import { Discount, Edit, Print } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { IPatientAccount } from '../../../types/admissionTypes';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
@@ -25,6 +25,7 @@ import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+import { DiscountModal } from './Modal/DiscountModal';
 
 const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
@@ -112,6 +113,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data } = props;
   const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
+  const [openDiscount, setOpenDiscount] = useState(false);
 
   const handleEdit = () => {
     setOpen(true);
@@ -177,6 +179,11 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
                 </IconButton>
               </Tooltip>
             )}
+            <Tooltip title="Aplicar descuento">
+              <IconButton onClick={() => setOpenDiscount(true)}>
+                <Discount color="success" />
+              </IconButton>
+            </Tooltip>
           </Box>
         </TableCell>
       </TableRow>
@@ -218,6 +225,11 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
             )}
           </Box>
         </Box>
+      </Modal>
+      <Modal open={openDiscount} onClose={() => setOpenDiscount(false)}>
+        <>
+          <DiscountModal setOpen={setOpenDiscount} Id_CuentaPaciente={data.id_Cuenta} />
+        </>
       </Modal>
     </>
   );

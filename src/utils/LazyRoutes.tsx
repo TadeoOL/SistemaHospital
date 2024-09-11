@@ -50,3 +50,4 @@ export const HospitalRoomsCalendarView = lazy(() => import('../views/Hospitaliza
 export const PacientsEntryView = lazy(() => import('../views/Admission/PacientsEntryView'));
 export const RequestsConfigView = lazy(() => import('../views/Hospitalization/RequestsConfigView'));
 export const InvoiceView = lazy(() => import('../views/Invoice/InvoiceView'));
+export const OutstandingBillsView = lazy(() => import('../views/Admission/OutstandingBillsView'));

@@ -14,6 +14,12 @@ export const registerTypeRoom = async (data: {
   configuracionRecuperacion?: string;
   tipo: number;
   precio?: number;
+  codigoContpaqiRecuperacion?: string;
+  codigoSATRecuperacion?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
+  codigoUnidadMedidaRecuperacion?: string;
 }) => {
   const res = await axios.post(`${apiTypeRoom}/registrar-tipo-cuarto`, data);
   return res.data;
@@ -28,6 +34,12 @@ export const modifyTypeRoom = async (data: {
   configuracionRecuperacion?: string;
   tipo: number;
   precio?: number;
+  codigoContpaqiRecuperacion?: string;
+  codigoSATRecuperacion?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
+  codigoUnidadMedidaRecuperacion?: string;
 }) => {
   const res = await axios.put(`${apiTypeRoom}/editar-tipo-cuarto`, data);
   return res.data;

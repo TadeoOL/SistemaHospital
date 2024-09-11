@@ -184,6 +184,9 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                 patient={accountInfo.paciente}
                 medic={accountInfo.medico}
                 isHospitalization={accountInfo.esHospitalizacion}
+                ventaConcepto={accountInfo.ventaConcepto}
+                ventaArticuloIVA={accountInfo.ventaArticuloIVA}
+                ventaArticuloSinIVA={accountInfo.ventaArticuloSinIVA}
               />
               <DataTable
                 title="Cuartos"

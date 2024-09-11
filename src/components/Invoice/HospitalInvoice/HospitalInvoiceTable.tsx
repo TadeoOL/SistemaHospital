@@ -25,7 +25,7 @@ export const HospitalInvoiceTable = () => {
 interface HospitalInvoiceTableRowProps {
   data: any;
 }
-const HospitalInvoiceTableRow = ({ data }: HospitalInvoiceTableRowProps) => {
+const HospitalInvoiceTableRow = ({}: HospitalInvoiceTableRowProps) => {
   return (
     <TableRow>
       <TableCell></TableCell>

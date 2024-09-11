@@ -1,7 +1,14 @@
 import axios from '../../libs/axios';
 const apiBiomedicalEquipment = '/api/EquipoBiomedico';
 
-export const createBiomedicalEquipment = async (data: { nombre: string; descripcion?: string; precio: number }) => {
+export const createBiomedicalEquipment = async (data: {
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
+}) => {
   const res = await axios.post(`${apiBiomedicalEquipment}/crear-equipo-biomedico`, data);
   return res.data;
 };
@@ -11,6 +18,9 @@ export const modifyBiomedicalEquipment = async (data: {
   nombre: string;
   descripcion?: string;
   precio: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }) => {
   const res = await axios.put(`${apiBiomedicalEquipment}/modificar-equipo-biomedico`, data);
   return res.data;

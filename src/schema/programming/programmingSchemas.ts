@@ -101,11 +101,14 @@ export const surgeryProcedureSchema = z.object({
     }),
   description: z.string().optional(),
   price: z.string().optional(),
+  codigoContpaqi: z.string().min(1, 'El código es necesario'),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
 });
 
 export const addRoomReservation = z
   .object({
-    room: z.string().min(1, 'La habitación es requerida'),
+    room: z.string().min(1, 'El espacio es requerido'),
     startTime: z.preprocess(
       (val) => toDate(val as Dayjs),
       z.date().min(new Date(), 'La fecha de inicio debe ser posterior a la fecha actual')
@@ -176,6 +179,12 @@ export const typeRoomSchema = z
     priceByTimeRange: z.array(priceByTimeRange).optional(),
     recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
+    codigoContpaqiRecuperacion: z.string().optional(),
+    codigoSATRecuperacion: z.string().optional(),
+    codigoSAT: z.string().min(1, 'El código es necesario'),
+    codigoContpaqi: z.string().min(1, 'El código es necesario'),
+    codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
+    codigoUnidadMedidaRecuperacion: z.string().min(1, 'El código es necesario'),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
@@ -184,4 +193,19 @@ export const typeRoomSchema = z
   .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
     message: 'El precio del cuarto es necesario',
     path: ['priceRoom'],
-  });
+  })
+  .refine(
+    (values) =>
+      values.type !== '1' || (values.codigoContpaqiRecuperacion && values.codigoContpaqiRecuperacion.length > 0),
+    {
+      message: 'El código de Contpaqi de Recuperación es necesario para quirófanos',
+      path: ['codigoContpaqiRecuperacion'],
+    }
+  )
+  .refine(
+    (values) => values.type !== '1' || (values.codigoSATRecuperacion && values.codigoSATRecuperacion.length > 0),
+    {
+      message: 'El código de SAT de Recuperación es necesario para quirófanos',
+      path: ['codigoSATRecuperacion'],
+    }
+  );

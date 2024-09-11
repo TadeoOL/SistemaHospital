@@ -320,6 +320,8 @@ export const modifyArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
+    codigoContpaqi,
+    codigoSAT,
   } = article;
 
   const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
@@ -336,6 +338,8 @@ export const modifyArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
+    codigoContpaqi,
+    codigoSAT,
   });
   return res.data;
 };
@@ -354,6 +358,9 @@ export const addNewArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
+    codigoContpaqi,
+    codigoSAT,
+    codigoUnidadMedida,
   } = article;
 
   const res = await axios.post(`/api/Articulo/registrar-articulo`, {
@@ -369,6 +376,9 @@ export const addNewArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
+    codigoContpaqi,
+    codigoSAT,
+    codigoUnidadMedida,
   });
   return res.data;
 };

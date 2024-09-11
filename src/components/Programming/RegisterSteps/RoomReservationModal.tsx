@@ -5,7 +5,6 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { RoomReservationTable } from './RoomReservationTable';
 import dayjs, { Dayjs } from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addRoomReservation } from '../../../schema/programming/programmingSchemas';
 import { useGetAllRooms } from '../../../hooks/programming/useGetAllRooms';
@@ -18,6 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { addRegisterRoom } from '../../../services/programming/admissionRegisterService';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import 'dayjs/locale/es-mx';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -45,6 +46,7 @@ interface RoomReservationModalProps {
   isEdit?: boolean;
   registerId?: string;
   setEvents?: (eventsCalendar: IEventsCalendar[]) => void;
+  isOperatingRoomReservation?: boolean;
 }
 
 export const RoomReservationModal = (props: RoomReservationModalProps) => {
@@ -125,7 +127,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       }
     }
     setStartDateSurgery(startDate);
-    console.log({ roomValues });
     const roomObj = roomValues
       .map((r) => {
         return {
@@ -297,7 +298,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>Habitaciones disponibles</Typography>
+              <Typography>{'Habitaciones disponibles'}</Typography>
               <TextField
                 select
                 label="Habitaciones"
@@ -418,7 +419,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
             </Grid>
           </Grid>
         </form>
-        <RoomReservationTable />
+        <RoomReservationTable isOperatingRoomReservation={props.isOperatingRoomReservation} />
       </Box>
       <Box
         sx={{

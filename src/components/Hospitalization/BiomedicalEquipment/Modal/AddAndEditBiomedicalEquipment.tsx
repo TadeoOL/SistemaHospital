@@ -11,6 +11,7 @@ import {
 } from '../../../../services/hospitalization/biomedicalEquipmentService';
 import { useState } from 'react';
 import { useBiomedicalEquipmentPaginationStore } from '../../../../store/hospitalization/biomedicalEquipmentPagination';
+import { isValidInteger } from '../../../../utils/functions/dataUtils';
 
 const style = {
   position: 'absolute',
@@ -34,6 +35,9 @@ interface Inputs {
   name: string;
   price: number;
   description: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }
 export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipmentProps) => {
   const { biomedicalEquipment } = props;
@@ -49,6 +53,9 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
       description: biomedicalEquipment?.descripcion ?? '',
       name: biomedicalEquipment?.nombre ?? '',
       price: biomedicalEquipment?.precio ?? 0,
+      codigoContpaqi: biomedicalEquipment?.codigoContpaqi ?? '',
+      codigoSAT: biomedicalEquipment?.codigoSAT ?? '',
+      codigoUnidadMedida: biomedicalEquipment?.codigoUnidadMedida ?? '',
     },
     resolver: zodResolver(biomedicalEquipmentSchema),
   });
@@ -56,18 +63,23 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
     try {
-      console.log(biomedicalEquipment);
       biomedicalEquipment
         ? await modifyBiomedicalEquipment({
             id: data.id as string,
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
           })
         : await createBiomedicalEquipment({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
+            codigoContpaqi: data.codigoContpaqi,
+            codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
           });
       toast.success(`Equipo biomédico ${biomedicalEquipment ? 'modificado' : 'agregado'} correctamente`);
       refetch();
@@ -83,7 +95,7 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
     <Box sx={style}>
       <HeaderModal
         setOpen={props.setOpen}
-        title={props.biomedicalEquipment ? 'Modificar equipo biomédico' : 'Agregar equipo biomédico'}
+        title={biomedicalEquipment ? 'Modificar equipo biomédico' : 'Agregar equipo biomédico'}
       />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ bgcolor: 'background.paper', p: 2, display: 'flex' }}>
@@ -112,6 +124,38 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
             <Grid item xs={12}>
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Contpaqi</Typography>
+              <TextField
+                label="Escribe un codigo de Contpaqi"
+                fullWidth
+                {...register('codigoContpaqi')}
+                disabled={!!biomedicalEquipment}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de SAT</Typography>
+              <TextField
+                label="Escribe un codigo de SAT"
+                fullWidth
+                {...register('codigoSAT')}
+                disabled={!!biomedicalEquipment}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Unidad de Medida</Typography>
+              <TextField
+                label="Escribe un codigo de Unidad de Medida"
+                fullWidth
+                {...register('codigoUnidadMedida')}
+                onChange={(e) => {
+                  if (!isValidInteger(e.target.value)) {
+                    return toast.error('No es un valor numerico entero');
+                  }
+                }}
+                disabled={!!biomedicalEquipment}
+              />
             </Grid>
           </Grid>
         </Box>

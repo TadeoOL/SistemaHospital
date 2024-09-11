@@ -1,7 +1,15 @@
 import axios from '../../libs/axios';
 const apiXRay = '/api/Radiografia';
 
-export const createXRay = async (data: { nombre: string; descripcion: string; precio: number; tipo: number }) => {
+export const createXRay = async (data: {
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  tipo: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
+}) => {
   const res = await axios.post(`${apiXRay}/crear-radiografia`, data);
   return res.data;
 };
@@ -10,6 +18,7 @@ export const addXRayRequest = async (data: {
   Id_Paciente: string;
   Id_CuentaPaciente: string;
   Id_Radiografia: string;
+  CantidadHorasNeonatal?: string;
 }) => {
   const res = await axios.post(`${apiXRay}/crear-solicitud-radiografia`, data);
   return res.data;
@@ -21,6 +30,9 @@ export const modifyXRay = async (data: {
   descripcion: string;
   precio: number;
   tipo: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }) => {
   const res = await axios.put(`${apiXRay}/modificar-radiografia`, data);
   return res.data;

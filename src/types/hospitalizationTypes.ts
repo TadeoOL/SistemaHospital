@@ -5,6 +5,9 @@ export interface IBiomedicalEquipment {
   precio: number;
   esPersonal?: boolean;
   notas?: string;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }
 
 export interface IAnesthesiologist {
@@ -23,6 +26,9 @@ export interface IXRay {
   descripcion: string;
   precio: number;
   tipo: number;
+  codigoContpaqi?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: string;
 }
 
 export interface IXRayRequest {
@@ -80,12 +86,16 @@ export interface IAcountAllInformation {
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
   subtotalPagoCuentaRestante: number;
+  porcentajeDescuento: number;
   totalPagoSami: number;
   medico: string;
   tipoOperacion: string;
   iva: number;
   subTotal: number;
   esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 
 export interface IAcountAllInformationAdmission {
@@ -110,6 +120,9 @@ export interface IAcountAllInformationAdmission {
   iva: number;
   subTotal: number;
   esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
@@ -194,10 +207,29 @@ export const REQUEST_TYPES: Record<number, string> = {
   3: 'Ultra Sonido',
   4: 'SAMI',
   5: 'Electrocardiograma',
+  6: 'Cuidado Neonatal',
 };
 
 export interface IRequestConfig {
   id_Usuario: string;
   nombre: string;
   solicitudes: number[];
+}
+
+export const DISCOUNT_TYPES = {
+  Porcentaje: 1,
+  Monto: 2,
+} as const;
+export type DiscountType = (typeof DISCOUNT_TYPES)[keyof typeof DISCOUNT_TYPES];
+export type DiscountTypeKey = keyof typeof DISCOUNT_TYPES;
+
+export interface IDiscount {
+  id: string;
+  id_CuentaPaciente: string;
+  montoDescuento: number;
+  motivoDescuento: string;
+  tipoDescuento: DiscountTypeKey;
+  usuarioEncargadoDescuento: { id: string; nombre: string };
+  fechaCreacion: string;
+  fechaModificacion: string;
 }

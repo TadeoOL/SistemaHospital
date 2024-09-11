@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Card,
   CircularProgress,
   IconButton,
@@ -22,7 +21,7 @@ import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { IPatientRegisterPagination, Procedimiento } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
-import { Check, DocumentScanner, Edit, Info, Paid, Print } from '@mui/icons-material';
+import { DocumentScanner, Edit, MonetizationOn, Paid, Print, Visibility } from '@mui/icons-material';
 import { PatientInfoModal } from '../../Programming/Register/Modal/PatientInfoModal';
 import { SelectEditOptionModal } from '../../Programming/Register/Modal/SelectEditOptionModal';
 import { PatientEntryAdvanceModal } from './Modal/PatientEntryAdvance';
@@ -62,10 +61,12 @@ const useGetData = () => {
   const setPageSize = usePatientRegisterPaginationStore((state) => state.setPageSize);
   const count = usePatientRegisterPaginationStore((state) => state.count);
   const isLoading = usePatientRegisterPaginationStore((state) => state.loading);
+  const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
+  const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
 
   useEffect(() => {
     fetchData();
-  }, [search, setPageIndex, setPageSize]);
+  }, [search, setPageIndex, setPageSize, startDate, endDate]);
   return {
     data,
     pageIndex,
@@ -158,59 +159,58 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         <TableCell>{data.cuartos}</TableCell>
         <TableCell>{data.medico}</TableCell>
         <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setOpen(true);
-              setPatientId(data.id_Paciente);
-              setClinicalHistoryId(undefined);
-            }}
-          >
-            Ver
-          </Button>
+        <TableCell align="center">
+          <Tooltip title="Ver datos generales">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setPatientId(data.id_Paciente);
+                setClinicalHistoryId(undefined);
+              }}
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
         </TableCell>
-        <TableCell>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setOpen(true);
-              setPatientId(undefined);
-              setClinicalHistoryId(data.id_HistorialClinico);
-            }}
-          >
-            Ver
-          </Button>
+        <TableCell align="center">
+          <Tooltip title="Ver datos clínicos">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setPatientId(undefined);
+                setClinicalHistoryId(data.id_HistorialClinico);
+              }}
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.faltanDatos && (
-              <Tooltip title="Faltan datos por llenar">
-                <Info color="warning" />
-              </Tooltip>
-            )}
+            <Tooltip title="Editar">
+              <IconButton onClick={() => setOpenEdit(true)}>
+                <Edit color={data.faltanDatos ? 'warning' : undefined} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Imprimir Documentos">
+              <>
+                <IconButton onClick={handleClick} disabled={data.faltanDatos}>
+                  <Print />
+                </IconButton>
+              </>
+            </Tooltip>
             {!data.admitido && !data.faltanDatos && (
-              <Tooltip title="Aceptar">
+              <Tooltip title="Agregar anticipo">
                 <IconButton
                   onClick={() => {
                     setIsAdvanceFlag(true);
                     setOpenAdvance(true);
                   }}
                 >
-                  <Check color="success" />
+                  <MonetizationOn />
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Editar">
-              <IconButton onClick={() => setOpenEdit(true)}>
-                <Edit />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Imprimir Documentos">
-              <IconButton onClick={handleClick}>
-                <Print />
-              </IconButton>
-            </Tooltip>
             {data.admitido && (
               <Tooltip title="Agregar Abono">
                 <IconButton

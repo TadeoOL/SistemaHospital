@@ -110,6 +110,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     precioVentaPI,
     unidadesPorCaja,
     esCaja,
+    codigoContpaqi,
+    codigoSAT,
+    codigoUnidadMedida,
   } = article ?? {};
 
   const { subCategories, isLoading } = useGetSubCategories();
@@ -145,6 +148,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       precioVentaPI: precioVentaPI,
       unidadesPorCaja: unidadesPorCaja,
       esCaja: esCaja,
+      codigoContpaqi: codigoContpaqi ?? '',
+      codigoSAT: codigoSAT ?? '',
+      codigoUnidadMedida: codigoUnidadMedida ?? '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -190,7 +196,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         data.unidadesPorCaja = undefined;
       }
       const idForm = getValues('id');
-      console.log({ data });
       await modifyArticle({ ...data, id: idForm, esCaja: isBox });
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo modificado con éxito!');
@@ -555,10 +560,46 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 <TextField
                   fullWidth
                   error={!!errors.codigoBarras}
-                  helperText={errors?.unidadMedida?.message}
+                  helperText={errors?.codigoBarras?.message}
                   size="small"
                   placeholder="Escriba un código de barras"
                   {...register('codigoBarras')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de Contpaqi</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoContpaqi}
+                  helperText={errors?.codigoContpaqi?.message}
+                  size="small"
+                  placeholder="Escriba un código de contpaqi"
+                  {...register('codigoContpaqi')}
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de SAT</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoSAT}
+                  helperText={errors?.codigoSAT?.message}
+                  size="small"
+                  placeholder="Escriba un código de SAT"
+                  {...register('codigoSAT')}
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de Unidad de Medida</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoUnidadMedida}
+                  helperText={errors?.codigoUnidadMedida?.message}
+                  size="small"
+                  placeholder="Escriba un código de Unidad de Medida"
+                  {...register('codigoUnidadMedida')}
+                  disabled
                 />
               </Grid>
             </Grid>

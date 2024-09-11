@@ -18,4 +18,14 @@ export const hashEstatusToString: { [key: number]: string } = {
   0: 'Cancelado',
 };
 
-export const leaveConcepts = ['Consulta Sami', 'Radiografías', 'Farmacia', 'Hospitalización', 'Arco en C', 'Servicios'];
+export const leaveConcepts = [
+  'Consulta Sami',
+  'Radiografías',
+  'Farmacia',
+  'Hospitalización',
+  'Arco en C',
+  'Servicios',
+  'Hospitalización General Varias Cirugías',
+  'Materiales Varias Cirugías y Procedimientos',
+  'Medicamentos Varias Cirugías y Procedimientos',
+];

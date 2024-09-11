@@ -14,6 +14,10 @@ interface State {
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
+  startDate: string;
+  endDate: string;
+  operatingRoomFilter: string;
+  sort: string;
 }
 
 interface Action {
@@ -22,8 +26,13 @@ interface Action {
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
   fetchData: () => void;
+  setStartDate: (startDate: string) => void;
+  setEndDate: (endDate: string) => void;
+  setOperatingRoomFilter: (operatingRoomFilter: string) => void;
   setEnabled: (enabled: boolean) => void;
+  setSort: (sort: string) => void;
   clearData: () => void;
+  clearFilters: () => void;
 }
 
 const initialValues = {
@@ -37,17 +46,25 @@ const initialValues = {
   enabled: true,
   search: '',
   cancelToken: null as CancelTokenSource | null,
+  startDate: '',
+  endDate: '',
+  operatingRoomFilter: '',
+  sort: '',
 };
 
 export const usePatientRegisterPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setSort: (sort: string) => set({ sort, pageIndex: 0 }),
+  setOperatingRoomFilter: (operatingRoomFilter: string) => set({ operatingRoomFilter }),
+  setStartDate: (startDate: string) => set({ startDate }),
+  setEndDate: (endDate: string) => set({ endDate }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize } = get();
+    const { enabled, search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -59,7 +76,7 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
 
     try {
       const res = await getPatientRegisterPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}`
       );
       set({
         data: res.data,
@@ -81,5 +98,8 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
   },
   clearData: () => {
     set({ ...initialValues });
+  },
+  clearFilters: () => {
+    set({ startDate: '', endDate: '', search: '', operatingRoomFilter: '' });
   },
 }));

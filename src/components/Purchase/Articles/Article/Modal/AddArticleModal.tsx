@@ -106,6 +106,9 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       precioVenta: '',
       precioVentaPI: '',
       codigoBarras: '',
+      codigoContpaqi: '',
+      codigoSAT: '',
+      codigoUnidadMedida: '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -129,7 +132,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       // data.precioVenta = precioVenta;
       // data.precioVentaPI = precioVentaPI;
       await addNewArticle(data);
-      console.log('art', data);
       setHandleChangeArticle(!handleChangeArticle);
       toast.success('Articulo creado con éxito!');
       open(false);
@@ -493,6 +495,39 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   size="small"
                   placeholder="Escriba un código de barras"
                   {...register('codigoBarras')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código Contpaqi</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoContpaqi}
+                  helperText={errors?.codigoContpaqi?.message}
+                  size="small"
+                  placeholder="Escriba un código de contpaqi"
+                  {...register('codigoContpaqi')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de SAT</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoSAT}
+                  helperText={errors?.codigoSAT?.message}
+                  size="small"
+                  placeholder="Escriba un código de SAT"
+                  {...register('codigoSAT')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de Unidad de Medida</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoUnidadMedida}
+                  helperText={errors?.codigoUnidadMedida?.message}
+                  size="small"
+                  placeholder="Escriba un código de Unidad de Medida"
+                  {...register('codigoUnidadMedida')}
                 />
               </Grid>
             </Grid>
