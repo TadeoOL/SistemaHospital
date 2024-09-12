@@ -210,12 +210,11 @@ export const DiscountModal = ({
               </Typography>
               <TextField
                 {...field}
-                type="text"
+                type="number"
+                inputProps={{ step: '0.01' }}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                    field.onChange(value === '' ? null : Number(value));
-                  }
+                  field.onChange(value === '' ? null : parseFloat(value));
                 }}
                 error={!!error}
                 helperText={error?.message}

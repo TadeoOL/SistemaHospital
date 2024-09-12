@@ -467,7 +467,7 @@ const TableRowItemsToBeInvoiced = (props: {
   discount?: number;
 }) => {
   const { data, discount } = props;
-
+  console.log(calculateDiscountedPrice(data.precioNeto, discount));
   return (
     <TableRow>
       <TableCell>{data.nombre}</TableCell>

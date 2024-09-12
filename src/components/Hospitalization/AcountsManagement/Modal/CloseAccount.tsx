@@ -175,7 +175,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const acceptRequest = () => {
     withReactContent(Swal).fire({
       title: 'Confirmación',
-      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de $${accountInfo?.totalPagoCuentaRestante}?`,
+      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de $${accountInfo?.totalPagoCuentaRestante.toFixed(2)}?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
@@ -524,7 +524,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.subTotal}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.subTotal.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -532,7 +532,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{accountInfo.porcentajeDescuento}%</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                      {accountInfo.porcentajeDescuento.toFixed(2)}%
+                    </Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -540,7 +542,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.iva}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.iva.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -548,7 +550,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.totalPagoCuenta}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                      ${accountInfo.totalPagoCuenta.toFixed(2)}
+                    </Typography>
                   </Box>
                 </Box>
               </Box>
@@ -560,7 +564,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuentaAbonos}
+                      ${accountInfo?.totalPagoCuentaAbonos.toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
@@ -570,7 +574,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuenta - accountInfo.totalPagoCuentaAbonos}
+                      ${(accountInfo?.totalPagoCuenta - accountInfo.totalPagoCuentaAbonos).toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
