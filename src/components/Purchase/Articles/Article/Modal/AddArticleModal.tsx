@@ -22,6 +22,7 @@ import { useArticlePagination } from '../../../../../store/purchaseStore/article
 import { addNewArticle, getPurchaseConfig } from '../../../../../api/api.routes';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { useGetSizeUnit } from '../../../../../hooks/contpaqi/useGetSizeUnit';
 
 const style = {
   position: 'absolute',
@@ -76,6 +77,8 @@ interface IAddArticleModal {
 export const AddArticleModal = (props: IAddArticleModal) => {
   const { open } = props;
   const { subCategories, isLoading } = useGetSubCategories();
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
+  const [unidadMedida, setUnidadMedida] = useState('');
   const config = useGetPurchaseConfig();
   const [valueState, setValueState] = useState('');
   const [subCategory, setSubCategory] = useState('');
@@ -147,11 +150,18 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     setSubCategory(value);
   };
 
+  const handleChangeUnidadMedida = (event: any) => {
+    const {
+      target: { value },
+    } = event;
+    setUnidadMedida(value);
+  };
+
   const handleChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValueState(event.currentTarget.value);
   };
 
-  if (isLoading)
+  if (isLoading && isLoadingConcepts)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -498,17 +508,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Typography>Código Contpaqi</Typography>
-                <TextField
-                  fullWidth
-                  error={!!errors.codigoContpaqi}
-                  helperText={errors?.codigoContpaqi?.message}
-                  size="small"
-                  placeholder="Escriba un código de contpaqi"
-                  {...register('codigoContpaqi')}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
                 <Typography>Código de SAT</Typography>
                 <TextField
                   fullWidth
@@ -520,15 +519,24 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Typography>Código de Unidad de Medida</Typography>
+                <Typography>Unidad de Medida Contpaq</Typography>
                 <TextField
                   fullWidth
+                  size="small"
+                  select
+                  label="Seleccione una unidad de medida"
                   error={!!errors.codigoUnidadMedida}
                   helperText={errors?.codigoUnidadMedida?.message}
-                  size="small"
-                  placeholder="Escriba un código de Unidad de Medida"
                   {...register('codigoUnidadMedida')}
-                />
+                  value={unidadMedida}
+                  onChange={handleChangeUnidadMedida}
+                >
+                  {sizeUnit.map((data) => (
+                    <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                      {data.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Grid>
             </Grid>
             <Stack
