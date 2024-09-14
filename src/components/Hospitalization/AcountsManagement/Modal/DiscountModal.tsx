@@ -57,7 +57,7 @@ const motion = keyframes`
   }
 `;
 
-const LoaderWrapper = styled(Box)(({ theme }) => ({
+const LoaderWrapper = styled(Box)(({ theme }: { theme: any }) => ({
   position: 'relative',
   fontSize: '48px',
   letterSpacing: '2px',

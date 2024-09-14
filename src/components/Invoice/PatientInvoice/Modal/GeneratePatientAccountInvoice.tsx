@@ -281,6 +281,19 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       precioTotal: number;
       cantidad: number;
     }[] = [];
+
+    if (data.totalPagoSami > 0) {
+      rooms.push({
+        id: 'b1337f24-19e4-4ee1-bee5-dde5785b05e8',
+        nombre: 'CONSULTA SAMI',
+        precioUnitario: data.totalPagoSami,
+        precioNeto: data.totalPagoSami,
+        iva: 0,
+        precioTotal: data.totalPagoSami,
+        cantidad: 1,
+      });
+    }
+
     data.quirofanos.forEach((room) => {
       rooms.push({
         id: room.id_RegistroCuarto + room.nombre,
