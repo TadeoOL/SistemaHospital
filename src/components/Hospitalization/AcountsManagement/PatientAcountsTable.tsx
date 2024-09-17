@@ -26,15 +26,19 @@ import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { DiscountModal } from './Modal/DiscountModal';
+import { useGetDiscountConfig } from '../../../hooks/admission/useGetDiscountConfig';
+import { useAuthStore } from '../../../store/auth';
 
 const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
 interface PatientAccountTableBodyProps {
   data: IPatientAccount[];
+  discountConfig: { id: string; name: string }[];
 }
 
 interface PatientAccountTableRowProps {
   data: IPatientAccount;
+  discountConfig: { id: string; name: string }[];
 }
 
 const useGetPatientAccountData = () => {
@@ -66,8 +70,9 @@ const useGetPatientAccountData = () => {
 
 export const PatientAccountTable = () => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetPatientAccountData();
+  const { data: discountConfig, isLoading: isLoadingDiscountConfig } = useGetDiscountConfig();
 
-  if (isLoading && data.length === 0)
+  if ((isLoading && data.length === 0) || isLoadingDiscountConfig)
     return (
       <Box sx={{ display: 'flex', p: 4, justifyContent: 'center' }}>
         <CircularProgress size={35} />
@@ -79,7 +84,7 @@ export const PatientAccountTable = () => {
       <TableContainer>
         <Table>
           <TableHeaderComponent headers={HEADERS} />
-          <PatientAccountTableBody data={data} />
+          <PatientAccountTableBody data={data} discountConfig={discountConfig} />
           {data.length > 0 && (
             <TableFooterComponent
               count={count}
@@ -101,7 +106,7 @@ const PatientAccountTableBody = (props: PatientAccountTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((a) => (
-        <PatientAccountTableRow key={a.id_Cuenta} data={a} />
+        <PatientAccountTableRow key={a.id_Cuenta} data={a} discountConfig={props.discountConfig} />
       ))}
     </TableBody>
   );
@@ -114,6 +119,8 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const { data } = props;
   const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
   const [openDiscount, setOpenDiscount] = useState(false);
+  const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
+  const userId = useAuthStore((state) => state.profile?.id);
 
   const handleEdit = () => {
     setOpen(true);
@@ -179,11 +186,13 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Aplicar descuento">
-              <IconButton onClick={() => setOpenDiscount(true)}>
-                <Discount color="success" />
-              </IconButton>
-            </Tooltip>
+            {(isAdmin || props.discountConfig.find((x) => x.id === userId)) && (
+              <Tooltip title="Aplicar descuento">
+                <IconButton onClick={() => setOpenDiscount(true)}>
+                  <Discount color="success" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>

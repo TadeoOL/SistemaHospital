@@ -178,13 +178,8 @@ export const addArticle = z.object({
     ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
   codigoBarras: z.string().nullable(),
-  codigoContpaqi: z
-    .string({ invalid_type_error: 'Escribe un código valido' })
-    .min(1, { message: 'Escribe un código valido' }),
-  codigoSAT: z.string({ invalid_type_error: 'Escribe un código valido' }).min(1, 'Escribe un código valido'),
-  codigoUnidadMedida: z
-    .string({ invalid_type_error: 'Escribe un código valido' })
-    .min(1, { message: 'Escribe un código valido' }),
+  codigoSAT: z.string().min(1, 'Escribe un código valido'),
+  codigoUnidadMedida: z.number().min(1, 'Selecciona una unidad de medida'),
 });
 
 export const addArticleBox = z.object({

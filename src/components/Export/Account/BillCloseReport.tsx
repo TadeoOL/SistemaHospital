@@ -195,6 +195,7 @@ type CierreCuenta = {
   ventaConcepto: number;
   ventaArticuloSinIVA: number;
   ventaArticuloIVA: number;
+  totalPagoSami: number;
 };
 
 type Props = {
@@ -218,12 +219,33 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
         <Text style={{ marginBottom: 10 }}>
           Tipo: {cierreCuenta.esHospitalizacion ? 'Hospitalización' : 'Ambulatoria o Endopro'}
         </Text>
+
+        <Text>Total de Conceptos sin IVA</Text>
         <Text>Total de Servicios y Estudios: ${cierreCuenta.ventaConcepto}</Text>
         <Text>Total de Material: ${cierreCuenta.ventaArticuloIVA}</Text>
         <Text>Total de Medicamento: ${cierreCuenta.ventaArticuloSinIVA}</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.header}>Detalles de la Cuenta</Text>
+        {cierreCuenta.totalPagoSami > 0 && (
+          <>
+            <Text style={styles.header}>SAMI</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCol}>Nombre</Text>
+                <Text style={styles.tableCol}>Precio Neto</Text>
+                <Text style={styles.tableCol}>IVA</Text>
+                <Text style={styles.tableCol}>Precio Total</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCell}>Consulta SAMI</Text>
+                <Text style={styles.tableCell}>${cierreCuenta.totalPagoSami}</Text>
+                <Text style={styles.tableCell}>$0.00</Text>
+                <Text style={styles.tableCell}>${cierreCuenta.totalPagoSami}</Text>
+              </View>
+            </View>
+          </>
+        )}
         {cierreCuenta.cuartos && cierreCuenta.cuartos.length > 0 && (
           <>
             <Text style={styles.header}>Cuartos</Text>

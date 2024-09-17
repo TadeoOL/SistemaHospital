@@ -5,3 +5,8 @@ export interface DocumentConcept {
   ciddocumentode: number;
   cnofolio: number;
 }
+
+export interface SizeUnit {
+  id_UnidadMedida: number;
+  nombre: string;
+}

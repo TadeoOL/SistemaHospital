@@ -41,6 +41,8 @@ import { updateOperatingRoomType } from '../../../../services/hospitalization/pa
 import { usePatientAccountPaginationStore } from '../../../../store/hospitalization/patientAcountsPagination';
 import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
+import { PriceCell } from '../../../Commons/PriceCell';
+import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
 
 const style = {
   position: 'absolute',
@@ -171,23 +173,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   };
 
   const acceptRequest = () => {
-    let totalVentaV = 0;
-    const totalCuenta = accountInfo?.totalPagoCuentaRestante ?? 0;
-
-    if (accountInfo?.porcentajeDescuento) {
-      const descuentoPorcentaje = accountInfo?.porcentajeDescuento / 100;
-      totalVentaV = totalCuenta * (1 - descuentoPorcentaje);
-    } else if (discountSurgeryRoomFlag) {
-      totalVentaV = parseFloat((totalCuenta - (initialSurgeryPrice - Number(surgeryPrice))).toFixed(2));
-    } else {
-      totalVentaV = totalCuenta;
-    }
-
-    totalVentaV = Math.max(totalVentaV, 0);
-
     withReactContent(Swal).fire({
       title: 'Confirmación',
-      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de $${totalVentaV.toFixed(2)}?`,
+      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de $${accountInfo?.totalPagoCuentaRestante.toFixed(2)}?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
@@ -196,7 +184,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       reverseButtons: true,
       showLoaderOnConfirm: true,
       preConfirm: () => {
-        handleSubmit(totalVentaV);
+        handleSubmit(accountInfo?.totalPagoCuentaRestante ?? 0);
       },
       allowOutsideClick: () => !Swal.isLoading(),
     });
@@ -410,6 +398,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioIVA', header: 'IVA' },
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
               />
               <DataTable
                 title="Quirofanos / Recuperacion"
@@ -421,6 +410,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioIVA', header: 'IVA' },
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
                 isOperatingRoom
                 modified={modified}
                 setModified={setModified}
@@ -465,6 +455,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precio', header: 'Precio Total' },
                   // { key: 'estatus', header: 'Estatus' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
               />
 
               <DataTable
@@ -479,6 +470,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precio', header: 'Precio Total' },
                   // { key: 'estatus', header: 'Estatus' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
               />
               <DataTable
                 title="Equipos Biomédicos"
@@ -489,6 +481,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioIVA', header: 'IVA' },
                   { key: 'precio', header: 'Precio Total' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
               />
               <DataTable
                 title="Equipos Biomédicos Externos"
@@ -499,6 +492,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioIVA', header: 'IVA' },
                   { key: 'precio', header: 'Precio Total' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
               />
               <DataTable
                 title="Artículos"
@@ -513,6 +507,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioIVA', header: 'Precio IVA' },
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
+                haveDiscount={accountInfo?.porcentajeDescuento}
               />
               <DataTable
                 title="Pagos de la Cuenta"
@@ -529,7 +524,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.subTotal}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.subTotal.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -537,7 +532,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{accountInfo.porcentajeDescuento}%</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                      {accountInfo.porcentajeDescuento.toFixed(2)}%
+                    </Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -545,7 +542,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.iva}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.iva.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -553,7 +550,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.totalPagoCuenta}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                      ${accountInfo.totalPagoCuenta.toFixed(2)}
+                    </Typography>
                   </Box>
                 </Box>
               </Box>
@@ -565,7 +564,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuentaAbonos}
+                      ${accountInfo?.totalPagoCuentaAbonos.toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
@@ -575,7 +574,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuenta - accountInfo.totalPagoCuentaAbonos}
+                      ${(accountInfo?.totalPagoCuenta - accountInfo.totalPagoCuentaAbonos).toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
@@ -592,20 +591,49 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           )
         )}
       </Box>
-      <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
-        {discountSurgeryRoomFlag ? (
-          <>
-            <b>Total Restante:</b> $
-            {(
-              (accountInfo?.totalPagoCuentaRestante ?? 0) +
-              (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice)
-            ).toFixed(2)}{' '}
-          </>
-        ) : (
-          <>
-            <b>Total Restante:</b> ${accountInfo?.totalPagoCuentaRestante}
-          </>
-        )}
+      <Typography
+        sx={{
+          bgcolor: 'background.paper',
+          py: 2,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        variant="h4"
+        textAlign={'center'}
+      >
+        <Box sx={{ mb: 1, display: 'flex', gap: 1 }}>
+          <b>Total Restante:</b>
+          {accountInfo ? (
+            discountSurgeryRoomFlag ? (
+              <PriceCell
+                originalPrice={
+                  (accountInfo.totalPagoCuentaRestante ?? 0) +
+                  (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice)
+                }
+                discountedPrice={
+                  ((accountInfo.totalPagoCuentaRestante ?? 0) +
+                    (isNaN(Number(surgeryPrice) - initialSurgeryPrice)
+                      ? 0
+                      : Number(surgeryPrice) - initialSurgeryPrice)) *
+                  (1 - (accountInfo.porcentajeDescuento ?? 0) / 100)
+                }
+                variant="medium"
+              />
+            ) : accountInfo.porcentajeDescuento ? (
+              <PriceCell
+                originalPrice={accountInfo.totalPagoCuentaOriginal ?? 0}
+                discountedPrice={accountInfo.totalPagoCuentaRestante ?? 0}
+                variant="medium"
+              />
+            ) : (
+              `$${accountInfo.totalPagoCuentaRestante?.toFixed(2) ?? '0.00'}`
+            )
+          ) : (
+            <b>Cargando...</b>
+          )}
+        </Box>
       </Typography>
       {/* <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -796,6 +824,7 @@ interface DataTableProps<T> {
   modified?: boolean;
   setModified?: Function;
   id_PatientBill?: string;
+  haveDiscount?: number;
 }
 interface Column<T> {
   key: keyof T;
@@ -811,6 +840,7 @@ export const DataTable = <T,>({
   modified,
   setModified,
   id_PatientBill,
+  haveDiscount,
 }: DataTableProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
@@ -838,8 +868,6 @@ export const DataTable = <T,>({
 
   const handleConfirm = async () => {
     if (!tipoQuirofano) return handleClose();
-    console.log('Tipo de quirófano seleccionado:', tipoQuirofano);
-    console.log('Fila seleccionada:', selectedRow);
     try {
       await updateOperatingRoomType({
         id_RegistroCuarto: selectedRow.id_RegistroCuarto,
@@ -865,11 +893,11 @@ export const DataTable = <T,>({
           <TableHead>
             <TableRow>
               {columns.map((col) => (
-                <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
+                <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
                   {col.header}
                 </TableCell>
               ))}
-              {isOperatingRoom && <TableCell sx={{ p: 1, fontSize: '0.875rem' }}>Acciones</TableCell>}
+              {isOperatingRoom && <TableCell sx={{ fontSize: '0.875rem' }}>Acciones</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -878,18 +906,32 @@ export const DataTable = <T,>({
                 <TableRow key={index}>
                   {columns.map((col) => {
                     const cellValue = row[col.key];
+                    if (
+                      haveDiscount &&
+                      (col.key === 'precioNeto' ||
+                        col.key === 'precioTotal' ||
+                        col.key === 'precio' ||
+                        col.key === 'precioIVA')
+                    ) {
+                      const discountedPrice = calculateDiscountedPrice(cellValue, haveDiscount);
+                      return (
+                        <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
+                          <PriceCell originalPrice={cellValue} discountedPrice={discountedPrice} />
+                        </TableCell>
+                      );
+                    }
                     const formattedValue =
                       (col.key as String).toLowerCase().includes('precio') && typeof cellValue === 'number'
-                        ? `$${cellValue}`
+                        ? `$${cellValue.toFixed(2)}`
                         : String(cellValue);
                     return (
-                      <TableCell key={String(col.key)} sx={{ p: 1, fontSize: '0.875rem' }}>
+                      <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
                         {formattedValue}
                       </TableCell>
                     );
                   })}
                   {isOperatingRoom && (
-                    <TableCell sx={{ p: 1, fontSize: '0.875rem' }}>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>
                       {row['nombre'] !== 'Recuperacion' && (
                         <Tooltip title="Cambiar configuración">
                           <IconButton size="small" onClick={(event) => handleClick(event, row)}>

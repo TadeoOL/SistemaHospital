@@ -82,6 +82,7 @@ export interface IAcountAllInformation {
   articulos: IArticlesAccount[];
   pagosCuenta: IPaymentsAccount[];
   totalPagoCuenta: number;
+  totalPagoCuentaOriginal: number;
   subtotalPagoCuenta: number;
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
@@ -127,7 +128,7 @@ export interface IAcountAllInformationAdmission {
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
   nombre: string;
-  cantidadDias: string;
+  cantidadDias: number;
   precioDia: number;
   precioTotal: number;
   precioNeto: number;

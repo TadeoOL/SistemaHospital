@@ -1,12 +1,18 @@
-import { Box, FormControlLabel, Switch } from '@mui/material';
+import { Box, FormControlLabel, IconButton, Modal, Switch, Tooltip } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { PatientAccountTable } from './PatientAcountsTable';
 import { usePatientAccountPaginationStore } from '../../../store/hospitalization/patientAcountsPagination';
+import { Settings } from '@mui/icons-material';
+import { useAuthStore } from '../../../store/auth';
+import { useState } from 'react';
+import { DiscountConfigModal } from './Modal/Config/DiscountConfigModal';
 
 export const PatientAcounts = () => {
   const setSearch = usePatientAccountPaginationStore((state) => state.setSearch);
   const setStatus = usePatientAccountPaginationStore((state) => state.setStatus);
   const status = usePatientAccountPaginationStore((state) => state.status);
+  const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -18,29 +24,45 @@ export const PatientAcounts = () => {
           boxShadow: 4,
           display: 'flex',
           flexDirection: 'column',
-          rowGap: 2,
+          rowGap: isAdmin ? 0 : 2,
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={setSearch} size='medium' sx={{ width : '100%' }} title="Buscar la cuenta..." />
+          <SearchBar searchState={setSearch} size="medium" sx={{ width: '100%' }} title="Buscar la cuenta..." />
           <FormControlLabel
-              control={
-                <Switch
-                  checked={status === 1}
-                  onChange={(val) => {
-                    if (val.target.checked) {
-                      setStatus(1);
-                    } else {
-                      setStatus(2);
-                    }
-                  }}
-                />
-              }
-              label="Pendientes"
-            />
+            control={
+              <Switch
+                checked={status === 1}
+                onChange={(val) => {
+                  if (val.target.checked) {
+                    setStatus(1);
+                  } else {
+                    setStatus(2);
+                  }
+                }}
+              />
+            }
+            label="Pendientes"
+          />
         </Box>
-        <PatientAccountTable />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column' }}>
+          {isAdmin && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Tooltip title="Configuración">
+                <IconButton color="primary" onClick={() => setOpen(true)}>
+                  <Settings />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+          <PatientAccountTable />
+        </Box>
       </Box>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <>
+          <DiscountConfigModal setOpen={setOpen} />
+        </>
+      </Modal>
     </>
   );
 };

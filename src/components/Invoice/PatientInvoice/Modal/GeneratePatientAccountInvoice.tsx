@@ -26,6 +26,8 @@ import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
 import { IAcountAllInformation } from '../../../../types/hospitalizationTypes';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 import { useGetAllDocumentConcepts } from '../../../../hooks/contpaqi/useGetDocumentConcepts';
+import { PriceCell } from '../../../Commons/PriceCell';
+import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
 
 const INVOICE_TABLE_HEADERS = ['Nombre', 'Precio Unitario', 'Cantidad', 'Precio Neto', 'IVA', 'Precio Total'];
 
@@ -110,6 +112,7 @@ export const GeneratePatientAccountInvoice = ({
         id_CuentaPaciente: patientAccountId,
         tipoFacturacion: invoiceMethodSelected,
         tipoPedido: typeOfInvoiceSelected,
+        porcentajeDescuento: data.porcentajeDescuento,
       });
       toast.success('Factura generada correctamente');
       setOpen(false);
@@ -200,17 +203,13 @@ export const GeneratePatientAccountInvoice = ({
               </Stack>
             </Box>
           </Box>
-          <Box sx={{ overflowY: 'auto' }}>
-            <Box sx={{ maxHeight: { xs: 400, lg: 600 } }}>
-              <ItemsToBeInvoiced
-                invoiceMethodSelected={invoiceMethodSelected}
-                data={data}
-                setIva={setIvaValue}
-                setSubTotal={setSubTotalValue}
-                setTotal={setTotalValue}
-              />
-            </Box>
-          </Box>
+          <ItemsToBeInvoiced
+            invoiceMethodSelected={invoiceMethodSelected}
+            data={data}
+            setIva={setIvaValue}
+            setSubTotal={setSubTotalValue}
+            setTotal={setTotalValue}
+          />
         </Box>
         <Box
           sx={{
@@ -282,6 +281,19 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       precioTotal: number;
       cantidad: number;
     }[] = [];
+
+    if (data.totalPagoSami > 0) {
+      rooms.push({
+        id: 'b1337f24-19e4-4ee1-bee5-dde5785b05e8',
+        nombre: 'CONSULTA SAMI',
+        precioUnitario: data.totalPagoSami,
+        precioNeto: data.totalPagoSami,
+        iva: 0,
+        precioTotal: data.totalPagoSami,
+        cantidad: 1,
+      });
+    }
+
     data.quirofanos.forEach((room) => {
       rooms.push({
         id: room.id_RegistroCuarto + room.nombre,
@@ -301,7 +313,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         precioNeto: room.precioNeto,
         iva: room.precioIVA,
         precioTotal: room.precioTotal,
-        cantidad: 1,
+        cantidad: room.cantidadDias,
       });
     });
     return rooms;
@@ -369,53 +381,60 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         setItems([...formatArticles()]);
         setIva(
           formatArticles()
-            .flatMap((a) => a.iva)
+            .flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
           formatArticles()
-            .flatMap((a) => a.precioNeto)
+            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
             .reduce((prev, val) => prev + val, 0)
         );
         setTotal(
           formatArticles()
-            .flatMap((a) => a.precioTotal)
+            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
             .reduce((prev, val) => prev + val, 0)
         );
         break;
       case 2:
-        setItems([...formatRooms()]);
+        setItems([...formatRooms(), ...formatCabinetStudies()]);
         setIva(
           formatRooms()
-            .flatMap((a) => a.iva)
+            .flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento))
+            .concat(formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento)))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
           formatRooms()
-            .flatMap((a) => a.precioNeto)
+            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
+            .concat(
+              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
+            )
             .reduce((prev, val) => prev + val, 0)
         );
         setTotal(
           formatRooms()
-            .flatMap((a) => a.precioTotal)
+            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
+            .concat(
+              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
+            )
             .reduce((prev, val) => prev + val, 0)
         );
         break;
       case 3:
-        setItems(formatAll());
+        setItems([...formatAll()]);
         setIva(
           formatAll()
-            .flatMap((a) => a.iva)
+            .flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
           formatAll()
-            .flatMap((a) => a.precioNeto)
+            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
             .reduce((prev, val) => prev + val, 0)
         );
         setTotal(
           formatAll()
-            .flatMap((a) => a.precioTotal)
+            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
             .reduce((prev, val) => prev + val, 0)
         );
         break;
@@ -434,7 +453,9 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         <TableContainer>
           <Table>
             <TableHeaderComponent headers={INVOICE_TABLE_HEADERS} />
-            <TableBody>{items?.map((d) => <TableRowItemsToBeInvoiced data={d} key={d.id} />)}</TableBody>
+            <TableBody>
+              {items?.map((d) => <TableRowItemsToBeInvoiced data={d} key={d.id} discount={data.porcentajeDescuento} />)}
+            </TableBody>
           </Table>
         </TableContainer>
         {!items ||
@@ -456,17 +477,30 @@ const TableRowItemsToBeInvoiced = (props: {
     precioTotal: number;
     cantidad: number;
   };
+  discount?: number;
 }) => {
-  const { data } = props;
-
+  const { data, discount } = props;
+  console.log(calculateDiscountedPrice(data.precioNeto, discount));
   return (
     <TableRow>
       <TableCell>{data.nombre}</TableCell>
       <TableCell>${data.precioUnitario}</TableCell>
       <TableCell>{data.cantidad}</TableCell>
-      <TableCell>${data.precioNeto}</TableCell>
-      <TableCell>${data.iva}</TableCell>
-      <TableCell>${data.precioTotal}</TableCell>
+      <TableCell>
+        <PriceCell
+          discountedPrice={calculateDiscountedPrice(data.precioNeto, discount)}
+          originalPrice={data.precioNeto}
+        />
+      </TableCell>
+      <TableCell>
+        <PriceCell discountedPrice={calculateDiscountedPrice(data.iva, discount)} originalPrice={data.iva} />
+      </TableCell>
+      <TableCell>
+        <PriceCell
+          discountedPrice={calculateDiscountedPrice(data.precioTotal, discount)}
+          originalPrice={data.precioTotal}
+        />
+      </TableCell>
     </TableRow>
   );
 };
