@@ -313,7 +313,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         precioNeto: room.precioNeto,
         iva: room.precioIVA,
         precioTotal: room.precioTotal,
-        cantidad: 1,
+        cantidad: room.cantidadDias,
       });
     });
     return rooms;

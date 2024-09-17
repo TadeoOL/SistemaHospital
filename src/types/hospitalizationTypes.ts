@@ -128,7 +128,7 @@ export interface IAcountAllInformationAdmission {
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
   nombre: string;
-  cantidadDias: string;
+  cantidadDias: number;
   precioDia: number;
   precioTotal: number;
   precioNeto: number;
