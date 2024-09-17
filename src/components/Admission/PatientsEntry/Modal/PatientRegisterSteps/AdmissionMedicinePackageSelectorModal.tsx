@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { ClearAll, Delete, Edit, Save, WarningAmber } from '@mui/icons-material';
+import { ClearAll, Delete, Edit, Save } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { shallow } from 'zustand/shallow';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
@@ -447,7 +447,7 @@ const MedicineSelectedTableRow = (props: {
     <TableRow>
       <TableCell>
         <Box sx={{ display: 'flex', alignItems: 'center', columnGap: 1 }}>
-          {(data.cantidadDisponible as number) < 1 && (
+          {/*(data.cantidadDisponible as number) < 1 && (
             <Tooltip title="No hay stock">
               <Box>{<WarningAmber color="error" />}</Box>
             </Tooltip>
@@ -458,7 +458,7 @@ const MedicineSelectedTableRow = (props: {
                 <WarningAmber color="warning" />
               </Box>
             </Tooltip>
-          )}
+          )*/}
           <Typography variant="caption">{data.nombre}</Typography>
         </Box>
       </TableCell>

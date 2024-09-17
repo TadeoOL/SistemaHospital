@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { IArticle2 } from '../../../types/types';
+import { IArticlePOS } from '../../../types/types';
 import axios, { CancelTokenSource } from 'axios';
 import { usePosTabNavStore } from './posTabNav';
 import { getExistingArticlesPOS } from '../../../services/pharmacy/pointOfSaleService';
@@ -10,7 +10,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IArticle2[];
+  data: IArticlePOS[];
   loading: boolean;
   search: string;
   enabled: boolean;

@@ -69,7 +69,7 @@ interface CreatePackageModalProps {
 interface ArticlesInBatch {
   Id_ArticuloExistente: string;
   Id_Articulo: string;
-  Cantidad: string;
+  Cantidad: number;//checar aqui a numero
 }
 
 export const CreatePackageModal = (props: CreatePackageModalProps) => {
@@ -84,13 +84,11 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
       toast.warning('Debes de agregar todos los artículos');
       return;
     }
-    console.log('paso');
-    return;
     setIsLoading(true);
     const object = {
       id_HistorialMovimiento: props.movementHistoryId,
       lotes: articlesInBatch.map((a) => {
-        return { ...a, Cantidad: parseInt(a.Cantidad) };
+        return { ...a, Id_ArticuloAlmacenStock: a.Id_ArticuloExistente };
       }),
       id_AlmacenOrigen: data.id_Almacen,
     };
@@ -115,7 +113,7 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
       if (!quantityMap[article.Id_Articulo]) {
         quantityMap[article.Id_Articulo] = 0;
       }
-      quantityMap[article.Id_Articulo] += parseInt(article.Cantidad);
+      quantityMap[article.Id_Articulo] += article.Cantidad;
     });
 
     // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
@@ -144,7 +142,7 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
       listArt.push({
         Id_Articulo: article.id_Articulo ?? '',
         Id_ArticuloExistente: article.id_ArticuloExistente ?? '',
-        Cantidad: article.cantidad.toString(),
+        Cantidad: article.cantidad,
       });
     });
     setArticlesInBatch(listArt);

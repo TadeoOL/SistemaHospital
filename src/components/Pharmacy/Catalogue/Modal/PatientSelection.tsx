@@ -106,12 +106,13 @@ import {
       try {
         if (!validateAmount) return;
         setLoadingSubmit(true);
-        const object = {
+        /*const object = {
           Id_Almacen: props.warehouseId,
           IngresoMotivo: 'Devolución de artículos',
           Id_CuentaPaciente: userSelected.id_Cuenta,
         };
         //await articlesEntryToWarehouse(object);
+        //checar aqui qp || no se usa  */
         props.refetch();
         toast.success('Entrada de artículos con éxito!');
         setLoadingSubmit(false);

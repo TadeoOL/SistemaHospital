@@ -1,3 +1,5 @@
+
+/* RIP
 import { createWithEqualityFn } from 'zustand/traditional';
 import { IArticle2 } from '../../types/types';
 import axios, { CancelTokenSource } from 'axios';
@@ -67,4 +69,4 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
       }
     }
   },
-}));
+}));*/

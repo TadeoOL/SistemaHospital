@@ -3,8 +3,6 @@ import {
   Button,
   Card,
   CircularProgress,
-  Collapse,
-  IconButton,
   Modal,
   Stack,
   Table,
@@ -16,42 +14,26 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  alpha,
-  styled,
-  tableCellClasses,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { ExpandLess, ExpandMore, Info, Warning } from '@mui/icons-material';
+import { Info, Warning } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import { warning } from '../../../theme/colors';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { IExistingArticle, IExistingArticleList } from '../../../types/types';
-import { returnExpireDate } from '../../../utils/expireDate';
+import { IExistingArticle, IWarehouseData } from '../../../types/types';
 import { ArticlesExitModal } from './Modal/ArticlesExitModal';
 import { SortComponent } from '../../Commons/SortComponent';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { ArticlesEntryModal } from './Modal/ArticlesEntryModal';
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-  },
-  [`&.${tableCellClasses.root}`]: {
-    width: '25%',
-  },
-}));
+import { ArticlesPatientAcountManagementModal } from './Modal/ArticlesPatientAcountManagementModal';
+import { ArticlesPatientAcountManagementPharmacyModal } from './Modal/ArticlesPatientAcountManagemenPharmacytModal';
 
 const useGetExistingArticles = (warehouseId: string, principalWarehouseId: string) => {
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   const {
     data,
     setSearch,
@@ -104,11 +86,14 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
   }, []);
 
   useEffect(() => {
-    setWarehouseId(warehouseId);
-    setPrincipalWarehouseId(principalWarehouseId);
+    setWarehouseId(warehouseSL?.id ?? warehouseId);
+    if(warehouseSL && warehouseSL?.esSubAlmacen){
+      setPrincipalWarehouseId(warehouseSL.id_AlmacenPrincipal ?? "");
+    }
+    else{
+      setPrincipalWarehouseId(principalWarehouseId);
+    }
     fetchExistingArticles();
-    //akkki
-    console.log("fokin deita",data);
   }, [search, startDate, endDate, clearFilters, sort, pageIndex, pageSize]);
 
   return {
@@ -147,6 +132,7 @@ export const ArticlesPharmacyTable = () => {
   } = useGetExistingArticles(warehouseIdSeted, warehouseData.id_AlmacenPrincipal || '');
   const [openModal, setOpenModal] = useState(false);
   const [exitArticlesM, setExitArticlesM] = useState(false);
+  const [entryArticlesM, setEntryArticlesM] = useState(false);
 
   return (
     <>
@@ -166,6 +152,7 @@ export const ArticlesPharmacyTable = () => {
                 startIcon={<TurnLeftIcon />}
                 onClick={() => {
                   setExitArticlesM(true);
+                  setEntryArticlesM(false);
                   setOpenModal(!openModal);
                 }}
               >
@@ -176,11 +163,12 @@ export const ArticlesPharmacyTable = () => {
                 variant="contained"
                 startIcon={<AddCircleIcon />}
                 onClick={() => {
+                  setEntryArticlesM(true);
                   setExitArticlesM(false);
                   setOpenModal(!openModal);
                 }}
               >
-                Entrada de artículos
+                Movimientos Hospitalarios
               </Button>
               <Button
                 sx={{ minWidth: 200 }}
@@ -188,10 +176,11 @@ export const ArticlesPharmacyTable = () => {
                 startIcon={<AddCircleIcon />}
                 onClick={() => {
                   setExitArticlesM(false);
+                  setEntryArticlesM(false);
                   setOpenModal(!openModal);
                 }}
               >
-                nuevo boton
+                Movimientos de Quirofano
               </Button>
             </Box>
           </Box>
@@ -275,11 +264,21 @@ export const ArticlesPharmacyTable = () => {
         <>
           {exitArticlesM ? (
             <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          ) : (
-            <ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          )}
+          ) : 
+          entryArticlesM ?
+          (
+            <ArticlesPatientAcountManagementPharmacyModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+          
+          )
+          :(
+            <ArticlesPatientAcountManagementModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+          )
+        }
         </>
       </Modal>
+      {
+            //<ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+            }
     </>
   );
 };

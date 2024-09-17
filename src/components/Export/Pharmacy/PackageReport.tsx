@@ -35,24 +35,17 @@ const styles = StyleSheet.create({
   },
 });
 
-type Lote = {
-  id_ArticuloExistente: string;
-  id_Articulo: string;
-  nombre: string;
-  cantidad: number;
-  fechaCaducidad: string;
-};
-
 type Articulo = {
   id_Articulo: string;
   nombre: string;
-  cantidadSeleccionar: string;
+  cantidadSeleccionar: number;
   cantidad: number;
-  lote?: Lote[];
 };
 
 type Props = {
   articulos: Articulo[];
+  //recibio: any;
+  //cargo: any;
 };
 
 export const PackageReport = ({ articulos }: Props) => {
@@ -73,9 +66,6 @@ export const PackageReport = ({ articulos }: Props) => {
                   <Text style={[styles.tableCell, styles.header]}>Cantidad</Text>
                 </View>
                 <View style={styles.tableCol}>
-                  <Text style={[styles.tableCell, styles.header]}>Lote</Text>
-                </View>
-                <View style={styles.tableCol}>
                   <Text style={[styles.tableCell, styles.header]}>Solicito</Text>
                 </View>
                 <View style={styles.tableCol}>
@@ -86,31 +76,24 @@ export const PackageReport = ({ articulos }: Props) => {
                 </View>
               </View>
               {/* Cuerpo de la tabla */}
-              {articulos.map((articulo) =>
-                articulo.lote?.map((lote, index) => (
+              {articulos.map((articulo, index) =>
                   <View style={styles.tableRow} key={`${articulo.id_Articulo}-${index}`}>
                     <View style={styles.tableCol}>
                       <Text style={styles.tableCell}>{articulo.nombre}</Text>
                     </View>
                     <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}>{lote.cantidad}</Text>
+                      <Text style={styles.tableCell}>{articulo.cantidad}</Text>
                     </View>
                     <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}>
-                        {lote.fechaCaducidad === '01/01/4000' ? 'Sin Caducidad' : lote.fechaCaducidad}
-                      </Text>
+                      <Text style={styles.tableCell/*Solicito */}></Text>
                     </View>
                     <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}></Text>
+                      <Text style={styles.tableCell/*Recibo*/}></Text>
                     </View>
                     <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}></Text>
-                    </View>
-                    <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}></Text>
+                      <Text style={styles.tableCell/*Cargo*/}></Text>
                     </View>
                   </View>
-                ))
               )}
             </View>
           </Page>

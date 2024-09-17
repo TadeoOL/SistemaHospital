@@ -11,7 +11,6 @@ import {
   TableRow,
   Box,
   Typography,
-  TextField,
   IconButton,
   TablePagination,
   Modal,
@@ -20,10 +19,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SearchBar } from '../../../Inputs/SearchBar';
-import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { Info } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
-import { useWarehouseMovementPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaginacion';
 import { merchandiseEntryRequestPagination } from '../../../../store/warehouseStore/merchandiseEntryRequest';
 import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest';
 import CloseIcon from '@mui/icons-material/Close';

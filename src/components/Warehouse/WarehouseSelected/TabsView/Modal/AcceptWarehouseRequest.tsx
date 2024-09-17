@@ -125,7 +125,9 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
   useEffect(() => {
     console.log(warehouseData)
     setWarehouseId(wData.id);
-    //setSubWarehouse(warehouseData.subAlmacenes)
+    console.log(props.request);
+    const subwarehousefind = warehouseData.subAlmacenes.find((sbw) => sbw.id === props.request.id_AlmacenDestino );
+    setSubWarehouse(subwarehousefind ?? null)
   }, []);
 
   const handleSubmit = async () => {
@@ -157,9 +159,6 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
   };
 
   const handleAddArticle = (articleQuantity: ArticlesToSelectLote) => {
-    console.log("lo q manda",articleQuantity);
-    console.log(articles);
-    
       const direction = articles.findIndex((art: ArticlesToSelectLote) => art.id_Articulo === articleQuantity.id_Articulo);
       if (direction > -1) {
       articles.splice(direction, 1);
@@ -168,7 +167,6 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
       articles.push(articleQuantity)
       setArticles(articles);
     }
-    console.log("como termina");
   };
 
   const continueRequest = () => {
@@ -243,15 +241,17 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
             console.log(props.request.historialArticulos);
 
             if (articles.length === 0) return toast.error('Agrega artículos!');
-            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0))
+            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0)){
+              console.log("elfokinpana");
               return toast.error('Rellena todas las cantidades');
+            }
             if(value === 1){
               handleSubmit()
             }
             else{
               let flagQuant = false
             articles.forEach(artQ => { 
-              if(flagQuant = artQ.cantidad <= artQ.cantidadSeleccionar){
+              if(flagQuant = artQ.cantidad < artQ.cantidadSeleccionar){
                 flagQuant = true;
                 return;
               }
@@ -503,6 +503,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({
   const dateNow = Date.now();
   const today = new Date(dateNow);
   const flagSubwarehouse = warehouseData.esSubAlmacen;
+  console.log(warehouseData);
   return (
     <Stack spacing={2}>
       <Grid container spacing={2}>

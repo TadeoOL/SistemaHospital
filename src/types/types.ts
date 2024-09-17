@@ -126,18 +126,17 @@ export interface IArticle {
   codigoUnidadMedida?: string;
 }
 
-export interface IArticle2 {
+export interface IArticlePOS {
   //cambio en id
   id_Articulo: string;
+  id_ArticuloAlmacen: string;
   nombre: string;
   descripcion: string | null;
   stockMinimo: string;
   precioCompra: string;
   precioVenta: string;
-  stockActual?: string;
+  stockActual: number;
   codigoBarras?: string;
-  lote?: IExistingArticleList[];
-  listaArticuloExistente: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
   cantidad?: number;
@@ -149,6 +148,13 @@ export interface IArticleFromSearch {
   nombre: string;
 }
 
+export interface IArticleFromSearchWithQuantity {
+  id_Articulo: string;
+  id_ArticuloAlmacen: string;
+  nombre: string;
+  stock: number;
+  cantidad: number | null;//esta no debe venir desde el back se define en front
+}
 export interface IArticleFromSearchWithBarCode {
   id_Articulo: string;
   id_ArticuloCuenta: string;
@@ -156,8 +162,16 @@ export interface IArticleFromSearchWithBarCode {
   codigoBarras?: string;
   cantidad: number;
 }
-//ta fokin cosa va cambiar
-//akkki
+
+export interface IPrebuildedArticleFromArticleRequest {
+  id_Articulo: string;
+  id_ArticuloAlmacen?: string;
+  nombre: string;
+  cantidadSeleccionar: number;
+  cantidad: number;
+  stock: number;
+}
+
 export interface IExistingArticle {
   id_Articulo: string;
   cantidad: number;
@@ -173,7 +187,6 @@ export interface IExistingArticle {
   //listaArticuloExistente: IExistingArticleList[];
   codigoBarras?: string;
 }
-//kill
 export interface IExistingArticleList {
   //Lote
   id_ArticuloExistente: string;
@@ -189,6 +202,7 @@ export interface IWarehouse {
   id: string;
   nombre: string;
   descripcion: string;
+  id_UsuarioEncargado: string;
 }
 
 export enum StatusPurchaseRequest {
@@ -456,6 +470,7 @@ export interface IWarehouseMovementData {
   autorizadoPor?: string;
   estatus?: number;
   folio: string;
+  infoExtra: any;
 }
 export interface IArticleHistory {
   nombre: string;
@@ -625,6 +640,16 @@ export interface IArticlesDelivered {
   nombre: string;
   cantidad: number;
   lote: IExistingArticleList[];
+}
+
+export interface IArticlesFromPatientAcount {
+  id_Articulo: string;
+  id_ArticuloCuenta: string;
+  nombre: string;
+  cantidad: number;
+  codigoBarras: string | null;
+  id_CuentaPAciente: string;
+  stock: number;
 }
 
 export interface ICheckoutCloseHistory {

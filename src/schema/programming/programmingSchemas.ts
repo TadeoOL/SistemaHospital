@@ -133,6 +133,7 @@ export const programmingRegisterSchema = z.object({
   notes: z.string().optional(),
   surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
   date: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+  doctorId:z.string().min(1, 'Es necesario seleccionar un doctor'),
 });
 
 export const procedureAndDoctorSelectorSchema = z.object({

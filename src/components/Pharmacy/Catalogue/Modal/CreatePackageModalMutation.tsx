@@ -1,11 +1,9 @@
-import { Cancel, Check, Delete, Edit, ExpandLess, ExpandMore, Warning } from '@mui/icons-material';
+import { Cancel, Check, Delete, Edit, Save, Warning } from '@mui/icons-material';
 import {
   Button,
   Stack,
-  Modal,
   Box,
   Card,
-  Collapse,
   IconButton,
   Table,
   TableBody,
@@ -14,24 +12,20 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  tableCellClasses,
-  styled,
-  alpha,
+  TextField,
+  Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import withReactContent from 'sweetalert2-react-content';
-import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { IArticleFromSearch, IExistingArticleList, IArticleHistory } from '../../../../types/types';
+import { IArticleHistory, IPrebuildedArticleFromArticleRequest } from '../../../../types/types';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import Swal from 'sweetalert2';
-import { returnExpireDate } from '../../../../utils/expireDate';
-import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
-import { ArticlesToSelectLote } from '../../UserRequest/Modal/RequestBuildingModal';
 import { useGetPharmacyConfig } from '../../../../hooks/useGetPharmacyConfig';
 import { buildPackage } from '../../../../api/api.routes';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
+import { isValidIntegerOrZero } from '../../../../utils/functions/dataUtils';
 
 const style = {
   position: 'absolute',
@@ -58,53 +52,21 @@ const styleBar = {
   },
 };
 
-const NestedTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-    fontSize: 11,
-  },
-  [`&.${tableCellClasses.root}`]: {
-    paddingLeft: '20px',
-    width: '50%',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    justifyContent: 'center',
-  },
-}));
-
 interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
   requestedItems: IArticleHistory[];
-  preLoadedArticles: ArticlesToSelectLote[];
+  preLoadedArticles: IPrebuildedArticleFromArticleRequest[];
   movementHistoryId: string;
 }
 
 export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) => {
-  const [articles, setArticles] = useState<ArticlesToSelectLote[]>(
-    props.requestedItems.map((art) => ({
-      nombre: art.nombre,
-      cantidadSeleccionar: art.cantidad.toString(),
-      cantidad: 0,
-      lote: undefined,
-      id_Articulo: art.id_Articulo ?? '',
-    }))
+  const [articles, setArticles] = useState<IPrebuildedArticleFromArticleRequest[]>(
+    props.preLoadedArticles
   );
   const [value, setValue] = useState(0);
-
-  const [openLoteModal, setOpenLoteModal] = useState(false);
-  const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearch>(null);
-  const [loteEditing, setLoteEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const { data } = useGetPharmacyConfig();
-  const [loteSelected, setLoteSelected] = useState<
-    { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
-  >(null);
   /*const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
 
   useEffect(() => {
@@ -113,17 +75,16 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
 
   const handleSubmit = async () => {
     setLoading(true);
-    const existingArticlesList: { Id_ArticuloExistente: string; Cantidad: number }[] = [];
-    articles.forEach((art) => {
-      if (art.lote && art.lote.length > 0) {
-        art.lote.forEach((artEx) => {
-          existingArticlesList.push({ Id_ArticuloExistente: artEx.id_ArticuloExistente, Cantidad: artEx.cantidad });
-        });
-      }
-    });
     const object = {
       id_HistorialMovimiento: props.movementHistoryId,
-      lotes: existingArticlesList,
+      lotes: articles
+      .map((art) =>({
+          Id_Articulo: art.id_Articulo,
+          Id_ArticuloAlmacenStock: art.id_ArticuloAlmacen ?? "",
+          Cantidad: art.cantidad,
+          Nombre: art.nombre
+        })
+      ),
       id_AlmacenOrigen: data.id_Almacen,
     };
     try {
@@ -138,35 +99,15 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     }
   };
 
-  const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
-    let totalQuantityByArticle = 0;
-    const updatedLote: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] = [];
-    lotesArticles.forEach((element) => {
-      const nestedLote = {
-        cantidad: element.cantidad,
-        id_ArticuloExistente: element.id_ArticuloExistente,
-        fechaCaducidad: element.fechaCaducidad,
-      };
-      updatedLote.push(nestedLote);
-      totalQuantityByArticle += element.cantidad;
-    });
-    const updatedArticle = {
-      ...articleSelected,
-      cantidad: totalQuantityByArticle,
-      lote: updatedLote,
-    };
-    if (edit) {
-      const direction = articles.findIndex(
-        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articles.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setLoteEditing(false);
-    } else {
-      setArticles((prev: any) => [...prev, updatedArticle]);
-      setArticleSelected(null);
-    }
+  const handleAddArticle = (articleEdited: IPrebuildedArticleFromArticleRequest) => {
+    const direction = articles.findIndex((art) => art.id_Articulo === articleEdited.id_Articulo);
+    if (direction > -1) {
+    articles.splice(direction, 1);
+    setArticles([...articles, articleEdited]);
+  } /*else {
+    articles.push(articleEdited)
+    setArticles(articles);
+  }*/
   };
 
   const continueRequest = () => {
@@ -191,9 +132,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     let diferentNumbers = false;
     articles.forEach((article) => {
       let totalToSendByArticle = 0;
-      article?.lote?.forEach((articleNested) => {
-        totalToSendByArticle += articleNested.cantidad;
-      });
+        totalToSendByArticle += article.cantidad;
       if (totalToSendByArticle < Number(article.cantidadSeleccionar)) diferentNumbers = true;
     });
     if (diferentNumbers || articles.length !== props.requestedItems.length) {
@@ -224,7 +163,12 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
                 props.setOpen(false);
                 props.refetch();
               }}
-              document={<PackageReport articulos={articles as any} />}
+              document={<PackageReport articulos={articles.map((artr)=>({
+                id_Articulo: artr.id_Articulo,
+                nombre: artr.nombre,
+                cantidadSeleccionar: artr.cantidadSeleccionar,
+                cantidad: artr.cantidad
+              }))} />}
               fileName={`${Date.now()}.pdf`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
@@ -243,25 +187,16 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
 
   const checkPreloadedQuantyties = () => {
     const quantityMap: {
-      [key: string]: { cantidad: number; lotes: { id_ArticuloExistente: string; cantidad: number }[] };
+      [key: string]: { cantidad: number; };
     } = {};
     let flag = true;
     props.preLoadedArticles.forEach((article) => {
       if (!quantityMap[article.id_Articulo ?? '']) {
         quantityMap[article.id_Articulo ?? ''] = {
           cantidad: 0,
-          lotes: [],
         };
       }
-      if (article.lote && article.lote.length > 0) {
-        article.lote.forEach((artEx) => {
-          quantityMap[article.id_Articulo ?? ''].cantidad += artEx.cantidad;
-          quantityMap[article.id_Articulo ?? ''].lotes.push({
-            id_ArticuloExistente: artEx.id_ArticuloExistente ?? '',
-            cantidad: artEx.cantidad,
-          });
-        });
-      }
+          quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidad;
     });
 
     // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
@@ -297,14 +232,6 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
                 articles={articles}
                 setArticles={setArticles}
                 isResume={false}
-                setOpenLoteModal={setOpenLoteModal}
-                openLoteModal={openLoteModal}
-                setArticleSelected={setArticleSelected}
-                articleSelected={articleSelected}
-                setLoteEditing={setLoteEditing}
-                loteEditing={loteEditing}
-                setLoteSelected={setLoteSelected}
-                loteSelected={loteSelected}
                 handleAddArticle={handleAddArticle}
               />
             </React.Fragment>
@@ -348,38 +275,22 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
           }}
           startIcon={<Check />}
         >
-          {'Aceptar'}
+          {loading? 'Cargando...' : 'Aceptar'}
         </Button>
       </Box>
     </Box>
   );
 };
 interface ArticlesTableProps {
-  articles: ArticlesToSelectLote[];
+  articles: IPrebuildedArticleFromArticleRequest[];
   setArticles?: Function;
   isResume: boolean;
-  setOpenLoteModal: Function;
-  openLoteModal: boolean;
-  setArticleSelected: Function;
-  articleSelected: null | IArticleFromSearch;
-  setLoteEditing: Function;
-  loteEditing: boolean;
-  setLoteSelected: Function;
-  loteSelected: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null;
   handleAddArticle: Function;
 }
 const ArticlesTable: React.FC<ArticlesTableProps> = ({
   articles,
   setArticles,
   isResume,
-  setOpenLoteModal,
-  openLoteModal,
-  setArticleSelected,
-  articleSelected,
-  setLoteEditing,
-  loteEditing,
-  setLoteSelected,
-  loteSelected,
   handleAddArticle,
 }) => {
   return (
@@ -402,84 +313,61 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
                 setArticles={setArticles as Function}
                 articles={articles}
                 isResume={isResume}
-                setOpenLoteModal={setOpenLoteModal}
-                setArticleSelected={setArticleSelected}
-                setLoteSelected={setLoteSelected}
-                setLoteEditing={setLoteEditing}
+                handleAddArticle={handleAddArticle}
               />
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
-        <>
-          <LoteSelectionRemake2
-            setOpen={setOpenLoteModal as (arg0: boolean) => void}
-            articleName={articleSelected?.nombre || ''}
-            addFunction={handleAddArticle}
-            editing={loteEditing}
-            selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
-            empityLotes={true}
-          />
-        </>
-      </Modal>
     </Card>
   );
 };
 
 interface ArticlesTableRowProps {
-  articles: ArticlesToSelectLote[];
-  article: ArticlesToSelectLote;
+  articles: IPrebuildedArticleFromArticleRequest[];
+  article: IPrebuildedArticleFromArticleRequest;
   setArticles: Function;
   isResume: boolean;
-  setOpenLoteModal: Function;
-  setArticleSelected: Function;
-  setLoteSelected: Function;
-  setLoteEditing: Function;
+  handleAddArticle: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
   setArticles,
   articles,
   isResume,
-  setOpenLoteModal,
-  setArticleSelected,
-  setLoteSelected,
-  setLoteEditing,
+  handleAddArticle
 }) => {
-  const [open, setOpen] = useState(false);
-  const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
-  const setSearch = useExistingArticleLotesPagination((state) => state.setSearch);
+  const [isEditing, setIsEditing] = useState(false);
+  const [amountText, setAmountText] = useState(article.cantidadSeleccionar.toString());
 
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>{open ? <ExpandLess /> : <ExpandMore />}</IconButton>
             {article.nombre}
           </Box>
         </TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSeleccionar}</TableCell>
         {!isResume && (
           <TableCell>
-            <Tooltip title="Editar">
+            <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
               <IconButton
+              disabled ={article.stock == 0}
                 onClick={() => {
-                  setLoteSelected(article.lote);
-                  setArticleId(article.id_Articulo);
-                  setSearch('');
-                  setLoteEditing(true);
-                  setArticleSelected(article);
-                  setOpenLoteModal(true);
-                  /*if (article.stockActual === '' || article.stockActual === '0')
-                      return toast.error('Para guardar escribe una cantidad valida!');
-                    setIsEditing(!isEditing);
-                    setEditingRow(!isEditing);
-                    */
+                  setIsEditing(!isEditing)
+                  if (isEditing) {
+                    //handleSaveValue();
+                    const quant = Number(amountText);
+                    if(quant > article.stock){
+                      return toast.error('La cantidad excede el stock del articulo '+article.nombre);
+                    }
+
+                    handleAddArticle({...article, cantidad: quant, id_ArticuloAlmacen : article.id_ArticuloAlmacen})
+                  }
                 }}
               >
-                <Edit />
+               {isEditing ? <Save /> : <Edit />}
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
@@ -494,46 +382,34 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           </TableCell>
         )}
         <TableCell sx={{ textAlign: 'center' }}>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+          {isEditing ? 
+          (
+            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <TextField
+                      sx={{ width: '60%', ml: 'auto' }}
+                      size="small"
+                      fullWidth
+                      placeholder="Cantidad"
+                      value={amountText}
+                      onChange={(e) => {
+                        if (!isValidIntegerOrZero(e.target.value)) return;
+                        setAmountText(e.target.value);
+                      }}
+                    />
+                    <Typography> Stock actual: {article.stock} </Typography>
+            </Box>
+            
+            ) 
+          :
+          (<Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
             {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
             {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
               <Warning sx={{ color: '#FFA500', mr: 2 }} />
             )}
             {article.cantidad}
-          </Box>
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={4} sx={{ padding: 0 }}>
-          <NestedArticlesTable articles={article.lote} open={open} />
+          </Box>)}
         </TableCell>
       </TableRow>
     </React.Fragment>
-  );
-};
-interface NestedArticlesTableProps {
-  articles: ArticlesToSelectLote['lote'];
-  open: boolean;
-}
-const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
-  return (
-    <Collapse in={open}>
-      <Table sx={{ marginRight: 2 }}>
-        <TableHead>
-          <TableRow>
-            <NestedTableCell>Cantidad</NestedTableCell>
-            <NestedTableCell>Fecha de Caducidad</NestedTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {articles?.map((a, i) => (
-            <TableRow key={i}>
-              <NestedTableCell>{a.cantidad}</NestedTableCell>
-              <NestedTableCell>{returnExpireDate(a.fechaCaducidad)}</NestedTableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Collapse>
   );
 };

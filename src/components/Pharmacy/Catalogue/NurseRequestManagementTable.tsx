@@ -31,15 +31,16 @@ import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { useNurseRequestPaginationStore } from '../../../store/pharmacy/nurseRequest/nurseRequestPagination';
-import { IArticleInRequest, InurseRequest } from '../../../types/types';
+import { IArticleInRequest, InurseRequest, IPrebuildedArticleFromArticleRequest, IWarehouseData } from '../../../types/types';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { ArticlesToSelectLote, RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
+import { RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
 import { getNurseRequestPreBuilded, updateStatusNurseRequest } from '../../../api/api.routes';
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { SortComponent } from '../../Commons/SortComponent';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { NurseRequestReport } from '../../Export/Pharmacy/NurseRequestReport';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -101,7 +102,8 @@ export const useGetNursesRequest = () => {
     }),
     shallow
   );
-
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   /*useEffect(() => {
     //clearAllData();
     //setWarehouseId(warehouseData.id);
@@ -109,7 +111,7 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    fetchData(false);
+    fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
   }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
   return {
     data,
@@ -154,10 +156,12 @@ export const NurseRequestManagementTable = () => {
   const [openModalBuild, setOpenModalBuild] = useState(false);
   const [openPrint, setOpenPrint] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
-  const [prebuildedArticles, setPrebuildedArticles] = useState<ArticlesToSelectLote[] | null>(null);
+  const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   //setWarehouseId
   useEffect(() => {
-    fetchData(false);
+    fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
   }, [status]);
 
   const rejectRequest = (idRequest: string, Id_warehouseRequest: string) => {
@@ -183,7 +187,7 @@ export const NurseRequestManagementTable = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchData(false);
+          fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Solicitud cancelada',
@@ -223,7 +227,7 @@ export const NurseRequestManagementTable = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchData(false);
+          fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Solicitud entregada',
@@ -395,9 +399,9 @@ export const NurseRequestManagementTable = () => {
         <>
           <RequestBuildingModal
             setOpen={setOpenModalBuild}
-            refetch={fetchData}
+            refetch={()=>{fetchData(false, warehouseSL?.id ?? warehouseIdSeted)}}
             request={nurseRequest as InurseRequest}
-            preLoadedArticles={prebuildedArticles ?? ([] as ArticlesToSelectLote[])}
+            preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
           />
         </>
       </Modal>
@@ -460,7 +464,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   const [open, setOpen] = useState(false);
 
   //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
-  const createPackage = (request: ArticlesToSelectLote[]) => {
+  const createPackage = (request: IPrebuildedArticleFromArticleRequest[]) => {
     setPrebuildedArticles(request);
     setNurseRequest(nurseRequest);
     setOpenModalBuild(true)

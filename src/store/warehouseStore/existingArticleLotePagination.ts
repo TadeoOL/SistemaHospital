@@ -71,12 +71,11 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchExistingArticles: async (inhabilitados: boolean | null) => {
+  fetchExistingArticles: async () => {
     const { isLoading } = get();
     if (isLoading) return;
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, warehouseId, articleId } = get();
-    const page = pageIndex + 1;
+    const { warehouseId, articleId } = get();
     try {
       if (warehouseId === '') return;
       const res = await getAmountForArticleInWarehouse(articleId, warehouseId)

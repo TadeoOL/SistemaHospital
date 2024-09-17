@@ -95,6 +95,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   const [amountError, setAmountError] = useState(false);
   const [roomError, setRoomError] = useState(false);
   const [amountText, setAmountText] = useState('');
+  const [mainWarehouse, setMainWarehouse] = useState('');
   const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
   const [warehouseError, setWarehouseError] = useState(false);
   const [samiPatient, setSamiPatient] = useState(false);
@@ -117,7 +118,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${id_warehouse}&Id_AlmacenPrincipal=${id_warehouse}&fechaInicio=&fechaFin=&sort=`
+        `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${id_warehouse}&Id_AlmacenPrincipal=${mainWarehouse}&fechaInicio=&fechaFin=&sort=`
       );
       const transformedData = res.data.map((item: any) => ({
         id: item.id_Articulo,
@@ -150,6 +151,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
       try {
         const warehouse: IWarehouseData = await getWarehouseById(warehouseId as string);
         warehouse;
+        setMainWarehouse(warehouse.id)
         const subWH = warehouse.subAlmacenes
           .map((swh: IWarehouseData) => ({
             nombre: swh.nombre,

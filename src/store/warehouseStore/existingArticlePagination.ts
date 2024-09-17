@@ -54,8 +54,6 @@ const initialState: State = {
   endDate: '',
   sort: '',
 };
-//:v
-//akkki
 export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
   ...initialState,
   setStartDate: (startDate: string) => set({ startDate }),

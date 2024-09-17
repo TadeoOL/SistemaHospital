@@ -20,7 +20,7 @@ import { useProgrammingRegisterStore } from '../../../store/programming/programm
 import { ChangeEvent, useEffect, useState } from 'react';
 import { getPharmacyConfig } from '../../../services/pharmacy/configService';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { Delete, Edit, Save, WarningAmber } from '@mui/icons-material';
+import { Delete, Edit, Save } from '@mui/icons-material';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import { isValidInteger } from '../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
@@ -419,18 +419,7 @@ const MedicineSelectedTableRow = (props: {
     <TableRow>
       <TableCell>
         <Box sx={{ display: 'flex', alignItems: 'center', columnGap: 1 }}>
-          {(data.cantidadDisponible as number) < 1 && (
-            <Tooltip title="No hay stock">
-              <Box>{<WarningAmber color="error" />}</Box>
-            </Tooltip>
-          )}
-          {(data.cantidadDisponible as number) > 0 && (data.cantidadDisponible as number) < data.cantidad && (
-            <Tooltip title="La cantidad excede el stock">
-              <Box>
-                <WarningAmber color="warning" />
-              </Box>
-            </Tooltip>
-          )}
+
           <Typography variant="caption">{data.nombre}</Typography>
         </Box>
       </TableCell>

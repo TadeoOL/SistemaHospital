@@ -28,6 +28,7 @@ import { AddSubWarehouseModal } from '../../Warehouse/WarehouseSelected/TabsView
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { returnExpireDate } from '../../../utils/expireDate';
 import { SortComponent } from '../../Commons/SortComponent';
+import { IWarehouseData } from '../../../types/types';
 
 const useGetMovements = () => {
   const {
@@ -68,9 +69,10 @@ const useGetMovements = () => {
     sort: state.sort,
   }));
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
 
   useEffect(() => {
-    fetchWareHouseMovements(warehouseIdSeted);
+    fetchWareHouseMovements( warehouseSL?.id ?? warehouseIdSeted);
   }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
   return {
     data,

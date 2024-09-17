@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Stack, TextField } from '@mui/material';
+import { Autocomplete, Box, Button, createFilterOptions, Grid, Stack, TextField, Typography } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
@@ -8,6 +8,11 @@ import { addWarehouse } from '../../../schema/schemas';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+import { useGetUsersBySearch } from '../../../hooks/useGetUsersBySearch';
+import { useSubWarehousePaginationStore } from '../../../store/warehouseStore/subWarehousePagination';
+import { useShallow } from 'zustand/react/shallow';
+import { addNewPurchaseWarehouse } from '../../../api/api.routes';
+import { useWarehousePagination } from '../../../store/purchaseStore/warehousePagination';
 
 const style = {
   position: 'absolute',
@@ -35,6 +40,11 @@ const style = {
   },
 };
 
+const OPTIONS_LIMIT = 20;
+const filterOptions = createFilterOptions<string>({
+  limit: OPTIONS_LIMIT,
+});
+
 interface IAddPurchaseWarehouseModal {
   open: Function;
 }
@@ -42,11 +52,21 @@ interface IAddPurchaseWarehouseModal {
 export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => {
   const { open } = props;
   const [textValue, setTextValue] = useState('');
+  const { isLoadingUsers, usersRes } = useGetUsersBySearch();
+  const [usuarioEncargado, setUsuarioEncargado] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorUserNotSelected, setErrorUserNotSelected] = useState(false);
 
-  // const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
-  //   setHandleChangeWarehouse: state.setHandleChangeWarehouse,
-  //   handleChangeWarehouse: state.handleChangeWarehouse,
-  // }));
+  const { setSearchUser, } = useSubWarehousePaginationStore(
+    useShallow((state) => ({
+      setSearchUser: state.setSearchUser,
+    }))
+  );
+
+  const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
+     setHandleChangeWarehouse: state.setHandleChangeWarehouse,
+     handleChangeWarehouse: state.handleChangeWarehouse,
+   }));
 
   const {
     register,
@@ -65,20 +85,27 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
   };
 
   const onSubmit: SubmitHandler<ISubWarehouse> = async (data) => {
+    setIsLoading(true)
     try {
-      console.log({ data });
-      // await addNewPurchaseWarehouse(data);
-      // setHandleChangeWarehouse(!handleChangeWarehouse);
-      // toast.success('Almacén modificado con éxito!');
-      // open(false);
+      if(usuarioEncargado === null){
+        setErrorUserNotSelected(true)
+        return;
+      }
+      (data as any).id_UsuarioEncargado = usuarioEncargado ?? '';
+      await addNewPurchaseWarehouse(data as any);
+      setHandleChangeWarehouse(!handleChangeWarehouse);
+      toast.success('Almacén creado con éxito!');
+      open(false);
     } catch (error) {
-      toast.error('Error al modificar el almacén!');
+      toast.error('Error al crear el almacén!');
+    } finally{
+      setIsLoading(false)
     }
   };
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={open} title="Modificar almacén" />
+      <HeaderModal setOpen={open} title="Agregar almacén" />
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack spacing={3} sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
@@ -117,6 +144,44 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
                 inputProps={{ maxLength: 200 }}
               />
             </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1">Encargado de Almacén</Typography>
+
+              <Autocomplete
+                disablePortal
+                fullWidth
+                filterOptions={filterOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setUsuarioEncargado(val);
+                  if(val !== null){
+                    setErrorUserNotSelected(false)
+                  }
+                }}
+                loading={isLoadingUsers && usersRes.length === 0}
+                getOptionLabel={(option) => {
+                  const res = usersRes.find((u) => u.id === option)?.nombre;
+                  if (res) return res;
+                  return '';
+                }}
+                options={usersRes.flatMap((r) => r.id)}
+                value={usuarioEncargado ? usuarioEncargado : null}
+                noOptionsText="No se encontraron usuarios"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Usuarios"
+                    sx={{ width: '90%' }}
+                    required={false}
+                    error={errorUserNotSelected}
+                    helperText={'Es necesario seleccionar un encargado de almacen'}
+                    onChange={(e) => {
+                      setSearchUser(e.target.value);
+                    }}
+                  />
+                )}
+              />
+            </Grid>
           </Grid>
           <Stack
             sx={{
@@ -128,7 +193,7 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
             <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
               Cancelar
             </Button>
-            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
+            <Button variant="contained" disabled={isLoading} type="submit" startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Stack>

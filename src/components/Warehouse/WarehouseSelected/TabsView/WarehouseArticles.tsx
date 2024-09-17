@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CircularProgress,
-  Collapse,
   IconButton,
   Modal,
   Stack,
@@ -17,48 +16,23 @@ import {
   TextField,
   Tooltip,
   Typography,
-  alpha,
-  styled,
-  tableCellClasses,
-  Checkbox,
 } from '@mui/material';
 import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import React, { useEffect, useRef, useState } from 'react';
-import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
+import React, { useEffect, useState } from 'react';
+import { IExistingArticle } from '../../../../types/types';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning, Delete, Cancel } from '@mui/icons-material';
+import { Edit, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
 import { ArticlesView } from './Modal/ArticlesOutput';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
-import {
-  registrarNuevoLote,
-  modifyMinStockExistingArticle,
-  articlesLoteUpdate,
-  articlesLoteDelete,
-} from '../../../../api/api.routes';
+import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
-import { returnExpireDate } from '../../../../utils/expireDate';
 import { SortComponent } from '../../../Commons/SortComponent';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-  },
-  [`&.${tableCellClasses.root}`]: {
-    width: '20%',
-  },
-}));
 
 export const useGetExistingArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
@@ -295,7 +269,6 @@ interface TableRowComponentProps {
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
   //const [open, setOpen] = useState(false);
-  const [openNewLote, setOpenNewLote] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingSubRow, setIsEditingSubRow] = useState(false);
   const [amountText, setAmountText] = useState(article.stockActual.toString());
@@ -397,24 +370,24 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
                 setIsEditing(!isEditing);
                 setIsEditingSubRow(!isEditingSubRow);
               }}
-              disabled={openNewLote || (isEditingSubRow && !isEditing)}
+              disabled={isEditingSubRow && !isEditing}
             >
               {isEditing ? <Save /> : <Edit />}
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Añadir lote">
+          {/*<Tooltip title="Añadir lote">
             <IconButton
               onClick={() => {
                 //setOpen(true);
                 //setOpenNewLote(true);
                 //setIsEditingSubRow(true);
               }}
-              disabled={openNewLote || isEditing || isEditingSubRow}
+              disabled={isEditing || isEditingSubRow}
             >
               <AddCircleIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip>*/}
         </TableCell>
       </TableRow>
     </React.Fragment>

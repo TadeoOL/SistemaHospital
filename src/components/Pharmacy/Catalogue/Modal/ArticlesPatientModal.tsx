@@ -7,8 +7,6 @@ import {
   CircularProgress,
   IconButton,
   Stack,
-  styled,
-  Collapse,
   Table,
   TableBody,
   TableCell,
@@ -19,14 +17,13 @@ import {
   Tooltip,
   Typography,
   createFilterOptions,
-  tableCellClasses,
-  alpha,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { articlesEntryToWarehouse, getNursesUsers } from '../../../../api/api.routes';
+import { getNursesUsers } from '../../../../api/api.routes';
+//import { articlesEntryToWarehouse, getNursesUsers } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore } from '@mui/icons-material';
@@ -79,24 +76,7 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-const NestedTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-    fontSize: 11,
-  },
-  [`&.${tableCellClasses.root}`]: {
-    paddingLeft: '20px',
-    width: '50%',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    justifyContent: 'center',
-  },
-}));
+
 
 export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
@@ -265,6 +245,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
       setLoadingSubmit(true);
 
       let articlesArticlesExit: any = [];
+      //checar aqui; no se usa
       for (const article of articles as any) {
         article.lote.forEach((loteA: any) => {
           articlesArticlesExit.push({
@@ -275,7 +256,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
         });
       }
 
-      const object = {
+      /*const object = {
         Lotes: articlesArticlesExit.map((loteA: any) => ({
           Id_ArticuloExistente: loteA.Id_ArticuloExistente,
           Cantidad: loteA.Cantidad,
@@ -286,7 +267,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
         IngresoMotivo: 'Devolución de artículos',
         Id_CuentaPaciente: userSelected.id_Cuenta,
       };
-      await articlesEntryToWarehouse(object);
+      //await articlesEntryToWarehouse(object);*/
       props.refetch();
       toast.success('Entrada de artículos con éxito!');
       setLoadingSubmit(false);
@@ -616,44 +597,6 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
           </>
         </TableCell>
       </TableRow>
-      {articleRow?.lote?.length > 0 && (
-        <TableRow>
-          <TableCell colSpan={3} sx={{ padding: 0 }} key={`${articleRow.id_Articulo}${articleRow.nombre}`}>
-            <NestedArticlesTable articles={articleRow.lote} open={open} />
-          </TableCell>
-        </TableRow>
-      )}
     </>
-  );
-};
-
-interface NestedArticlesTableProps {
-  articles: ArticlesFetched['lote'];
-  open: boolean;
-}
-const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
-  return (
-    <Collapse in={open}>
-      <Table sx={{ marginRight: 2 }}>
-        <TableHead>
-          <TableRow>
-            <NestedTableCell>Cantidad</NestedTableCell>
-            <NestedTableCell>Fecha de Caducidad</NestedTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {articles ? (
-            articles.map((a) => (
-              <TableRow key={a.id_ArticuloExistente}>
-                <NestedTableCell>{a.cantidad}</NestedTableCell>
-                <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
-              </TableRow>
-            ))
-          ) : (
-            <></>
-          )}
-        </TableBody>
-      </Table>
-    </Collapse>
   );
 };

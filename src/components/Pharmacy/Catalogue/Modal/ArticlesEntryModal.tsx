@@ -1,14 +1,11 @@
 import {
   Autocomplete,
   Box,
-  Modal,
   Button,
   Card,
   CircularProgress,
   IconButton,
   Stack,
-  styled,
-  Collapse,
   Table,
   TableBody,
   TableCell,
@@ -19,25 +16,22 @@ import {
   Tooltip,
   Typography,
   createFilterOptions,
-  tableCellClasses,
-  alpha,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { articlesEntryToWarehouse, getNursesUsers } from '../../../../api/api.routes';
+import { getNursesUsers } from '../../../../api/api.routes';
+//import { articlesEntryToWarehouse, getNursesUsers } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
   IArticleFromSearchWithBarCode,
   IArticlesPackage,
-  IExistingArticleList,
   IPatientFromSearch,
 } from '../../../../types/types';
 import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
-import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
 import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getArticlesFromAcountId } from '../../../../store/programming/AcountArticlesService';
@@ -79,24 +73,6 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-const NestedTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-    fontSize: 11,
-  },
-  [`&.${tableCellClasses.root}`]: {
-    paddingLeft: '20px',
-    width: '50%',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    justifyContent: 'center',
-  },
-}));
 
 export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
@@ -138,21 +114,10 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
 
   const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearchWithBarCode>(null);
   const [articleError, setArticleError] = useState(false);
-  const [openLoteModal, setOpenLoteModal] = useState(false);
-  const [loteEditing, setLoteEditing] = useState(false);
-  const [loteSelected, setLoteSelected] = useState<
-    { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
-  >(null);
 
   useEffect(() => {
     setArticleSelected(null);
   }, [props.setOpen]);
-
-  useEffect(() => {
-    if (!openLoteModal) {
-      setArticleSelected(null);
-    }
-  }, [openLoteModal]);
 
   useEffect(() => {
     patientsCall();
@@ -179,51 +144,10 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
     }
   };
 
-  const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
-    let totalQuantityByArticle = 0;
-    const updatedLote: {
-      cantidad: number;
-      fechaCaducidad: string;
-      id_ArticuloCuenta: string;
-      id_ArticuloExistente: string;
-    }[] = [];
-    lotesArticles.forEach((element) => {
-      const nestedLote = {
-        cantidad: element.cantidad,
-        id_ArticuloExistente: element.id_ArticuloExistente,
-        id_ArticuloCuenta: articleSelected?.id_ArticuloCuenta as string,
-        fechaCaducidad: element.fechaCaducidad,
-      };
-      updatedLote.push(nestedLote);
-      totalQuantityByArticle += element.cantidad;
-    });
-    if (totalQuantityByArticle > (articleSelected?.cantidad ? articleSelected.cantidad : 0)) {
-      toast.error('La cantidad de articulos a devolver es mayor al de la cuenta');
-      return;
-    }
-    const updatedArticle = {
-      ...articleSelected,
-      cantidad: totalQuantityByArticle,
-      lote: updatedLote,
-    };
-    if (edit) {
-      const direction = articles.findIndex(
-        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articles.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setLoteEditing(false);
-    } else {
-      setArticles((prev: any) => [...prev, updatedArticle]);
-      setArticleSelected(null);
-    }
-  };
-
   const handleFetchArticlesFromAccount = async (id_cuenta: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getArticlesFromAcountId(id_cuenta);
+      const res = await getArticlesFromAcountId(id_cuenta, false, undefined, true);
       const transformedData = res.map((item: any) => ({
         id_ArticuloCuenta: item.id_ArticuloCuenta,
         id_Articulo: item.id_Articulo,
@@ -271,6 +195,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
       setLoadingSubmit(true);
 
       let articlesArticlesExit: any = [];
+      //checar q rollo
       for (const article of articles as any) {
         article.lote.forEach((loteA: any) => {
           articlesArticlesExit.push({
@@ -282,7 +207,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
         });
       }
 
-      const object = {
+      /*const object = {
         Lotes: articlesArticlesExit.map((loteA: any) => ({
           Id_ArticuloExistente: loteA.Id_ArticuloExistente,
           Id_ArticuloCuenta: loteA.Id_ArticuloCuenta,
@@ -294,7 +219,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
         IngresoMotivo: 'Devolución de artículos',
         Id_CuentaPaciente: userSelected.id_Cuenta,
       };
-      await articlesEntryToWarehouse(object);
+      await articlesEntryToWarehouse(object);*/
       props.refetch();
       toast.success('Entrada de artículos con éxito!');
       setLoadingSubmit(false);
@@ -406,8 +331,9 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
                   onChange={(e, val) => {
                     e.stopPropagation();
                     if (val !== null) {
-                      if (!articles.map((art) => art.id_ArticuloCuenta).includes(val.id_ArticuloCuenta)) {
-                        setOpenLoteModal(true);
+                      if (!articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
+                        //setOpenLoteModal(true);
+                        console.log("segun aqui ta bien");
                       }
                       setArticleId(val.id_Articulo);
                       setArticleSelected(val);
@@ -438,10 +364,7 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
                 setOpen={props.setOpen}
                 submitData={onSubmit}
                 initialData={[]}
-                setLoteEditing={setLoteEditing}
-                setLoteSelected={setLoteSelected}
                 setArticleSelected={setArticleSelected}
-                setOpenLoteModal={setOpenLoteModal}
                 setArticles={setArticles}
                 articles={articles || []}
                 setArticleId={setArticleId}
@@ -481,22 +404,6 @@ export const ArticlesEntryModal = (props: { setOpen: Function; warehouseId: stri
           </form>
         )}
       </Box>
-
-      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
-        <>
-          <LoteSelectionRemake2
-            setOpen={setOpenLoteModal}
-            //lotes={(articleSelected?.lote as any) || []}
-            articleName={articleSelected?.nombre || ''}
-            addFunction={handleAddArticle}
-            editing={loteEditing}
-            selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
-            adding={true}
-            empityLotes={null}
-            maxAmountSelect={articleSelected?.cantidad || null}
-          />
-        </>
-      </Modal>
     </Box>
   );
 };
@@ -508,10 +415,7 @@ const ArticlesTable = (props: {
   articles: ArticlesFetched[];
   setArticles: Function;
   setArticleId: Function;
-  setLoteEditing: Function;
-  setLoteSelected: Function;
   setArticleSelected: Function;
-  setOpenLoteModal: Function;
 }) => {
   return (
     <>
@@ -534,13 +438,10 @@ const ArticlesTable = (props: {
                   .map((a) => (
                     <ArticlesRows
                       key={a.id_Articulo}
-                      setLoteEditing={props.setLoteEditing}
                       setArticleSelected={props.setArticleSelected}
-                      setOpenLoteModal={props.setOpenLoteModal}
                       setArticles={props.setArticles}
                       articleRow={a}
                       articles={props.articles}
-                      setLoteSelected={props.setLoteSelected}
                       setArticleId={props.setArticleId}
                     />
                   ))
@@ -564,20 +465,14 @@ const ArticlesTable = (props: {
 };
 
 interface ArticlesRowsProps {
-  setLoteEditing: Function;
   setArticleSelected: Function;
-  setOpenLoteModal: Function;
   setArticles: Function;
   setArticleId: Function;
-  setLoteSelected: Function;
   articleRow: any;
   articles: any;
 }
 const ArticlesRows: React.FC<ArticlesRowsProps> = ({
-  setLoteEditing,
   setArticleSelected,
-  setOpenLoteModal,
-  setLoteSelected,
   setArticleId,
   setArticles,
   articleRow,
@@ -601,11 +496,8 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
             <Tooltip title={'Editar'}>
               <IconButton
                 onClick={() => {
-                  setLoteSelected(articleRow.lote);
                   setArticleId(articleRow.id_Articulo);
-                  setLoteEditing(true);
                   setArticleSelected(articleRow);
-                  setOpenLoteModal(true);
                 }}
               >
                 <Edit />
@@ -623,44 +515,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
           </>
         </TableCell>
       </TableRow>
-      {articleRow?.lote?.length > 0 && (
-        <TableRow>
-          <TableCell colSpan={3} sx={{ padding: 0 }} key={`${articleRow.id_Articulo}${articleRow.nombre}`}>
-            <NestedArticlesTable articles={articleRow.lote} open={open} />
-          </TableCell>
-        </TableRow>
-      )}
     </>
   );
 };
 
-interface NestedArticlesTableProps {
-  articles: ArticlesFetched['lote'];
-  open: boolean;
-}
-const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
-  return (
-    <Collapse in={open}>
-      <Table sx={{ marginRight: 2 }}>
-        <TableHead>
-          <TableRow>
-            <NestedTableCell>Cantidad</NestedTableCell>
-            <NestedTableCell>Fecha de Caducidad</NestedTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {articles ? (
-            articles.map((a) => (
-              <TableRow key={a.id_ArticuloExistente}>
-                <NestedTableCell>{a.cantidad}</NestedTableCell>
-                <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
-              </TableRow>
-            ))
-          ) : (
-            <></>
-          )}
-        </TableBody>
-      </Table>
-    </Collapse>
-  );
-};

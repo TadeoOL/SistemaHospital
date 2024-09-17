@@ -33,9 +33,8 @@ import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav
 import { SortComponent } from '../../Commons/SortComponent';
 import { LuPackagePlus } from 'react-icons/lu';
 //import { CreatePackageModal } from './Modal/CreatePackageModal';
-import { IArticleHistory } from '../../../types/types';
+import { IArticleHistory, IPrebuildedArticleFromArticleRequest } from '../../../types/types';
 import { RequestBuildingModalMutation } from './Modal/CreatePackageModalMutation';
-import { ArticlesToSelectLote } from '../UserRequest/Modal/RequestBuildingModal';
 
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
@@ -130,10 +129,10 @@ export const WaitingPackages = () => {
   } = useGetMovements();
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
+  const [loadingPackage, setLoadingPackage] = useState(false);
   const [packageSelected, setPackageSelected] = useState('');
   const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
-  const [prebuildedArticles, setPrebuildedArticles] = useState<ArticlesToSelectLote[] | null>(null);
-
+  const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
   const rejectRequest = (idRequest: string) => {
     withReactContent(Swal)
       .fire({
@@ -187,7 +186,7 @@ export const WaitingPackages = () => {
           return articlesOutputToWarehouse({
             Estatus: 2,
             Id_HistorialMovimiento: idRequest,
-            Lotes: lotes,
+            ArticulosSalida: lotes,
             Id_CuentaPaciente: id_CuentaPaciente,
           });
         },
@@ -211,10 +210,52 @@ export const WaitingPackages = () => {
       });
   };
 
-  const createPackage = (id: string, request: ArticlesToSelectLote[]) => {
+  const createPackage = (id: string, request: IPrebuildedArticleFromArticleRequest[]) => {
     setPrebuildedArticles(request);
     setOpenCreatePackageModal(true);
     setPackageSelected(id);
+    setLoadingPackage(false)
+  };
+
+  const sendDateHHMMDDMMYYYY = (datestr: string) => {
+    const date = new Date(datestr);
+    const formattedDate = date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    
+    const formattedTime = date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `${formattedTime} ${formattedDate} `;
+  }
+
+  const getDDMMYYYY = (datestr: string) => {
+    const date = new Date(datestr);
+    const formattedDate = date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    return `${formattedDate}`;
+  }
+
+  const calculateAge = (birthDateString: string): number => {
+    const [day, month, year] = birthDateString.split("/").map(Number);
+    const today = new Date();
+    const birthDate = new Date(year, month - 1, day);
+  
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+  
+    // Restar un año si no ha llegado el mes y día del cumpleaños de este año
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+  
+    return age;
   };
 
   useEffect(() => {
@@ -277,6 +318,18 @@ export const WaitingPackages = () => {
                       <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
                     </TableCell>
                     <TableCell>
+                      Doctor
+                    </TableCell>
+                    <TableCell>
+                      Quirofano
+                    </TableCell>
+                    <TableCell>
+                      Hora cirugía
+                    </TableCell>
+                    <TableCell>
+                      Edad Paciente
+                    </TableCell>
+                    <TableCell>
                       <SortComponent tableCellLabel="Solicitado por" headerName="enfermero" setSortFunction={setSort} />
                     </TableCell>
                     <TableCell>
@@ -321,6 +374,16 @@ export const WaitingPackages = () => {
                             )}
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
+                          <TableCell>
+                            {movimiento.infoExtra[0].registro.registroCuartos[0].medico.nombres} {movimiento.infoExtra[0].registro.registroCuartos[0].medico.apellidoPaterno} {movimiento.infoExtra[0].registro.registroCuartos[0].medico.apellidoMaterno}
+                          </TableCell>
+
+
+                          <TableCell> {movimiento.infoExtra[0].registro.registroCuartos[0].cuarto.nombre} </TableCell>
+
+                          <TableCell> {sendDateHHMMDDMMYYYY(movimiento.infoExtra[0].registro.registroCuartos[0].horaInicio as string)} </TableCell>
+                          <TableCell> {calculateAge(getDDMMYYYY(movimiento.infoExtra[0].registro.paciente.fechaNacimiento))} años </TableCell>
+
                           <TableCell> {movimiento.solicitadoPor} </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
                           <TableCell>{movimiento.estatus && STATUS[movimiento.estatus]}</TableCell>
@@ -338,7 +401,12 @@ export const WaitingPackages = () => {
                                     onClick={() => {
                                       acceptRequest(
                                         movimiento.id,
-                                        movimiento.historialArticulos,
+                                        movimiento.historialArticulos?.map((art) => ({
+                                          Id_ArticuloAlmacenStock: art.id_ArticuloExistente,//corregir
+                                          Id_Articulo: art.id_Articulo,
+                                          Nombre: art.nombre,
+                                          Cantidad: art.cantidad
+                                        })),
                                         movimiento.id_CuentaPaciente
                                       );
                                     }}
@@ -352,6 +420,7 @@ export const WaitingPackages = () => {
                                     onClick={async () => {
                                       try {
                                         //Agregar Loader
+                                        setLoadingPackage(true)
                                         const packRes = await getPackagePreBuilded(movimiento.id);
                                         createPackage(movimiento.id, packRes);
                                       } catch (error) {
@@ -453,7 +522,7 @@ export const WaitingPackages = () => {
           </Card>
         </Stack>
       </Stack>
-      <Modal open={openCreatePackageModal} onClose={() => setOpenCreatePackageModal(false)}>
+      <Modal open={openCreatePackageModal}>
         <>
           {/*<CreatePackageModal
             setOpen={setOpenCreatePackageModal}
@@ -466,11 +535,19 @@ export const WaitingPackages = () => {
             setOpen={setOpenCreatePackageModal}
             requestedItems={provisionalArticles}
             refetch={fetchWareHouseMovements}
-            preLoadedArticles={prebuildedArticles ?? ([] as ArticlesToSelectLote[])}
+            preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
             movementHistoryId={packageSelected}
           />
         </>
       </Modal>
+      <CircularProgress size={100} sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        flexDirection: 'column',
+        display: loadingPackage ? 'flex' : 'none'
+      }} />
     </>
   );
 };

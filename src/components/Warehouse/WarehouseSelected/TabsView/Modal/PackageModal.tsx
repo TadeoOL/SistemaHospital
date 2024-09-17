@@ -122,7 +122,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
   );
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
-  const [amountText, setAmountText] = useState('');
+  const [amountText, setAmountText] = useState('1');
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
 
@@ -150,7 +150,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
     setArticles([...articles, objectArticle]);
     setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
     setArticleSelected(null);
-    setAmountText('');
+    setAmountText('1');
   };
 
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {

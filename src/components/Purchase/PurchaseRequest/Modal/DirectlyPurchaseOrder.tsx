@@ -1101,7 +1101,7 @@ const StepThree = (props: { setOpen: Function }) => {
           }}
         >
           <Typography variant="subtitle2">Total de la orden: </Typography>
-          <Typography variant="subtitle2">${totalAmountRequest}</Typography>
+          <Typography variant="subtitle2">${(totalAmountRequest).toFixed(2)}</Typography>
         </Box>
       </Stack>
       <Box

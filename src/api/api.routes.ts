@@ -12,6 +12,7 @@ import {
   ISubCategory,
   IUpdateUsers,
   IWarehouse,
+  IWarehouseData,
   OrdenCompraArticulo,
 } from '../types/types';
 import { AxiosError } from 'axios';
@@ -461,10 +462,11 @@ export const modifyWarehouseById = async (warehouse: {
 };
 
 export const addNewPurchaseWarehouse = async (data: IWarehouse) => {
-  const { nombre, descripcion } = data;
+  const { nombre, descripcion, id_UsuarioEncargado } = data;
   const res = await axios.post(`/api/Almacen/registrar-almacen`, {
     nombre,
     descripcion,
+    id_UsuarioEncargado,
   });
   return res.data;
 };
@@ -791,7 +793,7 @@ export const getSideBardWarehouse = async () => {
 
 export const getWarehouseById = async (warehouseId: string) => {
   const res = await axios.get(`/api/Almacen/${warehouseId}`);
-  return res.data;
+  return res.data as IWarehouseData;
 };
 
 export const getWarehousePurchaseOrders = async () => {
@@ -1032,17 +1034,45 @@ export const getNursesUsers = async () => {
   return res.data;
 };
 
-export const articlesEntryToWarehouse = async (data: {
+export const patientArticlesManagement = async (data: {
   Id_Almacen: string;
-  Lotes?: {
-    Id_ArticuloExistente: string;
+  ArticulosPorEntrar?: {//se devuelven a la cuenta
+    Id_Articulo: string;
     Id_ArticuloCuenta: string;
-    Cantidad: string;
-    fechaCaducidad: string;
+    Cantidad: number;
+  }[];
+  ArticulosPorSalir?: { // se cargan a la cuenta
+    Id_Articulo: string;
+    Nombre: string;
+    Cantidad: number
   }[];
   IngresoMotivo: string;
-  NombreEnfermero: string;
+  NombreEnfermero?: string;
   Id_CuentaPaciente: string;
+  SolicitadoEn: number;// 1 farmacia/2 Quirofano
+}) => {
+  const res = await axios.put(`/api/ArticuloExistente/entrada-manual-lote`, {
+    ...data,
+  });
+  return res.data;
+};
+
+export const articlesEntryToWarehouse = async (data: {
+  Id_Almacen: string;
+  ArticulosPorEntrar?: {//se devuelven a la cuenta
+    Id_Articulo: string;
+    Id_ArticuloCuenta: string;
+    Cantidad: number;
+  }[];
+  ArticulosPorSalir?: { // se cargan a la cuenta
+    Id_Articulo: string;
+    Nombre: string;
+    Cantidad: number
+  }[];
+  IngresoMotivo: string;
+  NombreEnfermero?: string;
+  Id_CuentaPaciente: string;
+  SolicitadoEn: number;// 1 farmacia/2 Quirofano
 }) => {
   const res = await axios.put(`/api/ArticuloExistente/entrada-manual-lote`, {
     ...data,
@@ -1118,7 +1148,7 @@ export const getNurseEmiterRequestPending = async (paramUrl: string) => {
 export const buildPackage = async (data: {
   id_HistorialMovimiento: string;
   id_AlmacenOrigen: string;
-  lotes: { Id_ArticuloExistente: string; Cantidad: number }[];
+  lotes: { Id_ArticuloAlmacenStock: string; Id_Articulo: string; Cantidad: number; }[];
 }) => {
   const res = await axios.post(`/api/Almacen/armar-paquete`, data);
   return res.data;

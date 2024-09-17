@@ -56,7 +56,7 @@ const PackageCatalogue = () => {
           <PackageCatalogueTable />
         </Box>
       </Box>
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} >
         <>
           <PackageModal setOpen={setOpen} />
         </>

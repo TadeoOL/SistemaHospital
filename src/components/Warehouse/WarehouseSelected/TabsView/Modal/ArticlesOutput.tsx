@@ -3,14 +3,12 @@ import {
   Box,
   Button,
   Card,
-  Collapse,
   Divider,
   FormControl,
   FormControlLabel,
   FormLabel,
   Grid,
   IconButton,
-  Modal,
   Radio,
   RadioGroup,
   Stack,
@@ -23,23 +21,18 @@ import {
   TextField,
   Tooltip,
   Typography,
-  alpha,
   createFilterOptions,
-  styled,
-  tableCellClasses,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import React, { useEffect, useState, useRef } from 'react';
-import { Delete, Edit, ExpandLess, ExpandMore, Save, ArrowForward } from '@mui/icons-material';
+import { Delete, Edit, Save, ArrowForward } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { IArticleFromSearch, IExistingArticleList, IWarehouseData } from '../../../../../types/types';
+import { IArticleFromSearch, IWarehouseData } from '../../../../../types/types';
 import { articlesOutputToWarehouseToWarehouse, getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
-import { LoteSelectionRemake2 } from './LoteSelectionRemake2';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
-import { returnExpireDate } from '../../../../../utils/expireDate';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 
 const style = {
@@ -71,25 +64,6 @@ const OPTIONS_LIMIT = 30;
 const filterSubWarehousesOptions = createFilterOptions<any>({
   limit: OPTIONS_LIMIT,
 });
-
-const NestedTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-    fontSize: 11,
-  },
-  [`&.${tableCellClasses.root}`]: {
-    paddingLeft: '20px',
-    width: '50%',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    justifyContent: 'center',
-  },
-}));
 
 export type ArticlesFetched = {
   id_Articulo: string;
@@ -143,8 +117,6 @@ const renderOutputView = (
 interface ArticlesViewProps {
   setOpen: Function;
 }
-//Cambiar esta fokin chingadera
-//akkki
 export const ArticlesView = (props: ArticlesViewProps) => {
   const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
   const [reasonMessage, setReasonMessage] = useState('');
@@ -305,7 +277,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   const [amountArticleSelected, setAmountArticleSelected] = useState(0);
   const [idArticleSelected, setIdArticleSelected] = useState('');
   const ExitReasonRef = useRef<HTMLInputElement | null>(null);
-  const [loteEditing, setLoteEditing] = useState(false);
   const [amountError, setAmountError] = useState(false);
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
@@ -341,7 +312,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
       articles.splice(direction, 1);
       setArticles([...(articles as any), articleToAdd]);
       setArticleSelected(null);
-      setLoteEditing(false);
     } else {
       setArticles((prev: any) => [...prev, articleToAdd]);
       setArticleSelected(null);
@@ -468,7 +438,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           articles={articles}
           setArticles={setArticles}
           isResume={false}
-          setLoteEditing={setLoteEditing}
           setArticleSelected={setArticleSelected}
         />
         <Divider />
@@ -571,14 +540,12 @@ interface ArticlesTableProps {
   articles: ArticlesFetched[];
   setArticles?: Function;
   isResume: boolean;
-  setLoteEditing: Function;
   setArticleSelected: Function;
 }
 const ArticlesTable: React.FC<ArticlesTableProps> = ({
   articles,
   setArticles,
   isResume,
-  setLoteEditing,
   setArticleSelected,
 }) => {
   return (
@@ -600,7 +567,6 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
                 setArticles={setArticles as Function}
                 articles={articles}
                 isResume={isResume}
-                setLoteEditing={setLoteEditing}
                 setArticleSelected={setArticleSelected}
               />
             ))}
@@ -616,7 +582,6 @@ interface ArticlesTableRowProps {
   article: ArticlesFetched;
   setArticles: Function;
   isResume: boolean;
-  setLoteEditing: Function;
   setArticleSelected: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
@@ -624,7 +589,6 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   setArticles,
   articles,
   isResume,
-  setLoteEditing,
   setArticleSelected,
 }) => {
   const [seed, setSeed] = useState(1);
@@ -650,7 +614,6 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
-                  setLoteEditing(true);
                   setArticleSelected({ nombre: article.nombre, id_Articulo: article.id_Articulo });
                 }}
               >
@@ -757,7 +720,6 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, ra
         articles={articles}
         isResume={true}
         setArticleSelected={() => {}}
-        setLoteEditing={() => {}}
       />
     </Stack>
   );
