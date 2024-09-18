@@ -109,7 +109,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       precioVenta: '',
       precioVentaPI: '',
       codigoBarras: '',
-      codigoContpaqi: '',
       codigoSAT: '',
       codigoUnidadMedida: '',
     },
@@ -519,7 +518,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Typography>Unidad de Medida Contpaq</Typography>
+                <Typography>Unidad de Medida Contpaqi</Typography>
                 <TextField
                   fullWidth
                   size="small"

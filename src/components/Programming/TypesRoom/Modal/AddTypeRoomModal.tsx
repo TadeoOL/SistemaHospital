@@ -10,6 +10,7 @@ import {
   FormLabel,
   Grid,
   IconButton,
+  MenuItem,
   Radio,
   RadioGroup,
   Table,
@@ -42,6 +43,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
 import 'dayjs/locale/es-mx';
+import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
 const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
@@ -67,12 +69,10 @@ type Inputs = {
   recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
-  codigoContpaqiRecuperacion?: string;
   codigoSATRecuperacion?: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
-  codigoUnidadMedidaRecuperacion?: string;
+  codigoUnidadMedida?: number;
+  codigoUnidadMedidaRecuperacion?: number;
 };
 
 interface AddTypeRoomModalProps {
@@ -83,6 +83,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -103,12 +104,12 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
       priceRoom: editData ? editData.precio?.toString() : '0',
-      codigoContpaqiRecuperacion: editData?.codigoContpaqiRecuperacion,
       codigoSATRecuperacion: editData?.codigoSATRecuperacion,
-      codigoContpaqi: editData?.codigoContpaqi,
       codigoSAT: editData?.codigoSAT,
-      codigoUnidadMedida: editData?.codigoUnidadMedida,
-      codigoUnidadMedidaRecuperacion: editData?.codigoUnidadMedidaRecuperacion,
+      codigoUnidadMedida: editData?.codigoUnidadMedida ? editData.codigoUnidadMedida : 0,
+      codigoUnidadMedidaRecuperacion: editData?.codigoUnidadMedidaRecuperacion
+        ? editData.codigoUnidadMedidaRecuperacion
+        : 0,
     },
   });
 
@@ -128,12 +129,12 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             : undefined,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
-          codigoContpaqiRecuperacion: data.codigoContpaqiRecuperacion,
           codigoSATRecuperacion: data.codigoSATRecuperacion,
-          codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
           codigoUnidadMedida: data.codigoUnidadMedida,
-          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+            ? data.codigoUnidadMedidaRecuperacion
+            : undefined,
         });
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
@@ -150,12 +151,12 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           id: editData.id,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
-          codigoContpaqiRecuperacion: data.codigoContpaqiRecuperacion,
           codigoSATRecuperacion: data.codigoSATRecuperacion,
-          codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
           codigoUnidadMedida: data.codigoUnidadMedida,
-          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+            ? data.codigoUnidadMedidaRecuperacion
+            : undefined,
         });
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
@@ -303,44 +304,19 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             )}
           </Grid>
           {watch('type') === '1' && (
-            <>
-              <Grid item xs={6}>
-                <Typography>
-                  Código de Contpaqi de <b>Recuperación</b>
-                </Typography>
-                <TextField
-                  placeholder="Escribe una código de Contpaqi para Recuperación"
-                  fullWidth
-                  error={!!errors.codigoContpaqiRecuperacion?.message}
-                  helperText={errors.codigoContpaqiRecuperacion?.message}
-                  {...register('codigoContpaqiRecuperacion')}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Typography>
-                  Codigo de SAT de <b>Recuperación</b>
-                </Typography>
-                <TextField
-                  placeholder="Escribe un codigo de SAT para Recuperación"
-                  fullWidth
-                  error={!!errors.codigoSATRecuperacion?.message}
-                  helperText={errors.codigoSATRecuperacion?.message}
-                  {...register('codigoSATRecuperacion')}
-                />
-              </Grid>
-            </>
+            <Grid item xs={6}>
+              <Typography>
+                Codigo de SAT de <b>Recuperación</b>
+              </Typography>
+              <TextField
+                placeholder="Escribe un codigo de SAT para Recuperación"
+                fullWidth
+                error={!!errors.codigoSATRecuperacion?.message}
+                helperText={errors.codigoSATRecuperacion?.message}
+                {...register('codigoSATRecuperacion')}
+              />
+            </Grid>
           )}
-          <Grid item xs={6}>
-            <Typography>Código de Contpaqi</Typography>
-            <TextField
-              placeholder="Escribe una código de Contpaqi"
-              fullWidth
-              error={!!errors.codigoContpaqi?.message}
-              helperText={errors.codigoContpaqi?.message}
-              {...register('codigoContpaqi')}
-              disabled={!!editData}
-            />
-          </Grid>
           <Grid item xs={6}>
             <Typography>Código de SAT</Typography>
             <TextField
@@ -349,35 +325,53 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               error={!!errors.codigoSAT?.message}
               helperText={errors.codigoSAT?.message}
               {...register('codigoSAT')}
-              disabled={!!editData}
             />
           </Grid>
-          <Grid item xs={6}>
-            <Typography>Código de Unidad de Medida</Typography>
+          <Grid item xs={12} md={6}>
+            <Typography>Unidad de Medida Contpaqi</Typography>
             <TextField
-              type="number"
-              label="Escribe un codigo de Unidad de Medida"
               fullWidth
-              error={!!errors.codigoUnidadMedida?.message}
-              helperText={errors.codigoUnidadMedida?.message}
+              size="small"
+              select
+              label="Seleccione una unidad de medida"
+              error={!!errors.codigoUnidadMedida}
+              helperText={errors?.codigoUnidadMedida?.message}
               {...register('codigoUnidadMedida')}
-              disabled={!!editData}
-            />
+              value={watch('codigoUnidadMedida')}
+            >
+              {!isLoadingConcepts &&
+                sizeUnit.map((data) => (
+                  <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                    {data.nombre}
+                  </MenuItem>
+                ))}
+              {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+            </TextField>
           </Grid>
-          <Grid item xs={6}>
-            <Typography>
-              Código de Unidad de Medida de <b>Recuperación</b>
-            </Typography>
-            <TextField
-              type="number"
-              label="Escribe un codigo de Unidad de Medida de Recuperación"
-              fullWidth
-              error={!!errors.codigoUnidadMedidaRecuperacion?.message}
-              helperText={errors.codigoUnidadMedidaRecuperacion?.message}
-              {...register('codigoUnidadMedidaRecuperacion')}
-              disabled={!!editData}
-            />
-          </Grid>
+          {watch('type') === '1' && (
+            <Grid item xs={6}>
+              <Typography>
+                Código de Unidad de Medida de <b>Recuperación</b>
+              </Typography>
+              <TextField
+                label="Escribe un codigo de Unidad de Medida de Recuperación"
+                fullWidth
+                error={!!errors.codigoUnidadMedidaRecuperacion?.message}
+                helperText={errors.codigoUnidadMedidaRecuperacion?.message}
+                {...register('codigoUnidadMedidaRecuperacion')}
+                value={watch('codigoUnidadMedidaRecuperacion')}
+                select
+              >
+                {!isLoadingConcepts &&
+                  sizeUnit.map((data) => (
+                    <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                      {data.nombre}
+                    </MenuItem>
+                  ))}
+                {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+              </TextField>
+            </Grid>
+          )}
         </Grid>
       </Box>
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>

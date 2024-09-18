@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
 import { createXRay, modifyXRay } from '../../../../services/hospitalization/xrayService';
 import { xraySchema } from '../../../../schema/hospitalization/hospitalizationSchema';
+import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 
 const REQUEST_TYPES = [
   {
@@ -55,13 +56,13 @@ interface Inputs {
   price: number;
   type: number;
   description: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 }
 export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
   const { xray } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const refetch = useXRayPaginationStore((state) => state.fetchData);
   const {
     register,
@@ -76,9 +77,8 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
       name: xray?.nombre ?? '',
       price: xray?.precio ?? 0,
       type: xray?.tipo ?? 0,
-      codigoContpaqi: xray?.codigoContpaqi ?? '',
       codigoSAT: xray?.codigoSAT ?? '',
-      codigoUnidadMedida: xray?.codigoUnidadMedida ?? '',
+      codigoUnidadMedida: xray?.codigoUnidadMedida ?? 0,
     },
     resolver: zodResolver(xraySchema),
   });
@@ -93,7 +93,6 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             nombre: data.name,
             precio: data.price,
             tipo: data.type,
-            codigoContpaqi: data.codigoContpaqi,
             codigoSAT: data.codigoSAT,
             codigoUnidadMedida: data.codigoUnidadMedida,
           })
@@ -102,7 +101,6 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             nombre: data.name,
             precio: data.price,
             tipo: data.type,
-            codigoContpaqi: data.codigoContpaqi,
             codigoSAT: data.codigoSAT,
             codigoUnidadMedida: data.codigoUnidadMedida,
           });
@@ -170,17 +168,6 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
             </Grid>
             <Grid item xs={6}>
-              <Typography>Código de Contpaqi</Typography>
-              <TextField
-                label="Escribe un codigo de Contpaqi"
-                fullWidth
-                {...register('codigoContpaqi')}
-                error={!!errors.codigoContpaqi?.message}
-                helperText={errors.codigoContpaqi?.message}
-                disabled={!!xray}
-              />
-            </Grid>
-            <Grid item xs={6}>
               <Typography>Código de SAT</Typography>
               <TextField
                 label="Escribe un codigo de SAT"
@@ -188,7 +175,6 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
                 {...register('codigoSAT')}
                 error={!!errors.codigoSAT?.message}
                 helperText={errors.codigoSAT?.message}
-                disabled={!!xray}
               />
             </Grid>
             <Grid item xs={6}>
@@ -197,10 +183,21 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
                 label="Escribe un codigo de Unidad de Medida"
                 fullWidth
                 {...register('codigoUnidadMedida')}
+                value={watch('codigoUnidadMedida')}
                 error={!!errors.codigoUnidadMedida?.message}
                 helperText={errors.codigoUnidadMedida?.message}
-                disabled={!!xray}
-              />
+                select
+              >
+                {isLoadingConcepts ? (
+                  <MenuItem>Cargando...</MenuItem>
+                ) : (
+                  sizeUnit?.map((item) => (
+                    <MenuItem key={item.id_UnidadMedida} value={item.id_UnidadMedida}>
+                      {item.nombre}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
             </Grid>
           </Grid>
         </Box>

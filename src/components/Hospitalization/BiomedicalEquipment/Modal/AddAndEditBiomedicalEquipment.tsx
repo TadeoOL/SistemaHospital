@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { IBiomedicalEquipment } from '../../../../types/hospitalizationTypes';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -11,7 +11,7 @@ import {
 } from '../../../../services/hospitalization/biomedicalEquipmentService';
 import { useState } from 'react';
 import { useBiomedicalEquipmentPaginationStore } from '../../../../store/hospitalization/biomedicalEquipmentPagination';
-import { isValidInteger } from '../../../../utils/functions/dataUtils';
+import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 
 const style = {
   position: 'absolute',
@@ -35,27 +35,27 @@ interface Inputs {
   name: string;
   price: number;
   description: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 }
 export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipmentProps) => {
   const { biomedicalEquipment } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const refetch = useBiomedicalEquipmentPaginationStore((state) => state.fetchData);
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<Inputs>({
     defaultValues: {
       id: biomedicalEquipment?.id ?? '',
       description: biomedicalEquipment?.descripcion ?? '',
       name: biomedicalEquipment?.nombre ?? '',
       price: biomedicalEquipment?.precio ?? 0,
-      codigoContpaqi: biomedicalEquipment?.codigoContpaqi ?? '',
       codigoSAT: biomedicalEquipment?.codigoSAT ?? '',
-      codigoUnidadMedida: biomedicalEquipment?.codigoUnidadMedida ?? '',
+      codigoUnidadMedida: biomedicalEquipment?.codigoUnidadMedida ? biomedicalEquipment?.codigoUnidadMedida : 0,
     },
     resolver: zodResolver(biomedicalEquipmentSchema),
   });
@@ -69,7 +69,6 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
-            codigoContpaqi: data.codigoContpaqi,
             codigoSAT: data.codigoSAT,
             codigoUnidadMedida: data.codigoUnidadMedida,
           })
@@ -77,7 +76,6 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
-            codigoContpaqi: data.codigoContpaqi,
             codigoSAT: data.codigoSAT,
             codigoUnidadMedida: data.codigoUnidadMedida,
           });
@@ -126,22 +124,8 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
             </Grid>
             <Grid item xs={6}>
-              <Typography>Código de Contpaqi</Typography>
-              <TextField
-                label="Escribe un codigo de Contpaqi"
-                fullWidth
-                {...register('codigoContpaqi')}
-                disabled={!!biomedicalEquipment}
-              />
-            </Grid>
-            <Grid item xs={6}>
               <Typography>Código de SAT</Typography>
-              <TextField
-                label="Escribe un codigo de SAT"
-                fullWidth
-                {...register('codigoSAT')}
-                disabled={!!biomedicalEquipment}
-              />
+              <TextField label="Escribe un codigo de SAT" fullWidth {...register('codigoSAT')} />
             </Grid>
             <Grid item xs={6}>
               <Typography>Código de Unidad de Medida</Typography>
@@ -149,13 +133,19 @@ export const AddAndEditBiomedicalEquipment = (props: AddAndEditBiomedicalEquipme
                 label="Escribe un codigo de Unidad de Medida"
                 fullWidth
                 {...register('codigoUnidadMedida')}
-                onChange={(e) => {
-                  if (!isValidInteger(e.target.value)) {
-                    return toast.error('No es un valor numerico entero');
-                  }
-                }}
-                disabled={!!biomedicalEquipment}
-              />
+                value={watch('codigoUnidadMedida')}
+                select
+              >
+                {isLoadingConcepts ? (
+                  <MenuItem>Cargando...</MenuItem>
+                ) : (
+                  sizeUnit?.map((item) => (
+                    <MenuItem key={item.id_UnidadMedida} value={item.id_UnidadMedida}>
+                      {item.nombre}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
             </Grid>
           </Grid>
         </Box>
