@@ -29,7 +29,7 @@ const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
-  transform: 'translate(-50%, -50%)', 
+  transform: 'translate(-50%, -50%)',
   width: { xs: 380, sm: 500, md: 600 },
   boxShadow: 24,
   display: 'flex',
@@ -50,7 +50,6 @@ const styleBar = {
   },
 };
 
-
 interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
@@ -59,9 +58,7 @@ interface RequestBuildingModalProps {
 }
 
 export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
-  const [articles, setArticles] = useState<IPrebuildedArticleFromArticleRequest[]>(
-    props.preLoadedArticles
-  );
+  const [articles, setArticles] = useState<IPrebuildedArticleFromArticleRequest[]>(props.preLoadedArticles);
   const [value, setValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
@@ -74,13 +71,11 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
     setLoading(true);
     const object = {
       Id: props.request.id_SolicitudEnfermero,
-      Lotes: articles
-        .map((art) =>({
-            Id_Articulo: art.id_Articulo,
-            Id_ArticuloAlmacen: art.id_ArticuloAlmacen ?? "",
-            Cantidad: art.cantidad.toString(),
-          })
-        ),
+      Lotes: articles.map((art) => ({
+        Id_Articulo: art.id_Articulo,
+        Id_ArticuloAlmacen: art.id_ArticuloAlmacen ?? '',
+        Cantidad: art.cantidad.toString(),
+      })),
       EstadoSolicitud: 2,
       Id_AlmacenOrigen: props.request.id_AlmacenSolicitado,
       Id_CuentaPaciente: props.request.id_CuentaPaciente,
@@ -101,7 +96,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
 
   const handleAddArticle = (articleEdited: IPrebuildedArticleFromArticleRequest) => {
     const direction = articles.findIndex((art) => art.id_Articulo === articleEdited.id_Articulo);
-      if (direction > -1) {
+    if (direction > -1) {
       articles.splice(direction, 1);
       setArticles([...articles, articleEdited]);
     } /*else {
@@ -132,7 +127,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
     let diferentNumbers = false;
     articles.forEach((article) => {
       let totalToSendByArticle = 0;
-        totalToSendByArticle += article.cantidad;
+      totalToSendByArticle += article.cantidad;
       if (totalToSendByArticle < Number(article.cantidadSeleccionar)) diferentNumbers = true;
     });
     if (diferentNumbers || articles.length !== props.request.articulos.length) {
@@ -145,7 +140,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
 
   const checkPreloadedQuantyties = () => {
     const quantityMap: {
-      [key: string]: { cantidad: number; };
+      [key: string]: { cantidad: number };
     } = {};
     let flag = true;
     props.preLoadedArticles.forEach((article) => {
@@ -154,7 +149,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
           cantidad: 0,
         };
       }
-          quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidad;
+      quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidad;
     });
 
     // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
@@ -175,14 +170,13 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
     }
   }, []);
 
-
   return (
     <Box sx={{ ...style }}>
       <HeaderModal setOpen={props.setOpen} title="Solicitud de Artículos" />
       <Box sx={{ overflowY: 'auto', ...styleBar, bgcolor: 'background.paper', p: 2 }}>
         <Box
           sx={{
-            maxHeight: 500,
+            maxHeight: 300,
           }}
         >
           <Stack spacing={2}>
@@ -246,12 +240,7 @@ interface ArticlesTableProps {
   isResume: boolean;
   handleAddArticle: Function;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({
-  articles,
-  setArticles,
-  isResume,
-  handleAddArticle,
-}) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, handleAddArticle }) => {
   return (
     <Card>
       <TableContainer>
@@ -294,7 +283,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   setArticles,
   articles,
   isResume,
-  handleAddArticle
+  handleAddArticle,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [amountText, setAmountText] = useState(article.cantidadSeleccionar.toString());
@@ -303,30 +292,28 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSeleccionar}</TableCell>
         {!isResume && (
           <TableCell>
             <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
               <IconButton
-              disabled ={article.stock == 0}
+                disabled={article.stock == 0}
                 onClick={() => {
-                  setIsEditing(!isEditing)
+                  setIsEditing(!isEditing);
                   if (isEditing) {
                     //handleSaveValue();
                     const quant = Number(amountText);
-                    if(quant > article.stock){
-                      return toast.error('La cantidad excede el stock del articulo '+article.nombre);
+                    if (quant > article.stock) {
+                      return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
                     }
 
-                    handleAddArticle({...article, cantidad: quant, id_ArticuloAlmacen : article.id_ArticuloAlmacen})
+                    handleAddArticle({ ...article, cantidad: quant, id_ArticuloAlmacen: article.id_ArticuloAlmacen });
                   }
                 }}
               >
-               {isEditing ? <Save /> : <Edit />}
+                {isEditing ? <Save /> : <Edit />}
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
@@ -341,32 +328,30 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           </TableCell>
         )}
         <TableCell sx={{ textAlign: 'center' }}>
-          {isEditing ? 
-          (
+          {isEditing ? (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <TextField
-                      sx={{ width: '60%', ml: 'auto' }}
-                      size="small"
-                      fullWidth
-                      placeholder="Cantidad"
-                      value={amountText}
-                      onChange={(e) => {
-                        if (!isValidIntegerOrZero(e.target.value)) return;
-                        setAmountText(e.target.value);
-                      }}
-                    />
-                    <Typography> Stock actual: {article.stock} </Typography>
+              <TextField
+                sx={{ width: '60%', ml: 'auto' }}
+                size="small"
+                fullWidth
+                placeholder="Cantidad"
+                value={amountText}
+                onChange={(e) => {
+                  if (!isValidIntegerOrZero(e.target.value)) return;
+                  setAmountText(e.target.value);
+                }}
+              />
+              <Typography> Stock actual: {article.stock} </Typography>
             </Box>
-            
-            ) 
-          :
-          (<Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
-            {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
-              <Warning sx={{ color: '#FFA500', mr: 2 }} />
-            )}
-            {article.cantidad}
-          </Box>)}
+          ) : (
+            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+              {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
+              {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
+                <Warning sx={{ color: '#FFA500', mr: 2 }} />
+              )}
+              {article.cantidad}
+            </Box>
+          )}
         </TableCell>
       </TableRow>
     </React.Fragment>

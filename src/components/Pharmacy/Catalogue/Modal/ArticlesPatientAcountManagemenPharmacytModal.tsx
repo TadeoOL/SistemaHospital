@@ -74,9 +74,13 @@ const style2 = {
   },
 };
 
-export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
+export const ArticlesPatientAcountManagementPharmacyModal = (props: {
+  setOpen: Function;
+  warehouseId: string;
+  refetch: Function;
+}) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
-  const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
+  const [isLoadingArticlesFromPatient, setIsLoadingArticlesFromPatient] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearchWithBarCode[]>(
     []
   );
@@ -125,7 +129,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
 
   useEffect(() => {
     const fetch = async () => {
-      await handleFetchArticlesFromWareHouse()
+      await handleFetchArticlesFromWareHouse();
     };
     fetch();
   }, [search]);
@@ -134,7 +138,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse()
+        handleFetchArticlesFromWareHouse();
       } catch (error) {
         console.log(error);
       } finally {
@@ -152,64 +156,62 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
     }
   };
 
-    const compareMaps = (
-      originalMap: Map<string, IArticlesFromPatientAcount>,
-      articlesMap: Map<string, IArticlesFromPatientAcount>
-    ) => {
-      const addedOrIncreased: IArticlesFromPatientAcount[] = [];
-      const removedOrDecreased: IArticlesFromPatientAcount[] = [];
-    
-      // Recorrer articlesMap para encontrar artículos nuevos o con cantidad aumentada
-      articlesMap.forEach((article, id_Articulo) => {
-        const originalArticle = originalMap.get(id_Articulo);
-    
-        if (!originalArticle) {
-          // El artículo es nuevo
-          addedOrIncreased.push(article);
-        } else if (article.cantidad > originalArticle.cantidad) {
-          // La cantidad del artículo ha aumentado
-          addedOrIncreased.push({...article, cantidad: article.cantidad - originalArticle.cantidad});
-        }
-      });
-    
-      // Recorrer originalMap para encontrar artículos eliminados o con cantidad reducida
-      originalMap.forEach((originalArticle, id_Articulo) => {
-        const article = articlesMap.get(id_Articulo);
-    
-        if (!article) {
-          // El artículo ha sido eliminado
-          removedOrDecreased.push({ ...originalArticle });
-        } else if (article.cantidad < originalArticle.cantidad) {
-          // La cantidad del artículo ha disminuido
-          removedOrDecreased.push({ ...article, cantidad:  - (article.cantidad - originalArticle.cantidad)});
-        }
-      });
-    
-      return { addedOrIncreased, removedOrDecreased };
-    };
+  const compareMaps = (
+    originalMap: Map<string, IArticlesFromPatientAcount>,
+    articlesMap: Map<string, IArticlesFromPatientAcount>
+  ) => {
+    const addedOrIncreased: IArticlesFromPatientAcount[] = [];
+    const removedOrDecreased: IArticlesFromPatientAcount[] = [];
+
+    // Recorrer articlesMap para encontrar artículos nuevos o con cantidad aumentada
+    articlesMap.forEach((article, id_Articulo) => {
+      const originalArticle = originalMap.get(id_Articulo);
+
+      if (!originalArticle) {
+        // El artículo es nuevo
+        addedOrIncreased.push(article);
+      } else if (article.cantidad > originalArticle.cantidad) {
+        // La cantidad del artículo ha aumentado
+        addedOrIncreased.push({ ...article, cantidad: article.cantidad - originalArticle.cantidad });
+      }
+    });
+
+    // Recorrer originalMap para encontrar artículos eliminados o con cantidad reducida
+    originalMap.forEach((originalArticle, id_Articulo) => {
+      const article = articlesMap.get(id_Articulo);
+
+      if (!article) {
+        // El artículo ha sido eliminado
+        removedOrDecreased.push({ ...originalArticle });
+      } else if (article.cantidad < originalArticle.cantidad) {
+        // La cantidad del artículo ha disminuido
+        removedOrDecreased.push({ ...article, cantidad: -(article.cantidad - originalArticle.cantidad) });
+      }
+    });
+
+    return { addedOrIncreased, removedOrDecreased };
+  };
 
   const deleteArticles = (directions: string[]) => {
-    const newwmap = articlesMap
-    directions.forEach(dir => {
-      newwmap.delete(dir)
+    const newwmap = articlesMap;
+    directions.forEach((dir) => {
+      newwmap.delete(dir);
     });
     console.log(newwmap);
-    setArticles(Array.from(newwmap.values()))
-
-
+    setArticles(Array.from(newwmap.values()));
   };
 
   const handleFetchArticlesFromAccount = async (id_cuenta: string) => {
     try {
-      setIsLoadingArticlesWareH(true);
-      const res = await getArticlesFromAcountId(id_cuenta, false, props.warehouseId,true,false);
+      setIsLoadingArticlesFromPatient(true);
+      const res = await getArticlesFromAcountId(id_cuenta, false, props.warehouseId, true, false);
       const transformedData = res.map((item: any) => ({
         id_ArticuloCuenta: item.id_ArticuloCuenta,
         id_Articulo: item.id_Articulo,
         nombre: item.nombre,
         cantidad: item.cantidad,
         codigoBarras: item.codigoBarras,
-        stock: item.stock + item.cantidad
+        stock: item.stock + item.cantidad,
       }));
       setDataWerehouseArticlesSelected(transformedData);
       //cexp
@@ -217,46 +219,42 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
       setArticlesMap(() => {
         const newMap = new Map();
         res.forEach((article: IArticlesFromPatientAcount) => {
-          newMap.set(article.nombre,{ ...article});
+          newMap.set(article.nombre, { ...article });
         });
         return newMap;
-      }
-      )
+      });
       setOriginalMap(() => {
         const newMap = new Map();
         res.forEach((article: IArticlesFromPatientAcount) => {
-          newMap.set(article.nombre,{ ...article});
+          newMap.set(article.nombre, { ...article });
         });
         return newMap;
-      }
-      )
-
-
+      });
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoadingArticlesWareH(false);
+      setIsLoadingArticlesFromPatient(false);
     }
   };
 
   const handleFetchArticlesFromWareHouse = async () => {
     try {
-      setIsLoadingArticlesWareH(true);
+      setIsLoadingWarehouse(true);
       const res = await getExistingArticles(
-        ///akkki cambiar cuando 
+        ///akkki cambiar cuando
         `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
       );
       const transformedData = res.data.map((item: any) => ({
         id_Articulo: item.id_Articulo,
         nombre: item.nombre,
         stock: item.stockActual,
-        id_ArticuloAlmacen: item.id_ArticuloAlmacen
+        id_ArticuloAlmacen: item.id_ArticuloAlmacen,
       }));
       setDataWerehouseSelected(transformedData);
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoadingArticlesWareH(false);
+      setIsLoadingWarehouse(false);
     }
   };
 
@@ -264,9 +262,9 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
     const articleToedit = articlesMap.get(idArticle);
     if (articleToedit) {
       articleToedit.cantidad = cantidad;
-      setArticlesMap(articlesMap.set(idArticle, articleToedit))
+      setArticlesMap(articlesMap.set(idArticle, articleToedit));
     }
-  }
+  };
 
   const { handleSubmit } = useForm<IArticlesPackage>({
     defaultValues: {
@@ -275,7 +273,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
     },
     resolver: zodResolver(addNewArticlesPackage),
   });
-  const validateAmount = (articlesToCheck:IArticlesFromPatientAcount[]) => {
+  const validateAmount = (articlesToCheck: IArticlesFromPatientAcount[]) => {
     for (const articulo of articlesToCheck) {
       if (articulo.cantidad > articulo.stock) {
         toast.error(`La cantidad de salida del articulo ${articulo.nombre} está superando las existencias actuales!`);
@@ -297,21 +295,23 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
       const object = {
         //NombreEnfermero: nurseSelected.nombre,
         Id_Almacen: props.warehouseId,
-        ArticulosPorSalir: resultComparation.addedOrIncreased.length > 0?
-          resultComparation.addedOrIncreased.map((newArt) => 
-            ({ Id_Articulo: newArt.id_Articulo, 
-              Nombre: newArt.nombre,
-              Cantidad: newArt.cantidad  }))
-          :
-          undefined,
-          ArticulosPorEntrar: resultComparation.removedOrDecreased.length > 0?
-          resultComparation.removedOrDecreased.map((newArt) => 
-            ({ Id_Articulo: newArt.id_Articulo, 
-              Id_ArticuloCuenta: newArt.id_ArticuloCuenta, 
-              Nombre: newArt.nombre,
-              Cantidad: newArt.cantidad  }))
-          :
-          undefined,
+        ArticulosPorSalir:
+          resultComparation.addedOrIncreased.length > 0
+            ? resultComparation.addedOrIncreased.map((newArt) => ({
+                Id_Articulo: newArt.id_Articulo,
+                Nombre: newArt.nombre,
+                Cantidad: newArt.cantidad,
+              }))
+            : undefined,
+        ArticulosPorEntrar:
+          resultComparation.removedOrDecreased.length > 0
+            ? resultComparation.removedOrDecreased.map((newArt) => ({
+                Id_Articulo: newArt.id_Articulo,
+                Id_ArticuloCuenta: newArt.id_ArticuloCuenta,
+                Nombre: newArt.nombre,
+                Cantidad: newArt.cantidad,
+              }))
+            : undefined,
         IngresoMotivo: 'Devolución de artículos',
         Id_CuentaPaciente: userSelected.id_Cuenta,
         SolicitadoEn: 1,
@@ -365,7 +365,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
                       }
                     }}
                     //cambiar loading
-                    loading={isLoadingArticlesWareH || usersData.length === 0}
+                    loading={isLoadingArticlesFromPatient || usersData.length === 0}
                     getOptionLabel={(option) => option.nombreCompleto}
                     options={usersData}
                     value={userSelected}
@@ -395,37 +395,36 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
                   filterOptions={filterSearchArticleOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
-                    console.log("hu?",val);
+                    console.log('hu?', val);
                     if (val !== null) {
-                      if (
-                        articles.map((art) => art.id_Articulo).includes(val.id_Articulo)
-                      ) {
+                      if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
                         console.log(articles);
                         return;
-                      }
-                      else if( val.stock === 0 ){
-                        toast.error(`La cantidad de salida del articulo ${val.nombre} esta superando la existencias actuales! `);
+                      } else if (val.stock === 0) {
+                        toast.error(
+                          `La cantidad de salida del articulo ${val.nombre} esta superando la existencias actuales! `
+                        );
                         return;
                       }
-                      console.log("pasa el paput");
+                      console.log('pasa el paput');
                       setArticleId(val.id_Articulo);
                       setArticleSelected(val);
                       articlesMap.set(val.id_Articulo, {
                         id_Articulo: val.id_Articulo,
-                        id_ArticuloCuenta: "",
-                        id_CuentaPAciente: "",
+                        id_ArticuloCuenta: '',
+                        id_CuentaPAciente: '',
                         cantidad: 1,
-                        codigoBarras: "",
+                        codigoBarras: '',
                         nombre: val.nombre,
-                        stock: val.stock
+                        stock: val.stock,
                       });
                       setArticlesMap(articlesMap);
-                      setGridKey(gridKey + 1)
+                      setGridKey(gridKey + 1);
                       setArticleError(false);
                       console.log(articlesMap);
                     }
                   }}
-                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}
                   getOptionLabel={(option) => option.nombre}
                   options={dataWerehouseArticles}
                   value={articleSelected}
@@ -445,27 +444,24 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: { setOpen: F
                 />
               </Stack>
 
-              {
-                isLoadingArticlesWareH?
-              (<CircularProgress
-              sx={{mx:'auto', my:5}}
-              size={50}
-              />)
-              :
-              (<ArticlesTable
-                key={gridKey}
-                setOpen={props.setOpen}
-                submitData={onSubmit}
-                initialData={[]}
-                setArticleSelected={setArticleSelected}
-                setArticles={setArticles}
-                articles={articles || []}
-                setArticleId={setArticleId}
-                deleteArticles={deleteArticles}
-                setAmountText={changeArticleQuantityInMap}
-                articlesMap={Array.from(articlesMap.values())}
-                loading={isLoadingArticlesWareH}
-              />)}
+              {isLoadingArticlesFromPatient ? (
+                <CircularProgress sx={{ mx: 'auto', my: 5 }} size={50} />
+              ) : (
+                <ArticlesTable
+                  key={gridKey}
+                  setOpen={props.setOpen}
+                  submitData={onSubmit}
+                  initialData={[]}
+                  setArticleSelected={setArticleSelected}
+                  setArticles={setArticles}
+                  articles={articles || []}
+                  setArticleId={setArticleId}
+                  deleteArticles={deleteArticles}
+                  setAmountText={changeArticleQuantityInMap}
+                  articlesMap={Array.from(articlesMap.values())}
+                  loading={isLoadingArticlesFromPatient}
+                />
+              )}
 
               <Box
                 sx={{
@@ -518,21 +514,20 @@ const ArticlesTable = (props: {
   articlesMap: IArticlesFromPatientAcount[];
   loading: boolean;
 }) => {
-  const [idsSelected, setIdsSelected] = useState<string[]>([])
+  const [idsSelected, setIdsSelected] = useState<string[]>([]);
   const halfIndex = Math.ceil(props.articlesMap.length / 2);
-  const fhalf = props.articlesMap.slice(0, halfIndex);
-  const shalf = props.articlesMap.slice(halfIndex);
+  const fhalf = props.articlesMap.slice(halfIndex).reverse();
+  const shalf = props.articlesMap.slice(0, halfIndex).reverse();
 
   return (
     <>
-      {
-      props.loading ?
-      (<CircularProgress size={50} sx={{mx:'auto'}}/>)
-      :
-      (<Card sx={{ mt: 4, overflowX: 'auto' }}>
-        <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row', }}>
-          <Table>
-            {/*<TableHead>
+      {props.loading ? (
+        <CircularProgress size={50} sx={{ mx: 'auto' }} />
+      ) : (
+        <Card sx={{ mt: 4, overflowX: 'auto' }}>
+          <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
+            <Table>
+              {/*<TableHead>
               <TableRow>
                 <TableCell></TableCell>
                 <TableCell style={{ whiteSpace: 'pre-line' }}>{'Cantidad'}</TableCell>
@@ -540,64 +535,64 @@ const ArticlesTable = (props: {
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>*/}
-            <Box>
-              <Tooltip title="Eliminar">
-                <IconButton
-                  onClick={() => {
-                    props.deleteArticles(idsSelected)
-                    //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
-                  }}
-                >
-                  <Delete />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'row', }} >
               <Box>
-                {props.articlesMap?.length > 0 ? (
-                  fhalf.map((a) => (
-                    <ArticlesRows
-                      key={a.id_Articulo}
-                      articleRow={a}
-                      setIdsSelected={setIdsSelected}
-                      idsSelected={idsSelected}
-                      setAmountText={props.setAmountText}
-                      amountText={a.cantidad.toString()}
-                    />
-                  ))
-                ) : (
-                  <></>
-                )}
+                <Tooltip title="Eliminar">
+                  <IconButton
+                    onClick={() => {
+                      props.deleteArticles(idsSelected);
+                      //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
               </Box>
-              <Box>
-                {props.articlesMap?.length > 0 ? (
-                  shalf.map((a) => (
-                    <ArticlesRows
-                      key={a.id_Articulo}
-                      articleRow={a}
-                      setIdsSelected={setIdsSelected}
-                      idsSelected={idsSelected}
-                      setAmountText={props.setAmountText}
-                      amountText={a.cantidad.toString()}
-                    />
-                  ))
-                ) : (
-                  <></>
-                )}
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                <Box>
+                  {props.articlesMap?.length > 0 ? (
+                    fhalf.map((a) => (
+                      <ArticlesRows
+                        key={a.id_Articulo}
+                        articleRow={a}
+                        setIdsSelected={setIdsSelected}
+                        idsSelected={idsSelected}
+                        setAmountText={props.setAmountText}
+                        amountText={a.cantidad.toString()}
+                      />
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </Box>
+                <Box>
+                  {props.articlesMap?.length > 0 ? (
+                    shalf.map((a) => (
+                      <ArticlesRows
+                        key={a.id_Articulo}
+                        articleRow={a}
+                        setIdsSelected={setIdsSelected}
+                        idsSelected={idsSelected}
+                        setAmountText={props.setAmountText}
+                        amountText={a.cantidad.toString()}
+                      />
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </Box>
               </Box>
+            </Table>
+          </TableContainer>
+          {props.articlesMap.length === 0 && (
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
+              <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
+              <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
+                No hay artículos seleccionados
+              </Typography>
             </Box>
-
-          </Table>
-        </TableContainer>
-        {props.articlesMap.length === 0 && (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
-            <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
-            <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
-              No hay artículos seleccionados
-            </Typography>
-          </Box>
-        )}
-      </Card>)}
+          )}
+        </Card>
+      )}
     </>
   );
 };
@@ -614,7 +609,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
   setIdsSelected,
   idsSelected,
   setAmountText,
-  amountText
+  amountText,
 }) => {
   const [checked, setChecked] = useState(false);
   const [numberText, setNumberText] = useState(amountText);
@@ -626,16 +621,15 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
             <Checkbox
               checked={checked}
-              onChange={((e) => {
+              onChange={(e) => {
                 if (checked) {
-                  setIdsSelected(idsSelected.filter(item => item !== articleRow.id_Articulo))
-                }
-                else {
-                  idsSelected.push(articleRow.nombre)
-                  setIdsSelected(idsSelected)
+                  setIdsSelected(idsSelected.filter((item) => item !== articleRow.id_Articulo));
+                } else {
+                  idsSelected.push(articleRow.nombre);
+                  setIdsSelected(idsSelected);
                 }
                 setChecked(e.target.checked);
-              })}
+              }}
               inputProps={{ 'aria-label': 'controlled' }}
             />
             {articleRow.nombre}
@@ -650,12 +644,11 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
             value={numberText}
             onChange={(e) => {
               if (!isValidInteger(e.target.value)) return;
-              setAmountText(articleRow.nombre, Number(e.target.value))
-              if (e.target.value === "") {
+              setAmountText(articleRow.nombre, Number(e.target.value));
+              if (e.target.value === '') {
                 setNumberText('0');
               }
               setNumberText(e.target.value);
-
             }}
           />
         </TableCell>

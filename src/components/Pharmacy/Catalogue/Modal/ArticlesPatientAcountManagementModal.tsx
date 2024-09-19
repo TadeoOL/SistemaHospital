@@ -80,7 +80,7 @@ export const ArticlesPatientAcountManagementModal = (props: {
   refetch: Function;
 }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
-  const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
+  const [isLoadingArticlesFromPatient, setIsLoadingArticlesFromPatient] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearchWithBarCode[]>(
     []
   );
@@ -155,47 +155,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
       setUsersData(res);
     }
   };
-  /*
-    const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
-      let totalQuantityByArticle = 0;
-      const updatedLote: {
-        cantidad: number;
-        fechaCaducidad: string;
-        id_ArticuloCuenta: string;
-        id_ArticuloExistente: string;
-      }[] = [];
-      lotesArticles.forEach((element) => {
-        const nestedLote = {
-          cantidad: element.cantidad,
-          id_ArticuloExistente: element.id_ArticuloExistente,
-          id_ArticuloCuenta: articleSelected?.id_Articulo as string,
-          fechaCaducidad: element.fechaCaducidad,
-        };
-        updatedLote.push(nestedLote);
-        totalQuantityByArticle += element.cantidad;
-      });
-      if (totalQuantityByArticle > (articleSelected?.cantidad ? articleSelected.cantidad : 0)) {
-        toast.error('La cantidad de articulos a devolver es mayor al de la cuenta');
-        return;
-      }
-      const updatedArticle = {
-        ...articleSelected,
-        cantidad: totalQuantityByArticle,
-        lote: updatedLote,
-      };
-      if (edit) {
-        const direction = articles.findIndex(
-          (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-        );
-        articles.splice(direction, 1);
-        setArticles([...(articles as any), updatedArticle]);
-        setArticleSelected(null);
-      } else {
-        setArticles((prev: any) => [...prev, updatedArticle]);
-        setArticleSelected(null);
-      }
-    };
-  */
 
   const compareMaps = (
     originalMap: Map<string, IArticlesFromPatientAcount>,
@@ -244,7 +203,7 @@ export const ArticlesPatientAcountManagementModal = (props: {
 
   const handleFetchArticlesFromAccount = async (id_cuenta: string) => {
     try {
-      setIsLoadingArticlesWareH(true);
+      setIsLoadingArticlesFromPatient(true);
       const res = await getArticlesFromAcountId(id_cuenta, true, props.warehouseId, false, true);
       const transformedData = res.map((item: any) => ({
         id_ArticuloCuenta: item.id_ArticuloCuenta,
@@ -274,13 +233,13 @@ export const ArticlesPatientAcountManagementModal = (props: {
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoadingArticlesWareH(false);
+      setIsLoadingArticlesFromPatient(false);
     }
   };
 
   const handleFetchArticlesFromWareHouse = async () => {
     try {
-      setIsLoadingArticlesWareH(true);
+      setIsLoadingWarehouse(true);
       const res = await getExistingArticles(
         `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
       );
@@ -294,7 +253,7 @@ export const ArticlesPatientAcountManagementModal = (props: {
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoadingArticlesWareH(false);
+      setIsLoadingWarehouse(false);
     }
   };
 
@@ -405,7 +364,7 @@ export const ArticlesPatientAcountManagementModal = (props: {
                       }
                     }}
                     //cambiar loading
-                    loading={isLoadingArticlesWareH || usersData.length === 0}
+                    loading={isLoadingArticlesFromPatient || usersData.length === 0}
                     getOptionLabel={(option) => option.nombreCompleto}
                     options={usersData}
                     value={userSelected}
@@ -427,42 +386,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
                   />
                 </Stack>
               </Box>
-              {/*<Stack sx={{ display: 'flex', flex: 1 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
-                <Autocomplete
-                  disablePortal
-                  fullWidth
-                  filterOptions={filterArticleOptions}
-                  onChange={(e, val) => {
-                    e.stopPropagation();
-                    if (val !== null) {
-                      if (!articles.map((art) => art.id_ArticuloCuenta).includes(val.id_ArticuloCuenta)) {
-                        //q no lo deje
-                      }
-                      setArticleId(val.id_Articulo);
-                      setArticleSelected(val);
-                      setArticleError(false);
-                    }
-                  }}
-                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
-                  getOptionLabel={(option) => option.nombre}
-                  options={dataWerehouseSelectedArticles}
-                  value={articleSelected}
-                  noOptionsText="No se encontraron artículos"
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={articleError}
-                      helperText={articleError && 'Selecciona un articulo'}
-                      // onChange={(e) => {
-                      //   setSearch(e.target.value);
-                      // }}
-                      placeholder="Artículos"
-                      sx={{ width: '100%' }}
-                    />
-                  )}
-                />
-              </Stack>*/}
               <Stack sx={{ display: 'flex', flex: 1 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
                 <Autocomplete
@@ -481,7 +404,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
                         return;
                       }
                       setArticleId(val.id_Articulo);
-                      setArticleSelected(val);
                       articlesMap.set(val.id_Articulo, {
                         id_Articulo: val.id_Articulo,
                         id_ArticuloCuenta: '',
@@ -494,9 +416,10 @@ export const ArticlesPatientAcountManagementModal = (props: {
                       setArticlesMap(articlesMap);
                       setGridKey(gridKey + 1);
                       setArticleError(false);
+                      setSearch('');
                     }
                   }}
-                  loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                  loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}
                   getOptionLabel={(option) => option.nombre}
                   options={dataWerehouseArticles}
                   value={articleSelected}
@@ -521,14 +444,13 @@ export const ArticlesPatientAcountManagementModal = (props: {
                 setOpen={props.setOpen}
                 submitData={onSubmit}
                 initialData={[]}
-                setArticleSelected={setArticleSelected}
                 setArticles={setArticles}
                 articles={articles || []}
                 setArticleId={setArticleId}
                 deleteArticles={deleteArticles}
                 setAmountText={changeArticleQuantityInMap}
                 articlesMap={Array.from(articlesMap.values())}
-                loading={isLoadingArticlesWareH}
+                loading={isLoadingArticlesFromPatient}
               />
 
               <Box
@@ -576,7 +498,6 @@ const ArticlesTable = (props: {
   articles: IArticlesFromPatientAcount[];
   setArticles: Function;
   setArticleId: Function;
-  setArticleSelected: Function;
   deleteArticles: Function;
   setAmountText: Function;
   articlesMap: IArticlesFromPatientAcount[];
@@ -584,8 +505,8 @@ const ArticlesTable = (props: {
 }) => {
   const [idsSelected, setIdsSelected] = useState<string[]>([]);
   const halfIndex = Math.ceil(props.articlesMap.length / 2);
-  const fhalf = props.articlesMap.slice(0, halfIndex);
-  const shalf = props.articlesMap.slice(halfIndex);
+  const fhalf = props.articlesMap.slice(halfIndex).reverse();
+  const shalf = props.articlesMap.slice(0, halfIndex).reverse();
   return (
     <>
       {props.loading ? (
@@ -594,14 +515,6 @@ const ArticlesTable = (props: {
         <Card sx={{ mt: 4, overflowX: 'auto' }}>
           <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
             <Table>
-              {/*<TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell style={{ whiteSpace: 'pre-line' }}>{'Cantidad'}</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>*/}
               <Box>
                 <Tooltip title="Eliminar">
                   <IconButton
@@ -616,7 +529,7 @@ const ArticlesTable = (props: {
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Box>
-                  {props.articles?.length > 0 ? (
+                  {props.articlesMap?.length > 0 ? (
                     fhalf.map((a) => (
                       <ArticlesRows
                         key={a.id_Articulo}
@@ -649,45 +562,6 @@ const ArticlesTable = (props: {
                 </Box>
               </Box>
             </Table>
-            {/*<Table>
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                <Tooltip title="Eliminar">
-              <IconButton
-                onClick={() => {
-                  //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
-                }}
-              >
-                <Delete />
-              </IconButton>
-            </Tooltip>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.articles?.length > 0 ? (
-                props.articles
-                  ?.slice()
-                  .reverse()
-                  .map((a) => (
-                    <ArticlesRows
-                      key={a.id_Articulo}
-                      setArticleSelected={props.setArticleSelected}
-                      setArticles={props.setArticles}
-                      articleRow={a}
-                      articles={props.articles}
-                      setArticleId={props.setArticleId}
-                    />
-                  ))
-              ) : (
-                <></>
-              )}
-            </TableBody>
-          </Table>*/}
           </TableContainer>
           {props.articles.length === 0 && (
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
