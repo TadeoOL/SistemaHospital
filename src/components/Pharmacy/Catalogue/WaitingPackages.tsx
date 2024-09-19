@@ -214,7 +214,7 @@ export const WaitingPackages = () => {
     setPrebuildedArticles(request);
     setOpenCreatePackageModal(true);
     setPackageSelected(id);
-    setLoadingPackage(false)
+    setLoadingPackage(false);
   };
 
   const sendDateHHMMDDMMYYYY = (datestr: string) => {
@@ -224,13 +224,13 @@ export const WaitingPackages = () => {
       month: '2-digit',
       year: 'numeric',
     });
-    
+
     const formattedTime = date.toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit',
     });
     return `${formattedTime} ${formattedDate} `;
-  }
+  };
 
   const getDDMMYYYY = (datestr: string) => {
     const date = new Date(datestr);
@@ -240,28 +240,28 @@ export const WaitingPackages = () => {
       year: 'numeric',
     });
     return `${formattedDate}`;
-  }
+  };
 
   const calculateAge = (birthDateString: string): number => {
-    const [day, month, year] = birthDateString.split("/").map(Number);
+    const [day, month, year] = birthDateString.split('/').map(Number);
     const today = new Date();
     const birthDate = new Date(year, month - 1, day);
-  
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDifference = today.getMonth() - birthDate.getMonth();
-  
+
     // Restar un año si no ha llegado el mes y día del cumpleaños de este año
     if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-  
+
     return age;
   };
 
   useEffect(() => {
     setProvisionalArticles(data?.find((d) => d.id === packageSelected)?.historialArticulos ?? []);
   }, [packageSelected]);
-
+  console.log(data);
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -317,18 +317,10 @@ export const WaitingPackages = () => {
                     <TableCell>
                       <SortComponent tableCellLabel="Folio" headerName="folio" setSortFunction={setSort} />
                     </TableCell>
-                    <TableCell>
-                      Doctor
-                    </TableCell>
-                    <TableCell>
-                      Quirofano
-                    </TableCell>
-                    <TableCell>
-                      Hora cirugía
-                    </TableCell>
-                    <TableCell>
-                      Edad Paciente
-                    </TableCell>
+                    <TableCell>Doctor</TableCell>
+                    <TableCell>Quirofano</TableCell>
+                    <TableCell>Hora cirugía</TableCell>
+                    <TableCell>Edad Paciente</TableCell>
                     <TableCell>
                       <SortComponent tableCellLabel="Solicitado por" headerName="enfermero" setSortFunction={setSort} />
                     </TableCell>
@@ -375,14 +367,24 @@ export const WaitingPackages = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell>
-                            {movimiento.infoExtra[0].registro.registroCuartos[0].medico.nombres} {movimiento.infoExtra[0].registro.registroCuartos[0].medico.apellidoPaterno} {movimiento.infoExtra[0].registro.registroCuartos[0].medico.apellidoMaterno}
+                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.nombres ?? ''}{' '}
+                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.apellidoPaterno ?? ''}{' '}
+                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.apellidoMaterno ?? ''}
                           </TableCell>
-
-
-                          <TableCell> {movimiento.infoExtra[0].registro.registroCuartos[0].cuarto.nombre} </TableCell>
-
-                          <TableCell> {sendDateHHMMDDMMYYYY(movimiento.infoExtra[0].registro.registroCuartos[0].horaInicio as string)} </TableCell>
-                          <TableCell> {calculateAge(getDDMMYYYY(movimiento.infoExtra[0].registro.paciente.fechaNacimiento))} años </TableCell>
+                          <TableCell>
+                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.cuarto?.nombre ?? ''}
+                          </TableCell>
+                          <TableCell>
+                            {sendDateHHMMDDMMYYYY(
+                              movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.horaInicio as string
+                            ) ?? ''}
+                          </TableCell>
+                          <TableCell>
+                            {calculateAge(
+                              getDDMMYYYY(movimiento?.infoExtra?.[0]?.registro?.paciente?.fechaNacimiento ?? '')
+                            )}{' '}
+                            años{' '}
+                          </TableCell>
 
                           <TableCell> {movimiento.solicitadoPor} </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
@@ -402,10 +404,10 @@ export const WaitingPackages = () => {
                                       acceptRequest(
                                         movimiento.id,
                                         movimiento.historialArticulos?.map((art) => ({
-                                          Id_ArticuloAlmacenStock: art.id_ArticuloExistente,//corregir
+                                          Id_ArticuloAlmacenStock: art.id_ArticuloExistente, //corregir
                                           Id_Articulo: art.id_Articulo,
                                           Nombre: art.nombre,
-                                          Cantidad: art.cantidad
+                                          Cantidad: art.cantidad,
                                         })),
                                         movimiento.id_CuentaPaciente
                                       );
@@ -420,7 +422,7 @@ export const WaitingPackages = () => {
                                     onClick={async () => {
                                       try {
                                         //Agregar Loader
-                                        setLoadingPackage(true)
+                                        setLoadingPackage(true);
                                         const packRes = await getPackagePreBuilded(movimiento.id);
                                         createPackage(movimiento.id, packRes);
                                       } catch (error) {
@@ -534,20 +536,25 @@ export const WaitingPackages = () => {
           <RequestBuildingModalMutation
             setOpen={setOpenCreatePackageModal}
             requestedItems={provisionalArticles}
-            refetch={fetchWareHouseMovements}
+            refetch={() => {
+              fetchWareHouseMovements(warehouseIdSeted);
+            }}
             preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
             movementHistoryId={packageSelected}
           />
         </>
       </Modal>
-      <CircularProgress size={100} sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        flexDirection: 'column',
-        display: loadingPackage ? 'flex' : 'none'
-      }} />
+      <CircularProgress
+        size={100}
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          flexDirection: 'column',
+          display: loadingPackage ? 'flex' : 'none',
+        }}
+      />
     </>
   );
 };

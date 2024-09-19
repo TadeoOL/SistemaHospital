@@ -74,7 +74,11 @@ const style2 = {
   },
 };
 
-export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
+export const ArticlesPatientAcountManagementModal = (props: {
+  setOpen: Function;
+  warehouseId: string;
+  refetch: Function;
+}) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearchWithBarCode[]>(
@@ -125,7 +129,7 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
 
   useEffect(() => {
     const fetch = async () => {
-      await handleFetchArticlesFromWareHouse()
+      await handleFetchArticlesFromWareHouse();
     };
     fetch();
   }, [search]);
@@ -134,7 +138,7 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse()
+        handleFetchArticlesFromWareHouse();
       } catch (error) {
         console.log(error);
       } finally {
@@ -193,64 +197,62 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
     };
   */
 
-    const compareMaps = (
-      originalMap: Map<string, IArticlesFromPatientAcount>,
-      articlesMap: Map<string, IArticlesFromPatientAcount>
-    ) => {
-      const addedOrIncreased: IArticlesFromPatientAcount[] = [];
-      const removedOrDecreased: IArticlesFromPatientAcount[] = [];
-    
-      // Recorrer articlesMap para encontrar artículos nuevos o con cantidad aumentada
-      articlesMap.forEach((article, id_Articulo) => {
-        const originalArticle = originalMap.get(id_Articulo);
-    
-        if (!originalArticle) {
-          // El artículo es nuevo
-          addedOrIncreased.push(article);
-        } else if (article.cantidad > originalArticle.cantidad) {
-          // La cantidad del artículo ha aumentado
-          addedOrIncreased.push({...article, cantidad: article.cantidad - originalArticle.cantidad});
-        }
-      });
-    
-      // Recorrer originalMap para encontrar artículos eliminados o con cantidad reducida
-      originalMap.forEach((originalArticle, id_Articulo) => {
-        const article = articlesMap.get(id_Articulo);
-    
-        if (!article) {
-          // El artículo ha sido eliminado
-          removedOrDecreased.push({ ...originalArticle });
-        } else if (article.cantidad < originalArticle.cantidad) {
-          // La cantidad del artículo ha disminuido
-          removedOrDecreased.push({ ...article, cantidad:  - (article.cantidad - originalArticle.cantidad)});
-        }
-      });
-    
-      return { addedOrIncreased, removedOrDecreased };
-    };
+  const compareMaps = (
+    originalMap: Map<string, IArticlesFromPatientAcount>,
+    articlesMap: Map<string, IArticlesFromPatientAcount>
+  ) => {
+    const addedOrIncreased: IArticlesFromPatientAcount[] = [];
+    const removedOrDecreased: IArticlesFromPatientAcount[] = [];
+
+    // Recorrer articlesMap para encontrar artículos nuevos o con cantidad aumentada
+    articlesMap.forEach((article, id_Articulo) => {
+      const originalArticle = originalMap.get(id_Articulo);
+
+      if (!originalArticle) {
+        // El artículo es nuevo
+        addedOrIncreased.push(article);
+      } else if (article.cantidad > originalArticle.cantidad) {
+        // La cantidad del artículo ha aumentado
+        addedOrIncreased.push({ ...article, cantidad: article.cantidad - originalArticle.cantidad });
+      }
+    });
+
+    // Recorrer originalMap para encontrar artículos eliminados o con cantidad reducida
+    originalMap.forEach((originalArticle, id_Articulo) => {
+      const article = articlesMap.get(id_Articulo);
+
+      if (!article) {
+        // El artículo ha sido eliminado
+        removedOrDecreased.push({ ...originalArticle });
+      } else if (article.cantidad < originalArticle.cantidad) {
+        // La cantidad del artículo ha disminuido
+        removedOrDecreased.push({ ...article, cantidad: -(article.cantidad - originalArticle.cantidad) });
+      }
+    });
+
+    return { addedOrIncreased, removedOrDecreased };
+  };
 
   const deleteArticles = (directions: string[]) => {
-    const newwmap = articlesMap
-    directions.forEach(dir => {
-      newwmap.delete(dir)
+    const newwmap = articlesMap;
+    directions.forEach((dir) => {
+      newwmap.delete(dir);
     });
     console.log(newwmap);
-    setArticles(Array.from(newwmap.values()))
-
-
+    setArticles(Array.from(newwmap.values()));
   };
 
   const handleFetchArticlesFromAccount = async (id_cuenta: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getArticlesFromAcountId(id_cuenta, true, props.warehouseId,false,true);
+      const res = await getArticlesFromAcountId(id_cuenta, true, props.warehouseId, false, true);
       const transformedData = res.map((item: any) => ({
         id_ArticuloCuenta: item.id_ArticuloCuenta,
         id_Articulo: item.id_Articulo,
         nombre: item.nombre,
         cantidad: item.cantidad,
         codigoBarras: item.codigoBarras,
-        stock: item.stock + item.cantidad
+        stock: item.stock + item.cantidad,
       }));
       setDataWerehouseArticlesSelected(transformedData);
       //cexp
@@ -258,21 +260,17 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
       setArticlesMap(() => {
         const newMap = new Map();
         res.forEach((article: IArticlesFromPatientAcount) => {
-          newMap.set(article.id_Articulo,{ ...article});
+          newMap.set(article.id_Articulo, { ...article });
         });
         return newMap;
-      }
-      )
+      });
       setOriginalMap(() => {
         const newMap = new Map();
         res.forEach((article: IArticlesFromPatientAcount) => {
-          newMap.set(article.id_Articulo,{ ...article});
+          newMap.set(article.id_Articulo, { ...article });
         });
         return newMap;
-      }
-      )
-
-
+      });
     } catch (error) {
       console.log(error);
     } finally {
@@ -290,7 +288,7 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
         id_Articulo: item.id_Articulo,
         nombre: item.nombre,
         stock: item.stockActual,
-        id_ArticuloAlmacen: item.id_ArticuloAlmacen
+        id_ArticuloAlmacen: item.id_ArticuloAlmacen,
       }));
       setDataWerehouseSelected(transformedData);
     } catch (error) {
@@ -304,9 +302,9 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
     const articleToedit = articlesMap.get(idArticle);
     if (articleToedit) {
       articleToedit.cantidad = cantidad;
-      setArticlesMap(articlesMap.set(idArticle, articleToedit))
+      setArticlesMap(articlesMap.set(idArticle, articleToedit));
     }
-  }
+  };
 
   const { handleSubmit } = useForm<IArticlesPackage>({
     defaultValues: {
@@ -315,7 +313,7 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
     },
     resolver: zodResolver(addNewArticlesPackage),
   });
-  const validateAmount = (articlesToCheck:IArticlesFromPatientAcount[]) => {
+  const validateAmount = (articlesToCheck: IArticlesFromPatientAcount[]) => {
     for (const articulo of articlesToCheck) {
       if (articulo.cantidad > articulo.stock) {
         toast.error(`La cantidad de salida del articulo ${articulo.nombre} está superando las existencias actuales!`);
@@ -337,21 +335,23 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
       const object = {
         //NombreEnfermero: nurseSelected.nombre,
         Id_Almacen: props.warehouseId,
-        ArticulosPorSalir: resultComparation.addedOrIncreased.length > 0?
-          resultComparation.addedOrIncreased.map((newArt) => 
-            ({ Id_Articulo: newArt.id_Articulo, 
-              Nombre: newArt.nombre,
-              Cantidad: newArt.cantidad  }))
-          :
-          undefined,
-          ArticulosPorEntrar: resultComparation.removedOrDecreased.length > 0?
-          resultComparation.removedOrDecreased.map((newArt) => 
-            ({ Id_Articulo: newArt.id_Articulo, 
-              Id_ArticuloCuenta: newArt.id_ArticuloCuenta, 
-              Nombre: newArt.nombre,
-              Cantidad: newArt.cantidad  }))
-          :
-          undefined,
+        ArticulosPorSalir:
+          resultComparation.addedOrIncreased.length > 0
+            ? resultComparation.addedOrIncreased.map((newArt) => ({
+                Id_Articulo: newArt.id_Articulo,
+                Nombre: newArt.nombre,
+                Cantidad: newArt.cantidad,
+              }))
+            : undefined,
+        ArticulosPorEntrar:
+          resultComparation.removedOrDecreased.length > 0
+            ? resultComparation.removedOrDecreased.map((newArt) => ({
+                Id_Articulo: newArt.id_Articulo,
+                Id_ArticuloCuenta: newArt.id_ArticuloCuenta,
+                Nombre: newArt.nombre,
+                Cantidad: newArt.cantidad,
+              }))
+            : undefined,
         IngresoMotivo: 'Devolución de artículos',
         Id_CuentaPaciente: userSelected.id_Cuenta,
         SolicitadoEn: 2,
@@ -372,7 +372,7 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
+      <HeaderModal setOpen={props.setOpen} title="Movimientos de Quirofano" />
       <Box sx={style2}>
         {isLoadingWarehouse ? (
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
@@ -472,28 +472,27 @@ export const ArticlesPatientAcountManagementModal = (props: { setOpen: Function;
                   onChange={(e, val) => {
                     e.stopPropagation();
                     if (val !== null) {
-                      if (
-                        articles.map((art) => art.id_Articulo).includes(val.id_Articulo)
-                      ) {
+                      if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
                         return;
-                      }
-                      else if( val.stock === 0 ){
-                        toast.error(`La cantidad de salida del articulo ${val.nombre} esta superando la existencias actuales! `);
+                      } else if (val.stock === 0) {
+                        toast.error(
+                          `La cantidad de salida del articulo ${val.nombre} esta superando la existencias actuales! `
+                        );
                         return;
                       }
                       setArticleId(val.id_Articulo);
                       setArticleSelected(val);
                       articlesMap.set(val.id_Articulo, {
                         id_Articulo: val.id_Articulo,
-                        id_ArticuloCuenta: "",
-                        id_CuentaPAciente: "",
+                        id_ArticuloCuenta: '',
+                        id_CuentaPAciente: '',
                         cantidad: 1,
-                        codigoBarras: "",
+                        codigoBarras: '',
                         nombre: val.nombre,
-                        stock: val.stock
+                        stock: val.stock,
                       });
                       setArticlesMap(articlesMap);
-                      setGridKey(gridKey + 1)
+                      setGridKey(gridKey + 1);
                       setArticleError(false);
                     }
                   }}
@@ -583,20 +582,19 @@ const ArticlesTable = (props: {
   articlesMap: IArticlesFromPatientAcount[];
   loading: boolean;
 }) => {
-  const [idsSelected, setIdsSelected] = useState<string[]>([])
+  const [idsSelected, setIdsSelected] = useState<string[]>([]);
   const halfIndex = Math.ceil(props.articlesMap.length / 2);
-  const fhalf = props.articlesMap.slice(0, halfIndex)
-  const shalf = props.articlesMap.slice(halfIndex)
+  const fhalf = props.articlesMap.slice(0, halfIndex);
+  const shalf = props.articlesMap.slice(halfIndex);
   return (
     <>
-      {
-        props.loading ?
-        (<CircularProgress size={50} sx={{mx:'auto'}}/>)
-      :
-      (<Card sx={{ mt: 4, overflowX: 'auto' }}>
-        <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row', }}>
-          <Table>
-            {/*<TableHead>
+      {props.loading ? (
+        <CircularProgress size={50} sx={{ mx: 'auto' }} />
+      ) : (
+        <Card sx={{ mt: 4, overflowX: 'auto' }}>
+          <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
+            <Table>
+              {/*<TableHead>
               <TableRow>
                 <TableCell></TableCell>
                 <TableCell style={{ whiteSpace: 'pre-line' }}>{'Cantidad'}</TableCell>
@@ -604,55 +602,54 @@ const ArticlesTable = (props: {
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>*/}
-            <Box>
-              <Tooltip title="Eliminar">
-                <IconButton
-                  onClick={() => {
-                    props.deleteArticles(idsSelected)
-                    //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
-                  }}
-                >
-                  <Delete />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'row', }} >
               <Box>
-                {props.articles?.length > 0 ? (
-                  fhalf.map((a) => (
-                    <ArticlesRows
-                      key={a.id_Articulo}
-                      articleRow={a}
-                      setIdsSelected={setIdsSelected}
-                      idsSelected={idsSelected}
-                      setAmountText={props.setAmountText}
-                      amountText={a.cantidad.toString()}
-                    />
-                  ))
-                ) : (
-                  <></>
-                )}
+                <Tooltip title="Eliminar">
+                  <IconButton
+                    onClick={() => {
+                      props.deleteArticles(idsSelected);
+                      //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
               </Box>
-              <Box>
-                {props.articlesMap?.length > 0 ? (
-                  shalf.map((a) => (
-                    <ArticlesRows
-                      key={a.id_Articulo}
-                      articleRow={a}
-                      setIdsSelected={setIdsSelected}
-                      idsSelected={idsSelected}
-                      setAmountText={props.setAmountText}
-                      amountText={a.cantidad.toString()}
-                    />
-                  ))
-                ) : (
-                  <></>
-                )}
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                <Box>
+                  {props.articles?.length > 0 ? (
+                    fhalf.map((a) => (
+                      <ArticlesRows
+                        key={a.id_Articulo}
+                        articleRow={a}
+                        setIdsSelected={setIdsSelected}
+                        idsSelected={idsSelected}
+                        setAmountText={props.setAmountText}
+                        amountText={a.cantidad.toString()}
+                      />
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </Box>
+                <Box>
+                  {props.articlesMap?.length > 0 ? (
+                    shalf.map((a) => (
+                      <ArticlesRows
+                        key={a.id_Articulo}
+                        articleRow={a}
+                        setIdsSelected={setIdsSelected}
+                        idsSelected={idsSelected}
+                        setAmountText={props.setAmountText}
+                        amountText={a.cantidad.toString()}
+                      />
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </Box>
               </Box>
-            </Box>
-
-          </Table>
-          {/*<Table>
+            </Table>
+            {/*<Table>
             <TableHead>
               <TableRow>
                 <TableCell></TableCell>
@@ -691,16 +688,17 @@ const ArticlesTable = (props: {
               )}
             </TableBody>
           </Table>*/}
-        </TableContainer>
-        {props.articles.length === 0 && (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
-            <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
-            <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
-              No hay artículos seleccionados
-            </Typography>
-          </Box>
-        )}
-      </Card>)}
+          </TableContainer>
+          {props.articles.length === 0 && (
+            <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
+              <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
+              <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
+                No hay artículos seleccionados
+              </Typography>
+            </Box>
+          )}
+        </Card>
+      )}
     </>
   );
 };
@@ -717,7 +715,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
   setIdsSelected,
   idsSelected,
   setAmountText,
-  amountText
+  amountText,
 }) => {
   const [checked, setChecked] = useState(false);
   const [numberText, setNumberText] = useState(amountText);
@@ -729,16 +727,15 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
             <Checkbox
               checked={checked}
-              onChange={((e) => {
+              onChange={(e) => {
                 if (checked) {
-                  setIdsSelected(idsSelected.filter(item => item !== articleRow.id_Articulo))
-                }
-                else {
-                  idsSelected.push(articleRow.id_Articulo)
-                  setIdsSelected(idsSelected)
+                  setIdsSelected(idsSelected.filter((item) => item !== articleRow.id_Articulo));
+                } else {
+                  idsSelected.push(articleRow.id_Articulo);
+                  setIdsSelected(idsSelected);
                 }
                 setChecked(e.target.checked);
-              })}
+              }}
               inputProps={{ 'aria-label': 'controlled' }}
             />
             {articleRow.nombre}
@@ -753,12 +750,11 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
             value={numberText}
             onChange={(e) => {
               if (!isValidInteger(e.target.value)) return;
-              setAmountText(articleRow.id_Articulo, Number(e.target.value))
-              if (e.target.value === "") {
+              setAmountText(articleRow.id_Articulo, Number(e.target.value));
+              if (e.target.value === '') {
                 setNumberText('0');
               }
               setNumberText(e.target.value);
-
             }}
           />
         </TableCell>

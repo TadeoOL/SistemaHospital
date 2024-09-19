@@ -45,7 +45,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 550, xl: 900 },
+  maxHeight: { xs: 550, xl: 600 },
 };
 
 const styleBar = {
@@ -356,7 +356,7 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
             </Tooltip>
           </Box>
           <Box sx={{ overflowY: 'auto', ...styleBar }}>
-            <Box sx={{ maxHeight: { xs: 300, md: 400, xl: 600 } }}>
+            <Box sx={{ maxHeight: { xs: 200, md: 300, xl: 400 } }}>
               <MedicineSelectedTable data={articlesSelected} articlesRes={articlesRes} />
             </Box>
           </Box>
