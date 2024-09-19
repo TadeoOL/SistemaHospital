@@ -22,6 +22,7 @@ import { useArticlePagination } from '../../../../../store/purchaseStore/article
 import { getArticleById, getPurchaseConfig, modifyArticle } from '../../../../../api/api.routes';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { useGetSizeUnit } from '../../../../../hooks/contpaqi/useGetSizeUnit';
 
 const style = {
   position: 'absolute',
@@ -110,7 +111,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     precioVentaPI,
     unidadesPorCaja,
     esCaja,
-    codigoContpaqi,
     codigoSAT,
     codigoUnidadMedida,
   } = article ?? {};
@@ -119,6 +119,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const [textValue, setTextValue] = useState('');
   const [subCategory, setSubCategory] = useState('');
   const config = useGetPurchaseConfig();
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const [isBox, setIsBox] = useState(esCaja || false);
   const textQuantityRef = useRef<HTMLTextAreaElement>();
   const precioQuantityRef = useRef<HTMLTextAreaElement>();
@@ -148,12 +149,13 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       precioVentaPI: precioVentaPI,
       unidadesPorCaja: unidadesPorCaja,
       esCaja: esCaja,
-      codigoContpaqi: codigoContpaqi ?? '',
       codigoSAT: codigoSAT ?? '',
-      codigoUnidadMedida: codigoUnidadMedida ?? '',
+      codigoUnidadMedida: codigoUnidadMedida ?? 0,
     },
     resolver: zodResolver(addArticle),
   });
+
+  console.log({ codigoUnidadMedida });
 
   useEffect(() => {
     if (article) {
@@ -567,18 +569,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Typography>Código de Contpaqi</Typography>
-                <TextField
-                  fullWidth
-                  error={!!errors.codigoContpaqi}
-                  helperText={errors?.codigoContpaqi?.message}
-                  size="small"
-                  placeholder="Escriba un código de contpaqi"
-                  {...register('codigoContpaqi')}
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
                 <Typography>Código de SAT</Typography>
                 <TextField
                   fullWidth
@@ -587,7 +577,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   size="small"
                   placeholder="Escriba un código de SAT"
                   {...register('codigoSAT')}
-                  disabled
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -599,8 +588,17 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   size="small"
                   placeholder="Escriba un código de Unidad de Medida"
                   {...register('codigoUnidadMedida')}
-                  disabled
-                />
+                  value={watch('codigoUnidadMedida')}
+                  select
+                >
+                  {!isLoadingConcepts &&
+                    sizeUnit.map((data) => (
+                      <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                        {data.nombre}
+                      </MenuItem>
+                    ))}
+                  {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+                </TextField>
               </Grid>
             </Grid>
             <Stack

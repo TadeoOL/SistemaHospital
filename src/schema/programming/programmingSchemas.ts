@@ -101,9 +101,8 @@ export const surgeryProcedureSchema = z.object({
     }),
   description: z.string().optional(),
   price: z.string().optional(),
-  codigoContpaqi: z.string().min(1, 'El código es necesario'),
   codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
 
 export const addRoomReservation = z
@@ -180,12 +179,10 @@ export const typeRoomSchema = z
     priceByTimeRange: z.array(priceByTimeRange).optional(),
     recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
-    codigoContpaqiRecuperacion: z.string().optional(),
-    codigoSATRecuperacion: z.string().optional(),
+    codigoSATRecuperacion: z.string().nullable(),
     codigoSAT: z.string().min(1, 'El código es necesario'),
-    codigoContpaqi: z.string().min(1, 'El código es necesario'),
-    codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
-    codigoUnidadMedidaRecuperacion: z.string().min(1, 'El código es necesario'),
+    codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
+    codigoUnidadMedidaRecuperacion: z.number({invalid_type_error: 'El código es necesario'}).optional(),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
@@ -196,17 +193,16 @@ export const typeRoomSchema = z
     path: ['priceRoom'],
   })
   .refine(
-    (values) =>
-      values.type !== '1' || (values.codigoContpaqiRecuperacion && values.codigoContpaqiRecuperacion.length > 0),
-    {
-      message: 'El código de Contpaqi de Recuperación es necesario para quirófanos',
-      path: ['codigoContpaqiRecuperacion'],
-    }
-  )
-  .refine(
     (values) => values.type !== '1' || (values.codigoSATRecuperacion && values.codigoSATRecuperacion.length > 0),
     {
       message: 'El código de SAT de Recuperación es necesario para quirófanos',
       path: ['codigoSATRecuperacion'],
+    }
+  )
+  .refine(
+    (values) => values.type !== '1' || (values.codigoUnidadMedidaRecuperacion),
+    {
+      message: 'El código de Unidad de Medida de Recuperación es necesario para quirófanos',
+      path: ['codigoUnidadMedidaRecuperacion'],
     }
   );

@@ -5,9 +5,8 @@ export interface IBiomedicalEquipment {
   precio: number;
   esPersonal?: boolean;
   notas?: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IAnesthesiologist {
@@ -26,9 +25,8 @@ export interface IXRay {
   descripcion: string;
   precio: number;
   tipo: number;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IXRayRequest {

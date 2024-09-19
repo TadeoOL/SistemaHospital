@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -15,6 +15,7 @@ import {
 } from '../../../../services/programming/surgeryProcedureService';
 import { useSurgeryProcedurePaginationStore } from '../../../../store/programming/surgeryProcedurePagination';
 import 'dayjs/locale/es-mx';
+import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
 const style = {
@@ -36,9 +37,8 @@ type Inputs = {
   hospitalizationDuration: string;
   description: string;
   price: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 };
 
 interface AddSurgeryProcedureModalProps {
@@ -48,6 +48,7 @@ interface AddSurgeryProcedureModalProps {
 export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const refetch = useSurgeryProcedurePaginationStore((state) => state.fetchData);
 
   const {
@@ -55,6 +56,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
     handleSubmit,
     control,
     formState: { errors },
+    watch,
   } = useForm<Inputs>({
     resolver: zodResolver(surgeryProcedureSchema),
     defaultValues: {
@@ -63,9 +65,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
       hospitalizationDuration: editData ? editData.duracionHospitalizacion.toString() : '',
       description: editData ? editData.descripcion : '',
       price: editData ? editData.precioCirujia.toString() : '',
-      codigoContpaqi: editData?.codigoContpaqi ?? '',
       codigoSAT: editData?.codigoSAT ?? '',
-      codigoUnidadMedida: editData?.codigoUnidadMedida ?? '',
+      codigoUnidadMedida: editData?.codigoUnidadMedida ?? 0,
     },
   });
 
@@ -79,7 +80,6 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
           precioCirujia: parseFloat(data.price),
-          codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
           codigoUnidadMedida: data.codigoUnidadMedida,
         });
@@ -92,7 +92,6 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           descripcion: data.description,
           precioCirujia: parseFloat(data.price),
           id: editData.id,
-          codigoContpaqi: data.codigoContpaqi,
           codigoSAT: data.codigoSAT,
           codigoUnidadMedida: data.codigoUnidadMedida,
         });
@@ -202,17 +201,6 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
               />
             </Grid>
             <Grid item xs={6}>
-              <Typography>Código de Contpaqi</Typography>
-              <TextField
-                placeholder="Escriba un codigo de Contpaqi"
-                fullWidth
-                error={!!errors.codigoContpaqi?.message}
-                helperText={errors.codigoContpaqi?.message}
-                {...register('codigoContpaqi')}
-                disabled={!!editData}
-              />
-            </Grid>
-            <Grid item xs={6}>
               <Typography>Código de SAT</Typography>
               <TextField
                 placeholder="Escriba un codigo de SAT"
@@ -220,19 +208,29 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 error={!!errors.codigoSAT?.message}
                 helperText={errors.codigoSAT?.message}
                 {...register('codigoSAT')}
-                disabled={!!editData}
               />
             </Grid>
             <Grid item xs={6}>
               <Typography>Código de Unidad de Medida</Typography>
               <TextField
-                label="Escribe un codigo de Unidad de Medida"
+                label="Selecciona una unidad de medida"
                 fullWidth
                 error={!!errors.codigoUnidadMedida?.message}
                 helperText={errors.codigoUnidadMedida?.message}
                 {...register('codigoUnidadMedida')}
-                disabled={!!editData}
-              />
+                value={watch('codigoUnidadMedida')}
+                select
+              >
+                {isLoadingConcepts ? (
+                  <MenuItem>Cargando...</MenuItem>
+                ) : (
+                  sizeUnit.map((item) => (
+                    <MenuItem value={item.id_UnidadMedida} key={item.id_UnidadMedida}>
+                      {item.nombre}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
             </Grid>
           </Grid>
         </Box>

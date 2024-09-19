@@ -118,12 +118,11 @@ export interface IArticle {
   subCategoria: ISubCategory | string;
   stockActual?: string;
   codigoBarras?: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IArticlePOS {
@@ -702,9 +701,8 @@ export interface ISurgeryProcedure {
   precioCirujia: number;
   duracionCirujia: string;
   descripcion: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IRegisterRoom {

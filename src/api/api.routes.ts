@@ -321,7 +321,6 @@ export const modifyArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
-    codigoContpaqi,
     codigoSAT,
   } = article;
 
@@ -339,7 +338,6 @@ export const modifyArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
-    codigoContpaqi,
     codigoSAT,
   });
   return res.data;
@@ -359,7 +357,6 @@ export const addNewArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
-    codigoContpaqi,
     codigoSAT,
     codigoUnidadMedida,
   } = article;
@@ -377,7 +374,6 @@ export const addNewArticle = async (article: IArticle) => {
     esCaja,
     unidadesPorCaja,
     codigoBarras,
-    codigoContpaqi,
     codigoSAT,
     codigoUnidadMedida,
   });

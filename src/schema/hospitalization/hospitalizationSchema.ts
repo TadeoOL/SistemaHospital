@@ -7,9 +7,8 @@ export const biomedicalEquipmentSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Nombre es requerido'),
   description: z.string().optional(),
-  codigoContpaqi: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
   codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
   price: z
     .union([
       z.string().refine((p) => p.trim() !== '', {
@@ -67,9 +66,8 @@ export const xraySchema = z.object({
       return p;
     })
     .refine((p) => p !== 0, { message: 'El numero debe ser mayor a 0' }),
-  codigoContpaqi: z.string().min(1, 'El código es necesario'),
   codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
 
 export const medicSchema = z.object({

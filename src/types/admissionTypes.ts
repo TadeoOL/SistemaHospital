@@ -140,12 +140,10 @@ export interface ITypeRoom {
   configuracionRecuperacion?: IRecoveryRoomOperatingRoom[];
   tipo: number;
   precio?: number;
-  codigoContpaqiRecuperacion?: string;
   codigoSATRecuperacion?: string;
-  codigoContpaqi?: string;
   codigoSAT?: string;
-  codigoUnidadMedida?: string;
-  codigoUnidadMedidaRecuperacion?: string;
+  codigoUnidadMedida?: number;
+  codigoUnidadMedidaRecuperacion?: number;
 }
 
 export interface IDocumentsInfo {
