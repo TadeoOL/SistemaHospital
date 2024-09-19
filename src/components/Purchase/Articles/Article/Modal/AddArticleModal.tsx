@@ -110,7 +110,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       precioVentaPI: '',
       codigoBarras: '',
       codigoSAT: '',
-      codigoUnidadMedida: '',
+      codigoUnidadMedida: 0,
     },
     resolver: zodResolver(addArticle),
   });
