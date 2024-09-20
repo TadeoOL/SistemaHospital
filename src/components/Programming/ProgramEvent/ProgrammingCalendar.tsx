@@ -1,4 +1,4 @@
-import { Box, Card, CircularProgress, IconButton, MenuItem, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, IconButton, MenuItem, TextField, Tooltip } from '@mui/material';
 import { CalendarComponent } from '../RegisterSteps/Calendar/CalendarComponent';
 import { useState } from 'react';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
@@ -36,7 +36,6 @@ export const ProgrammingCalendar = () => {
     );
   return (
     <Card sx={{ p: 2 }}>
-      <Typography sx={{ fontSize: 24, fontWeight: 700, flex: 1 }}>Calendario de Espacios Reservados</Typography>
       <Box
         sx={{
           display: 'flex',
@@ -45,7 +44,6 @@ export const ProgrammingCalendar = () => {
           mb: 3,
           columnGap: 4,
           px: { sm: 10, xs: 4 },
-          py: 2,
           flexDirection: { xs: 'column', sm: 'row' },
         }}
       >

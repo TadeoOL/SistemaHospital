@@ -75,6 +75,7 @@ interface CloseAccountModalProps {
   setOpen: Function;
   id_Cuenta: string;
   id_Paciente: string;
+  viewOnly?: boolean;
 }
 
 export const CloseAccountModal = (props: CloseAccountModalProps) => {
@@ -411,7 +412,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'precioTotal', header: 'Precio Total' },
                 ]}
                 haveDiscount={accountInfo?.porcentajeDescuento}
-                isOperatingRoom
+                isOperatingRoom={!props.viewOnly}
                 modified={modified}
                 setModified={setModified}
                 id_PatientBill={props.id_Cuenta}
@@ -585,7 +586,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               </Typography>
 
               <Box sx={{ display: 'flex', flex: 1, mt: 2 }}>
-                <TextField multiline label="Notas" fullWidth value={notes} onChange={(e) => setNotes(e.target.value)} />
+                <TextField
+                  multiline
+                  label="Notas"
+                  fullWidth
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  disabled={props.viewOnly}
+                />
               </Box>
             </Box>
           )
@@ -735,16 +743,18 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cancelar
         </Button>
-        <Button
-          variant="contained"
-          type="submit"
-          disabled={isLoading}
-          onClick={() => {
-            acceptRequest();
-          }}
-        >
-          {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
-        </Button>
+        {!props.viewOnly && (
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isLoading || props.viewOnly}
+            onClick={() => {
+              acceptRequest();
+            }}
+          >
+            {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
+          </Button>
+        )}
         {!isLoading && !errorflag && (
           <Button variant="contained" color="primary" disabled={isLoading} onClick={handleOpenPDF}>
             {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}

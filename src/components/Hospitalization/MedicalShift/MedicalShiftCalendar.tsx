@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal, Typography } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import classNames from 'classnames';
@@ -162,7 +162,6 @@ export const MedicalShiftCalendar = () => {
   return (
     <>
       <Box sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 5, boxShadow: 5 }}>
-        <Typography sx={{ fontSize: 22, fontWeight: 700 }}>Calendario de guardias de medicos.</Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker

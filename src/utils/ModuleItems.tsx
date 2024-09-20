@@ -21,7 +21,6 @@ import {
   hospitalizationANDnurse,
   invoiceAdmin,
   nurseRole,
-  operatingRoom,
   operatingRoomANDnurse,
   pharmacyDirectorRole,
   pharmacyManager,
@@ -45,7 +44,6 @@ import {
   LocalPharmacy,
   MedicalInformation,
   MonitorHeart,
-  PendingActions,
   PointOfSale,
   ShoppingBasket,
   Vaccines,
@@ -275,12 +273,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <SettingsIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
       }, */
-      {
-        title: 'Solicitud de programacion',
-        path: '/programacion/solicitud-programacion',
-        icon: <PendingActions sx={{ color: '#fff' }} />,
-        protectedRoles: programation,
-      },
+      // {
+      //   title: 'Solicitud de programacion',
+      //   path: '/programacion/solicitud-programacion',
+      //   icon: <PendingActions sx={{ color: '#fff' }} />,
+      //   protectedRoles: programation,
+      // },
     ],
     path: 'programacion',
   },
@@ -413,12 +411,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <GiMedicalDrip />,
         protectedRoles: operatingRoomANDnurse,
       },
-      {
-        title: 'Configuración',
-        path: '/quirofano/configuracion',
-        icon: <SettingsIcon sx={{ color: '#fff' }} />,
-        protectedRoles: operatingRoom,
-      },
+      // {
+      //   title: 'Configuración',
+      //   path: '/quirofano/configuracion',
+      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
+      //   protectedRoles: operatingRoom,
+      // },
       {
         title: 'Recuperación',
         path: '/quirofano/recuperacion',

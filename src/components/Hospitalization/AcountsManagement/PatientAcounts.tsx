@@ -55,7 +55,7 @@ export const PatientAcounts = () => {
               </Tooltip>
             </Box>
           )}
-          <PatientAccountTable />
+          <PatientAccountTable status={status} />
         </Box>
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>

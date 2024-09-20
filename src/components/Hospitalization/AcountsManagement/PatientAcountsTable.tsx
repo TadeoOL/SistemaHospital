@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { Discount, Edit, Print } from '@mui/icons-material';
+import { Discount, Edit, Print, Visibility } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { IPatientAccount } from '../../../types/admissionTypes';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
@@ -34,11 +34,13 @@ const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Esta
 interface PatientAccountTableBodyProps {
   data: IPatientAccount[];
   discountConfig: { id: string; name: string }[];
+  status: number;
 }
 
 interface PatientAccountTableRowProps {
   data: IPatientAccount;
   discountConfig: { id: string; name: string }[];
+  status: number;
 }
 
 const useGetPatientAccountData = () => {
@@ -68,7 +70,7 @@ const useGetPatientAccountData = () => {
   };
 };
 
-export const PatientAccountTable = () => {
+export const PatientAccountTable = ({ status }: { status: number }) => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetPatientAccountData();
   const { data: discountConfig, isLoading: isLoadingDiscountConfig } = useGetDiscountConfig();
 
@@ -84,7 +86,7 @@ export const PatientAccountTable = () => {
       <TableContainer>
         <Table>
           <TableHeaderComponent headers={HEADERS} />
-          <PatientAccountTableBody data={data} discountConfig={discountConfig} />
+          <PatientAccountTableBody data={data} discountConfig={discountConfig} status={status} />
           {data.length > 0 && (
             <TableFooterComponent
               count={count}
@@ -106,7 +108,12 @@ const PatientAccountTableBody = (props: PatientAccountTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((a) => (
-        <PatientAccountTableRow key={a.id_Cuenta} data={a} discountConfig={props.discountConfig} />
+        <PatientAccountTableRow
+          key={a.id_Cuenta}
+          data={a}
+          discountConfig={props.discountConfig}
+          status={props.status}
+        />
       ))}
     </TableBody>
   );
@@ -121,6 +128,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const [openDiscount, setOpenDiscount] = useState(false);
   const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
   const userId = useAuthStore((state) => state.profile?.id);
+  const [viewOnly, setViewOnly] = useState(false);
 
   const handleEdit = () => {
     setOpen(true);
@@ -193,12 +201,29 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
                 </IconButton>
               </Tooltip>
             )}
+            {props.status === 2 && (
+              <Tooltip title="Ver cuenta">
+                <IconButton
+                  onClick={() => {
+                    setViewOnly(true);
+                    setOpen(true);
+                  }}
+                >
+                  <Visibility color="primary" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </TableCell>
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <CloseAccountModal id_Cuenta={data.id_Cuenta} id_Paciente={data.id_Paciente} setOpen={setOpen} />
+          <CloseAccountModal
+            id_Cuenta={data.id_Cuenta}
+            id_Paciente={data.id_Paciente}
+            setOpen={setOpen}
+            viewOnly={viewOnly}
+          />
         </>
       </Modal>
       <Modal
