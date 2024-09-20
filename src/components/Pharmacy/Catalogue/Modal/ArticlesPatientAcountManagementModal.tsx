@@ -475,7 +475,7 @@ export const ArticlesPatientAcountManagementModal = (props: {
                 <Button
                   variant="contained"
                   endIcon={<Save />}
-                  disabled={articles.length === 0 || loadingSubmit}
+                  disabled={articlesMap.size === 0 || loadingSubmit}
                   onClick={() => {
                     onSubmit();
                   }}
