@@ -4,14 +4,12 @@ import {
   Button,
   Card,
   CircularProgress,
-  IconButton,
   Stack,
   Table,
   TableCell,
   TableContainer,
   TableRow,
   TextField,
-  Tooltip,
   Typography,
   createFilterOptions,
   Checkbox,
@@ -387,6 +385,8 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
               <Stack sx={{ display: 'flex', flex: 1 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
                 <Autocomplete
+                  disabled={userSelected === null}
+                  key={`autocompleteArt${gridKey}`}
                   disablePortal
                   fullWidth
                   filterOptions={filterSearchArticleOptions}
@@ -394,7 +394,6 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                     e.stopPropagation();
                     if (val !== null) {
                       if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
-                        console.log(articles);
                         return;
                       } else if (val.stock === 0) {
                         toast.error(
@@ -416,6 +415,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                       setArticlesMap(articlesMap);
                       setGridKey(gridKey + 1);
                       setArticleError(false);
+                      setSearch('');
                     } else {
                       setSearch('');
                       setArticleSelected(null);
@@ -524,25 +524,20 @@ const ArticlesTable = (props: {
         <Card sx={{ mt: 4, overflowX: 'auto' }}>
           <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
             <Table>
-              {/*<TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell style={{ whiteSpace: 'pre-line' }}>{'Cantidad'}</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>*/}
-              <Box>
-                <Tooltip title="Eliminar">
-                  <IconButton
-                    onClick={() => {
-                      props.deleteArticles(idsSelected);
-                      //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
+              <Box sx={{ display:'flex', flexDirection:'row' }}>
+              <Button
+                  disabled={props.articlesMap.length === 0}
+                  variant="outlined"
+                  startIcon={<Delete />}
+                  color="error"
+                  sx={{ml:2}}
+                  onClick={() => {
+                    props.deleteArticles(idsSelected);
+                  }}
+                >
+                  Eliminar seleccionados
+                </Button>
+                <Typography sx={{ ml:'auto', mr:5, my:'auto'}} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Box>

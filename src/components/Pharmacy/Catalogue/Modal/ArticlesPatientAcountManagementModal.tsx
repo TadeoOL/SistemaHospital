@@ -4,14 +4,12 @@ import {
   Button,
   Card,
   CircularProgress,
-  IconButton,
   Stack,
   Table,
   TableCell,
   TableContainer,
   TableRow,
   TextField,
-  Tooltip,
   Typography,
   createFilterOptions,
   Checkbox,
@@ -386,6 +384,8 @@ export const ArticlesPatientAcountManagementModal = (props: {
               <Stack sx={{ display: 'flex', flex: 1 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
                 <Autocomplete
+                  disabled={userSelected === null}
+                  key={`autocompleteArt${gridKey}`}
                   disablePortal
                   fullWidth
                   filterOptions={filterSearchArticleOptions}
@@ -515,17 +515,20 @@ const ArticlesTable = (props: {
         <Card sx={{ mt: 4, overflowX: 'auto' }}>
           <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
             <Table>
-              <Box>
-                <Tooltip title="Eliminar">
-                  <IconButton
-                    onClick={() => {
-                      props.deleteArticles(idsSelected);
-                      //setArticles(articles.filter((art: any) => art.id_Articulo !== articleRow.id_Articulo));
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
+              <Box sx={{ display:'flex', flexDirection:'row' }}>
+                <Button
+                  disabled={props.articlesMap.length === 0}
+                  variant="outlined"
+                  startIcon={<Delete />}
+                  color="error"
+                  sx={{ml:2}}
+                  onClick={() => {
+                    props.deleteArticles(idsSelected);
+                  }}
+                >
+                  Eliminar seleccionados
+                </Button>
+                <Typography sx={{ ml:'auto', mr:5, my:'auto'}} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Box>
@@ -563,7 +566,7 @@ const ArticlesTable = (props: {
               </Box>
             </Table>
           </TableContainer>
-          {props.articles.length === 0 && (
+          {props.articlesMap.length === 0 && (
             <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
               <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
               <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
