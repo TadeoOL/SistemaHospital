@@ -239,7 +239,6 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
 
   const handleFetchArticlesFromWareHouse = async () => {
     try {
-      setIsLoadingWarehouse(true);
       const res = await getExistingArticles(
         ///akkki cambiar cuando
         `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
@@ -253,8 +252,6 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
       setDataWerehouseSelected(transformedData);
     } catch (error) {
       console.log(error);
-    } finally {
-      setIsLoadingWarehouse(false);
     }
   };
 
@@ -395,7 +392,6 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                   filterOptions={filterSearchArticleOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
-                    console.log('hu?', val);
                     if (val !== null) {
                       if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
                         console.log(articles);
@@ -406,7 +402,6 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                         );
                         return;
                       }
-                      console.log('pasa el paput');
                       setArticleId(val.id_Articulo);
                       setArticleSelected(val);
                       articlesMap.set(val.id_Articulo, {
@@ -421,7 +416,9 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                       setArticlesMap(articlesMap);
                       setGridKey(gridKey + 1);
                       setArticleError(false);
-                      console.log(articlesMap);
+                    } else {
+                      setSearch('');
+                      setArticleSelected(null);
                     }
                   }}
                   loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}

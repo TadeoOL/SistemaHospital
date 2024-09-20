@@ -239,7 +239,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
 
   const handleFetchArticlesFromWareHouse = async () => {
     try {
-      setIsLoadingWarehouse(true);
       const res = await getExistingArticles(
         `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
       );
@@ -252,8 +251,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
       setDataWerehouseSelected(transformedData);
     } catch (error) {
       console.log(error);
-    } finally {
-      setIsLoadingWarehouse(false);
     }
   };
 
@@ -417,6 +414,9 @@ export const ArticlesPatientAcountManagementModal = (props: {
                       setGridKey(gridKey + 1);
                       setArticleError(false);
                       setSearch('');
+                    } else {
+                      setSearch('');
+                      setArticleSelected(null);
                     }
                   }}
                   loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}
