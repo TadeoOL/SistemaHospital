@@ -53,14 +53,14 @@ const PurchaseRequestView = () => {
             columnGap: 1,
           }}
         >
-          <Button
+          {/* <Button
             size="large"
             variant="contained"
             onClick={() => setOpenPurchaseWithoutProvider(true)}
             startIcon={<RequestPageIcon />}
           >
             Solicitud sin proveedor
-          </Button>
+          </Button> */}
           <Button
             size="large"
             variant="contained"

@@ -94,13 +94,14 @@ export const SingleProvider = () => {
   });
 
   const handleSubmit = async () => {
-    if (!provider || (provider instanceof Array && provider.length === 0)) return setProviderError(true);
     setIsLoading(true);
     setNeedAuth(true);
     setIsLoading(false);
     setStep(step + 1);
   };
-  const disableButton = pdf.trim() === '' || !provider || (provider instanceof Array && provider.length === 0);
+  const disableButton =
+    (provider != null && !paymentMethod && pdf.trim() === '') ||
+    (provider != null && paymentMethod != 0 && pdf.trim() === '');
 
   return (
     <>
@@ -126,7 +127,7 @@ export const SingleProvider = () => {
                 {...params}
                 error={providerError}
                 helperText={providerError && 'Selecciona un articulo'}
-                placeholder="Artículos"
+                placeholder="Proveedores"
                 sx={{ width: '50%' }}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -148,9 +149,9 @@ export const SingleProvider = () => {
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(Number(e.target.value))}
                 >
-                  <FormControlLabel value={1} control={<Radio />} label="Crédito" />
-                  <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
-                  <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+                  <FormControlLabel value={1} control={<Radio />} label="Crédito" disabled={!provider} />
+                  <FormControlLabel value={3} control={<Radio />} label="Transferencia" disabled={!provider} />
+                  <FormControlLabel value={2} control={<Radio />} label="Efectivo" disabled={!provider} />
                 </RadioGroup>
               </FormControl>
             </Stack>
@@ -421,9 +422,9 @@ export const ManyProviders = () => {
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(Number(e.target.value))}
                   >
-                    <FormControlLabel value={1} control={<Radio />} label="Crédito" />
-                    <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
-                    <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
+                    <FormControlLabel value={1} control={<Radio />} label="Crédito" disabled={!provider} />
+                    <FormControlLabel value={3} control={<Radio />} label="Transferencia" disabled={!provider} />
+                    <FormControlLabel value={2} control={<Radio />} label="Efectivo" disabled={!provider} />
                   </RadioGroup>
                 </FormControl>
               </Stack>

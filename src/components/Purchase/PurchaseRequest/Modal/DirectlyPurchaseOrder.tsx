@@ -47,7 +47,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useGetArticlesBySearch } from '../../../../hooks/useGetArticlesBySearch';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
-import { convertBase64, isValidInteger } from '../../../../utils/functions/dataUtils';
+import { convertBase64, isValidInteger, openBase64InNewTab } from '../../../../utils/functions/dataUtils';
 import {
   addDirectlyPurchaseOrder,
   addPurchaseRequest,
@@ -66,6 +66,7 @@ import { AlertConfigAmount } from './AlertConfigAmount';
 import AnimateButton from '../../../@extended/AnimateButton';
 import { IProvider } from '../../../../types/types';
 import { useGetAllProvidersBySearch } from '../../../../hooks/useGetAllProvidersBySearch';
+import { createPurchaseWithoutProvider } from '../../../../services/purchase/purchaseService';
 
 type Article = {
   id: string;
@@ -663,8 +664,8 @@ const SelectProviderAndUploadPDF = () => {
 
   const handleNext = () => {
     if (!provider) {
-      setProviderError(true);
-      return toast.error('Necesitas seleccionar a un proveedor!');
+      setStep(step + 1);
+      return;
     }
     if (isPaymentMethodSelected()) {
       return toast.error('Necesitas seleccionar un método de pago');
@@ -697,7 +698,7 @@ const SelectProviderAndUploadPDF = () => {
             <TextField
               {...params}
               error={providerError}
-              helperText={providerError && 'Selecciona un articulo'}
+              helperText={providerError && 'Selecciona un proveedor'}
               placeholder="Proveedores"
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -715,6 +716,7 @@ const SelectProviderAndUploadPDF = () => {
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(Number(e.target.value))}
                 fullWidth
+                disabled={!provider}
               >
                 <MenuItem value={1}>Crédito</MenuItem>
                 <MenuItem value={3}>Transferencia</MenuItem>
@@ -921,7 +923,32 @@ const StepThree = (props: { setOpen: Function }) => {
   const refetchTableOrder = usePurchaseOrderPagination((state) => state.fetch);
 
   const handleSubmit = async () => {
-    if (!provider) return;
+    if (!provider) {
+      setIsLoading(true);
+      const obj = {
+        articulos: articles.map((articles) => {
+          return {
+            id_Articulo: articles.id,
+            cantidadCompra: articles.amount,
+          };
+        }),
+        notas: note ? note : '',
+      };
+      try {
+        const res = await createPurchaseWithoutProvider(obj);
+        toast.success('Solicitud de compra creada con éxito!');
+        setTimeout(() => {
+          openBase64InNewTab(res);
+          props.setOpen(false);
+        }, 500);
+      } catch (error) {
+        console.log(error);
+        toast.error('Error al crear la solicitud de compra');
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
     setIsLoading(true);
     if (!Array.isArray(provider) && isDirectlyPurchase) {
       const object = {
@@ -1101,7 +1128,7 @@ const StepThree = (props: { setOpen: Function }) => {
           }}
         >
           <Typography variant="subtitle2">Total de la orden: </Typography>
-          <Typography variant="subtitle2">${(totalAmountRequest).toFixed(2)}</Typography>
+          <Typography variant="subtitle2">${totalAmountRequest.toFixed(2)}</Typography>
         </Box>
       </Stack>
       <Box
