@@ -256,8 +256,9 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   const handlePrint = async () => {
     setLoadingPrint(true);
     try {
-      const articlesRes = await getArticlesSold(data.id_VentaPrincipal);
-      const document = <ArticlesSoldReport articles={articlesRes} />;
+      const res = await getArticlesSold(data.id_VentaPrincipal);
+      console.log(res);
+      const document = <ArticlesSoldReport venta={res} />;
 
       const blob = await pdf(document).toBlob();
 

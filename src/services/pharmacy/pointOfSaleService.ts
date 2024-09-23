@@ -96,14 +96,20 @@ export const getArticlesSold = async (id_VentaPrincipal: string) => {
       id_VentaPrincipal,
     },
   });
+  console.log(res.data);
   return res.data as {
-    id_DetalleVenta: string;
-    id_ArticuloExistente: string;
-    nombre: string;
-    cantidad: number;
-    precioIVA: number;
-    precioSubTotal: number;
-    precioUnitario: number;
-    precioTotal: number;
-  }[];
+    articulos: {
+      id_DetalleVenta: string;
+      id_ArticuloExistente: string;
+      nombre: string;
+      precioUnitario: number;
+      cantidad: number;
+      subTotal: number;
+      iva: number;
+      total: number;
+    }[];
+    total: number;
+    subTotal: number;
+    iva: number;
+  };
 };

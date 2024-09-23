@@ -80,20 +80,25 @@ const styles = StyleSheet.create({
   },
 });
 
-type Props = {
-  articles: {
-    id_DetalleVenta: string;
-    id_ArticuloExistente: string;
-    nombre: string;
-    precioUnitario: number;
-    cantidad: number;
-    precioTotal: number;
-    precioIVA: number;
-    precioSubTotal: number;
-  }[];
+type Sell = {
+  venta: {
+    articulos: {
+      id_DetalleVenta: string;
+      id_ArticuloExistente: string;
+      nombre: string;
+      precioUnitario: number;
+      cantidad: number;
+      subTotal: number;
+      iva: number;
+      total: number;
+    }[];
+    total: number;
+    subTotal: number;
+    iva: number;
+  };
 };
 
-export const ArticlesSoldReport = ({ articles }: Props) => (
+export const ArticlesSoldReport = ({ venta }: Sell) => (
   <Document>
     <Page style={styles.page}>
       <View style={styles.section}>
@@ -102,10 +107,9 @@ export const ArticlesSoldReport = ({ articles }: Props) => (
         </View>
       </View>
       <View style={styles.section}>
-        <Text style={styles.header}>Detalles de la venta</Text>
-        {articles && articles.length > 0 && (
+        <Text style={styles.header}>Punto de Venta</Text>
+        {venta.articulos && venta.articulos.length > 0 && (
           <>
-            <Text style={styles.header}>Artículos</Text>
             <View style={styles.table}>
               <View style={styles.tableRow}>
                 <Text style={styles.tableCol}>Nombre</Text>
@@ -114,35 +118,26 @@ export const ArticlesSoldReport = ({ articles }: Props) => (
                 <Text style={styles.tableCol}>IVA</Text>
                 <Text style={styles.tableCol}>Precio Total</Text>
               </View>
-              {articles.map((article, index) => (
+              {venta.articulos.map((articulo, index) => (
                 <View style={styles.tableRow} key={index}>
-                  <Text style={styles.tableCell}>{article.nombre}</Text>
-                  <Text style={styles.tableCell}>{article.precioUnitario.toFixed(2)}</Text>
-                  <Text style={styles.tableCell}>{article.precioSubTotal.toFixed(2)}</Text>
-                  <Text style={styles.tableCell}>${article.precioIVA.toFixed(2)}</Text>
-                  <Text style={styles.tableCell}>${article.precioTotal.toFixed(2)}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.nombre}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.precioUnitario}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.subTotal}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.iva}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.total}</Text>
                 </View>
               ))}
-            </View>
-            <View style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-              <Text style={{ textAlign: 'right' }}>
-                Total: ${CalculateTotal(articles.flatMap((x) => x.precioTotal.toFixed(2)))}
-              </Text>
             </View>
           </>
         )}
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
           <View style={{ border: 1, borderRadius: 5, padding: 5, width: 'auto', minWidth: 150 }}>
-            <Text>SubTotal: ${CalculateTotal(articles.flatMap((x) => x.precioSubTotal.toFixed(2)))}</Text>
-            <Text>IVA: ${CalculateTotal(articles.flatMap((x) => x.precioIVA.toFixed(2)))}</Text>
-            <Text>Total Pago: ${CalculateTotal(articles.flatMap((x) => x.precioTotal.toFixed(2)))}</Text>
+            <Text>SubTotal: $ {venta.subTotal}</Text>
+            <Text>IVA: $ {venta.iva}</Text>
+            <Text>Total Pago: $ {venta.total}</Text>
           </View>
         </View>
       </View>
     </Page>
   </Document>
 );
-
-function CalculateTotal(data: any[]) {
-  return data.reduce((arg, sum) => arg + sum, 0);
-}
