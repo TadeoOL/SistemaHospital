@@ -191,11 +191,11 @@ export const ModuleList: IModuleItemsList[] = [
     path: 'farmacia',
   },
   {
-    categoryTitle: 'Ventas',
+    categoryTitle: 'Caja', //Antes Ventas
     icon: <PointOfSale />,
     moduleItems: [
       {
-        title: 'Caja',
+        title: 'Caja del dia',
         path: '/ventas/caja',
         icon: <PointOfSale sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
