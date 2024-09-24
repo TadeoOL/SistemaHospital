@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Card,
   CircularProgress,
   Collapse,
   IconButton,
@@ -28,6 +29,7 @@ import { useGetHospitalizationConfig } from '../../../hooks/hospitalization/useG
 import { modifyModuleConfig } from '../../../api/api.routes';
 import { IFactor, IPurchaseInternConfig } from '../../../types/types';
 import { addNewFactorSchema } from '../../../schema/schemas';
+import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 
 const styleInput = {
   paddingTop: '0.4rem',
@@ -197,8 +199,8 @@ export const HospitalizationConfig = () => {
             borderColor: 'black',
           }}
         >
-          <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
-          <Box sx={{ overflowY: 'auto' }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores Internos</Typography>
+          <Card sx={{ overflowY: 'auto' }}>
             <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}>
               <Table>
                 <TableHead>
@@ -232,7 +234,11 @@ export const HospitalizationConfig = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-          </Box>
+            {!configPurchase?.factor ||
+              (configPurchase.factor.length === 0 && (
+                <NoDataInTableInfo infoTitle="No hay factores internos." sizeIcon={20} variantText="h4" />
+              ))}
+          </Card>
           {
             <form noValidate onSubmit={handleSubmit(onSubmitNewFactor)}>
               <Stack

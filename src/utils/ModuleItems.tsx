@@ -392,12 +392,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <CalendarMonth sx={{ color: '#fff' }} />,
         protectedRoles: hospitalizationANDnurse,
       },
-      {
-        title: 'Configuración',
-        path: '/hospitalizacion/configuracion-hospitalizacion',
-        icon: <SettingsIcon sx={{ color: '#fff' }} />,
-        protectedRoles: hospitalization,
-      },
+      // {
+      //   title: 'Configuración',
+      //   path: '/hospitalizacion/configuracion-hospitalizacion',
+      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
+      //   protectedRoles: hospitalization,
+      // },
     ],
     path: 'hospitalizacion',
   },
