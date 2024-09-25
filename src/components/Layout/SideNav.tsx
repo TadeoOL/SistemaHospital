@@ -455,6 +455,8 @@ export const SideNav = () => {
             transition: 'width 0.2s ease-in-out',
             borderRight: isOpen ? 'none' : '1px solid transparent',
             overflowX: 'hidden',
+            scrollbarWidth: 'none', // Firefox oculta el scrollbar
+            msOverflowStyle: 'none', // Internet Explorer oculta el scrollbar
           },
         }}
       >

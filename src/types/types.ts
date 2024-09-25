@@ -152,7 +152,7 @@ export interface IArticleFromSearchWithQuantity {
   id_ArticuloAlmacen: string;
   nombre: string;
   stock: number;
-  cantidad: number | null;//esta no debe venir desde el back se define en front
+  cantidad: number | null; //esta no debe venir desde el back se define en front
 }
 export interface IArticleFromSearchWithBarCode {
   id_Articulo: string;
@@ -178,7 +178,6 @@ export interface IExistingArticle {
   precioCompra: number;
   precioVenta: number;
   precioVentaPI: number;
-  factorAplicado: number;
   stockActual: number;
   stockMinimo: number;
   fechaCaducidad: string;
@@ -408,7 +407,6 @@ export interface OrdenCompraArticulo2 {
   nombre: string;
   precioProveedor: number;
   precioVenta: number;
-  factorAplicado: number;
   unidadesPorCaja: number;
   codigoBarras: any;
   unidadesTotal: number;
@@ -422,7 +420,6 @@ export interface IPurchaseOrderArticle {
   id_Articulo: string;
   nombre: string;
   precioVenta?: number;
-  factorAplicado?: number;
   codigoBarras?: string;
   fechaCaducidad?: string;
   unidadesPorCaja?: number;
@@ -486,7 +483,6 @@ export interface IWarehousePurchaseOrder {
   cantidad: number;
   precioCompra: number;
   precioVenta: number;
-  factorAplicado: number;
 }
 
 export interface ISubWarehouse {

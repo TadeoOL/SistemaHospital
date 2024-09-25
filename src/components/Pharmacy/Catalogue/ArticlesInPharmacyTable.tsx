@@ -87,10 +87,9 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
 
   useEffect(() => {
     setWarehouseId(warehouseSL?.id ?? warehouseId);
-    if(warehouseSL && warehouseSL?.esSubAlmacen){
-      setPrincipalWarehouseId(warehouseSL.id_AlmacenPrincipal ?? "");
-    }
-    else{
+    if (warehouseSL && warehouseSL?.esSubAlmacen) {
+      setPrincipalWarehouseId(warehouseSL.id_AlmacenPrincipal ?? '');
+    } else {
       setPrincipalWarehouseId(principalWarehouseId);
     }
     fetchExistingArticles();
@@ -207,13 +206,6 @@ export const ArticlesPharmacyTable = () => {
                       <TableCell>
                         <SortComponent tableCellLabel="Stock" headerName="stockActual" setSortFunction={setSort} />
                       </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Precio Compra"
-                          headerName="precioCompra"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -258,27 +250,28 @@ export const ArticlesPharmacyTable = () => {
           </Card>
         </Stack>
       </Stack>
-      <Modal 
-        open={openModal} 
-      >
+      <Modal open={openModal}>
         <>
           {exitArticlesM ? (
             <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          ) : 
-          entryArticlesM ?
-          (
-            <ArticlesPatientAcountManagementPharmacyModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          
-          )
-          :(
-            <ArticlesPatientAcountManagementModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-          )
-        }
+          ) : entryArticlesM ? (
+            <ArticlesPatientAcountManagementPharmacyModal
+              setOpen={setOpenModal}
+              warehouseId={warehouseIdSeted}
+              refetch={fetchExistingArticles}
+            />
+          ) : (
+            <ArticlesPatientAcountManagementModal
+              setOpen={setOpenModal}
+              warehouseId={warehouseIdSeted}
+              refetch={fetchExistingArticles}
+            />
+          )}
         </>
       </Modal>
       {
-            //<ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
-            }
+        //<ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+      }
     </>
   );
 };
@@ -287,14 +280,11 @@ interface TableRowComponentProps {
   article: IExistingArticle;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
-
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
@@ -309,7 +299,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           </Box>
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
-        <TableCell>$ {article.precioCompra}</TableCell>
       </TableRow>
     </React.Fragment>
   );
