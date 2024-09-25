@@ -1,4 +1,4 @@
-import { Anesthesiologist } from '../../components/Hospitalization/Anesthesiologist/Anesthesiologist';
+import { Anesthesiologist } from '../../components/OperatingRoom/Anesthesiologist/Anesthesiologist';
 
 const AnesthesiologistView = () => {
   return <Anesthesiologist />;

@@ -13,14 +13,14 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Cancel, Save } from '@mui/icons-material';
-import { IPatientFromSearch } from '../../../../../types/types';
-import { getPatientsWithAccount } from '../../../../../services/programming/patientService';
-import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { useXRayPaginationStore } from '../../../../../store/hospitalization/xrayPagination';
-import { IXRay, REQUEST_TYPES } from '../../../../../types/hospitalizationTypes';
-import { addXRayRequest } from '../../../../../services/hospitalization/xrayService';
-import { isValidFloat, isValidInteger } from '../../../../../utils/functions/dataUtils';
-import { createSamiSell } from '../../../../../services/sami/samiSellService';
+import { IPatientFromSearch } from '../../../../types/types';
+import { getPatientsWithAccount } from '../../../../services/programming/patientService';
+import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
+import { IXRay, REQUEST_TYPES } from '../../../../types/hospitalizationTypes';
+import { addXRayRequest } from '../../../../services/hospitalization/xrayService';
+import { isValidFloat, isValidInteger } from '../../../../utils/functions/dataUtils';
+import { createSamiSell } from '../../../../services/sami/samiSellService';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({

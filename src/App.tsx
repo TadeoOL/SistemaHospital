@@ -39,7 +39,7 @@ import {
   RoomsView,
   SurgeryProcedureView,
   ProgrammingCalendarView,
-  ConfigurationProgrammingView,
+  // ConfigurationProgrammingView,
   ProgrammingRequestView,
   BiomedicalEquipmentView,
   AnesthesiologistView,
@@ -47,13 +47,13 @@ import {
   MedicView,
   NurseRequestView,
   MedicalShiftView,
-  AnesthesiologistShiftView,
+  // AnesthesiologistShiftView,
   OperatingRoomView,
   TypesRoomView,
   DailyOperatingView,
   XRayRequestView,
   XRayRequestManagementView,
-  HospitalizationConfigView,
+  // HospitalizationConfigView,
   RecoveryRoomsView,
   HospitalRoomsView,
   AssignedRoomsView,
@@ -126,7 +126,7 @@ function App() {
               <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
               <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
               <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
-              <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
+              {/* <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} /> */}
               <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
@@ -136,20 +136,23 @@ function App() {
               <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
             </Route>
             // ------------------------------ Hospitalization-------------------------------- //
-            <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
-            <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
             <Route path="hospitalizacion/radiografias-solicitud" element={<XRayRequestView />} />
-            <Route path="hospitalizacion/solicitudes-administracion" element={<XRayRequestManagementView />} />
-            <Route path="hospitalizacion/solicitudes" element={<XRayView />} />
-            <Route path="hospitalizacion/medicos" element={<MedicView />} />
-            <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
-            <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
-            <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} />
+            {/* <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} /> */}
+            {/* <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} /> */}
             <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
-            <Route path="hospitalizacion/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
             <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
-            <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
-            // --------------------------------- OperatingRoom ------------------------------- //
+            // --------------------------------- Budget ------------------------------- // //
+            <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
+            // --------------------------------- Nursing ------------------------------- // //
+            <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
+            // --------------------------------- Biomedical ------------------------------- // //
+            <Route path="biomedico/solicitudes-administracion" element={<XRayRequestManagementView />} />
+            <Route path="biomedico/equipo-biomedico" element={<BiomedicalEquipmentView />} />
+            <Route path="biomedico/configuracion-solicitudes" element={<RequestsConfigView />} />
+            <Route path="biomedico/solicitudes" element={<XRayView />} />
+            --------------------------------- OperatingRoom ------------------------------- //
+            <Route path="quirofano/medicos" element={<MedicView />} />
+            <Route path="quirofano/anestesiologos" element={<AnesthesiologistView />} />
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
             <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />

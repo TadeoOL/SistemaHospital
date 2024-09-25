@@ -1,4 +1,4 @@
-import { Medic } from '../../components/Hospitalization/Medic/Medic';
+import { Medic } from '../../components/OperatingRoom/Medic/Medic';
 
 const MedicView = () => {
   return <Medic />;

@@ -47,6 +47,9 @@ import {
   PointOfSale,
   ShoppingBasket,
   Vaccines,
+  MedicationLiquid,
+  MedicalServices,
+  AttachMoney,
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
@@ -319,72 +322,24 @@ export const ModuleList: IModuleItemsList[] = [
         topLevel: true,
         children: [
           {
-            title: 'Anestesiólogos',
-            path: '/hospitalizacion/anestesiologos',
-            icon: <GroupAdd sx={{ color: '#fff' }} />,
-            protectedRoles: hospitalization,
-          },
-          {
-            title: 'Equipo Biomédico',
-            path: '/hospitalizacion/equipo-biomedico',
-            icon: <MedicalInformation sx={{ color: '#fff' }} />,
-            protectedRoles: hospitalization,
-          },
-          {
-            title: 'Estudios de Gabinete',
-            path: '/hospitalizacion/solicitudes',
+            title: 'Solicitar Estudio de Gabinete',
+            path: '/hospitalizacion/radiografias-solicitud',
             icon: <LiaXRaySolid />,
-            protectedRoles: hospitalization,
-          },
-          {
-            title: 'Configuración de Solicitudes de Estudio',
-            path: '/hospitalizacion/configuracion-solicitudes',
-            icon: <SettingsIcon />,
-            protectedRoles: supplyRoles,
-          },
-          {
-            title: 'Medicos',
-            path: '/hospitalizacion/medicos',
-            icon: <FaUserDoctor />,
-            protectedRoles: hospitalization,
-          },
-          {
-            title: 'Guardias Medicos',
-            path: '/hospitalizacion/guardias-medicos',
-            icon: <FaLaptopMedical />,
-            protectedRoles: hospitalization, //Hospitalizacion
+            protectedRoles: hospitalizationANDnurse,
           },
         ],
       },
-      {
-        title: 'Solicitar Estudio de Gabinete',
-        path: '/hospitalizacion/radiografias-solicitud',
-        icon: <LiaXRaySolid />,
-        protectedRoles: hospitalizationANDnurse,
-      },
-      {
-        title: 'Administrar Solicitudes de Estudios de Gabinete',
-        path: '/hospitalizacion/solicitudes-administracion',
-        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-        protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
-      },
-      {
-        title: 'Guardias Anestesiologos',
-        path: '/hospitalizacion/guardias-anestesiologos',
-        icon: <GiMedicalDrip />,
-        protectedRoles: hospitalization,
-      },
+      // {
+      //   title: 'Guardias Anestesiologos',
+      //   path: '/hospitalizacion/guardias-anestesiologos',
+      //   icon: <GiMedicalDrip />,
+      //   protectedRoles: hospitalization,
+      // },
       {
         title: 'Cuartos Hospitalarios',
         path: '/hospitalizacion/cuartos-hospitalarios',
         icon: <FaHospitalSymbol />,
         protectedRoles: hospitalization,
-      },
-      {
-        title: 'Cuartos Asignados',
-        path: '/hospitalizacion/cuartos-hospitalarios-asignados',
-        icon: <FaHospitalSymbol />,
-        protectedRoles: nurseRole,
       },
       {
         title: 'Calendario de cuartos',
@@ -423,6 +378,18 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <AirlineSeatFlat sx={{ color: '#fff' }} />,
         protectedRoles: operatingRoomANDnurse,
       },
+      {
+        title: 'Medicos',
+        path: '/quirofano/medicos',
+        icon: <FaUserDoctor />,
+        protectedRoles: hospitalization,
+      },
+      {
+        title: 'Anestesiólogos',
+        path: '/quirofano/anestesiologos',
+        icon: <GroupAdd sx={{ color: '#fff' }} />,
+        protectedRoles: hospitalization,
+      },
     ],
     path: 'quirofano',
   },
@@ -438,5 +405,62 @@ export const ModuleList: IModuleItemsList[] = [
       },
     ],
     path: 'facturas',
+  },
+  {
+    categoryTitle: 'Biomédico',
+    icon: <MedicationLiquid />,
+    moduleItems: [
+      {
+        title: 'Equipo Biomédico',
+        path: '/biomedico/equipo-biomedico',
+        icon: <MedicalInformation sx={{ color: '#fff' }} />,
+        protectedRoles: hospitalization,
+      },
+      {
+        title: 'Estudios de Gabinete',
+        path: '/biomedico/solicitudes',
+        icon: <LiaXRaySolid />,
+        protectedRoles: hospitalization,
+      },
+      {
+        title: 'Administrar Solicitudes de Estudios de Gabinete',
+        path: '/biomedico/solicitudes-administracion',
+        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
+        protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
+      },
+      {
+        title: 'Configuración de Solicitudes de Estudio',
+        path: '/biomedico/configuracion-solicitudes',
+        icon: <SettingsIcon />,
+        protectedRoles: supplyRoles,
+      },
+    ],
+    path: 'biomedico',
+  },
+  {
+    categoryTitle: 'Presupuestos',
+    icon: <AttachMoney />,
+    moduleItems: [
+      {
+        title: 'Guardias Medicos',
+        path: '/presupuestos/guardias-medicos',
+        icon: <FaLaptopMedical />,
+        protectedRoles: hospitalization,
+      },
+    ],
+    path: 'presupuestos',
+  },
+  {
+    categoryTitle: 'Enfermería',
+    icon: <MedicalServices />,
+    moduleItems: [
+      {
+        title: 'Cuartos Asignados',
+        path: '/enfermeria/cuartos-hospitalarios-asignados',
+        icon: <FaHospitalSymbol />,
+        protectedRoles: nurseRole,
+      },
+    ],
+    path: 'enfermeria',
   },
 ];

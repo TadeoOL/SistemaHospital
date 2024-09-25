@@ -1,4 +1,4 @@
-import { AssignedRooms } from '../../components/Hospitalization/AssignedRooms/AssignedRooms';
+import { AssignedRooms } from '../../components/Nursing/AssignedRooms/AssignedRooms';
 
 const AssignedRoomsView = () => {
   return <AssignedRooms />;

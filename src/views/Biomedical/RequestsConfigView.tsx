@@ -1,4 +1,4 @@
-import { RequestsConfig } from '../../components/Hospitalization/RequestsConfig/RequestsConfig';
+import { RequestsConfig } from '../../components/Biomedical/RequestsConfig/RequestsConfig';
 
 const RequestsConfigView = () => {
   return <RequestsConfig />;

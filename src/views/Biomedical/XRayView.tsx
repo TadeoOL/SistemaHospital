@@ -1,4 +1,4 @@
-import { XRay } from '../../components/Hospitalization/XRay/XRay';
+import { XRay } from '../../components/Biomedical/XRay/XRay';
 
 const XRayView = () => {
   return <XRay />;

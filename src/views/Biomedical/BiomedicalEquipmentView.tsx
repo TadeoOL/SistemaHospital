@@ -1,4 +1,4 @@
-import { BiomedicalEquipment } from '../../components/Hospitalization/BiomedicalEquipment/BiomedicalEquipment';
+import { BiomedicalEquipment } from '../../components/Biomedical/BiomedicalEquipment/BiomedicalEquipment';
 
 const BiomedicalEquipmentView = () => {
   return <BiomedicalEquipment />;

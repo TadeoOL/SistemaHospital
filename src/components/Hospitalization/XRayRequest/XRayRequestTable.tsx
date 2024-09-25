@@ -27,14 +27,14 @@ import { shallow } from 'zustand/shallow';
 //import { NurseRequestModal } from './Modal/NurseRequestModal';
 //import { InurseRequest, IArticleInRequest } from '../../../types/types';
 //import { SearchBar } from '../../../Inputs/SearchBar';
-import { IXRayRequest, REQUEST_TYPES } from '../../../../types/hospitalizationTypes';
-import { useXRayRequestPaginationStore } from '../../../../store/hospitalization/xrayRequestPagination';
-import { XRAY_REQUEST_STATUS } from '../../../../utils/XRayRequestUtils';
-import { SearchBar } from '../../../Inputs/SearchBar';
+import { IXRayRequest, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
+import { useXRayRequestPaginationStore } from '../../../store/hospitalization/xrayRequestPagination';
+import { XRAY_REQUEST_STATUS } from '../../../utils/XRayRequestUtils';
+import { SearchBar } from '../../Inputs/SearchBar';
 import { AddXRayRequestModal } from './Modal/AddXRayRequest';
-import { formatDate } from '../../../../utils/pointOfSaleUtils';
+import { formatDate } from '../../../utils/pointOfSaleUtils';
 import Swal from 'sweetalert2';
-import { modifyXRayRequest } from '../../../../services/hospitalization/xrayService';
+import { modifyXRayRequest } from '../../../services/hospitalization/xrayService';
 
 export const useGetNursesRequest = () => {
   const {

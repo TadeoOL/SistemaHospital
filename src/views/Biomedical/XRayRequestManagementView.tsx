@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import { XRayRequestManagementTable } from '../../components/Hospitalization/XRay/XRayRequest/XRayRequestManagementTable';
+import { XRayRequestManagementTable } from '../../components/Hospitalization/XRayRequest/XRayRequestManagementTable';
 
 const XRayRequestManagementView = () => {
   return (
