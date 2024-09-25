@@ -1,4 +1,4 @@
-import { CheckCircle, Info, Print, Visibility } from '@mui/icons-material';
+import { Cancel, CheckCircle, Info, Print, Visibility } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Backdrop,
@@ -14,12 +14,13 @@ import {
   TableHead,
   TableRow,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { success } from '../../theme/colors';
 import { ICheckoutSell } from '../../types/types';
 import { TableFooterComponent } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
-import { hashEstatusToString, hashPaymentsToString } from '../../utils/checkoutUtils';
+import { hashPaymentsToString } from '../../utils/checkoutUtils';
 import { CloseSaleModal } from './Modal/CloseSaleModal';
 import { useState } from 'react';
 import withReactContent from 'sweetalert2-react-content';
@@ -43,7 +44,7 @@ const headTitlesCaja = [
   'Costo total',
   'Monto de Pago',
   'Tipo de pago',
-  'Estatus',
+  // 'Estatus',
   'Fecha Emisión',
   'Acciones',
 ];
@@ -55,9 +56,9 @@ const headTitlesAdmin = [
   'Generado Por',
   'Monto de Pago',
   'Tipo de pago',
-  'Estatus',
+  // 'Estatus',
   'Fecha Emisión',
-  'Notas',
+  // 'Notas',
   'Acciones',
 ];
 const headTitlesFarmacia = [
@@ -68,9 +69,9 @@ const headTitlesFarmacia = [
   'Generado Por',
   'Monto de Pago',
   'Tipo de pago',
-  'Estatus',
+  // 'Estatus',
   'Fecha Emisión',
-  'Notas',
+  // 'Notas',
   'Acciones',
 ];
 interface CheckoutTableComponentProps {
@@ -270,6 +271,18 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       setLoadingPrint(false);
     }
   };
+  const returnIcon = (status: number): { title: string; icon: JSX.Element } => {
+    switch (status) {
+      case 0:
+        return { title: 'Venta cancelada', icon: <Cancel color="error" /> };
+      case 1:
+        return { title: 'Venta creada', icon: <Info color="info" /> };
+      case 2:
+        return { title: 'Venta pagada', icon: <CheckCircle color="success" /> };
+      default:
+        return { title: 'Venta creada', icon: <Info color="info" /> };
+    }
+  };
   if (loadingPrint)
     return (
       <Backdrop open>
@@ -279,16 +292,21 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   return (
     <>
       <TableRow>
-        <TableCell>{data.folio}</TableCell>
+        <TableCell>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Tooltip title={returnIcon(data.estatus).title}>{returnIcon(data.estatus).icon}</Tooltip>
+            <Typography sx={{ fontWeight: 400, fontSize: 12 }}>{data.folio}</Typography>
+          </Box>
+        </TableCell>
         <TableCell>{data.moduloProveniente}</TableCell>
         <TableCell>{data.paciente}</TableCell>
         <TableCell>$ {data.totalVenta}</TableCell>
         {(admin || props.fromPointOfSale) && <TableCell>{data.nombreUsuario}</TableCell>}
         <TableCell>{data.montoPago ? '$ ' + data.montoPago : 'No se ha cobrado'}</TableCell>
         <TableCell>{data.tipoPago ? hashPaymentsToString[data.tipoPago] : 'Sin tipo de pago'}</TableCell>
-        <TableCell>{hashEstatusToString[data.estatus]}</TableCell>
+        {/* <TableCell>{hashEstatusToString[data.estatus]}</TableCell> */}
         <TableCell>{data.fechaCreacion}</TableCell>
-        {(admin || props.fromPointOfSale) && <TableCell>{data.notas}</TableCell>}
+        {/* {(admin || props.fromPointOfSale) && <TableCell>{data.notas}</TableCell>} */}
         <TableCell>
           {!props.hideActions ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -317,11 +335,11 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                   </IconButton>
                 </Tooltip>
               )}
-              {data.estatus === 2 && (
+              {/* {data.estatus === 2 && (
                 <Tooltip title="Pagado">
                   <Info color="primary" />
                 </Tooltip>
-              )}
+              )} */}
               {data.estatus === 1 && data.paciente === 'Punto de Venta' && (
                 <Tooltip title="Imprimir">
                   <IconButton onClick={handlePrint}>
