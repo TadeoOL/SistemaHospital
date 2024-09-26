@@ -212,12 +212,6 @@ export const ModuleList: IModuleItemsList[] = [
         mainDashboard: checkoutSell,
       },
       {
-        title: 'Cierre de cuenta',
-        path: '/admision/cierre-de-cuenta',
-        icon: <Receipt sx={{ color: '#fff' }} />,
-        protectedRoles: closeAccount,
-      },
-      {
         title: 'Facturación',
         path: '/facturas',
         icon: <LiaFileInvoiceDollarSolid />,
