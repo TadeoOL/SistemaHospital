@@ -13,6 +13,7 @@ import {
   FormControl,
   FormControlLabel,
   IconButton,
+  MenuItem,
   Modal,
   Radio,
   RadioGroup,
@@ -69,6 +70,23 @@ export const SingleProvider = () => {
   const [viewPdf, setViewPdf] = useState(false);
   const [search, setSearch] = useState('');
   const { isLoadingProviders, providersFetched } = useGetAllProvidersBySearch(search);
+  const noProvider: IProvider = {
+    id: 'sin-proveedor',
+    nombreContacto: 'Sin proveedor',
+    nombreCompania: 'N/A',
+    correoElectronico: 'N/A',
+    telefono: 'N/A',
+    rfc: 'N/A',
+    direccion: 'N/A',
+    direccionFiscal: 'N/A',
+    giroEmpresa: 'N/A',
+    nif: 'N/A',
+    puesto: 'N/A',
+    tipoContribuyente: 2,
+    urlCertificadoBP: 'N/A',
+    urlCertificadoCR: 'N/A',
+    urlCertificadoISO9001: 'N/A',
+  };
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -100,8 +118,16 @@ export const SingleProvider = () => {
     setStep(step + 1);
   };
   const disableButton =
-    (provider != null && !paymentMethod && pdf.trim() === '') ||
-    (provider != null && paymentMethod != 0 && pdf.trim() === '');
+    (provider != null &&
+      !Array.isArray(provider) &&
+      provider.id != 'sin-proveedor' &&
+      !paymentMethod &&
+      pdf.trim() === '') ||
+    (provider != null &&
+      !Array.isArray(provider) &&
+      provider.id != 'sin-proveedor' &&
+      paymentMethod != 0 &&
+      pdf.trim() === '');
 
   return (
     <>
@@ -119,7 +145,7 @@ export const SingleProvider = () => {
             }}
             loading={isLoadingProviders && providersFetched.length === 0}
             getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
-            options={providersFetched}
+            options={[noProvider, ...providersFetched]}
             value={provider as IProvider}
             noOptionsText="No se encontraron proveedores"
             renderInput={(params) => (
@@ -141,18 +167,19 @@ export const SingleProvider = () => {
             <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
             <Stack direction="row" spacing={2}>
               <FormControl component="fieldset" sx={{ width: '100%' }}>
-                <RadioGroup
-                  row
-                  sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
-                  aria-label="paymentMethod"
-                  name="paymentMethod"
+                <TextField
+                  select
+                  label="Método de Pago"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                  fullWidth
+                  disabled={!provider}
+                  sx={{ maxWidth: { lg: '50%', xs: '100%' } }}
                 >
-                  <FormControlLabel value={1} control={<Radio />} label="Crédito" disabled={!provider} />
-                  <FormControlLabel value={3} control={<Radio />} label="Transferencia" disabled={!provider} />
-                  <FormControlLabel value={2} control={<Radio />} label="Efectivo" disabled={!provider} />
-                </RadioGroup>
+                  <MenuItem value={1}>Crédito</MenuItem>
+                  <MenuItem value={3}>Transferencia</MenuItem>
+                  <MenuItem value={2}>Efectivo</MenuItem>
+                </TextField>
               </FormControl>
             </Stack>
           </Box>

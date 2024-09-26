@@ -8,9 +8,6 @@ import {
   IconButton,
   Stack,
   FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
   Table,
   TableBody,
   TableCell,
@@ -21,6 +18,7 @@ import {
   Tooltip,
   Typography,
   createFilterOptions,
+  MenuItem,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useDirectlyPurchaseRequestOrderStore as useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
@@ -566,18 +564,18 @@ const ArticlesTable = (props: {
         <Typography variant="subtitle1">Selecciona el método de pago:</Typography>
         <Stack direction="row" spacing={2}>
           <FormControl component="fieldset" sx={{ width: '100%' }}>
-            <RadioGroup
-              row
-              sx={{ justifyContent: 'space-evenly', display: 'flex', mt: 1 }}
-              aria-label="paymentMethod"
-              name="paymentMethod"
+            <TextField
+              select
+              label="Método de Pago"
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(Number(e.target.value))}
+              fullWidth
+              disabled={!provider}
             >
-              <FormControlLabel value={1} control={<Radio />} label="Crédito" />
-              <FormControlLabel value={3} control={<Radio />} label="Transferencia" />
-              <FormControlLabel value={2} control={<Radio />} label="Efectivo" />
-            </RadioGroup>
+              <MenuItem value={1}>Crédito</MenuItem>
+              <MenuItem value={3}>Transferencia</MenuItem>
+              <MenuItem value={2}>Efectivo</MenuItem>
+            </TextField>
           </FormControl>
         </Stack>
       </Box>

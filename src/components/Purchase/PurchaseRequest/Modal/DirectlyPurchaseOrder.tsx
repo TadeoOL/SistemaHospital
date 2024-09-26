@@ -640,6 +640,23 @@ const SelectProviderAndUploadPDF = () => {
   const [providerError, setProviderError] = useState(false);
   const [search, setSearch] = useState('');
   const { isLoadingProviders, providersFetched } = useGetAllProvidersBySearch(search);
+  const noProvider: IProvider = {
+    id: 'sin-proveedor',
+    nombreContacto: 'Sin proveedor',
+    nombreCompania: 'N/A',
+    correoElectronico: 'N/A',
+    telefono: 'N/A',
+    rfc: 'N/A',
+    direccion: 'N/A',
+    direccionFiscal: 'N/A',
+    giroEmpresa: 'N/A',
+    nif: 'N/A',
+    puesto: 'N/A',
+    tipoContribuyente: 2,
+    urlCertificadoBP: 'N/A',
+    urlCertificadoCR: 'N/A',
+    urlCertificadoISO9001: 'N/A',
+  };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return toast.error('Error: Solo se puede adjuntar 1 archivo .pdf!');
@@ -663,7 +680,7 @@ const SelectProviderAndUploadPDF = () => {
   });
 
   const handleNext = () => {
-    if (!provider) {
+    if (!provider || (!Array.isArray(provider) && provider.id === 'sin-proveedor')) {
       setStep(step + 1);
       return;
     }
@@ -691,7 +708,7 @@ const SelectProviderAndUploadPDF = () => {
           }}
           loading={isLoadingProviders && providersFetched.length === 0}
           getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
-          options={providersFetched}
+          options={[noProvider, ...providersFetched]}
           value={provider as IProvider}
           noOptionsText="No se encontraron proveedores"
           renderInput={(params) => (
@@ -923,7 +940,7 @@ const StepThree = (props: { setOpen: Function }) => {
   const refetchTableOrder = usePurchaseOrderPagination((state) => state.fetch);
 
   const handleSubmit = async () => {
-    if (!provider) {
+    if (!provider || (!Array.isArray(provider) && provider.id === 'sin-proveedor')) {
       setIsLoading(true);
       const obj = {
         articulos: articles.map((articles) => {
