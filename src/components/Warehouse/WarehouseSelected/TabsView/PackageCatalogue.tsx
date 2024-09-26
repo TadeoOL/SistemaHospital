@@ -56,9 +56,9 @@ const PackageCatalogue = () => {
           <PackageCatalogueTable />
         </Box>
       </Box>
-      <Modal open={open} >
+      <Modal open={open}>
         <>
-          <PackageModal setOpen={setOpen} />
+          <PackageModal setOpen={setOpen} warehouseId={''} />
         </>
       </Modal>
     </>

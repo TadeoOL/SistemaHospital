@@ -102,7 +102,6 @@ export interface ISubCategory {
   descripcion: string;
   id_categoria: string;
   iva: string;
-  categoria: ICategory;
 }
 
 export interface IArticle {

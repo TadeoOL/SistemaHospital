@@ -50,6 +50,7 @@ import {
   MedicationLiquid,
   MedicalServices,
   AttachMoney,
+  Work,
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
@@ -351,6 +352,12 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: hospitalization,
         topLevel: true,
         children: [
+          {
+            title: 'Paquetes Quirúrgicos',
+            path: '/quirofano/paquetes-quirurgicos',
+            icon: <Work sx={{ color: '#fff' }} />,
+            protectedRoles: operatingRoomANDnurse,
+          },
           {
             title: 'Medicos',
             path: '/quirofano/medicos',

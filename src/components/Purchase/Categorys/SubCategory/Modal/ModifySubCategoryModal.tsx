@@ -106,9 +106,9 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
 
   useEffect(() => {
     if (subCategory) {
-      if (!category) setCategory(subCategory.categoria.id);
+      if (!category) setCategory(subCategory.id_categoria);
       if (!textValue) setTextValue(subCategory.descripcion);
-      setValue('id_categoria', subCategory.categoria.id);
+      setValue('id_categoria', subCategory.id_categoria);
       Object.entries(subCategory).forEach(([key, value]) => {
         setValue(key as keyof ISubCategory, String(value));
       });

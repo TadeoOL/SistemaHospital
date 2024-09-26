@@ -39,7 +39,7 @@ interface ISubCategoryInfoModal {
 export const SubCategoryInfoModal = (props: ISubCategoryInfoModal) => {
   const { isLoading, data } = useGetSubCategory(props.id);
 
-  const { nombre, descripcion, iva, categoria } = data ?? {};
+  const { nombre, descripcion, iva } = data ?? {};
 
   if (isLoading)
     return (
@@ -90,12 +90,12 @@ export const SubCategoryInfoModal = (props: ISubCategoryInfoModal) => {
                 </Stack>
               </Grid>
               <Grid item xs={12} md={6} lg={6}>
-                <Stack>
+                {/* <Stack>
                   <Typography fontWeight={700} fontSize={16}>
                     Categoría Relacionada:
                   </Typography>
                   <Typography>{categoria?.nombre}</Typography>
-                </Stack>
+                </Stack> */}
               </Grid>
             </Grid>
           </Card>
