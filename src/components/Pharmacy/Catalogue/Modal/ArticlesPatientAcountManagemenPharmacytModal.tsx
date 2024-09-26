@@ -195,7 +195,6 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
     directions.forEach((dir) => {
       newwmap.delete(dir);
     });
-    console.log(newwmap);
     setArticles(Array.from(newwmap.values()));
   };
 
@@ -402,8 +401,8 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                         return;
                       }
                       setArticleId(val.id_Articulo);
-                      setArticleSelected(val);
-                      articlesMap.set(val.id_Articulo, {
+                      //setArticleSelected(val);
+                      articlesMap.set(val.nombre, {
                         id_Articulo: val.id_Articulo,
                         id_ArticuloCuenta: '',
                         id_CuentaPAciente: '',
@@ -418,7 +417,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                       setSearch('');
                     } else {
                       setSearch('');
-                      setArticleSelected(null);
+                    setArticleSelected(null);
                     }
                   }}
                   loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}

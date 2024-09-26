@@ -195,7 +195,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
     directions.forEach((dir) => {
       newwmap.delete(dir);
     });
-    console.log(newwmap);
     setArticles(Array.from(newwmap.values()));
   };
 
