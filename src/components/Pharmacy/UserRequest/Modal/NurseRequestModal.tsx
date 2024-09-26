@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { addNurseRequest, getExistingArticles, getWarehouseById } from '../../../../api/api.routes';
-import { usePosTabNavStore } from '../../../../store/pharmacy/pointOfSale/posTabNav';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { toast } from 'react-toastify';
@@ -77,7 +76,7 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-export const NurseRequestModal = (props: { setOpen: Function; refetch: Function }) => {
+export const NurseRequestModal = (props: { setOpen: Function; refetch: Function, warehouseId: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
@@ -85,7 +84,6 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [search, setSearch] = useState('');
   const [patientSearch, setPatientSearch] = useState('');
-  const warehouseId = usePosTabNavStore.getState().warehouseId;
   const [articleSelected, setArticleSelected] = useState<null | Article>(null);
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
   const [roomSelected, setRoomSelected] = useState<null | ICuartosInfo>(null);
@@ -112,6 +110,10 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
     }),
     shallow
   );
+  useEffect (()=>{
+    setWarehouseSelected('')
+  },
+  [])
 
   const handleFetchArticlesFromWareHouse = async (id_warehouse: string) => {
     if (isLoadingArticlesWareH) return;
@@ -149,7 +151,7 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function 
       setArticleSelected(null);
       setIsLoadingWarehouse(true);
       try {
-        const warehouse: IWarehouseData = await getWarehouseById(warehouseId as string);
+        const warehouse: IWarehouseData = await getWarehouseById(props.warehouseId);
         warehouse;
         setMainWarehouse(warehouse.id)
         const subWH = warehouse.subAlmacenes

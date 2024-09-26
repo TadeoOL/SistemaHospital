@@ -31,6 +31,7 @@ import { NurseRequestModal } from './Modal/NurseRequestModal';
 import { InurseRequest, IArticleInRequest } from '../../../types/types';
 import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
 import { getStatus } from '../../../utils/NurseRequestUtils';
+import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -134,6 +135,7 @@ export const NurseRequestTable = () => {
     fetchData,
   } = useGetNursesRequest();
   const [openModal, setOpenModal] = useState(false);
+  const { data: warehousePharmacyData } = useGetPharmacyConfig();
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -283,7 +285,7 @@ export const NurseRequestTable = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          <NurseRequestModal setOpen={setOpenModal} refetch={fetchData} />
+          <NurseRequestModal setOpen={setOpenModal} refetch={fetchData} warehouseId={warehousePharmacyData.id_Almacen} />
         </>
       </Modal>
     </>

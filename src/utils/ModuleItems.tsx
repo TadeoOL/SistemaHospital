@@ -310,7 +310,7 @@ export const ModuleList: IModuleItemsList[] = [
       },
       {
         title: 'Solicitud de Artículos',
-        path: '/farmacia/solicitud-enfermero',
+        path: '/hospitalizacion/solicitud-enfermero',
         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: nurseRole,
       },
