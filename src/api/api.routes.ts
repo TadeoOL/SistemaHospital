@@ -267,6 +267,11 @@ export const getAllCategories = async () => {
   return res.data;
 };
 
+export const getAllCategoriesByWarehouse = async (Id_Warehouse: string) => {
+  const res = await axios.get(`/api/Categoria/obtener-categorias-almacen?Id_Almacen=${Id_Warehouse}`);
+  return res.data;
+};
+
 export const addNewSubCategory = async (data: ISubCategory) => {
   const { nombre, descripcion, id_categoria, iva } = data;
   const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {

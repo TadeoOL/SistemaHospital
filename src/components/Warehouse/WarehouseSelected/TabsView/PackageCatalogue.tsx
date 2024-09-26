@@ -3,7 +3,7 @@ import { useState } from 'react';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { usePackagePaginationStore } from '../../../../store/warehouseStore/packagesPagination'; //QUITAR CAMBIAR
-import { PackageCatalogueTable } from './PackageCatalogueTable';
+import { PackageCatalogueTable } from '../../../OperatingRoom/OperatingPackages/PackageCatalogueTable';
 import { PackageModal } from './Modal/PackageModal';
 
 const PackageCatalogue = () => {

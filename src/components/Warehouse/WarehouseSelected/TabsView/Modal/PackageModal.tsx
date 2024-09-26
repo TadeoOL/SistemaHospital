@@ -32,7 +32,6 @@ import AnimateButton from '../../../../@extended/AnimateButton';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { shallow } from 'zustand/shallow';
 import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
 
 const OPTIONS_LIMIT = 30;
@@ -69,19 +68,18 @@ const style2 = {
   },
 };
 
-export const PackageModal = (props: { setOpen: Function }) => {
+export const PackageModal = (props: { setOpen: Function; warehouseId: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
   const [serch, setSerch] = useState('');
   const [valueState, setValueState] = useState('');
-  const { warehouseId } = useParams();
 
   useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        handleFetchArticlesFromWareHouse(props.warehouseId as string);
       } catch (error) {
         console.log('error');
       } finally {
@@ -95,7 +93,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        handleFetchArticlesFromWareHouse(props.warehouseId as string);
       } catch (error) {
         console.log('error');
       } finally {
@@ -192,7 +190,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
       const object = {
         Nombre: data.nombre,
         Descripcion: data.descripcion,
-        Id_Almacen: warehouseId as string,
+        Id_Almacen: props.warehouseId as string,
         Contenido: data.historialArticulos,
       };
       await addArticlesPackage(object);
