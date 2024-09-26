@@ -94,6 +94,7 @@ export interface ICategory {
   descripcion: string;
   id_Almacen: string;
   almacen: string;
+  subCategorias?: ISubCategory[];
 }
 export interface ISubCategory {
   id: string;

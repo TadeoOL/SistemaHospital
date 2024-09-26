@@ -70,7 +70,6 @@ import { useNurseRequestPaginationStore } from '../../../../store/pharmacy/nurse
 
     useEffect(()=>{
       const fetchWarehouse = async () => {
-        console.log(warehouseIdSeted);
         const warehouseInfo = await getWarehouseById(warehouseIdSeted)
         const allWarehouses = [warehouseInfo, ...warehouseInfo.subAlmacenes];
         setWarehouseSelected(allWarehouses[0]);
@@ -80,7 +79,6 @@ import { useNurseRequestPaginationStore } from '../../../../store/pharmacy/nurse
       fetchWarehouse();
     },
     [])
-    
     return (
       <Box sx={style}>
         <HeaderModal setOpen={props.setOpen} title="Seleccion de almacen" />

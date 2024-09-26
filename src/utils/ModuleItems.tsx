@@ -50,6 +50,7 @@ import {
   MedicationLiquid,
   MedicalServices,
   AttachMoney,
+  Work,
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
@@ -184,12 +185,6 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <History sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyDirectorRole,
       },
-      {
-        title: 'Solicitud enfermero',
-        path: '/farmacia/solicitud-enfermero',
-        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-        protectedRoles: nurseRole,
-      },
     ],
     path: 'farmacia',
   },
@@ -203,6 +198,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <PointOfSale sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
         mainDashboard: checkout,
+      },
+      {
+        title: 'Cierre de cuenta',
+        path: '/ventas/cierre-de-cuenta',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: closeAccount,
       },
       {
         title: 'Emitir Pase a Caja',
@@ -296,12 +297,6 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: admission,
       },
       {
-        title: 'Cierre de cuenta',
-        path: '/admision/cierre-de-cuenta',
-        icon: <Receipt sx={{ color: '#fff' }} />,
-        protectedRoles: closeAccount,
-      },
-      {
         title: 'Cuentas Pendientes Por Pagar',
         path: '/admision/cuentas-pendientes-por-pagar',
         icon: <Receipt sx={{ color: '#fff' }} />,
@@ -353,6 +348,12 @@ export const ModuleList: IModuleItemsList[] = [
       //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
       //   protectedRoles: hospitalization,
       // },
+      {
+        title: 'Solicitud enfermero',
+        path: '/hospitalizacion/solicitud-enfermero',
+        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
+        protectedRoles: nurseRole,
+      },
     ],
     path: 'hospitalizacion',
   },
@@ -389,6 +390,12 @@ export const ModuleList: IModuleItemsList[] = [
         path: '/quirofano/anestesiologos',
         icon: <GroupAdd sx={{ color: '#fff' }} />,
         protectedRoles: hospitalization,
+      },
+      {
+        title: 'Paquetes quirúrgicos',
+        path: '/quirofano/paquetes-quirurgicos',
+        icon: <Work sx={{ color: '#fff' }} />,
+        protectedRoles: operatingRoomANDnurse,
       },
     ],
     path: 'quirofano',
