@@ -50,6 +50,7 @@ import {
   MedicationLiquid,
   MedicalServices,
   AttachMoney,
+  Work,
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
@@ -57,7 +58,6 @@ import { FaLaptopMedical } from 'react-icons/fa';
 import { GiMedicalDrip } from 'react-icons/gi';
 import { FaHouseChimneyMedical } from 'react-icons/fa6';
 import { FaHospitalSymbol } from 'react-icons/fa';
-import { FaFileInvoice } from 'react-icons/fa';
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia';
 
 export const ModuleList: IModuleItemsList[] = [
@@ -167,12 +167,6 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: pharmacyManager,
       },
       {
-        title: 'Configuración',
-        path: '/farmacia/configuracion-farmacia',
-        icon: <SettingsIcon sx={{ color: '#fff' }} />,
-        protectedRoles: pharmacyDirectorRole,
-      },
-      {
         title: 'Salidas y existencias',
         path: '/farmacia/catalogo',
         icon: <ArticleIcon sx={{ color: '#fff' }} />,
@@ -185,10 +179,10 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: pharmacyDirectorRole,
       },
       {
-        title: 'Solicitud enfermero',
-        path: '/farmacia/solicitud-enfermero',
-        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-        protectedRoles: nurseRole,
+        title: 'Configuración',
+        path: '/farmacia/configuracion-farmacia',
+        icon: <SettingsIcon sx={{ color: '#fff' }} />,
+        protectedRoles: pharmacyDirectorRole,
       },
     ],
     path: 'farmacia',
@@ -198,11 +192,17 @@ export const ModuleList: IModuleItemsList[] = [
     icon: <PointOfSale />,
     moduleItems: [
       {
-        title: 'Caja del dia',
+        title: 'Caja del Día',
         path: '/ventas/caja',
         icon: <PointOfSale sx={{ color: '#fff' }} />,
         protectedRoles: checkout,
         mainDashboard: checkout,
+      },
+      {
+        title: 'Cierre de cuenta',
+        path: '/ventas/cierre-de-cuenta',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: closeAccount,
       },
       {
         title: 'Emitir Pase a Caja',
@@ -212,7 +212,25 @@ export const ModuleList: IModuleItemsList[] = [
         mainDashboard: checkoutSell,
       },
       {
-        title: 'Historial de cortes',
+        title: 'Cierre de cuenta',
+        path: '/admision/cierre-de-cuenta',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: closeAccount,
+      },
+      {
+        title: 'Facturación',
+        path: '/facturas',
+        icon: <LiaFileInvoiceDollarSolid />,
+        protectedRoles: invoiceAdmin,
+      },
+      {
+        title: 'Cuentas Pendientes Por Pagar',
+        path: '/admision/cuentas-pendientes-por-pagar',
+        icon: <Receipt sx={{ color: '#fff' }} />,
+        protectedRoles: purchaseGlobalRoles,
+      },
+      {
+        title: 'Historial de Cortes',
         path: '/ventas/historial-cortes',
         icon: <ManageHistoryIcon sx={{ color: '#fff' }} />,
         protectedRoles: checkoutAdmin,
@@ -238,6 +256,12 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: programation,
       },
       {
+        title: 'Programación de eventos',
+        path: '/programacion/registro-eventos',
+        icon: <HowToReg sx={{ color: '#fff' }} />,
+        protectedRoles: programation,
+      },
+      {
         title: 'Catálogos',
         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
         path: '#',
@@ -256,32 +280,8 @@ export const ModuleList: IModuleItemsList[] = [
             icon: <FaHouseChimneyMedical />,
             protectedRoles: programation,
           },
-          {
-            title: 'Procedimientos de cirugía',
-            path: '/programacion/procedimientos-cirugia',
-            icon: <Vaccines sx={{ color: '#fff' }} />,
-            protectedRoles: programation,
-          },
         ],
       },
-      {
-        title: 'Programación de eventos',
-        path: '/programacion/registro-eventos',
-        icon: <HowToReg sx={{ color: '#fff' }} />,
-        protectedRoles: programation,
-      },
-      /*       {
-        title: 'Configuración',
-        path: '/programacion/configuracion',
-        icon: <SettingsIcon sx={{ color: '#fff' }} />,
-        protectedRoles: checkout,
-      }, */
-      // {
-      //   title: 'Solicitud de programacion',
-      //   path: '/programacion/solicitud-programacion',
-      //   icon: <PendingActions sx={{ color: '#fff' }} />,
-      //   protectedRoles: programation,
-      // },
     ],
     path: 'programacion',
   },
@@ -295,18 +295,6 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <MeetingRoom />,
         protectedRoles: admission,
       },
-      {
-        title: 'Cierre de cuenta',
-        path: '/admision/cierre-de-cuenta',
-        icon: <Receipt sx={{ color: '#fff' }} />,
-        protectedRoles: closeAccount,
-      },
-      {
-        title: 'Cuentas Pendientes Por Pagar',
-        path: '/admision/cuentas-pendientes-por-pagar',
-        icon: <Receipt sx={{ color: '#fff' }} />,
-        protectedRoles: purchaseGlobalRoles,
-      },
     ],
     path: 'admision',
   },
@@ -315,26 +303,17 @@ export const ModuleList: IModuleItemsList[] = [
     icon: <MonitorHeart />,
     moduleItems: [
       {
-        title: 'Catálogos',
-        icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
-        path: '#',
-        protectedRoles: hospitalization,
-        topLevel: true,
-        children: [
-          {
-            title: 'Solicitar Estudio de Gabinete',
-            path: '/hospitalizacion/radiografias-solicitud',
-            icon: <LiaXRaySolid />,
-            protectedRoles: hospitalizationANDnurse,
-          },
-        ],
+        title: 'Solicitud de Estudio de Gabinete',
+        path: '/hospitalizacion/radiografias-solicitud',
+        icon: <LiaXRaySolid />,
+        protectedRoles: hospitalizationANDnurse,
       },
-      // {
-      //   title: 'Guardias Anestesiologos',
-      //   path: '/hospitalizacion/guardias-anestesiologos',
-      //   icon: <GiMedicalDrip />,
-      //   protectedRoles: hospitalization,
-      // },
+      {
+        title: 'Solicitud de Artículos',
+        path: '/farmacia/solicitud-enfermero',
+        icon: <FactCheckIcon sx={{ color: '#fff' }} />,
+        protectedRoles: nurseRole,
+      },
       {
         title: 'Cuartos Hospitalarios',
         path: '/hospitalizacion/cuartos-hospitalarios',
@@ -347,12 +326,6 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <CalendarMonth sx={{ color: '#fff' }} />,
         protectedRoles: hospitalizationANDnurse,
       },
-      // {
-      //   title: 'Configuración',
-      //   path: '/hospitalizacion/configuracion-hospitalizacion',
-      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
-      //   protectedRoles: hospitalization,
-      // },
     ],
     path: 'hospitalizacion',
   },
@@ -366,12 +339,6 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <GiMedicalDrip />,
         protectedRoles: operatingRoomANDnurse,
       },
-      // {
-      //   title: 'Configuración',
-      //   path: '/quirofano/configuracion',
-      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
-      //   protectedRoles: operatingRoom,
-      // },
       {
         title: 'Recuperación',
         path: '/quirofano/recuperacion',
@@ -379,49 +346,51 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: operatingRoomANDnurse,
       },
       {
-        title: 'Medicos',
-        path: '/quirofano/medicos',
-        icon: <FaUserDoctor />,
+        title: 'Catálogos',
+        icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
+        path: '#',
         protectedRoles: hospitalization,
+        topLevel: true,
+        children: [
+          {
+            title: 'Paquetes Quirúrgicos',
+            path: '/quirofano/paquetes-quirurgicos',
+            icon: <Work sx={{ color: '#fff' }} />,
+            protectedRoles: operatingRoomANDnurse,
+          },
+          {
+            title: 'Medicos',
+            path: '/quirofano/medicos',
+            icon: <FaUserDoctor />,
+            protectedRoles: hospitalization,
+          },
+          {
+            title: 'Anestesiólogos',
+            path: '/quirofano/anestesiologos',
+            icon: <GroupAdd sx={{ color: '#fff' }} />,
+            protectedRoles: hospitalization,
+          },
+          {
+            title: 'Procedimientos de cirugía',
+            path: '/programacion/procedimientos-cirugia',
+            icon: <Vaccines sx={{ color: '#fff' }} />,
+            protectedRoles: programation,
+          },
+        ],
       },
-      {
-        title: 'Anestesiólogos',
-        path: '/quirofano/anestesiologos',
-        icon: <GroupAdd sx={{ color: '#fff' }} />,
-        protectedRoles: hospitalization,
-      },
+      // {
+      //   title: 'Configuración',
+      //   path: '/quirofano/configuracion',
+      //   icon: <SettingsIcon sx={{ color: '#fff' }} />,
+      //   protectedRoles: operatingRoom,
+      // },
     ],
     path: 'quirofano',
-  },
-  {
-    categoryTitle: 'Facturación',
-    icon: <FaFileInvoice />,
-    moduleItems: [
-      {
-        title: 'Facturaciones',
-        path: '/facturas',
-        icon: <LiaFileInvoiceDollarSolid />,
-        protectedRoles: invoiceAdmin,
-      },
-    ],
-    path: 'facturas',
   },
   {
     categoryTitle: 'Biomédico',
     icon: <MedicationLiquid />,
     moduleItems: [
-      {
-        title: 'Equipo Biomédico',
-        path: '/biomedico/equipo-biomedico',
-        icon: <MedicalInformation sx={{ color: '#fff' }} />,
-        protectedRoles: hospitalization,
-      },
-      {
-        title: 'Estudios de Gabinete',
-        path: '/biomedico/solicitudes',
-        icon: <LiaXRaySolid />,
-        protectedRoles: hospitalization,
-      },
       {
         title: 'Administrar Solicitudes de Estudios de Gabinete',
         path: '/biomedico/solicitudes-administracion',
@@ -429,7 +398,28 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
       },
       {
-        title: 'Configuración de Solicitudes de Estudio',
+        title: 'Catálogos',
+        icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
+        path: '#',
+        protectedRoles: hospitalization,
+        topLevel: true,
+        children: [
+          {
+            title: 'Equipo Biomédico',
+            path: '/biomedico/equipo-biomedico',
+            icon: <MedicalInformation sx={{ color: '#fff' }} />,
+            protectedRoles: hospitalization,
+          },
+          {
+            title: 'Estudios de Gabinete',
+            path: '/biomedico/solicitudes',
+            icon: <LiaXRaySolid />,
+            protectedRoles: hospitalization,
+          },
+        ],
+      },
+      {
+        title: 'Configuración',
         path: '/biomedico/configuracion-solicitudes',
         icon: <SettingsIcon />,
         protectedRoles: supplyRoles,

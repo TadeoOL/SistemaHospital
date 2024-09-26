@@ -1,4 +1,4 @@
-import { Box, Button, Divider, MenuItem, Modal, Stack, TextField } from '@mui/material';
+import { Box, Button, CircularProgress, Divider, IconButton, MenuItem, Modal, Stack, TextField } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useEffect, useState } from 'react';
 import { ArticleTable } from './ArticleTable';
@@ -7,6 +7,9 @@ import { useArticlePagination } from '../../../../store/purchaseStore/articlePag
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
+import { useGetCategories } from '../../../../hooks/useGetCategories';
+import { ICategory, ISubCategory } from '../../../../types/types';
+import { FilterListOff } from '@mui/icons-material';
 // import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
 
 const Article = () => {
@@ -15,19 +18,26 @@ const Article = () => {
   //const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   // const { almacenes } = useGetAlmacenes();
   const { almacenes } = useGetAlmacenes();
-  const { enabled, setEnabled, setSearch, refetchArticles, warehouseSelected, setWarehouseSelected } =
+  const { enabled, subcategory, setEnabled, setSearch, refetchArticles, cleanArticles, warehouseSelected, setWarehouseSelected, setSubcategory } =
     useArticlePagination((state) => ({
       enabled: state.enabled,
       setEnabled: state.setEnabled,
       setSearch: state.setSearch,
+      setSubcategory: state.setSubcategory,
+      subcategory: state.subcategory,
+      cleanArticles: state.cleanArticles,
       refetchArticles: state.fetchArticles,
       warehouseSelected: state.warehouseSelected,
       setWarehouseSelected: state.setWarehouseSelected,
     }));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { categories, isLoading: isLoadingCategories} = useGetCategories();
+  const [selectedCategorySubcategories, setSelectedCategorySubcategories] = useState<ISubCategory[] | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   useEffect(() => {
     refetchArticles();
-  }, [warehouseSelected]);
+  }, [warehouseSelected, subcategory]);
 
   return (
     <>
@@ -75,6 +85,65 @@ const Article = () => {
                 ))}
               </TextField>
             </Stack>
+            {
+                isLoadingCategories ?
+                  (<CircularProgress />)
+                  :
+                  (<>
+                  <TextField
+                    sx={{ width: 150 }}
+                    select
+                    label="Categoria"
+                    size="small"
+                    //helperText={'Selecciona un almacén'}
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value ?? null);
+                      if(e.target.value !== null){
+                        setSelectedCategorySubcategories(categories.find((cat) => cat.id === e.target.value)?.subCategorias ?? null)
+                      }
+                      else{
+                        setSelectedCategorySubcategories(null)
+                      }
+                    }}
+                  >
+                    {categories.filter((cat)=> cat.id_Almacen === warehouseSelected).map((warehouse: ICategory) => (
+                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.nombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    sx={{ width: 150 }}
+                    select
+                    label="Subcategoria"
+                    size="small"
+                    //helperText={'Selecciona un almacén'}
+                    value={selectedSubcategory}
+                    onChange={(e) => {
+                      setSelectedSubcategory(e.target.value ?? null);
+                      setSubcategory(e.target.value ?? '');
+                    }}
+                  >
+                    {selectedCategorySubcategories ? selectedCategorySubcategories.map((warehouse: ISubCategory) => (
+                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.nombre}
+                      </MenuItem>
+                    ))
+                    :
+                    <></>
+                  }
+                  </TextField>
+                  </>)
+              }
+              <IconButton onClick={() =>{ 
+                cleanArticles(); 
+                setSubcategory(''); 
+                setSelectedCategory(null)
+                setSelectedCategorySubcategories(null);
+              }}>
+                <FilterListOff />
+              </IconButton>
             {/* <TextField
               sx={{ width: 200 }}
               select

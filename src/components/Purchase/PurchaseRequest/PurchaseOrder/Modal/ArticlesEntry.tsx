@@ -296,7 +296,6 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                           </TableCell>
                           <TableCell>{a.precioProveedor}</TableCell>
                           <TableCell>{a.precioVenta}</TableCell>
-                          <TableCell>{a.factorAplicado}</TableCell>
                           <TableCell>{a.fechaCaducidad ? hasExpireDate(a.fechaCaducidad) : 'No tiene aun'}</TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', flex: 1 }}>

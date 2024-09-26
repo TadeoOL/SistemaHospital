@@ -61,6 +61,7 @@ import {
   RequestsConfigView,
   InvoiceView,
   OutstandingBillsView,
+  OperatingPackagesView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -106,9 +107,6 @@ function App() {
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
               </Route>
-              <Route element={<ProtectedRoutePharmacyNurse />}>
-                <Route path="/farmacia/solicitud-enfermero" element={<NurseRequestView />} />
-              </Route>
               {/*<Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
@@ -119,6 +117,7 @@ function App() {
               <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
               <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
+              <Route path="ventas/cierre-de-cuenta" element={<PatientAcountsView />} />
               <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
               // ---------------------------Programacion------------------------------------- //
               <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
@@ -131,7 +130,6 @@ function App() {
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
               // ---------------------------Admision------------------------------------- //
-              <Route path="admision/cierre-de-cuenta" element={<PatientAcountsView />} />
               <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
               <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
             </Route>
@@ -141,6 +139,10 @@ function App() {
             {/* <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} /> */}
             <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
             <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
+            <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
+            <Route element={<ProtectedRoutePharmacyNurse />}>
+                <Route path="/hospitalizacion/solicitud-enfermero" element={<NurseRequestView />} />
+              </Route>
             // --------------------------------- Budget ------------------------------- // //
             <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
             // --------------------------------- Nursing ------------------------------- // //
@@ -156,6 +158,9 @@ function App() {
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
             <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
+            <Route element={<PharmacyRoute />}>
+              <Route path="/quirofano/paquetes-quirurgicos" element={<OperatingPackagesView />} />
+            </Route>       
             // ---------------------------------------- Invoice ------------------------------//
             <Route path="/facturas" element={<InvoiceView />} />
           </Route>

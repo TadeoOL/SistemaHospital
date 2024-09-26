@@ -12,6 +12,7 @@ interface State {
   sort: string;
   enabled: boolean;
   handleChangeArticle: boolean;
+  subcategory: string;
   warehouseSelected: string;
 }
 
@@ -26,6 +27,7 @@ interface Action {
   setWarehouseSelected: (warehouseSelected: string) => void;
   setHandleChangeArticle: (handleChangeArticle: boolean) => void;
   fetchArticles: (idWarehouse?: string) => Promise<void>;
+  setSubcategory: (subcategory: string) => void;
   cleanArticles: () => void;
 }
 
@@ -38,12 +40,14 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   data: [],
   isLoading: true,
   search: '',
+  subcategory: '',
   sort: '',
   warehouseSelected: 'fc6d0fdd-8cfa-49a7-863e-206a7542a5e5', //harcodeo insano de farmacia
   enabled: true,
   handleChangeArticle: false,
   setHandleChangeArticle: (handleChangeArticle: boolean) => set({ handleChangeArticle }),
   setCount: (count: number) => set({ count }),
+  setSubcategory: (subcategory: string) => set({ subcategory }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
@@ -52,7 +56,7 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
   setEnabled: (enabled: boolean) => set({ enabled }),
   setWarehouseSelected: (warehouseSelected: string) => set({ warehouseSelected }),
   fetchArticles: async () => {
-    const { pageIndex, pageSize, enabled, search, sort, warehouseSelected } = get();
+    const { pageIndex, pageSize, enabled, search, sort, warehouseSelected, subcategory } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
@@ -61,7 +65,7 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&sort=${sort}&habilitado=${
           enabled
-        }&id_AlmacenPrincipal=${warehouseSelected}&id_Almacen=${warehouseSelected}`
+        }&id_AlmacenPrincipal=${warehouseSelected}&id_Almacen=${warehouseSelected}&Id_Subcategoria=${subcategory}`
       );
       console.log('llamada', res);
       set(() => ({
@@ -77,6 +81,6 @@ export const useArticlePagination = createWithEqualityFn<State & Action>((set, g
     }
   },
   cleanArticles: () => {
-    set(() => ({ pageIndex: 0, pageSize: 10, enabled: true, search: '' }));
+    set(() => ({ pageIndex: 0, pageSize: 10, enabled: true, search: '', subcategory: '' }));
   },
 }));

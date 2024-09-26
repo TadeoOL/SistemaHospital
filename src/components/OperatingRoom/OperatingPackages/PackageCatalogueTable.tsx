@@ -17,16 +17,16 @@ import {
   Modal,
   CircularProgress,
 } from '@mui/material';
-import { IArticlesPackage } from '../../../../types/types';
+import { IArticlesPackage } from '../../../types/types';
 import React, { useState, useEffect } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { usePackagePaginationStore } from '../../../../store/warehouseStore/packagesPagination';
+import { usePackagePaginationStore } from '../../../store/warehouseStore/packagesPagination';
 import { shallow } from 'zustand/shallow';
-import { UpdatePackageModal } from './Modal/UpdatePackageModal';
-import { SortComponent } from '../../../Commons/SortComponent';
+import { UpdatePackageModal } from '../../Warehouse/WarehouseSelected/TabsView/Modal/UpdatePackageModal';
+import { SortComponent } from '../../Commons/SortComponent';
 import Swal from 'sweetalert2';
-import { disablePackage } from '../../../../api/api.routes';
+import { disablePackage } from '../../../api/api.routes';
 
 const useGetAllData = () => {
   const {

@@ -16,6 +16,7 @@ interface State {
   warehouseId: string;
   principalWarehouseId: string;
   startDate: string;
+  subcategory: string;
   endDate: string;
   sort: string;
 }
@@ -32,6 +33,7 @@ interface Action {
   setWarehouseId: (warehouseId: string) => void;
   setPrincipalWarehouseId: (principalWarehouseId: string) => void;
   setStartDate: (startDate: string) => void;
+  setSubcategory: (subcategory: string) => void;
   setEndDate: (endDate: string) => void;
   clearFilters: () => void;
   clearAllData: () => void;
@@ -51,12 +53,14 @@ const initialState: State = {
   warehouseId: '',
   principalWarehouseId: '',
   startDate: getFirstDayOfTheMonth(),
+  subcategory: '',
   endDate: '',
   sort: '',
 };
 export const useExistingArticlePagination = createWithEqualityFn<State & Action>((set, get) => ({
   ...initialState,
   setStartDate: (startDate: string) => set({ startDate }),
+  setSubcategory: (subcategory: string) => set({ subcategory }),
   setEndDate: (endDate: string) => set({ endDate }),
   setWarehouseId: (warehouseId: string) => set({ warehouseId }),
   setPrincipalWarehouseId: (principalWarehouseId: string) => set({ principalWarehouseId }),
@@ -70,7 +74,8 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, warehouseId, startDate, endDate, sort, principalWarehouseId } = get();
+    const { pageIndex, pageSize, search, enabled, warehouseId, startDate,
+      subcategory ,endDate, sort, principalWarehouseId } = get();
     const page = pageIndex + 1;
     try {
       let mainWarehouseId = '';
@@ -83,7 +88,8 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
       const res = await getExistingArticles(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_SubCategoria=${
+          subcategory }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
       );
       set(() => ({
         data: res.data,
@@ -108,6 +114,7 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
       isLoading: true,
       startDate: '',
       endDate: '',
+      subcategory:'',
     });
   },
   clearAllData: () => {

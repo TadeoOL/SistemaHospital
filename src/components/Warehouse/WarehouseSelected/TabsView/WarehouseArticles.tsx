@@ -4,6 +4,7 @@ import {
   Card,
   CircularProgress,
   IconButton,
+  MenuItem,
   Modal,
   Stack,
   Table,
@@ -20,7 +21,7 @@ import {
 import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import React, { useEffect, useState } from 'react';
-import { IExistingArticle } from '../../../../types/types';
+import { ICategory, IExistingArticle, ISubCategory } from '../../../../types/types';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Edit, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
@@ -32,6 +33,7 @@ import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
 import { SortComponent } from '../../../Commons/SortComponent';
+import { useGetCategoriesWarehouse } from '../../../../hooks/useGetCategoriesByWarehouse';
 
 
 export const useGetExistingArticles = () => {
@@ -48,6 +50,8 @@ export const useGetExistingArticles = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSubcategory,
+    subcategory,
     pageSize,
     startDate,
     endDate,
@@ -69,6 +73,8 @@ export const useGetExistingArticles = () => {
       setPrincipalWarehouseId: state.setPrincipalWarehouseId,
       setStartDate: state.setStartDate,
       setEndDate: state.setEndDate,
+      setSubcategory: state.setSubcategory,
+      subcategory: state.subcategory,
       clearFilters: state.clearFilters,
       setPageIndex: state.setPageIndex,
       setPageSize: state.setPageSize,
@@ -91,7 +97,7 @@ export const useGetExistingArticles = () => {
 
   useEffect(() => {
     fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
+  }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex, subcategory]);
 
   return {
     data,
@@ -101,6 +107,7 @@ export const useGetExistingArticles = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSubcategory,
     startDate,
     endDate,
     isLoading,
@@ -120,6 +127,7 @@ export const WarehouseArticles = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSubcategory,
     //startDate,
     //endDate,
     isLoading,
@@ -129,6 +137,11 @@ export const WarehouseArticles = () => {
     count,
   } = useGetExistingArticles();
   const [openModal, setOpenModal] = useState(false);
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { categories, isLoading: isLoadingCategories} = useGetCategoriesWarehouse(warehouseData.esSubAlmacen? warehouseData.id_AlmacenPrincipal as string : warehouseData.id);
+  const [selectedCategorySubcategories, setSelectedCategorySubcategories] = useState<ISubCategory[] | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   return (
     <>
@@ -142,27 +155,63 @@ export const WarehouseArticles = () => {
               size="small"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              {/*<TextField
-                label="Fecha inicio"
-                size="small"
-                type="date"
-                value={startDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                }}
-              />
-              <TextField
-                label=" Fecha final"
-                size="small"
-                type="date"
-                value={endDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                }}
-              />*/}
-              <IconButton onClick={() => clearFilters()}>
+              {
+                isLoadingCategories ?
+                  (<CircularProgress />)
+                  :
+                  (<>
+                  <TextField
+                    sx={{ width: 150 }}
+                    select
+                    label="Categoria"
+                    size="small"
+                    //helperText={'Selecciona un almacén'}
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value ?? null);
+                      if(e.target.value !== null){
+                        setSelectedCategorySubcategories(categories.find((cat) => cat.id === e.target.value)?.subCategorias ?? null)
+                      }
+                      else{
+                        setSelectedCategorySubcategories(null)
+                      }
+                    }}
+                  >
+                    {categories.map((warehouse: ICategory) => (
+                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.nombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    sx={{ width: 150 }}
+                    select
+                    label="Subcategoria"
+                    size="small"
+                    //helperText={'Selecciona un almacén'}
+                    value={selectedSubcategory}
+                    onChange={(e) => {
+                      setSelectedSubcategory(e.target.value ?? null);
+                      setSubcategory(e.target.value ?? '');
+                    }}
+                  >
+                    {selectedCategorySubcategories ? selectedCategorySubcategories.map((warehouse: ISubCategory) => (
+                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.nombre}
+                      </MenuItem>
+                    ))
+                    :
+                    <></>
+                  }
+                  </TextField>
+                  </>)
+              }
+              <IconButton onClick={() => {
+                clearFilters();
+                setSubcategory(''); 
+                setSelectedCategory(null)
+                setSelectedCategorySubcategories(null);
+              }}>
                 <FilterListOff />
               </IconButton>
               <Button
@@ -292,7 +341,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
     }
   };
 
-  const modifyArticle = (stockMin: string, stockActual : number) => {
+  const modifyArticle = (stockMin: string, stockActual: number) => {
     const newArticle = {
       ...article,
       stockActual: stockActual,
@@ -318,15 +367,15 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
         <TableCell>
           {isEditing ? (
             <TextField
-            sx={{ width: '60%', ml: 'auto' }}
-            size="small"
-            fullWidth
-            placeholder="Stock Minimo"
-            value={minAmountText}
-            onChange={(e) => {
-              if (!isValidInteger(e.target.value)) return;
-              setMinAmountText(e.target.value);
-            }}
+              sx={{ width: '60%', ml: 'auto' }}
+              size="small"
+              fullWidth
+              placeholder="Stock Minimo"
+              value={minAmountText}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setMinAmountText(e.target.value);
+              }}
             />
           ) : (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
@@ -341,21 +390,21 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             </Box>
           )}
         </TableCell>
-        <TableCell>{isEditing ? 
-        (
-        <TextField
-                  sx={{ width: '60%', ml: 'auto' }}
-                  size="small"
-                  fullWidth
-                  placeholder="Cantidad"
-                  value={amountText}
-                  onChange={(e) => {
-                    if (!isValidInteger(e.target.value)) return;
-                    setAmountText(e.target.value);
-                  }}
-                />
-        ) :
-        (article.stockActual)
+        <TableCell>{isEditing ?
+          (
+            <TextField
+              sx={{ width: '60%', ml: 'auto' }}
+              size="small"
+              fullWidth
+              placeholder="Cantidad"
+              value={amountText}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setAmountText(e.target.value);
+              }}
+            />
+          ) :
+          (article.stockActual)
         }
         </TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
