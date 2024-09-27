@@ -53,7 +53,7 @@ export const useXRayPaginationStore = create<State & Action>((set, get) => ({
   fetchData: async () => {
     const { enabled, search, pageIndex, pageSize, type } = get();
     const index = pageIndex + 1;
-    const typeString = type.toString()
+    const typeString = type ? type.toString() : '';
     set({ loading: true });
 
     const cancelToken = axios.CancelToken.source();

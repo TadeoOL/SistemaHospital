@@ -12,7 +12,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -25,12 +24,15 @@ import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { HowToReg } from '@mui/icons-material';
-import { toast } from 'react-toastify';
 import { modifyOperatingRoomRegister } from '../../../services/operatingRoom/operatingRoomRegisterService';
 import { HistorialClinico } from '../../../types/admissionTypes';
 import { ClinicalDataInfo } from './Modal/ClinicalDataInfo';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
-const HEADERS = ['Hora', 'Quirófano', 'Paciente', 'Edad', 'Cirugía', 'Cirujano', 'Datos Clínicos', 'Acciones'];
+const HEADERS = ['Hora', 'Quirófano', 'Paciente', 'Cirugía', 'Cirujano', 'Datos Clínicos', 'Acciones'];
 
 const useGetRecoveryRooms = () => {
   const fetch = useRecoveryRoomsPaginationStore((state) => state.fetchData);
@@ -111,7 +113,6 @@ const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
         <TableCell>{dayjs(data?.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
         <TableCell>{data?.nombre}</TableCell>
         <TableCell>{patientName}</TableCell>
-        <TableCell>{data?.paciente.edad}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data?.procedimientos ?? []} />
         </TableCell>
@@ -158,7 +159,10 @@ const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
           },
         }}
       >
-        <DischargeDateSelector operatingRoomId={data?.id as string} />
+        <DischargeDateSelector
+          operatingRoomId={data?.id as string}
+          recoveryStartTime={dayjs(data?.horaInicio).format('YYYY-MM-DDTHH:mm')}
+        />
       </Menu>
       <Modal open={openClinicalData} onClose={() => setOpenClinicalData(false)}>
         <>
@@ -169,42 +173,85 @@ const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
   );
 };
 
-const DischargeDateSelector = (props: { operatingRoomId: string }) => {
-  const [date, setDate] = useState<string>('');
+const DischargeDateSelector = (props: { operatingRoomId: string; recoveryStartTime: string }) => {
+  const [date, setDate] = useState<string>(props.recoveryStartTime);
   const [error, setError] = useState('');
   const refetch = useRecoveryRoomsPaginationStore((state) => state.fetchData);
 
   const handleAdd = async () => {
     if (!date) return setError('Selecciona una fecha');
-
-    try {
-      await modifyOperatingRoomRegister({
-        id_RegistroQuirofano: props.operatingRoomId,
-        horaFinRecuperacion: new Date(date),
+    if (dayjs(date).isBefore(dayjs(props.recoveryStartTime).add(1, 'minutes')))
+      return Swal.fire({
+        title: 'Error',
+        text: 'La fecha seleccionada es anterior o igual a la fecha de inicio de recuperación.',
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
       });
-      toast.success('Paciente dado de alta con éxito');
-      refetch();
-    } catch (error: any) {
-      console.log(error);
-      if (error.response.status === 400) return toast.error(error.response.data);
-      toast.error('Error al dar de alta el paciente');
-    }
+    withReactContent(Swal)
+      .fire({
+        title: 'Confirmar alta',
+        html: `¿Estás seguro de dar de alta al paciente?</br></br> <b>El paciente sera dado de alta a las:</b></br><h1>${dayjs(date).format('DD/MM/YYYY - HH:mm')}</h1>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, dar de alta',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+      })
+      .then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await modifyOperatingRoomRegister({
+              id_RegistroQuirofano: props.operatingRoomId,
+              horaFinRecuperacion: new Date(date),
+            });
+            Swal.fire({
+              title: 'Alta exitosa',
+              text: 'El paciente ha sido dado de alta.',
+              icon: 'success',
+              confirmButtonText: 'Aceptar',
+            });
+            refetch();
+          } catch (error: any) {
+            console.log(error);
+            if (error.response.status === 400)
+              return Swal.fire({
+                title: 'Error',
+                text: error.response.data,
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+              });
+            Swal.fire({
+              title: 'Error',
+              text: 'Hubo un error al dar de alta al paciente.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          }
+        }
+      });
   };
 
   return (
     <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', rowGap: 2 }}>
       <Stack spacing={0.5}>
         <Typography>Fecha de alta:</Typography>
-        <TextField
-          type="datetime-local"
-          value={date}
-          onChange={(e) => {
-            setDate(e.target.value);
-            setError('');
-          }}
-          error={!!error}
-          helperText={error}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DateTimePicker
+            label="Fecha y Hora"
+            value={dayjs(date)}
+            onChange={(newValue) => setDate(dayjs(newValue).format('YYYY-MM-DDTHH:mm'))}
+            format="DD/MM/YYYY HH:mm"
+            ampm={false}
+            slotProps={{
+              textField: {
+                error: !!error,
+                helperText: error,
+              },
+            }}
+          />
+        </LocalizationProvider>
       </Stack>
       <Button variant="contained" size="small" onClick={handleAdd}>
         Seleccionar fecha

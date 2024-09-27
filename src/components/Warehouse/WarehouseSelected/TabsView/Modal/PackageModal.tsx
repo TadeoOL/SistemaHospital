@@ -32,10 +32,9 @@ import AnimateButton from '../../../../@extended/AnimateButton';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { shallow } from 'zustand/shallow';
 import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticle>({
   limit: OPTIONS_LIMIT,
 });
@@ -44,7 +43,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, md: 800 },
 
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -69,19 +68,18 @@ const style2 = {
   },
 };
 
-export const PackageModal = (props: { setOpen: Function }) => {
+export const PackageModal = (props: { setOpen: Function; warehouseId: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
   const [serch, setSerch] = useState('');
   const [valueState, setValueState] = useState('');
-  const { warehouseId } = useParams();
 
   useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        handleFetchArticlesFromWareHouse(props.warehouseId as string);
       } catch (error) {
         console.log('error');
       } finally {
@@ -95,7 +93,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        handleFetchArticlesFromWareHouse(props.warehouseId as string);
       } catch (error) {
         console.log('error');
       } finally {
@@ -122,7 +120,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
   );
 
   const [articleSelected, setArticleSelected] = useState<null | IArticle>(null);
-  const [amountText, setAmountText] = useState('');
+  const [amountText, setAmountText] = useState('1');
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
 
@@ -150,7 +148,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
     setArticles([...articles, objectArticle]);
     setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id !== articleSelected.id));
     setArticleSelected(null);
-    setAmountText('');
+    setAmountText('1');
   };
 
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
@@ -192,7 +190,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
       const object = {
         Nombre: data.nombre,
         Descripcion: data.descripcion,
-        Id_Almacen: warehouseId as string,
+        Id_Almacen: props.warehouseId as string,
         Contenido: data.historialArticulos,
       };
       await addArticlesPackage(object);
@@ -217,7 +215,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
             <Grid component="span" container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={12}>
                 <Typography>Nombre</Typography>
                 <TextField
                   fullWidth
@@ -265,7 +263,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
                 rowGap: { xs: 2, sm: 0 },
               }}
             >
-              <Stack sx={{ display: 'flex', flex: 1 }}>
+              <Stack sx={{ display: 'flex', flex: 2 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
                 <Autocomplete
                   disablePortal
@@ -287,7 +285,7 @@ export const PackageModal = (props: { setOpen: Function }) => {
                       error={articleError}
                       helperText={articleError && 'Selecciona un articulo'}
                       placeholder="Artículos"
-                      sx={{ width: '50%' }}
+                      sx={{ width: '100%' }}
                       onChange={(e) => {
                         setSerch(e.target.value);
                       }}
@@ -298,7 +296,6 @@ export const PackageModal = (props: { setOpen: Function }) => {
               <Stack sx={{ display: 'flex', flex: 1 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
                 <TextField
-                  sx={{ width: '60%' }}
                   size="small"
                   fullWidth
                   placeholder="Cantidad"
@@ -316,8 +313,6 @@ export const PackageModal = (props: { setOpen: Function }) => {
             <Box
               sx={{
                 display: 'flex',
-                flex: 1,
-                justifyContent: 'flex-end',
                 mt: 2,
               }}
             >

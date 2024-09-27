@@ -12,6 +12,7 @@ interface State {
   sort: string;
   enabled: boolean;
   handleChangeCategory: boolean;
+  warehouseId: string;
 }
 
 interface Action {
@@ -20,6 +21,7 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
+  setWarehouseId: (warehouseId: string) => void;
   setSort: (sort: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeCategory: (handleChangeCategory: boolean) => void;
@@ -35,6 +37,7 @@ export const useCategoryPagination = createWithEqualityFn<State & Action>((set, 
   data: [],
   isLoading: true,
   search: '',
+  warehouseId: '',
   sort: '',
   enabled: true,
   handleChangeCategory: false,
@@ -45,16 +48,17 @@ export const useCategoryPagination = createWithEqualityFn<State & Action>((set, 
   setSort: (sort: string) => set({ sort }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
+  setWarehouseId: (warehouseId: string) => set({ warehouseId, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchCategories: async () => {
-    const { pageIndex, pageSize, search, sort, enabled } = get();
+    const { pageIndex, pageSize, search, sort, enabled, warehouseId } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
       const res = await getCategories(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Sort=${sort}`
+        }&search=${search}&habilitado=${enabled}&Sort=${sort}&Id_Almacen=${warehouseId}`
       );
       set(() => ({
         data: res.data,

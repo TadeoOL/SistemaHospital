@@ -10,3 +10,9 @@ export const getStatus = (value: number) => {
       break;
   }
 };
+
+export const XRAY_REQUEST_STATUS: Record<number, string> = {
+  0: 'Cancelada',
+  1: 'Pendiente',
+  2: 'Aceptada',
+};

@@ -1,15 +1,12 @@
 import {
   Autocomplete,
   Box,
-  Modal,
   Button,
   Card,
   CircularProgress,
   Radio,
   IconButton,
   Stack,
-  styled,
-  Collapse,
   Table,
   TableBody,
   FormControlLabel,
@@ -21,9 +18,7 @@ import {
   TextField,
   Tooltip,
   Typography,
-  createFilterOptions,
-  tableCellClasses,
-  alpha,
+  createFilterOptions, 
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,33 +27,23 @@ import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {
   articlesOutputToWarehouseToWarehouse,
-  getArticlesFromWarehouseSearch,
-  getNursesUsers,
-  getPackagesByWarehouseId,
   getExistingArticles,
 } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { Save, Edit, Delete, Info, Cancel, ExpandLess, ExpandMore, WarningAmber } from '@mui/icons-material';
+import { Save, Edit, Delete, Info, Cancel, WarningAmber } from '@mui/icons-material';
 import {
-  IArticleFromSearch,
+  IArticleFromSearchWithQuantity,
   IArticlesPackage,
-  IExistingArticleList,
   IPatientFromSearch,
 } from '../../../../types/types';
-import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
-import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
+//import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { getPatientsWithAccount } from '../../../../services/programming/patientService';
-
-const OPTIONS_LIMIT = 5;
-const filterArticleOptions = createFilterOptions<IArticleFromSearch>({
-  limit: OPTIONS_LIMIT,
-});
-const filterPackageOptions = createFilterOptions<IArticlesPackage>({
-  limit: OPTIONS_LIMIT,
-});
-const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
+import { isValidInteger } from '../../../../utils/functions/dataUtils';
+import AnimateButton from '../../../@extended/AnimateButton';
+///cambiar esta fokin she
+const OPTIONS_LIMIT = 30;
+const filterArticleOptions = createFilterOptions<IArticleFromSearchWithQuantity>({
   limit: OPTIONS_LIMIT,
 });
 
@@ -67,7 +52,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, md: 900 },
 
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -91,64 +76,18 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-const NestedTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-    fontSize: 11,
-  },
-  [`&.${tableCellClasses.root}`]: {
-    paddingLeft: '20px',
-    width: '50%',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    justifyContent: 'center',
-  },
-}));
 
 export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
-  const [dataWerehouseSelectedPackages, setDataWerehousePackagesSelected] = useState<IArticlesPackage[]>([]);
-  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearch[]>([]);
-  const [dataWerehouseSelectedArticlesInitial, setDataWerehouseArticlesSelectedInitial] = useState<
-    IArticleFromSearch[]
-  >([]);
-  const [nursesData, setNursesData] = useState<{ id_Enfermero: string; nombre: string }[]>([]);
+  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearchWithQuantity[]>([]);
   const textFieldRef = useRef<HTMLInputElement | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
-  const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
-  const [articlesFetchedAM, setArticlesFetchedAM] = useState<ArticlesFetched[] | []>([]);
   const [search, setSearch] = useState('');
-  const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
 
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
-  /*
-  const defaultRoomsQuirofano = ['C-1', 'C-2', 'C-3', 'C-4', 'EndoPro', 'LPR'];
-  const defaultRoomsHospitalizacion = [
-    'C-104',
-    'C-105',
-    'C-201',
-    'C-202',
-    'C-203',
-    'C-204',
-    'C-205',
-    'C-206',
-    'C-207',
-    'C-208',
-    'C-209',
-    'C-210',
-    'C-211',
-    'c-212',
-    'C-213',
-    'C-214',
-  ];*/
 
   useEffect(() => {
     setWarehouseId(props.warehouseId);
@@ -158,17 +97,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        const res = await getExistingArticles(
-          `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
-        );
-        setArticlesFetchedAM(
-          res.data.map((a: IArticleFromSearch) => {
-            return { ...a };
-          })
-        );
-        handleFetchArticlesFromWareHouse();
-        handleFetchArticlesPackagesFromWareHouse(props.warehouseId);
-        patientsCall();
+        handleFetchArticlesFromWareHouse()
       } catch (error) {
         console.log(error);
       } finally {
@@ -179,137 +108,71 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   }, []);
   useEffect(() => {
     const fetch = async () => {
-      try {
-        const res = await getExistingArticles(
-          `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
-        );
-        setDataWerehouseArticlesSelected(
-          res.data.map((a: IArticleFromSearch) => {
-            return { ...a };
-          })
-        );
-      } catch (error) {
-        console.log(error);
-      }
+      await handleFetchArticlesFromWareHouse()
     };
     fetch();
   }, [search]);
-  const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
-  const [patientSearch, setPatientSearch] = useState('');
+  const [articles, setArticles] = useState<IArticleFromSearchWithQuantity[] | []>([]);
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
 
-  const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearch>(null);
-  const [nurseSelected, setNurseSelected] = useState<{ id_Enfermero: string; nombre: string } | null>();
-  const [userError, setUserError] = useState(false);
+  const [articleSelected, setArticleSelected] = useState<null | IArticleFromSearchWithQuantity>(null);
   const [articleError, setArticleError] = useState(false);
-  const [openLoteModal, setOpenLoteModal] = useState(false);
-  const [loteEditing, setLoteEditing] = useState(false);
-  const [temporalLoteEditing, setTemporalLoteEditing] = useState(false);
-  const [loteSelected, setLoteSelected] = useState<
-    { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] | null
-  >(null);
-  const [articlesToSelect, setArticlesToSelect] = useState<ArticlesFetched[] | []>([]);
-  const [amountToSelect, setAmountToSelect] = useState<number | undefined>();
+  const [articlesToSelect, setArticlesToSelect] = useState<IArticleFromSearchWithQuantity[] | []>([]);
+  const [amountText, setAmountText] = useState('');
+  const [amountError, setAmountError] = useState(false);
 
   useEffect(() => {
     setArticleSelected(null);
   }, [props.setOpen]);
 
-  useEffect(() => {
-    patientsCall();
-  }, [patientSearch]);
-
-  useEffect(() => {
-    if (!openLoteModal) {
-      setArticleSelected(null);
-      setAmountToSelect(undefined);
+  const handleAddArticle = () => {
+    if (!articleSelected) {
+      setArticleError(true);
+      return toast.warning('Selecciona un articulo!');
     }
-  }, [openLoteModal]);
-
-  const patientsCall = async () => {
-    const url = `Search=${patientSearch}`;
-    const res = await getPatientsWithAccount(url);
-    if (res) {
-      setUsersData(res);
+    if (amountText.trim() === '') {
+      setAmountError(true);
+      return toast.warning('Agrega una cantidad!');
     }
-  };
-
-  const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
-    let totalQuantityByArticle = 0;
-    const updatedLote: { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[] = [];
-    lotesArticles.forEach((element) => {
-      const nestedLote = {
-        cantidad: element.cantidad,
-        id_ArticuloExistente: element.id_ArticuloExistente,
-        fechaCaducidad: element.fechaCaducidad,
-      };
-      updatedLote.push(nestedLote);
-      totalQuantityByArticle += element.cantidad;
-    });
-    const updatedArticle = {
-      ...articleSelected,
-      cantidad: totalQuantityByArticle,
-      lote: updatedLote,
+    if (Number(amountText) > articleSelected.stock) {
+      setAmountError(true);
+      return toast.warning('La cantidad excede el stock!');
+    }
+    const objectArticle = {
+      id_Articulo: articleSelected.id_Articulo,
+      id_ArticuloAlmacen: articleSelected.id_ArticuloAlmacen,
+      nombre: articleSelected.nombre,
+      cantidad: parseFloat(amountText),
+      stock: articleSelected.stock,
     };
-    if (temporalLoteEditing) {
-      const direction = articlesToSelect.findIndex(
-        (art) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articlesToSelect.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setTemporalLoteEditing(false);
-      return;
-    }
-    if (edit) {
-      const direction = articles.findIndex(
-        (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
-      articles.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
-      setArticleSelected(null);
-      setLoteEditing(false);
-    } else {
-      setArticles((prev: any) => [...prev, updatedArticle]);
-      setArticleSelected(null);
-    }
+
+    setArticles([...articles, objectArticle]);
+    setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id_Articulo !== articleSelected.id_Articulo));
+    setArticleSelected(null);
+    setAmountText('');
   };
 
-  const handleAddArticlesFromPackage = (packageL: IArticlesPackage) => {
-    const formatPackageL = packageL.contenido
-      ?.filter(
-        (val: any) =>
-          !(
-            articles.map((art) => art.id_Articulo).includes(val.id) ||
-            articlesToSelect.map((art) => art.id_Articulo).includes(val.id)
-          )
-      )
-      .map((artPack: any) => ({
-        id_Articulo: artPack.id_Articulo,
-        nombre: artPack.nombre,
-        lote: artPack?.lote
-          ? artPack.lote.map((artLote: any) => ({
-              ...artLote,
-            }))
-          : [],
-        cantidad: artPack.cantidad.toString(),
-        cantidadSeleccionar: artPack.cantidadSeleccionar,
-        //cambio quiza agregar codigo de barras
-      }));
-    setArticlesToSelect(formatPackageL as any[]);
+  const handleEditArticle = (editedArticle: IArticleFromSearchWithQuantity) => {
+    console.log("lo q manda", editedArticle);
+    const direction = articles.findIndex(artp => artp.id_Articulo === editedArticle.id_Articulo);
+    const copy = articles.slice();
+    copy[direction] = editedArticle;
+    setArticles(copy);
   };
 
   const handleFetchArticlesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getArticlesFromWarehouseSearch(search, props.warehouseId);
-      const transformedData = res.map((item: any) => ({
+      const res = await getExistingArticles(
+        `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
+      );
+      const transformedData = res.data.map((item: any) => ({
         id_Articulo: item.id_Articulo,
         nombre: item.nombre,
+        stock: item.stockActual,
+        id_ArticuloAlmacen: item.id_ArticuloAlmacen
       }));
-      if (dataWerehouseSelectedArticlesInitial?.length < 1) {
-        setDataWerehouseArticlesSelectedInitial(transformedData);
-      }
+      console.log(transformedData);
       setDataWerehouseArticlesSelected(transformedData);
     } catch (error) {
       console.log(error);
@@ -317,12 +180,10 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       setIsLoadingArticlesWareH(false);
     }
   };
-
-  const handleFetchArticlesPackagesFromWareHouse = async (wareH: string) => {
+  /*
+  const handleFetchArticlesPackagesFromWareHouse = async () => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getPackagesByWarehouseId(wareH);
-      setDataWerehousePackagesSelected(res);
       const resNurses = await getNursesUsers();
       setNursesData(resNurses);
     } catch (error) {
@@ -331,7 +192,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       setIsLoadingArticlesWareH(false);
     }
   };
-
+  */
   const { handleSubmit } = useForm<IArticlesPackage>({
     defaultValues: {
       nombre: '',
@@ -354,41 +215,36 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       toast.error('Selecciona un motivo de salida');
       return;
     }
-    if (reasonMessage === 'Cuenta Paciente' && !userSelected) {
-      setUserError(true);
-      toast.error('Selecciona un paciente');
-      return;
-    }
-    if (!nurseSelected) {
+    /*if (!nurseSelected) {
       toast.error('Selecciona enfermero');
       return;
-    }
+    }*/
     try {
       if (!validateAmount) return;
       setLoadingSubmit(true);
 
-      let articlesArticlesExit: any = [];
-      for (const article of articles as any) {
-        article.lote.forEach((loteA: any) => {
-          articlesArticlesExit.push({
-            Id_ArticuloExistente: loteA.id_ArticuloExistente,
-            Cantidad: loteA.cantidad.toString(),
-            fechaCaducidad: loteA.fechaCaducidad,
-          });
-        });
-      }
+      const existingArticles = articles
+      .map((article) => {
+        return {
+          Id_Articulo: article.id_Articulo,
+          Id_ArticuloAlmacenStock: article.id_ArticuloAlmacen,
+          Nombre: article.nombre,
+          Cantidad: Number(article.cantidad),
+        };
+      });
+
       const object = {
-        Lotes: articlesArticlesExit,
+        ArticulosSalida: existingArticles,
         id_almacenDestino: '',
         id_almacenOrigen: props.warehouseId,
-        EnEspera: true,
-        Id_CuentaPaciente: userSelected?.id_Cuenta,
+        //EnEspera: true,
+        //Id_CuentaPaciente: userSelected?.id_Cuenta,
         SalidaMotivo:
           reasonMessage === 'Otro'
             ? textFieldRef.current?.value
             : `${reasonMessage} ${userSelected?.nombreCompleto || ''}`,
-        SolicitadoPor: nurseSelected.nombre,
-        Id_Enfermero: nurseSelected.id_Enfermero,
+        //SolicitadoPor: nurseSelected.nombre,
+        //Id_Enfermero: nurseSelected.id_Enfermero,
       };
       await articlesOutputToWarehouseToWarehouse(object);
       props.refetch();
@@ -404,42 +260,28 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     }
   };
 
-  const radioOptions = ['Cuenta Paciente', 'Uso interno', 'Otro'];
+  const radioOptions = ['Uso interno', 'Otro'];
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Salida paquete de artículos cambial" />
-      <Box sx={style2}>
-        {isLoadingWarehouse ? (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
-            <CircularProgress size={40} />
-          </Box>
-        ) : (
+      <HeaderModal setOpen={props.setOpen} title="Salida de artículos" />
+      {isLoadingWarehouse ? (
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            display: 'flex',
+            justifyContent: 'center',
+            alignContent: 'center',
+            width: '100%',
+            height: 300,
+          }}
+        >
+          <CircularProgress size={40} sx={{ my: 'auto' }} />
+        </Box>
+      ) : (
+        <Box sx={style2}>
           <form noValidate onSubmit={handleSubmit(onSubmit)}>
             <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-              <Stack sx={{ display: 'flex', flex: 1 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un paquete</Typography>
-                <Autocomplete
-                  disablePortal
-                  fullWidth
-                  filterOptions={filterPackageOptions}
-                  onChange={(e, val) => {
-                    e.stopPropagation();
-                    setPackageSelected(val);
-                    if (val !== null) {
-                      handleAddArticlesFromPackage(val as IArticlesPackage);
-                    }
-                  }}
-                  loading={isLoadingArticlesWareH && dataWerehouseSelectedPackages.length === 0}
-                  getOptionLabel={(option) => option.nombre}
-                  options={dataWerehouseSelectedPackages}
-                  value={packageSelected}
-                  noOptionsText="No se encontraron paquetes"
-                  renderInput={(params) => (
-                    <TextField {...params} placeholder="Paquetes de artículos" sx={{ width: '50%' }} />
-                  )}
-                />
-              </Stack>
               <Box
                 sx={{
                   display: 'flex',
@@ -450,6 +292,16 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   rowGap: { xs: 2, sm: 0 },
                 }}
               >
+                <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            justifyContent: 'space-between',
+            columnGap: 2,
+            flexDirection: { xs: 'column', sm: 'row' },
+            rowGap: { xs: 2, sm: 0 },
+          }}
+        >
                 <Stack sx={{ display: 'flex', flex: 1 }}>
                   <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
                   <Autocomplete
@@ -465,10 +317,11 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                             articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
                           )
                         ) {
-                          setOpenLoteModal(true);
+                          console.log("no se wey");
                         }
                         setArticleId(val.id_Articulo);
                         setArticleSelected(val);
+                        console.log("eldeste",val);
                         setArticleError(false);
                       }
                     }}
@@ -486,27 +339,60 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                           setSearch(e.target.value);
                         }}
                         placeholder="Artículos"
-                        sx={{ width: '50%' }}
+                        sx={{ width: '100%' }}
                       />
                     )}
                   />
                 </Stack>
+
+                <Stack sx={{ display: 'flex' }}>
+            <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
+            <TextField
+              sx={{ width: '60%' }}
+              size="small"
+              fullWidth
+              placeholder="Cantidad"
+              value={amountText}
+              error={amountError}
+              helperText={amountError && 'Agrega una cantidad'}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setAmountText(e.target.value);
+                setAmountError(false);
+              }}
+            />
+            {articleSelected?.id_Articulo && (
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                Stock Disponible : {articleSelected.stock}
+              </Typography>
+            )}
+            <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            mt: 2,
+          }}
+        >
+          <AnimateButton>
+            <Button size="medium" variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticle()}>
+              Agregar
+            </Button>
+          </AnimateButton>
+        </Box>
+          </Stack>
+          </Box>
+
               </Box>
               <ArticlesTable
                 setOpen={props.setOpen}
                 submitData={onSubmit}
-                initialData={articlesFetchedAM}
-                setLoteEditing={setLoteEditing}
-                setLoteSelected={setLoteSelected}
                 setArticleSelected={setArticleSelected}
-                setOpenLoteModal={setOpenLoteModal}
                 setArticles={setArticles}
                 articles={articles || []}
                 articlesPending={articlesToSelect}
                 setArticlesPending={setArticlesToSelect}
-                setTemporalLoteEditing={setTemporalLoteEditing}
                 setArticleId={setArticleId}
-                setAmountToSelect={setAmountToSelect}
+                handleEditArticle={handleEditArticle}
               />
               <Box
                 sx={{
@@ -544,7 +430,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   />
                 </RadioGroup>
               </Box>
-              {reasonMessage === 'Cuenta Paciente' && (
+              {/*reasonMessage === 'Cuenta Paciente' && (
                 <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
                   <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar paciente</Typography>
                   <Autocomplete
@@ -578,8 +464,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                     )}
                   />
                 </Stack>
-              )}
-              <Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
+              )*/}
+              {/*<Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
                 <Autocomplete
                   disablePortal
@@ -605,7 +491,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                     />
                   )}
                 />
-              </Stack>
+              </Stack>*/}
               <Box
                 sx={{
                   display: 'flex',
@@ -638,22 +524,8 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
               </Box>
             </Stack>
           </form>
-        )}
-      </Box>
-      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
-        <>
-          <LoteSelectionRemake2
-            setOpen={setOpenLoteModal}
-            //lotes={(articleSelected?.lote as any) || []}
-            articleName={articleSelected?.nombre || ''}
-            addFunction={handleAddArticle}
-            editing={loteEditing}
-            selectedLotes={loteSelected as { cantidad: number; fechaCaducidad: string; id_ArticuloExistente: string }[]}
-            temporalFromPackageAmountSelect={amountToSelect}
-            empityLotes={true}
-          />
-        </>
-      </Modal>
+        </Box>
+      )}
     </Box>
   );
 };
@@ -661,18 +533,13 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
 const ArticlesTable = (props: {
   setOpen: Function;
   submitData: Function;
-  initialData: ArticlesFetched[];
-  articles: ArticlesFetched[];
+  articles: IArticleFromSearchWithQuantity[];
   setArticles: Function;
   setArticleId: Function;
-  setLoteEditing: Function;
-  setLoteSelected: Function;
   setArticleSelected: Function;
-  setOpenLoteModal: Function;
-  articlesPending: ArticlesFetched[] | null;
+  articlesPending: IArticleFromSearchWithQuantity[] | null;
   setArticlesPending: Function;
-  setTemporalLoteEditing: Function;
-  setAmountToSelect: Function;
+  handleEditArticle: Function;
 }) => {
   return (
     <>
@@ -682,9 +549,8 @@ const ArticlesTable = (props: {
             <TableHead>
               <TableRow>
                 <TableCell>Nombre Articulo</TableCell>
-                <TableCell style={{ whiteSpace: 'pre-line' }}>{'Cantidad a\nSeleccionar'}</TableCell>
-                <TableCell>Cantidad</TableCell>
-                <TableCell>Acción</TableCell>
+                <TableCell align={'center'}>Cantidad</TableCell>
+                <TableCell align={'center'}>Acción</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -695,14 +561,10 @@ const ArticlesTable = (props: {
                   .map((a) => (
                     <ArticlesRows
                       key={a.id_Articulo}
-                      setLoteEditing={props.setLoteEditing}
-                      setArticleSelected={props.setArticleSelected}
-                      setOpenLoteModal={props.setOpenLoteModal}
                       setArticles={props.setArticles}
                       articleRow={a}
                       articles={props.articles}
-                      setLoteSelected={props.setLoteSelected}
-                      setArticleId={props.setArticleId}
+                      handleEditArticle={props.handleEditArticle}
                     />
                   ))
               ) : (
@@ -715,15 +577,11 @@ const ArticlesTable = (props: {
                   .map((a) => (
                     <TemporalArticlesRows
                       key={a.id_Articulo}
-                      setLoteEditing={props.setLoteEditing}
                       setArticleSelected={props.setArticleSelected}
-                      setOpenLoteModal={props.setOpenLoteModal}
                       setArticles={props.setArticlesPending}
                       articleRow={a}
                       articles={props.articlesPending}
-                      setTemporalLoteEditing={props.setTemporalLoteEditing}
                       setArticleId={props.setArticleId}
-                      setAmountToSelect={props.setAmountToSelect}
                     />
                   ))
               ) : (
@@ -747,51 +605,61 @@ const ArticlesTable = (props: {
 };
 
 interface ArticlesRowsProps {
-  setLoteEditing: Function;
-  setArticleSelected: Function;
-  setOpenLoteModal: Function;
   setArticles: Function;
-  setArticleId: Function;
-  setLoteSelected: Function;
-  articleRow: any;
-  articles: any;
+  articleRow: IArticleFromSearchWithQuantity;
+  articles: IArticleFromSearchWithQuantity[];
+  handleEditArticle: Function
 }
 const ArticlesRows: React.FC<ArticlesRowsProps> = ({
-  setLoteEditing,
-  setArticleSelected,
-  setOpenLoteModal,
-  setLoteSelected,
-  setArticleId,
   setArticles,
   articleRow,
   articles,
+  handleEditArticle,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [amountText, setAmountText] = useState(articleRow.cantidad?.toString() ?? "");
 
   return (
     <>
       <TableRow key={articleRow.id_Articulo}>
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>{open ? <ExpandLess /> : <ExpandMore />}</IconButton>
             {articleRow.nombre}
           </Box>
         </TableCell>
-        <TableCell></TableCell>
-        <TableCell align={'center'}>{articleRow.cantidad}</TableCell>
+        <TableCell align={'center'}>
+          { edit ? 
+            (
+              <>
+                  <TextField
+                    label="Cantidad"
+                    size="small"
+                    InputLabelProps={{ style: { fontSize: 12 } }}
+                    value={amountText}
+                    onChange={(e) => {
+                      if (!isValidInteger(e.target.value)) return;
+                      setAmountText(e.target.value)
+                    }}
+                  />
+                  <Typography>stack max: {articleRow.stock} </Typography>
+                </>
+            )
+            :
+          (articleRow.cantidad)
+          }
+        </TableCell>
         <TableCell align={'center'}>
           <>
-            <Tooltip title={'Editar'}>
+            <Tooltip title={ edit ? 'Guardar' : 'Editar'}>
               <IconButton
                 onClick={() => {
-                  setLoteSelected(articleRow.lote);
-                  setArticleId(articleRow.id_Articulo);
-                  setLoteEditing(true);
-                  setArticleSelected(articleRow);
-                  setOpenLoteModal(true);
+                  setEdit(!edit);
+                  if(edit){
+                    handleEditArticle({...articleRow, cantidad: Number(amountText)})
+                  }
                 }}
               >
-                <Edit />
+                {edit ? <Save /> : <Edit />}
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
@@ -806,69 +674,26 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
           </>
         </TableCell>
       </TableRow>
-      {articleRow?.lote?.length > 0 && (
-        <TableRow>
-          <TableCell colSpan={3} sx={{ padding: 0 }} key={`${articleRow.id_Articulo}${articleRow.nombre}`}>
-            <NestedArticlesTable articles={articleRow.lote} open={open} />
-          </TableCell>
-        </TableRow>
-      )}
     </>
   );
 };
 
-interface NestedArticlesTableProps {
-  articles: ArticlesFetched['lote'];
-  open: boolean;
-}
-const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, articles }) => {
-  return (
-    <Collapse in={open}>
-      <Table sx={{ marginRight: 2 }}>
-        <TableHead>
-          <TableRow>
-            <NestedTableCell>Cantidad</NestedTableCell>
-            <NestedTableCell>Fecha de Caducidad</NestedTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {articles ? (
-            articles.map((a) => (
-              <TableRow key={a.id_ArticuloExistente}>
-                <NestedTableCell>{a.cantidad}</NestedTableCell>
-                <NestedTableCell>{a.fechaCaducidad}</NestedTableCell>
-              </TableRow>
-            ))
-          ) : (
-            <></>
-          )}
-        </TableBody>
-      </Table>
-    </Collapse>
-  );
-};
+
 
 //Filas temporales de articulos que faltan de seleccionar lote
 interface TemporalArticlesRowsProps {
-  setLoteEditing: Function;
   setArticleSelected: Function;
-  setOpenLoteModal: Function;
   setArticles: Function;
-  articleRow: any;
+  articleRow: IArticleFromSearchWithQuantity;
   articles: any;
-  setTemporalLoteEditing: Function;
   setArticleId: Function;
-  setAmountToSelect: Function;
 }
 const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
   setArticleSelected,
-  setOpenLoteModal,
   setArticles,
   articleRow,
   articles,
-  setTemporalLoteEditing,
   setArticleId,
-  setAmountToSelect,
 }) => {
   return (
     <>
@@ -878,25 +703,21 @@ const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
             <WarningAmber
               sx={{
                 mr: 1,
-                color: articleRow.cantidad > 0 ? 'rgb(204, 153, 0)' : 'red',
+                color: articleRow.cantidad ?? 0 > 0 ? 'rgb(204, 153, 0)' : 'red',
               }}
             />
             {articleRow.nombre}
           </Box>
         </TableCell>
-        <TableCell align={'center'}>{articleRow.cantidadSeleccionar}</TableCell>
         <TableCell align={'center'}>{articleRow.cantidad}</TableCell>
         <TableCell>
           <>
-            {articleRow.cantidad > 0 && (
+            {(articleRow.cantidad ?? 0) > 0 && (
               <Tooltip title={'Agregar'}>
                 <IconButton
                   onClick={() => {
-                    setTemporalLoteEditing(true);
                     setArticleSelected(articleRow);
-                    setAmountToSelect(articleRow.cantidadSeleccionar);
                     setArticleId(articleRow.id_Articulo);
-                    setOpenLoteModal(true);
                   }}
                 >
                   <AddCircleIcon />

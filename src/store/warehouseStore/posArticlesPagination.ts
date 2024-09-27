@@ -1,3 +1,5 @@
+
+/* RIP
 import { createWithEqualityFn } from 'zustand/traditional';
 import { IArticle2 } from '../../types/types';
 import axios, { CancelTokenSource } from 'axios';
@@ -47,10 +49,11 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       const res = await getArticlesFromWarehouseSearch(
-        search,warehouseId
+        search,
+        warehouseId
         //&search=${search}&id_Almacen=${warehouseId}`
       );
-      console.log("llamada busqueda nueva",res.data);
+      console.log('llamada busqueda nueva', res.data);
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,
       });
@@ -66,4 +69,4 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
       }
     }
   },
-}));
+}));*/

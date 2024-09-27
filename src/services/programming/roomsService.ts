@@ -22,8 +22,8 @@ export const deleteRoom = async (roomId: string) => {
   return res.data;
 };
 
-export const getAllRooms = async () => {
-  const res = await axios.get(`${apiRoom}/lista-cuarto?`);
+export const getAllRooms = async (tipoCuarto?: string) => {
+  const res = await axios.get(`${apiRoom}/lista-cuarto?tipoCuarto=${tipoCuarto ? tipoCuarto : ''}`);
   return res.data;
 };
 
@@ -37,10 +37,12 @@ export const getUnavailableRoomsByIdAndDate = async (roomId: string, date: Date)
   return res.data;
 };
 
-export const getRoomsEventsByDate = async (date: string) => {
+export const getRoomsEventsByDate = async (date: string, tipoCuarto?: number | string, roomId?: string) => {
   const res = await axios.get(`${apiRoom}/obtener-todos-registros-cuarto-por-fecha`, {
     params: {
       fecha: date,
+      tipoCuarto,
+      id_Cuarto: roomId,
     },
   });
   return res.data as IRoomEvent[];
@@ -48,6 +50,18 @@ export const getRoomsEventsByDate = async (date: string) => {
 
 export const checkRoomAvailability = async (data: { id: string; fechaInicio: string; fechaFin: string }) => {
   const res = await axios.get(`${apiRoom}/verificar-disponibilidad-cuarto`, {
+    params: data,
+  });
+  return res.data as IRoomEvent[];
+};
+
+export const checkRoomAvailabilityToEdit = async (data: {
+  id_RegistroCuarto: string;
+  id_Cuarto: string;
+  fechaInicio: string;
+  fechaFin: string;
+}) => {
+  const res = await axios.get(`${apiRoom}/verificar-disponibilidad-cuarto-editar`, {
     params: data,
   });
   return res.data as IRoomEvent[];

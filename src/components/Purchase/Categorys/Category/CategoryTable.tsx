@@ -97,6 +97,7 @@ export const CategoryTable = () => {
     setPageSize,
     setSort,
     sort,
+    warehouseId,
     handleChangeCategory,
   } = useCategoryPagination(
     (state) => ({
@@ -106,6 +107,7 @@ export const CategoryTable = () => {
       fetchCategories: state.fetchCategories,
       search: state.search,
       enabled: state.enabled,
+      warehouseId: state.warehouseId,
       data: state.data,
       setPageSize: state.setPageSize,
       setPageIndex: state.setPageIndex,
@@ -124,7 +126,7 @@ export const CategoryTable = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, [pageIndex, pageSize, search, enabled, handleChangeCategory, sort]);
+  }, [pageIndex, pageSize, search, enabled, warehouseId, handleChangeCategory, sort]);
 
   return (
     <>

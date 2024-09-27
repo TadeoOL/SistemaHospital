@@ -23,3 +23,8 @@ export const getRecoveryRoomsPagination = async (params: string) => {
   const res = await axios.get(`${apiOperatingRoomRegisterConfig}/paginacion-paciente-recuperacion?${params}`);
   return res.data;
 };
+
+export const getAllOperatingRoomsTypes = async () => {
+  const res = await axios.get(`${apiOperatingRoomRegisterConfig}/lista-tipos-quirofanos`);
+  return res.data;
+};

@@ -13,9 +13,19 @@ export const hashPaymentsToString: { [key: number]: string } = {
 };
 
 export const hashEstatusToString: { [key: number]: string } = {
+  0: 'Cancelado',
   1: 'Venta creada',
   2: 'Pagado',
-  0: 'Cancelado',
 };
 
-export const leaveConcepts = ['Consulta Sami', 'Radiografías', 'Farmacia', 'Hospitalización', 'Arco en C'];
+export const leaveConcepts = [
+  'Consulta Sami',
+  'Radiografías',
+  'Farmacia',
+  'Hospitalización',
+  'Arco en C',
+  'Servicios',
+  'Hospitalización General Varias Cirugías',
+  'Materiales Varias Cirugías y Procedimientos',
+  'Medicamentos Varias Cirugías y Procedimientos',
+];

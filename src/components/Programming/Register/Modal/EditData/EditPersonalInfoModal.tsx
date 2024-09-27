@@ -35,7 +35,7 @@ const style = {
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 650, md: 900 },
+  maxHeight: { xs: 650, md: 800 },
 };
 
 const scrollBarStyle = {
@@ -53,14 +53,13 @@ const scrollBarStyle = {
 };
 
 const GENERE = ['Hombre', 'Mujer'];
-const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
+const TYPOGRAPHY_STYLE = { fontSize: 13, fontWeight: 600 };
 
 type Inputs = {
   name: string;
   lastName: string;
   secondLastName: string;
   birthDate: Date;
-  age: string;
   genere: string;
   civilStatus: string;
   phoneNumber: string;
@@ -75,6 +74,8 @@ type Inputs = {
   personInChargeNeighborhood: string;
   personInChargeAddress: string;
   personInChargePhoneNumber: string;
+  state: string;
+  city: string;
 };
 
 interface EditPersonalInfoModalProps {
@@ -182,12 +183,13 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     personInChargeNeighborhood: personalData?.coloniaResponsable,
     address: personalData?.direccion,
     personInChargeAddress: personalData?.domicilioResponsable,
-    age: personalData?.edad.toString(),
     civilStatus: personalData?.estadoCivil,
     personInCharge: personalData?.nombreResponsable,
     occupation: personalData?.ocupacion,
     relationship: personalData?.parentesco,
     personInChargePhoneNumber: personalData?.telefonoResponsable,
+    state: personalData?.estado,
+    city: personalData?.ciudad,
     birthDate: new Date(personalData?.fechaNacimiento as Date),
   };
 
@@ -266,7 +268,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
             p: 3,
             bgcolor: 'background.paper',
             overflowY: 'auto',
-            maxHeight: { xs: 500, md: 750 },
+            maxHeight: { xs: 500, md: 500 },
             ...scrollBarStyle,
           }}
         >
@@ -303,16 +305,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.secondLastName?.message}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Edad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Edad..."
-                {...register('age')}
-                error={!!errors.age?.message}
-                helperText={errors.age?.message}
-              />
-            </Grid>
+
             <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Genero</Typography>
               <TextField
@@ -380,7 +373,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.occupation?.message}
               />
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid item xs={12} md={3}>
               <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
               <TextField
                 fullWidth
@@ -400,7 +393,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.neighborhood?.message}
               />
             </Grid>
-            <Grid item xs={12} md={7}>
+            <Grid item xs={12} md={6}>
               <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
               <TextField
                 fullWidth
@@ -408,6 +401,26 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 {...register('address')}
                 error={!!errors.address?.message}
                 helperText={errors.address?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
+              <TextField
+                fullWidth
+                placeholder="Estado..."
+                {...register('state')}
+                error={!!errors.state?.message}
+                helperText={errors.state?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
+              <TextField
+                fullWidth
+                placeholder="Ciudad..."
+                {...register('city')}
+                error={!!errors.city?.message}
+                helperText={errors.city?.message}
               />
             </Grid>
             <Grid item xs={12}>

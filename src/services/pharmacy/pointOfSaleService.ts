@@ -26,7 +26,6 @@ export const getCategoriesForPOS = async (warehouseId: string) => {
   const res = await axios.get(`${apiPos}/obtener-subCategorias-puntoVenta/almacen/${warehouseId}`);
   return res.data as any[];
 };
-
 export const registerSale = async (data: IRegisterSale) => {
   const res = await axios.post(`${apiPos}/registrar-venta`, data);
   return res.data;
@@ -89,4 +88,28 @@ export const getCheckoutHistory = async (paramUrl: string, cancelToken?: CancelT
     cancelToken: cancelToken,
   });
   return res.data;
+};
+
+export const getArticlesSold = async (id_VentaPrincipal: string) => {
+  const res = await axios.get(`${apiPos}/obtener-articulos-vendidos`, {
+    params: {
+      id_VentaPrincipal,
+    },
+  });
+  console.log(res.data);
+  return res.data as {
+    articulos: {
+      id_DetalleVenta: string;
+      id_ArticuloExistente: string;
+      nombre: string;
+      precioUnitario: number;
+      cantidad: number;
+      subTotal: number;
+      iva: number;
+      total: number;
+    }[];
+    total: number;
+    subTotal: number;
+    iva: number;
+  };
 };

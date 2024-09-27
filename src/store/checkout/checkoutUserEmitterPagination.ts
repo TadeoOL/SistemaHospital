@@ -50,7 +50,7 @@ interface State {
   cancelToken: CancelTokenSource | null;
   startDate: string;
   endDate: string;
-  status: number,
+  status: number;
 }
 
 export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set, get) => ({
@@ -79,7 +79,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
     set({ loading: true });
     const index = pageIndex + 1;
     const checkoutId = useCheckoutDataStore.getState().idCajaSearch;
-    
+
     const cancelToken = axios.CancelToken.source();
     if (get().cancelToken) {
       get().cancelToken?.cancel();

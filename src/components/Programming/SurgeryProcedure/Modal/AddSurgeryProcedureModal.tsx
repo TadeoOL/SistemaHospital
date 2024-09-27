@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -14,18 +14,21 @@ import {
   registerSurgeryProcedure,
 } from '../../../../services/programming/surgeryProcedureService';
 import { useSurgeryProcedurePaginationStore } from '../../../../store/programming/surgeryProcedurePagination';
+import 'dayjs/locale/es-mx';
+import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
+dayjs.locale('es-mx');
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { md: 450 },
+  width: { xs: 380, sm: 600, md: 650 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 800 },
 };
 
 type Inputs = {
@@ -34,6 +37,8 @@ type Inputs = {
   hospitalizationDuration: string;
   description: string;
   price: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
 };
 
 interface AddSurgeryProcedureModalProps {
@@ -43,6 +48,7 @@ interface AddSurgeryProcedureModalProps {
 export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const refetch = useSurgeryProcedurePaginationStore((state) => state.fetchData);
 
   const {
@@ -50,6 +56,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
     handleSubmit,
     control,
     formState: { errors },
+    watch,
   } = useForm<Inputs>({
     resolver: zodResolver(surgeryProcedureSchema),
     defaultValues: {
@@ -58,6 +65,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
       hospitalizationDuration: editData ? editData.duracionHospitalizacion.toString() : '',
       description: editData ? editData.descripcion : '',
       price: editData ? editData.precioCirujia.toString() : '',
+      codigoSAT: editData?.codigoSAT ?? '',
+      codigoUnidadMedida: editData?.codigoUnidadMedida ?? 0,
     },
   });
 
@@ -71,6 +80,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
           precioCirujia: parseFloat(data.price),
+          codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
         });
         toast.success('Procedimiento dado de alta correctamente');
       } else {
@@ -81,6 +92,8 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
           descripcion: data.description,
           precioCirujia: parseFloat(data.price),
           id: editData.id,
+          codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
         });
         toast.success('Procedimiento modificado correctamente');
       }
@@ -135,7 +148,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography>Duración de crujía</Typography>
+              <Typography>Duración de Cirugía</Typography>
               <Controller
                 control={control}
                 name="surgeryDuration"
@@ -159,14 +172,14 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
               />
             </Grid>
             <Grid item xs={6}>
-              <Typography>Precio de la crujía</Typography>
+              <Typography>Precio de la Cirugía</Typography>
               <Controller
                 control={control}
                 name="price"
                 defaultValue={editData ? editData.precioCirujia.toString() : ''}
                 render={({ field: { onChange, value } }) => (
                   <TextField
-                    placeholder="Precio crujía"
+                    placeholder="Precio Cirugía"
                     value={value}
                     type={'number'}
                     onChange={onChange}
@@ -186,6 +199,38 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 helperText={errors.description?.message}
                 {...register('description')}
               />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de SAT</Typography>
+              <TextField
+                placeholder="Escriba un codigo de SAT"
+                fullWidth
+                error={!!errors.codigoSAT?.message}
+                helperText={errors.codigoSAT?.message}
+                {...register('codigoSAT')}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Código de Unidad de Medida</Typography>
+              <TextField
+                label="Selecciona una unidad de medida"
+                fullWidth
+                error={!!errors.codigoUnidadMedida?.message}
+                helperText={errors.codigoUnidadMedida?.message}
+                {...register('codigoUnidadMedida')}
+                value={watch('codigoUnidadMedida')}
+                select
+              >
+                {isLoadingConcepts ? (
+                  <MenuItem>Cargando...</MenuItem>
+                ) : (
+                  sizeUnit.map((item) => (
+                    <MenuItem value={item.id_UnidadMedida} key={item.id_UnidadMedida}>
+                      {item.nombre}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
             </Grid>
           </Grid>
         </Box>

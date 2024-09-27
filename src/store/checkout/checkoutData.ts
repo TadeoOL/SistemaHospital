@@ -23,11 +23,11 @@ interface State {
   pasoSuJornada: boolean;
   tieneCaja: boolean;
   conceptoSalidaSeleccionado: string;
-  idCajaSearch: string
+  idCajaSearch: string;
 }
 
 interface Action {
-  setIdCaja: (idCajaSearch: string) => void,
+  setIdCaja: (idCajaSearch: string) => void;
   setData: (data: State) => void;
   setConceptoSalidaSeleccionado: (conceptoSalidaSeleccionado: string) => void;
 }

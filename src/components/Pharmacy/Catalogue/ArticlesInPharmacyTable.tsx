@@ -3,8 +3,6 @@ import {
   Button,
   Card,
   CircularProgress,
-  Collapse,
-  IconButton,
   Modal,
   Stack,
   Table,
@@ -14,45 +12,28 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
-  alpha,
-  styled,
-  tableCellClasses,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Warning } from '@mui/icons-material';
+import { Info, Warning } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import { warning } from '../../../theme/colors';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { IExistingArticle, IExistingArticleList } from '../../../types/types';
-import { returnExpireDate } from '../../../utils/expireDate';
+import { IExistingArticle, IWarehouseData } from '../../../types/types';
 import { ArticlesExitModal } from './Modal/ArticlesExitModal';
 import { SortComponent } from '../../Commons/SortComponent';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { ArticlesEntryModal } from './Modal/ArticlesEntryModal';
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-  },
-  [`&.${tableCellClasses.root}`]: {
-    width: '25%',
-  },
-}));
+import { ArticlesPatientAcountManagementModal } from './Modal/ArticlesPatientAcountManagementModal';
+import { ArticlesPatientAcountManagementPharmacyModal } from './Modal/ArticlesPatientAcountManagemenPharmacytModal';
 
 const useGetExistingArticles = (warehouseId: string, principalWarehouseId: string) => {
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   const {
     data,
     setSearch,
@@ -105,8 +86,12 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
   }, []);
 
   useEffect(() => {
-    setWarehouseId(warehouseId);
-    setPrincipalWarehouseId(principalWarehouseId);
+    setWarehouseId(warehouseSL?.id ?? warehouseId);
+    if (warehouseSL && warehouseSL?.esSubAlmacen) {
+      setPrincipalWarehouseId(warehouseSL.id_AlmacenPrincipal ?? '');
+    } else {
+      setPrincipalWarehouseId(principalWarehouseId);
+    }
     fetchExistingArticles();
   }, [search, startDate, endDate, clearFilters, sort, pageIndex, pageSize]);
 
@@ -135,15 +120,10 @@ export const ArticlesPharmacyTable = () => {
   const {
     data,
     setSearch,
-    setEndDate,
-    setStartDate,
-    clearFilters,
     setPageIndex,
     setPageSize,
     setSort,
     fetchExistingArticles,
-    startDate,
-    endDate,
     isLoading,
     pageCount,
     pageSize,
@@ -151,6 +131,7 @@ export const ArticlesPharmacyTable = () => {
   } = useGetExistingArticles(warehouseIdSeted, warehouseData.id_AlmacenPrincipal || '');
   const [openModal, setOpenModal] = useState(false);
   const [exitArticlesM, setExitArticlesM] = useState(false);
+  const [entryArticlesM, setEntryArticlesM] = useState(false);
 
   return (
     <>
@@ -164,35 +145,13 @@ export const ArticlesPharmacyTable = () => {
               size="small"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              <TextField
-                label="Fecha inicio"
-                size="small"
-                type="date"
-                value={startDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                }}
-              />
-              <TextField
-                label=" Fecha final"
-                size="small"
-                type="date"
-                value={endDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                }}
-              />
-              <IconButton onClick={() => clearFilters()}>
-                <FilterListOff />
-              </IconButton>
               <Button
                 sx={{ minWidth: 200 }}
                 variant="contained"
                 startIcon={<TurnLeftIcon />}
                 onClick={() => {
                   setExitArticlesM(true);
+                  setEntryArticlesM(false);
                   setOpenModal(!openModal);
                 }}
               >
@@ -203,11 +162,24 @@ export const ArticlesPharmacyTable = () => {
                 variant="contained"
                 startIcon={<AddCircleIcon />}
                 onClick={() => {
+                  setEntryArticlesM(true);
                   setExitArticlesM(false);
                   setOpenModal(!openModal);
                 }}
               >
-                Entrada de artículos
+                Movimientos Hospitalarios
+              </Button>
+              <Button
+                sx={{ minWidth: 200 }}
+                variant="contained"
+                startIcon={<AddCircleIcon />}
+                onClick={() => {
+                  setExitArticlesM(false);
+                  setEntryArticlesM(false);
+                  setOpenModal(!openModal);
+                }}
+              >
+                Movimientos de Quirofano
               </Button>
             </Box>
           </Box>
@@ -233,13 +205,6 @@ export const ArticlesPharmacyTable = () => {
                       </TableCell>
                       <TableCell>
                         <SortComponent tableCellLabel="Stock" headerName="stockActual" setSortFunction={setSort} />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Precio Compra"
-                          headerName="precioCompra"
-                          setSortFunction={setSort}
-                        />
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -285,15 +250,28 @@ export const ArticlesPharmacyTable = () => {
           </Card>
         </Stack>
       </Stack>
-      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
+      <Modal open={openModal}>
         <>
           {exitArticlesM ? (
             <ArticlesExitModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+          ) : entryArticlesM ? (
+            <ArticlesPatientAcountManagementPharmacyModal
+              setOpen={setOpenModal}
+              warehouseId={warehouseIdSeted}
+              refetch={fetchExistingArticles}
+            />
           ) : (
-            <ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+            <ArticlesPatientAcountManagementModal
+              setOpen={setOpenModal}
+              warehouseId={warehouseIdSeted}
+              refetch={fetchExistingArticles}
+            />
           )}
         </>
       </Modal>
+      {
+        //<ArticlesEntryModal setOpen={setOpenModal} warehouseId={warehouseIdSeted} refetch={fetchExistingArticles} />
+      }
     </>
   );
 };
@@ -302,22 +280,11 @@ interface TableRowComponentProps {
   article: IExistingArticle;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
-  const [open, setOpen] = useState(false);
-
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>
-              {article.listaArticuloExistente && article.listaArticuloExistente.length > 0 && !open ? (
-                <ExpandMore />
-              ) : (
-                <ExpandLess />
-              )}
-            </IconButton>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
@@ -332,45 +299,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
           </Box>
         </TableCell>
         <TableCell>{article.stockActual}</TableCell>
-        <TableCell>$ {article.precioCompra}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={8} sx={{ padding: 0 }}>
-          <Collapse in={open} unmountOnExit>
-            <SubItemsTable article={article.listaArticuloExistente} />
-          </Collapse>
-        </TableCell>
       </TableRow>
     </React.Fragment>
-  );
-};
-
-interface SubItemsTableProps {
-  article: IExistingArticleList[];
-}
-const SubItemsTable: React.FC<SubItemsTableProps> = ({ article }) => {
-  return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <StyledTableCell align="center">Fecha de compra de lote</StyledTableCell>
-            <StyledTableCell align="center">Fecha de caducidad</StyledTableCell>
-            <StyledTableCell align="center">Stock</StyledTableCell>
-            <StyledTableCell align="center">Código de barras</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {article.map((a) => (
-            <TableRow key={a.id_ArticuloExistente}>
-              <StyledTableCell align="center">{a.fechaCompraLote}</StyledTableCell>
-              <StyledTableCell align="center">{returnExpireDate(a.fechaCaducidad)}</StyledTableCell>
-              <StyledTableCell align="center">{a.cantidad}</StyledTableCell>
-              {/*<StyledTableCell align="center">{a.codigoBarras}</StyledTableCell>*/}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
   );
 };

@@ -1,4 +1,4 @@
-import { Box, Stack } from '@mui/material';
+import { Box, Button, Modal, Stack, Typography } from '@mui/material';
 import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { ArticlesPharmacyTable } from './ArticlesInPharmacyTable';
@@ -6,6 +6,9 @@ import { PackageTabs } from './PackageTabs';
 import { WarehouseHistoryPharmacy } from './WarehouseHistoryPharmacy';
 import { WaitingPackages } from './WaitingPackages';
 import { NurseRequestManagementTable } from './NurseRequestManagementTable';
+import { SelectWarehouseModal } from './Modal/SelectWarehouseModal';
+import { useState } from 'react';
+import { IWarehouseData } from '../../../types/types';
 
 const GetWarehouseView: React.FC = () => {
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
@@ -24,12 +27,40 @@ const GetWarehouseView: React.FC = () => {
 };
 
 export const PackageView = () => {
+  const [openModal, setOpenModal] = useState(localStorage.getItem('pharmacyWarehouse_Selected') == null);//verdarero si aun no se declara/selecciona almacen
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   return (
     <Stack>
+      <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            justifyContent: 'flex-end',
+            mb: 1,
+            columnGap: 1,
+          }}
+        >
+        <Typography variant="h4" fontWeight={"bold"} sx={{mr:'auto'}} >
+          Almacen: {warehouseSL?.nombre}
+        </Typography>
+        <Button
+            size="large"
+            variant="contained"
+            onClick={() => setOpenModal(true)}
+          >
+            Cambiar almacen
+        </Button>
+        </Box>
       <Stack sx={{ bgcolor: 'background.paper' }}>
         <PackageTabs />
         <Box sx={{ p: 2 }}>
-          <GetWarehouseView />
+          {<>
+            <GetWarehouseView />
+            <Modal open={openModal}>
+              <SelectWarehouseModal 
+                setOpen={setOpenModal}/>
+            </Modal>
+            </>}
         </Box>
       </Stack>
     </Stack>

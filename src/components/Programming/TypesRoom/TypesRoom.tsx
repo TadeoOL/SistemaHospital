@@ -6,12 +6,14 @@ import {
   Collapse,
   IconButton,
   Modal,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent.tsx';
 import { SearchBar } from '../../Inputs/SearchBar.tsx';
@@ -169,9 +171,11 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
       </TableRow>
       {operatingRoomConfig && (
         <TableRow>
-          <TableCell colSpan={4} sx={{ p: 0 }}>
+          <TableCell colSpan={1} sx={{ p: 0 }} />
+          <TableCell colSpan={2} sx={{ p: 0 }}>
             <Collapse in={expand}>
-              <ConfigRoomTable data={data.configuracionPrecioHora} />
+              <ConfigRoomTable data={data.configuracionPrecioHora} title="Quirófano" />
+              <ConfigRoomTable data={data.configuracionRecuperacion} title="Recuperación" />
             </Collapse>
           </TableCell>
         </TableRow>
@@ -187,12 +191,14 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
 
 interface ConfigRoomTableProps {
   data?: IRecoveryRoomOperatingRoom[];
+  title: string;
 }
 const ConfigRoomTable = (props: ConfigRoomTableProps) => {
   const { data } = props;
   return (
-    <Box sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
-      <Card sx={{ width: 800 }}>
+    <Stack sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+      <Typography sx={{ fontSize: 12, fontWeight: 600 }}>{props.title}</Typography>
+      <Card>
         <TableContainer>
           <Table>
             <TableHeaderComponent headers={TABLE_CONFIG_HEADERS} />
@@ -214,6 +220,6 @@ const ConfigRoomTable = (props: ConfigRoomTableProps) => {
             ))}
         </TableContainer>
       </Card>
-    </Box>
+    </Stack>
   );
 };

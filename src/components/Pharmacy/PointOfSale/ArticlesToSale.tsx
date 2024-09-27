@@ -1,13 +1,13 @@
-import { Box, Button, Card, CircularProgress, Grid, Modal, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
-import { IArticle2 } from '../../../types/types';
+import { IArticlePOS } from '../../../types/types';
 import { neutral } from '../../../theme/colors';
 import { Info } from '@mui/icons-material';
-import { LoteSelectionPOS } from '../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionPOS';
 import { useExistingArticleLotesPagination } from '../../../store/warehouseStore/existingArticleLotePagination';
+import { toast } from 'react-toastify';
 
 const scrollBar = {
   '&::-webkit-scrollbar': {
@@ -47,8 +47,7 @@ const useGetAllData = () => {
 interface ArticlesToSaleProps {
   sx?: any;
   openModal?: boolean;
-  articleSelectedByBarCode: IArticle2;
-  setOpenLoteModal: Function;
+  articleSelectedByBarCode: IArticlePOS;
 }
 
 export const ArticlesToSale = (props: ArticlesToSaleProps) => {
@@ -56,32 +55,19 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
-
-  const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
-  const [openLoteModal, setOpenLoteModal] = useState(false);
-  const setData = useExistingArticleLotesPagination((state) => state.setData);
-
   const hasMorePages = useMemo(() => {
     return pageIndex < pageCount;
   }, [pageIndex, pageCount]);
 
   useEffect(() => {
     if (props.openModal) {
-      setArticleSelected(props.articleSelectedByBarCode);
       setArticleId(props.articleSelectedByBarCode.id_Articulo);
-      setOpenLoteModal(true);
-      props.setOpenLoteModal(false); // para reiniciar el estado de busqueda por codigo de barras
+      //props.setOpenLoteModal(false); // para reiniciar el estado de busqueda por codigo de barras
     }
   }, [props.openModal]);
 
-  const handleAddArticle = (articles: any) => {
+  /*const handleAddArticle = (articles: IArticlePOS) => {
     if (articleSelected) {
-      const updatedLote = {
-        cantidad: 1,
-        id_ArticuloExistente: articles.id_ArticuloExistente,
-        fechaCaducidad: articles.fechaCaducidad,
-        fechaCompraLote: articles.fechaCompraLote,
-      }; //articlesOnBasket
       const alreadyAddedArticle = articlesOnBasket.find((a) => a.id_Articulo === (articleSelected?.id_Articulo || ''));
       if (alreadyAddedArticle && alreadyAddedArticle.lote) {
         alreadyAddedArticle.lote.push(updatedLote);
@@ -101,16 +87,25 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           cantidad: 1,
           lote: [updatedLote],
         };
-        /*const nosewe = {
+        const nosewe = {
           ...articleSelected,
           lote: [updatedArticle],
           cantidad: lotesFromArticle.reduce((total, lote) => total + lote.cantidad, 0),
-        };*/
+        };
         setArticlesOnBasket([...articlesOnBasket, updatedArticle]);
         //setOriginalArticlesSelected((prev: any) => [...prev, nosewe]);
         setArticleSelected(null);
       }
     }
+  };*/
+  const handleAddArticleToBasket = (article: IArticlePOS) => {
+    if (articlesOnBasket.some((a) => a.id_Articulo === article.id_Articulo)) return;
+    const articleModified = data
+      .map((a) => {
+        return { ...a, cantidad: 1 };
+      })
+      .filter((a) => a.id_Articulo === article.id_Articulo);
+    setArticlesOnBasket([...articlesOnBasket, ...articleModified]);
   };
 
   return (
@@ -139,9 +134,12 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           boxShadow: 3,
                         }}
                         onClick={() => {
-                          setArticleId(article.id_Articulo);
-                          setArticleSelected(article);
-                          setOpenLoteModal(true);
+                          if(article.stockActual > 0){
+                            handleAddArticleToBasket(article)
+                          }
+                          else{
+                            toast.warning('No hay existencias disponibles del articulo: '+article.nombre);
+                          }
                         }}
                       >
                         <Typography fontWeight={700} fontSize={18}>
@@ -220,7 +218,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
           )}
         </>
       </Stack>
-      <Modal
+      {/*<Modal
         open={openLoteModal}
         onClose={() => {
           setOpenLoteModal(false);
@@ -239,7 +237,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
               ?.lote?.map((lot) => lot.id_ArticuloExistente) || undefined
           }
         />
-      </Modal>
+      </Modal>*/}
     </Stack>
   );
 };

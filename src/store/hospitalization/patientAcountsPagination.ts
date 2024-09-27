@@ -12,6 +12,7 @@ interface State {
   data: IPatientAccount[];
   loading: boolean;
   enabled: boolean;
+  status: number;
   search: string;
   cancelToken: CancelTokenSource | null;
   sort: string;
@@ -22,6 +23,7 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setEnabled: (setEnabled: boolean) => void;
+  setStatus: (setStatus: number) => void;
   setSearch: (search: string) => void;
   fetchData: () => void;
   setSort: (sort: string) => void;
@@ -38,6 +40,7 @@ const initialValues = {
   data: [],
   loading: false,
   enabled: true,
+  status: 1,
   search: '',
   cancelToken: null as CancelTokenSource | null,
   sort: '',
@@ -51,8 +54,9 @@ export const usePatientAccountPaginationStore = create<State & Action>((set, get
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setSort: (sort: string) => set({ sort }),
   setEnabled: (enabled: boolean) => set({ enabled }),
+  setStatus: (status: number) => set({ status }),
   fetchData: async () => {
-    const { search, pageIndex, pageSize, enabled } = get();
+    const { search, pageIndex, pageSize, enabled, status } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -64,7 +68,7 @@ export const usePatientAccountPaginationStore = create<State & Action>((set, get
 
     try {
       const res = await getPatientsWithAccountPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&estatus=${status}`
       );
       set({
         data: res.data,

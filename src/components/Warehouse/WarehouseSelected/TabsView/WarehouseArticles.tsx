@@ -3,8 +3,8 @@ import {
   Button,
   Card,
   CircularProgress,
-  Collapse,
   IconButton,
+  MenuItem,
   Modal,
   Stack,
   Table,
@@ -17,48 +17,24 @@ import {
   TextField,
   Tooltip,
   Typography,
-  alpha,
-  styled,
-  tableCellClasses,
-  Checkbox,
 } from '@mui/material';
 import { useWarehouseTabsNavStore } from '../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import React, { useEffect, useRef, useState } from 'react';
-import { IExistingArticle, IExistingArticleList } from '../../../../types/types';
+import React, { useEffect, useState } from 'react';
+import { ICategory, IExistingArticle, ISubCategory } from '../../../../types/types';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Edit, ExpandLess, ExpandMore, FilterListOff, Info, Save, Warning, Delete, Cancel } from '@mui/icons-material';
+import { Edit, FilterListOff, Info, Save, Warning } from '@mui/icons-material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useExistingArticlePagination } from '../../../../store/warehouseStore/existingArticlePagination';
 import { shallow } from 'zustand/shallow';
 import { ArticlesView } from './Modal/ArticlesOutput';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
-import {
-  registrarNuevoLote,
-  modifyMinStockExistingArticle,
-  articlesLoteUpdate,
-  articlesLoteDelete,
-} from '../../../../api/api.routes';
+import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
-import { returnExpireDate } from '../../../../utils/expireDate';
 import { SortComponent } from '../../../Commons/SortComponent';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
+import { useGetCategoriesWarehouse } from '../../../../hooks/useGetCategoriesByWarehouse';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-  },
-  [`&.${tableCellClasses.root}`]: {
-    width: '20%',
-  },
-}));
 
 export const useGetExistingArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
@@ -74,6 +50,8 @@ export const useGetExistingArticles = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSubcategory,
+    subcategory,
     pageSize,
     startDate,
     endDate,
@@ -95,6 +73,8 @@ export const useGetExistingArticles = () => {
       setPrincipalWarehouseId: state.setPrincipalWarehouseId,
       setStartDate: state.setStartDate,
       setEndDate: state.setEndDate,
+      setSubcategory: state.setSubcategory,
+      subcategory: state.subcategory,
       clearFilters: state.clearFilters,
       setPageIndex: state.setPageIndex,
       setPageSize: state.setPageSize,
@@ -117,7 +97,7 @@ export const useGetExistingArticles = () => {
 
   useEffect(() => {
     fetchExistingArticles();
-  }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
+  }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex, subcategory]);
 
   return {
     data,
@@ -127,6 +107,7 @@ export const useGetExistingArticles = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSubcategory,
     startDate,
     endDate,
     isLoading,
@@ -146,6 +127,7 @@ export const WarehouseArticles = () => {
     clearFilters,
     setPageIndex,
     setPageSize,
+    setSubcategory,
     //startDate,
     //endDate,
     isLoading,
@@ -155,6 +137,11 @@ export const WarehouseArticles = () => {
     count,
   } = useGetExistingArticles();
   const [openModal, setOpenModal] = useState(false);
+  const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { categories, isLoading: isLoadingCategories} = useGetCategoriesWarehouse(warehouseData.esSubAlmacen? warehouseData.id_AlmacenPrincipal as string : warehouseData.id);
+  const [selectedCategorySubcategories, setSelectedCategorySubcategories] = useState<ISubCategory[] | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   return (
     <>
@@ -162,33 +149,69 @@ export const WarehouseArticles = () => {
         <Stack spacing={2} sx={{ minWidth: 950 }}>
           <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
             <SearchBar
-              title="Buscar orden de compra..."
+              title="Buscar articulo..."
               searchState={setSearch}
               sx={{ display: 'flex', flex: 1 }}
               size="small"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              {/*<TextField
-                label="Fecha inicio"
-                size="small"
-                type="date"
-                value={startDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                }}
-              />
-              <TextField
-                label=" Fecha final"
-                size="small"
-                type="date"
-                value={endDate}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                }}
-              />*/}
-              <IconButton onClick={() => clearFilters()}>
+              {
+                isLoadingCategories ?
+                  (<CircularProgress />)
+                  :
+                  (<>
+                  <TextField
+                    sx={{ width: 150 }}
+                    select
+                    label="Categoria"
+                    size="small"
+                    //helperText={'Selecciona un almacén'}
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value ?? null);
+                      if(e.target.value !== null){
+                        setSelectedCategorySubcategories(categories.find((cat) => cat.id === e.target.value)?.subCategorias ?? null)
+                      }
+                      else{
+                        setSelectedCategorySubcategories(null)
+                      }
+                    }}
+                  >
+                    {categories.map((warehouse: ICategory) => (
+                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.nombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    sx={{ width: 150 }}
+                    select
+                    label="Subcategoria"
+                    size="small"
+                    //helperText={'Selecciona un almacén'}
+                    value={selectedSubcategory}
+                    onChange={(e) => {
+                      setSelectedSubcategory(e.target.value ?? null);
+                      setSubcategory(e.target.value ?? '');
+                    }}
+                  >
+                    {selectedCategorySubcategories ? selectedCategorySubcategories.map((warehouse: ISubCategory) => (
+                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.nombre}
+                      </MenuItem>
+                    ))
+                    :
+                    <></>
+                  }
+                  </TextField>
+                  </>)
+              }
+              <IconButton onClick={() => {
+                clearFilters();
+                setSubcategory(''); 
+                setSelectedCategory(null)
+                setSelectedCategorySubcategories(null);
+              }}>
                 <FilterListOff />
               </IconButton>
               <Button
@@ -202,94 +225,86 @@ export const WarehouseArticles = () => {
             </Box>
           </Box>
           <Card>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Nombre del Articulo"
-                          headerName="articulo"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Stock Minimo"
-                          headerName="stockMinimo"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Stock Actual"
-                          headerName="stockActual"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Precio de compra"
-                          headerName="precioCompra"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <SortComponent
-                          tableCellLabel="Código de Barras"
-                          headerName="codigoBarras"
-                          setSortFunction={setSort}
-                        />
-                      </TableCell>
-                      <TableCell>Acciones</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
-                  </TableBody>
-                </Table>
-                {isLoading  && (
-              <Box sx={{ display: 'flex', flex: 1, p: 4}}>
-                <CircularProgress sx={{mx:'auto'}} />
-              </Box>
-                )}
-                {data.length === 0 && !isLoading && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        p: 5,
-                        columnGap: 1,
-                      }}
-                    >
-                      <Info sx={{ width: 40, height: 40, color: 'gray' }} />
-                      <Typography variant="h2" color="gray">
-                        No hay artículos existentes
-                      </Typography>
-                    </Box>
-                  )}
-                <TablePagination
-                  component="div"
-                  count={count}
-                  onPageChange={(e, value) => {
-                    e?.stopPropagation();
-                    setPageIndex(value);
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Nombre del Articulo"
+                        headerName="articulo"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock Minimo" headerName="stockMinimo" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent tableCellLabel="Stock Actual" headerName="stockActual" setSortFunction={setSort} />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Precio de compra"
+                        headerName="precioCompra"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <SortComponent
+                        tableCellLabel="Código de Barras"
+                        headerName="codigoBarras"
+                        setSortFunction={setSort}
+                      />
+                    </TableCell>
+                    <TableCell>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data && data.map((article) => <TableRowComponent article={article} key={article.id_Articulo} />)}
+                </TableBody>
+              </Table>
+              {isLoading && (
+                <Box sx={{ display: 'flex', flex: 1, p: 4 }}>
+                  <CircularProgress sx={{ mx: 'auto' }} />
+                </Box>
+              )}
+              {data.length === 0 && !isLoading && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    p: 5,
+                    columnGap: 1,
                   }}
-                  onRowsPerPageChange={(e: any) => {
-                    setPageSize(e.target.value);
-                  }}
-                  page={pageIndex}
-                  rowsPerPage={pageSize}
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                  labelRowsPerPage="Filas por página"
-                />
-              </TableContainer>
+                >
+                  <Info sx={{ width: 40, height: 40, color: 'gray' }} />
+                  <Typography variant="h2" color="gray">
+                    No hay artículos existentes
+                  </Typography>
+                </Box>
+              )}
+              <TablePagination
+                component="div"
+                count={count}
+                onPageChange={(e, value) => {
+                  e?.stopPropagation();
+                  setPageIndex(value);
+                }}
+                onRowsPerPageChange={(e: any) => {
+                  setPageSize(e.target.value);
+                }}
+                page={pageIndex}
+                rowsPerPage={pageSize}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                labelRowsPerPage="Filas por página"
+              />
+            </TableContainer>
           </Card>
         </Stack>
       </Stack>
-      <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
+      <Modal open={openModal}>
         <>
           <ArticlesView setOpen={setOpenModal} />
         </>
@@ -302,34 +317,34 @@ interface TableRowComponentProps {
   article: IExistingArticle;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
-  const [open, setOpen] = useState(false);
-  const [openNewLote, setOpenNewLote] = useState(false);
+  //const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingSubRow, setIsEditingSubRow] = useState(false);
-  const textRef = useRef<HTMLTextAreaElement>();
+  const [amountText, setAmountText] = useState(article.stockActual.toString());
+  const [minAmountText, setMinAmountText] = useState(article.stockMinimo.toString());
+
   const articlesData = useExistingArticlePagination(useShallow((state) => state.data));
 
   const handleSaveValue = async () => {
-    if (!textRef.current || textRef.current.value === '') return;
-    if (!isValidInteger(textRef.current.value)) return toast.error('Para guardar el valor escribe un numero valido!');
-    const value = textRef.current.value;
     const modified = {
-      stockMinimo: value,
+      stockMinimo: minAmountText,
+      stock: isNaN(Number(amountText)) ? article.stockActual : Number(amountText),
       id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
       id_articulo: article.id_Articulo,
     };
     try {
       await modifyMinStockExistingArticle(modified);
-      modifyArticle(value);
+      modifyArticle(minAmountText, modified.stock);
       toast.success('Articulo actualizado con exito!');
     } catch (error) {
       console.log(error);
     }
   };
 
-  const modifyArticle = (stockMin: string) => {
+  const modifyArticle = (stockMin: string, stockActual: number) => {
     const newArticle = {
       ...article,
+      stockActual: stockActual,
       stockMinimo: parseInt(stockMin),
     };
     const newArticlesList = articlesData.map((a) => {
@@ -346,23 +361,21 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>
-              {article.listaArticuloExistente && article.listaArticuloExistente.length > 0 && !open ? (
-                <ExpandMore />
-              ) : (
-                <ExpandLess />
-              )}
-            </IconButton>
             {article.nombre}
           </Box>
         </TableCell>
         <TableCell>
           {isEditing ? (
             <TextField
-              inputProps={{ className: 'tableCell' }}
-              className="tableCell"
-              placeholder="stock mínimo"
-              inputRef={textRef}
+              sx={{ width: '60%', ml: 'auto' }}
+              size="small"
+              fullWidth
+              placeholder="Stock Minimo"
+              value={minAmountText}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setMinAmountText(e.target.value);
+              }}
             />
           ) : (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 1 }}>
@@ -377,7 +390,23 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             </Box>
           )}
         </TableCell>
-        <TableCell>{article.stockActual}</TableCell>
+        <TableCell>{isEditing ?
+          (
+            <TextField
+              sx={{ width: '60%', ml: 'auto' }}
+              size="small"
+              fullWidth
+              placeholder="Cantidad"
+              value={amountText}
+              onChange={(e) => {
+                if (!isValidInteger(e.target.value)) return;
+                setAmountText(e.target.value);
+              }}
+            />
+          ) :
+          (article.stockActual)
+        }
+        </TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
         <TableCell>{article.codigoBarras}</TableCell>
         <TableCell>
@@ -390,44 +419,30 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
                 setIsEditing(!isEditing);
                 setIsEditingSubRow(!isEditingSubRow);
               }}
-              disabled={openNewLote || (isEditingSubRow && !isEditing)}
+              disabled={isEditingSubRow && !isEditing}
             >
               {isEditing ? <Save /> : <Edit />}
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Añadir lote">
+          {/*<Tooltip title="Añadir lote">
             <IconButton
               onClick={() => {
-                setOpen(true);
-                setOpenNewLote(true);
-                setIsEditingSubRow(true);
+                //setOpen(true);
+                //setOpenNewLote(true);
+                //setIsEditingSubRow(true);
               }}
-              disabled={openNewLote || isEditing || isEditingSubRow}
+              disabled={isEditing || isEditingSubRow}
             >
               <AddCircleIcon />
             </IconButton>
-          </Tooltip>
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={8} sx={{ padding: 0 }}>
-          <Collapse in={open} unmountOnExit>
-            <SubItemsTable
-              article={article.listaArticuloExistente}
-              setOpenNewLote={setOpenNewLote}
-              isEditingSubRow={isEditingSubRow}
-              setIsEditingSubRow={setIsEditingSubRow}
-              openNewLote={openNewLote}
-              idArticle={article.id_Articulo}
-            />
-          </Collapse>
+          </Tooltip>*/}
         </TableCell>
       </TableRow>
     </React.Fragment>
   );
 };
-
+/*
 interface SubItemsTableProps {
   article: IExistingArticleList[];
   idArticle: string;
@@ -439,6 +454,7 @@ interface SubItemsTableProps {
 interface InputFieldRef {
   value: string;
 }
+
 const SubItemsTable: React.FC<SubItemsTableProps> = ({
   idArticle,
   article,
@@ -785,3 +801,4 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({
     </TableRow>
   );
 };
+*/

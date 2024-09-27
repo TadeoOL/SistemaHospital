@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Divider,
   IconButton,
   Table,
@@ -19,17 +20,35 @@ import { useProgrammingRegisterStore } from '../../../store/programming/programm
 import { ChangeEvent, useEffect, useState } from 'react';
 import { getPharmacyConfig } from '../../../services/pharmacy/configService';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { Delete, Edit, Save, WarningAmber } from '@mui/icons-material';
+import { Delete, Edit, Save } from '@mui/icons-material';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import { isValidInteger } from '../../../utils/functions/dataUtils';
 import { toast } from 'react-toastify';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { IArticlesPackage, IExistingArticle } from '../../../types/types';
-import { getPackagesByWarehouseId } from '../../../api/api.routes';
+import { getPackageById } from '../../../api/api.routes';
+import { shallow } from 'zustand/shallow';
+import { usePackageNamesPaginationStore } from '../../../store/warehouseStore/packagesNamesPagination';
 const TABLE_HEADER = ['Nombre', 'Cantidad', 'Acciones'];
 interface MedicinePackageSelectorProps {
   setOpen: Function;
 }
+const styleBar = {
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+    zIndex: 1,
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    zIndex: 1,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+    zIndex: 1,
+  },
+};
 
 const useGetPrincipalWarehouseId = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -49,26 +68,6 @@ const useGetPrincipalWarehouseId = () => {
     fetchData();
   }, []);
   return { isLoading, principalWarehouseId };
-};
-
-const useGetPackageData = (warehouseId: string, isLoadingWarehouse: boolean) => {
-  const [packages, setPackages] = useState<IArticlesPackage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    if (isLoadingWarehouse) return;
-    const fetchPackageData = async () => {
-      try {
-        const res = await getPackagesByWarehouseId(warehouseId);
-        setPackages(res);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPackageData();
-  }, [warehouseId, isLoadingWarehouse]);
-  return { packages, isLoading };
 };
 
 const useGetArticles = (warehouseId: string) => {
@@ -102,9 +101,34 @@ const useGetArticles = (warehouseId: string) => {
   };
 };
 
+const useGetPackagesData = () => {
+  const { isLoadingPackages, dataPack, searchPack, setSearchPack, fetchWarehousePackages } =
+    usePackageNamesPaginationStore(
+      (state) => ({
+        searchPack: state.search,
+        setSearchPack: state.setSearch,
+        dataPack: state.data,
+        isLoadingPackages: state.isLoading,
+        fetchWarehousePackages: state.fetchWarehousePackages,
+      }),
+      shallow
+    );
+
+  useEffect(() => {
+    fetchWarehousePackages();
+  }, [searchPack]);
+
+  return {
+    isLoadingPackages,
+    dataPack,
+    setSearchPack,
+  };
+};
+
 export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps) => {
-  const { principalWarehouseId, isLoading } = useGetPrincipalWarehouseId();
-  const { packages: packageData, isLoading: isLoadingPackages } = useGetPackageData(principalWarehouseId, isLoading);
+  const { principalWarehouseId } = useGetPrincipalWarehouseId();
+  const { dataPack, isLoadingPackages, setSearchPack } = useGetPackagesData();
+
   const {
     data: articlesRes,
     isLoading: isLoadingArticles,
@@ -123,7 +147,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   } | null>();
   const [articleAmount, setArticleAmount] = useState('0');
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage | null>(null);
-
+  const [isLoadingPackage, setIsLoadingPackage] = useState(false);
   const handleAmountChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const num = e.target.value;
     if (!isValidInteger(num)) return toast.warning('Escribe un número valido!');
@@ -159,7 +183,7 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   }, [isLoadingArticles, articlesRes]);
 
   const handleSubmit = () => {
-    if (articlesSelected.length === 0) return toast.warning('Agrega artículos al paquete');
+    // if (articlesSelected.length === 0) return toast.warning('Agrega artículos al paquete');
     toast.success('Artículos agregados con éxito!');
     setStep(step + 1);
   };
@@ -167,117 +191,149 @@ export const MedicinePackageSelectorModal = (props: MedicinePackageSelectorProps
   return (
     <>
       <HeaderModal setOpen={props.setOpen} title="Paquete de medicinas" />
-      <Box sx={{ backgroundColor: 'background.paper', p: 1 }}>
-        <Typography>Selección de paquete:</Typography>
-        <Autocomplete
-          disablePortal
-          fullWidth
-          // filterOptions={filterPackageOptions}
-          loading={isLoadingPackages}
-          getOptionLabel={(option) => option.nombre}
-          options={packageData ?? []}
-          sx={{ width: { xs: 350, sm: 400 } }}
-          noOptionsText="No se encontraron paquetes"
-          renderInput={(params) => <TextField {...params} placeholder="Paquetes de artículos" />}
-          onChange={(_, val) => {
-            if (!val) return;
-            setPackageSelected(val);
-            setArticlesSelected(
-              val.contenido.map((a: any) => {
-                return {
-                  id: a.id_Articulo,
-                  nombre: a.nombre,
-                  cantidad: a.cantidadSeleccionar,
-                  cantidadDisponible: a.cantidad,
-                  precioVenta: a.precioVentaPI,
-                };
-              })
-            );
+
+      {isLoadingPackage ? (
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            display: 'flex',
+            justifyContent: 'center',
+            alignContent: 'center',
+            width: '100%',
+            height: 300,
           }}
-          onInputChange={(_, __, reason) => {
-            if (reason === 'clear') {
-              setPackageSelected(null);
-            }
-          }}
-          value={packageSelected}
-        />
-        <Divider sx={{ my: 1 }} />
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
-          <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-            <Typography>Selección de artículos:</Typography>
-            <Autocomplete
-              disablePortal
-              fullWidth
-              // filterOptions={filterArticleOptions}
-              onChange={(_, val) => {
-                if (val) {
-                  setArticleSelected({
-                    id: val.id_Articulo as string,
-                    cantidad: val.stockActual as number,
-                    nombre: val.nombre as string,
-                    precioVenta: val.precioVentaPI as number,
-                  });
-                }
-              }}
-              loading={isLoadingArticles}
-              getOptionLabel={(option) => option.nombre}
-              options={articles.filter((a) => !articlesSelected.some((as) => as.id === a.id_Articulo)) ?? []}
-              onInputChange={(_, __, reason) => {
-                if (reason === 'clear') {
-                  setArticleSelected(undefined);
-                }
-              }}
-              value={articlesRes.find((a) => a.id_Articulo === articleSelected?.id) ?? null}
-              isOptionEqualToValue={(option, value) => option.id_Articulo === value.id_Articulo}
-              noOptionsText="No se encontraron artículos"
-              sx={{ width: { xs: 350, sm: 400 } }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  // error={articleError}
-                  // helperText={articleError && 'Selecciona un articulo'}
-                  value={articleSelected?.nombre ?? ''}
-                  onChange={(e) => {
-                    setSearchArticle(e.target.value);
-                  }}
-                  placeholder="Artículos"
-                />
-              )}
-            />
-          </Box>
-          <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-              alignItems: { xs: 'center' },
-              flexDirection: { xs: 'row', sm: 'row' },
-            }}
-          >
-            <Box sx={{ flex: 1 }}>
-              <Typography>Cantidad:</Typography>
+        >
+          <CircularProgress size={40} sx={{ my: 'auto' }} />
+        </Box>
+      ) : (
+        <Box sx={{ backgroundColor: 'background.paper', p: 1 }}>
+          <Typography>Selección de paquete:</Typography>
+          <Autocomplete
+            disablePortal
+            fullWidth
+            // filterOptions={filterPackageOptions}
+            loading={isLoadingPackages}
+            getOptionLabel={(option) => option.nombre}
+            options={dataPack ?? []}
+            sx={{ width: { xs: 350, sm: 400 } }}
+            noOptionsText="No se encontraron paquetes"
+            renderInput={(params) => (
               <TextField
-                label="Cantidad"
-                FormHelperTextProps={{
-                  sx: {
-                    fontSize: 11,
-                    margin: 0,
-                  },
+                {...params}
+                placeholder="Paquetes de artículos"
+                sx={{ width: '100%' }}
+                onChange={(e) => {
+                  setSearchPack(e.target.value);
                 }}
-                type="number"
-                onChange={handleAmountChange}
-                value={articleAmount}
+              />
+            )}
+            onChange={async (_, val) => {
+              if (!val) return;
+              setIsLoadingPackage(true);
+              const packageProm = await getPackageById(val?.id_PaqueteArticulo as string);
+              setPackageSelected(packageProm);
+              setArticlesSelected(
+                packageProm.contenido.map((a: any) => {
+                  return {
+                    id: a.id_Articulo,
+                    nombre: a.nombre,
+                    cantidad: a.cantidadSeleccionar,
+                    cantidadDisponible: a.cantidad,
+                    precioVenta: a.precioVentaPI,
+                  };
+                })
+              );
+              setIsLoadingPackage(false);
+            }}
+            onInputChange={(_, __, reason) => {
+              if (reason === 'clear') {
+                setPackageSelected(null);
+              }
+            }}
+            value={packageSelected}
+          />
+          <Divider sx={{ my: 1 }} />
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+              <Typography>Selección de artículos:</Typography>
+              <Autocomplete
+                disablePortal
+                fullWidth
+                // filterOptions={filterArticleOptions}
+                onChange={(_, val) => {
+                  if (val) {
+                    setArticleSelected({
+                      id: val.id_Articulo as string,
+                      cantidad: val.stockActual as number,
+                      nombre: val.nombre as string,
+                      precioVenta: val.precioVentaPI as number,
+                    });
+                  }
+                }}
+                loading={isLoadingArticles}
+                getOptionLabel={(option) => option.nombre}
+                options={articles.filter((a) => !articlesSelected.some((as) => as.id === a.id_Articulo)) ?? []}
+                onInputChange={(_, __, reason) => {
+                  if (reason === 'clear') {
+                    setArticleSelected(undefined);
+                  }
+                }}
+                value={articlesRes.find((a) => a.id_Articulo === articleSelected?.id) ?? null}
+                isOptionEqualToValue={(option, value) => option.id_Articulo === value.id_Articulo}
+                noOptionsText="No se encontraron artículos"
+                sx={{ width: { xs: 350, sm: 400 } }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    // error={articleError}
+                    // helperText={articleError && 'Selecciona un articulo'}
+                    value={articleSelected?.nombre ?? ''}
+                    onChange={(e) => {
+                      setSearchArticle(e.target.value);
+                    }}
+                    placeholder="Artículos"
+                  />
+                )}
               />
             </Box>
-            <Box sx={{ flex: 1 }}>
-              <Button variant="contained" onClick={handleAddArticle}>
-                Agregar
-              </Button>
+            <Box
+              sx={{
+                flex: 1,
+                display: 'flex',
+                alignItems: { xs: 'center' },
+                flexDirection: { xs: 'row', sm: 'row' },
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography>Cantidad:</Typography>
+                <TextField
+                  label="Cantidad"
+                  FormHelperTextProps={{
+                    sx: {
+                      fontSize: 11,
+                      margin: 0,
+                    },
+                  }}
+                  type="number"
+                  onChange={handleAmountChange}
+                  value={articleAmount}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Button variant="contained" onClick={handleAddArticle}>
+                  Agregar
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+          <Divider sx={{ my: 1 }} />
+          <Box sx={{ overflowY: 'auto', ...styleBar }}>
+            <Box sx={{ maxHeight: { xs: 300, md: 400, xl: 700 } }}>
+              <MedicineSelectedTable data={articlesSelected} articlesRes={articlesRes} />
             </Box>
           </Box>
         </Box>
-        <Divider sx={{ my: 1 }} />
-        <MedicineSelectedTable data={articlesSelected} articlesRes={articlesRes} />
-      </Box>
+      )}
       <Box
         sx={{
           display: 'flex',
@@ -363,18 +419,7 @@ const MedicineSelectedTableRow = (props: {
     <TableRow>
       <TableCell>
         <Box sx={{ display: 'flex', alignItems: 'center', columnGap: 1 }}>
-          {(data.cantidadDisponible as number) < 1 && (
-            <Tooltip title="No hay stock">
-              <Box>{<WarningAmber color="error" />}</Box>
-            </Tooltip>
-          )}
-          {(data.cantidadDisponible as number) > 0 && (data.cantidadDisponible as number) < data.cantidad && (
-            <Tooltip title="La cantidad excede el stock">
-              <Box>
-                <WarningAmber color="warning" />
-              </Box>
-            </Tooltip>
-          )}
+
           <Typography variant="caption">{data.nombre}</Typography>
         </Box>
       </TableCell>

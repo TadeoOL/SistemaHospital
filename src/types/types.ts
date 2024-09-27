@@ -94,6 +94,7 @@ export interface ICategory {
   descripcion: string;
   id_Almacen: string;
   almacen: string;
+  subCategorias?: ISubCategory[];
 }
 export interface ISubCategory {
   id: string;
@@ -101,7 +102,6 @@ export interface ISubCategory {
   descripcion: string;
   id_categoria: string;
   iva: string;
-  categoria: ICategory;
 }
 
 export interface IArticle {
@@ -118,23 +118,24 @@ export interface IArticle {
   subCategoria: ISubCategory | string;
   stockActual?: string;
   codigoBarras?: string;
+  codigoSAT?: string;
   lote?: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
+  codigoUnidadMedida?: number;
 }
 
-export interface IArticle2 {
+export interface IArticlePOS {
   //cambio en id
   id_Articulo: string;
+  id_ArticuloAlmacen: string;
   nombre: string;
   descripcion: string | null;
   stockMinimo: string;
   precioCompra: string;
   precioVenta: string;
-  stockActual?: string;
+  stockActual: number;
   codigoBarras?: string;
-  lote?: IExistingArticleList[];
-  listaArticuloExistente: IExistingArticleList[];
   esCaja?: boolean;
   unidadesPorCaja?: string;
   cantidad?: number;
@@ -146,12 +147,28 @@ export interface IArticleFromSearch {
   nombre: string;
 }
 
+export interface IArticleFromSearchWithQuantity {
+  id_Articulo: string;
+  id_ArticuloAlmacen: string;
+  nombre: string;
+  stock: number;
+  cantidad: number | null; //esta no debe venir desde el back se define en front
+}
 export interface IArticleFromSearchWithBarCode {
   id_Articulo: string;
   id_ArticuloCuenta: string;
   nombre: string;
   codigoBarras?: string;
   cantidad: number;
+}
+
+export interface IPrebuildedArticleFromArticleRequest {
+  id_Articulo: string;
+  id_ArticuloAlmacen?: string;
+  nombre: string;
+  cantidadSeleccionar: number;
+  cantidad: number;
+  stock: number;
 }
 
 export interface IExistingArticle {
@@ -161,19 +178,18 @@ export interface IExistingArticle {
   precioCompra: number;
   precioVenta: number;
   precioVentaPI: number;
-  factorAplicado: number;
   stockActual: number;
   stockMinimo: number;
   fechaCaducidad: string;
   nombre: string;
-  listaArticuloExistente: IExistingArticleList[];
+  //listaArticuloExistente: IExistingArticleList[];
   codigoBarras?: string;
 }
-
 export interface IExistingArticleList {
   //Lote
   id_ArticuloExistente: string;
   id_Articulo?: string;
+  id_ArticuloCuenta?: string;
   fechaCompraLote: string;
   fechaCaducidad: string;
   cantidad: number;
@@ -184,6 +200,7 @@ export interface IWarehouse {
   id: string;
   nombre: string;
   descripcion: string;
+  id_UsuarioEncargado: string;
 }
 
 export enum StatusPurchaseRequest {
@@ -248,6 +265,7 @@ export interface IArticlesAlert {
 export interface IPurchaseConfig {
   cantidadOrdenDirecta: number;
   factor: IFactor[];
+  factorInterno: IFactor[];
   cantidadLicitacionDirecta: number;
   activarLicitacion?: boolean;
 }
@@ -255,6 +273,7 @@ export interface IPurchaseConfig {
 export interface IPurchaseInternConfig {
   //cantidadOrdenDirecta: number;
   factor: IFactor[] | null;
+  factorInterno: IFactor[] | null;
   //cantidadLicitacionDirecta: number;
   //activarLicitacion?: boolean;
 }
@@ -330,12 +349,12 @@ export interface OrdenCompraArticulo {
   nombre?: string;
 }
 
-enum ConceptPayment {
-  'Contado' = 0,
-  'Credito' = 1,
-}
+// enum ConceptPayment {
+//   'Contado' = 0,
+//   'Credito' = 1,
+// }
 
-export interface IPurchaseOrder {
+export interface IPurchaseOrderPagination {
   id_OrdenCompra: string;
   folio_Extension: string;
   usuarioSolicitado: string;
@@ -349,6 +368,51 @@ export interface IPurchaseOrder {
   articulos: IPurchaseOrderArticle[] | null;
 }
 
+export interface IPurchaseOrder {
+  id_OrdenCompra: string;
+  id_Proveedor: any;
+  folio_Extension: string;
+  usuarioSolicitado: string;
+  estatus: number;
+  precioTotalOrden: number;
+  conceptoPago: number;
+  instruccionEntrega: any;
+  notas: string;
+  pdfCadena: string;
+  id_Almacen: string;
+  almacen: Almacen2;
+  proveedor: Proveedor2;
+  ordenCompraArticulo: OrdenCompraArticulo2[];
+  fechaSolicitud: string;
+  fueAutorizada: boolean;
+  cotizacion: any;
+}
+
+export interface Almacen2 {
+  id: string;
+  nombre: string;
+  descripcion: any;
+  usuarioEncargado: any;
+}
+
+export interface Proveedor2 {
+  id_Proveedor: string;
+  nombre: string;
+}
+
+export interface OrdenCompraArticulo2 {
+  id_OrdenCompraArticulo: string;
+  id_Articulo: string;
+  cantidad: number;
+  nombre: string;
+  precioProveedor: number;
+  precioVenta: number;
+  unidadesPorCaja: number;
+  codigoBarras: any;
+  unidadesTotal: number;
+  fechaCaducidad?: string;
+}
+
 export interface IPurchaseOrderArticle {
   cantidad: number;
   precioProveedor: number;
@@ -356,7 +420,6 @@ export interface IPurchaseOrderArticle {
   id_Articulo: string;
   nombre: string;
   precioVenta?: number;
-  factorAplicado?: number;
   codigoBarras?: string;
   fechaCaducidad?: string;
   unidadesPorCaja?: number;
@@ -403,6 +466,7 @@ export interface IWarehouseMovementData {
   autorizadoPor?: string;
   estatus?: number;
   folio: string;
+  infoExtra: any;
 }
 export interface IArticleHistory {
   nombre: string;
@@ -419,7 +483,6 @@ export interface IWarehousePurchaseOrder {
   cantidad: number;
   precioCompra: number;
   precioVenta: number;
-  factorAplicado: number;
 }
 
 export interface ISubWarehouse {
@@ -451,6 +514,12 @@ export interface IArticlesPackage {
   id_Almacen: string;
   almacen?: string;
 }
+
+export interface IArticlesPackageSearch {
+  id_PaqueteArticulo: string;
+  nombre: string;
+}
+
 export interface Articulos_contenidos {
   id_Articulo: string;
   nombre: string;
@@ -552,6 +621,7 @@ export interface InurseRequest {
   pacienteNombre: string;
   articulos: IArticleInRequest[];
   lista_ArticulosEntregados: IArticlesDelivered[] | null;
+  fechaSolicitud: string;
 }
 
 export interface IArticleInRequest {
@@ -565,6 +635,16 @@ export interface IArticlesDelivered {
   nombre: string;
   cantidad: number;
   lote: IExistingArticleList[];
+}
+
+export interface IArticlesFromPatientAcount {
+  id_Articulo: string;
+  id_ArticuloCuenta: string;
+  nombre: string;
+  cantidad: number;
+  codigoBarras: string | null;
+  id_CuentaPAciente: string;
+  stock: number;
 }
 
 export interface ICheckoutCloseHistory {
@@ -590,6 +670,7 @@ export interface ICheckoutSell {
   estatus: number;
   id_UsuarioPase: string;
   notas?: string;
+  fechaCreacion: string;
   montoPago?: number;
   nombreUsuario?: string;
   pdfCadena?: string;
@@ -616,6 +697,8 @@ export interface ISurgeryProcedure {
   precioCirujia: number;
   duracionCirujia: string;
   descripcion: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IRegisterRoom {
@@ -627,6 +710,7 @@ export interface IRegisterRoom {
   provisionalId?: string;
   id_Cuarto?: string;
   precio: number;
+  tipoCuarto?: number;
 }
 
 export interface IRoomsList {
@@ -634,6 +718,7 @@ export interface IRoomsList {
   id_TipoCuarto: string;
   nombre: string;
   precio: number;
+  tipo: number;
 }
 
 export interface IRoomEvent {
@@ -642,6 +727,9 @@ export interface IRoomEvent {
   nombre: string;
   fechaInicio: string;
   fechaFin: string;
+  tipoCuarto?: string;
+  id_TipoCuarto?: string;
+  tipo?: number;
 }
 export interface IEventsCalendar {
   id: string;
@@ -656,7 +744,6 @@ export interface IPatient {
   name: string;
   lastName: string;
   secondLastName: string;
-  age: string;
   genere?: string;
   birthDate?: Date;
   civilStatus?: string;
@@ -671,6 +758,8 @@ export interface IPatient {
   personInChargeNeighborhood?: string;
   personInChargeAddress?: string;
   personInChargePhoneNumber?: string;
+  state?: string;
+  city?: string;
 }
 
 export interface IClinicalData {

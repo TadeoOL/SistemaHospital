@@ -28,7 +28,7 @@ interface Action {
   setStatus: (status: number) => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
-  fetchData: (isNurse: boolean) => void;
+  fetchData: (isNurse: boolean, id_Almacen?: string) => void;
   setEnabled: (enabled: boolean) => void;
   clearFilters: () => void;
   setSort: (sort: string) => void;
@@ -63,7 +63,7 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
   setStartDate: (startDate: string) => set({ startDate, pageIndex: 0 }),
   setEndDate: (endDate: string) => set({ endDate, pageIndex: 0 }),
   setSort: (sort: string) => set({ sort }),
-  fetchData: async (isNurse: boolean) => {
+  fetchData: async (isNurse: boolean, id_Almacen?: string) => {
     const { enabled, search, pageIndex, pageSize, status, sort } = get();
     const index = pageIndex + 1;
     set({ loading: true });
@@ -76,16 +76,18 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
 
     try {
       let res: any;
-      if(isNurse){
-        console.log("enfermero");
+      if (isNurse) {
+        console.log('enfermero');
         res = await getNurseRequestPending(
-          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
+          `&pageIndex=${index}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&sort=${sort}`
         );
-      }else{
+      } else {
         res = await getNurseEmiterRequestPending(
-          `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}`
+          `&pageIndex=${index}&${
+            pageSize === 0 ? '' : 'pageSize=' + pageSize
+          }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}&id_Almacen=${id_Almacen}`
         );
       }
       set({

@@ -38,7 +38,7 @@ type Article = {
   nombre: string;
   stock: number;
 };
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<Article>({
   limit: OPTIONS_LIMIT,
 });
@@ -60,6 +60,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [warehouseData, setWarehouseData] = useState<IWarehouseData[]>([]);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
+  const [subWarehouseFlag, setSubWarehouseFlag] = useState(true);
+  const [subWarehouseSelected, setSubWarehouseSelected] = useState('');
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
   const [serch, setSerch] = useState('');
 
@@ -69,12 +71,16 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       try {
         const warehouse = await getWarehouseById(warehouseId as string);
         if (warehouse?.esSubAlmacen) {
-          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal);
+          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
           setWarehouseSelected(fatherWarehouse.id);
-          handleFetchArticlesFromWareHouse(fatherWarehouse.id);
+          setSubWarehouseSelected(warehouse.id)
+          handleFetchArticlesFromWareHouse(fatherWarehouse.id, warehouse.id);
+          setSubWarehouseFlag(true)
         } else {
           setWarehouseData(warehouse.subAlmacenes);
+          setWarehouseSelected(warehouse.id);
+          setSubWarehouseFlag(false)
         }
       } catch (error) {
         console.log('error');
@@ -85,7 +91,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     fetch();
   }, [warehouseId]);
   useEffect(() => {
-    handleFetchArticlesFromWareHouse(warehouseSelected);
+    if (warehouseSelected) {
+      handleFetchArticlesFromWareHouse(warehouseSelected, subWarehouseSelected);
+    }
   }, [serch]);
 
   const { warehouseSelected, setWarehouseSelected, setArticles, articles, setArticlesFetched, articlesFetched } =
@@ -139,11 +147,11 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     setAmountText('');
   };
 
-  const handleFetchArticlesFromWareHouse = async (wareH: string) => {
+  const handleFetchArticlesFromWareHouse = async (wareH: string, subwareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${wareH}&Id_AlmacenPrincipal=${wareH}&fechaInicio=&fechaFin=&sort=`
+        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${subwareH}&Id_AlmacenPrincipal=${wareH}&fechaInicio=&fechaFin=&sort=`
       );
       const transformedData = res.data.map((item: any) => ({
         id: item.id_Articulo,
@@ -170,11 +178,12 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     try {
       if (!warehouseSelected) {
         setWarehouseError(true);
-        return toast.warning('Selecciona un almacen!');
+        toast.warning('Selecciona un almacen!');
+        return true;
       }
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
-        Id_AlmacenDestino: warehouseId as string,
+        Id_AlmacenDestino: subWarehouseFlag? subWarehouseSelected: warehouseId as string,
         ListaArticulos: data.historialArticulos,
       };
       await addMerchandiseEntry(object);
@@ -184,9 +193,11 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       setDataWerehouseArticlesSelected([]);
       setWarehouseSelected('');
       setArticleSelected(null);
+      return true;
     } catch (error) {
       console.log(error);
       toast.error('Algo salio mal');
+      return true;
     }
   };
 
@@ -204,11 +215,18 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               size="small"
               error={warehouseError}
               helperText={warehouseError && 'Selecciona un almacén'}
-              value={warehouseSelected}
+              value={subWarehouseFlag ? warehouseSelected : subWarehouseSelected}
               onChange={(e) => {
                 setWarehouseError(false);
-                setWarehouseSelected(e.target.value);
-                handleFetchArticlesFromWareHouse(e.target.value);
+                if (subWarehouseFlag) {
+
+                  setWarehouseSelected(e.target.value);
+                }
+                else {
+                  setSubWarehouseSelected(e.target.value)
+                  handleFetchArticlesFromWareHouse(warehouseSelected, e.target.value);
+                }
+
                 setArticles([]);
               }}
             >
@@ -256,7 +274,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   error={articleError}
                   helperText={articleError && 'Selecciona un articulo'}
                   placeholder="Artículos"
-                  sx={{ width: '50%' }}
+                  sx={{ width: '95%' }}
                   onChange={(e) => {
                     if (e.target.value === null) {
                       setSerch('');
@@ -267,7 +285,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               )}
             />
           </Stack>
-          <Stack sx={{ display: 'flex', flex: 1 }}>
+          <Stack sx={{ display: 'flex' }}>
             <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
             <TextField
               sx={{ width: '60%' }}
@@ -294,7 +312,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
           sx={{
             display: 'flex',
             flex: 1,
-            justifyContent: 'flex-end',
+            ml: '80%',
             mt: 2,
           }}
         >
@@ -304,13 +322,19 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
             </Button>
           </AnimateButton>
         </Box>
-        <ArticlesTable setWarehouseError={setWarehouseError} setOpen={props.setOpen} submitData={onSubmit} />
+        <ArticlesTable 
+        setWarehouseError={setWarehouseError} 
+        setOpen={props.setOpen} 
+        submitData={onSubmit}
+        subWarehouseSelected={subWarehouseSelected}
+        subWarehouseFlag={subWarehouseFlag}
+         />
       </Stack>
     </Box>
   );
 };
 
-const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; submitData: Function }) => {
+const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; submitData: Function; subWarehouseSelected: string; subWarehouseFlag: boolean }) => {
   const { articles, articlesFetched, setArticlesFetched, setArticles, step, warehouseSelected, setProvider } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
@@ -327,6 +351,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
   const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
   const [quantity, setQuantity] = useState<any>({});
   const [isChargingPrices, setIsChargingPrices] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const updateArticlesData = () => {
     const newQuantity: any = {};
@@ -360,10 +385,10 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
     const articleToAdd = articles.find((a) => a.id === id);
     const articleToAddModified = articleToAdd
       ? {
-          id: articleToAdd.id,
-          nombre: articleToAdd.name,
-          precio: 0,
-        }
+        id: articleToAdd.id,
+        nombre: articleToAdd.name,
+        precio: 0,
+      }
       : null;
     if (articleToAddModified) {
       setArticlesFetched([...articlesFetched, articleToAddModified]);
@@ -505,10 +530,12 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
         <Button
           variant="contained"
           endIcon={<Save />}
-          disabled={editingIds.size > 0 || articles.length === 0}
-          onClick={() => {
-            props.submitData({
-              almacenDestino: warehouseSelected,
+          disabled={editingIds.size > 0 || articles.length === 0 || isLoading}
+          onClick={async () => {
+            setIsLoading(true)
+            //subWarehouseSelected
+            await props.submitData({
+              almacenDestino: props.subWarehouseFlag? warehouseSelected : props.subWarehouseSelected,
               historialArticulos: articles.map((art) => ({
                 Id_ArticuloExistente: art.id,
                 Nombre: art.name,
@@ -516,6 +543,8 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                 FechaCaducidad: null,
               })),
             });
+            setIsLoading(false)
+
           }}
         >
           Guardar

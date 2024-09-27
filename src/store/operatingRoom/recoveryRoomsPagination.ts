@@ -1,6 +1,5 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { getSurgeriesHistory } from '../../services/operatingRoom/dailyOperatingRoomService';
 import { IRecoveryRoom } from '../../types/operatingRoomTypes';
 import { getRecoveryRoomsPagination } from '../../services/operatingRoom/operatingRoomRegisterService';
 
@@ -52,7 +51,7 @@ export const useRecoveryRoomsPaginationStore = create<State & Action>((set, get)
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, dateFilter } = get();
+    const { enabled, search, pageIndex, pageSize } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 

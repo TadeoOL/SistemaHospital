@@ -21,21 +21,26 @@ import {
   tableCellClasses,
   FormControlLabel,
   Switch,
+  Button,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel, LocalPrintshopOutlined } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { useNurseRequestPaginationStore } from '../../../store/pharmacy/nurseRequest/nurseRequestPagination';
-import { IArticleInRequest, InurseRequest } from '../../../types/types';
+import { IArticleInRequest, InurseRequest, IPrebuildedArticleFromArticleRequest, IWarehouseData } from '../../../types/types';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
-import { updateStatusNurseRequest } from '../../../api/api.routes';
+import { getNurseRequestPreBuilded, updateStatusNurseRequest } from '../../../api/api.routes';
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { SortComponent } from '../../Commons/SortComponent';
+import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { NurseRequestReport } from '../../Export/Pharmacy/NurseRequestReport';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -97,7 +102,8 @@ export const useGetNursesRequest = () => {
     }),
     shallow
   );
-
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   /*useEffect(() => {
     //clearAllData();
     //setWarehouseId(warehouseData.id);
@@ -105,7 +111,7 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    fetchData(false);
+    fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
   }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
   return {
     data,
@@ -148,17 +154,21 @@ export const NurseRequestManagementTable = () => {
     status,
   } = useGetNursesRequest();
   const [openModalBuild, setOpenModalBuild] = useState(false);
+  const [openPrint, setOpenPrint] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
+  const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   //setWarehouseId
   useEffect(() => {
-    fetchData(false);
+    fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
   }, [status]);
 
   const rejectRequest = (idRequest: string, Id_warehouseRequest: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `¿Seguro que deseas cancelar esta solicitud de radiografia?`,
+        text: `¿Seguro que deseas cancelar esta solicitud de solicitud?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -177,10 +187,10 @@ export const NurseRequestManagementTable = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchData(false);
+          fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Radiografía cancelada',
+            text: 'Solicitud cancelada',
             icon: 'success',
           });
         } else {
@@ -196,7 +206,7 @@ export const NurseRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
-        text: `¿Seguro que deseas aceptar esta radiografía?`,
+        text: `¿Seguro que deseas marcar como entregada esta solicitud?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -217,20 +227,22 @@ export const NurseRequestManagementTable = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchData(false);
+          fetchData(false, warehouseSL?.id ?? warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
-            text: 'Radiografía aceptada',
+            text: 'Solicitud entregada',
             icon: 'success',
           });
         } else {
           withReactContent(Swal).fire({
-            title: 'No se acepto la radiografía',
+            title: 'No se cambio la solicitud',
             icon: 'info',
           });
         }
       });
   };
+
+  
 
   return (
     <>
@@ -246,7 +258,7 @@ export const NurseRequestManagementTable = () => {
             <FormControlLabel
               control={
                 <Switch
-                  defaultChecked
+                  checked={status === 1}
                   onChange={(val) => {
                     if (val.target.checked) {
                       setStatus(1);
@@ -333,7 +345,9 @@ export const NurseRequestManagementTable = () => {
                         <TableRowComponent
                           nurseRequest={request}
                           setOpenModalBuild={setOpenModalBuild}
+                          setOpenPrint={setOpenPrint}
                           setNurseRequest={setNurseRequest}
+                          setPrebuildedArticles={setPrebuildedArticles}
                           markAsDelivered={markAsDelivered}
                           key={request.id_SolicitudEnfermero}
                           rejectRequest={rejectRequest}
@@ -385,10 +399,45 @@ export const NurseRequestManagementTable = () => {
         <>
           <RequestBuildingModal
             setOpen={setOpenModalBuild}
-            refetch={fetchData}
+            refetch={()=>{fetchData(false, warehouseSL?.id ?? warehouseIdSeted)}}
             request={nurseRequest as InurseRequest}
+            preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
           />
         </>
+      </Modal>
+      <Modal open={openPrint} onClose={() => {setOpenPrint(false)}}>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: 380, sm: 550 },
+        borderRadius: 2,
+        boxShadow: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: { xs: 650 },
+      }} >
+        <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
+        <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
+      {nurseRequest !== null && !isLoading ? 
+      (<PDFDownloadLink
+            document={
+              <NurseRequestReport
+                request={nurseRequest}
+              />
+            }
+            fileName={`${Date.now()}.pdf`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            {({ loading }) => <Button variant="contained" >{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+        </PDFDownloadLink>) : 
+        (<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress size={35} />
+        </Box>)
+        }
+        </Box>
+      </Box>
       </Modal>
     </>
   );
@@ -397,19 +446,31 @@ export const NurseRequestManagementTable = () => {
 interface TableRowComponentProps {
   nurseRequest: InurseRequest;
   setOpenModalBuild: Function;
+  setOpenPrint: Function;
   setNurseRequest: Function;
+  setPrebuildedArticles: Function;
   rejectRequest: Function;
   markAsDelivered: Function;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
   setOpenModalBuild,
+  setOpenPrint,
   setNurseRequest,
+  setPrebuildedArticles,
   rejectRequest,
   markAsDelivered,
 }) => {
   const [open, setOpen] = useState(false);
+
   //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
+  const createPackage = (request: IPrebuildedArticleFromArticleRequest[]) => {
+    setPrebuildedArticles(request);
+    setNurseRequest(nurseRequest);
+    setOpenModalBuild(true)
+  };
+
+
 
   return (
     <React.Fragment>
@@ -431,9 +492,15 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
           {nurseRequest.estatus === 1 && (
             <Tooltip title={'Armar solicitud'}>
               <IconButton
-                onClick={() => {
-                  setOpenModalBuild(true);
-                  setNurseRequest(nurseRequest);
+                onClick={async() => {
+                  try {
+                    //Agregar Loader
+                    const packRes = await getNurseRequestPreBuilded(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
+                    createPackage(packRes);
+                  } catch (error) {
+                    console.log(error);
+                  }
+                  
                 }}
               >
                 <AddCircleIcon sx={{ color: 'green' }} />
@@ -465,6 +532,18 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
                 <Cancel sx={{ color: 'red' }} />
               </IconButton>
             </Tooltip>
+          )}
+          {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 1 && (
+            <Tooltip title="Imprimir solicitud">
+            <IconButton
+              onClick={() => {
+                setNurseRequest(nurseRequest)
+                setOpenPrint(true);
+              }}
+            >
+              <LocalPrintshopOutlined />
+            </IconButton>
+          </Tooltip>
           )}
         </TableCell>
       </TableRow>

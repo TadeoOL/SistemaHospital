@@ -11,7 +11,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
   useTheme,
@@ -34,13 +33,20 @@ import { toast } from 'react-toastify';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import { FaHandHoldingMedical } from 'react-icons/fa6';
 import { StartRecoveryPhase } from './Modal/StartRecoveryPhase';
+import Swal from 'sweetalert2';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import 'dayjs/locale/es-mx';
+import withReactContent from 'sweetalert2-react-content';
+dayjs.extend(localizedFormat);
+dayjs.locale('es-mx');
 
 const TABLE_HEADERS = [
   'Estado',
   'Hora',
   'Quirófano',
   'Paciente',
-  'Edad',
   'Cirugía',
   'Cirujano',
   'Anestesiólogo',
@@ -159,28 +165,98 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   };
 
   const [startOperatingRoom, setStartOperatingRoom] = useState<string>(
-    dayjs(data.horaInicio).format('YYYY-MM-DDTHH:mm')
+    data.registroQuirofano?.horaInicio
+      ? dayjs(data.registroQuirofano.horaInicio).format('YYYY-MM-DDTHH:mm')
+      : dayjs(data.horaInicio).format('YYYY-MM-DDTHH:mm')
   );
-  const [endOperatingRoom, setEndOperatingRoom] = useState<string>(dayjs(data.horaFin).format('YYYY-MM-DDTHH:mm'));
+  const [endOperatingRoom, setEndOperatingRoom] = useState<string>(
+    dayjs(data.registroQuirofano?.horaInicio).format('YYYY-MM-DDTHH:mm')
+  );
 
   const handleAddStartOperatingRoom = async () => {
-    await createOperatingRoomRegister({
-      id_RegistroCuarto: data.id,
-      horaInicio: new Date(startOperatingRoom),
-    });
-    toast.success('Hora de inicio registrada con éxito!');
-    refetch();
-    handleClose();
+    withReactContent(Swal)
+      .fire({
+        title: '¿Desea iniciar el quirófano?',
+        html: `Una vez iniciado el quirófano, no podrá modificar la fecha de inicio. </br></br><b>El quirófano se abrirá a las:</b> <h1>${dayjs(startOperatingRoom).format('DD/MM/YYYY - HH:mm')}</h1>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Iniciar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      })
+      .then(async (res) => {
+        if (res.isConfirmed) {
+          await createOperatingRoomRegister({
+            id_RegistroCuarto: data.id,
+            horaInicio: new Date(startOperatingRoom),
+          });
+          toast.success('Hora de inicio registrada con éxito!');
+          refetch();
+          handleClose();
+        } else {
+          Swal.fire({
+            title: 'No se inicio el quirófano',
+            text: 'El inicio de quirófano fue cancelado',
+            icon: 'error',
+          });
+        }
+      });
   };
 
   const handleModifyOperatingRoom = async () => {
-    await modifyOperatingRoomRegister({
-      id_RegistroQuirofano: data.registroQuirofano?.id as string,
-      horaFin: new Date(endOperatingRoom),
-    });
-    toast.success('Hora de inicio registrada con éxito!');
-    refetch();
-    handleCloseEnd();
+    console.log({ endOperatingRoom });
+    console.log({ startOperatingRoom });
+    if (dayjs(endOperatingRoom).isBefore(startOperatingRoom)) {
+      return Swal.fire({
+        title: 'Error al modificar la fecha de finalización',
+        text: 'La fecha de finalización debe ser mayor a la fecha de inicio',
+        icon: 'error',
+      });
+    }
+    withReactContent(Swal)
+      .fire({
+        title: '¿Desea finalizar el quirófano?',
+        html: `Una vez finalizado el quirófano, no podrá modificar la fecha de finalización. </br></br><b>El quirófano se finalizará a las:</b> <h1>${dayjs(endOperatingRoom).format('DD/MM/YYYY - HH:mm')}</h1>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Iniciar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      })
+      .then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await modifyOperatingRoomRegister({
+              id_RegistroQuirofano: data.registroQuirofano?.id as string,
+              horaFin: new Date(endOperatingRoom),
+            });
+            Swal.fire({
+              title: 'Quirófano finalizado con éxito!',
+              text: 'El quirófano se finalizó correctamente',
+              icon: 'success',
+            });
+            refetch();
+            handleCloseEnd();
+          } catch (error) {
+            console.log(error);
+            Swal.fire({
+              title: 'Error al finalizar el quirófano',
+              text: 'Ocurrió un error al intentar finalizar el quirófano',
+              icon: 'error',
+            });
+          }
+        } else {
+          Swal.fire({
+            title: 'No se finalizo el quirófano',
+            text: 'La finalización del quirófano fue cancelado',
+            icon: 'error',
+          });
+        }
+      });
   };
 
   return (
@@ -214,7 +290,6 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
         <TableCell>{dayjs(data.horaInicio).format('HH:mm')}</TableCell>
         <TableCell>{data.nombre}</TableCell>
         <TableCell>{patientName}</TableCell>
-        <TableCell>{data.paciente?.edad ?? 'No hay registro'}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data.procedimientos ?? []} />
         </TableCell>
@@ -308,17 +383,15 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
       >
         <Box sx={{ padding: '10px', width: '250px' }}>
           <Typography>Asignar fecha de inicio</Typography>
-          <TextField
-            type="datetime-local"
-            InputProps={{
-              inputProps: {},
-            }}
-            value={startOperatingRoom}
-            onChange={(e) => {
-              setStartOperatingRoom(e.target.value);
-            }}
-            fullWidth
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              label="Fecha y Hora"
+              value={dayjs(startOperatingRoom)}
+              onChange={(newValue) => setStartOperatingRoom(dayjs(newValue).format('YYYY-MM-DDTHH:mm'))}
+              format="DD/MM/YYYY HH:mm"
+              ampm={false}
+            />
+          </LocalizationProvider>
           <Button variant="contained" fullWidth sx={{ mt: 1 }} onClick={handleAddStartOperatingRoom}>
             Agregar
           </Button>
@@ -355,14 +428,15 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
       >
         <Box sx={{ padding: '10px', width: '250px' }}>
           <Typography>Asignar fecha de finalización</Typography>
-          <TextField
-            type="datetime-local"
-            value={endOperatingRoom}
-            onChange={(e) => {
-              setEndOperatingRoom(e.target.value);
-            }}
-            fullWidth
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              label="Fecha y Hora"
+              value={dayjs(endOperatingRoom)}
+              onChange={(newValue) => setEndOperatingRoom(dayjs(newValue).format('YYYY-MM-DDTHH:mm'))}
+              format="DD/MM/YYYY HH:mm"
+              ampm={false}
+            />
+          </LocalizationProvider>
           <Button variant="contained" fullWidth sx={{ mt: 1 }} onClick={handleModifyOperatingRoom}>
             Agregar
           </Button>
@@ -370,7 +444,11 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
       </Menu>
       <Modal open={openRecoveryPhase} onClose={() => setOpenRecoveryPhase(false)}>
         <>
-          <StartRecoveryPhase setOpen={setOpenRecoveryPhase} operatingRoomId={data.registroQuirofano?.id as string} />
+          <StartRecoveryPhase
+            setOpen={setOpenRecoveryPhase}
+            operatingRoomId={data.registroQuirofano?.id as string}
+            surgeryEndTime={data.registroQuirofano?.horaFin as Date}
+          />
         </>
       </Modal>
     </>

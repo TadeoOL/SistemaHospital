@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { Paciente } from '../../types/admissionTypes';
+import { Paciente, PacienteInfo } from '../../types/admissionTypes';
 import { IPatient, IPatientFromSearch } from '../../types/types';
 const apiPatient = '/api/Paciente';
 
@@ -8,7 +8,6 @@ export const createPatient = async (data: IPatient) => {
     nombre: data.name,
     apellidoPaterno: data.lastName,
     apellidoMaterno: data.secondLastName,
-    edad: data.age,
     genero: data.genere,
     fechaNacimiento: data.birthDate,
     estadoCivil: data.civilStatus,
@@ -23,6 +22,8 @@ export const createPatient = async (data: IPatient) => {
     codigoPostalResponsable: data.personInChargeZipCode,
     coloniaResponsable: data.personInChargeNeighborhood,
     telefonoResponsable: data.personInChargePhoneNumber,
+    ciudad: data.city,
+    estado: data.state,
   });
   return res.data;
 };
@@ -42,7 +43,6 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
     nombre: data.name,
     apellidoPaterno: data.lastName,
     apellidoMaterno: data.secondLastName,
-    edad: data.age,
     genero: data.genere,
     estadoCivil: data.civilStatus,
     fechaNacimiento: data.birthDate,
@@ -57,16 +57,32 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
     codigoPostalResponsable: data.personInChargeZipCode,
     coloniaResponsable: data.personInChargeNeighborhood,
     telefonoResponsable: data.personInChargePhoneNumber,
+    estado: data.state,
+    ciudad: data.city,
   });
   return res.data;
 };
 
 export const getPatientsWithAccount = async (url: string) => {
   const res = await axios.get(`${apiPatient}/obtener-paciente-activo?${url}`);
-  return res.data as IPatientFromSearch[] ;
-}
+  return res.data as IPatientFromSearch[];
+};
 
 export const getPatientsWithAccountPagination = async (url: string) => {
   const res = await axios.get(`${apiPatient}/obtener-cuentas?${url}`);
   return res.data;
-}
+};
+
+export const getPatientInfoById = async (patientId: string) => {
+  const res = await axios.get(`${apiPatient}/obtener-paciente-info`, {
+    params: {
+      id_Paciente: patientId,
+    },
+  });
+  return res.data as PacienteInfo;
+};
+
+export const getOutstandingBillsPagination = async (url: string) => {
+  const res = await axios.get(`${apiPatient}/obtener-cuentas-cerradas-por-pagar?${url}`);
+  return res.data;
+};

@@ -39,7 +39,7 @@ import {
   RoomsView,
   SurgeryProcedureView,
   ProgrammingCalendarView,
-  ConfigurationProgrammingView,
+  // ConfigurationProgrammingView,
   ProgrammingRequestView,
   BiomedicalEquipmentView,
   AnesthesiologistView,
@@ -47,22 +47,26 @@ import {
   MedicView,
   NurseRequestView,
   MedicalShiftView,
-  AnesthesiologistShiftView,
+  // AnesthesiologistShiftView,
   OperatingRoomView,
   TypesRoomView,
   DailyOperatingView,
   XRayRequestView,
   XRayRequestManagementView,
-  HospitalizationConfigView,
+  // HospitalizationConfigView,
   RecoveryRoomsView,
   HospitalRoomsView,
   AssignedRoomsView,
   HospitalRoomsCalendarView,
   RequestsConfigView,
+  InvoiceView,
+  OutstandingBillsView,
+  OperatingPackagesView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
   ProtectedRoutePharmacyManager,
+  ProtectedRoutePharmacyNurse,
 } from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePharmacy';
 import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
@@ -102,7 +106,6 @@ function App() {
               <Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
-                <Route path="/farmacia/solicitud-enfermero" element={<NurseRequestView />} />
               </Route>
               {/*<Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
@@ -114,6 +117,7 @@ function App() {
               <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
               <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
               <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
+              <Route path="ventas/cierre-de-cuenta" element={<PatientAcountsView />} />
               <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
               // ---------------------------Programacion------------------------------------- //
               <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
@@ -121,32 +125,44 @@ function App() {
               <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
               <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
               <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
-              <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} />
+              {/* <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} /> */}
               <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
-              <Route path="hospitalizacion/cierre-de-cuenta" element={<PatientAcountsView />} />
               // ---------------------------Admision------------------------------------- //
-              <Route path="Admision/ingreso-pacientes" element={<PacientsEntryView />} />
+              <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
+              <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
             </Route>
             // ------------------------------ Hospitalization-------------------------------- //
-            <Route path="hospitalizacion/equipo-biomedico" element={<BiomedicalEquipmentView />} />
-            <Route path="hospitalizacion/anestesiologos" element={<AnesthesiologistView />} />
             <Route path="hospitalizacion/radiografias-solicitud" element={<XRayRequestView />} />
-            <Route path="hospitalizacion/solicitudes-administracion" element={<XRayRequestManagementView />} />
-            <Route path="hospitalizacion/solicitudes" element={<XRayView />} />
-            <Route path="hospitalizacion/medicos" element={<MedicView />} />
-            <Route path="hospitalizacion/guardias-medicos" element={<MedicalShiftView />} />
-            <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} />
-            <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} />
+            {/* <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} /> */}
+            {/* <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} /> */}
             <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
-            <Route path="hospitalizacion/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
             <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
             <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
-            // --------------------------------- OperatingRoom ------------------------------- //
+            <Route element={<ProtectedRoutePharmacyNurse />}>
+                <Route path="/hospitalizacion/solicitud-enfermero" element={<NurseRequestView />} />
+              </Route>
+            // --------------------------------- Budget ------------------------------- // //
+            <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
+            // --------------------------------- Nursing ------------------------------- // //
+            <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
+            // --------------------------------- Biomedical ------------------------------- // //
+            <Route path="biomedico/solicitudes-administracion" element={<XRayRequestManagementView />} />
+            <Route path="biomedico/equipo-biomedico" element={<BiomedicalEquipmentView />} />
+            <Route path="biomedico/configuracion-solicitudes" element={<RequestsConfigView />} />
+            <Route path="biomedico/solicitudes" element={<XRayView />} />
+            --------------------------------- OperatingRoom ------------------------------- //
+            <Route path="quirofano/medicos" element={<MedicView />} />
+            <Route path="quirofano/anestesiologos" element={<AnesthesiologistView />} />
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
             <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
+            <Route element={<PharmacyRoute />}>
+              <Route path="/quirofano/paquetes-quirurgicos" element={<OperatingPackagesView />} />
+            </Route>       
+            // ---------------------------------------- Invoice ------------------------------//
+            <Route path="/facturas" element={<InvoiceView />} />
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

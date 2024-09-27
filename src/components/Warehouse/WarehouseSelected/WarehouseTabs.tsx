@@ -32,7 +32,7 @@ export const WarehouseTabs = () => {
           <Tab label="Solicitud de Productos" value={2} />
           <Tab label="Autorización de Salidas" value={3} />
           <Tab label="Historial de Movimiento" value={4} />
-          <Tab label="Paquete de Artículos" value={5} />
+          {/*<Tab label="Paquete de Artículos" value={5} />*/}
         </Tabs>
       </AppBar>
     </Box>

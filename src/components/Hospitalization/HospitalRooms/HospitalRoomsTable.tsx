@@ -27,7 +27,6 @@ import { AssignNurseModal } from './Modal/AssignNurseModal';
 const TABLE_HEADERS = [
   'Cuarto',
   'Paciente',
-  'Edad',
   'Cirugía',
   'Medico',
   'Fecha de entrada',
@@ -134,7 +133,6 @@ const HospitalRoomsTableRow = (props: { data: IRoomInformation }) => {
           </Box>
         </TableCell>
         <TableCell>{data.paciente?.nombre ? patientName : 'Sin asignar'}</TableCell>
-        <TableCell>{data.paciente?.edad ?? 'No hay registro'}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data.procedimientos ?? []} />
         </TableCell>

@@ -7,6 +7,8 @@ export const biomedicalEquipmentSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Nombre es requerido'),
   description: z.string().optional(),
+  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
   price: z
     .union([
       z.string().refine((p) => p.trim() !== '', {
@@ -35,26 +37,6 @@ export const anesthesiologistSchema = z.object({
   lastName: z.string().min(1, 'El apellido paterno es requerido'),
   secondLastName: z.string().min(1, 'El apellido materno es requerido'),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-  age: z
-    .union([
-      z.string().refine((p) => p.trim() !== '', {
-        message: 'El nombre es requerido',
-      }),
-      z.number().refine((p) => p !== 0, {
-        message: 'La edad tiene que ser mayor a 0',
-      }),
-    ])
-    .transform((p) => {
-      if (typeof p === 'string') {
-        const parsed = parseFloat(p);
-        if (isNaN(parsed)) {
-          throw new Error('La edad debe ser un número válido');
-        }
-        return parsed;
-      }
-      return p;
-    })
-    .refine((p) => p !== 0, { message: 'La edad debe ser mayor a 0' }),
   phoneNumber: z.string().min(1, 'El telefono es necesario'),
   email: z.string().email('El correo es necesario'),
 });
@@ -84,6 +66,8 @@ export const xraySchema = z.object({
       return p;
     })
     .refine((p) => p !== 0, { message: 'El numero debe ser mayor a 0' }),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
 
 export const medicSchema = z.object({
@@ -92,26 +76,6 @@ export const medicSchema = z.object({
   lastName: z.string().min(1, 'El apellido paterno es requerido'),
   secondLastName: z.string().min(1, 'El apellido materno es requerido'),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-  age: z
-    .union([
-      z.string().refine((p) => p.trim() !== '', {
-        message: 'El nombre es requerido',
-      }),
-      z.number().refine((p) => p !== 0, {
-        message: 'La edad tiene que ser mayor a 0',
-      }),
-    ])
-    .transform((p) => {
-      if (typeof p === 'string') {
-        const parsed = parseFloat(p);
-        if (isNaN(parsed)) {
-          throw new Error('La edad debe ser un número válido');
-        }
-        return parsed;
-      }
-      return p;
-    })
-    .refine((p) => p !== 0, { message: 'La edad debe ser mayor a 0' }),
   phoneNumber: z.string().min(1, 'El telefono es necesario'),
   email: z.string().email('El correo es necesario'),
 });
@@ -163,3 +127,38 @@ export const nurseSchema = z.object({
     }
   ),
 });
+
+export const validateDates = z
+  .object({
+    startDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    endDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    roomId: z.string().min(1, 'Selecciona un espacio reservado'),
+  })
+  .refine((args) => args.endDate >= args.startDate, {
+    message: 'La fecha de finalización debe ser mayor a la fecha de inicio',
+    path: ['endDate'],
+  });
+
+export const discountFormSchema = z
+  .object({
+    Id_CuentaPaciente: z.string().min(1, 'El id de la cuenta es necesario'),
+    MontoDescuento: z
+      .number({ invalid_type_error: 'El monto del descuento es necesario' })
+      .min(0, 'El monto del descuento es necesario'),
+    MotivoDescuento: z.string().optional(),
+    TipoDescuento: z
+      .number({ invalid_type_error: 'El tipo de descuento es necesario' })
+      .min(1, 'El tipo de descuento es necesario'),
+  })
+  .refine(
+    (data) => {
+      if (data.TipoDescuento === 1) {
+        return data.MontoDescuento <= 100;
+      }
+      return true;
+    },
+    {
+      message: 'El porcentaje de descuento no puede ser mayor a 100%',
+      path: ['MontoDescuento'],
+    }
+  );

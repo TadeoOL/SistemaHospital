@@ -99,9 +99,11 @@ export const AllSurgeryInfoModal = (props: { setOpen: Function; roomId: string; 
           ...styleBar,
         }}
       >
-        {COLLAPSE_BODIES.map((d, i) => (
-          <CollapseInfo key={i} title={d.title} body={d.body} />
-        ))}
+        <Box sx={{ maxHeight: { xs: 500 } }}>
+          {COLLAPSE_BODIES.map((d, i) => (
+            <CollapseInfo key={i} title={d.title} body={d.body} />
+          ))}
+        </Box>
       </Box>
       <Box sx={{ bgcolor: 'background.paper', p: 1, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
         <Button onClick={() => props.setOpen(false)} variant="outlined">
@@ -149,10 +151,6 @@ const PatientInfoComponent = (props: { patient?: Paciente }) => {
       <Grid item xs={12} md={4} sm={6}>
         <Typography variant="subtitle1">Fecha de nacimiento:</Typography>
         {dayjs(patient?.fechaNacimiento).format('DD/MM/YYYY')}
-      </Grid>
-      <Grid item xs={12} md={4} sm={6}>
-        <Typography variant="subtitle1">Edad:</Typography>
-        {patient?.edad ?? ''}
       </Grid>
       <Grid item xs={12} md={4} sm={6}>
         <Typography variant="subtitle1">Genero:</Typography>

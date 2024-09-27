@@ -200,7 +200,7 @@ export const PurchaseConfig = () => {
           borderColor: 'black',
         }}
       >
-        <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores</Typography>
+        <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Factores Externos</Typography>
         <Box sx={{ overflowY: 'auto' }}>
           <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2, maxHeight: 250 }}>
             <Table>

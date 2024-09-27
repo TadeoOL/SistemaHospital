@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { IArticle2 } from '../../../types/types';
+import { IArticlePOS } from '../../../types/types';
 import axios, { CancelTokenSource } from 'axios';
 import { usePosTabNavStore } from './posTabNav';
 import { getExistingArticlesPOS } from '../../../services/pharmacy/pointOfSaleService';
@@ -10,7 +10,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IArticle2[];
+  data: IArticlePOS[];
   loading: boolean;
   search: string;
   enabled: boolean;
@@ -74,9 +74,10 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
       const res = await getExistingArticlesPOS(
         `&pageIndex=${pageIndex}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&id_Almacen=${warehouseId
+        }&search=${search}&habilitado=${enabled}&id_Almacen=${
+          warehouseId
         }&id_AlmacenPrincipal=${warehouseId}&Id_SubCategoria=${subCategoryId}`
-      )
+      );
 
       set({
         data: fetchPagination ? [...data, ...res.data] : res.data,

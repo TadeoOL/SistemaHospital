@@ -1,9 +1,11 @@
 import {
   Box,
-  Button,
   Card,
   CircularProgress,
   IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Modal,
   Table,
   TableBody,
@@ -17,14 +19,29 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
-import { IPatientRegisterPagination } from '../../../types/admissionTypes';
+import { IPatientRegisterPagination, Procedimiento } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
-import { Check, Edit, Info, Paid } from '@mui/icons-material';
+import { DocumentScanner, Edit, MonetizationOn, Paid, Print, Visibility } from '@mui/icons-material';
 import { PatientInfoModal } from '../../Programming/Register/Modal/PatientInfoModal';
 import { SelectEditOptionModal } from '../../Programming/Register/Modal/SelectEditOptionModal';
 import { PatientEntryAdvanceModal } from './Modal/PatientEntryAdvance';
+import {
+  generateAdmissionDoc,
+  generateHospitalizationDoc,
+  generateSurgeryDoc,
+} from '../../Documents/AdmissionDocs/AdmissionDoc';
 
-const headers = ['Clave paciente', 'Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Datos Clinicos', 'Acciones'];
+const headers = [
+  'Clave paciente',
+  'Nombre Paciente',
+  'Procedimiento',
+  'Cuartos/Quirófano',
+  'Medico',
+  'Fecha Ingreso',
+  'Datos Paciente',
+  'Datos Clínicos',
+  'Acciones',
+];
 
 interface TableBodyPatientsEntryProps {
   data: IPatientRegisterPagination[];
@@ -44,10 +61,12 @@ const useGetData = () => {
   const setPageSize = usePatientRegisterPaginationStore((state) => state.setPageSize);
   const count = usePatientRegisterPaginationStore((state) => state.count);
   const isLoading = usePatientRegisterPaginationStore((state) => state.loading);
+  const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
+  const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
 
   useEffect(() => {
     fetchData();
-  }, [search, setPageIndex, setPageSize]);
+  }, [search, setPageIndex, setPageSize, startDate, endDate,pageIndex, pageSize]);
   return {
     data,
     pageIndex,
@@ -111,6 +130,14 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
   const [isAdvanceFlag, setIsAdvanceFlag] = useState(false);
   const [valueView, setValueView] = useState(0);
   const [registerRoomId, setRegisterRoomId] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     if (!openEdit) setValueView(0);
@@ -121,55 +148,69 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
       <TableRow>
         <TableCell>{data.clavePaciente}</TableCell>
         <TableCell>{data.nombrePaciente}</TableCell>
-        <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
         <TableCell>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setOpen(true);
-              setPatientId(data.id_Paciente);
-              setClinicalHistoryId(undefined);
-            }}
-          >
-            Ver
-          </Button>
+          {data.procedimientos?.map((procedimiento: Procedimiento, index: number) => (
+            <span key={index}>
+              {procedimiento.nombre}
+              {index < (data.procedimientos?.length || 0) - 1 && ', '}
+            </span>
+          ))}
         </TableCell>
-        <TableCell>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setOpen(true);
-              setPatientId(undefined);
-              setClinicalHistoryId(data.id_HistorialClinico);
-            }}
-          >
-            Ver
-          </Button>
+        <TableCell>{data.cuartos}</TableCell>
+        <TableCell>{data.medico}</TableCell>
+        <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
+        <TableCell align="center">
+          <Tooltip title="Ver datos generales">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setPatientId(data.id_Paciente);
+                setClinicalHistoryId(undefined);
+              }}
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
+        </TableCell>
+        <TableCell align="center">
+          <Tooltip title="Ver datos clínicos">
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+                setPatientId(undefined);
+                setClinicalHistoryId(data.id_HistorialClinico);
+              }}
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.faltanDatos && (
-              <Tooltip title="Faltan datos por llenar">
-                <Info color="warning" />
-              </Tooltip>
-            )}
+            <Tooltip title="Editar">
+              <IconButton onClick={() => setOpenEdit(true)}>
+                <Edit color={data.faltanDatos ? 'warning' : undefined} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Imprimir Documentos">
+              <>
+                <IconButton onClick={handleClick} disabled={data.faltanDatos}>
+                  <Print />
+                </IconButton>
+              </>
+            </Tooltip>
             {!data.admitido && !data.faltanDatos && (
-              <Tooltip title="Aceptar">
+              <Tooltip title="Agregar anticipo">
                 <IconButton
                   onClick={() => {
                     setIsAdvanceFlag(true);
                     setOpenAdvance(true);
                   }}
                 >
-                  <Check color="success" />
+                  <MonetizationOn />
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Editar">
-              <IconButton onClick={() => setOpenEdit(true)}>
-                <Edit />
-              </IconButton>
-            </Tooltip>
             {data.admitido && (
               <Tooltip title="Agregar Abono">
                 <IconButton
@@ -201,6 +242,8 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
             registerId={data.id}
             setRegisterRoomId={setRegisterRoomId}
             registerRoomId={registerRoomId}
+            medic={{ id: data.id_Medico, nombre: data.medico }}
+            procedures={data.procedimientos}
           />
         </>
       </Modal>
@@ -214,6 +257,77 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
           />
         </>
       </Modal>
+      <Menu
+        anchorEl={anchorEl}
+        id="account-menu"
+        open={openMenu}
+        onClose={handleClose}
+        onClick={handleClose}
+        slotProps={{
+          paper: {
+            elevation: 0,
+            sx: {
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              mt: 1.5,
+              '& .MuiAvatar-root': {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              '&::before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem
+          onClick={() => {
+            generateHospitalizationDoc(data.id);
+            handleClose();
+          }}
+        >
+          <ListItemIcon>
+            <DocumentScanner fontSize="small" />
+          </ListItemIcon>
+          Hospitalización
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            generateAdmissionDoc(data.id);
+            handleClose();
+          }}
+        >
+          <ListItemIcon>
+            <DocumentScanner fontSize="small" />
+          </ListItemIcon>
+          Endopro
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            generateSurgeryDoc(data.id);
+            handleClose();
+          }}
+        >
+          <ListItemIcon>
+            <DocumentScanner fontSize="small" />
+          </ListItemIcon>
+          Quirúrgico
+        </MenuItem>
+      </Menu>
     </>
   );
 };

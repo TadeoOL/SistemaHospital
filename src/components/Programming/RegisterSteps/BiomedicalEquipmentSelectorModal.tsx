@@ -32,6 +32,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { medicPersonalBiomedicalEquipmentSchema } from '../../../schema/programming/programmingSchemas';
 import { v4 as uuidv4 } from 'uuid';
 const TABLE_HEADERS = ['Nombre', 'Precio', 'Acciones'];
+
+const styleBar = {
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+    zIndex: 1,
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    zIndex: 1,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+    zIndex: 1,
+  },
+};
+
 interface BiomedicalEquipmentSelectorModalProps {
   setOpen: Function;
 }
@@ -96,108 +114,119 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
   return (
     <>
       <HeaderModal setOpen={props.setOpen} title="Selección de equipo biomedico" />
-      <Box sx={{ backgroundColor: 'background.paper', p: 2 }}>
-        <Box sx={{}}>
-          <Tabs
-            variant="fullWidth"
-            value={hospitalEquipment}
-            onChange={(_, e) => {
-              setHospitalEquipment(e);
-            }}
-            sx={{ mb: 1 }}
-          >
-            <Tab label="Equipo Biomédico" value="yes" />
-            <Tab label="Equipo Biomédico Honorario" value={'no'} />
-          </Tabs>
-        </Box>
-        {hospitalEquipment === 'yes' ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography>Selección de equipo biomédico:</Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: { xs: 'flex-end', sm: 'center' },
-                columnGap: 4,
-                flexDirection: { xs: 'column', sm: 'row' },
-                rowGap: 2,
+      <Box sx={{ backgroundColor: 'background.paper', p: 2, overflowY: 'auto', ...styleBar }}>
+        <Box
+          sx={{
+            maxHeight: {
+              xs: 500,
+              md: 600,
+              lg: 700,
+              xl: 800,
+            },
+          }}
+        >
+          <Box>
+            <Tabs
+              variant="fullWidth"
+              value={hospitalEquipment}
+              onChange={(_, e) => {
+                setHospitalEquipment(e);
               }}
+              sx={{ mb: 1 }}
             >
-              <Autocomplete
-                disablePortal
-                fullWidth
-                // filterOptions={filterPackageOptions}
-                loading={isLoadingBiomedicalEquipment}
-                getOptionLabel={(option) => option.nombre}
-                options={biomedicalEquipmentDataFiltered ?? []}
-                sx={{ width: { xs: 350, sm: 400 } }}
-                noOptionsText="No se encontraron equipos"
-                renderInput={(params) => <TextField {...params} placeholder="Equipos biomedicos" />}
-                onChange={(_, val) => {
-                  setBiomedicalEquipmentSelected(val);
-                }}
-                // onInputChange={(_, __, reason) => {}}
-                value={biomedicalEquipmentSelected}
-              />
-              <Button variant="contained" onClick={handleAddBiomedicalEquipment}>
-                Agregar
-              </Button>
-            </Box>
+              <Tab label="Equipo Biomédico" value="yes" />
+              <Tab label="Equipo Biomédico Honorario" value={'no'} />
+            </Tabs>
           </Box>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmitPersonalEquipment)}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Stack>
-                  <Typography>Nombre del equipo:</Typography>
-                  <TextField
-                    label="Equipo biomedico"
-                    value={watch('name')}
-                    onChange={(e) => setValue('name', e.target.value)}
-                    error={!!errors.name?.message}
-                    helperText={errors.name?.message}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Stack>
-                  <Typography>Precio:</Typography>
-                  <TextField
-                    label="Precio"
-                    inputProps={{
-                      min: 0,
-                    }}
-                    error={!!errors.price?.message}
-                    helperText={errors.price?.message}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (!isValidFloat(value)) return;
-                      if (value === '.') {
-                        setValue('price', '');
-                        return;
-                      }
-                      if (value.trim() === '') {
-                        setValue('price', '');
-                      } else {
-                        setValue('price', value);
-                      }
-                    }}
-                    value={watch('price')}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField multiline fullWidth label="Notas" {...register('notes')} />
-              </Grid>
-              <Grid item xs={12} sx={{ justifyContent: 'flex-end', display: 'flex' }}>
-                <Button variant="contained" type="submit">
+          {hospitalEquipment === 'yes' ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Typography>Selección de equipo biomédico:</Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: { xs: 'flex-end', sm: 'center' },
+                  columnGap: 4,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  rowGap: 2,
+                }}
+              >
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  // filterOptions={filterPackageOptions}
+                  loading={isLoadingBiomedicalEquipment}
+                  getOptionLabel={(option) => option.nombre}
+                  options={biomedicalEquipmentDataFiltered ?? []}
+                  sx={{ width: { xs: 350, sm: 400 } }}
+                  noOptionsText="No se encontraron equipos"
+                  renderInput={(params) => <TextField {...params} placeholder="Equipos biomedicos" />}
+                  onChange={(_, val) => {
+                    setBiomedicalEquipmentSelected(val);
+                  }}
+                  // onInputChange={(_, __, reason) => {}}
+                  value={biomedicalEquipmentSelected}
+                />
+                <Button variant="contained" onClick={handleAddBiomedicalEquipment}>
                   Agregar
                 </Button>
+              </Box>
+            </Box>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmitPersonalEquipment)}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Stack>
+                    <Typography>Nombre del equipo:</Typography>
+                    <TextField
+                      label="Equipo biomedico"
+                      value={watch('name')}
+                      onChange={(e) => setValue('name', e.target.value)}
+                      error={!!errors.name?.message}
+                      helperText={errors.name?.message}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Stack>
+                    <Typography>Precio:</Typography>
+                    <TextField
+                      label="Precio"
+                      inputProps={{
+                        min: 0,
+                      }}
+                      error={!!errors.price?.message}
+                      helperText={errors.price?.message}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (!isValidFloat(value)) return;
+                        if (value === '.') {
+                          setValue('price', '');
+                          return;
+                        }
+                        if (value.trim() === '') {
+                          setValue('price', '');
+                        } else {
+                          setValue('price', value);
+                        }
+                      }}
+                      value={watch('price')}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField multiline fullWidth label="Notas" {...register('notes')} />
+                </Grid>
+                <Grid item xs={12} sx={{ justifyContent: 'flex-end', display: 'flex' }}>
+                  <Button variant="contained" type="submit">
+                    Agregar
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          </form>
-        )}
-        <Divider sx={{ my: 1 }} />
-        <BiomedicalEquipmentSelectedTable data={biomedicalEquipmentsList} />
+            </form>
+          )}
+          <Divider sx={{ my: 1 }} />
+          <BiomedicalEquipmentSelectedTable data={biomedicalEquipmentsList} />
+        </Box>
       </Box>
       <Box sx={{ backgroundColor: 'background.paper', p: 1, justifyContent: 'space-between', display: 'flex' }}>
         <Button variant="outlined" onClick={() => setStep(step - 1)}>

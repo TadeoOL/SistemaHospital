@@ -17,14 +17,16 @@ import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
 import { IArticleHistory, IExistingArticleList } from '../../../../types/types';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
-import { AddCircle, CheckCircle, Warning } from '@mui/icons-material';
+import { AddCircle, CheckCircle, Warning, Edit } from '@mui/icons-material';
 import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
 import { toast } from 'react-toastify';
 import { useGetPharmacyConfig } from '../../../../hooks/useGetPharmacyConfig';
 import { useWarehouseMovementPackagesPaginationStore } from '../../../../store/warehouseStore/movimientoAlmacenPaquetesPaginacion';
 import { buildPackage } from '../../../../api/api.routes';
+//import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
+//import { PDFDownloadLink } from '@react-pdf/renderer';
 
 const TABLE_HEADERS = ['Nombre Articulo', 'Cantidad', 'Fecha de Caducidad', 'Acciones'];
 const style = {
@@ -40,17 +42,34 @@ const style = {
   flexDirection: 'column',
   maxHeight: 600,
 };
+const style2 = {
+  bgcolor: 'background.paper',
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0.4em',
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,.1)',
+    outline: '1px solid slategrey',
+  },
+};
 
 interface CreatePackageModalProps {
   setOpen: Function;
   articles: IArticleHistory[];
   movementHistoryId: string;
   setArticles: Function;
+  preLoadedArticles: IArticleHistory[];
 }
 
 interface ArticlesInBatch {
   Id_ArticuloExistente: string;
-  Cantidad: string;
+  Id_Articulo: string;
+  Cantidad: number;//checar aqui a numero
 }
 
 export const CreatePackageModal = (props: CreatePackageModalProps) => {
@@ -58,9 +77,10 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
   const refetch = useWarehouseMovementPackagesPaginationStore((state) => state.fetchWarehouseMovements);
   const [isLoading, setIsLoading] = useState(false);
   const { data } = useGetPharmacyConfig();
+  const [seed, setSeed] = useState(0);
 
   const handleSubmit = async () => {
-    if (articlesInBatch.length !== props.articles.length) {
+    if (checkQuantyties()) {
       toast.warning('Debes de agregar todos los artículos');
       return;
     }
@@ -68,7 +88,7 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
     const object = {
       id_HistorialMovimiento: props.movementHistoryId,
       lotes: articlesInBatch.map((a) => {
-        return { ...a, Cantidad: parseInt(a.Cantidad) };
+        return { ...a, Id_ArticuloAlmacenStock: a.Id_ArticuloExistente };
       }),
       id_AlmacenOrigen: data.id_Almacen,
     };
@@ -85,12 +105,72 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
     }
   };
 
+  const checkQuantyties = () => {
+    const quantityMap: { [key: string]: number } = {};
+
+    // Llenar el mapa con las cantidades de articlesInBatch
+    articlesInBatch.forEach((article) => {
+      if (!quantityMap[article.Id_Articulo]) {
+        quantityMap[article.Id_Articulo] = 0;
+      }
+      quantityMap[article.Id_Articulo] += article.Cantidad;
+    });
+
+    // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
+    for (const article of props.articles) {
+      const requiredQuantity = article.cantidad;
+      const availableQuantity = quantityMap[article.id_Articulo ?? ''] || 0;
+
+      if (availableQuantity < requiredQuantity) {
+        return true; // Falta cantidad o artículo
+      }
+    }
+
+    return false; // Todo está bien
+  };
+
+  const checkPreloadedQuantyties = () => {
+    const quantityMap: { [key: string]: number } = {};
+
+    // Llenar el mapa con las cantidades de articlesInBatch
+    const listArt: ArticlesInBatch[] = [];
+    props.preLoadedArticles.forEach((article) => {
+      if (!quantityMap[article.id_Articulo ?? '']) {
+        quantityMap[article.id_Articulo ?? ''] = 0;
+      }
+      quantityMap[article.id_Articulo ?? ''] += article.cantidad;
+      listArt.push({
+        Id_Articulo: article.id_Articulo ?? '',
+        Id_ArticuloExistente: article.id_ArticuloExistente ?? '',
+        Cantidad: article.cantidad,
+      });
+    });
+    setArticlesInBatch(listArt);
+    props.setArticles(props.preLoadedArticles);
+    setSeed(seed + 1);
+    // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
+    for (const article of props.articles) {
+      const requiredQuantity = article.cantidad;
+      const availableQuantity = quantityMap[article.id_Articulo ?? ''] || 0;
+
+      if (availableQuantity < requiredQuantity) {
+        return true; // Falta cantidad o artículo
+      }
+    }
+
+    return false; // Todo está bien
+  };
+
+  useEffect(() => {
+    checkPreloadedQuantyties();
+  }, []);
+
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Crear paquete" />
-      <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
-        <Typography>Armado de paquete</Typography>
+      <HeaderModal setOpen={props.setOpen} title="Armado de paquete" />
+      <Box sx={style2}>
         <CreatePackageModalTable
+          key={seed}
           articles={props.articles}
           movementHistoryId={props.movementHistoryId}
           setArticles={props.setArticles}
@@ -106,6 +186,13 @@ export const CreatePackageModal = (props: CreatePackageModalProps) => {
         <Button variant="contained" onClick={handleSubmit}>
           {isLoading ? <CircularProgress size={25} /> : 'Aceptar'}
         </Button>
+        {/*<PDFDownloadLink
+          document={<PackageReport articulos={articulos} />}
+          fileName={`${Date.now()}.pdf`}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+        </PDFDownloadLink>*/}
       </Box>
     </Box>
   );
@@ -183,16 +270,13 @@ const CreatePackageModalTableRow = (props: {
 
   const handleAddArticles = async (lotesArticles: IExistingArticleList[]) => {
     setIsLoading(true);
-    if (lotesArticles.flatMap((a) => a.cantidad).reduce((a, b) => a + b, 0) !== article.cantidad) {
-      setIsLoading(false);
-      return toast.warning('Agrega la cantidad exacta!');
-    }
     const object = {
       Id_HistorialMovimiento: movementHistoryId,
       Lotes: lotesArticles.map((a) => {
         return {
           Cantidad: a.cantidad.toString(),
           Id_ArticuloExistente: a.id_ArticuloExistente,
+          Id_Articulo: a.id_Articulo,
         };
       }),
       Estatus: 2,
@@ -222,21 +306,22 @@ const CreatePackageModalTableRow = (props: {
         <TableCell>{article.cantidad}</TableCell>
         <TableCell align="center">{article.fechaCaducidad ?? 'Sin asignar'}</TableCell>
         <TableCell>
-          <Box>
-            {!isLoading && !article.fechaCaducidad ? (
+          {isLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <Box display={'flex'}>
               <Tooltip title="Agregar articulo de lote">
                 <IconButton onClick={handleAdd}>
-                  <AddCircle color="disabled" />
+                  {article.fechaCaducidad ? <Edit sx={{ color: 'gray' }} /> : <AddCircle color="disabled" />}
                 </IconButton>
               </Tooltip>
-            ) : !isLoading && article.fechaCaducidad ? (
-              <Tooltip title="Articulo agregado correctamente">
-                <CheckCircle color="success" />
-              </Tooltip>
-            ) : (
-              <CircularProgress size={20} />
-            )}
-          </Box>
+              {article.fechaCaducidad && (
+                <Tooltip title="Articulo agregado correctamente" sx={{ my: 'auto' }}>
+                  <CheckCircle color="success" sx={{ my: 'auto' }} />
+                </Tooltip>
+              )}
+            </Box>
+          )}
         </TableCell>
       </TableRow>
       <Modal open={openLoteSelection} onClose={() => setOpenLoteSelection(false)}>

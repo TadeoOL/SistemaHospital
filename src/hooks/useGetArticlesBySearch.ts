@@ -8,7 +8,7 @@ type Article = {
   nombre: string;
   precio: number;
 };
-export const useGetArticlesBySearch = ( warehouseIdProp?: string  ) => {
+export const useGetArticlesBySearch = (warehouseIdProp?: string) => {
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
   const [articlesRes, setArticles] = useState<Article[]>([]);
   const warehouseSelected = useDirectlyPurchaseRequestOrderStore(useShallow((state) => state.warehouseSelected));
@@ -19,8 +19,9 @@ export const useGetArticlesBySearch = ( warehouseIdProp?: string  ) => {
       setIsLoadingArticles(true);
       try {
         let res;
-        warehouseIdProp ? res = await getArticlesBySearch(search, warehouseIdProp) :
-        res = await getArticlesBySearch(search, warehouseSelected);
+        warehouseIdProp
+          ? (res = await getArticlesBySearch(search, warehouseIdProp))
+          : (res = await getArticlesBySearch(search, warehouseSelected));
         setArticles(res);
       } catch (error) {
         console.log(error);

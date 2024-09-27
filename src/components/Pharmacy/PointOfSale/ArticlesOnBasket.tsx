@@ -1,9 +1,10 @@
+
 import { AddCircleOutlineRounded, Delete, RemoveCircleOutlineRounded } from '@mui/icons-material';
 import { Box, Card, IconButton, Stack, Typography, alpha } from '@mui/material';
 import { neutral } from '../../../theme/colors';
 import { usePosOrderArticlesStore } from '../../../store/pharmacy/pointOfSale/posOrderArticles';
 import { useShallow } from 'zustand/react/shallow';
-import { IArticle2 } from '../../../types/types';
+import { IArticlePOS } from '../../../types/types';
 
 const scrollBar = {
   '&::-webkit-scrollbar': {
@@ -19,10 +20,9 @@ interface ResumeSaleProps {
   sx?: any;
 }
 interface CardItemsProps {
-  article: IArticle2;
+  article: IArticlePOS;
   maxAmount: number;
   id: string;
-  fechaCaducidad: string;
 }
 interface AddAndRemoveButtonsProps {
   amount: number;
@@ -41,22 +41,17 @@ export const ArticlesOnBasket = (props: ResumeSaleProps) => {
       <Stack sx={{ overflowY: 'auto', ...scrollBar }}>
         <Stack spacing={2} sx={{ maxHeight: '500px', p: 1.5 }}>
           {articlesOnBasket.map((item) =>
-            item?.lote?.map((nestedArt) => (
+            (
               <CardItems
-                key={nestedArt.id_ArticuloExistente}
-                id={nestedArt.id_ArticuloExistente}
+                key={item.id_Articulo}
+                id={item.id_Articulo}
                 article={{
-                  ...item,
-                  cantidad: nestedArt.cantidad,
+                  ...item
                 }}
-                fechaCaducidad={nestedArt.fechaCaducidad}
-                maxAmount={
-                  item.listaArticuloExistente.find((a) => a.id_ArticuloExistente === nestedArt.id_ArticuloExistente)
-                    ?.cantidad || 0
-                }
+                maxAmount={ item.stockActual }
               />
             ))
-          )}
+          }
         </Stack>
       </Stack>
     </Stack>
@@ -92,7 +87,6 @@ const CardItems = (props: CardItemsProps) => {
           <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{truncateText(article.nombre, 30)}</Typography>
         </Box>
         <Typography sx={{ fontSize: 11, fontWeight: 500 }}>Codigo: {article.codigoBarras}</Typography>
-        <Typography sx={{ fontSize: 13, fontWeight: 500 }}>Lote: {props.fechaCaducidad}</Typography>
         <Box
           sx={{
             display: 'flex',
@@ -102,7 +96,7 @@ const CardItems = (props: CardItemsProps) => {
             mt: 0.5,
           }}
         >
-          <Typography sx={{ fontSize: 14, fontWeight: 500 }}>${article.precioVenta}</Typography>
+          <Typography sx={{ fontSize: 14, fontWeight: 500 }}>${ article.iva? ( Number(article.precioVenta) * (article.iva/100) + Number(article.precioVenta)).toFixed(2) : article.precioVenta}</Typography>
           <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
             <b>Cantidad: </b> {props.maxAmount}
           </Typography>
@@ -117,28 +111,27 @@ const CardItems = (props: CardItemsProps) => {
     </Card>
   );
 };
-
+/*
+const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
+  const articlesOnBasket = usePosOrderArticlesStore(useShallow((state) => state.articlesOnBasket));
+  const findIndex = articlesOnBasket.findIndex((article) => article.id_Articulo === props.id);
+*/
 const AddAndRemoveButtons = (props: AddAndRemoveButtonsProps) => {
   const setArticlesOnBasket = usePosOrderArticlesStore((state) => state.setArticlesOnBasket);
   const articlesOnBasket = usePosOrderArticlesStore(useShallow((state) => state.articlesOnBasket));
   const findIndex = articlesOnBasket.findIndex((article) => article.id_Articulo === props.id);
+  const maxAmountArticle = articlesOnBasket[findIndex].stockActual;
 
   const handleAddAmount = () => {
-    if (props.amount === props.maxAmount) return;
+    console.log(props, findIndex);
+    console.log(articlesOnBasket);
+    if (props.amount === maxAmountArticle) return;
     if (findIndex !== -1) {
-      const updatedArticlesOnBasket = [...articlesOnBasket];
-      const article = updatedArticlesOnBasket[findIndex];
-      const secondIndex = article.lote?.findIndex(
-        (articleLote) => articleLote.id_ArticuloExistente === props.idArticleNested
-      );
-      if (secondIndex !== -1 && article.lote) {
-        const loteIndex = article.lote.findIndex((lote) => lote.id_ArticuloExistente === props.idArticleNested);
-
-        if (loteIndex !== -1) {
-          article.lote[loteIndex].cantidad = (article.lote[loteIndex].cantidad || 0) + 1;
-          setArticlesOnBasket(updatedArticlesOnBasket);
-        }
-      }
+      const updatedArticlesOnBasket = articlesOnBasket.slice();
+      console.log("eta vaina va primero",updatedArticlesOnBasket[findIndex].cantidad);
+      updatedArticlesOnBasket[findIndex].cantidad = (updatedArticlesOnBasket[findIndex].cantidad ?? 0 )+ 1;
+      console.log(updatedArticlesOnBasket[findIndex].cantidad);
+      setArticlesOnBasket(updatedArticlesOnBasket);
     }
   };
 
@@ -146,18 +139,8 @@ const AddAndRemoveButtons = (props: AddAndRemoveButtonsProps) => {
     if (props.amount === 1) return;
     if (findIndex !== -1) {
       const updatedArticlesOnBasket = [...articlesOnBasket];
-      const article = updatedArticlesOnBasket[findIndex];
-      const secondIndex = article.lote?.findIndex(
-        (articleLote) => articleLote.id_ArticuloExistente === props.idArticleNested
-      );
-      if (secondIndex !== -1 && article.lote) {
-        const loteIndex = article.lote.findIndex((lote) => lote.id_ArticuloExistente === props.idArticleNested);
-
-        if (loteIndex !== -1) {
-          article.lote[loteIndex].cantidad = (article.lote[loteIndex].cantidad || 0) - 1;
-          setArticlesOnBasket(updatedArticlesOnBasket);
-        }
-      }
+      updatedArticlesOnBasket[findIndex].cantidad = (updatedArticlesOnBasket[findIndex].cantidad ?? 0) - 1;
+      setArticlesOnBasket(updatedArticlesOnBasket);
     }
   };
 

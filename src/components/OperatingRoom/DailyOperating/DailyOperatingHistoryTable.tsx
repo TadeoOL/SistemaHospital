@@ -18,7 +18,7 @@ import { ISurgeryHistory } from '../../../types/operatingRoomTypes';
 import dayjs from 'dayjs';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import { AllSurgeryInfoModal } from './Modal/AllSurgeryInfoModal';
-const HEADERS = ['Hora', 'Duración', 'Quirófano', 'Paciente', 'Edad', 'Cirugia', 'Cirujano', 'Anestesiologo'];
+const HEADERS = ['Hora', 'Duración', 'Quirófano', 'Paciente', 'Cirugia', 'Cirujano', 'Anestesiologo'];
 
 const useGetSurgeriesHistory = () => {
   const fetch = useSurgeriesHistoryPagination((state) => state.fetchData);
@@ -99,7 +99,6 @@ const DailyOperatingHistoryTableRow = (props: { data: ISurgeryHistory }) => {
         <TableCell>{data.duracion}</TableCell>
         <TableCell>{data.nombre}</TableCell>
         <TableCell>{data.paciente}</TableCell>
-        <TableCell>{data.edad}</TableCell>
         <TableCell>
           <SurgeryProceduresChip surgeries={data.procedimientos} />
         </TableCell>

@@ -10,6 +10,7 @@ import {
   FormLabel,
   Grid,
   IconButton,
+  MenuItem,
   Radio,
   RadioGroup,
   Table,
@@ -41,6 +42,9 @@ import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
+import 'dayjs/locale/es-mx';
+import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
+dayjs.locale('es-mx');
 
 const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
 
@@ -62,8 +66,13 @@ type Inputs = {
   description: string;
   reservedSpaceTime: Dayjs | null;
   priceByTimeRange: IRecoveryRoomOperatingRoom[];
+  recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
+  codigoSATRecuperacion?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
+  codigoUnidadMedidaRecuperacion?: number;
 };
 
 interface AddTypeRoomModalProps {
@@ -74,6 +83,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -90,15 +100,21 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       name: editData ? editData.nombre : '',
       description: editData ? editData.descripcion : '',
       priceByTimeRange: editData ? editData.configuracionPrecioHora : [],
+      recoveryPriceByTimeRange: editData ? editData.configuracionRecuperacion : [],
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
       priceRoom: editData ? editData.precio?.toString() : '0',
+      codigoSATRecuperacion: editData?.codigoSATRecuperacion,
+      codigoSAT: editData?.codigoSAT,
+      codigoUnidadMedida: editData?.codigoUnidadMedida ? editData.codigoUnidadMedida : 0,
+      codigoUnidadMedidaRecuperacion: editData?.codigoUnidadMedidaRecuperacion
+        ? editData.codigoUnidadMedidaRecuperacion
+        : 0,
     },
   });
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
-    console.log({ data });
     try {
       if (!editData) {
         await registerTypeRoom({
@@ -108,8 +124,17 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             ? data.reservedSpaceTime.format('HH:mm:00')
             : undefined,
           configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+          configuracionRecuperacion: data.recoveryPriceByTimeRange
+            ? JSON.stringify(data.recoveryPriceByTimeRange)
+            : undefined,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
+          codigoSATRecuperacion: data.codigoSATRecuperacion,
+          codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+            ? data.codigoUnidadMedidaRecuperacion
+            : undefined,
         });
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
@@ -120,9 +145,18 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             ? data.reservedSpaceTime.format('HH:mm:00')
             : undefined,
           configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+          configuracionRecuperacion: data.recoveryPriceByTimeRange
+            ? JSON.stringify(data.recoveryPriceByTimeRange)
+            : undefined,
           id: editData.id,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
+          codigoSATRecuperacion: data.codigoSATRecuperacion,
+          codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+            ? data.codigoUnidadMedidaRecuperacion
+            : undefined,
         });
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
@@ -142,6 +176,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
     setValue('priceByTimeRange', [...config]);
   };
 
+  const handleAddNewRecoveryPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
+    setValue('recoveryPriceByTimeRange', [...config]);
+  };
+
   const handleAddPriceRoom = (price: string) => {
     setValue('priceRoom', price);
   };
@@ -159,8 +197,17 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
         }
       />
       <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1" />
-      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3 }}>
-        <Grid container spacing={1}>
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 1,
+          flexDirection: 'column',
+          bgcolor: 'background.paper',
+          p: 3,
+          overflowY: 'auto',
+        }}
+      >
+        <Grid container spacing={1} sx={{ maxHeight: { xs: 500, xl: 700 } }}>
           <Grid item xs={12}>
             <Typography>Nombre</Typography>
             <TextField
@@ -233,11 +280,21 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           </Grid>
           <Grid item xs={12}>
             {watch('type') === '1' ? (
-              <RoomHourCostTable
-                xs={xs}
-                updateRecoveryConfig={handleAddNewPriceByTimeRange}
-                data={watch('priceByTimeRange')}
-              />
+              <>
+                <RoomHourCostTable
+                  xs={xs}
+                  updateRecoveryConfig={handleAddNewPriceByTimeRange}
+                  data={watch('priceByTimeRange')}
+                  formKey="formOperatingRoom"
+                />
+                <RoomHourCostTable
+                  xs={xs}
+                  updateRecoveryConfig={handleAddNewRecoveryPriceByTimeRange}
+                  data={watch('recoveryPriceByTimeRange')}
+                  isRecovery
+                  formKey="formRecoveryRoom"
+                />
+              </>
             ) : (
               <AddPriceHospitalizationRoom
                 priceRoom={watch('priceRoom')}
@@ -246,6 +303,75 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               />
             )}
           </Grid>
+          {watch('type') === '1' && (
+            <Grid item xs={6}>
+              <Typography>
+                Codigo de SAT de <b>Recuperación</b>
+              </Typography>
+              <TextField
+                placeholder="Escribe un codigo de SAT para Recuperación"
+                fullWidth
+                error={!!errors.codigoSATRecuperacion?.message}
+                helperText={errors.codigoSATRecuperacion?.message}
+                {...register('codigoSATRecuperacion')}
+              />
+            </Grid>
+          )}
+          <Grid item xs={6}>
+            <Typography>Código de SAT</Typography>
+            <TextField
+              placeholder="Escribe un código de SAT"
+              fullWidth
+              error={!!errors.codigoSAT?.message}
+              helperText={errors.codigoSAT?.message}
+              {...register('codigoSAT')}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography>Unidad de Medida Contpaqi</Typography>
+            <TextField
+              fullWidth
+              size="small"
+              select
+              label="Seleccione una unidad de medida"
+              error={!!errors.codigoUnidadMedida}
+              helperText={errors?.codigoUnidadMedida?.message}
+              {...register('codigoUnidadMedida')}
+              value={watch('codigoUnidadMedida')}
+            >
+              {!isLoadingConcepts &&
+                sizeUnit.map((data) => (
+                  <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                    {data.nombre}
+                  </MenuItem>
+                ))}
+              {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+            </TextField>
+          </Grid>
+          {watch('type') === '1' && (
+            <Grid item xs={6}>
+              <Typography>
+                Código de Unidad de Medida de <b>Recuperación</b>
+              </Typography>
+              <TextField
+                label="Escribe un codigo de Unidad de Medida de Recuperación"
+                fullWidth
+                error={!!errors.codigoUnidadMedidaRecuperacion?.message}
+                helperText={errors.codigoUnidadMedidaRecuperacion?.message}
+                {...register('codigoUnidadMedidaRecuperacion')}
+                value={watch('codigoUnidadMedidaRecuperacion')}
+                select
+              >
+                {!isLoadingConcepts &&
+                  sizeUnit.map((data) => (
+                    <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                      {data.nombre}
+                    </MenuItem>
+                  ))}
+                {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+              </TextField>
+            </Grid>
+          )}
         </Grid>
       </Box>
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>
@@ -271,6 +397,8 @@ interface RoomHourCostTableProps {
   data: IRecoveryRoomOperatingRoom[];
   xs: boolean;
   updateRecoveryConfig: (config: IRecoveryRoomOperatingRoom[]) => void;
+  isRecovery?: boolean;
+  formKey: string;
 }
 
 const RoomHourCostTable = (props: RoomHourCostTableProps) => {
@@ -333,7 +461,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
 
   return (
     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography variant="h6">Precio hora quirófano</Typography>
+      <Typography variant="h5">{props.isRecovery ? 'Precio hora recuperacion' : 'Precio hora quirófano'}</Typography>
       <Card sx={{ flex: 1 }}>
         <TableContainer>
           <Table>
@@ -366,7 +494,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
       <Box sx={{ mt: 1, display: 'flex' }}>
         <Box sx={{ flex: { xs: 1, md: 2 } }}>
           <Collapse in={open}>
-            <form id="form2" onSubmit={handleSubmit(handleSave)}>
+            <form id={props.formKey} onSubmit={handleSubmit(handleSave)}>
               <Box
                 sx={{
                   display: 'flex',
@@ -420,7 +548,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
         </Box>
         <Box sx={{ flex: 1, justifyContent: 'flex-end', display: 'flex' }}>
           <Box>
-            <Button variant="contained" form="form2" type="submit">
+            <Button variant="contained" form={props.formKey} type="submit">
               {!open ? 'Agregar' : 'Guardar'}
             </Button>
             <Collapse in={open} sx={{ mt: 1 }}>

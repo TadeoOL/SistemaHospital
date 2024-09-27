@@ -231,7 +231,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
+        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos xxx" />
         <Stack spacing={2} sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto', ...styleBar }}>
           <Box sx={{ maxHeight: 450 }}>
             <Grid container spacing={2}>
@@ -296,7 +296,6 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                           </TableCell>
                           <TableCell>{a.precioProveedor}</TableCell>
                           <TableCell>{a.precioVenta}</TableCell>
-                          <TableCell>{a.factorAplicado}</TableCell>
                           <TableCell>{a.fechaCaducidad ? hasExpireDate(a.fechaCaducidad) : 'No tiene aun'}</TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', flex: 1 }}>

@@ -94,8 +94,8 @@ const stepsForm = [
   },
 ];
 
-const useFetchPdfProviders = (providers: Provider[]) => {
-  const [providersData, setProvidersData] = useState<Array<Provider & { pdf: string | null }>>();
+const useFetchPdfProviders = (providers: any[]) => {
+  const [providersData, setProvidersData] = useState<Array<Provider & { pdf: string | null }> | any[]>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

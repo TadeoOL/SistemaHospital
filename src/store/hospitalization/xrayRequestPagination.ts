@@ -11,7 +11,7 @@ interface State {
   pageSize: number;
   data: IXRayRequest[];
   loading: boolean;
-  status: number;
+  status: number | null;
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
@@ -24,7 +24,7 @@ interface Action {
   setSearch: (search: string) => void;
   fetchData: (flag: boolean) => void;
   setEnabled: (enabled: boolean) => void;
-  setStatus: (status: number) => void;
+  setStatus: (status: number | null) => void;
   clearData: () => void;
 }
 
@@ -33,7 +33,7 @@ const initialValues = {
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  status: 1,
+  status: null,
   pageSize: 10,
   data: [],
   loading: false,
@@ -45,7 +45,7 @@ const initialValues = {
 export const useXRayRequestPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
   setPageSize: (pageSize: number) => set({ pageSize }),
-  setStatus: (status: number) => set({ status }),
+  setStatus: (status: number | null) => set({ status }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
@@ -63,7 +63,7 @@ export const useXRayRequestPaginationStore = create<State & Action>((set, get) =
 
     try {
       const res = await getXRayRequestPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&UsuarioEnfermero=${flag}&search=${search}&habilitado=${enabled}&Estatus=${status}`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&UsuarioEnfermero=${flag}&search=${search}&habilitado=${enabled}&${!status && status !== 0 ? '' : 'Estatus=' + status}`
       );
 
       set({

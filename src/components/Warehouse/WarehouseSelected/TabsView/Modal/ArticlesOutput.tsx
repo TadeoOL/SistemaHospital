@@ -3,14 +3,12 @@ import {
   Box,
   Button,
   Card,
-  Collapse,
   Divider,
   FormControl,
   FormControlLabel,
   FormLabel,
   Grid,
   IconButton,
-  Modal,
   Radio,
   RadioGroup,
   Stack,
@@ -23,23 +21,19 @@ import {
   TextField,
   Tooltip,
   Typography,
-  alpha,
   createFilterOptions,
-  styled,
-  tableCellClasses,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import React, { useEffect, useState, useRef } from 'react';
-import { Delete, Edit, ExpandLess, ExpandMore, Save, ArrowForward } from '@mui/icons-material';
+import { Delete, Edit, Save, ArrowForward } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { IArticleFromSearch, IExistingArticleList, IWarehouseData } from '../../../../../types/types';
-import { articlesOutputToWarehouseToWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
+import { IArticleFromSearch, IWarehouseData } from '../../../../../types/types';
+import { articlesOutputToWarehouseToWarehouse, getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
-import { LoteSelectionRemake2 } from './LoteSelectionRemake2';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
-import { returnExpireDate } from '../../../../../utils/expireDate';
+import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 
 const style = {
   position: 'absolute',
@@ -66,44 +60,21 @@ const styleBar = {
   },
 };
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterSubWarehousesOptions = createFilterOptions<any>({
   limit: OPTIONS_LIMIT,
 });
 
-const NestedTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    border: 'hidden',
-    fontSize: 11,
-  },
-  [`&.${tableCellClasses.root}`]: {
-    paddingLeft: '20px',
-    width: '50%',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    justifyContent: 'center',
-  },
-}));
-
 export type ArticlesFetched = {
   id_Articulo: string;
+  //id_ArticuloCuenta: string; Cambio del tadeo arreglar despois
+  id_ArticuloStock: string;
   nombre: string;
-  loteChanges?: loteFetch[]; //Lote cuyos valores se pueden manipular
-  stockActual: string;
+  //stockActual: string;
   cantidad: string;
+  stockActual: number;
   cantidadSeleccionar?: string;
   codigoBarras?: string;
-  lote: loteFetch[]; //Lote que debe permanecer sin cambios
-};
-type loteFetch = {
-  cantidad: number;
-  fechaCaducidad: string;
-  id_ArticuloExistente: string;
 };
 
 const renderOutputView = (
@@ -146,7 +117,6 @@ const renderOutputView = (
 interface ArticlesViewProps {
   setOpen: Function;
 }
-
 export const ArticlesView = (props: ArticlesViewProps) => {
   const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
   const [reasonMessage, setReasonMessage] = useState('');
@@ -159,15 +129,16 @@ export const ArticlesView = (props: ArticlesViewProps) => {
   const handleSubmit = async () => {
     setIsLoading(true);
     const existingArticles = articles
-      .flatMap((article) => article.lote)
       .map((article) => {
         return {
-          Id_ArticuloExistente: article.id_ArticuloExistente,
-          Cantidad: article.cantidad,
+          Id_Articulo: article.id_Articulo,
+          Id_ArticuloAlmacenStock: article.id_ArticuloStock,
+          Nombre: article.nombre,
+          Cantidad: Number(article.cantidad),
         };
       });
     const object = {
-      Lotes: existingArticles,
+      ArticulosSalida: existingArticles,
       id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : '',
       id_almacenOrigen: warehouseData.id,
       SalidaMotivo: radioSelected === 1 ? reasonMessage : undefined,
@@ -303,12 +274,13 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [articlesFetched, setArticlesFetched] = useState<IArticleFromSearch[] | []>([]);
   const [articleSelected, setArticleSelected] = useState<IArticleFromSearch | null>(null);
-  const [lotesSelected, setLotesSelected] = useState<loteFetch[] | []>([]);
+  const [amountArticleSelected, setAmountArticleSelected] = useState(0);
+  const [idArticleSelected, setIdArticleSelected] = useState('');
   const ExitReasonRef = useRef<HTMLInputElement | null>(null);
-  const [openLoteModal, setOpenLoteModal] = useState(false);
-  const [loteEditing, setLoteEditing] = useState(false);
+  const [amountError, setAmountError] = useState(false);
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
+  const [amountText, setAmountText] = useState('');
 
   useEffect(() => {
     const fetch = async () => {
@@ -332,57 +304,49 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     setWarehouseId(warehouseData.id);
   }, []);
 
-  const handleAddArticle = (lotesArticles: IExistingArticleList[], edit: boolean) => {
-    let totalQuantityByArticle = 0;
-    const updatedLote: loteFetch[] = [];
-    lotesArticles.forEach((element) => {
-      const nestedLote = {
-        cantidad: element.cantidad,
-        id_ArticuloExistente: element.id_ArticuloExistente,
-        fechaCaducidad: element.fechaCaducidad,
-      };
-      updatedLote.push(nestedLote);
-      totalQuantityByArticle += element.cantidad;
-    });
-    const updatedArticle = {
-      ...articleSelected,
-      cantidad: totalQuantityByArticle,
-      lote: updatedLote,
-    };
+  const handleAddArticle = (articleToAdd: ArticlesFetched, edit: boolean) => {
     if (edit) {
       const direction = articles.findIndex(
         (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
       );
       articles.splice(direction, 1);
-      setArticles([...(articles as any), updatedArticle]);
+      setArticles([...(articles as any), articleToAdd]);
       setArticleSelected(null);
-      setLoteEditing(false);
     } else {
-      setArticles((prev: any) => [...prev, updatedArticle]);
+      setArticles((prev: any) => [...prev, articleToAdd]);
       setArticleSelected(null);
     }
+    setAmountArticleSelected(0);
+    setIdArticleSelected('')
+    setAmountText('');
   };
 
-  const EditArrowRow = (idArticuloExistente: string, idLote: string, quantityChange: number) => {
+  const searchArticleAmount = async (Id_Articulo: string) => {
+    setIsLoading(true);
+    try {
+      const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo ,warehouseData.id)
+      setIsLoading(false);
+      setAmountArticleSelected(amountResponse.stockActual as number);
+      setIdArticleSelected(amountResponse.id_ArticuloStock)
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+      setAmountArticleSelected(0);
+      setIdArticleSelected('')
+
+    }
+  }
+
+
+ /* const EditArrowRow = (idArticuloExistente: string, quantityChange: number) => {
     const direction = articles.findIndex((art) => art.id_Articulo === idArticuloExistente);
     if (direction === -1) {
       toast.error(`Artículo no encontrado`);
       return;
     }
-    const articulo = articles[direction];
-    const lote = articulo.lote.find((lote) => lote.id_ArticuloExistente === idLote);
-    if (!lote) {
-      toast.error(`Artículo no encontrado`);
-      return;
-    }
-    lote.cantidad = quantityChange;
-    let totalQuantity = 0;
-    articles[direction].lote.forEach((element) => {
-      totalQuantity += element.cantidad;
-    });
-    articles[direction].cantidad = totalQuantity.toString();
+    articles[direction].cantidad = quantityChange.toString();
     setArticles(articles);
-  };
+  };*/
   const handleOtherReassonChangeText = (event: any) => {
     setReasonMessage(event.target.value);
   };
@@ -393,18 +357,25 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     <>
       <Stack spacing={2}>
         <Stack flexDirection={'row'} display={'flex'} alignItems={'center'}>
-          <Stack width={'80%'}>
-            <Typography>Selección de artículos</Typography>
-            <Autocomplete
+          <Stack width={'100%'}>
+          <Stack width={'100%'} display={'flex'} flexDirection={'row'} >
+          <Typography width={'75%'} >Selección de artículos</Typography>
+          <Typography width={'20%'} >disponible: { amountArticleSelected } </Typography>
+          </Stack>
+          <Stack width={'100%'} display={'flex'} flexDirection={'row'} >
+          <Autocomplete
               disablePortal
               fullWidth
+              sx={{ width: '65%' }}
               loading={isLoading}
               loadingText="Cargando artículos..."
               onChange={(e, val) => {
                 e.stopPropagation();
-                if (val) {
-                  setArticleId(val?.id_Articulo);
-                  setOpenLoteModal(true);
+                if (val && val.id_Articulo) {
+                  setArticleId(val.id_Articulo);
+                  //setOpenLoteModal(true);
+                  //hacer el c mamut
+                  searchArticleAmount(val.id_Articulo)
                 }
                 setArticleSelected(val);
               }}
@@ -421,18 +392,53 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
                 />
               )}
             />
+            <TextField
+                  sx={{ width: '15%', ml: 'auto', mr:'auto' }}
+                  size="small"
+                  fullWidth
+                  placeholder="Cantidad"
+                  value={amountText}
+                  error={amountError}
+                  onChange={(e) => {
+                    if (!isValidInteger(e.target.value)) return;
+                    if(Number(e.target.value) > amountArticleSelected) {
+                      setAmountError(true);
+                      return;
+                    }
+                    setAmountText(e.target.value);
+                    setAmountError(false)
+                  }}
+                />
+
+          <Button
+          variant="contained"
+          disabled={articleSelected === null || isNaN(Number(amountText)) || amountError || isLoading} 
+          onClick={() => {
+            handleAddArticle( 
+              {id_Articulo: articleSelected?.id_Articulo ?? "",
+                nombre: articleSelected?.nombre ?? "",
+                cantidad: amountText,
+                stockActual: amountArticleSelected,
+                id_ArticuloStock: idArticleSelected
+            } ,false)
+          }}
+        >
+          {'Agregar'}
+        </Button>
           </Stack>
+           
+          </Stack>
+          
+          
+                
+
         </Stack>
 
         <ArticlesTable
           articles={articles}
           setArticles={setArticles}
           isResume={false}
-          setLoteEditing={setLoteEditing}
-          setLotesSelected={setLotesSelected}
           setArticleSelected={setArticleSelected}
-          setOpenLoteModal={setOpenLoteModal}
-          onEditArrowRow={EditArrowRow}
         />
         <Divider />
         <FormControl>
@@ -515,7 +521,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           </Box>
         </Stack>
       </Stack>
-      <Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
+      {/*<Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
         <LoteSelectionRemake2
           sx={{ p: 2 }}
           setOpen={setOpenLoteModal}
@@ -525,7 +531,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           selectedLotes={lotesSelected?.length > 0 ? lotesSelected : undefined}
           empityLotes={true}
         />
-      </Modal>
+      </Modal>*/}
     </>
   );
 };
@@ -534,21 +540,13 @@ interface ArticlesTableProps {
   articles: ArticlesFetched[];
   setArticles?: Function;
   isResume: boolean;
-  setLoteEditing: Function;
-  setLotesSelected: Function;
   setArticleSelected: Function;
-  setOpenLoteModal: Function;
-  onEditArrowRow: (idArticuloExistente: string, idLote: string, quantityChange: number) => void;
 }
 const ArticlesTable: React.FC<ArticlesTableProps> = ({
   articles,
   setArticles,
   isResume,
-  setLoteEditing,
-  setLotesSelected,
   setArticleSelected,
-  setOpenLoteModal,
-  onEditArrowRow,
 }) => {
   return (
     <Card>
@@ -569,11 +567,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
                 setArticles={setArticles as Function}
                 articles={articles}
                 isResume={isResume}
-                setLoteEditing={setLoteEditing}
-                setLotesSelected={setLotesSelected}
-                setOpenLoteModal={setOpenLoteModal}
                 setArticleSelected={setArticleSelected}
-                onEditArrowRow={onEditArrowRow}
               />
             ))}
           </TableBody>
@@ -588,24 +582,15 @@ interface ArticlesTableRowProps {
   article: ArticlesFetched;
   setArticles: Function;
   isResume: boolean;
-  setLoteEditing: Function;
-  setLotesSelected: Function;
   setArticleSelected: Function;
-  setOpenLoteModal: Function;
-  onEditArrowRow: (idArticuloExistente: string, idLote: string, quantityChange: number) => void;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
   setArticles,
   articles,
   isResume,
-  setLoteEditing,
   setArticleSelected,
-  setLotesSelected,
-  setOpenLoteModal,
-  onEditArrowRow,
 }) => {
-  const [open, setOpen] = useState(false);
   const [seed, setSeed] = useState(1);
 
   const render = () => {
@@ -615,26 +600,11 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
     render;
   }, [article]);
 
-  const deleteNestedRow = (idLoteToDelete: string) => {
-    const direction = article.lote.findIndex((a) => a.id_ArticuloExistente === idLoteToDelete);
-    if (direction !== -1) {
-      article.cantidad = (Number(article.cantidad) - article.lote[direction].cantidad).toString();
-      if (article.cantidad === '0') {
-        setArticles(articles.filter((art) => art.id_Articulo !== article.id_Articulo));
-        render();
-        return;
-      }
-      article.lote.splice(direction, 1);
-      render();
-    }
-  };
-
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <IconButton onClick={() => setOpen(!open)}>{open ? <ExpandLess /> : <ExpandMore />}</IconButton>
             {article.nombre}
           </Box>
         </TableCell>
@@ -644,10 +614,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             <Tooltip title="Editar">
               <IconButton
                 onClick={() => {
-                  setLoteEditing(true);
-                  setLotesSelected(article.lote);
                   setArticleSelected({ nombre: article.nombre, id_Articulo: article.id_Articulo });
-                  setOpenLoteModal(true);
                 }}
               >
                 <Edit />
@@ -665,20 +632,12 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           </TableCell>
         )}
       </TableRow>
-      <TableRow>
-        <TableCell colSpan={3} sx={{ padding: 0 }}>
-          <NestedArticlesTable
-            articles={article.lote}
-            deleteNestedRow={deleteNestedRow}
-            open={open}
-            onEditArrowRow={onEditArrowRow}
-            render={render}
-          />
-        </TableCell>
-      </TableRow>
     </React.Fragment>
   );
 };
+
+
+/* aqui yace la logica de lotes QEPD 08/08/2024
 interface NestedArticlesTableProps {
   articles: ArticlesFetched['lote'];
   deleteNestedRow: Function;
@@ -719,7 +678,7 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
     </Collapse>
   );
 };
-
+*/
 interface OutputResumeProps {
   articles: any[];
   reasonMessage: string;
@@ -761,10 +720,6 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, ra
         articles={articles}
         isResume={true}
         setArticleSelected={() => {}}
-        setLoteEditing={() => {}}
-        setLotesSelected={() => {}}
-        setOpenLoteModal={() => {}}
-        onEditArrowRow={() => {}}
       />
     </Stack>
   );

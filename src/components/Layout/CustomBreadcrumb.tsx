@@ -6,6 +6,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import GrainIcon from '@mui/icons-material/Grain';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useLocation } from 'react-router-dom';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
@@ -32,12 +33,38 @@ const messagesByLink: Record<string, string> = {
   '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
   '/farmacia/configuracion-farmacia': 'Configuración de Farmacia',
   '/farmacia/punto-venta': 'Punto de Venta',
-  '/farmacia/solicitud-enfermero': 'Solicitud Enfermero',
+  '/hospitalizacion/solicitud-enfermero': 'Solicitud Enfermero',
   '/farmacia/historial-ventas': 'Historial de Ventas',
   '/farmacia/catalogo': 'Salidas y Existencias',
-  '/ventas/caja': 'Caja',
+  '/ventas/caja': 'Caja del dia',
   '/ventas/emitir-recibo': 'Pase a caja',
   '/ventas/historial-cortes': 'Cortes de caja',
+  '/ventas/corte-caja': 'Caja del Día',
+  '/ventas/cierre-de-cuenta': 'Cierre de cuenta',
+  '/admision/ingreso-pacientes': 'Ingreso de pacientes',
+  '/facturas': 'Facturacion',
+  '/quirofano/operaciones-del-dia': 'Operaciones del día',
+  '/quirofano/recuperacion': 'Recuperación',
+  '/quirofano/paquetes-quirurgicos': 'Paquetes Quirurgicos',
+  '/hospitalizacion/anestesiologos': 'Anestesiologos',
+  '/hospitalizacion/radiografias-solicitud': 'Solicitud de Estudio de Gabinete',
+  '/hospitalizacion/solicitudes-administracion': 'Autorización de Estudio de Gabinete',
+  '/hospitalizacion/guardias-anestesiologos': 'Guardias Anestesiologos',
+  '/hospitalizacion/cuartos-hospitalarios': 'Cuartos Hospitalarios',
+  '/hospitalizacion/cuartos-hospitalarios-asignados': 'Cuartos Hospitalarios Asignados',
+  '/hospitalizacion/calendario-cuartos-asignados': 'Calendario de Cuartos Asignados',
+  '/hospitalizacion/configuracion-hospitalizacion': 'Configuración de Hospitalización',
+  '/admision/cuentas-pendientes-por-pagar': 'Cuentas Pendientes por Pagar',
+  '/programacion/registro': 'Registro de Pacientes',
+  '/programacion/gestion-espacios-hospitalarios': 'Gestión de Espacios Hospitalarios',
+  '/programacion/categorias-espacios-hospitalarios': 'Categorías de Espacios Hospitalarios',
+  '/programacion/procedimientos-cirugia': 'Procedimientos de Cirugía',
+  '/programacion/registro-eventos': 'Programación de Eventos',
+  '/hospitalizacion/equipo-biomedico': 'Equipo Biomédico',
+  '/hospitalizacion/solicitudes': 'Estudios de Gabinete',
+  '/hospitalizacion/configuracion-solicitudes': 'Configuración de Estudios de Gabinete',
+  '/hospitalizacion/medicos': 'Medicos',
+  '/hospitalizacion/guardias-medicos': 'Calendario de Guardias Medicos',
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
@@ -58,6 +85,8 @@ const TsxByModule: React.FC<TsxByModuleProps> = ({ module }) => {
       return <ViewRender icon={PointOfSaleIcon} title="Ventas" />;
     case 'hospitalizacion':
       return <ViewRender icon={MonitorHeartIcon} title="Hospitalización" />;
+    case 'admision':
+      return <ViewRender icon={ContactEmergencyIcon} title="Admisión" />;
     default:
       return <ViewRender icon={HomeIcon} title="Inicio" />;
   }

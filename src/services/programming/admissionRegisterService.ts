@@ -6,16 +6,17 @@ interface RegisterAdmission {
   pacienteId: string;
   historialClinicoId: string;
   id_Medico: string | null;
-  id_Anestesiologo: string | null;
+  id_Anestesiologo?: string | null;
   procedimientos: string[];
   motivoRechazo?: string;
-  radiografias: string[] | null;
+  radiografias?: string[] | null;
   equiposBiomedico: string[];
   equipoBiomedicoHonorario?: string;
   articulos: { articuloId: string; cantidad: number; notas?: string }[];
   fechaInicio: Date;
   fechaFin: Date;
   cuartos: Cuarto[];
+  estudiosGabinete?: string[];
 }
 
 interface Cuarto {
@@ -97,15 +98,62 @@ export const closeRegisterAndAccount = async (data: {
   Id_Paciente: string;
   Id_CuentaPaciente: string;
   TotalCuenta: number;
-  Descuento?: number;
+  SubTotal: number;
+  IVA: number;
 }) => {
   const res = await axios.put(`${apiRegister}/cerrar-registro`, data);
   return res.data;
 };
 
-export const admitRegister = async (data: {
-  Id_Registro: string;
-}) => {
+export const admitRegister = async (data: { Id_Registro: string }) => {
   const res = await axios.put(`${apiRegister}/admitir-registro`, data);
+  return res.data;
+};
+
+export const getDocumentData = async (registerId: string) => {
+  const res = await axios.get(`${apiRegister}/obtener-informacion-documentos`, {
+    params: {
+      id_Registro: registerId,
+    },
+  });
+  return res.data;
+};
+
+export const addRegisterRoom = async (data: {
+  id_Registro: string;
+  Cuartos: {
+    cuartoId: string;
+    horaInicio: Date;
+    horaFin: Date;
+  }[];
+}) => {
+  const res = await axios.put(`${apiRegister}/agregar-registro-cuarto`, data);
+  return res.data;
+};
+
+export const editRegisterProcedures = async (data: { id_Registro: string; id_Procedimientos: string[] }) => {
+  const res = await axios.put(`${apiRegister}/editar-registro-procedimientos`, data);
+  return res.data;
+};
+
+export const modifyRoomsEvents = async (data: {
+  id_Registro: string;
+  listaRegistrosCuartos: { id_RegistroCuarto: string; fechaInicio: Date; fechaFin: Date; id_Cuarto: string }[];
+}) => {
+  const res = await axios.put(`${apiRegister}/modificar-lista-registros-cuartos`, data);
+  return res.data;
+};
+
+export const getRegisterValidation = async (registerId: string) => {
+  const res = await axios.get(`${apiRegister}/validar-registro`, {
+    params: {
+      id_Registro: registerId,
+    },
+  });
+  return res.data as boolean;
+};
+
+export const addMedicToRegister = async (data: { id_Registro: string; id_Medico: string }) => {
+  const res = await axios.put(`${apiRegister}/agregar-medico-registro`, data);
   return res.data;
 };

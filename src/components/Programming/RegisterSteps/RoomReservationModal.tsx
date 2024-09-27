@@ -5,17 +5,22 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { RoomReservationTable } from './RoomReservationTable';
 import dayjs, { Dayjs } from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addRoomReservation } from '../../../schema/programming/programmingSchemas';
 import { useGetAllRooms } from '../../../hooks/programming/useGetAllRooms';
-import { IRegisterRoom } from '../../../types/types';
+import { IEventsCalendar, IRegisterRoom } from '../../../types/types';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
 import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2';
+import { addRegisterRoom } from '../../../services/programming/admissionRegisterService';
+import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import 'dayjs/locale/es-mx';
 dayjs.extend(localizedFormat);
+dayjs.locale('es-MX');
 
 // const style = {
 //   position: 'absolute',
@@ -38,6 +43,10 @@ interface RoomsInput {
 
 interface RoomReservationModalProps {
   setOpen: Function;
+  isEdit?: boolean;
+  registerId?: string;
+  setEvents?: (eventsCalendar: IEventsCalendar[]) => void;
+  isOperatingRoomReservation?: boolean;
 }
 
 export const RoomReservationModal = (props: RoomReservationModalProps) => {
@@ -45,6 +54,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+  const clearAllData = useProgrammingRegisterStore((state) => state.clearAllData);
   const events = useProgrammingRegisterStore((state) => state.events);
   const appointmentStartDate = useProgrammingRegisterStore((state) => state.appointmentStartDate);
   const appointmentEndDate = useProgrammingRegisterStore((state) => state.appointmentEndDate);
@@ -53,6 +63,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const setStartDateSurgery = useProgrammingRegisterStore((state) => state.setStartDateSurgery);
   const step = useProgrammingRegisterStore((state) => state.step);
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
 
   const {
     control: controlRooms,
@@ -101,7 +112,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       };
       setRoomValues([...roomValues, roomObj]);
     }
-    setValueRooms('endDate', dayjs(appointmentEndDate).add(1, 'day'));
+    setValueRooms('endDate', dayjs(appointmentEndDate));
     setValueRooms('startTime', dayjs(appointmentStartDate));
     setValueRooms('room', '');
   };
@@ -116,7 +127,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       }
     }
     setStartDateSurgery(startDate);
-
     const roomObj = roomValues
       .map((r) => {
         return {
@@ -130,9 +140,62 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       })
       .filter((room) => !events.some((event) => event.id === room.id));
     setEvents([...events, ...roomObj]);
-    toast.success('Datos registrados correctamente!');
-    console.log({ roomObj });
-    setStep(step + 1);
+    if (props.isEdit) {
+      Swal.fire({
+        title: 'Los espacios reservados son correctos?',
+        text: 'Verifica que los espacios reservados estén correctamente asignados.',
+        icon: 'question',
+        confirmButtonText: 'Aceptar',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        allowOutsideClick: false,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await addRegisterRoom({
+              id_Registro: props.registerId as string,
+              Cuartos: roomObj.map((event) => {
+                return {
+                  cuartoId: event.roomId,
+                  horaFin: event.end,
+                  horaInicio: event.start,
+                };
+              }),
+            });
+            Swal.fire({
+              title: 'Reservación exitosa!',
+              text: 'Los espacios reservados ha sido guardado correctamente.',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            }).finally(() => {
+              if (props.setEvents) {
+                props.setEvents(roomObj);
+              }
+              clearAllData();
+              refetch();
+              props.setOpen(false);
+            });
+          } catch (error) {
+            Swal.fire({
+              title: 'Error al guardar los espacios!',
+              text: 'Hubo un error al guardar los espacios reservados. Intente nuevamente.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
+          }
+        }
+      });
+    } else {
+      toast.success('Datos registrados correctamente!');
+      setStep(step + 1);
+    }
   };
 
   useEffect(() => {
@@ -202,6 +265,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     return false;
   };
 
+  useEffect(() => {
+    return () => {
+      if (props.isEdit) {
+        clearAllData();
+      }
+    };
+  }, []);
+
   if (isLoadingRooms)
     return (
       <Backdrop open>
@@ -209,16 +280,14 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       </Backdrop>
     );
   return (
-    <Box sx={{}}>
+    <>
       <HeaderModal setOpen={props.setOpen} title="Seleccione un horario" />
       <Box
         sx={{
-          display: 'flex',
-          flex: 1,
-          flexDirection: 'column',
           bgcolor: 'background.paper',
           p: 3,
-          rowGap: 4,
+          overflowY: 'auto',
+          maxHeight: { xs: 500, md: 600 },
         }}
       >
         <Box sx={{ display: 'flex', flex: 1 }}>
@@ -229,7 +298,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>Habitaciones disponibles</Typography>
+              <Typography>{'Habitaciones disponibles'}</Typography>
               <TextField
                 select
                 label="Habitaciones"
@@ -258,6 +327,9 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                     <DateTimePicker
                       label="Hora admisión"
                       ampm={false}
+                      sx={{
+                        width: '100%',
+                      }}
                       value={value}
                       onMonthChange={(e) => {
                         const date = e.toDate();
@@ -347,10 +419,8 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
             </Grid>
           </Grid>
         </form>
-
-        <RoomReservationTable />
+        <RoomReservationTable isOperatingRoomReservation={props.isOperatingRoomReservation} />
       </Box>
-
       <Box
         sx={{
           display: 'flex',
@@ -367,6 +437,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
           Siguiente
         </Button>
       </Box>
-    </Box>
+    </>
   );
 };

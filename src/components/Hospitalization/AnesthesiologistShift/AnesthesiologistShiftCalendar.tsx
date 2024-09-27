@@ -3,7 +3,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import classNames from 'classnames';
 import dayjs, { Dayjs } from 'dayjs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -14,32 +14,25 @@ import {
   getRegisteredAnesthesiologistShifts,
   modifyAnesthesiologistShifts,
 } from '../../../services/hospitalization/anesthesiologistShift';
+import 'dayjs/locale/es-mx';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+import { AnesthesiologistShiftInfoModal } from './Modal/AnesthesiologistShiftInfoModal';
+import { useQuery } from '@tanstack/react-query';
 dayjs.locale('es-mx');
 
-const DnDCalendar = withDragAndDrop(Calendar);
 const CALENDAR_STEP = 30;
 
 const eventStyleGetter = (event: any) => {
   let backgroundColor = event.source === 'local' ? '#ff7f50' : event.title === 'Limpieza' ? '#f47f50' : '#3174ad';
   let style = {
     backgroundColor: backgroundColor,
-    borderRadius: '0px',
+    borderRadius: '5px',
     opacity: 0.8,
-    color: 'white',
-    border: '0px',
-    display: 'block',
-    '&:hover': {
-      backgroundColor: 'red',
-      borderRadius: '0px',
-      opacity: 0.2,
-      color: 'white',
-      border: '0px',
-      display: 'block',
-      cursor: 'pointer',
-    },
+    border: 'none',
   };
+
   return {
-    style: style,
+    style,
   };
 };
 
@@ -60,39 +53,41 @@ const dayPropGetter = (date: Date) => {
 };
 
 const useGetAnesthesiologistShiftEvents = (date: Date, newEvent: boolean) => {
-  const [events, setEvents] = useState<IAnesthesiologistShift[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const getAnesthesiologistShiftEvents = async () => {
-    try {
-      const res = await getRegisteredAnesthesiologistShifts(date);
-      setEvents(res);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getAnesthesiologistShiftEvents();
-  }, [date, newEvent]);
+  const {
+    data = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ['anesthesiologistShiftEvents', date, newEvent],
+    queryFn: () => getRegisteredAnesthesiologistShifts(date),
+  });
 
   return {
     loading,
-    events,
+    events: data as IAnesthesiologistShift[],
+    error,
   };
 };
 
+const DnDCalendar = withDragAndDrop(Calendar);
 export const AnesthesiologistShiftCalendar = () => {
   const localizer = dayjsLocalizer(dayjs);
   const [view, setView] = useState<View>('month');
   const [open, setOpen] = useState(false);
+  const [openShiftInfo, setOpenShiftInfo] = useState(false);
   const [start, setStart] = useState(new Date());
   const [end, setEnd] = useState(new Date());
   const [date, setDate] = useState<Date>(new Date());
   const [newEventAdded, setNewEventAdded] = useState(false);
   const { events, loading } = useGetAnesthesiologistShiftEvents(date, newEventAdded);
+  const [eventSelected, setEventSelected] = useState<{
+    id: string;
+    id_Anestesiologo: string;
+    title: string;
+    start: Date;
+    end: Date;
+  }>();
+
   const myEvents = events.map((e) => {
     return {
       id: e.id,
@@ -184,7 +179,7 @@ export const AnesthesiologistShiftCalendar = () => {
           defaultView={Views.MONTH}
           onNavigate={onNavigate}
           step={CALENDAR_STEP}
-          resizable
+          resizable={true}
           events={myEvents}
           date={date}
           formats={{
@@ -195,23 +190,23 @@ export const AnesthesiologistShiftCalendar = () => {
             height: view === 'month' ? 700 : '100%',
           }}
           selectable={true}
-          draggableAccessor={(event: any) => {
-            return event.title !== 'Limpieza';
-          }}
+          enableAutoScroll={false}
           scrollToTime={dayjs().set('hour', 5).set('minute', 0).toDate()}
           // onNavigate={onNavigate}
           onSelectSlot={(slot) => handleClickSlot(slot)}
           dayPropGetter={dayPropGetter}
-          // onSelectEvent={(e: any) => {
-          //   if (e.source) return toast.warning('Todavía no hay información respecto a este evento!');
-          //   if (e.title.toLowerCase() === 'limpieza') return;
-          //   setSpecificEventId(e.id);
-          //   setOpenSpecificEvent(true);
-          // }}
-          // onShowMore={(_, date) => {
-          //   props.setDate(date);
-          //   setView('day');
-          // }}
+          onSelectEvent={(e: any) => {
+            setEventSelected(e);
+            setOpenShiftInfo(true);
+            // if (e.source) return toast.warning('Todavía no hay información respecto a este evento!');
+            // if (e.title.toLowerCase() === 'limpieza') return;
+            // setSpecificEventId(e.id);
+            // setOpenSpecificEvent(true);
+          }}
+          onShowMore={(_, date) => {
+            setDate(date);
+            setView('day');
+          }}
           eventPropGetter={eventStyleGetter}
           messages={{
             showMore: (count) => `${count} citas mas`,
@@ -227,6 +222,7 @@ export const AnesthesiologistShiftCalendar = () => {
           }}
           onEventDrop={eventModify}
           onEventResize={eventModify}
+          showMultiDayTimes={true}
         />
       </Box>
       <Modal open={open} onClose={() => setOpen(!open)}>
@@ -237,6 +233,17 @@ export const AnesthesiologistShiftCalendar = () => {
             end={end}
             newEventAdded={newEventAdded}
             setNewEventAdded={setNewEventAdded}
+          />
+        </>
+      </Modal>
+      <Modal open={openShiftInfo} onClose={() => setOpenShiftInfo(false)}>
+        <>
+          <AnesthesiologistShiftInfoModal
+            setOpen={setOpenShiftInfo}
+            anesthesiologistName={eventSelected?.title as string}
+            endShift={eventSelected?.end as Date}
+            startShift={eventSelected?.start as Date}
+            shiftId={eventSelected?.id as string}
           />
         </>
       </Modal>

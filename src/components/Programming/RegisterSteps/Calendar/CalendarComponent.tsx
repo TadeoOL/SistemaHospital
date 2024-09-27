@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/es';
 import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, stringOrDate } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar.css';
@@ -15,7 +14,9 @@ import { RegisterSteps } from '../RegisterSteps';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { modifyEventRoom } from '../../../../services/programming/admissionRegisterService';
+import 'dayjs/locale/es-mx';
 dayjs.locale('es-mx');
+import Swal from 'sweetalert2';
 
 interface CalendarComponentProps {
   date: Date;
@@ -24,6 +25,8 @@ interface CalendarComponentProps {
   calendarWidth?: number | string;
   setDate: Function;
   setEvents: Function;
+  isOperatingRoomReservation?: boolean;
+  justInformative?: boolean;
 }
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -47,8 +50,13 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
       toast.warning('No se puede poner una cita posterior a la fecha actual');
       return;
     }
+    if (view == 'month') {
+      const newEnd = dayjs(start).add(3, 'hours').toDate();
+      setAppointmentEndDate(newEnd);
+    } else {
+      setAppointmentEndDate(end);
+    }
     setAppointmentStartDate(start);
-    setAppointmentEndDate(end);
     setOpen(true);
   };
 
@@ -121,36 +129,64 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         horaInicio: drop.start as Date,
         horaFin: drop.end as Date,
       };
-      try {
-        await modifyEventRoom(eventObj);
-        const existing = myEvents.find((ev) => ev.id === event.id);
-        const cleanRoom = myEvents.find((ev) => ev.roomId === event.id);
-        const filtered = myEvents.filter((ev) => ev.id !== event.id).filter((ev) => ev.roomId !== event.id);
-        if (!cleanRoom && Object.keys(hashCleanRoomEvents).length > 0) {
-          const cleanRoomInHashMap = hashCleanRoomEvents[existing?.id as string];
-          const cleanRoomDuration = cleanRoomInHashMap.end.getTime() - cleanRoomInHashMap.start.getTime();
-          const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
-          props.setEvents([
-            ...filtered,
-            { ...existing, start: drop.start as Date, end: drop.end as Date },
-            { ...cleanRoomInHashMap, start: drop.end as Date, end: newEndCleanRoom },
-          ]);
-        } else if (cleanRoom) {
-          const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
-          const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
-          props.setEvents([
-            ...filtered,
-            { ...existing, start: drop.start as Date, end: drop.end as Date },
-            { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
-          ]);
-        } else {
-          props.setEvents([...filtered, { ...existing, start: drop.start as Date, end: drop.end as Date }]);
+      Swal.fire({
+        title: '¿Estás seguro de cambiar la fecha?',
+        text: `El cambio del evento "${event.title}" se asignara del día ${dayjs(drop.start).format('DD/MM/YYYY HH:mm:ss')} hasta ${dayjs(drop.end).format('DD/MM/YYYY HH:mm:ss')}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, cambiar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+      }).then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await modifyEventRoom(eventObj);
+            const existing = myEvents.find((ev) => ev.id === event.id);
+            const cleanRoom = myEvents.find((ev) => ev.roomId === event.id);
+            const filtered = myEvents.filter((ev) => ev.id !== event.id).filter((ev) => ev.roomId !== event.id);
+            if (!cleanRoom && Object.keys(hashCleanRoomEvents).length > 0) {
+              const cleanRoomInHashMap = hashCleanRoomEvents[existing?.id as string];
+              const cleanRoomDuration = cleanRoomInHashMap.end.getTime() - cleanRoomInHashMap.start.getTime();
+              const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
+              props.setEvents([
+                ...filtered,
+                { ...existing, start: drop.start as Date, end: drop.end as Date },
+                { ...cleanRoomInHashMap, start: drop.end as Date, end: newEndCleanRoom },
+              ]);
+            } else if (cleanRoom) {
+              const cleanRoomDuration = cleanRoom.end.getTime() - cleanRoom.start.getTime();
+              const newEndCleanRoom = new Date((drop.end as Date).getTime() + cleanRoomDuration);
+              props.setEvents([
+                ...filtered,
+                { ...existing, start: drop.start as Date, end: drop.end as Date },
+                { ...cleanRoom, start: drop.end as Date, end: newEndCleanRoom },
+              ]);
+            } else {
+              props.setEvents([...filtered, { ...existing, start: drop.start as Date, end: drop.end as Date }]);
+            }
+            Swal.fire({
+              title: 'Cita modificada',
+              text: 'La fecha del evento ha sido cambiada exitosamente.',
+              icon: 'success',
+              timer: 1000,
+              showConfirmButton: false,
+            });
+          } catch (error) {
+            console.log({ error });
+            Swal.fire({
+              title: 'Error al modificar la cita',
+              text: 'Hubo un error al intentar cambiar la fecha del evento.',
+              icon: 'error',
+              timer: 1000,
+              showConfirmButton: false,
+            });
+            // const errorMsg = error as any;
+            // toast.error(errorMsg.response.data as string);
+          }
         }
-      } catch (error) {
-        console.log({ error });
-        // const errorMsg = error as any;
-        // toast.error(errorMsg.response.data as string);
-      }
+      });
     },
     [myEvents, hashCleanRoomEvents]
   );
@@ -192,16 +228,16 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
         onView={(v) => setView(v)}
         defaultView={Views.MONTH}
         step={15}
-        resizable
+        resizable={!props.justInformative}
         formats={{
           timeGutterFormat: 'HH:mm',
         }}
         events={myEvents}
         style={{
           width: '100%',
-          height: view === 'month' ? 700 : '100%',
+          height: view === 'month' ? (props.calendarHeight ? props.calendarHeight : 700) : '100%',
         }}
-        selectable={true}
+        selectable={!props.justInformative}
         enableAutoScroll={false}
         date={props.date}
         draggableAccessor={(event: any) => {
@@ -241,7 +277,7 @@ export const CalendarComponent = (props: CalendarComponentProps) => {
       />
       <Modal open={open}>
         <>
-          <RegisterSteps setOpen={setOpen} />
+          <RegisterSteps setOpen={setOpen} isOperatingRoomReservation={props.isOperatingRoomReservation} />
         </>
       </Modal>
       <Modal open={openManyEvents}>

@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getLotesFromExistingArticles } from '../../api/api.routes';
+import { getAmountForArticleInWarehouse } from '../../api/api.routes';
 import { IExistingArticleList } from '../../types/types';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
@@ -67,31 +67,31 @@ export const useExistingArticleLotesPagination = createWithEqualityFn<State & Ac
   setPageCount: (pageCount: number) => set({ pageCount }),
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSort: (sort: string) => set({ sort }),
-  setData: () => set({ data: []}),
+  setData: () => set({ data: [] }),
   setPageSize: (pageSize: number) => set({ pageSize, pageIndex: 0 }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
-  fetchExistingArticles: async (inhabilitados: boolean | null) => {
+  fetchExistingArticles: async () => {
     const { isLoading } = get();
     if (isLoading) return;
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, warehouseId, articleId } = get();
-    const page = pageIndex + 1;
+    const { warehouseId, articleId } = get();
     try {
       if (warehouseId === '') return;
-      const res = await getLotesFromExistingArticles(
+      const res = await getAmountForArticleInWarehouse(articleId, warehouseId)
+      /*const res = await getAmountForArticleInWarehouse(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId
-        }&Id_Articulo=${articleId
-        }${inhabilitados === null ? '' : `&LoteHabilitado=${inhabilitados}` }`
-      );
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_Articulo=${
+          articleId
+        }${inhabilitados === null ? '' : `&LoteHabilitado=${inhabilitados}`}`
+      );*/
       set(() => ({
         data: res.data,
         count: res.count,
         pageSize: res.pageSize,
         enabled: res.habilitado,
-        pageCount: res.pageCount
+        pageCount: res.pageCount,
       }));
     } catch (error) {
       console.log(error);

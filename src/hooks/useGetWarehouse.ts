@@ -10,7 +10,7 @@ export const useGetWarehouse = (id: string) => {
       setIsLoading(true);
       try {
         const res = await getWarehouseById(id);
-        setData(res);
+        setData(res as IWarehouse);
       } catch (error) {
         console.log(error);
       } finally {

@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
   DividerProps,
   Grid,
@@ -25,6 +26,7 @@ import { createClinicalHistory } from '../../../services/programming/clinicalHis
 import { createAdmission } from '../../../services/programming/admissionRegisterService';
 import { toast } from 'react-toastify';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
+import { useState } from 'react';
 
 const styleBar = {
   '&::-webkit-scrollbar': {
@@ -91,6 +93,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   const xrayList = JSON.parse(localStorage.getItem('xrayList') as string);
   const anesthesiologistData = JSON.parse(localStorage.getItem('anesthesiologist') as string);
   const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+  const [isLoading, setIsLoading] = useState(false);
 
   /*const handleCalcAnticipo = () => {
     let total: number = 0;
@@ -117,6 +120,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
   };*/
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     let startDate = roomValues[0].horaInicio;
     let endDate = roomValues[0].horaFin;
 
@@ -187,13 +191,23 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
     } catch (error) {
       console.log(error);
       toast.error('Error al dar de alta al paciente');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <HeaderModal setOpen={props.setOpen} title="Resumen del registro" />
-      <Box sx={{ bgcolor: 'background.paper', p: 2, overflowY: 'auto', height: 600, ...styleBar }}>
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          p: 2,
+          overflowY: 'auto',
+          maxHeight: 500,
+          ...styleBar,
+        }}
+      >
         <CustomDivider />
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <TitleTypography>Datos del paciente</TitleTypography>
@@ -209,12 +223,6 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
             <Stack>
               <SubtitleTypography>Fecha de Nacimiento:</SubtitleTypography>
               <TextTypography>{dayjs(patient.birthDate).format('DD/MM/YYYY')}</TextTypography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Stack>
-              <SubtitleTypography>Edad:</SubtitleTypography>
-              <TextTypography>{patient.age}</TextTypography>
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
@@ -286,7 +294,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
           </Box>
         </Box>
         <Box sx={{ my: 1 }}>
-          <SubtitleTypography>Radiografías:</SubtitleTypography>
+          <SubtitleTypography>Estudios de Gabinete:</SubtitleTypography>
           {xrayList.map((p: { id: string; name: string }) => (
             <Chip key={p.id} label={p.name} />
           ))}
@@ -296,8 +304,8 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
         <Button variant="outlined" onClick={() => setStep(step - 1)}>
           Regresar
         </Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Confirmar
+        <Button variant="contained" onClick={handleSubmit} disabled={isLoading}>
+          {isLoading ? <CircularProgress size={15} /> : 'Confirmar'}
         </Button>
       </Box>
     </>

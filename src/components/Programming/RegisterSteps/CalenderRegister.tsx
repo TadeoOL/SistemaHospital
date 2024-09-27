@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { CalendarComponent } from './Calendar/CalendarComponent';
@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 import { useGetDate } from '../../../hooks/programming/useGetDate';
+import { useGetAllOperatingRooms } from '../../../hooks/operatingRoom/useGetAllOperatingRoom';
 dayjs.locale('es');
 
 const style = {
@@ -17,27 +18,29 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 900 },
+  width: { xs: 380, sm: 550, md: 900, lg: 1100 },
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  maxHeight: { xs: 550, xl: 900 },
 };
 
 interface CalendarRegisterProps {
   setOpen: Function;
+  isOperatingRoomReservation?: boolean;
 }
 
 export const CalendarRegister = (props: CalendarRegisterProps) => {
+  const { data, isLoading } = useGetAllOperatingRooms();
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const step = useProgrammingRegisterStore((state) => state.step);
   const [date, setDate] = useState<any>(dayjs());
   const currentDate: any = dayjs(new Date());
-  useGetDate(date);
   const events = useProgrammingRegisterStore((state) => state.events);
-  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
+  useGetDate(date, setEvents);
+  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
 
   const sameDate = useMemo(() => {
     if (!date) return true;
@@ -56,17 +59,15 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
       <HeaderModal setOpen={props.setOpen} title="Disponibilidad de Agenda" />
       <Box
         sx={{
-          flex: 1,
           flexDirection: 'column',
           p: 2,
           bgcolor: 'background.paper',
-          maxHeight: 750,
           overflowY: 'auto',
         }}
       >
         <Stack>
           <Box>
-            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10 }}>
+            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', columnGap: 1, px: 10, mb: 2 }}>
               <Box sx={{ display: 'flex', flex: 1 }}>
                 {!sameDate && (
                   <Button variant="outlined" onClick={() => setDate(currentDate)} size="small">
@@ -86,9 +87,32 @@ export const CalendarRegister = (props: CalendarRegisterProps) => {
                   />
                 </LocalizationProvider>
               </Box>
+              {props.isOperatingRoomReservation && (
+                <Box sx={{ flex: 1 }}>
+                  <TextField select label="Quirófanos" fullWidth>
+                    {isLoading ? (
+                      <MenuItem>
+                        <tr>Cargando...</tr>
+                      </MenuItem>
+                    ) : (
+                      data.map((or) => (
+                        <MenuItem key={or.id} value={or.id}>
+                          {or.nombre}
+                        </MenuItem>
+                      ))
+                    )}
+                  </TextField>
+                </Box>
+              )}
             </Box>
           </Box>
-          <CalendarComponent date={date} events={events} setDate={setDate} setEvents={setEvents} />
+          <CalendarComponent
+            date={date}
+            events={events}
+            setDate={setDate}
+            setEvents={setEvents}
+            isOperatingRoomReservation={props.isOperatingRoomReservation}
+          />
         </Stack>
       </Box>
       <Box

@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, Stack, TextField } from '@mui/material';
+import { Autocomplete, Backdrop, Box, Button, CircularProgress, createFilterOptions, Grid, Stack, TextField, Typography } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
@@ -11,7 +11,10 @@ import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { addWarehouse } from '../../../schema/schemas';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-
+import { useGetUsersBySearch } from '../../../hooks/useGetUsersBySearch';
+import { useSubWarehousePaginationStore } from '../../../store/warehouseStore/subWarehousePagination';
+import { useShallow } from 'zustand/react/shallow';
+ 
 const style = {
   position: 'absolute',
   top: '50%',
@@ -38,6 +41,10 @@ const style = {
   },
 };
 
+const OPTIONS_LIMIT = 20;
+const filterOptions = createFilterOptions<string>({
+  limit: OPTIONS_LIMIT,
+});
 interface IModifyCategoryModal {
   open: Function;
   warehouseId: string;
@@ -53,6 +60,7 @@ const useFetchPurchaseWarehouse = (warehouseId: string) => {
       try {
         const data = await getPurchaseWarehouseById(warehouseId);
         setWarehouse(data);
+        console.log(data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -66,9 +74,19 @@ const useFetchPurchaseWarehouse = (warehouseId: string) => {
 
 export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
   const { open, warehouseId } = props;
-  const { isLoadingWarehouse, warehouse } = useFetchPurchaseWarehouse(warehouseId);
-  const { id, nombre, descripcion } = warehouse ?? {};
+  const { isLoadingWarehouse, warehouse, } = useFetchPurchaseWarehouse(warehouseId);
+  const { id, nombre, descripcion, id_UsuarioEncargado } = warehouse ?? {};
   const [textValue, setTextValue] = useState('');
+  const { isLoadingUsers, usersRes } = useGetUsersBySearch();
+  const [usuarioEncargado, setUsuarioEncargado] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorUserNotSelected, setErrorUserNotSelected] = useState(false);
+
+  const { setSearchUser, } = useSubWarehousePaginationStore(
+    useShallow((state) => ({
+      setSearchUser: state.setSearchUser,
+    }))
+  );
 
   const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
     setHandleChangeWarehouse: state.setHandleChangeWarehouse,
@@ -92,6 +110,7 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
 
   useEffect(() => {
     if (warehouse) {
+      setUsuarioEncargado(id_UsuarioEncargado ?? null);
       setTextValue(warehouse.descripcion);
       Object.entries(warehouse).forEach(([key, value]) => {
         setValue(key as keyof IWarehouse, String(value));
@@ -108,14 +127,21 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
   };
 
   const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
+    setIsLoading(true)
     try {
+      if(usuarioEncargado === null){
+        setErrorUserNotSelected(true)
+        return;
+      }
       const idForm = getValues('id');
-      await modifyWarehouseById({ ...data, Id_AlmacenPrincipal: idForm });
+      await modifyWarehouseById({ ...data, Id_AlmacenPrincipal: idForm, Id_UsuarioEncargado: usuarioEncargado ?? undefined });
       setHandleChangeWarehouse(!handleChangeWarehouse);
       toast.success('Almacén modificado con éxito!');
       open(false);
     } catch (error) {
       toast.error('Error al modificar el almacén!');
+    } finally{
+      setIsLoading(false)
     }
   };
 
@@ -167,6 +193,44 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
                 inputProps={{ maxLength: 200 }}
               />
             </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1">Encargado de Almacén</Typography>
+
+              <Autocomplete
+                disablePortal
+                fullWidth
+                filterOptions={filterOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setUsuarioEncargado(val);
+                  if(val !== null){
+                    setErrorUserNotSelected(false)
+                  }
+                }}
+                loading={isLoadingUsers && usersRes.length === 0}
+                getOptionLabel={(option) => {
+                  const res = usersRes.find((u) => u.id === option)?.nombre;
+                  if (res) return res;
+                  return '';
+                }}
+                options={usersRes.flatMap((r) => r.id)}
+                value={usuarioEncargado ? usuarioEncargado : null}
+                noOptionsText="No se encontraron usuarios"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Usuarios"
+                    sx={{ width: '90%' }}
+                    required={false}
+                    error={errorUserNotSelected}
+                    helperText={'Es necesario seleccionar un encargado de almacen'}
+                    onChange={(e) => {
+                      setSearchUser(e.target.value);
+                    }}
+                  />
+                )}
+              />
+            </Grid>
           </Grid>
           <Stack
             sx={{
@@ -178,7 +242,7 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
             <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => open(false)}>
               Cancelar
             </Button>
-            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
+            <Button variant="contained" disabled={isLoading} type="submit" startIcon={<SaveOutlinedIcon />}>
               Guardar
             </Button>
           </Stack>

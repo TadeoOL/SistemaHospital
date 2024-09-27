@@ -27,6 +27,7 @@ export interface Procedimiento {
   duracionCirujia: string;
   duracionHospitalizacion: string;
   descripcion: string;
+  precio?: number;
 }
 
 export interface HistorialClinico {
@@ -43,7 +44,30 @@ export interface Paciente {
   nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
-  edad: number;
+  genero: string;
+  fechaNacimiento: Date;
+  estadoCivil: string;
+  telefono: string;
+  ocupacion: string;
+  codigoPostal: string;
+  colonia: string;
+  direccion: string;
+  nombreResponsable: string;
+  parentesco: string;
+  domicilioResponsable: string;
+  coloniaResponsable: string;
+  codigoPostalResponsable: string;
+  telefonoResponsable: string;
+  estado: string;
+  ciudad: string;
+  id: string;
+}
+
+export interface PacienteInfo {
+  //Agregar mas cosas
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
   genero: string;
   fechaNacimiento: Date;
   estadoCivil: string;
@@ -59,6 +83,15 @@ export interface Paciente {
   codigoPostalResponsable: string;
   telefonoResponsable: string;
   id: string;
+  informacionCuartos?: ICuartosInfo[];
+  ingresoSami: boolean;
+}
+
+export interface ICuartosInfo {
+  id_Cuarto: string;
+  nombre: string;
+  horaFin: string;
+  horaInicio: string;
 }
 
 export interface IPatientRegisterPagination {
@@ -70,13 +103,21 @@ export interface IPatientRegisterPagination {
   id_HistorialClinico: string;
   faltanDatos?: boolean;
   admitido?: boolean;
+  procedimientos?: Procedimiento[];
+  cuartos?: string;
+  medico?: string;
+  id_Medico?: string;
 }
 
 export interface IPatientAccount {
   id_Paciente: string;
   nombreCompleto: string;
+  cuartos: string;
+  medico: string;
   id_Cuenta: string;
   id_ArticuloCuenta: string | null;
+  estatus: number;
+  fechaApertura: string;
 }
 export interface IProgrammingRequestPagination {
   id: string;
@@ -96,6 +137,51 @@ export interface ITypeRoom {
   descripcion?: string;
   configuracionLimpieza?: string;
   configuracionPrecioHora?: IRecoveryRoomOperatingRoom[];
+  configuracionRecuperacion?: IRecoveryRoomOperatingRoom[];
   tipo: number;
   precio?: number;
+  codigoSATRecuperacion?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
+  codigoUnidadMedidaRecuperacion?: number;
+}
+
+export interface IDocumentsInfo {
+  paciente: Paciente;
+  nombreMedico: string;
+  especialidad: string;
+  diagnosticoIngreso: string;
+  motivoIngreso: string;
+  fechaIngreso: string;
+  horaIngreso: string;
+  procedimientos: string;
+  clavePaciente: string;
+  alergias: string;
+  sangre: string;
+  nombreCuarto: string;
+  nombreQuirofano: string;
+  nombreAnestesiologo: string;
+  tipoSangre: string;
+}
+
+export interface ISAMI {
+  id: string;
+  paciente: ISAMIPatient;
+  fechaIngreso: string;
+  admitido: boolean;
+}
+
+export interface ISAMIPatient {
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  fechaNacimiento: Date;
+  genero: string;
+  telefono: string;
+  id: string;
+  direccion: string;
+  colonia: string;
+  codigoPostal: string;
+  nombreResponsable: string;
+  estadoCivil: string;
 }

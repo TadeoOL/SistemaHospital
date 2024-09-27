@@ -15,7 +15,7 @@ import {
   alpha,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { IArticle2 } from '../../../../types/types';
+import { IArticlePOS } from '../../../../types/types';
 import { usePosOrderArticlesStore } from '../../../../store/pharmacy/pointOfSale/posOrderArticles';
 //import { CreditCard, Payments, SwapHoriz } from '@mui/icons-material';
 //import AnimateButton from '../../../@extended/AnimateButton';
@@ -114,16 +114,13 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     setLoadingSubmit(true);
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
-    console.log(articlesOnBasket);
     let articlesFormatted: any = [];
     articlesOnBasket.forEach((article) => {
-      article?.lote?.forEach((articleNested) => {
         articlesFormatted.push({
-          id: articleNested.id_ArticuloExistente,
-          cantidad: articleNested.cantidad,
+          id: article.id_ArticuloAlmacen,
+          cantidad: article.cantidad,
           precioUnitario: article.precioVenta,
         });
-      });
     });
     /*((article) => {
       article?.lote?.map((articleNested) => {
@@ -134,7 +131,6 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         };
       });
     });*/
-    console.log({ userSalesRegisterData });
     const saleObject = {
       id_Caja: userSalesRegisterData.id,
       tipoPago: 1,
@@ -142,7 +138,6 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
       montoPago: total,
       totalVenta: total,
     };
-    console.log('salewe', saleObject);
 
     try {
       const response = await registerSale(saleObject);
@@ -151,10 +146,10 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         SubTotal: subTotal,
         IVA: iva,
         TotalVenta: total,
-        UsuarioVenta: response.ventaPrincipal.nombreUsuario,
+        UsuarioVenta: response.nombreUsuario,
         Articulos: response.detalleVentas.map((artF: any) => ({
-          Nombre: artF.articuloExistente.articulo.nombre,
-          Precio: artF.precioUnitario,
+          Nombre: artF.nombre,
+          Precio: artF.precio,
           Cantidad: artF.cantidad,
         })),
       };
@@ -245,15 +240,11 @@ const TableHeaderResume = () => {
 
 const TableBodyResume = () => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
-  console.log('resume articlesOnBasket ', articlesOnBasket);
   return (
     <TableBody>
       {articlesOnBasket.map((article) => (
         <TableRowArticleResume
-          article={{
-            ...article,
-            cantidad: article.lote?.reduce((total, item) => total + item.cantidad, 0) || 0,
-          }}
+          article={article}
           key={article.id_Articulo}
         />
       ))}
@@ -261,18 +252,19 @@ const TableBodyResume = () => {
   );
 };
 interface TableRowArticleResumeProps {
-  article: IArticle2;
+  article: IArticlePOS;
 }
 const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
   const { article } = props;
-  const totalPriceArticle = ((article.cantidad || 0) * Number(article.precioVenta)).toFixed(2);
+  const totalPriceArticle = 
+  ((article.cantidad || 0) * (article.iva? Number(article.precioVenta) + (Number(article.precioVenta) * (article.iva*.01)) : Number(article.precioVenta) )).toFixed(2);
   return (
     <TableRow>
       <TableCell>{article.nombre}</TableCell>
       <TableCell>{article.codigoBarras}</TableCell>
       <TableCell>{article.cantidad}</TableCell>
       <TableCell>{article.precioVenta}</TableCell>
-      <TableCell>{article.iva || 0}</TableCell>
+      <TableCell>{article.iva ?? 0}</TableCell>
       <TableCell>{totalPriceArticle}</TableCell>
     </TableRow>
   );

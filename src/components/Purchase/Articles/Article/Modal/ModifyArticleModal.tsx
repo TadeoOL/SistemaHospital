@@ -22,6 +22,7 @@ import { useArticlePagination } from '../../../../../store/purchaseStore/article
 import { getArticleById, getPurchaseConfig, modifyArticle } from '../../../../../api/api.routes';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { useGetSizeUnit } from '../../../../../hooks/contpaqi/useGetSizeUnit';
 
 const style = {
   position: 'absolute',
@@ -107,18 +108,21 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     unidadMedida,
     precioCompra,
     precioVenta,
+    precioVentaPI,
     unidadesPorCaja,
     esCaja,
+    codigoSAT,
+    codigoUnidadMedida,
   } = article ?? {};
 
   const { subCategories, isLoading } = useGetSubCategories();
   const [textValue, setTextValue] = useState('');
   const [subCategory, setSubCategory] = useState('');
-  const [inputValue, setInputValue] = useState<string>();
   const config = useGetPurchaseConfig();
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const [isBox, setIsBox] = useState(esCaja || false);
-  let textQuantityRef = useRef<HTMLTextAreaElement>(null);
-
+  const textQuantityRef = useRef<HTMLTextAreaElement>();
+  const precioQuantityRef = useRef<HTMLTextAreaElement>();
   const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
     setHandleChangeArticle: state.setHandleChangeArticle,
     handleChangeArticle: state.handleChangeArticle,
@@ -127,6 +131,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const {
     register,
     handleSubmit,
+    watch,
     getValues,
     setValue,
     formState: { errors },
@@ -141,11 +146,16 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       unidadMedida: unidadMedida,
       precioCompra: precioCompra,
       precioVenta: precioVenta,
+      precioVentaPI: precioVentaPI,
       unidadesPorCaja: unidadesPorCaja,
       esCaja: esCaja,
+      codigoSAT: codigoSAT ?? '',
+      codigoUnidadMedida: codigoUnidadMedida ?? 0,
     },
     resolver: zodResolver(addArticle),
   });
+
+  console.log({ codigoUnidadMedida });
 
   useEffect(() => {
     if (article) {
@@ -166,7 +176,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         }
       });
     }
-  }, [article, setValue]);
+  }, [article, setValue, textQuantityRef]);
 
   const handleError = (err: any) => {
     console.log({ err });
@@ -187,7 +197,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       if (!isBox) {
         data.unidadesPorCaja = undefined;
       }
-      data.precioVenta = inputValue || '';
       const idForm = getValues('id');
       await modifyArticle({ ...data, id: idForm, esCaja: isBox });
       setHandleChangeArticle(!handleChangeArticle);
@@ -227,8 +236,75 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   };
 
   const handleInputDecimalChange = (event: any) => {
-    // Validar si el valor ingresado es un número con punto decimal
     let precio = event.target.value;
+    console.log(precio);
+    const isValidInput = /^\d*\.?\d*$/.test(precio);
+    if (!isValidInput) {
+      event.target.value = precio.slice(0, -1);
+    }
+    const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+    config?.factor.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          console.log(precioVentaString);
+          setValue('precioVenta', precioVentaString);
+        } else {
+          setValue('precioVenta', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVenta = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVenta)) {
+          const precioVentaString = precioVenta.toFixed(2).toString();
+          setValue('precioVenta', precioVentaString);
+        } else {
+          setValue('precioVenta', '0');
+        }
+      }
+    });
+    config?.factorInterno?.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      }
+    });
+  };
+
+  const handleInputBox = (event: any) => {
+    let unidadesPorCaja = event.target.value;
+    const precio = (precioQuantityRef.current?.value as string) ?? '1';
     const isValidInput = /^\d*\.?\d*$/.test(precio);
     if (!isValidInput) {
       event.target.value = precio.slice(0, -1);
@@ -240,36 +316,54 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValue(precioVentaString);
+          console.log(precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue('0');
+          setValue('precioVenta', '0');
         }
-      } else if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox) {
-        const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
         const factorMultiplicador = factor.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setInputValue(precioVentaString);
+          setValue('precioVenta', precioVentaString);
         } else {
-          setInputValue('0');
+          setValue('precioVenta', '0');
         }
       }
     });
-  };
-
-  const handleAmountChange = (salePrice?: string) => {
-    config?.factor.forEach((factor) => {
-      const unidadesPorCaja = textQuantityRef.current?.value ?? '1';
-      const precioComprac = parseFloat(precioCompra || salePrice || '1') / parseFloat(unidadesPorCaja);
-      const factorMultiplicador = factor.factorMultiplicador as number;
-      const precioVentaC = precioComprac * factorMultiplicador;
-      if (!isNaN(precioVentaC)) {
-        const precioVentaString = precioVentaC.toFixed(2).toString();
-        setInputValue(precioVentaString);
-      } else {
-        setInputValue('0');
+    config?.factorInterno?.forEach((factor) => {
+      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+        const precioCompra = parseFloat(precio);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
+      } else if (
+        isBox &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+      ) {
+        const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
+        const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
+        const factorMultiplicador = factor.factorMultiplicador as number;
+        const precioVentaPI = precioCompra * factorMultiplicador;
+        if (!isNaN(precioVentaPI)) {
+          const precioVentaString = precioVentaPI.toFixed(2).toString();
+          setValue('precioVentaPI', precioVentaString);
+        } else {
+          setValue('precioVentaPI', '0');
+        }
       }
     });
   };
@@ -277,7 +371,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const boxConvertion = (flag: boolean) => {
     if (flag) {
       //De caja a articulo normal
-      setInputValue((Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
+      setValue('precioVenta', (Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
+      setValue('precioVentaPI', (Number(precioVentaPI || '1') * Number(unidadesPorCaja || '1')).toString());
     }
   };
 
@@ -334,9 +429,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                       pattern: '[0-9]*',
                       inputMode: 'numeric',
                       min: 0,
-                    }}
-                    onChange={() => {
-                      handleAmountChange(inputValue);
+                      onInput: (e: any) => handleInputBox(e),
                     }}
                   />
                 </Box>
@@ -373,6 +466,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   fullWidth
                   error={!!errors.precioCompra}
                   helperText={errors?.precioCompra?.message}
+                  inputRef={precioQuantityRef}
                   size="small"
                   inputProps={{
                     maxLength: 10,
@@ -383,20 +477,34 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   {...register('precioCompra')}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={3}>
                 <Typography>Precio de Venta</Typography>
                 <TextField
                   fullWidth
                   error={!!errors.precioVenta}
                   helperText={errors?.precioVenta?.message}
+                  disabled
                   size="small"
-                  value={inputValue}
+                  value={watch('precioVenta')}
                   inputProps={{
                     maxLength: 10,
                   }}
-                  // onChange={(e: any) => handleInputDecimalChange(e)}
                   placeholder="Escriba un Precio de Venta"
-                  {...register('precioVenta')}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Typography>Venta Interna</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.precioVentaPI}
+                  helperText={errors?.precioVentaPI?.message}
+                  disabled
+                  size="small"
+                  value={watch('precioVentaPI')}
+                  inputProps={{
+                    maxLength: 10,
+                  }}
+                  placeholder="Escriba un Precio de Venta Interno"
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -454,11 +562,43 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 <TextField
                   fullWidth
                   error={!!errors.codigoBarras}
-                  helperText={errors?.unidadMedida?.message}
+                  helperText={errors?.codigoBarras?.message}
                   size="small"
                   placeholder="Escriba un código de barras"
                   {...register('codigoBarras')}
                 />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de SAT</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoSAT}
+                  helperText={errors?.codigoSAT?.message}
+                  size="small"
+                  placeholder="Escriba un código de SAT"
+                  {...register('codigoSAT')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography>Código de Unidad de Medida</Typography>
+                <TextField
+                  fullWidth
+                  error={!!errors.codigoUnidadMedida}
+                  helperText={errors?.codigoUnidadMedida?.message}
+                  size="small"
+                  placeholder="Escriba un código de Unidad de Medida"
+                  {...register('codigoUnidadMedida')}
+                  value={watch('codigoUnidadMedida')}
+                  select
+                >
+                  {!isLoadingConcepts &&
+                    sizeUnit.map((data) => (
+                      <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                        {data.nombre}
+                      </MenuItem>
+                    ))}
+                  {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+                </TextField>
               </Grid>
             </Grid>
             <Stack

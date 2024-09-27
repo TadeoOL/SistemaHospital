@@ -1,4 +1,4 @@
-import { PackageView } from "../../components/Pharmacy/Catalogue/PackageView";
+import { PackageView } from '../../components/Pharmacy/Catalogue/PackageView';
 
 const PackageCatalogueView = () => {
   return <PackageView />;

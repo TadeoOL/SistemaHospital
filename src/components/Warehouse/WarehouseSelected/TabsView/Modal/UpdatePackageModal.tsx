@@ -35,7 +35,7 @@ import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
 
-const OPTIONS_LIMIT = 5;
+const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticle>({
   limit: OPTIONS_LIMIT,
 });
@@ -44,7 +44,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, md: 600 },
+  width: { xs: 380, md: 800 },
 
   borderRadius: 8,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -227,7 +227,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Editar paquete de articulos" />
-      <Box sx={{ style2 }}>
+      <Box sx={style2}>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
             <Grid component="span" container spacing={2}>
@@ -279,7 +279,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
                 rowGap: { xs: 2, sm: 0 },
               }}
             >
-              <Stack sx={{ display: 'flex', flex: 1 }}>
+              <Stack sx={{ display: 'flex', flex: 2 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar articulo</Typography>
                 <Autocomplete
                   disablePortal
@@ -301,7 +301,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
                       error={articleError}
                       helperText={articleError && 'Selecciona un articulo'}
                       placeholder="Artículos"
-                      sx={{ width: '90%' }}
+                      sx={{ width: '100%' }}
                       onChange={(e) => {
                         setSerch(e.target.value);
                       }}
@@ -309,10 +309,9 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
                   )}
                 />
               </Stack>
-              <Stack sx={{ display: 'flex' }}>
+              <Stack sx={{ display: 'flex', flex: 1 }}>
                 <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
                 <TextField
-                  sx={{ width: '50%' }}
                   size="small"
                   fullWidth
                   placeholder="Cantidad"

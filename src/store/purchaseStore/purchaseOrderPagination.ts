@@ -1,6 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { getPurchaseOrder } from '../../api/api.routes';
-import { IPurchaseOrder } from '../../types/types';
+import { IPurchaseOrderPagination } from '../../types/types';
 import { getFirstDayOfTheMonth, wasAuth } from '../../utils/functions/dataUtils';
 
 interface State {
@@ -8,7 +8,7 @@ interface State {
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IPurchaseOrder[];
+  data: IPurchaseOrderPagination[];
   isLoading: boolean;
   search: string;
   enabled: boolean;

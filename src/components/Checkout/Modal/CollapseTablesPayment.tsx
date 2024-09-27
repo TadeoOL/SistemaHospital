@@ -94,7 +94,7 @@ const TableHeadPayment = () => {
       <TableRow>
         <StyledTableCell>Folio</StyledTableCell>
         <StyledTableCell>Paciente</StyledTableCell>
-        <StyledTableCell>Modulo Proveniente</StyledTableCell>
+        <StyledTableCell>Concepto</StyledTableCell>
         <StyledTableCell>Tipo de Pago</StyledTableCell>
         <StyledTableCell>IVA</StyledTableCell>
         <StyledTableCell>Total</StyledTableCell>

@@ -333,7 +333,7 @@ function CardOptions(props: CardOptionsProps) {
       onClick={() => onClick(valueOption)}
     >
       {icon}
-      <Typography sx={{ fontSize: 28, fontWeight: 600, color: 'gray' }}>{title}</Typography>
+      <Typography sx={{ fontSize: { xs: 16, md: 28 }, fontWeight: 600, color: 'gray' }}>{title}</Typography>
     </Box>
   );
 }

@@ -5,6 +5,8 @@ export interface IBiomedicalEquipment {
   precio: number;
   esPersonal?: boolean;
   notas?: string;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IAnesthesiologist {
@@ -14,7 +16,6 @@ export interface IAnesthesiologist {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }
 
@@ -24,6 +25,8 @@ export interface IXRay {
   descripcion: string;
   precio: number;
   tipo: number;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
 }
 
 export interface IXRayRequest {
@@ -36,7 +39,7 @@ export interface IXRayRequest {
   precio: number;
   fechaSolicitud: string;
   estatus: number;
-  tipo:number
+  tipo: number;
 }
 
 export interface IMedic {
@@ -46,7 +49,6 @@ export interface IMedic {
   apellidoMaterno: string;
   telefono: string;
   email: string;
-  edad: number;
   fechaNacimiento: Date;
 }
 
@@ -78,8 +80,21 @@ export interface IAcountAllInformation {
   articulos: IArticlesAccount[];
   pagosCuenta: IPaymentsAccount[];
   totalPagoCuenta: number;
+  totalPagoCuentaOriginal: number;
+  subtotalPagoCuenta: number;
   totalPagoCuentaAbonos: number;
   totalPagoCuentaRestante: number;
+  subtotalPagoCuentaRestante: number;
+  porcentajeDescuento: number;
+  totalPagoSami: number;
+  medico: string;
+  tipoOperacion: string;
+  iva: number;
+  subTotal: number;
+  esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 
 export interface IAcountAllInformationAdmission {
@@ -94,16 +109,28 @@ export interface IAcountAllInformationAdmission {
   paciente: IPatientInAccount;
   pagosCuenta: IPaymentsAccount[];
   articulos: IArticlesAccount[];
+  subtotalPagoCuenta: number;
   totalPagoCuenta: number;
   totalPagoCuentaAbonos?: number;
   totalPagoCuentaRestante?: number;
+  subtotalPagoCuentaRestante: number;
+  medico: string;
+  tipoOperacion: string;
+  iva: number;
+  subTotal: number;
+  esHospitalizacion: boolean;
+  ventaConcepto: number;
+  ventaArticuloSinIVA: number;
+  ventaArticuloIVA: number;
 }
 export interface IRoomsAccount {
   id_RegistroCuarto: string;
   nombre: string;
-  cantidadDias: string;
+  cantidadDias: number;
   precioDia: number;
   precioTotal: number;
+  precioNeto: number;
+  precioIVA: number;
 }
 export interface IOperatingRoomsAccount {
   id_RegistroCuarto: string;
@@ -111,6 +138,8 @@ export interface IOperatingRoomsAccount {
   tiempoCirugia: string;
   precioHora: number;
   precioTotal: number;
+  precioNeto: number;
+  precioIVA: number;
 }
 export interface IProceduresAccount {
   id: string;
@@ -118,6 +147,8 @@ export interface IProceduresAccount {
   duracionCirujia: string;
   duracionHospitalizacion: number;
   precio: number;
+  precioNeto?: number;
+  precioIVA?: number;
 }
 export interface IXRaysAccount {
   id_RegistroRadiografia: string;
@@ -126,20 +157,25 @@ export interface IXRaysAccount {
   precio: number;
   estatus: number;
   folio: string;
+  precioNeto?: number;
+  precioIVA?: number;
 }
 export interface IBiomedicalEquipmentAccount {
   id_RegistroEquipoBiomedico: string;
   nombre: string;
   precio: number;
+  precioIVA?: number;
+  precioNeto?: number;
 }
 export interface IExternalBiomedicalEquipmentAccount {
   id_Medico: string;
   nombre: string;
   precio: number;
+  precioIVA?: number;
+  precioNeto?: number;
 }
 export interface IPatientInAccount {
   nombre: string;
-  edad: number;
   genero: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
@@ -150,10 +186,16 @@ export interface IArticlesAccount {
   nombre: string;
   cantidad: number;
   precioVenta: number;
+  precioNeto: number;
+  precioIVA: number;
+  precioTotal: number;
+  solicitud: string;
+  fechaSolicitado: string;
 }
 export interface IPaymentsAccount {
   id: string;
   folio: string;
+  fechaPago: string;
   pagado: boolean;
   total: number;
 }
@@ -162,10 +204,31 @@ export const REQUEST_TYPES: Record<number, string> = {
   1: 'Laboratorio',
   2: 'Radiografía',
   3: 'Ultra Sonido',
+  4: 'SAMI',
+  5: 'Electrocardiograma',
+  6: 'Cuidado Neonatal',
 };
 
 export interface IRequestConfig {
   id_Usuario: string;
   nombre: string;
   solicitudes: number[];
+}
+
+export const DISCOUNT_TYPES = {
+  Porcentaje: 1,
+  Monto: 2,
+} as const;
+export type DiscountType = (typeof DISCOUNT_TYPES)[keyof typeof DISCOUNT_TYPES];
+export type DiscountTypeKey = keyof typeof DISCOUNT_TYPES;
+
+export interface IDiscount {
+  id: string;
+  id_CuentaPaciente: string;
+  montoDescuento: number;
+  motivoDescuento: string;
+  tipoDescuento: DiscountTypeKey;
+  usuarioEncargadoDescuento: { id: string; nombre: string };
+  fechaCreacion: string;
+  fechaModificacion: string;
 }

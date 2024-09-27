@@ -1,4 +1,4 @@
-import { Box, Card, Divider, Stack, TextField } from '@mui/material';
+import { Box, Button, Card, Divider, Modal, Stack, TextField } from '@mui/material';
 import { Categories } from './Categories';
 import { ArticlesOnBasket } from './ArticlesOnBasket';
 import { ArticlesToSale } from './ArticlesToSale';
@@ -8,12 +8,13 @@ import { Search } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { ResumeSale } from './ResumeSale';
 import { neutral } from '../../../theme/colors';
-import { IArticle2 } from '../../../types/types';
+import { IArticlePOS } from '../../../types/types';
+import { SelectWarehouseModal } from '../Catalogue/Modal/SelectWarehouseModal';
 
 export const PointOfSale = () => {
   const setSearch = usePosArticlesPaginationStore((state) => state.setSearch);
-  const [openModal, setOpenLoteModal] = useState(false);
-  const [articleSelected, setArticleSelected] = useState<null | IArticle2>(null);
+  const [articleSelected, setArticleSelected] = useState<null | IArticlePOS>(null);
+  const [openModal, setOpenModal] = useState(localStorage.getItem('pharmacyWarehouse_Selected') == null);//verdarero si aun no se declara/selecciona almacen
 
   useEffect(() => {
     return () => usePosArticlesPaginationStore.setState({ search: '', data: [], pageIndex: 1, subCategoryId: '' });
@@ -23,19 +24,30 @@ export const PointOfSale = () => {
     <Box sx={{ overflowX: 'auto' }}>
       <Card sx={{ display: 'flex', flex: 1, minWidth: 700 }}>
         <Stack sx={{ display: 'flex', flex: 5, bgcolor: neutral[50] }}>
+          <Box sx={{ display:'flex', flexDirection: 'row' }} >
+          <Box>
           <Categories sx={{ display: 'flex', columnGap: 1.5, p: 2 }} />
           <SearchBar
             title="Buscar el articulo..."
             searchState={setSearch}
             sx={{ bgcolor: 'transparent' }}
-            setOpenLoteModal={setOpenLoteModal}
             setArticleSelected={setArticleSelected}
           />
+          </Box>
+          <Box sx={{display:'flex', flex:1}}>
+          <Button
+            sx={{ ml:'auto', mr:'5%', my:'auto' }}
+            size="large"
+            variant="contained"
+            onClick={() => setOpenModal(true)}
+          >
+            Cambiar almacen
+          </Button>
+          </Box>
+          </Box>
           <ArticlesToSale
             sx={{ p: 2 }}
-            articleSelectedByBarCode={articleSelected as IArticle2}
-            openModal={openModal}
-            setOpenLoteModal={setOpenLoteModal}
+            articleSelectedByBarCode={articleSelected as IArticlePOS}
           />
         </Stack>
         <Divider orientation="vertical" sx={{ m: 1 }} flexItem />
@@ -55,6 +67,9 @@ export const PointOfSale = () => {
           <ResumeSale />
         </Stack>
       </Card>
+      <Modal open={openModal}>
+        <SelectWarehouseModal setOpen={setOpenModal}/>
+      </Modal>
     </Box>
   );
 };
@@ -64,7 +79,6 @@ interface ISearchBar {
   title: string;
   size?: 'small' | 'medium';
   sx?: any;
-  setOpenLoteModal: Function;
   setArticleSelected: Function;
 }
 const SearchBar = (props: ISearchBar) => {
@@ -88,7 +102,6 @@ const SearchBar = (props: ISearchBar) => {
         .filter((article) => article.codigoBarras === codigoBarra);
       if (article[0]) {
         props.setArticleSelected(article[0]);
-        props.setOpenLoteModal(true);
       }
 
       console.log({ data });

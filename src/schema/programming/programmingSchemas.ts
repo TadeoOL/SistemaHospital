@@ -17,7 +17,6 @@ export const patientRegistrationSchema = z.object({
   name: z.string().optional(),
   lastName: z.string().optional(),
   secondLastName: z.string().optional(),
-  age: z.string().optional(),
   genere: z.string().optional(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
@@ -26,7 +25,6 @@ export const patientModifySchema = z.object({
   name: z.string().nullable(),
   lastName: z.string().nullable(),
   secondLastName: z.string().nullable(),
-  age: z.string().nullable(),
   genere: z.string().nullable(),
   civilStatus: z.string().nullable(),
   phoneNumber: z.string().nullable(),
@@ -41,7 +39,28 @@ export const patientModifySchema = z.object({
   personInChargeNeighborhood: z.string().nullable(),
   personInChargeAddress: z.string().nullable(),
   personInChargePhoneNumber: z.string().nullable(),
+  state: z.string().nullable(),
+  city: z.string().nullable(),
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+});
+
+export const patientSAMISchema = z.object({
+  name: z.string().min(1, 'Es necesario el nombre'),
+  lastName: z.string().min(1, 'Es necesario el apellido paterno'),
+  secondLastName: z.string().min(1, 'Es necesario materno'),
+  genere: z.string().min(1, 'Es necesario el genero'),
+  civilStatus: z.string().min(1, 'Es necesario estado civil'),
+  phoneNumber: z.string().min(1, 'Es necesario telefono'),
+  zipCode: z.string().min(1, 'Es necesario codigo postal'),
+  neighborhood: z.string().min(1, 'Es necesario colonia'),
+  address: z.string().min(1, 'Es necesario la direccion'),
+  birthDate: z.preprocess(
+    (val) => toDate(val as Dayjs),
+    z.date({
+      invalid_type_error: 'Escribe una fecha de nacimiento',
+    })
+  ),
+  personInCharge: z.string().min(1, 'Es necesario el nombre del responsable'),
 });
 
 export const clinicalDataSchema = z.object({
@@ -70,9 +89,9 @@ export const surgeryProcedureSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
   surgeryDuration: z
     .string()
-    .min(1, 'La duración de la crujía es requerida')
+    .min(1, 'La duración de la cirugía es requerida')
     .refine((val) => val !== '00:00:00', {
-      message: 'La duración de la crujía es requerida',
+      message: 'La duración de la cirugía es requerida',
     }),
   hospitalizationDuration: z
     .string()
@@ -82,11 +101,13 @@ export const surgeryProcedureSchema = z.object({
     }),
   description: z.string().optional(),
   price: z.string().optional(),
+  codigoSAT: z.string().min(1, 'El código es necesario'),
+  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
 
 export const addRoomReservation = z
   .object({
-    room: z.string().min(1, 'La habitación es requerida'),
+    room: z.string().min(1, 'El espacio es requerido'),
     startTime: z.preprocess(
       (val) => toDate(val as Dayjs),
       z.date().min(new Date(), 'La fecha de inicio debe ser posterior a la fecha actual')
@@ -108,22 +129,16 @@ export const programmingRegisterSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   lastName: z.string().min(1, 'El apellido paterno es requerido'),
   secondLastName: z.string().min(1, 'El apellido materno es requerido'),
-  age: z
-    .string()
-    .min(1, 'La edad es requerida')
-    .refine((e) => parseInt(e) != 0, {
-      message: 'La edad tiene que ser mayor a 0',
-    }),
-  doctorId: z.string().min(1, 'El medico es requerido'),
   notes: z.string().optional(),
   surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
   date: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+  doctorId:z.string().min(1, 'Es necesario seleccionar un doctor'),
 });
 
 export const procedureAndDoctorSelectorSchema = z.object({
   proceduresId: z.string().array().nonempty('Los procedimientos son requeridos'),
   xrayIds: z.string().array().nullable(),
-  medicId: z.string().nullable(),
+  medicId: z.string().min(1, 'Selecciona el medico'),
   anesthesiologistId: z.string().nullable(),
 });
 
@@ -162,7 +177,12 @@ export const typeRoomSchema = z
     description: z.string().optional(),
     reservedSpaceTime: zodDay,
     priceByTimeRange: z.array(priceByTimeRange).optional(),
+    recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
+    codigoSATRecuperacion: z.string().nullable(),
+    codigoSAT: z.string().min(1, 'El código es necesario'),
+    codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
+    codigoUnidadMedidaRecuperacion: z.number({invalid_type_error: 'El código es necesario'}).optional(),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
@@ -171,4 +191,18 @@ export const typeRoomSchema = z
   .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
     message: 'El precio del cuarto es necesario',
     path: ['priceRoom'],
-  });
+  })
+  .refine(
+    (values) => values.type !== '1' || (values.codigoSATRecuperacion && values.codigoSATRecuperacion.length > 0),
+    {
+      message: 'El código de SAT de Recuperación es necesario para quirófanos',
+      path: ['codigoSATRecuperacion'],
+    }
+  )
+  .refine(
+    (values) => values.type !== '1' || (values.codigoUnidadMedidaRecuperacion),
+    {
+      message: 'El código de Unidad de Medida de Recuperación es necesario para quirófanos',
+      path: ['codigoUnidadMedidaRecuperacion'],
+    }
+  );
