@@ -19,6 +19,7 @@ import {
   Typography,
   createFilterOptions,
   MenuItem,
+  Chip,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useDirectlyPurchaseRequestOrderStore as useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
@@ -29,7 +30,7 @@ import { useGetArticlesBySearch } from '../../../../hooks/useGetArticlesBySearch
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { isValidFloat, isValidInteger } from '../../../../utils/functions/dataUtils';
-import { getPurchaseConfig, modifyDirectOrderPurcharse } from '../../../../api/api.routes';
+import { getPurchaseConfig, modifyOrderPurcharse } from '../../../../api/api.routes';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AnimateButton from '../../../@extended/AnimateButton';
 import { IProvider } from '../../../../types/types';
@@ -61,6 +62,7 @@ const filterArticleOptions = createFilterOptions<Article>({
 const filterProviderOptions = createFilterOptions<IProvider>({
   limit: OPTIONS_LIMIT,
 });
+
 export const UpdateDirectlyPurchaseOrder = (props: {
   setOpen: Function;
   initialProvidersFromOrder: string[];
@@ -90,9 +92,11 @@ export const UpdateDirectlyPurchaseOrder = (props: {
   const [amountError, setAmountError] = useState(false);
   const { providers } = useGetAllProviders();
   const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(props.purcharseOrderWarehouseId);
+
   useEffect(() => {
     setArticles(props.initialArticles);
   }, []);
+
   useEffect(() => {
     setArticlesFetched(
       articlesRes.filter((a) => {
@@ -100,9 +104,12 @@ export const UpdateDirectlyPurchaseOrder = (props: {
       })
     );
   }, [articlesRes]);
+
   useEffect(() => {
-    setProvider(providers.filter((prov) => props.initialProvidersFromOrder.includes(prov.id)));
+    const prov = providers.filter((p) => props.initialProvidersFromOrder.includes(p.id));
+    setProvider(prov);
   }, []);
+
   const handleAddArticles = () => {
     if (!articleSelected) {
       setArticleError(true);
@@ -282,6 +289,8 @@ const ArticlesTable = (props: {
   const [isChargingPrices, setIsChargingPrices] = useState(true);
   const [providerError, setProviderError] = useState(false);
 
+  console.log({ provider });
+
   const updateArticlesData = () => {
     const newPrices: any = {};
     const newQuantity: any = {};
@@ -401,22 +410,20 @@ const ArticlesTable = (props: {
         return toast.error(`El total de la orden no debe superar los ${cantidadOrdenDirecta}`);
       }
       const object = {
-        OrdenCompra: {
-          Id_OrdenCompra: props.purcharseOrderId,
-          Id_Proveedor: (provider as IProvider[]).at(0)?.id as string,
-          conceptoPago: paymentMethod,
-          notas: note,
-          //PrecioTotalOrden: totalPrice,
-          OrdenCompraArticulo: articles.map((a) => {
-            return {
-              Id_Articulo: a.id,
-              Cantidad: a.amount,
-              PrecioProveedor: a.price as number,
-            };
-          }),
-        },
+        Id_OrdenCompra: props.purcharseOrderId,
+        Id_Proveedor: (provider as IProvider[]).at(0)?.id as string,
+        conceptoPago: paymentMethod,
+        notas: note,
+        PrecioTotalOrden: totalPrice,
+        OrdenCompraArticulo: articles.map((a) => {
+          return {
+            id_Articulo: a.id,
+            cantidad: a.amount,
+            precioProveedor: a.price as number,
+          };
+        }),
       };
-      await modifyDirectOrderPurcharse(object);
+      await modifyOrderPurcharse(object);
       toast.success('Orden de compra exitosa!');
       props.clearData();
       props.setOpen(false);
@@ -539,7 +546,11 @@ const ArticlesTable = (props: {
         disablePortal
         fullWidth
         filterOptions={filterProviderOptions}
-        onChange={(e, val) => {
+        onChange={(e, val, reason) => {
+          if (reason === 'clear') {
+            setProvider([]);
+            return;
+          }
           e.stopPropagation();
           setProvider([val]);
           setProviderError(false);
@@ -547,8 +558,10 @@ const ArticlesTable = (props: {
         loading={isLoadingProviders && providers.length === 0}
         getOptionLabel={(option) => option.nombreContacto + ' ' + option.nombreCompania}
         options={providers}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        value={(provider as IProvider[])[0] ? (provider as IProvider[]).at(0) : undefined}
+        isOptionEqualToValue={(option, value) => {
+          return option?.id === value?.id;
+        }}
+        value={(provider as IProvider[])[0] ? (provider as IProvider[]).at(0) : null}
         noOptionsText="No se encontraron proveedores"
         renderInput={(params) => (
           <TextField
@@ -594,7 +607,7 @@ const ArticlesTable = (props: {
           startIcon={<Cancel />}
           color="error"
           onClick={() => {
-            props.setOpen(false);
+            // props.setOpen(false);
           }}
         >
           Cancelar

@@ -85,3 +85,29 @@ export const isValidIntegerIncludeZero = (value: string) => {
   const regex = /^([0-9][0-9]*)$/;
   return regex.test(value);
 };
+
+export const convertToByteArray = (file: File): Promise<Uint8Array> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+
+    reader.onload = () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+      const byteArray = new Uint8Array(arrayBuffer);
+      resolve(byteArray);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
+export const convertPdfToByteArray = async (pdf: File | null): Promise<string | null> => {
+  if (!pdf) return null;
+  const arrayBuffer = await pdf.arrayBuffer();
+  const uint8Array = new Uint8Array(arrayBuffer);
+  let binary = '';
+  uint8Array.forEach((byte) => (binary += String.fromCharCode(byte)));
+  return btoa(binary);
+};

@@ -1,5 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { IProvider, IRegisterOrderPurchase } from '../../types/types';
+import { IProvider, IRegisterPurchaseOrder } from '../../types/types';
 
 // type Warehouse = {
 //   id: string;
@@ -24,14 +24,14 @@ type Article = {
 interface State {
   warehouseSelected: string;
   articles: ArticleOrder[] | [];
-  pdf: string;
+  pdf: string | null;
   provider: IProvider | null | IProvider[];
   step: number;
   articlesFetched: Article[] | [];
   isManyProviders: boolean;
   isDirectlyPurchase: boolean;
   totalAmountRequest: number;
-  registerOrder: IRegisterOrderPurchase | null;
+  registerOrder: IRegisterPurchaseOrder | null;
   needAuth: boolean;
   note: string;
   openPurchaseRequestOrder: boolean;
@@ -43,7 +43,7 @@ interface State {
 interface Action {
   setWarehouseSelected: (warehouseSelected: string) => void;
   setArticles: (articles: ArticleOrder[]) => void;
-  setPdf: (pdf: string) => void;
+  setPdf: (pdf: string | null) => void;
   setProvider: (provider: IProvider | IProvider[] | null) => void;
   setStep: (step: number) => void;
   setArticlesFetched: (articlesFetched: Article[] | []) => void;
@@ -51,7 +51,7 @@ interface Action {
   setIsDirectlyPurchase: (isDirectlyPurchase: boolean) => void;
   setTotalAmountRequest: (totalAmountRequest: number) => void;
   clearAllStates: () => void;
-  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => void;
+  setRegisterOrder: (registerOrder: IRegisterPurchaseOrder) => void;
   setNeedAuth: (needAuth: boolean) => void;
   setNote: (note: string) => void;
   setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => void;
@@ -62,7 +62,7 @@ interface Action {
 
 export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State & Action>((set) => ({
   articles: [],
-  pdf: '',
+  pdf: null,
   provider: null,
   warehouseSelected: '',
   step: 0,
@@ -83,10 +83,10 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State &
   setOpenPurchaseRequestOrder: (openPurchaseRequestOrder: boolean) => set({ openPurchaseRequestOrder }),
   setNote: (note: string) => set({ note }),
   setNeedAuth: (needAuth: boolean) => set({ needAuth }),
-  setRegisterOrder: (registerOrder: IRegisterOrderPurchase) => set({ registerOrder }),
+  setRegisterOrder: (registerOrder: IRegisterPurchaseOrder) => set({ registerOrder }),
   setWarehouseSelected: (warehouseSelected: string) => set({ warehouseSelected }),
   setArticles: (articles: ArticleOrder[]) => set({ articles }),
-  setPdf: (pdf: string) => set({ pdf }),
+  setPdf: (pdf: string | null) => set({ pdf }),
   setProvider: (provider: IProvider | IProvider[] | null) => set({ provider }),
   setStep: (step: number) => set({ step }),
   setArticlesFetched: (articlesFetched: Article[]) => set({ articlesFetched }),
@@ -98,7 +98,7 @@ export const useDirectlyPurchaseRequestOrderStore = createWithEqualityFn<State &
       step: 0,
       warehouseSelected: '',
       articles: [],
-      pdf: '',
+      pdf: null,
       articlesFetched: [],
       isManyProviders: false,
       isDirectlyPurchase: true,

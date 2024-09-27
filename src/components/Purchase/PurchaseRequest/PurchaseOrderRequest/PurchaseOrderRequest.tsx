@@ -192,6 +192,7 @@ export const PurchaseOrderRequest = () => {
   useEffect(() => {
     fetch();
   }, [pageIndex, pageSize, search, handleChange, status, startDate, endDate, sort]);
+  console.log({ data });
 
   return (
     <>

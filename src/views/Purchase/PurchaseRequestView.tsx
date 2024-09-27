@@ -15,8 +15,8 @@ const getTabView = (value: number) => {
   switch (value) {
     case 0:
       return <PurchaseOrder />;
-    case 1:
-      return <PurchaseOrderRequest />;
+    // case 1:
+    //   return <PurchaseOrderRequest />;
     case 2:
       return <PurchaseRequestCard />;
     default:

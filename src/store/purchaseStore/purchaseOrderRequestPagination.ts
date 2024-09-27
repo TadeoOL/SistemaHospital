@@ -1,6 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPurchaseOrderRequest } from '../../api/api.routes';
-import { IPurchaseAuthorization } from '../../types/types';
+import { getPurchaseOrder } from '../../api/api.routes';
+import { IPurchaseAuthorization, PurchaseOrderEstatusTypes } from '../../types/types';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
@@ -66,12 +66,12 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<State & Ac
     const { pageIndex, pageSize, search, enabled, endDate, startDate, status, sort } = get();
     const page = pageIndex + 1;
     try {
-      const res = await getPurchaseOrderRequest(
+      const res = await getPurchaseOrder(
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&estatus=${
           parseInt(status) > -1 ? status : ''
-        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
+        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&estatus=${PurchaseOrderEstatusTypes['Necesita autorización']}`
       );
       set(() => ({
         data: res.data,

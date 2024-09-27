@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { usePurchaseOrderRequestModals } from '../../../../../../store/purchaseStore/purchaseOrderRequestModals';
-import { IProvider, IRegisterOrderPurchase } from '../../../../../../types/types';
+import { IProvider, IRegisterPurchaseOrder } from '../../../../../../types/types';
 import { KeyboardReturn, Save } from '@mui/icons-material';
 import { useMemo, useState } from 'react';
 import { addPurchaseOrder } from '../../../../../../api/api.routes';
@@ -29,7 +29,7 @@ const useGetSummary = () => {
     setStep: state.setStep,
   }));
   return {
-    registerOrderPurchase: registerOrderPurchase as IRegisterOrderPurchase,
+    registerOrderPurchase: registerOrderPurchase as IRegisterPurchaseOrder,
     providerData: provider as IProvider,
     step,
     setStep,

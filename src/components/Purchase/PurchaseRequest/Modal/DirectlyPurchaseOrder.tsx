@@ -49,7 +49,7 @@ import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { convertBase64, isValidInteger, openBase64InNewTab } from '../../../../utils/functions/dataUtils';
 import {
-  addDirectlyPurchaseOrder,
+  addPurchaseOrder,
   addPurchaseRequest,
   // getProviders,
   getPurchaseConfig,
@@ -64,7 +64,7 @@ import { Note } from './Note';
 import { useArticlesAlertPagination } from '../../../../store/purchaseStore/articlesAlertPagination';
 import { AlertConfigAmount } from './AlertConfigAmount';
 import AnimateButton from '../../../@extended/AnimateButton';
-import { IProvider } from '../../../../types/types';
+import { IProvider, IRegisterPurchaseOrder, PurchaseOrderEstatusTypes } from '../../../../types/types';
 import { useGetAllProvidersBySearch } from '../../../../hooks/useGetAllProvidersBySearch';
 import { createPurchaseWithoutProvider } from '../../../../services/purchase/purchaseService';
 
@@ -173,6 +173,10 @@ export const BuildOrder = (props: { setOpen: Function }) => {
       })
     );
   }, [articlesRes]);
+
+  useEffect(() => {
+    setArticleSelected(null);
+  }, [warehouseSelected]);
 
   const handleAddArticles = () => {
     if (!articleSelected) {
@@ -463,7 +467,8 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
       if (totalPrice >= cantidadLicitacionDirecta && activarLicitacion) {
         AlertConfigAmount(setStep, step, setIsManyProviders, true);
         setIsDirectlyPurchase(false);
-      } else if (totalPrice >= cantidadOrdenDirecta) {
+      }
+      if (totalPrice >= cantidadOrdenDirecta) {
         AlertConfigAmount(setStep, step, setIsManyProviders, false);
         setIsDirectlyPurchase(false);
       } else {
@@ -475,6 +480,8 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function }
       toast.error('Error al generar la compra');
     }
   };
+
+  console.log({ articles });
 
   if (isChargingPrices)
     return (
@@ -784,7 +791,7 @@ const SelectProviderAndUploadPDF = () => {
               </Typography>
             </Box>
             <Collapse in={openCollapse} sx={{ px: 2 }}>
-              {pdf.trim() !== '' ? (
+              {pdf ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -889,7 +896,7 @@ const SelectProviderAndUploadPDF = () => {
               }}
             >
               <embed
-                src={pdf}
+                src={pdf ? pdf : ''}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -967,25 +974,26 @@ const StepThree = (props: { setOpen: Function }) => {
       return;
     }
     setIsLoading(true);
+    const pdfBase64 = pdf ? pdf.replace(/^data:application\/pdf;base64,/, '') : '';
     if (!Array.isArray(provider) && isDirectlyPurchase) {
-      const object = {
-        Id_Proveedor: provider.id,
-        Id_Almacen: warehouseSelected,
-        conceptoPago: paymentMethod,
-        PrecioTotalOrden: totalAmountRequest,
-        OrdenCompraArticulo: articles.map((a) => {
-          return {
-            Id_Articulo: a.id,
-            Cantidad: a.amount,
-            PrecioProveedor: a.price as number,
-            PrecioVenta: a.sellPrice as number,
-          };
-        }),
-        notas: note,
-        cotizacion: pdf,
-      };
+      // const object = {
+      //   id_Proveedor: provider.id,
+      //   id_Almacen: warehouseSelected,
+      //   estatus: PurchaseOrderEstatusTypes['Orden de compra creada'],
+      //   conceptoPago: paymentMethod,
+      //   precioTotalOrden: totalAmountRequest,
+      //   ordenCompraArticulo: articles.map((a) => {
+      //     return {
+      //       id_Articulo: a.id,
+      //       cantidad: a.amount,
+      //       precioProveedor: a.price as number,
+      //     };
+      //   }),
+      //   notas: note,
+      //   cotizacionPDF: pdfBase64,
+      // };
       try {
-        await addDirectlyPurchaseOrder(object);
+        // await addPurchaseOrder(object); // TODO: Cambiar a la nueva Función para crear el PDF desde el front
         toast.success('Orden de compra realizada con éxito!');
         props.setOpen(false);
       } catch (error) {
@@ -1020,23 +1028,25 @@ const StepThree = (props: { setOpen: Function }) => {
         setIsLoading(false);
       }
     } else if (needAuth && !Array.isArray(provider)) {
-      const objectToPurchase = {
-        id_proveedor: [provider.id],
-        ConceptoPago: paymentMethod,
-        Articulos: articles.map((a) => {
+      console.log('AAAA');
+      const objectToPurchase: IRegisterPurchaseOrder = {
+        id_Proveedor: provider.id,
+        conceptoPago: paymentMethod,
+        ordenCompraArticulo: articles.map((a) => {
           return {
-            Id_Articulo: a.id,
-            CantidadCompra: a.amount,
-            PrecioProveedor: a.price as number,
+            id_Articulo: a.id,
+            cantidad: a.amount,
+            precioProveedor: a.price as number,
           };
         }),
-        id_almacen: warehouseSelected,
-        PrecioTotalInventario: totalAmountRequest,
-        PDFCadena: pdf,
+        id_Almacen: warehouseSelected,
+        precioTotalOrden: totalAmountRequest,
+        cotizacionPDF: pdfBase64,
         notas: note,
+        estatus: PurchaseOrderEstatusTypes['Necesita autorización'],
       };
       try {
-        await addPurchaseRequest(objectToPurchase);
+        await addPurchaseOrder(objectToPurchase);
         toast.success('Orden de compra exitosa!');
         props.setOpen(false);
       } catch (error) {

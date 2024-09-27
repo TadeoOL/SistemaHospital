@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { IPurchaseAuthorization, IRegisterOrderPurchase } from '../../../../../types/types';
+import { IPurchaseAuthorization, IRegisterPurchaseOrder } from '../../../../../types/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isValidFloat } from '../../../../../utils/functions/dataUtils';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
@@ -197,7 +197,7 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
         };
       });
 
-    const objectPurchase: IRegisterOrderPurchase = {
+    const objectPurchase: IRegisterPurchaseOrder = {
       Id_SolicitudCompra: data.id_SolicitudCompra,
       OrdenCompra: data.solicitudProveedor.map((p) => {
         const providerId = p.proveedor.id_Proveedor;

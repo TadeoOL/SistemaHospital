@@ -46,7 +46,6 @@ import { ProviderNameChip } from '../ProviderNameChip';
 import { ArticlesEntry } from './Modal/ArticlesEntry';
 import { SortComponent } from '../../../Commons/SortComponent';
 import { UpdateDirectlyPurchaseOrder } from '../Modal/DirectlyPurchaseOrderPackage';
-import { useGetAllProviders } from '../../../../hooks/useGetAllProviders';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { CommonReport } from '../../../Export/Common/CommonReport';
 import { CommonSpreadSheet } from '../../../Export/Common/CommonSpreadSheet';
@@ -118,12 +117,14 @@ export const PurchaseOrder = () => {
   const [purchaseWarehouseId, setPurchaseWarehouseId] = useState('');
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
   const [reportData, setReportData] = useState<any>();
-  const { openPurchaseRequestOrder, clearAllStates } = useDirectlyPurchaseRequestOrderStore((state) => ({
-    openPurchaseRequestOrder: state.openPurchaseRequestOrder,
-    setPaymentMethod: state.setPaymentMethod,
-    setNote: state.setNote,
-    clearAllStates: state.clearAllStates,
-  }));
+  const { openPurchaseRequestOrder, clearAllStates, setPaymentMethod } = useDirectlyPurchaseRequestOrderStore(
+    (state) => ({
+      openPurchaseRequestOrder: state.openPurchaseRequestOrder,
+      setPaymentMethod: state.setPaymentMethod,
+      setNote: state.setNote,
+      clearAllStates: state.clearAllStates,
+    })
+  );
 
   const {
     isLoading,
@@ -178,19 +179,19 @@ export const PurchaseOrder = () => {
       checkedArticles: [],
     });
   }, [openPurchaseRequestOrder]);
+
   useEffect(() => {
     if (!openUpdateOrderModal) {
       clearAllStates();
     }
   }, [openUpdateOrderModal]);
+
   const handleRefetchAndClearStates = () => {
     fetch();
     setPurchaseOrderId('');
     setPurchaseWarehouseId('');
     setArticlesForEdition([]);
   };
-
-  useGetAllProviders();
 
   const values = useMemo(() => {
     const statusPurchaseOrderValues: string[] = [];
@@ -210,7 +211,6 @@ export const PurchaseOrder = () => {
   const handleOpenPdf = async (OrderId: string) => {
     try {
       const res = await getOrdenCotizacionbyId(OrderId);
-      console.log(res);
       setPdfOpen(res as string);
       setViewPdf(true);
     } catch (error) {
@@ -271,24 +271,27 @@ export const PurchaseOrder = () => {
     setPdfIsLoading(true);
     try {
       const orderRes = await getOrderRequestById(idPurchase);
-      setProvidersForEdition([orderRes.proveedor.nombre]);
+      setProvidersForEdition([orderRes.id_Proveedor]);
+      setPaymentMethod(orderRes.conceptoPago);
       setArticlesForEdition(
         orderRes.ordenCompraArticulo.map((article: any) => ({
           id: article.id_Articulo,
-          name: article.nombre.trim(),
+          name: article.nombre,
           amount: article.cantidad,
-          price: article.precioVenta,
           stock: article.unidadesPorCaja,
+          price: article.precioProveedor,
         }))
       );
       setPurchaseWarehouseId(orderRes.id_Almacen);
       setPurchaseOrderId(orderRes.id_OrdenCompra);
       setOpenUpdateOrderModal(true);
     } catch (error) {
+      console.log({ error });
     } finally {
       setPdfIsLoading(false);
     }
   };
+
   return (
     <>
       <Stack spacing={2} sx={{ p: 2, overflowY: 'auto' }}>

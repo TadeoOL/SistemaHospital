@@ -70,21 +70,20 @@ export const PurchaseConfig = () => {
   });
 
   const onSubmitNewFactor: SubmitHandler<IFactor> = async (data) => {
-    const isOverlapping = configPurchase?.factor.some(
+    const isOverlapping = configPurchase?.factorExterno.some(
       (factor) =>
         (data.cantidadMinima >= factor.cantidadMinima && data.cantidadMinima <= factor.cantidadMaxima) ||
         (data.cantidadMaxima >= factor.cantidadMinima && data.cantidadMaxima <= factor.cantidadMaxima)
     );
-    const isFactorDuplicated = configPurchase?.factor.some(
+    const isFactorDuplicated = configPurchase?.factorExterno.some(
       (factor) => factor.factorMultiplicador === data.factorMultiplicador
     );
-
     if (!isOverlapping && !isFactorDuplicated) {
       setConfigPurchase((prevConfig) => {
         if (prevConfig) {
           return {
             ...prevConfig,
-            factor: [...prevConfig.factor, data],
+            factorExterno: [...prevConfig.factorExterno, data],
           };
         } else {
           return prevConfig;
@@ -109,7 +108,8 @@ export const PurchaseConfig = () => {
     try {
       const object = {
         cantidadOrdenDirecta: parseFloat(value),
-        factor: configPurchase.factor,
+        factorExterno: configPurchase.factorExterno,
+        factorInterno: configPurchase.factorInterno,
         cantidadLicitacionDirecta: parseFloat(directlyTender),
         activarLicitacion: isChecked,
       };
@@ -136,13 +136,13 @@ export const PurchaseConfig = () => {
       if (parseFloat(directlyTender) !== config.cantidadLicitacionDirecta) {
         return true;
       }
-      if (config.factor.length !== configPurchase.factor.length) {
+      if (config.factorExterno.length !== configPurchase.factorExterno.length) {
         return true;
       }
 
-      for (let i = 0; i < config.factor.length; i++) {
-        const factor1 = config.factor[i];
-        const factor2 = configPurchase.factor[i];
+      for (let i = 0; i < config.factorExterno.length; i++) {
+        const factor1 = config.factorExterno[i];
+        const factor2 = configPurchase.factorExterno[i];
         if (
           Number(factor1.cantidadMinima) !== Number(factor2.cantidadMinima) ||
           Number(factor1.cantidadMaxima) !== Number(factor2.cantidadMaxima) ||
@@ -158,14 +158,14 @@ export const PurchaseConfig = () => {
     setHasChanges(hasConfigChanges());
   }, [isLoadingPurchaseConfig, config, value, directlyTender, configPurchase]);
 
-  const handleDelete = (factor: string | number) => {
+  const handleDelete = (factorExterno: string | number) => {
     setHasChanges(true);
     if (!configPurchase) return;
     setConfigPurchase((prevConfig) => {
       if (prevConfig) {
         return {
           ...prevConfig,
-          factor: configPurchase?.factor.filter((f) => f.factorMultiplicador !== factor),
+          factorExterno: configPurchase?.factorExterno.filter((f) => f.factorMultiplicador !== factorExterno),
         };
       } else {
         return prevConfig;
@@ -212,7 +212,7 @@ export const PurchaseConfig = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {configPurchase?.factor.map((i) => (
+                {configPurchase?.factorExterno.map((i) => (
                   <TableRow key={i.factorMultiplicador}>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       ${i.cantidadMinima} a ${i.cantidadMaxima}

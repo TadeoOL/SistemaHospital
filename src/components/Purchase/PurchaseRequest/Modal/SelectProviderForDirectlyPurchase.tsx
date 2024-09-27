@@ -118,16 +118,8 @@ export const SingleProvider = () => {
     setStep(step + 1);
   };
   const disableButton =
-    (provider != null &&
-      !Array.isArray(provider) &&
-      provider.id != 'sin-proveedor' &&
-      !paymentMethod &&
-      pdf.trim() === '') ||
-    (provider != null &&
-      !Array.isArray(provider) &&
-      provider.id != 'sin-proveedor' &&
-      paymentMethod != 0 &&
-      pdf.trim() === '');
+    (provider != null && !Array.isArray(provider) && provider.id != 'sin-proveedor' && !paymentMethod && !pdf) ||
+    (provider != null && !Array.isArray(provider) && provider.id != 'sin-proveedor' && paymentMethod != 0 && !pdf);
 
   return (
     <>
@@ -224,7 +216,7 @@ export const SingleProvider = () => {
             </Typography>
           </Box>
           <Collapse in={openCollapse} sx={{ px: 2 }}>
-            {pdf.trim() !== '' ? (
+            {pdf ? (
               <Box
                 sx={{
                   display: 'flex',
@@ -342,7 +334,7 @@ export const SingleProvider = () => {
               }}
             >
               <embed
-                src={pdf}
+                src={pdf ? pdf : ''}
                 style={{
                   width: '100%',
                   height: '100%',

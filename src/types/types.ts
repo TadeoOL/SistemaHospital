@@ -112,8 +112,8 @@ export interface IArticle {
   stockAlerta: string;
   unidadMedida: string;
   precioCompra: string;
-  precioVenta: string;
-  precioVentaPI: string;
+  precioVentaInterno: string;
+  precioVentaExterno: string;
   id_subcategoria: string;
   subCategoria: ISubCategory | string;
   stockActual?: string;
@@ -264,7 +264,7 @@ export interface IArticlesAlert {
 
 export interface IPurchaseConfig {
   cantidadOrdenDirecta: number;
-  factor: IFactor[];
+  factorExterno: IFactor[];
   factorInterno: IFactor[];
   cantidadLicitacionDirecta: number;
   activarLicitacion?: boolean;
@@ -331,10 +331,24 @@ export type Provider = {
   proveedor: string;
 };
 
-export interface IRegisterOrderPurchase {
-  Id_SolicitudCompra: string;
-  OrdenCompra: OrdenCompra[];
+export interface IRegisterPurchaseOrder {
+  id_Proveedor: string;
+  id_Almacen: string;
+  estatus: number;
+  precioTotalOrden: number;
+  conceptoPago: number;
+  notas: string;
+  cotizacionPDF: string | null;
+  ordenCompraArticulo: OrdenCompraArticulo[];
 }
+
+export const PurchaseOrderEstatusTypes = {
+  Cancelada: 0,
+  'Necesita autorización': 1,
+  'Orden de compra creada': 2,
+  'Factura subida': 3,
+  'Entrada a artículos completada': 4,
+};
 
 export interface OrdenCompra {
   Id_Proveedor: string;
@@ -343,8 +357,8 @@ export interface OrdenCompra {
 }
 
 export interface OrdenCompraArticulo {
-  Id_Articulo: string;
-  Cantidad: number;
+  id_Articulo: string;
+  cantidad: number;
   precioProveedor?: number;
   nombre?: string;
 }
