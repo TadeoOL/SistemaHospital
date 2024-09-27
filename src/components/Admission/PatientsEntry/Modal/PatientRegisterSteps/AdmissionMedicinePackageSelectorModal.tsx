@@ -200,7 +200,7 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
   }, [isLoadingArticles, articlesRes]);
 
   const handleSubmit = () => {
-    // if (articlesSelected.length === 0) return toast.warning('Agrega artículos al paquete');
+    if (articlesSelected.length === 0) return toast.warning('Selecciona un paquete quirurgico o agrega artículos al paquete');
     toast.success('Artículos agregados con éxito!');
     setStep(step + 1);
   };

@@ -98,6 +98,7 @@ export const SubCategoryTable = () => {
     handleChangeSubCategory,
     setSort,
     sort,
+    categoryIdstate,
   } = useSubCategoryPagination(
     (state) => ({
       pageIndex: state.pageIndex,
@@ -113,6 +114,7 @@ export const SubCategoryTable = () => {
       handleChangeSubCategory: state.handleChangeSubCategory,
       setSort: state.setSort,
       sort: state.sort,
+      categoryIdstate: state.categoryId,
     }),
     shallow
   );
@@ -124,7 +126,7 @@ export const SubCategoryTable = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, [pageIndex, pageSize, search, enabled, handleChangeSubCategory, sort]);
+  }, [pageIndex, pageSize, search, enabled, handleChangeSubCategory, sort, categoryIdstate]);
 
   return (
     <>
