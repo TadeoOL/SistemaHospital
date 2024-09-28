@@ -82,7 +82,7 @@ const useGetAllData = () => {
   };
 };
 
-export const PackageCatalogueTable = () => {
+export const PackageCatalogueTable = (props:{ warehouseId: string}) => {
   const { data, count, pageIndex, pageSize, isLoading, setSort, setPageIndex, setPageSize, fetchWarehousePackages } =
     useGetAllData();
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
@@ -280,7 +280,7 @@ export const PackageCatalogueTable = () => {
       </Stack>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <UpdatePackageModal setOpen={setOpen} package={packageSelected} />
+          <UpdatePackageModal setOpen={setOpen} package={packageSelected} warehouseId={props.warehouseId} />
         </>
       </Modal>
     </>

@@ -29,14 +29,12 @@ import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav
 
 export const OperatingPackages = () => {
     const [open, setOpen] = useState(false);
-    const warehouseIdSeted: string = usePosTabNavStore((state) => state.warehouseId);
     const { setSearch } = usePackagePaginationStore((state) => ({
       setSearch: state.setSearch,
     }));
     const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const warehouseId = usePosTabNavStore((state) => state.warehouseId);
   const [warehouseSelected, setWarehouseSelected] = useState<string>(warehouseId);
-console.log(warehouseIdSeted);
   return (
         <>
       <Box
@@ -101,7 +99,7 @@ console.log(warehouseIdSeted);
             </Stack>
           </Stack>
 
-          <PackageCatalogueTable />
+          <PackageCatalogueTable warehouseId={warehouseSelected} />
         </Box>
       </Box>
       <Modal open={open} >

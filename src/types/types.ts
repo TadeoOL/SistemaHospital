@@ -513,6 +513,7 @@ export interface IArticlesPackage {
   contenido: Articulos_contenidos[];
   id_Almacen: string;
   almacen?: string;
+  id_ArticuloPaquete?: string;
 }
 
 export interface IArticlesPackageSearch {
@@ -528,6 +529,7 @@ export interface Articulos_contenidos {
   PrecioVentaPI: number;
   lote?: IExistingArticleList[];
   cantidadSeleccion?: number;
+  id_ArticuloPaquete?: string;
 }
 
 export interface IPosArticle {

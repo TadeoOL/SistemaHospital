@@ -32,7 +32,6 @@ import AnimateButton from '../../../../@extended/AnimateButton';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { shallow } from 'zustand/shallow';
 import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
 
 const OPTIONS_LIMIT = 30;
@@ -69,19 +68,18 @@ const style2 = {
   },
 };
 
-export const UpdatePackageModal = (props: { setOpen: Function; package: IArticlesPackage }) => {
+export const UpdatePackageModal = (props: { setOpen: Function; package: IArticlesPackage; warehouseId: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
   const [serch, setSerch] = useState('');
   const [valueState, setValueState] = useState('');
-  const { warehouseId } = useParams();
-
+  const [originalArticles, setOriginalArticles] = useState<{ id: string; name: string; amount: number; id_ArticuloPaquete: string; }[]>([]);
   useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        handleFetchArticlesFromWareHouse(props.warehouseId as string);
       } catch (error) {
         console.log('error');
       } finally {
@@ -89,13 +87,14 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
       }
     };
     fetch();
-    console.log('contenido pre', props.package.contenido);
     const articlesFromPackage = props.package.contenido.map((art) => ({
       id: art.id_Articulo,
       name: art.nombre,
       amount: art.cantidad,
+      id_ArticuloPaquete: art.id_ArticuloPaquete ?? '',
     }));
     setArticles(articlesFromPackage);
+    setOriginalArticles(articlesFromPackage);
   }, []);
 
   const { setArticles, articles, setArticlesFetched, articlesFetched } = useDirectlyPurchaseRequestOrderStore(
@@ -153,7 +152,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse(warehouseId as string);
+        handleFetchArticlesFromWareHouse(props.warehouseId as string);
       } catch (error) {
         console.log('error');
       } finally {
@@ -162,6 +161,40 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     };
     fetch();
   }, [serch]);
+
+  function compareArticles(
+    original: { id: string; name: string; amount: number; id_ArticuloPaquete: string; }[], 
+    manipulated: { id: string; name: string; amount: number; id_ArticuloPaquete?: string; }[]
+  ) {
+    const ListaArticulosPorAgregar = manipulated
+      .filter(manipulatedArt => !original.some(originalArt => originalArt.id === manipulatedArt.id))
+      .map(art => ({
+        Cantidad: art.amount,
+        Id_Articulo: art.id
+      }));
+  
+    const ListaArticulosPorBorrar = original
+      .filter(originalArt => !manipulated.some(manipulatedArt => manipulatedArt.id === originalArt.id))
+      .map(art => ({
+        Id_ArticuloPaquete: art.id_ArticuloPaquete
+      }));
+  
+    const ListaArticulosPorEditar = manipulated
+      .filter(manipulatedArt => {
+        const originalArt = original.find(originalArt => originalArt.id === manipulatedArt.id);
+        return originalArt && originalArt.amount !== manipulatedArt.amount;
+      })
+      .map(art => ({
+        Id_ArticuloPaquete: art.id_ArticuloPaquete,
+        Cantidad: art.amount
+      }));
+  
+    return {
+      ListaArticulosPorAgregar: ListaArticulosPorAgregar.length ? ListaArticulosPorAgregar : null,
+      ListaArticulosPorBorrar: ListaArticulosPorBorrar.length ? ListaArticulosPorBorrar : null,
+      ListaArticulosPorEditar: ListaArticulosPorEditar.length ? ListaArticulosPorEditar : null
+    };
+  }
 
   const handleFetchArticlesFromWareHouse = async (wareH: string) => {
     try {
@@ -201,12 +234,15 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   const onSubmit: SubmitHandler<any> = async (data) => {
     data.historialArticulos = articles.map((art) => ({ id_Articulo: art.id, cantidad: art.amount }));
     try {
+      const articlesComparation = compareArticles(originalArticles, articles)
       const object = {
         Id: props.package.id_PaqueteArticulo,
         Nombre: data.nombre,
         Descripcion: data.descripcion,
-        Id_Almacen: warehouseId as string,
-        Contenido: JSON.stringify(data.historialArticulos),
+        Id_Almacen: props.warehouseId as string,
+        ListaArticulosPorBorrar: articlesComparation.ListaArticulosPorBorrar ?? undefined,
+        ListaArticulosPorEditar: articlesComparation.ListaArticulosPorEditar ?? undefined,
+        ListaArticulosPorAgregar: articlesComparation.ListaArticulosPorAgregar ?? undefined,
       };
       await modifyPackage(object);
       toast.success('Paquete Actualizado');
