@@ -610,39 +610,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         }}
         variant="h4"
         textAlign={'center'}
-      >
-        <Box sx={{ mb: 1, display: 'flex', gap: 1 }}>
-          <b>Total Restante:</b>
-          {accountInfo ? (
-            discountSurgeryRoomFlag ? (
-              <PriceCell
-                originalPrice={
-                  (accountInfo.totalPagoCuentaRestante ?? 0) +
-                  (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice)
-                }
-                discountedPrice={
-                  ((accountInfo.totalPagoCuentaRestante ?? 0) +
-                    (isNaN(Number(surgeryPrice) - initialSurgeryPrice)
-                      ? 0
-                      : Number(surgeryPrice) - initialSurgeryPrice)) *
-                  (1 - (accountInfo.porcentajeDescuento ?? 0) / 100)
-                }
-                variant="medium"
-              />
-            ) : accountInfo.porcentajeDescuento ? (
-              <PriceCell
-                originalPrice={accountInfo.totalPagoCuentaOriginal ?? 0}
-                discountedPrice={accountInfo.totalPagoCuentaRestante ?? 0}
-                variant="medium"
-              />
-            ) : (
-              `$${accountInfo.totalPagoCuentaRestante?.toFixed(2) ?? '0.00'}`
-            )
-          ) : (
-            <b>Cargando...</b>
-          )}
-        </Box>
-      </Typography>
+      ></Typography>
       {/* <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <FormControlLabel
