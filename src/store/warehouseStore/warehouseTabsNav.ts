@@ -8,7 +8,7 @@ const initialValuesWarehouseData = {
   id_AlmacenPrincipal: null,
   id_UsuarioEncargado: null,
   articuloExistentes: null,
-  id: '',
+  id_Almacen: '',
   fechaCreacion: '',
   fechaModificacion: '',
   habilitado: true,

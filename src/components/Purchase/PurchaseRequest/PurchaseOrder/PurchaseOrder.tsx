@@ -51,6 +51,7 @@ import { CommonReport } from '../../../Export/Common/CommonReport';
 import { CommonSpreadSheet } from '../../../Export/Common/CommonSpreadSheet';
 import { ViewPdf } from '../../../Inputs/ViewPdf';
 import { wasAuth } from '../../../../utils/functions/dataUtils';
+import { toast } from 'react-toastify';
 
 enum authFilter {
   'Todas las ordenes' = 0,
@@ -221,8 +222,12 @@ export const PurchaseOrder = () => {
   const pdfFetch = async (OrderId: string) => {
     try {
       setPdfIsLoading(true);
-      const res = await getOrderRequestById(OrderId);
-      setPdfOpen(res.pdfCadena as string);
+      const res = await getOrdenCotizacionbyId(OrderId);
+      if (!res) {
+        toast.warning('No tiene cotización');
+        return setPdfIsLoading(false);
+      }
+      setPdfOpen(res);
       setViewPdf(true);
     } catch (error) {
       console.log(error);
@@ -499,6 +504,8 @@ export const PurchaseOrder = () => {
                                       <Tooltip title="PDF de Orden de Compra">
                                         <IconButton
                                           onClick={() => {
+                                            console.log(order);
+
                                             pdfFetch(order.id_OrdenCompra);
                                           }}
                                         >

@@ -62,7 +62,7 @@ export type ArticlesFetched = {
 
 type ArticlesToSelectLote = {
   id_Articulo: string;
-  id_ArticuloAlmacen: string | null;//este no viene en fetch pero se asigna despues
+  id_ArticuloAlmacen: string | null; //este no viene en fetch pero se asigna despues
   nombre: string;
   cantidadSeleccionar: number;
   cantidad: number;
@@ -84,18 +84,11 @@ const renderOutputView = (
           setArticles={setArticles}
           handleAddArticle={handleAddArticle}
           request={request}
-
         />
       );
 
     case 1:
-      return (
-        <OutputResume
-          articles={articles}
-          subWarehouse={subWarehouse}
-          request={request}
-        />
-      );
+      return <OutputResume articles={articles} subWarehouse={subWarehouse} request={request} />;
   }
 };
 interface ArticlesViewProps {
@@ -111,7 +104,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
       cantidadSeleccionar: art.cantidad,
       cantidad: 0,
       id_Articulo: (art as any).id_ArticuloExistente,
-      id_ArticuloAlmacen: null
+      id_ArticuloAlmacen: null,
     }))
   );
   const [value, setValue] = useState(0);
@@ -123,11 +116,13 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
 
   useEffect(() => {
-    console.log(warehouseData)
-    setWarehouseId(wData.id);
+    console.log(warehouseData);
+    setWarehouseId(wData.id_Almacen);
     console.log(props.request);
-    const subwarehousefind = warehouseData.subAlmacenes.find((sbw) => sbw.id === props.request.id_AlmacenDestino );
-    setSubWarehouse(subwarehousefind ?? null)
+    const subwarehousefind = warehouseData.subAlmacenes.find(
+      (sbw) => sbw.id_Almacen === props.request.id_AlmacenDestino
+    );
+    setSubWarehouse(subwarehousefind ?? null);
   }, []);
 
   const handleSubmit = async () => {
@@ -135,14 +130,12 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
     // NO HACE NADA EN HD
     const object = {
       Id_HistorialMovimiento: props.request.id,
-      ArticulosSalida: articles
-        .map((art) =>
-        ({
-          Id_ArticuloAlmacenStock: art.id_ArticuloAlmacen !== null ? art.id_ArticuloAlmacen : "",
-          Id_Articulo: art.id_Articulo,
-          Nombre: art.nombre,
-          Cantidad: art.cantidad
-        })),
+      ArticulosSalida: articles.map((art) => ({
+        Id_ArticuloAlmacenStock: art.id_ArticuloAlmacen !== null ? art.id_ArticuloAlmacen : '',
+        Id_Articulo: art.id_Articulo,
+        Nombre: art.nombre,
+        Cantidad: art.cantidad,
+      })),
       Estatus: 2,
     };
     try {
@@ -159,12 +152,14 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
   };
 
   const handleAddArticle = (articleQuantity: ArticlesToSelectLote) => {
-      const direction = articles.findIndex((art: ArticlesToSelectLote) => art.id_Articulo === articleQuantity.id_Articulo);
-      if (direction > -1) {
+    const direction = articles.findIndex(
+      (art: ArticlesToSelectLote) => art.id_Articulo === articleQuantity.id_Articulo
+    );
+    if (direction > -1) {
       articles.splice(direction, 1);
       setArticles([...articles, articleQuantity]);
     } else {
-      articles.push(articleQuantity)
+      articles.push(articleQuantity);
       setArticles(articles);
     }
   };
@@ -183,7 +178,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          setValue(1)
+          setValue(1);
         }
       });
   };
@@ -197,14 +192,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
             maxHeight: 500,
           }}
         >
-          {renderOutputView(
-            value,
-            articles,
-            setArticles,
-            subWarehouse,
-            props.request,
-            handleAddArticle
-          )}
+          {renderOutputView(value, articles, setArticles, subWarehouse, props.request, handleAddArticle)}
         </Box>
       </Box>
       <Box
@@ -235,32 +223,30 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
           variant="contained"
           disabled={props.request.historialArticulos.length < 1 || loading}
           onClick={() => {
-            console.log("Articulos que mando");
+            console.log('Articulos que mando');
             console.log(articles);
-            console.log("Articulos que solicitan");
+            console.log('Articulos que solicitan');
             console.log(props.request.historialArticulos);
 
             if (articles.length === 0) return toast.error('Agrega artículos!');
-            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0)){
-              console.log("elfokinpana");
+            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0)) {
+              console.log('elfokinpana');
               return toast.error('Rellena todas las cantidades');
             }
-            if(value === 1){
-              handleSubmit()
-            }
-            else{
-              let flagQuant = false
-            articles.forEach(artQ => { 
-              if(flagQuant = artQ.cantidad < artQ.cantidadSeleccionar){
-                flagQuant = true;
-                return;
-              }
-            });
-              if(articles.length < props.request.historialArticulos.length || flagQuant ){
-                continueRequest()
-              }
-              else{
-                setValue(1)
+            if (value === 1) {
+              handleSubmit();
+            } else {
+              let flagQuant = false;
+              articles.forEach((artQ) => {
+                if ((flagQuant = artQ.cantidad < artQ.cantidadSeleccionar)) {
+                  flagQuant = true;
+                  return;
+                }
+              });
+              if (articles.length < props.request.historialArticulos.length || flagQuant) {
+                continueRequest();
+              } else {
+                setValue(1);
               }
             }
           }}
@@ -280,12 +266,7 @@ interface ArticlesOutputProp {
   request: MerchandiseEntry;
 }
 
-const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
-  articles,
-  setArticles,
-  handleAddArticle,
-  request,
-}) => {
+const ArticlesOutput: React.FC<ArticlesOutputProp> = ({ articles, setArticles, handleAddArticle, request }) => {
   return (
     <>
       <Stack spacing={2}>
@@ -308,7 +289,7 @@ interface ArticlesTableProps {
   setArticles?: Function;
   isResume: boolean;
   handleAddArticle: Function;
-  request: MerchandiseEntry
+  request: MerchandiseEntry;
 }
 const ArticlesTable: React.FC<ArticlesTableProps> = ({
   articles,
@@ -325,7 +306,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
             <TableRow>
               <TableCell>Nombre del articulo</TableCell>
               <TableCell>Cantidad Solicitada</TableCell>
-              { !isResume && (<TableCell sx={{ textAlign: 'center' }}>Acción</TableCell>)}
+              {!isResume && <TableCell sx={{ textAlign: 'center' }}>Acción</TableCell>}
               <TableCell>Cantidad Seleccionada</TableCell>
             </TableRow>
           </TableHead>
@@ -374,7 +355,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   articles,
   isResume,
   handleAddArticle,
-  request
+  request,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [amountText, setAmountText] = useState(article.cantidadSeleccionar.toString());
@@ -385,26 +366,23 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   const searchArticleAmount = async (Id_Articulo: string) => {
     setIsLoading(true);
     try {
-      const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo ,request.id_AlmacenOrigen)
+      const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo, request.id_AlmacenOrigen);
       setIsLoading(false);
       setAmountArticleSelected(amountResponse.stockActual as number);
-      setIdArticleSelected(amountResponse.id_ArticuloStock)
+      setIdArticleSelected(amountResponse.id_ArticuloStock);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
       setAmountArticleSelected(0);
-      setIdArticleSelected('')
-
+      setIdArticleSelected('');
     }
-  }
+  };
 
   return (
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSeleccionar}</TableCell>
         {!isResume && (
@@ -413,18 +391,17 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
               <IconButton
                 disabled={isLoading}
                 onClick={() => {
-                  setIsEditing(!isEditing)
+                  setIsEditing(!isEditing);
                   if (isEditing) {
                     //handleSaveValue();
                     const quant = Number(amountText);
-                    if(quant > Number(amountArticleSelected)){
-                      return toast.error('La cantidad excede el stock del articulo '+article.nombre);
+                    if (quant > Number(amountArticleSelected)) {
+                      return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
                     }
 
-                    handleAddArticle({...article, cantidad: quant, id_ArticuloAlmacen : idArticleSelected})
-                  }
-                  else{
-                    searchArticleAmount(article.id_Articulo)
+                    handleAddArticle({ ...article, cantidad: quant, id_ArticuloAlmacen: idArticleSelected });
+                  } else {
+                    searchArticleAmount(article.id_Articulo);
                   }
                   /*setLoteSelected(article.lote);
                   setArticleId(article.id_Articulo);
@@ -438,7 +415,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                   */
                 }}
               >
-               {isEditing ? <Save /> : <Edit />}
+                {isEditing ? <Save /> : <Edit />}
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
@@ -453,35 +430,31 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           </TableCell>
         )}
         <TableCell sx={{ textAlign: 'center' }}>
-          {isEditing ? 
-          (
+          {isEditing ? (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-<TextField
-                      disabled={isLoading}
-                      sx={{ width: '60%', ml: 'auto' }}
-                      size="small"
-                      fullWidth
-                      placeholder="Cantidad"
-                      value={amountText}
-                      onChange={(e) => {
-                        if (!isValidIntegerOrZero(e.target.value)) return;
-                        setAmountText(e.target.value);
-                      }}
-                    />
-                    <Typography> Stock actual: {amountArticleSelected} </Typography>
+              <TextField
+                disabled={isLoading}
+                sx={{ width: '60%', ml: 'auto' }}
+                size="small"
+                fullWidth
+                placeholder="Cantidad"
+                value={amountText}
+                onChange={(e) => {
+                  if (!isValidIntegerOrZero(e.target.value)) return;
+                  setAmountText(e.target.value);
+                }}
+              />
+              <Typography> Stock actual: {amountArticleSelected} </Typography>
             </Box>
-            
-            ) 
-          :
-          (<Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
-            {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
-              <Warning sx={{ color: '#FFA500', mr: 2 }} />
-            )}
-            {article.cantidad}
-          </Box>)
-        
-          }
+          ) : (
+            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+              {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
+              {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
+                <Warning sx={{ color: '#FFA500', mr: 2 }} />
+              )}
+              {article.cantidad}
+            </Box>
+          )}
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -494,11 +467,7 @@ interface OutputResumeProps {
   request: MerchandiseEntry;
 }
 
-const OutputResume: React.FC<OutputResumeProps> = ({
-  articles,
-  subWarehouse,
-  request,
-}) => {
+const OutputResume: React.FC<OutputResumeProps> = ({ articles, subWarehouse, request }) => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
   const dateNow = Date.now();
   const today = new Date(dateNow);
@@ -509,7 +478,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Typography variant="subtitle1">Almacen de origen:</Typography>
-          <Typography>{flagSubwarehouse ? "nombre origen" : warehouseData.nombre}</Typography>
+          <Typography>{flagSubwarehouse ? 'nombre origen' : warehouseData.nombre}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography variant="subtitle1">Fecha de salida:</Typography>
@@ -517,16 +486,11 @@ const OutputResume: React.FC<OutputResumeProps> = ({
         </Grid>
         <Grid item xs={12} md={6}>
           {/*no se si falta un caso por si no se mandra a otro almacen*/}
-              <Typography variant="subtitle1">Almacen de destino:</Typography>
-              <Typography>{flagSubwarehouse ? warehouseData.nombre : subWarehouse.nombre}</Typography>
+          <Typography variant="subtitle1">Almacen de destino:</Typography>
+          <Typography>{flagSubwarehouse ? warehouseData.nombre : subWarehouse.nombre}</Typography>
         </Grid>
       </Grid>
-      <ArticlesTable
-        articles={articles}
-        isResume={true}
-        handleAddArticle={() => {}}
-        request={request}
-      />
+      <ArticlesTable articles={articles} isResume={true} handleAddArticle={() => {}} request={request} />
     </Stack>
   );
 };

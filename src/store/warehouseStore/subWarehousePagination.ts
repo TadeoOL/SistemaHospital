@@ -63,7 +63,7 @@ export const useSubWarehousePaginationStore = createWithEqualityFn<State & Actio
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&sort=${sort}&Id_AlmacenPrincipal=${
-          useWarehouseTabsNavStore.getState().warehouseData.id
+          useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
         }`
       );
       set(() => ({

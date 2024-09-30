@@ -73,14 +73,14 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
         if (warehouse?.esSubAlmacen) {
           const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
-          setWarehouseSelected(fatherWarehouse.id);
-          setSubWarehouseSelected(warehouse.id)
-          handleFetchArticlesFromWareHouse(fatherWarehouse.id, warehouse.id);
-          setSubWarehouseFlag(true)
+          setWarehouseSelected(fatherWarehouse.id_Almacen);
+          setSubWarehouseSelected(warehouse.id_Almacen);
+          handleFetchArticlesFromWareHouse(fatherWarehouse.id_Almacen, warehouse.id_Almacen);
+          setSubWarehouseFlag(true);
         } else {
           setWarehouseData(warehouse.subAlmacenes);
-          setWarehouseSelected(warehouse.id);
-          setSubWarehouseFlag(false)
+          setWarehouseSelected(warehouse.id_Almacen);
+          setSubWarehouseFlag(false);
         }
       } catch (error) {
         console.log('error');
@@ -183,7 +183,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       }
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
-        Id_AlmacenDestino: subWarehouseFlag? subWarehouseSelected: warehouseId as string,
+        Id_AlmacenDestino: subWarehouseFlag ? subWarehouseSelected : (warehouseId as string),
         ListaArticulos: data.historialArticulos,
       };
       await addMerchandiseEntry(object);
@@ -219,11 +219,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               onChange={(e) => {
                 setWarehouseError(false);
                 if (subWarehouseFlag) {
-
                   setWarehouseSelected(e.target.value);
-                }
-                else {
-                  setSubWarehouseSelected(e.target.value)
+                } else {
+                  setSubWarehouseSelected(e.target.value);
                   handleFetchArticlesFromWareHouse(warehouseSelected, e.target.value);
                 }
 
@@ -232,9 +230,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
             >
               {warehouseData?.length > 0 &&
                 warehouseData
-                  .filter((warehouse) => warehouse.id !== warehouseId)
+                  .filter((warehouse) => warehouse.id_Almacen !== warehouseId)
                   .map((warehouse) => (
-                    <MenuItem key={warehouse.id} value={warehouse.id}>
+                    <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
                       {warehouse.nombre}
                     </MenuItem>
                   ))}
@@ -322,19 +320,25 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
             </Button>
           </AnimateButton>
         </Box>
-        <ArticlesTable 
-        setWarehouseError={setWarehouseError} 
-        setOpen={props.setOpen} 
-        submitData={onSubmit}
-        subWarehouseSelected={subWarehouseSelected}
-        subWarehouseFlag={subWarehouseFlag}
-         />
+        <ArticlesTable
+          setWarehouseError={setWarehouseError}
+          setOpen={props.setOpen}
+          submitData={onSubmit}
+          subWarehouseSelected={subWarehouseSelected}
+          subWarehouseFlag={subWarehouseFlag}
+        />
       </Stack>
     </Box>
   );
 };
 
-const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; submitData: Function; subWarehouseSelected: string; subWarehouseFlag: boolean }) => {
+const ArticlesTable = (props: {
+  setWarehouseError: Function;
+  setOpen: Function;
+  submitData: Function;
+  subWarehouseSelected: string;
+  subWarehouseFlag: boolean;
+}) => {
   const { articles, articlesFetched, setArticlesFetched, setArticles, step, warehouseSelected, setProvider } =
     useDirectlyPurchaseRequestOrderStore(
       (state) => ({
@@ -385,10 +389,10 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
     const articleToAdd = articles.find((a) => a.id === id);
     const articleToAddModified = articleToAdd
       ? {
-        id: articleToAdd.id,
-        nombre: articleToAdd.name,
-        precio: 0,
-      }
+          id: articleToAdd.id,
+          nombre: articleToAdd.name,
+          precio: 0,
+        }
       : null;
     if (articleToAddModified) {
       setArticlesFetched([...articlesFetched, articleToAddModified]);
@@ -532,10 +536,10 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
           endIcon={<Save />}
           disabled={editingIds.size > 0 || articles.length === 0 || isLoading}
           onClick={async () => {
-            setIsLoading(true)
+            setIsLoading(true);
             //subWarehouseSelected
             await props.submitData({
-              almacenDestino: props.subWarehouseFlag? warehouseSelected : props.subWarehouseSelected,
+              almacenDestino: props.subWarehouseFlag ? warehouseSelected : props.subWarehouseSelected,
               historialArticulos: articles.map((art) => ({
                 Id_ArticuloExistente: art.id,
                 Nombre: art.name,
@@ -543,8 +547,7 @@ const ArticlesTable = (props: { setWarehouseError: Function; setOpen: Function; 
                 FechaCaducidad: null,
               })),
             });
-            setIsLoading(false)
-
+            setIsLoading(false);
           }}
         >
           Guardar

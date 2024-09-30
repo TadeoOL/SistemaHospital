@@ -197,7 +197,7 @@ export interface IExistingArticleList {
 }
 
 export interface IWarehouse {
-  id: string;
+  id_Almacen: string;
   nombre: string;
   descripcion: string;
   id_UsuarioEncargado: string;
@@ -455,7 +455,7 @@ export interface IWarehouseData {
   id_AlmacenPrincipal: string | null;
   id_UsuarioEncargado: string | null;
   articuloExistentes: IExistingArticle[] | null;
-  id: string;
+  id_Almacen: string;
   fechaCreacion: string;
   fechaModificacion: string;
   habilitado: boolean;

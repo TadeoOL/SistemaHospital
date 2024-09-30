@@ -133,6 +133,7 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
     setArticlesData,
     setTotalAmountRequest,
     pdf,
+    paymentMethod,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
       setStep: state.setStep,
@@ -143,6 +144,7 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
       setArticlesData: state.setArticles,
       setTotalAmountRequest: state.setTotalAmountRequest,
       pdf: state.pdf,
+      paymentMethod: state.paymentMethod,
     }),
     shallow
   );
@@ -190,22 +192,22 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
       .flatMap((p) => p.solicitudCompraArticulos)
       .map((a) => {
         return {
-          Id_Articulo: a.articulo.id_Articulo,
-          Cantidad: a.cantidadCompra,
+          id_Articulo: a.articulo.id_Articulo,
+          cantidad: a.cantidadCompra,
           precioProveedor: parseFloat(prices[a.articulo.id_Articulo].price),
           nombre: a.articulo.nombre,
         };
       });
 
     const objectPurchase: IRegisterPurchaseOrder = {
-      Id_SolicitudCompra: data.id_SolicitudCompra,
-      OrdenCompra: data.solicitudProveedor.map((p) => {
-        const providerId = p.proveedor.id_Proveedor;
-        return {
-          Id_Proveedor: providerId,
-          OrdenCompraArticulo: articles,
-        };
-      }),
+      conceptoPago: paymentMethod,
+      precioTotalOrden: data.precioSolicitud,
+      id_Almacen: data.almacen?.id ?? '',
+      estatus: data.estatus,
+      id_Proveedor: data.solicitudProveedor[0].proveedor.id_Proveedor,
+      ordenCompraArticulo: articles,
+      cotizacionPDF: null,
+      notas: data.notas ?? '',
     };
 
     setWarehouseSelected(warehouse ? warehouse : '');
@@ -214,9 +216,9 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
     setArticlesData(
       articles.map((a) => {
         return {
-          id: a.Id_Articulo,
+          id: a.id_Articulo,
           name: a.nombre,
-          amount: a.Cantidad,
+          amount: a.cantidad,
           price: a.precioProveedor,
         };
       })
@@ -300,7 +302,7 @@ const FirstStep = (props: { data: IPurchaseAuthorization; setOpen: Function }) =
       </Box>
       <Modal open={viewPdf} onClose={() => setViewPdf(false)}>
         <>
-          <ViewPdf pdf={pdf} setViewPdf={setViewPdf} />
+          <ViewPdf pdf={pdf ?? ''} setViewPdf={setViewPdf} />
         </>
       </Modal>
     </>
@@ -331,7 +333,7 @@ const SecondStep = (props: { setOpen: Function }) => {
     }),
     shallow
   );
-  const { isLoading, providerData } = useGetProvider(registerOrder?.OrdenCompra[0].Id_Proveedor as string);
+  const { isLoading, providerData } = useGetProvider(registerOrder?.id_Proveedor as string);
 
   const handleSubmit = async () => {
     if (paymentMethod === 0) {
@@ -339,21 +341,8 @@ const SecondStep = (props: { setOpen: Function }) => {
       return;
     }
     if (!registerOrder) return;
-    const modifiedPurchaseOrder = registerOrder.OrdenCompra.map((o) => ({
-      ...o,
-      OrdenCompraArticulo: o.OrdenCompraArticulo.map((a) => {
-        const { nombre, ...rest } = a;
-        return rest;
-      }),
-      ConceptoPago: paymentMethod,
-    }));
-    const object = {
-      Id_SolicitudCompra: registerOrder.Id_SolicitudCompra,
-      OrdenCompra: modifiedPurchaseOrder,
-    };
-
     try {
-      await addPurchaseOrder(object);
+      await addPurchaseOrder(registerOrder);
       toast.success('Orden creada con éxito!');
       usePurchaseOrderRequestPagination.getState().fetch();
       usePurchaseOrderPagination.getState().fetch();

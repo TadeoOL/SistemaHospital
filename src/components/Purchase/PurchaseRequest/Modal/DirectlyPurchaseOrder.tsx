@@ -47,7 +47,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useGetArticlesBySearch } from '../../../../hooks/useGetArticlesBySearch';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
-import { convertBase64, isValidInteger, openBase64InNewTab } from '../../../../utils/functions/dataUtils';
+import { convertBase64, isValidInteger } from '../../../../utils/functions/dataUtils';
 import {
   addPurchaseOrder,
   addPurchaseRequest,
@@ -66,7 +66,7 @@ import { AlertConfigAmount } from './AlertConfigAmount';
 import AnimateButton from '../../../@extended/AnimateButton';
 import { IProvider, IRegisterPurchaseOrder, PurchaseOrderEstatusTypes } from '../../../../types/types';
 import { useGetAllProvidersBySearch } from '../../../../hooks/useGetAllProvidersBySearch';
-import { createPurchaseWithoutProvider } from '../../../../services/purchase/purchaseService';
+// import { createPurchaseWithoutProvider } from '../../../../services/purchase/purchaseService';
 
 type Article = {
   id: string;
@@ -225,7 +225,7 @@ export const BuildOrder = (props: { setOpen: Function }) => {
           }}
         >
           {almacenes.map((warehouse) => (
-            <MenuItem key={warehouse.id} value={warehouse.id}>
+            <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
               {warehouse.nombre}
             </MenuItem>
           ))}
@@ -949,20 +949,20 @@ const StepThree = (props: { setOpen: Function }) => {
   const handleSubmit = async () => {
     if (!provider || (!Array.isArray(provider) && provider.id === 'sin-proveedor')) {
       setIsLoading(true);
-      const obj = {
-        articulos: articles.map((articles) => {
-          return {
-            id_Articulo: articles.id,
-            cantidadCompra: articles.amount,
-          };
-        }),
-        notas: note ? note : '',
-      };
+      // const obj = {
+      //   articulos: articles.map((articles) => {
+      //     return {
+      //       id_Articulo: articles.id,
+      //       cantidadCompra: articles.amount,
+      //     };
+      //   }),
+      //   notas: note ? note : '',
+      // };
       try {
-        const res = await createPurchaseWithoutProvider(obj);
+        // const res = await createPurchaseWithoutProvider(obj); //Crear PDF desde el front
         toast.success('Solicitud de compra creada con éxito!');
         setTimeout(() => {
-          openBase64InNewTab(res);
+          // openBase64InNewTab(res);
           props.setOpen(false);
         }, 500);
       } catch (error) {
@@ -976,24 +976,24 @@ const StepThree = (props: { setOpen: Function }) => {
     setIsLoading(true);
     const pdfBase64 = pdf ? pdf.replace(/^data:application\/pdf;base64,/, '') : '';
     if (!Array.isArray(provider) && isDirectlyPurchase) {
-      // const object = {
-      //   id_Proveedor: provider.id,
-      //   id_Almacen: warehouseSelected,
-      //   estatus: PurchaseOrderEstatusTypes['Orden de compra creada'],
-      //   conceptoPago: paymentMethod,
-      //   precioTotalOrden: totalAmountRequest,
-      //   ordenCompraArticulo: articles.map((a) => {
-      //     return {
-      //       id_Articulo: a.id,
-      //       cantidad: a.amount,
-      //       precioProveedor: a.price as number,
-      //     };
-      //   }),
-      //   notas: note,
-      //   cotizacionPDF: pdfBase64,
-      // };
+      const object = {
+        id_Proveedor: provider.id,
+        id_Almacen: warehouseSelected,
+        estatus: PurchaseOrderEstatusTypes['Orden de compra creada'],
+        conceptoPago: paymentMethod,
+        precioTotalOrden: totalAmountRequest,
+        ordenCompraArticulo: articles.map((a) => {
+          return {
+            id_Articulo: a.id,
+            cantidad: a.amount,
+            precioProveedor: a.price as number,
+          };
+        }),
+        notas: note,
+        cotizacionPDF: pdfBase64,
+      };
       try {
-        // await addPurchaseOrder(object); // TODO: Cambiar a la nueva Función para crear el PDF desde el front
+        await addPurchaseOrder(object);
         toast.success('Orden de compra realizada con éxito!');
         props.setOpen(false);
       } catch (error) {

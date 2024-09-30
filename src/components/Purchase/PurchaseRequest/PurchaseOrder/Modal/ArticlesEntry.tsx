@@ -159,7 +159,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
       })
       .filter((a) => a.cantidad !== 0);
     const articlesEntryObject = {
-      id_almacen: articleEntryData.almacen.id,
+      id_almacen: articleEntryData.id_Almacen,
       articulos: articlesFormatted,
       id_ordenCompra: props.orderId,
       devolucionCompras: returnArticlesArray,
@@ -218,6 +218,8 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     return false;
   }
 
+  console.log({ articleEntryData });
+
   if (isLoadingArticleEntryData)
     return (
       <Backdrop open>
@@ -231,17 +233,17 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos xxx" />
+        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
         <Stack spacing={2} sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto', ...styleBar }}>
           <Box sx={{ maxHeight: 450 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Nombre del proveedor:</Typography>
-                <Typography variant="body1">{articleEntryData?.proveedor.nombre}</Typography>
+                {/* <Typography variant="body1">{articleEntryData?.proveedor.nombre}</Typography> */}
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Almacén dirigido:</Typography>
-                <Typography variant="body1">{articleEntryData?.almacen.nombre}</Typography>
+                {/* <Typography variant="body1">{articleEntryData?.almacen.nombre}</Typography> */}
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Instrucciones de entrega:</Typography>

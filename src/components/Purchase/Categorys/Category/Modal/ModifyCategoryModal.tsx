@@ -176,7 +176,7 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
                 }}
               >
                 {almacenes.map((warehouse) => (
-                  <MenuItem key={warehouse.id} value={warehouse.id}>
+                  <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
                     {warehouse.nombre}
                   </MenuItem>
                 ))}

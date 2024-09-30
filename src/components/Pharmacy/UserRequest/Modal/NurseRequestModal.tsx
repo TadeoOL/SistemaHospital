@@ -76,7 +76,7 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-export const NurseRequestModal = (props: { setOpen: Function; refetch: Function, warehouseId: string }) => {
+export const NurseRequestModal = (props: { setOpen: Function; refetch: Function; warehouseId: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
@@ -110,10 +110,9 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function,
     }),
     shallow
   );
-  useEffect (()=>{
-    setWarehouseSelected('')
-  },
-  [])
+  useEffect(() => {
+    setWarehouseSelected('');
+  }, []);
 
   const handleFetchArticlesFromWareHouse = async (id_warehouse: string) => {
     if (isLoadingArticlesWareH) return;
@@ -153,13 +152,13 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function,
       try {
         const warehouse: IWarehouseData = await getWarehouseById(props.warehouseId);
         warehouse;
-        setMainWarehouse(warehouse.id)
+        setMainWarehouse(warehouse.id_Almacen);
         const subWH = warehouse.subAlmacenes
           .map((swh: IWarehouseData) => ({
             nombre: swh.nombre,
-            id: swh.id,
+            id: swh.id_Almacen,
           }))
-          .concat({ nombre: warehouse.nombre, id: warehouse.id });
+          .concat({ nombre: warehouse.nombre, id: warehouse.id_Almacen });
         setWarehousesFetched(subWH);
       } catch (error) {
         console.log('error');

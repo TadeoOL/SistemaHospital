@@ -2,7 +2,6 @@ import { Box, Button, Modal } from '@mui/material';
 import { PurchaseTabNav } from '../../components/Purchase/PurchaseRequest/SubComponents/PurchaseTabNav';
 import { useEffect, useState } from 'react';
 import { useDirectlyPurchaseRequestOrderStore } from '../../store/purchaseStore/directlyPurchaseRequestOrder';
-import { PurchaseOrderRequest } from '../../components/Purchase/PurchaseRequest/PurchaseOrderRequest/PurchaseOrderRequest';
 import { PurchaseOrder } from '../../components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder';
 import { PurchaseRequestCard } from '../../components/Purchase/PurchaseRequest/PurchaseRequestCard';
 import { usePurchaseRequestNav } from '../../store/purchaseStore/purchaseRequestNav';

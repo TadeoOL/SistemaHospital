@@ -35,7 +35,6 @@ import { warning } from '../../../../theme/colors';
 import { SortComponent } from '../../../Commons/SortComponent';
 import { useGetCategoriesWarehouse } from '../../../../hooks/useGetCategoriesByWarehouse';
 
-
 export const useGetExistingArticles = () => {
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const {
@@ -91,7 +90,7 @@ export const useGetExistingArticles = () => {
 
   useEffect(() => {
     clearAllData();
-    setWarehouseId(warehouseData.id);
+    setWarehouseId(warehouseData.id_Almacen);
     setPrincipalWarehouseId(warehouseData.id_AlmacenPrincipal || '');
   }, []);
 
@@ -139,7 +138,9 @@ export const WarehouseArticles = () => {
   const [openModal, setOpenModal] = useState(false);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const { categories, isLoading: isLoadingCategories} = useGetCategoriesWarehouse(warehouseData.esSubAlmacen? warehouseData.id_AlmacenPrincipal as string : warehouseData.id);
+  const { categories, isLoading: isLoadingCategories } = useGetCategoriesWarehouse(
+    warehouseData.esSubAlmacen ? (warehouseData.id_AlmacenPrincipal as string) : warehouseData.id_Almacen
+  );
   const [selectedCategorySubcategories, setSelectedCategorySubcategories] = useState<ISubCategory[] | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
@@ -155,11 +156,10 @@ export const WarehouseArticles = () => {
               size="small"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
-              {
-                isLoadingCategories ?
-                  (<CircularProgress />)
-                  :
-                  (<>
+              {isLoadingCategories ? (
+                <CircularProgress />
+              ) : (
+                <>
                   <TextField
                     sx={{ width: 150 }}
                     select
@@ -169,11 +169,12 @@ export const WarehouseArticles = () => {
                     value={selectedCategory}
                     onChange={(e) => {
                       setSelectedCategory(e.target.value ?? null);
-                      if(e.target.value !== null){
-                        setSelectedCategorySubcategories(categories.find((cat) => cat.id === e.target.value)?.subCategorias ?? null)
-                      }
-                      else{
-                        setSelectedCategorySubcategories(null)
+                      if (e.target.value !== null) {
+                        setSelectedCategorySubcategories(
+                          categories.find((cat) => cat.id === e.target.value)?.subCategorias ?? null
+                        );
+                      } else {
+                        setSelectedCategorySubcategories(null);
                       }
                     }}
                   >
@@ -195,23 +196,26 @@ export const WarehouseArticles = () => {
                       setSubcategory(e.target.value ?? '');
                     }}
                   >
-                    {selectedCategorySubcategories ? selectedCategorySubcategories.map((warehouse: ISubCategory) => (
-                      <MenuItem key={warehouse.id} value={warehouse.id}>
-                        {warehouse.nombre}
-                      </MenuItem>
-                    ))
-                    :
-                    <></>
-                  }
+                    {selectedCategorySubcategories ? (
+                      selectedCategorySubcategories.map((warehouse: ISubCategory) => (
+                        <MenuItem key={warehouse.id} value={warehouse.id}>
+                          {warehouse.nombre}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <></>
+                    )}
                   </TextField>
-                  </>)
-              }
-              <IconButton onClick={() => {
-                clearFilters();
-                setSubcategory(''); 
-                setSelectedCategory(null)
-                setSelectedCategorySubcategories(null);
-              }}>
+                </>
+              )}
+              <IconButton
+                onClick={() => {
+                  clearFilters();
+                  setSubcategory('');
+                  setSelectedCategory(null);
+                  setSelectedCategorySubcategories(null);
+                }}
+              >
                 <FilterListOff />
               </IconButton>
               <Button
@@ -329,7 +333,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
     const modified = {
       stockMinimo: minAmountText,
       stock: isNaN(Number(amountText)) ? article.stockActual : Number(amountText),
-      id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id,
+      id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id_Almacen,
       id_articulo: article.id_Articulo,
     };
     try {
@@ -360,9 +364,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell>
           {isEditing ? (
@@ -390,8 +392,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             </Box>
           )}
         </TableCell>
-        <TableCell>{isEditing ?
-          (
+        <TableCell>
+          {isEditing ? (
             <TextField
               sx={{ width: '60%', ml: 'auto' }}
               size="small"
@@ -403,9 +405,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
                 setAmountText(e.target.value);
               }}
             />
-          ) :
-          (article.stockActual)
-        }
+          ) : (
+            article.stockActual
+          )}
         </TableCell>
         <TableCell>$ {article.precioCompra}</TableCell>
         <TableCell>{article.codigoBarras}</TableCell>

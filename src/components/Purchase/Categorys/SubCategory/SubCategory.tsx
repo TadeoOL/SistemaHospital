@@ -16,13 +16,13 @@ const SubCategory = () => {
     enabled: state.enabled,
     setSearch: state.setSearch,
     setEnabled: state.setEnabled,
-    setCategoryId: state.setCategoryId
+    setCategoryId: state.setCategoryId,
   }));
   const { almacenes } = useGetAlmacenes();
   const [warehouseSelected, setWarehouseSelected] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const { categories, isLoading: isLoadingCategories} = useGetCategories();
-  
+  const { categories, isLoading: isLoadingCategories } = useGetCategories();
+
   return (
     <Box sx={{ pt: 2 }}>
       <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
@@ -34,56 +34,55 @@ const SubCategory = () => {
             flexGrow: 1,
             justifyContent: 'space-between',
             alignItems: 'center',
-            px: 2
+            px: 2,
           }}
         >
           <Divider sx={{ my: 1 }} />
           <Stack sx={{ display: 'flex', flex: 1, maxWidth: 150 }}>
-              <TextField
-                select
-                label="Busqueda por almacén"
-                size="small"
-                value={warehouseSelected}
-                onChange={(e: any) => {
-                  setWarehouseSelected(e.target.value);
-                }}
-              >
-                {almacenes.map((warehouse) => (
+            <TextField
+              select
+              label="Busqueda por almacén"
+              size="small"
+              value={warehouseSelected}
+              onChange={(e: any) => {
+                setWarehouseSelected(e.target.value);
+              }}
+            >
+              {almacenes.map((warehouse) => (
+                <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
+                  {warehouse.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
+          {isLoadingCategories ? (
+            <CircularProgress />
+          ) : (
+            <TextField
+              sx={{ width: 200 }}
+              select
+              label="Categoria"
+              size="small"
+              //helperText={'Selecciona un almacén'}
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value ?? null);
+                if (e.target.value !== null) {
+                  setCategoryId(e.target.value);
+                } else {
+                  setCategoryId('');
+                }
+              }}
+            >
+              {categories
+                .filter((cat) => cat.id_Almacen === warehouseSelected)
+                .map((warehouse: ICategory) => (
                   <MenuItem key={warehouse.id} value={warehouse.id}>
                     {warehouse.nombre}
                   </MenuItem>
                 ))}
-              </TextField>
-            </Stack>
-            {
-                isLoadingCategories ?
-                  (<CircularProgress />)
-                  :
-                  (
-                  <TextField
-                    sx={{ width: 200 }}
-                    select
-                    label="Categoria"
-                    size="small"
-                    //helperText={'Selecciona un almacén'}
-                    value={selectedCategory}
-                    onChange={(e) => {
-                      setSelectedCategory(e.target.value ?? null);
-                      if(e.target.value !== null){
-                        setCategoryId(e.target.value)
-                      }
-                      else{
-                        setCategoryId('')
-                      }
-                    }}
-                  >
-                    {categories.filter((cat)=> cat.id_Almacen === warehouseSelected).map((warehouse: ICategory) => (
-                      <MenuItem key={warehouse.id} value={warehouse.id}>
-                        {warehouse.nombre}
-                      </MenuItem>
-                    ))}
-                  </TextField>)
-              }
+            </TextField>
+          )}
           <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
             <Button
               onClick={() => {

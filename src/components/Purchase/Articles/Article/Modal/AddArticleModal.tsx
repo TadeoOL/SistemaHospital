@@ -106,8 +106,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       stockMinimo: '',
       unidadMedida: '',
       precioCompra: '',
-      precioVenta: '',
-      precioVentaPI: '',
+      precioVentaExterno: '',
+      precioVentaInterno: '',
       codigoBarras: '',
       codigoSAT: '',
       codigoUnidadMedida: 0,
@@ -190,60 +190,60 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       event.target.value = precio.slice(0, -1);
     }
     const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
-    config?.factor.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+    config?.factorExterno.forEach((factorExterno) => {
+      if (precio >= factorExterno.cantidadMinima && precio <= factorExterno.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
           console.log(precioVentaString);
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       } else if (
         isBox &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factorExterno.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factorExterno.cantidadMaxima as number)
       ) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       }
     });
-    config?.factorInterno?.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+    config?.factorInterno?.forEach((factorExterno) => {
+      if (precio >= factorExterno.cantidadMinima && precio <= factorExterno.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       } else if (
         isBox &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factorExterno.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factorExterno.cantidadMaxima as number)
       ) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       }
     });
@@ -256,60 +256,60 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     if (!isValidInput) {
       event.target.value = precio.slice(0, -1);
     }
-    config?.factor.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+    config?.factorExterno.forEach((factorExterno) => {
+      if (precio >= factorExterno.cantidadMinima && precio <= factorExterno.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
           console.log(precioVentaString);
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       } else if (
         isBox &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factorExterno.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factorExterno.cantidadMaxima as number)
       ) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       }
     });
-    config?.factorInterno?.forEach((factor) => {
-      if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
+    config?.factorInterno?.forEach((factorExterno) => {
+      if (precio >= factorExterno.cantidadMinima && precio <= factorExterno.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       } else if (
         isBox &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factor.cantidadMinima as number) &&
-        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factor.cantidadMaxima as number)
+        parseFloat(precio) / parseFloat(unidadesPorCaja) >= (factorExterno.cantidadMinima as number) &&
+        parseFloat(precio) / parseFloat(unidadesPorCaja) <= (factorExterno.cantidadMaxima as number)
       ) {
         const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
         const precioCompra = parseFloat(precio) / parseFloat(unidadesPorCaja);
-        const factorMultiplicador = factor.factorMultiplicador as number;
+        const factorMultiplicador = factorExterno.factorMultiplicador as number;
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       }
     });
@@ -419,10 +419,10 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 <Typography>Precio de Venta</Typography>
                 <TextField
                   fullWidth
-                  error={!!errors.precioVenta}
-                  helperText={errors?.precioVenta?.message}
+                  error={!!errors.precioVentaExterno}
+                  helperText={errors?.precioVentaExterno?.message}
                   size="small"
-                  value={watch('precioVenta')}
+                  value={watch('precioVentaExterno')}
                   inputProps={{
                     maxLength: 10,
                   }}
@@ -434,10 +434,10 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 <Typography>Venta Interna</Typography>
                 <TextField
                   fullWidth
-                  error={!!errors.precioVentaPI}
-                  helperText={errors?.precioVentaPI?.message}
+                  error={!!errors.precioVentaInterno}
+                  helperText={errors?.precioVentaInterno?.message}
                   size="small"
-                  value={watch('precioVentaPI')}
+                  value={watch('precioVentaInterno')}
                   inputProps={{
                     maxLength: 10,
                   }}

@@ -19,6 +19,7 @@ import { useGetProvider } from '../../../../../../hooks/useGetProvider';
 import { KeyboardReturn, Save } from '@mui/icons-material';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { IRegisterPurchaseOrder } from '../../../../../../types/types';
 
 const styleInput = {
   paddingTop: '0.4rem',
@@ -96,17 +97,20 @@ export const FillQuoteInformationModal = () => {
 
         object.push({
           id_Articulo: articleId,
-          Cantidad: articleRes ? articleRes.cantidadCompra : 0,
+          cantidad: articleRes ? articleRes.cantidadCompra : 0,
           precioProveedor: parseFloat(value),
           nombre: articles.find((a) => a.articulo.id_Articulo === articleId)?.articulo.nombre,
         });
       }
-      const registerOrderPurchaseObject = {
-        Id_SolicitudCompra: dataOrderRequest.id_SolicitudCompra,
-        OrdenCompra: dataOrderRequest.solicitudProveedor.map((prov) => ({
-          Id_Proveedor: prov.proveedor.id_Proveedor,
-          OrdenCompraArticulo: object,
-        })),
+      const registerOrderPurchaseObject: IRegisterPurchaseOrder = {
+        id_Almacen: dataOrderRequest.almacen?.id ?? '',
+        estatus: dataOrderRequest.estatus,
+        id_Proveedor: dataOrderRequest.solicitudProveedor[0].proveedor.id_Proveedor,
+        ordenCompraArticulo: object,
+        cotizacionPDF: null,
+        notas: dataOrderRequest.notas ?? '',
+        conceptoPago: 1, //TODO: Cambiar a variable
+        precioTotalOrden: dataOrderRequest.precioSolicitud,
       };
       setRegisterOrderPurchase(registerOrderPurchaseObject);
       setProvider(providerData);

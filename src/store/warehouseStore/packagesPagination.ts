@@ -70,7 +70,7 @@ export const usePackagePaginationStore = createWithEqualityFn<State & Action>((s
     const page = pageIndex + 1;
     try {
       const res = await getPackagesByWarehouseIdAndSearch(
-        `Id_Almacen=${useWarehouseTabsNavStore.getState().warehouseData.id}&${page === 0 ? '' : 'pageIndex=' + page}&${
+        `Id_Almacen=${useWarehouseTabsNavStore.getState().warehouseData.id_Almacen}&${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
       );

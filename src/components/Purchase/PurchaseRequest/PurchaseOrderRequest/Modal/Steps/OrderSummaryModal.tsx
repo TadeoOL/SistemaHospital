@@ -48,11 +48,11 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
   const [totalAmountOrder, setTotalAmountOrder] = useState(0);
 
   useMemo(() => {
-    const orders = registerOrderPurchase.OrdenCompra.flatMap((o) => o.OrdenCompraArticulo).map((art) => art);
+    const orders = registerOrderPurchase.ordenCompraArticulo;
     let totalAmount = 0;
     for (const articles of orders) {
       if (!articles.precioProveedor) return;
-      totalAmount = totalAmount + articles.Cantidad * articles.precioProveedor;
+      totalAmount = totalAmount + articles.cantidad * articles.precioProveedor;
     }
     setTotalAmountOrder(totalAmount);
   }, [registerOrderPurchase]);
@@ -105,15 +105,13 @@ export const OrderSummaryModal = (props: OrderSummaryModalProps) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {registerOrderPurchase.OrdenCompra.flatMap((i) =>
-                i.OrdenCompraArticulo.map((order) => (
-                  <TableRow key={order.Id_Articulo}>
-                    <TableCell>{order.nombre}</TableCell>
-                    <TableCell>{order.Cantidad}</TableCell>
-                    <TableCell>{order.precioProveedor}</TableCell>
-                  </TableRow>
-                ))
-              )}
+              {registerOrderPurchase.ordenCompraArticulo.map((order) => (
+                <TableRow key={order.id_Articulo}>
+                  <TableCell>{order.nombre}</TableCell>
+                  <TableCell>{order.cantidad}</TableCell>
+                  <TableCell>{order.precioProveedor}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>

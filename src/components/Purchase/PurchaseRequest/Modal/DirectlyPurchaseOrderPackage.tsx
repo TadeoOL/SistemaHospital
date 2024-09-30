@@ -19,7 +19,6 @@ import {
   Typography,
   createFilterOptions,
   MenuItem,
-  Chip,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useDirectlyPurchaseRequestOrderStore as useDirectlyPurchaseRequestOrderStore } from '../../../../store/purchaseStore/directlyPurchaseRequestOrder';
@@ -148,7 +147,7 @@ export const UpdateDirectlyPurchaseOrder = (props: {
               <b> Almacen : </b>
               {
                 almacenes.find((wh) => {
-                  return wh.id === props.purcharseOrderWarehouseId;
+                  return wh.id_Almacen === props.purcharseOrderWarehouseId;
                 })?.nombre
               }
             </Typography>

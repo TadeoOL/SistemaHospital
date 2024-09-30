@@ -83,7 +83,7 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
-            useWarehouseTabsNavStore.getState().warehouseData.id
+            useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
           }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
         );
       }

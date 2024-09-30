@@ -9,7 +9,8 @@ import { usePackagePaginationStore } from '../../../store/warehouseStore/package
 import { useGetAlmacenes } from '../../../hooks/useGetAlmacenes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
-    {/*<Box
+{
+  /*<Box
       sx={{
         bgcolor: 'background.paper',
         p: 2,
@@ -25,18 +26,19 @@ import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav
       </Box>
       <RecoveryRoomsTable />
     
-    </Box>*/}
+    </Box>*/
+}
 
 export const OperatingPackages = () => {
-    const [open, setOpen] = useState(false);
-    const { setSearch } = usePackagePaginationStore((state) => ({
-      setSearch: state.setSearch,
-    }));
-    const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
+  const [open, setOpen] = useState(false);
+  const { setSearch } = usePackagePaginationStore((state) => ({
+    setSearch: state.setSearch,
+  }));
+  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
   const warehouseId = usePosTabNavStore((state) => state.warehouseId);
   const [warehouseSelected, setWarehouseSelected] = useState<string>(warehouseId);
   return (
-        <>
+    <>
       <Box
         sx={{
           boxShadow: 10,
@@ -64,28 +66,28 @@ export const OperatingPackages = () => {
           >
             <SearchBar title="Busca el paquete por nombre..." searchState={setSearch} sx={{ width: '30%' }} />
             <Stack>
-        {
-        isLoadingAlmacenes ?
-        (<CircularProgress />)
-        :
-        (<TextField
-          sx={{ width:150 }}
-          select
-          label="Almacén"
-          size="small"
-          //helperText={'Selecciona un almacén'}
-          value={warehouseSelected}
-          onChange={(e) => {
-            setWarehouseSelected(e.target.value);
-          }}
-        >
-          {almacenes.map((warehouse) => (
-            <MenuItem key={warehouse.id} value={warehouse.id}>
-              {warehouse.nombre}
-            </MenuItem>
-          ))}
-        </TextField>)}
-      </Stack>
+              {isLoadingAlmacenes ? (
+                <CircularProgress />
+              ) : (
+                <TextField
+                  sx={{ width: 150 }}
+                  select
+                  label="Almacén"
+                  size="small"
+                  //helperText={'Selecciona un almacén'}
+                  value={warehouseSelected}
+                  onChange={(e) => {
+                    setWarehouseSelected(e.target.value);
+                  }}
+                >
+                  {almacenes.map((warehouse) => (
+                    <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
+                      {warehouse.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            </Stack>
             <Divider sx={{ my: 1 }} />
             <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
               <Button
@@ -102,7 +104,7 @@ export const OperatingPackages = () => {
           <PackageCatalogueTable warehouseId={warehouseSelected} />
         </Box>
       </Box>
-      <Modal open={open} >
+      <Modal open={open}>
         <>
           <PackageModal setOpen={setOpen} warehouseId={warehouseSelected} />
         </>

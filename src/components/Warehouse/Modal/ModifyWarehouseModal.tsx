@@ -1,4 +1,15 @@
-import { Autocomplete, Backdrop, Box, Button, CircularProgress, createFilterOptions, Grid, Stack, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  createFilterOptions,
+  Grid,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
@@ -14,7 +25,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useGetUsersBySearch } from '../../../hooks/useGetUsersBySearch';
 import { useSubWarehousePaginationStore } from '../../../store/warehouseStore/subWarehousePagination';
 import { useShallow } from 'zustand/react/shallow';
- 
+
 const style = {
   position: 'absolute',
   top: '50%',
@@ -74,15 +85,15 @@ const useFetchPurchaseWarehouse = (warehouseId: string) => {
 
 export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
   const { open, warehouseId } = props;
-  const { isLoadingWarehouse, warehouse, } = useFetchPurchaseWarehouse(warehouseId);
-  const { id, nombre, descripcion, id_UsuarioEncargado } = warehouse ?? {};
+  const { isLoadingWarehouse, warehouse } = useFetchPurchaseWarehouse(warehouseId);
+  const { id_Almacen, nombre, descripcion, id_UsuarioEncargado } = warehouse ?? {};
   const [textValue, setTextValue] = useState('');
   const { isLoadingUsers, usersRes } = useGetUsersBySearch();
   const [usuarioEncargado, setUsuarioEncargado] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorUserNotSelected, setErrorUserNotSelected] = useState(false);
 
-  const { setSearchUser, } = useSubWarehousePaginationStore(
+  const { setSearchUser } = useSubWarehousePaginationStore(
     useShallow((state) => ({
       setSearchUser: state.setSearchUser,
     }))
@@ -101,7 +112,7 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
     formState: { errors },
   } = useForm<IWarehouse>({
     defaultValues: {
-      id: id,
+      id_Almacen: id_Almacen,
       nombre: nombre,
       descripcion: descripcion,
     },
@@ -127,21 +138,25 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
   };
 
   const onSubmit: SubmitHandler<IWarehouse> = async (data) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      if(usuarioEncargado === null){
-        setErrorUserNotSelected(true)
+      if (usuarioEncargado === null) {
+        setErrorUserNotSelected(true);
         return;
       }
-      const idForm = getValues('id');
-      await modifyWarehouseById({ ...data, Id_AlmacenPrincipal: idForm, Id_UsuarioEncargado: usuarioEncargado ?? undefined });
+      const idForm = getValues('id_Almacen');
+      await modifyWarehouseById({
+        ...data,
+        Id_AlmacenPrincipal: idForm,
+        Id_UsuarioEncargado: usuarioEncargado ?? undefined,
+      });
       setHandleChangeWarehouse(!handleChangeWarehouse);
       toast.success('Almacén modificado con éxito!');
       open(false);
     } catch (error) {
       toast.error('Error al modificar el almacén!');
-    } finally{
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -203,8 +218,8 @@ export const ModifyWarehouseModal = (props: IModifyCategoryModal) => {
                 onChange={(e, val) => {
                   e.stopPropagation();
                   setUsuarioEncargado(val);
-                  if(val !== null){
-                    setErrorUserNotSelected(false)
+                  if (val !== null) {
+                    setErrorUserNotSelected(false);
                   }
                 }}
                 loading={isLoadingUsers && usersRes.length === 0}

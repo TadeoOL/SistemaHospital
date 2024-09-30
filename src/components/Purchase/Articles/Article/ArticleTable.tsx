@@ -216,8 +216,8 @@ export const ArticleTable = () => {
                         <TableCell>{article.stockMinimo}</TableCell>
                         <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>$ {article.precioCompra}</TableCell>
-                        <TableCell>$ {article.precioVenta}</TableCell>
-                        <TableCell>$ {article.precioVentaPI}</TableCell>
+                        <TableCell>$ {article.precioVentaExterno}</TableCell>
+                        <TableCell>$ {article.precioVentaInterno}</TableCell>
                         <TableCell>{article.subCategoria as string}</TableCell>
                         <TableCell>
                           <Tooltip title="Editar">

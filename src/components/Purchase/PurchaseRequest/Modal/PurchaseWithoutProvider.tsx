@@ -23,8 +23,6 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowBack, Save } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
-import { createPurchaseWithoutProvider } from '../../../../services/purchase/purchaseService';
-import { openBase64InNewTab } from '../../../../utils/functions/dataUtils';
 
 const style = {
   position: 'absolute',
@@ -111,20 +109,20 @@ const StepThree = (props: { setOpen: Function }) => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const obj = {
-      articulos: articles.map((articles) => {
-        return {
-          id_Articulo: articles.id,
-          cantidadCompra: articles.amount,
-        };
-      }),
-      notas: noteRef.current ? noteRef.current.value : '',
-    };
+    // const obj = {
+    //   articulos: articles.map((articles) => {
+    //     return {
+    //       id_Articulo: articles.id,
+    //       cantidadCompra: articles.amount,
+    //     };
+    //   }),
+    //   notas: noteRef.current ? noteRef.current.value : '',
+    // };
     try {
-      const res = await createPurchaseWithoutProvider(obj);
+      // const res = await createPurchaseWithoutProvider(obj); // Crear PDF desde el front
       toast.success('Solicitud de compra creada con éxito!');
       setTimeout(() => {
-        openBase64InNewTab(res);
+        // openBase64InNewTab(res);
         props.setOpen(false);
       }, 500);
     } catch (error) {

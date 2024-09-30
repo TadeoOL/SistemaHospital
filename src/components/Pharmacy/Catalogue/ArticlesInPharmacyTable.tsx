@@ -86,7 +86,7 @@ const useGetExistingArticles = (warehouseId: string, principalWarehouseId: strin
   }, []);
 
   useEffect(() => {
-    setWarehouseId(warehouseSL?.id ?? warehouseId);
+    setWarehouseId(warehouseSL?.id_Almacen ?? warehouseId);
     if (warehouseSL && warehouseSL?.esSubAlmacen) {
       setPrincipalWarehouseId(warehouseSL.id_AlmacenPrincipal ?? '');
     } else {

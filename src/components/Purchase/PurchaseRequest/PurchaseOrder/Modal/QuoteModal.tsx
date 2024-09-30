@@ -142,9 +142,9 @@ export const QuotePdf = (props: { providers: string; purchaseRequestId: string; 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (acceptedFiles.length === 0) return toast.error('Error: Solo se puede adjuntar 1 archivo .pdf!');
-      const base64 = await convertBase64(acceptedFiles[0]);
+      const base64 = (await convertBase64(acceptedFiles[0])).replace(/^data:application\/pdf;base64,/, '');
       try {
-        await addBillQuote(purchaseRequestId, base64);
+        await addBillQuote(purchaseRequestId, base64, 2);
         await changeOrderStatus(purchaseRequestId, 2);
         usePurchaseOrderPagination.getState().fetch();
         setProvidersClone((prev) =>

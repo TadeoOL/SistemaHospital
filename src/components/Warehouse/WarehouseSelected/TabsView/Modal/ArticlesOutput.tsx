@@ -30,7 +30,11 @@ import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { IArticleFromSearch, IWarehouseData } from '../../../../../types/types';
-import { articlesOutputToWarehouseToWarehouse, getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
+import {
+  articlesOutputToWarehouseToWarehouse,
+  getAmountForArticleInWarehouse,
+  getArticlesFromWarehouseSearch,
+} from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -128,19 +132,18 @@ export const ArticlesView = (props: ArticlesViewProps) => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const existingArticles = articles
-      .map((article) => {
-        return {
-          Id_Articulo: article.id_Articulo,
-          Id_ArticuloAlmacenStock: article.id_ArticuloStock,
-          Nombre: article.nombre,
-          Cantidad: Number(article.cantidad),
-        };
-      });
+    const existingArticles = articles.map((article) => {
+      return {
+        Id_Articulo: article.id_Articulo,
+        Id_ArticuloAlmacenStock: article.id_ArticuloStock,
+        Nombre: article.nombre,
+        Cantidad: Number(article.cantidad),
+      };
+    });
     const object = {
       ArticulosSalida: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id : '') : '',
-      id_almacenOrigen: warehouseData.id,
+      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id_Almacen : '') : '',
+      id_almacenOrigen: warehouseData.id_Almacen,
       SalidaMotivo: radioSelected === 1 ? reasonMessage : undefined,
     };
     try {
@@ -222,7 +225,7 @@ export const ArticlesView = (props: ArticlesViewProps) => {
                       id_AlmacenPrincipal: null,
                       id_UsuarioEncargado: null,
                       articuloExistentes: null,
-                      id: warehouseData.id_AlmacenPrincipal || '',
+                      id_Almacen: warehouseData.id_AlmacenPrincipal || '',
                       fechaCreacion: '',
                       fechaModificacion: '',
                       habilitado: true,
@@ -285,7 +288,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await getArticlesFromWarehouseSearch(search, warehouseData.id);
+        const res = await getArticlesFromWarehouseSearch(search, warehouseData.id_Almacen);
         setArticlesFetched(
           (res as any).map((a: IArticleFromSearch) => {
             return { ...a };
@@ -301,7 +304,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   }, [search, warehouseData]);
 
   useEffect(() => {
-    setWarehouseId(warehouseData.id);
+    setWarehouseId(warehouseData.id_Almacen);
   }, []);
 
   const handleAddArticle = (articleToAdd: ArticlesFetched, edit: boolean) => {
@@ -317,28 +320,26 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
       setArticleSelected(null);
     }
     setAmountArticleSelected(0);
-    setIdArticleSelected('')
+    setIdArticleSelected('');
     setAmountText('');
   };
 
   const searchArticleAmount = async (Id_Articulo: string) => {
     setIsLoading(true);
     try {
-      const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo ,warehouseData.id)
+      const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo, warehouseData.id_Almacen);
       setIsLoading(false);
       setAmountArticleSelected(amountResponse.stockActual as number);
-      setIdArticleSelected(amountResponse.id_ArticuloStock)
+      setIdArticleSelected(amountResponse.id_ArticuloStock);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
       setAmountArticleSelected(0);
-      setIdArticleSelected('')
-
+      setIdArticleSelected('');
     }
-  }
+  };
 
-
- /* const EditArrowRow = (idArticuloExistente: string, quantityChange: number) => {
+  /* const EditArrowRow = (idArticuloExistente: string, quantityChange: number) => {
     const direction = articles.findIndex((art) => art.id_Articulo === idArticuloExistente);
     if (direction === -1) {
       toast.error(`Artículo no encontrado`);
@@ -358,80 +359,78 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
       <Stack spacing={2}>
         <Stack flexDirection={'row'} display={'flex'} alignItems={'center'}>
           <Stack width={'100%'}>
-          <Stack width={'100%'} display={'flex'} flexDirection={'row'} >
-          <Typography width={'75%'} >Selección de artículos</Typography>
-          <Typography width={'20%'} >disponible: { amountArticleSelected } </Typography>
-          </Stack>
-          <Stack width={'100%'} display={'flex'} flexDirection={'row'} >
-          <Autocomplete
-              disablePortal
-              fullWidth
-              sx={{ width: '65%' }}
-              loading={isLoading}
-              loadingText="Cargando artículos..."
-              onChange={(e, val) => {
-                e.stopPropagation();
-                if (val && val.id_Articulo) {
-                  setArticleId(val.id_Articulo);
-                  //setOpenLoteModal(true);
-                  //hacer el c mamut
-                  searchArticleAmount(val.id_Articulo)
-                }
-                setArticleSelected(val);
-              }}
-              getOptionLabel={(option) => option.nombre}
-              options={articlesFetched}
-              value={articleSelected}
-              noOptionsText="No se encontraron artículos"
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder="Artículos..."
-                  sx={{ width: '100%' }}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              )}
-            />
-            <TextField
-                  sx={{ width: '15%', ml: 'auto', mr:'auto' }}
-                  size="small"
-                  fullWidth
-                  placeholder="Cantidad"
-                  value={amountText}
-                  error={amountError}
-                  onChange={(e) => {
-                    if (!isValidInteger(e.target.value)) return;
-                    if(Number(e.target.value) > amountArticleSelected) {
-                      setAmountError(true);
-                      return;
-                    }
-                    setAmountText(e.target.value);
-                    setAmountError(false)
-                  }}
-                />
+            <Stack width={'100%'} display={'flex'} flexDirection={'row'}>
+              <Typography width={'75%'}>Selección de artículos</Typography>
+              <Typography width={'20%'}>disponible: {amountArticleSelected} </Typography>
+            </Stack>
+            <Stack width={'100%'} display={'flex'} flexDirection={'row'}>
+              <Autocomplete
+                disablePortal
+                fullWidth
+                sx={{ width: '65%' }}
+                loading={isLoading}
+                loadingText="Cargando artículos..."
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  if (val && val.id_Articulo) {
+                    setArticleId(val.id_Articulo);
+                    //setOpenLoteModal(true);
+                    //hacer el c mamut
+                    searchArticleAmount(val.id_Articulo);
+                  }
+                  setArticleSelected(val);
+                }}
+                getOptionLabel={(option) => option.nombre}
+                options={articlesFetched}
+                value={articleSelected}
+                noOptionsText="No se encontraron artículos"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Artículos..."
+                    sx={{ width: '100%' }}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                )}
+              />
+              <TextField
+                sx={{ width: '15%', ml: 'auto', mr: 'auto' }}
+                size="small"
+                fullWidth
+                placeholder="Cantidad"
+                value={amountText}
+                error={amountError}
+                onChange={(e) => {
+                  if (!isValidInteger(e.target.value)) return;
+                  if (Number(e.target.value) > amountArticleSelected) {
+                    setAmountError(true);
+                    return;
+                  }
+                  setAmountText(e.target.value);
+                  setAmountError(false);
+                }}
+              />
 
-          <Button
-          variant="contained"
-          disabled={articleSelected === null || isNaN(Number(amountText)) || amountError || isLoading} 
-          onClick={() => {
-            handleAddArticle( 
-              {id_Articulo: articleSelected?.id_Articulo ?? "",
-                nombre: articleSelected?.nombre ?? "",
-                cantidad: amountText,
-                stockActual: amountArticleSelected,
-                id_ArticuloStock: idArticleSelected
-            } ,false)
-          }}
-        >
-          {'Agregar'}
-        </Button>
+              <Button
+                variant="contained"
+                disabled={articleSelected === null || isNaN(Number(amountText)) || amountError || isLoading}
+                onClick={() => {
+                  handleAddArticle(
+                    {
+                      id_Articulo: articleSelected?.id_Articulo ?? '',
+                      nombre: articleSelected?.nombre ?? '',
+                      cantidad: amountText,
+                      stockActual: amountArticleSelected,
+                      id_ArticuloStock: idArticleSelected,
+                    },
+                    false
+                  );
+                }}
+              >
+                {'Agregar'}
+              </Button>
+            </Stack>
           </Stack>
-           
-          </Stack>
-          
-          
-                
-
         </Stack>
 
         <ArticlesTable
@@ -542,12 +541,7 @@ interface ArticlesTableProps {
   isResume: boolean;
   setArticleSelected: Function;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({
-  articles,
-  setArticles,
-  isResume,
-  setArticleSelected,
-}) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, setArticleSelected }) => {
   return (
     <Card>
       <TableContainer>
@@ -604,9 +598,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell key={`${article.id_Articulo}${seed} `}>{article.cantidad}</TableCell>
         {!isResume && (
@@ -635,7 +627,6 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
     </React.Fragment>
   );
 };
-
 
 /* aqui yace la logica de lotes QEPD 08/08/2024
 interface NestedArticlesTableProps {
@@ -716,11 +707,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, ra
           )}
         </Grid>
       </Grid>
-      <ArticlesTable
-        articles={articles}
-        isResume={true}
-        setArticleSelected={() => {}}
-      />
+      <ArticlesTable articles={articles} isResume={true} setArticleSelected={() => {}} />
     </Stack>
   );
 };

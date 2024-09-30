@@ -72,7 +72,7 @@ const useGetMovements = () => {
   const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
 
   useEffect(() => {
-    fetchWareHouseMovements( warehouseSL?.id ?? warehouseIdSeted);
+    fetchWareHouseMovements(warehouseSL?.id_Almacen ?? warehouseIdSeted);
   }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
   return {
     data,

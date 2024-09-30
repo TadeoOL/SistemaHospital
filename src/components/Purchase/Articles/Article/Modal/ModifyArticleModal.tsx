@@ -107,8 +107,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     stockMinimo,
     unidadMedida,
     precioCompra,
-    precioVenta,
-    precioVentaPI,
+    precioVentaExterno,
+    precioVentaInterno,
     unidadesPorCaja,
     esCaja,
     codigoSAT,
@@ -145,8 +145,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       stockMinimo: stockMinimo,
       unidadMedida: unidadMedida,
       precioCompra: precioCompra,
-      precioVenta: precioVenta,
-      precioVentaPI: precioVentaPI,
+      precioVentaExterno: precioVentaExterno,
+      precioVentaInterno: precioVentaInterno,
       unidadesPorCaja: unidadesPorCaja,
       esCaja: esCaja,
       codigoSAT: codigoSAT ?? '',
@@ -243,7 +243,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       event.target.value = precio.slice(0, -1);
     }
     const unidadesPorCaja = (textQuantityRef.current?.value as string) ?? '1';
-    config?.factor.forEach((factor) => {
+    config?.factorExterno.forEach((factor) => {
       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
@@ -251,9 +251,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
           console.log(precioVentaString);
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       } else if (
         isBox &&
@@ -266,9 +266,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       }
     });
@@ -279,9 +279,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       } else if (
         isBox &&
@@ -294,9 +294,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       }
     });
@@ -309,7 +309,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     if (!isValidInput) {
       event.target.value = precio.slice(0, -1);
     }
-    config?.factor.forEach((factor) => {
+    config?.factorExterno.forEach((factor) => {
       if (precio >= factor.cantidadMinima && precio <= factor.cantidadMaxima && isBox == false) {
         const precioCompra = parseFloat(precio);
         const factorMultiplicador = factor.factorMultiplicador as number;
@@ -317,9 +317,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
           console.log(precioVentaString);
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       } else if (
         isBox &&
@@ -332,9 +332,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVenta = precioCompra * factorMultiplicador;
         if (!isNaN(precioVenta)) {
           const precioVentaString = precioVenta.toFixed(2).toString();
-          setValue('precioVenta', precioVentaString);
+          setValue('precioVentaExterno', precioVentaString);
         } else {
-          setValue('precioVenta', '0');
+          setValue('precioVentaExterno', '0');
         }
       }
     });
@@ -345,9 +345,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       } else if (
         isBox &&
@@ -360,9 +360,9 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         const precioVentaPI = precioCompra * factorMultiplicador;
         if (!isNaN(precioVentaPI)) {
           const precioVentaString = precioVentaPI.toFixed(2).toString();
-          setValue('precioVentaPI', precioVentaString);
+          setValue('precioVentaInterno', precioVentaString);
         } else {
-          setValue('precioVentaPI', '0');
+          setValue('precioVentaInterno', '0');
         }
       }
     });
@@ -371,8 +371,8 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const boxConvertion = (flag: boolean) => {
     if (flag) {
       //De caja a articulo normal
-      setValue('precioVenta', (Number(precioVenta || '1') * Number(unidadesPorCaja || '1')).toString());
-      setValue('precioVentaPI', (Number(precioVentaPI || '1') * Number(unidadesPorCaja || '1')).toString());
+      setValue('precioVentaExterno', (Number(precioVentaExterno || '1') * Number(unidadesPorCaja || '1')).toString());
+      setValue('precioVentaInterno', (Number(precioVentaInterno || '1') * Number(unidadesPorCaja || '1')).toString());
     }
   };
 
@@ -481,11 +481,11 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 <Typography>Precio de Venta</Typography>
                 <TextField
                   fullWidth
-                  error={!!errors.precioVenta}
-                  helperText={errors?.precioVenta?.message}
+                  error={!!errors.precioVentaExterno}
+                  helperText={errors?.precioVentaExterno?.message}
                   disabled
                   size="small"
-                  value={watch('precioVenta')}
+                  value={watch('precioVentaExterno')}
                   inputProps={{
                     maxLength: 10,
                   }}
@@ -496,11 +496,11 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 <Typography>Venta Interna</Typography>
                 <TextField
                   fullWidth
-                  error={!!errors.precioVentaPI}
-                  helperText={errors?.precioVentaPI?.message}
+                  error={!!errors.precioVentaInterno}
+                  helperText={errors?.precioVentaInterno?.message}
                   disabled
                   size="small"
-                  value={watch('precioVentaPI')}
+                  value={watch('precioVentaInterno')}
                   inputProps={{
                     maxLength: 10,
                   }}

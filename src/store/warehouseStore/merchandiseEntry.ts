@@ -75,7 +75,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${
-          useWarehouseTabsNavStore.getState().warehouseData.id
+          useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
         }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
       );
       console.log('yagora?', res.data);

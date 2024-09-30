@@ -75,7 +75,7 @@ export const merchandiseEntryRequestPagination = createWithEqualityFn<State & Ac
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${
-          useWarehouseTabsNavStore.getState().warehouseData.id
+          useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
         }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
       );
       set(() => ({

@@ -608,10 +608,11 @@ export const changeOrderStatus = async (Id_OrdenCompra: string, Estatus: number,
   }
 };
 
-export const addBillQuote = async (Id_OrdenCompra: string, PDFCadena: string) => {
-  const res = await axios.put(`/api/Compras/guardar-factura-proveedor-pdf`, {
+export const addBillQuote = async (Id_OrdenCompra: string, PDF: string, tipoPDF: number) => {
+  const res = await axios.put(`/api/Compras/guardar-pdf-orden-compra`, {
     Id_OrdenCompra,
-    PDFCadena,
+    PDF,
+    tipoPDF,
   });
   return res.data;
 };
@@ -622,7 +623,7 @@ export const deleteBillQuote = async (idQuote: string) => {
 };
 
 export const getBillPdf = async (idQuote: string) => {
-  const res = await axios.get(`/api/Compras/obtener-factura-proveedor-pdf/${idQuote}`);
+  const res = await axios.get(`/api/Compras/obtener-factura-orden-compra/${idQuote}`);
   return res.data;
 };
 
@@ -945,15 +946,15 @@ export const getPackageById = async (packageId: string) => {
 export const modifyPackage = async (data: {
   Id: string;
   ListaArticulosPorBorrar?: {
-    Id_ArticuloPaquete: string
+    Id_ArticuloPaquete: string;
   }[];
   ListaArticulosPorEditar?: {
-    Id_ArticuloPaquete?: string,
-    Cantidad: number
+    Id_ArticuloPaquete?: string;
+    Cantidad: number;
   }[];
   ListaArticulosPorAgregar?: {
-    Cantidad: number,
-    Id_Articulo: string
+    Cantidad: number;
+    Id_Articulo: string;
   }[];
   Nombre: string;
   Descripcion: string;
