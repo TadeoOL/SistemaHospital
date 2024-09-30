@@ -944,7 +944,17 @@ export const getPackageById = async (packageId: string) => {
 
 export const modifyPackage = async (data: {
   Id: string;
-  Contenido: string;
+  ListaArticulosPorBorrar?: {
+    Id_ArticuloPaquete: string
+  }[];
+  ListaArticulosPorEditar?: {
+    Id_ArticuloPaquete?: string,
+    Cantidad: number
+  }[];
+  ListaArticulosPorAgregar?: {
+    Cantidad: number,
+    Id_Articulo: string
+  }[];
   Nombre: string;
   Descripcion: string;
   Id_Almacen: string;

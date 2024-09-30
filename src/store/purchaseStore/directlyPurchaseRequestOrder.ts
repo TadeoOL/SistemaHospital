@@ -13,6 +13,7 @@ type ArticleOrder = {
   price?: number;
   stock?: number;
   sellPrice?: number;
+  Id_ArticuloPaquete?: string;
 };
 
 type Article = {
