@@ -343,26 +343,26 @@ export const ModuleList: IModuleItemsList[] = [
         title: 'Catálogos',
         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
         path: '#',
-        protectedRoles: hospitalization,
+        protectedRoles: programation,
         topLevel: true,
         children: [
           {
             title: 'Paquetes Quirúrgicos',
             path: '/quirofano/paquetes-quirurgicos',
             icon: <Work sx={{ color: '#fff' }} />,
-            protectedRoles: operatingRoomANDnurse,
+            protectedRoles: programation,
           },
           {
             title: 'Medicos',
             path: '/quirofano/medicos',
             icon: <FaUserDoctor />,
-            protectedRoles: hospitalization,
+            protectedRoles: programation,
           },
           {
             title: 'Anestesiólogos',
             path: '/quirofano/anestesiologos',
             icon: <GroupAdd sx={{ color: '#fff' }} />,
-            protectedRoles: hospitalization,
+            protectedRoles: programation,
           },
           {
             title: 'Procedimientos de cirugía',
