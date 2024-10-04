@@ -58,7 +58,7 @@ export const AddCategoryModal = (props: IAddCategoryModal) => {
     formState: { errors },
   } = useForm<ICategory>({
     defaultValues: {
-      id: '',
+      id_Categoria: '',
       nombre: '',
       descripcion: '',
       id_Almacen: '',

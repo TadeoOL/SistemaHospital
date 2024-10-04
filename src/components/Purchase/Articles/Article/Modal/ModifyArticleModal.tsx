@@ -15,7 +15,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig, ISubCategory } from '../../../../../types/types';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
@@ -101,10 +101,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const {
     id,
     descripcion,
-    id_subcategoria,
     nombre,
-    stockAlerta,
-    stockMinimo,
     unidadMedida,
     precioCompra,
     precioVentaExterno,
@@ -113,11 +110,11 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     esCaja,
     codigoSAT,
     codigoUnidadMedida,
+    subCategoria,
   } = article ?? {};
 
   const { subCategories, isLoading } = useGetSubCategories();
   const [textValue, setTextValue] = useState('');
-  const [subCategory, setSubCategory] = useState('');
   const config = useGetPurchaseConfig();
   const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const [isBox, setIsBox] = useState(esCaja || false);
@@ -140,9 +137,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
       id: id,
       nombre: nombre,
       descripcion: descripcion,
-      id_subcategoria: id_subcategoria,
-      stockAlerta: stockAlerta,
-      stockMinimo: stockMinimo,
+      id_subcategoria: subCategoria ? (subCategoria as ISubCategory).id_SubCategoria : '',
       unidadMedida: unidadMedida,
       precioCompra: precioCompra,
       precioVentaExterno: precioVentaExterno,
@@ -155,32 +150,38 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     resolver: zodResolver(addArticle),
   });
 
-  console.log({ codigoUnidadMedida });
-
   useEffect(() => {
     if (article) {
       setIsBox(article?.esCaja == null ? false : article?.esCaja);
       if (textQuantityRef.current) {
         textQuantityRef.current.value = article?.unidadesPorCaja == null ? '0' : article?.unidadesPorCaja.toString();
       }
-      const subCate = article.subCategoria as ISubCategory;
       if (article.descripcion == null) article.descripcion = '';
       if (textValue.trim() === '') setTextValue(article.descripcion);
-      if (!subCategory) setSubCategory(subCate.id);
-      setValue('id_subcategoria', subCate.id);
       Object.entries(article).forEach(([key, value]) => {
         if (key === 'stockMinimo' || key === 'stockAlerta' || key === 'precioCompra') {
           setValue(key as keyof IArticle, String(value));
+        } else if (key == 'id_subcategoria') {
+        } else if (key == 'codigoUnidadMedida') {
+          setValue(key as keyof IArticle, value ?? 0);
         } else {
           setValue(key as keyof IArticle, value);
         }
       });
     }
-  }, [article, setValue, textQuantityRef]);
+  }, [article, textQuantityRef]);
+
+  useEffect(() => {
+    if (subCategoria) {
+      const subCate = subCategoria as ISubCategory;
+      setValue('id_subcategoria', subCate.id_SubCategoria);
+    }
+  }, [subCategoria]);
 
   const handleError = (err: any) => {
     console.log({ err });
   };
+
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
       if (isBox && !textQuantityRef.current?.value) {
@@ -207,13 +208,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     }
   };
 
-  const handleChange = (event: any) => {
-    const {
-      target: { value },
-    } = event;
-    setSubCategory(value);
-  };
-
   const handleChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTextValue(event.currentTarget.value);
   };
@@ -224,16 +218,6 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
         <CircularProgress />
       </Backdrop>
     );
-
-  const handleInputNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
-    // Validar si el valor ingresado es un número
-    const inputValue = event.target.value;
-    const isNumber = /^\d*$/.test(inputValue);
-    if (!isNumber) {
-      // Si no es un número, eliminar el último carácter ingresado
-      event.target.value = inputValue.slice(0, -1);
-    }
-  };
 
   const handleInputDecimalChange = (event: any) => {
     let precio = event.target.value;
@@ -376,6 +360,13 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
     }
   };
 
+  const handleChangeSubCategoria = (event: any) => {
+    const {
+      target: { value },
+    } = event;
+    setValue('id_subcategoria', value);
+  };
+
   return (
     <Box sx={style}>
       <HeaderModal setOpen={open} title="Modificar articulo" />
@@ -398,11 +389,11 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                 <Typography>Presentación</Typography>
                 <TextField
                   fullWidth
-                  error={!!errors.unidadMedida}
-                  helperText={errors?.unidadMedida?.message}
+                  error={!!errors.presentacion}
+                  helperText={errors?.presentacion?.message}
                   size="small"
                   placeholder="Escriba una presentación"
-                  {...register('unidadMedida')}
+                  {...register('presentacion')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -507,7 +498,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   placeholder="Escriba un Precio de Venta Interno"
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              {/* <Grid item xs={12} md={6}>
                 <Typography>Stock Mínimo</Typography>
                 <TextField
                   fullWidth
@@ -536,7 +527,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   placeholder="Dígite un Stock Alerta"
                   {...register('stockAlerta')}
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={12} md={6}>
                 <Typography>Sub Categoría</Typography>
                 <TextField
@@ -546,12 +537,11 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   label="Seleccione una Sub Categoria"
                   error={!!errors.id_subcategoria}
                   helperText={errors?.id_subcategoria?.message}
-                  {...register('id_subcategoria')}
-                  value={subCategory}
-                  onChange={handleChange}
+                  value={watch('id_subcategoria')}
+                  onChange={handleChangeSubCategoria}
                 >
                   {subCategories.map((data) => (
-                    <MenuItem value={data.id} key={data.id}>
+                    <MenuItem value={data.id_SubCategoria} key={data.id_SubCategoria}>
                       {data.nombre}
                     </MenuItem>
                   ))}

@@ -109,7 +109,7 @@ const Article = () => {
                     setSelectedCategory(e.target.value ?? null);
                     if (e.target.value !== null) {
                       setSelectedCategorySubcategories(
-                        categories.find((cat) => cat.id === e.target.value)?.subCategorias ?? null
+                        categories.find((cat) => cat.id_Categoria === e.target.value)?.subCategorias ?? null
                       );
                     } else {
                       setSelectedCategorySubcategories(null);
@@ -119,7 +119,7 @@ const Article = () => {
                   {categories
                     .filter((cat) => cat.id_Almacen === warehouseSelected)
                     .map((warehouse: ICategory) => (
-                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                      <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
                         {warehouse.nombre}
                       </MenuItem>
                     ))}
@@ -138,7 +138,7 @@ const Article = () => {
                 >
                   {selectedCategorySubcategories ? (
                     selectedCategorySubcategories.map((warehouse: ISubCategory) => (
-                      <MenuItem key={warehouse.id} value={warehouse.id}>
+                      <MenuItem key={warehouse.id_SubCategoria} value={warehouse.id_SubCategoria}>
                         {warehouse.nombre}
                       </MenuItem>
                     ))

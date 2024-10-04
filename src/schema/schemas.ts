@@ -4,7 +4,7 @@ const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[
 
 //onst number = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/;
 
-const positiveNumber = /^[+]?(0*[1-9][0-9]*([.][0-9]*)?|0*[.][0-9]+|0+)$/;
+// const positiveNumber = /^[+]?(0*[1-9][0-9]*([.][0-9]*)?|0*[.][0-9]+|0+)$/;
 
 export const loginSchema = z.object({
   userName: z.string().min(3, 'Escribe un nombre de usuario valido'),
@@ -81,25 +81,7 @@ export const addSubCategorySchema = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().nullable().optional(),
   id_categoria: z.string().min(1, 'Selecciona una categoría'),
-  iva: z
-    .string()
-    .min(1, 'El campo IVA se encuentra vacío')
-    .refine(
-      (value) => {
-        if (value === '0') {
-          return '0';
-        }
-        console.log(value);
-        const parsedValue = parseInt(value);
-        const flag = positiveNumber.test(value);
-        if (flag) {
-          return parsedValue;
-        }
-      },
-      {
-        message: 'Número no valido.',
-      }
-    ),
+  iva: z.boolean(),
 });
 
 export const addCategory = z.object({
@@ -110,33 +92,33 @@ export const addCategory = z.object({
 export const addArticle = z.object({
   nombre: z.string().min(1, 'Escribe un nombre'),
   descripcion: z.string().nullable(),
-  stockMinimo: z
-    .string()
-    .nullable() // Permitir valores nulos
-    .refine(
-      (value) => {
-        if (value === null) {
-          return false; // Rechazar valores nulos
-        }
-        const parsedValue = parseInt(value);
-        return !isNaN(parsedValue) && parsedValue > 0;
-      },
-      { message: 'Escribe una cantidad válida y mayor que cero' }
-    ),
-  stockAlerta: z
-    .string()
-    .nullable() // Permitir valores nulos
-    .refine(
-      (value) => {
-        if (value === null) {
-          return false; // Rechazar valores nulos
-        }
-        const parsedValue = parseInt(value);
-        return !isNaN(parsedValue) && parsedValue > 0;
-      },
-      { message: 'Escribe una cantidad válida y mayor que cero' }
-    ),
-  unidadMedida: z.string().min(1, 'Selecciona una presentación.'),
+  // stockMinimo: z
+  //   .string()
+  //   .nullable() // Permitir valores nulos
+  //   .refine(
+  //     (value) => {
+  //       if (value === null) {
+  //         return false; // Rechazar valores nulos
+  //       }
+  //       const parsedValue = parseInt(value);
+  //       return !isNaN(parsedValue) && parsedValue > 0;
+  //     },
+  //     { message: 'Escribe una cantidad válida y mayor que cero' }
+  //   ),
+  // stockAlerta: z
+  //   .string()
+  //   .nullable() // Permitir valores nulos
+  //   .refine(
+  //     (value) => {
+  //       if (value === null) {
+  //         return false; // Rechazar valores nulos
+  //       }
+  //       const parsedValue = parseInt(value);
+  //       return !isNaN(parsedValue) && parsedValue > 0;
+  //     },
+  //     { message: 'Escribe una cantidad válida y mayor que cero' }
+  //   ),
+  codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
   precioCompra: z
     .string()
     .nullable() // Permitir valores nulos
@@ -150,7 +132,7 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  precioVenta: z
+  precioVentaExterno: z
     .any()
     .nullable() // Permitir valores nulos
     .refine(
@@ -163,7 +145,7 @@ export const addArticle = z.object({
       },
       { message: 'Escribe una cantidad válida y mayor que cero' }
     ),
-  precioVentaPI: z
+  precioVentaInterno: z
     .any()
     .nullable() // Permitir valores nulos
     .refine(
@@ -179,7 +161,7 @@ export const addArticle = z.object({
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
   codigoBarras: z.string().nullable(),
   codigoSAT: z.string().min(1, 'Escribe un código valido'),
-  codigoUnidadMedida: z.number().min(1, 'Selecciona una unidad de medida'),
+  presentacion: z.string().min(1, 'Escribe una presentación'),
 });
 
 export const addArticleBox = z.object({

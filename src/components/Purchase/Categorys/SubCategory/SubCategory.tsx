@@ -22,6 +22,7 @@ const SubCategory = () => {
   const [warehouseSelected, setWarehouseSelected] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { categories, isLoading: isLoadingCategories } = useGetCategories();
+  console.log(categories);
 
   return (
     <Box sx={{ pt: 2 }}>
@@ -76,9 +77,9 @@ const SubCategory = () => {
             >
               {categories
                 .filter((cat) => cat.id_Almacen === warehouseSelected)
-                .map((warehouse: ICategory) => (
-                  <MenuItem key={warehouse.id} value={warehouse.id}>
-                    {warehouse.nombre}
+                .map((category: ICategory) => (
+                  <MenuItem key={category.id_Categoria} value={category.id_Categoria}>
+                    {category.nombre}
                   </MenuItem>
                 ))}
             </TextField>

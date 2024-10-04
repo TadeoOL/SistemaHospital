@@ -7,7 +7,6 @@ import {
   ICategory,
   IProvider,
   IPurchaseConfig,
-  IPurchaseInternConfig,
   IRegisterPurchaseOrder,
   ISubCategory,
   IUpdateUsers,
@@ -232,7 +231,7 @@ export const disableProvider = async (id: string) => {
 
 export const addNewCategory = async (data: ICategory) => {
   const { nombre, descripcion, id_Almacen } = data;
-  const res = await axios.post(`/api/Categoria/registrar-categoria`, {
+  const res = await axios.post(`/api/Compras/Catalogo/Categoria/registrar-categoria`, {
     Nombre: nombre,
     Descripcion: descripcion,
     id_Almacen: id_Almacen,
@@ -241,15 +240,15 @@ export const addNewCategory = async (data: ICategory) => {
 };
 
 export const getCategories = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Categoria/paginacion-categoria?${paramUrl}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Categoria/paginacion-categoria?${paramUrl}`);
   return res.data;
 };
 
 export const modifyCategory = async (category: ICategory) => {
-  const { id, nombre, descripcion, id_Almacen } = category;
+  const { id_Categoria, nombre, descripcion, id_Almacen } = category;
 
-  const res = await axios.put(`/api/Categoria/actualizar-categoria`, {
-    id: id,
+  const res = await axios.put(`/api/Compras/Catalogo/Categoria/actualizar-categoria`, {
+    id: id_Categoria,
     Nombre: nombre,
     Descripcion: descripcion,
     id_Almacen: id_Almacen,
@@ -258,23 +257,23 @@ export const modifyCategory = async (category: ICategory) => {
 };
 
 export const disableCategory = async (id: string) => {
-  const res = await axios.put(`/api/Categoria/estatus-categoria`, { id });
+  const res = await axios.put(`/api/Compras/Catalogo/Categoria/estatus-categoria`, { id });
   return res.data;
 };
 
 export const getAllCategories = async () => {
-  const res = await axios.get(`/api/Categoria/obtener-categorias`);
+  const res = await axios.get(`/api/Compras/Catalogo/Categoria/obtener-categorias`);
   return res.data;
 };
 
 export const getAllCategoriesByWarehouse = async (Id_Warehouse: string) => {
-  const res = await axios.get(`/api/Categoria/obtener-categorias-almacen?Id_Almacen=${Id_Warehouse}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Categoria/obtener-categorias-almacen?Id_Almacen=${Id_Warehouse}`);
   return res.data;
 };
 
 export const addNewSubCategory = async (data: ISubCategory) => {
   const { nombre, descripcion, id_categoria, iva } = data;
-  const res = await axios.post(`/api/SubCategoria/registrar-subcategoria`, {
+  const res = await axios.post(`/api/Compras/Catalogo/SubCategoria/registrar-subcategoria`, {
     nombre,
     descripcion,
     id_categoria,
@@ -284,19 +283,19 @@ export const addNewSubCategory = async (data: ISubCategory) => {
 };
 
 export const getSubCategories = async (paramUrl: string) => {
-  const res = await axios.get(`/api/SubCategoria/paginacion-subcategoria?${paramUrl}`);
+  const res = await axios.get(`/api/Compras/Catalogo/SubCategoria/paginacion-subcategoria?${paramUrl}`);
   return res.data;
 };
 
 export const disableSubCategory = async (id: string) => {
-  const res = await axios.put(`/api/SubCategoria/estatus-subcategoria`, { id });
+  const res = await axios.put(`/api/Compras/Catalogo/SubCategoria/estatus-subcategoria`, { id });
   return res.data;
 };
 
 export const modifySubCategory = async (subCategory: ISubCategory) => {
-  const { id, nombre, descripcion, id_categoria, iva } = subCategory;
-  const res = await axios.put(`/api/SubCategoria/actualizar-subcategoria`, {
-    id,
+  const { id_SubCategoria, nombre, descripcion, id_categoria, iva } = subCategory;
+  const res = await axios.put(`/api/Compras/Catalogo/SubCategoria/actualizar-subcategoria`, {
+    id: id_SubCategoria,
     nombre,
     descripcion,
     iva,
@@ -307,7 +306,7 @@ export const modifySubCategory = async (subCategory: ISubCategory) => {
 };
 
 export const getArticles = async (paramUrl: string) => {
-  const res = await axios.get(`/api/articulo/paginacion-articulo?${paramUrl}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Articulo/paginacion-articulo?${paramUrl}`);
   return res.data;
 };
 
@@ -317,8 +316,8 @@ export const modifyArticle = async (article: IArticle) => {
     nombre,
     descripcion,
     id_subcategoria,
-    stockAlerta,
-    stockMinimo,
+    // stockAlerta,
+    // stockMinimo,
     unidadMedida,
     precioCompra,
     precioVentaExterno,
@@ -327,14 +326,15 @@ export const modifyArticle = async (article: IArticle) => {
     unidadesPorCaja,
     codigoBarras,
     codigoSAT,
+    presentacion,
   } = article;
 
-  const res = await axios.put(`/api/Articulo/actualizar-articulo`, {
+  const res = await axios.put(`/api/Compras/Catalogo/Articulo/actualizar-articulo`, {
     id,
     nombre,
     descripcion,
-    stockAlerta,
-    stockMinimo,
+    // stockAlerta,
+    // stockMinimo,
     id_subcategoria,
     unidadMedida,
     precioCompra,
@@ -344,6 +344,7 @@ export const modifyArticle = async (article: IArticle) => {
     unidadesPorCaja,
     codigoBarras,
     codigoSAT,
+    presentacion,
   });
   return res.data;
 };
@@ -353,8 +354,8 @@ export const addNewArticle = async (article: IArticle) => {
     nombre,
     descripcion,
     id_subcategoria,
-    stockAlerta,
-    stockMinimo,
+    // stockAlerta,
+    // stockMinimo,
     unidadMedida,
     precioCompra,
     precioVentaExterno,
@@ -364,13 +365,14 @@ export const addNewArticle = async (article: IArticle) => {
     codigoBarras,
     codigoSAT,
     codigoUnidadMedida,
+    presentacion,
   } = article;
 
-  const res = await axios.post(`/api/Articulo/registrar-articulo`, {
+  const res = await axios.post(`/api/Compras/Catalogo/Articulo/registrar-articulo`, {
     nombre,
     descripcion,
-    stockAlerta,
-    stockMinimo,
+    // stockAlerta,
+    // stockMinimo,
     id_subcategoria,
     unidadMedida,
     precioCompra,
@@ -381,22 +383,23 @@ export const addNewArticle = async (article: IArticle) => {
     codigoBarras,
     codigoSAT,
     codigoUnidadMedida,
+    presentacion,
   });
   return res.data;
 };
 
 export const getAllSubCategories = async () => {
-  const res = await axios.get(`/api/SubCategoria/obtener-subcategorias`);
+  const res = await axios.get(`/api/Compras/Catalogo/SubCategoria/obtener-subcategorias`);
   return res.data;
 };
 
 export const disableArticle = async (id: string) => {
-  const res = await axios.put(`/api/Articulo/estatus-articulo`, { id });
+  const res = await axios.put(`/api/Compras/Catalogo/Articulo/estatus-articulo`, { id });
   return res.data;
 };
 
 export const getArticleById = async (articleId: string) => {
-  const res = await axios.get(`/api/Articulo/${articleId}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Articulo/${articleId}`);
   return res.data;
 };
 
@@ -473,13 +476,13 @@ export const addNewPurchaseWarehouse = async (data: IWarehouse) => {
 };
 
 export const getCategoryById = async (categoryId: string) => {
-  const res = await axios.get(`/api/Categoria/${categoryId}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Categoria/${categoryId}`);
   console.log(res.data);
   return res.data;
 };
 
 export const getSubCategoryById = async (subCategoryId: string) => {
-  const res = await axios.get(`/api/SubCategoria/${subCategoryId}`);
+  const res = await axios.get(`/api/Compras/Catalogo/SubCategoria/${subCategoryId}`);
   return res.data;
 };
 
@@ -535,12 +538,12 @@ export const addPurchaseRequest = async (data: {
 };
 
 export const getPurchaseAuthorization = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Compras/paginacion-autorizacion-compras-administrador?${paramUrl}`);
+  const res = await axios.get(`/api/AutorizacionCompras/paginacion-autorizacion-orden-compra?${paramUrl}`);
   return res.data;
 };
 
 export const getPurchaseAuthorizationHistory = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Compras/paginacion-historial-autorizacion-administrador?${paramUrl}`);
+  const res = await axios.get(`/api/AutorizacionCompras/paginacion-historial-autorizacion?${paramUrl}`);
   return res.data;
 };
 
@@ -1125,11 +1128,6 @@ export const buildPackage = async (data: {
 }) => {
   const res = await axios.post(`/api/Almacen/armar-paquete`, data);
   return res.data;
-};
-
-export const getHospitalizationConfig = async () => {
-  const res = await axios.get('/api/ConfiguracionHospitalizacion/obtener-configuracion-hospitalizacion');
-  return res.data as IPurchaseInternConfig;
 };
 
 export const getPackagePreBuilded = async (paramUrl: string) => {

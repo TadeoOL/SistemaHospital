@@ -213,8 +213,6 @@ export const ArticleTable = () => {
                       <TableRow>
                         <TableCell>{article.nombre}</TableCell>
                         <TableCell>{article.unidadMedida}</TableCell>
-                        <TableCell>{article.stockMinimo}</TableCell>
-                        <TableCell>{article.stockAlerta}</TableCell>
                         <TableCell>$ {article.precioCompra}</TableCell>
                         <TableCell>$ {article.precioVentaExterno}</TableCell>
                         <TableCell>$ {article.precioVentaInterno}</TableCell>

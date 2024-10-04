@@ -1,6 +1,16 @@
-import { Backdrop, Box, Button, CircularProgress, MenuItem, Stack, TextField } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  MenuItem,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addSubCategorySchema } from '../../../../../schema/schemas';
 import { ISubCategory } from '../../../../../types/types';
@@ -69,7 +79,6 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
   const { data, open } = props;
   const { isLoadingSubCategory, subCategory } = useFetchSubCategory(data);
   const [textValue, setTextValue] = useState('');
-  const [category, setCategory] = useState('');
   const { categories, isLoading } = useGetCategories();
   const { handleChangeSubCategory, setHandleChangeSubCategory } = useSubCategoryPagination((state) => ({
     handleChangeSubCategory: state.handleChangeSubCategory,
@@ -81,20 +90,27 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
     handleSubmit,
     getValues,
     setValue,
+    control,
     formState: { errors },
   } = useForm<ISubCategory>({
     defaultValues: {
-      id: subCategory?.id,
+      id_SubCategoria: subCategory?.id_SubCategoria,
       nombre: subCategory?.nombre,
       descripcion: subCategory?.descripcion,
+      iva: subCategory?.iva,
     },
     resolver: zodResolver(addSubCategorySchema),
   });
 
+  const id_categoria = useWatch({
+    control,
+    name: 'id_categoria',
+  });
+
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
-      const idForm = getValues('id');
-      await modifySubCategory({ ...data, id: idForm });
+      const idForm = getValues('id_SubCategoria');
+      await modifySubCategory({ ...data, id_SubCategoria: idForm });
       toast.success('La sub categoría ha sido modificada con éxito!');
       props.open(false);
       setHandleChangeSubCategory(!handleChangeSubCategory);
@@ -106,14 +122,16 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
 
   useEffect(() => {
     if (subCategory) {
-      if (!category) setCategory(subCategory.id_categoria);
       if (!textValue) setTextValue(subCategory.descripcion);
-      setValue('id_categoria', subCategory.id_categoria);
       Object.entries(subCategory).forEach(([key, value]) => {
-        setValue(key as keyof ISubCategory, String(value));
+        if (key === 'categoria' && subCategory.categoria) {
+          setValue('id_categoria', subCategory.categoria.id_Categoria as string);
+        } else {
+          setValue(key as keyof ISubCategory, value);
+        }
       });
     }
-  }, [subCategory, setValue]);
+  }, [subCategory]);
 
   const handleChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTextValue(event.currentTarget.value);
@@ -123,7 +141,7 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
     const {
       target: { value },
     } = event;
-    setCategory(value);
+    setValue('id_categoria', value);
   };
 
   if (isLoading || isLoadingSubCategory)
@@ -170,24 +188,22 @@ export const ModifySubCategoryModal = (props: IModifySubCategoryModal) => {
               label="Categoría"
               error={!!errors.id_categoria}
               helperText={errors?.id_categoria?.message}
-              {...register('id_categoria')}
-              value={category}
               onChange={handleChange}
+              value={id_categoria || ''}
             >
               {categories.map((category) => (
-                <MenuItem value={category.id} key={category.id}>
+                <MenuItem value={category.id_Categoria} key={category.id_Categoria}>
                   {category.nombre}
                 </MenuItem>
               ))}
             </TextField>
-            <TextField
-              fullWidth
-              size="small"
-              label="I.V.A."
-              error={!!errors.iva}
-              helperText={errors?.iva?.message}
-              {...register('iva')}
-            ></TextField>
+            <Controller
+              name="iva"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel control={<Checkbox {...field} checked={!!field.value} />} label="I.V.A." />
+              )}
+            />
           </Stack>
           <Stack
             sx={{

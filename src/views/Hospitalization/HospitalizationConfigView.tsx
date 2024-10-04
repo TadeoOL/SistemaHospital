@@ -1,6 +1,6 @@
-import { HospitalizationConfig } from '../../components/Hospitalization/Configuration/HospitalizationConfig';
+// import { HospitalizationConfig } from '../../components/Hospitalization/Configuration/HospitalizationConfig';
 
 const HospitalizationConfigView = () => {
-  return <HospitalizationConfig />;
+  return <></>;
 };
 export default HospitalizationConfigView;

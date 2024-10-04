@@ -153,14 +153,14 @@ export const CategoryTable = () => {
               : isLoading
                 ? null
                 : data.map((category) => {
-                    const { id, nombre, descripcion, almacen } = category;
+                    const { id_Categoria, nombre, descripcion, almacen } = category;
 
                     return (
                       <TableRow
-                        key={id}
+                        key={id_Categoria}
                         onClick={() => {
                           setOpenInfoModal(true);
-                          setCategoryId(category.id);
+                          setCategoryId(category.id_Categoria);
                         }}
                         sx={{
                           '&:hover': {
@@ -178,7 +178,7 @@ export const CategoryTable = () => {
                               size="small"
                               sx={{ color: 'neutral.700' }}
                               onClick={(e) => {
-                                setCategoryId(category.id);
+                                setCategoryId(category.id_Categoria);
                                 setOpenEditModal(true);
                                 e.stopPropagation();
                               }}
@@ -190,7 +190,7 @@ export const CategoryTable = () => {
                             <IconButton
                               size="small"
                               onClick={(e) => {
-                                disableCategory(category.id);
+                                disableCategory(category.id_Categoria);
                                 e.stopPropagation();
                               }}
                             >

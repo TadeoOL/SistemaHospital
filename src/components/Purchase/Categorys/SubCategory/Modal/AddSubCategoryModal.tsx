@@ -144,7 +144,7 @@ export const AddSubCategoryModal = (props: IAddSubCategoryModal) => {
               onChange={handleChange}
             >
               {categories.map((category) => (
-                <MenuItem value={category.id} key={category.id}>
+                <MenuItem value={category.id_Categoria} key={category.id_Categoria}>
                   {category.nombre}
                 </MenuItem>
               ))}

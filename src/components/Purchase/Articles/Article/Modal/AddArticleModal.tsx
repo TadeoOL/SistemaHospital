@@ -11,11 +11,11 @@ import {
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
 import { IArticle, IPurchaseConfig } from '../../../../../types/types';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
@@ -81,7 +81,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const [unidadMedida, setUnidadMedida] = useState('');
   const config = useGetPurchaseConfig();
   const [valueState, setValueState] = useState('');
-  const [subCategory, setSubCategory] = useState('');
   const textQuantityRef = useRef<HTMLTextAreaElement>();
   const precioQuantityRef = useRef<HTMLTextAreaElement>();
 
@@ -96,14 +95,15 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues: {
       nombre: '',
       descripcion: '',
       id_subcategoria: '',
-      stockAlerta: '',
-      stockMinimo: '',
+      // stockAlerta: '',
+      // stockMinimo: '',
       unidadMedida: '',
       precioCompra: '',
       precioVentaExterno: '',
@@ -111,6 +111,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       codigoBarras: '',
       codigoSAT: '',
       codigoUnidadMedida: 0,
+      presentacion: '',
     },
     resolver: zodResolver(addArticle),
   });
@@ -142,13 +143,6 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     }
   };
 
-  const handleChange = (event: any) => {
-    const {
-      target: { value },
-    } = event;
-    setSubCategory(value);
-  };
-
   const handleChangeUnidadMedida = (event: any) => {
     const {
       target: { value },
@@ -166,22 +160,22 @@ export const AddArticleModal = (props: IAddArticleModal) => {
         <CircularProgress />
       </Backdrop>
     );
-  const handleInputNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
-    // Validar si el valor ingresado es un número
-    const inputValue = event.target.value;
-    const isNumber = /^\d*$/.test(inputValue);
-    if (!isNumber) {
-      // Si no es un número, eliminar el último carácter ingresado
-      event.target.value = inputValue.slice(0, -1);
-    }
+  // const handleInputNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
+  //   // Validar si el valor ingresado es un número
+  //   const inputValue = event.target.value;
+  //   const isNumber = /^\d*$/.test(inputValue);
+  //   if (!isNumber) {
+  //     // Si no es un número, eliminar el último carácter ingresado
+  //     event.target.value = inputValue.slice(0, -1);
+  //   }
 
-    const inputValuePI = event.target.value;
-    const isNumberPI = /^\d*$/.test(inputValuePI);
-    if (!isNumberPI) {
-      // Si no es un número, eliminar el último carácter ingresado
-      event.target.value = inputValuePI.slice(0, -1);
-    }
-  };
+  //   const inputValuePI = event.target.value;
+  //   const isNumberPI = /^\d*$/.test(inputValuePI);
+  //   if (!isNumberPI) {
+  //     // Si no es un número, eliminar el último carácter ingresado
+  //     event.target.value = inputValuePI.slice(0, -1);
+  //   }
+  // };
 
   const handleInputDecimalChange = (event: any) => {
     let precio = event.target.value;
@@ -337,11 +331,11 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                 <Typography>Presentación</Typography>
                 <TextField
                   fullWidth
-                  error={!!errors.unidadMedida}
-                  helperText={errors?.unidadMedida?.message}
+                  error={!!errors.presentacion}
+                  helperText={errors?.presentacion?.message}
                   size="small"
                   placeholder="Escriba una presentación"
-                  {...register('unidadMedida')}
+                  {...register('presentacion')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -445,7 +439,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   // {...register('precioVentaPI')}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              {/* <Grid item xs={12} md={6}>
                 <Typography>Stock Mínimo</Typography>
                 <TextField
                   fullWidth
@@ -474,26 +468,22 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   placeholder="Dígite un Stock Alerta"
                   {...register('stockAlerta')}
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={12} md={6}>
                 <Typography>Sub Categoría</Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  select
-                  label="Seleccione una Sub Categoria"
-                  error={!!errors.id_subcategoria}
-                  helperText={errors?.id_subcategoria?.message}
-                  {...register('id_subcategoria')}
-                  value={subCategory}
-                  onChange={handleChange}
-                >
-                  {subCategories.map((data) => (
-                    <MenuItem value={data.id} key={data.id}>
-                      {data.nombre}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                <Controller
+                  render={({ field }) => (
+                    <TextField {...field} select label="Seleccione una Sub Categoria" fullWidth>
+                      {subCategories.map((data) => (
+                        <MenuItem value={data.id_SubCategoria} key={data.id_SubCategoria}>
+                          {data.nombre}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                  control={control}
+                  name="id_subcategoria"
+                />
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography>Código de Barras (Opcional)</Typography>

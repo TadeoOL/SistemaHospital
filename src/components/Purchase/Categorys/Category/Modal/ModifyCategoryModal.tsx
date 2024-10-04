@@ -85,7 +85,7 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
     formState: { errors },
   } = useForm<ICategory>({
     defaultValues: {
-      id: category?.id,
+      id_Categoria: category?.id_Categoria,
       nombre: category?.nombre,
       descripcion: category?.descripcion,
       id_Almacen: category?.id_Almacen,
@@ -100,8 +100,8 @@ export const ModifyCategoryModal = (props: IModifyCategoryModal) => {
     }
     data.id_Almacen = warehouseSelected;
     try {
-      const idForm = getValues('id');
-      await modifyCategory({ ...data, id: idForm });
+      const idForm = getValues('id_Categoria');
+      await modifyCategory({ ...data, id_Categoria: idForm });
       toast.success('Categoría modificada con éxito!');
       setHandleChangeCategory(!handleChangeCategory);
       props.open(false);

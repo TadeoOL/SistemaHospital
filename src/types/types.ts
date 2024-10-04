@@ -89,7 +89,7 @@ export interface IRequestPurchaseDrug {
 }
 
 export interface ICategory {
-  id: string;
+  id_Categoria: string;
   nombre: string;
   descripcion: string;
   id_Almacen: string;
@@ -97,19 +97,26 @@ export interface ICategory {
   subCategorias?: ISubCategory[];
 }
 export interface ISubCategory {
-  id: string;
+  id_SubCategoria: string;
   nombre: string;
   descripcion: string;
   id_categoria: string;
   iva: string;
+  categoria?: {
+    id_Categoria: string;
+    nombre: string;
+    descripcion: string;
+    almacen: any;
+    id_Almacen: string;
+  };
 }
 
 export interface IArticle {
   id: string;
   nombre: string;
   descripcion: string | null;
-  stockMinimo: string;
-  stockAlerta: string;
+  // stockMinimo: string;
+  // stockAlerta: string;
   unidadMedida: string;
   precioCompra: string;
   precioVentaInterno: string;
@@ -123,6 +130,7 @@ export interface IArticle {
   esCaja?: boolean;
   unidadesPorCaja?: string;
   codigoUnidadMedida?: number;
+  presentacion: string;
 }
 
 export interface IArticlePOS {
