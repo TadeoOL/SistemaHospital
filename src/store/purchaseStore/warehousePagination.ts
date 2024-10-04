@@ -70,7 +70,7 @@ export const useWarehousePagination = createWithEqualityFn<State & Action>((set,
       set(() => ({
         data: res.data.map((p: any) => {
           return {
-            id: p.id,
+            id: p.id_Almacen,
             nombre: p.nombre,
             descripcion: p.descripcion,
           };

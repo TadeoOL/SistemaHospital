@@ -404,10 +404,16 @@ export const getArticleById = async (articleId: string) => {
 };
 
 //barra kill
-export const getExistingArticles = async (paramUrl: string) => {
+/*export const getExistingArticles = async (paramUrl: string) => {
   const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`);
   return res.data;
+};*/
+export const getExistingArticles = async (paramUrl: string) => {
+  const res = await axios.get(`/api/AlmacenArticulo/paginacion-almacen-articulo?${paramUrl}`);
+  return res.data;
 };
+
+//paginacion-almacen-articulo
 
 export const getExistingArticleById = async (existingArticleId: string) => {
   const res = await axios.get(`/api/ArticuloExistente/${existingArticleId}`);
@@ -828,7 +834,7 @@ export const getArticlesByWarehouseIdAndSearch = async (warehouseId: string, sea
 };
 
 export const getPetitionsListByWareHouseId = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/paginacion-peticion-articulos?${paramUrl}`);
+  const res = await axios.get(`/api/SolicitudAlmacen/paginacion-solicitud-almacen?${paramUrl}`);
   return res.data;
 };
 export const getRequestListByWareHouseId = async (paramUrl: string) => {

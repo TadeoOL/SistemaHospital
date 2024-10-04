@@ -137,13 +137,14 @@ export const WarehouseArticles = () => {
   } = useGetExistingArticles();
   const [openModal, setOpenModal] = useState(false);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
+  console.log("warehouseData",warehouseData);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { categories, isLoading: isLoadingCategories } = useGetCategoriesWarehouse(
     warehouseData.esSubAlmacen ? (warehouseData.id_AlmacenPrincipal as string) : warehouseData.id_Almacen
   );
   const [selectedCategorySubcategories, setSelectedCategorySubcategories] = useState<ISubCategory[] | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-
+console.log("data",data);
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -245,20 +246,6 @@ export const WarehouseArticles = () => {
                     </TableCell>
                     <TableCell>
                       <SortComponent tableCellLabel="Stock Actual" headerName="stockActual" setSortFunction={setSort} />
-                    </TableCell>
-                    <TableCell>
-                      <SortComponent
-                        tableCellLabel="Precio de compra"
-                        headerName="precioCompra"
-                        setSortFunction={setSort}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <SortComponent
-                        tableCellLabel="Código de Barras"
-                        headerName="codigoBarras"
-                        setSortFunction={setSort}
-                      />
                     </TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
@@ -409,8 +396,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             article.stockActual
           )}
         </TableCell>
-        <TableCell>$ {article.precioCompra}</TableCell>
-        <TableCell>{article.codigoBarras}</TableCell>
         <TableCell>
           <Tooltip title={isEditing ? 'Guardar' : 'Editar stock mínimo'}>
             <IconButton

@@ -71,13 +71,18 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       try {
         const warehouse = await getWarehouseById(warehouseId as string);
         if (warehouse?.esSubAlmacen) {
+          console.log("caen 77");
           const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
           setWarehouseSelected(fatherWarehouse.id_Almacen);
           setSubWarehouseSelected(warehouse.id_Almacen);
+          console.log("truena aca - 1");
+          console.log("fatherWarehouse.id_Almacen",fatherWarehouse.id_Almacen);
+          console.log("warehouse.id_Almacen",warehouse.id_Almacen);
           handleFetchArticlesFromWareHouse(fatherWarehouse.id_Almacen, warehouse.id_Almacen);
           setSubWarehouseFlag(true);
         } else {
+          console.log("caen 23",warehouse);
           setWarehouseData(warehouse.subAlmacenes);
           setWarehouseSelected(warehouse.id_Almacen);
           setSubWarehouseFlag(false);
@@ -92,6 +97,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   }, [warehouseId]);
   useEffect(() => {
     if (warehouseSelected) {
+      console.log("truena aca - 2");
+      console.log("warehouseSelected ",warehouseSelected);
+      console.log("subWarehouseSelected ",subWarehouseSelected);
       handleFetchArticlesFromWareHouse(warehouseSelected, subWarehouseSelected);
     }
   }, [serch]);
@@ -222,6 +230,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   setWarehouseSelected(e.target.value);
                 } else {
                   setSubWarehouseSelected(e.target.value);
+                  console.log("truena aca - 3");
+                  console.log("e.target.value ",e.target.value);
+                  console.log("warehouseSelected aca - 3 ",warehouseSelected);
                   handleFetchArticlesFromWareHouse(warehouseSelected, e.target.value);
                 }
 

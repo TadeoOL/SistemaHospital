@@ -56,6 +56,7 @@ export const SubWarehouses = () => {
     sort: state.sort,
     setSort: state.setSort,
   }));
+  const setWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.setWarehouseData));
 
   useEffect(() => {
     fetchSubWarehouse();
@@ -104,7 +105,7 @@ export const SubWarehouses = () => {
                 </TableHead>
                 <TableBody>
                   {data && data.length > 0 ? (
-                    data.map((sw) => <TableRowComponent subWarehouse={sw} key={sw.id} />)
+                    data.map((sw) => <TableRowComponent subWarehouse={sw} setWarehouseData={setWarehouseData} key={sw.id_Almacen} />)
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4}>
@@ -168,9 +169,10 @@ export const SubWarehouses = () => {
 
 interface TableRowComponentProps {
   subWarehouse: ISubWarehouse;
+  setWarehouseData: Function;
 }
 
-const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) => {
+const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse, setWarehouseData }) => {
   const [editSubWarehouse, setEditSubWarehouse] = useState(false);
   const clearWarehouseData = useWarehouseTabsNavStore(useShallow((state) => state.clearWarehouseData));
 
@@ -188,7 +190,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await disableWarehouseById(subWarehouse.id);
+        await disableWarehouseById(subWarehouse.id_Almacen);
         useSubWarehousePaginationStore.getState().fetchSubWarehouse();
         Swal.fire({
           title: 'Eliminado!',
@@ -206,7 +208,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ subWarehouse }) =
         onClick={(e) => {
           e.stopPropagation();
           clearWarehouseData();
-          navigate(`/almacenes/${subWarehouse.id}`);
+          console.log(subWarehouse);
+          setWarehouseData(subWarehouse);
+          navigate(`/almacenes/${subWarehouse.id_Almacen}`);
         }}
       >
         <TableCell>{subWarehouse.nombre}</TableCell>

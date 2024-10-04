@@ -508,7 +508,7 @@ export interface IWarehousePurchaseOrder {
 }
 
 export interface ISubWarehouse {
-  id: string;
+  id_Almacen: string;
   nombre: string;
   descripcion: string;
   usuarioEncargado: string;
