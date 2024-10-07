@@ -131,9 +131,9 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       nif: providerData?.nif,
       tipoContribuyente: providerData?.tipoContribuyente,
       direccionFiscal: providerData?.direccionFiscal,
-      urlCertificadoBP: providerData?.urlCertificadoBP,
-      urlCertificadoCR: providerData?.urlCertificadoCR,
-      urlCertificadoISO9001: providerData?.urlCertificadoISO9001,
+      urlCertificadoBP: providerData?.urlCertificadoBP ?? '',
+      urlCertificadoCR: providerData?.urlCertificadoCR ?? '',
+      urlCertificadoISO9001: providerData?.urlCertificadoISO9001 ?? '',
     },
     resolver: zodResolver(addNewProviderSchema),
   });
@@ -147,6 +147,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
   }, [providerData, setValue]);
 
   const onSubmit: SubmitHandler<IProvider> = async (data: IProvider) => {
+    console.log(data);
     try {
       await modifyProvider({
         ...data,
@@ -175,7 +176,7 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
     });
     if (!outputs) return;
     if (step === stepsForm.length - 1) {
-      handleSubmit(onSubmit)();
+      handleSubmit(onSubmit, handleError)();
     } else {
       setStep((prevStep) => prevStep + 1);
     }

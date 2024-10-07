@@ -72,9 +72,9 @@ export const addNewProviderSchema = z.object({
   nif: z.string().min(4, 'Escribe una identificación fiscal'),
   tipoContribuyente: z.number().min(1, 'Selecciona un tipo de contribuyente'),
   direccionFiscal: z.string().min(4, 'Ingresa una dirección fiscal'),
-  urlCertificadoBP: z.string().nullable().optional(),
-  urlCeritificadoCR: z.string().nullable().optional(),
-  urlCertificadoISO9001: z.string().nullable().optional(),
+  urlCertificadoBP: z.string().optional(),
+  urlCeritificadoCR: z.string().optional(),
+  urlCertificadoISO9001: z.string().optional(),
 });
 
 export const addSubCategorySchema = z.object({

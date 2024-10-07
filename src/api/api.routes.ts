@@ -144,7 +144,7 @@ export const getProviders = async (paramUrl: string) => {
 };
 
 export const getProviderById = async (id: string) => {
-  const res = await axios.get(`/api/Proveedor/${id}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Proveedor/${id}`);
   return res.data;
 };
 
@@ -167,7 +167,7 @@ export const modifyProvider = async (provider: IProvider) => {
     urlCertificadoISO9001,
   } = provider;
 
-  const res = await axios.put(`/api/Proveedor/actualizar-proveedor`, {
+  const res = await axios.put(`/api/Compras/Catalogo/Proveedor/actualizar-proveedor`, {
     id,
     nombreCompania,
     nombreContacto,
@@ -205,7 +205,7 @@ export const addNewProvider = async (provider: IProvider) => {
     urlCertificadoISO9001,
   } = provider;
 
-  const res = await axios.post(`/api/Proveedor/registrar-proveedor`, {
+  const res = await axios.post(`/api/Compras/Catalogo/Proveedor/registrar-proveedor`, {
     nombreCompania,
     nombreContacto,
     correoElectronico,
@@ -225,7 +225,7 @@ export const addNewProvider = async (provider: IProvider) => {
 };
 
 export const disableProvider = async (id: string) => {
-  const res = await axios.put(`/api/Proveedor/estatus-proveedor`, { id });
+  const res = await axios.put(`/api/Compras/Catalogo/Proveedor/estatus-proveedor`, { id });
   return res.data;
 };
 
