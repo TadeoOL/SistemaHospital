@@ -31,6 +31,10 @@ const REQUEST_TYPES = [
     value: 6,
     label: 'Cuidado Neonatal',
   },
+  {
+    value: 7,
+    label: 'RPBI',
+  },
 ];
 
 const style = {
