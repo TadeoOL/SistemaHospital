@@ -125,6 +125,7 @@ export const addRegisterRoom = async (data: {
     cuartoId: string;
     horaInicio: Date;
     horaFin: Date;
+    tipoCuarto: number;
   }[];
 }) => {
   const res = await axios.put(`${apiRegister}/agregar-registro-cuarto`, data);

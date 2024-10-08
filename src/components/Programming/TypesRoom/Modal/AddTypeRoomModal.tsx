@@ -66,6 +66,7 @@ type Inputs = {
   description: string;
   reservedSpaceTime: Dayjs | null;
   priceByTimeRange: IRecoveryRoomOperatingRoom[];
+  outpatientPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
@@ -100,6 +101,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       name: editData ? editData.nombre : '',
       description: editData ? editData.descripcion : '',
       priceByTimeRange: editData ? editData.configuracionPrecioHora : [],
+      outpatientPriceByTimeRange: editData ? editData.configuracionPrecioHoraAmbulatorio : [],
       recoveryPriceByTimeRange: editData ? editData.configuracionRecuperacion : [],
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
@@ -174,6 +176,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
 
   const handleAddNewPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
     setValue('priceByTimeRange', [...config]);
+  };
+
+  const handleAddNewOutpatientPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
+    setValue('outpatientPriceByTimeRange', [...config]);
   };
 
   const handleAddNewRecoveryPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
@@ -286,6 +292,16 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                   updateRecoveryConfig={handleAddNewPriceByTimeRange}
                   data={watch('priceByTimeRange')}
                   formKey="formOperatingRoom"
+                  error={errors.priceByTimeRange?.message}
+                  title="Precio hora quirófano"
+                />
+                <RoomHourCostTable
+                  xs={xs}
+                  updateRecoveryConfig={handleAddNewOutpatientPriceByTimeRange}
+                  data={watch('outpatientPriceByTimeRange')}
+                  formKey="formOutpatientRoom"
+                  error={errors.outpatientPriceByTimeRange?.message}
+                  title="Precio hora ambulatorio"
                 />
                 <RoomHourCostTable
                   xs={xs}
@@ -293,6 +309,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                   data={watch('recoveryPriceByTimeRange')}
                   isRecovery
                   formKey="formRecoveryRoom"
+                  error={errors.recoveryPriceByTimeRange?.message}
+                  title="Precio hora recuperación"
                 />
               </>
             ) : (
@@ -399,6 +417,8 @@ interface RoomHourCostTableProps {
   updateRecoveryConfig: (config: IRecoveryRoomOperatingRoom[]) => void;
   isRecovery?: boolean;
   formKey: string;
+  error?: string;
+  title: string;
 }
 
 const RoomHourCostTable = (props: RoomHourCostTableProps) => {
@@ -461,7 +481,14 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
 
   return (
     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography variant="h5">{props.isRecovery ? 'Precio hora recuperacion' : 'Precio hora quirófano'}</Typography>
+      <Box>
+        <Typography variant="h5">{props.title}</Typography>
+        {props.error && (
+          <Typography sx={{ fontSize: 10, fontWeight: 600 }} color="error">
+            *{props.error}*
+          </Typography>
+        )}
+      </Box>
       <Card sx={{ flex: 1 }}>
         <TableContainer>
           <Table>

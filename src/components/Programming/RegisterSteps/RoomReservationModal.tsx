@@ -162,6 +162,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                   cuartoId: event.roomId,
                   horaFin: event.end,
                   horaInicio: event.start,
+                  tipoCuarto: roomsRes.find((r) => r.id === event.roomId)?.tipo as number,
                 };
               }),
             });

@@ -102,7 +102,7 @@ export const surgeryProcedureSchema = z.object({
   description: z.string().optional(),
   price: z.string().optional(),
   codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
+  codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
 });
 
 export const addRoomReservation = z
@@ -132,7 +132,7 @@ export const programmingRegisterSchema = z.object({
   notes: z.string().optional(),
   surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
   date: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-  doctorId:z.string().min(1, 'Es necesario seleccionar un doctor'),
+  doctorId: z.string().min(1, 'Es necesario seleccionar un doctor'),
 });
 
 export const procedureAndDoctorSelectorSchema = z.object({
@@ -150,7 +150,7 @@ export const medicPersonalBiomedicalEquipmentSchema = z.object({
 
 const priceByTimeRange = z
   .object({
-    inicio: z.string().min(1, 'La hora inicio es necesaria'),
+    inicio: z.union([z.string(), z.number()]).transform((val) => String(val)),
     fin: z.string().nullable(),
     precio: z.number().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: 'El precio debe ser un número decimal positivo',
@@ -177,12 +177,13 @@ export const typeRoomSchema = z
     description: z.string().optional(),
     reservedSpaceTime: zodDay,
     priceByTimeRange: z.array(priceByTimeRange).optional(),
+    outpatientPriceByTimeRange: z.array(priceByTimeRange).optional(),
     recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
     codigoSATRecuperacion: z.string().nullable(),
     codigoSAT: z.string().min(1, 'El código es necesario'),
-    codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
-    codigoUnidadMedidaRecuperacion: z.number({invalid_type_error: 'El código es necesario'}).optional(),
+    codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
+    codigoUnidadMedidaRecuperacion: z.number({ invalid_type_error: 'El código es necesario' }).optional(),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
@@ -199,10 +200,26 @@ export const typeRoomSchema = z
       path: ['codigoSATRecuperacion'],
     }
   )
+  .refine((values) => values.type !== '1' || values.codigoUnidadMedidaRecuperacion, {
+    message: 'El código de Unidad de Medida de Recuperación es necesario para quirófanos',
+    path: ['codigoUnidadMedidaRecuperacion'],
+  })
   .refine(
-    (values) => values.type !== '1' || (values.codigoUnidadMedidaRecuperacion),
+    (values) =>
+      values.type !== '1' || (values.outpatientPriceByTimeRange && values.outpatientPriceByTimeRange.length > 0),
     {
-      message: 'El código de Unidad de Medida de Recuperación es necesario para quirófanos',
-      path: ['codigoUnidadMedidaRecuperacion'],
+      message: 'Es necesario configurar el horario de salida de ambulatorio',
+      path: ['outpatientPriceByTimeRange'],
+    }
+  )
+  .refine((values) => values.type !== '1' || (values.priceByTimeRange && values.priceByTimeRange.length > 0), {
+    message: 'Es necesario configurar el horario de salida',
+    path: ['priceByTimeRange'],
+  })
+  .refine(
+    (values) => values.type !== '1' || (values.recoveryPriceByTimeRange && values.recoveryPriceByTimeRange.length > 0),
+    {
+      message: 'Es necesario configurar el horario de salida de recuperación',
+      path: ['recoveryPriceByTimeRange'],
     }
   );

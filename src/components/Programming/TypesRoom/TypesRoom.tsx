@@ -174,7 +174,8 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
           <TableCell colSpan={1} sx={{ p: 0 }} />
           <TableCell colSpan={2} sx={{ p: 0 }}>
             <Collapse in={expand}>
-              <ConfigRoomTable data={data.configuracionPrecioHora} title="Quirófano" />
+              <ConfigRoomTable data={data.configuracionPrecioHora} title="Quirófano Precio Hospitalización" />
+              <ConfigRoomTable data={data.configuracionPrecioHoraAmbulatorio} title="Quirófano Precio Ambulatorio" />
               <ConfigRoomTable data={data.configuracionRecuperacion} title="Recuperación" />
             </Collapse>
           </TableCell>
