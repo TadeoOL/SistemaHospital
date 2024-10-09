@@ -4,7 +4,7 @@ import { SearchBar } from '../../Inputs/SearchBar';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { DateFilterComponent } from '../../Commons/DateFilterComponent';
 import { FilterList } from '@mui/icons-material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HospitalizationEntryComponent } from './Modal/HospitalizationEntryComponent';
 // import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
 
@@ -18,7 +18,14 @@ export const PatientsEntry = () => {
   const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
   const accountStatus = usePatientRegisterPaginationStore((state) => state.accountStatus);
   const setAccountStatus = usePatientRegisterPaginationStore((state) => state.setAccountStatus);
+  const clearData = usePatientRegisterPaginationStore((state) => state.clearData);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      clearData();
+    };
+  }, []);
 
   return (
     <>
