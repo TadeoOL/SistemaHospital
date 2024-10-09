@@ -29,7 +29,7 @@ import { useExistingArticlePagination } from '../../../../store/warehouseStore/e
 import { shallow } from 'zustand/shallow';
 import { ArticlesView } from './Modal/ArticlesOutput';
 import { toast } from 'react-toastify';
-import { isValidInteger } from '../../../../utils/functions/dataUtils';
+import { isValidInteger, isValidIntegerOrZero } from '../../../../utils/functions/dataUtils';
 import { modifyMinStockExistingArticle } from '../../../../api/api.routes';
 import { warning } from '../../../../theme/colors';
 import { SortComponent } from '../../../Commons/SortComponent';
@@ -399,7 +399,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
               placeholder="Cantidad"
               value={amountText}
               onChange={(e) => {
-                if (!isValidInteger(e.target.value)) return;
+                if (!isValidIntegerOrZero(e.target.value)) return;
                 setAmountText(e.target.value);
               }}
             />
