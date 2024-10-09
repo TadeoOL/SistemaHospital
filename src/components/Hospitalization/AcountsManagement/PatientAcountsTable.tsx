@@ -1,6 +1,6 @@
 import {
   Box,
-  Button,
+  // Button,
   Card,
   CircularProgress,
   IconButton,
@@ -20,11 +20,10 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { usePatientAccountPaginationStore } from '../../../store/hospitalization/patientAcountsPagination';
 import { CloseAccountModal } from './Modal/CloseAccount';
-import { IAcountAllInformation } from '../../../types/hospitalizationTypes';
 import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
-import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
+// import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { DiscountModal } from './Modal/DiscountModal';
 import { useGetDiscountConfig } from '../../../hooks/admission/useGetDiscountConfig';
 import { useAuthStore } from '../../../store/auth';
@@ -121,10 +120,9 @@ const PatientAccountTableBody = (props: PatientAccountTableBodyProps) => {
 
 const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const [open, setOpen] = useState(false);
-  const [openPrint, setOpenPrint] = useState(false);
+  // const [openPrint, setOpenPrint] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { data } = props;
-  const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
   const [openDiscount, setOpenDiscount] = useState(false);
   const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
   const userId = useAuthStore((state) => state.profile?.id);
@@ -139,25 +137,19 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     try {
       const paramURL = `Id_Paciente=${data.id_Paciente}&Id_CuentaPaciente=${data.id_Cuenta}`;
       const accountRes = await getAccountFullInformation(paramURL);
-      setAccountInfo(accountRes);
 
       const document = (
         <BillCloseReport
-          cierreCuenta={accountInfo as any}
+          cierreCuenta={accountRes as any}
           descuento={undefined}
-          total={accountInfo?.totalPagoCuentaRestante}
+          total={accountRes?.totalPagoCuentaRestante}
           notas={undefined}
         />
       );
 
-      // Generar el PDF en formato blob
       const blob = await pdf(document).toBlob();
-
-      // Crear una URL para el blob y abrir una nueva pestaña
       const url = URL.createObjectURL(blob);
       window.open(url);
-
-      setIsLoading(false);
     } catch (error) {
       console.log(error);
       console.log('La cuenta aun no se puede cerrar');
@@ -182,8 +174,8 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
                   <Edit color="primary" />
                 </IconButton>
               </Tooltip>
-            ) : (
-              <Tooltip title="Imprimirsss">
+            ) : !isLoading ? (
+              <Tooltip title="Imprimir">
                 <IconButton
                   onClick={() => {
                     handleOpenPDF();
@@ -193,8 +185,10 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
                   <Print color="primary" />
                 </IconButton>
               </Tooltip>
+            ) : (
+              <CircularProgress size={20} />
             )}
-            {(isAdmin || props.discountConfig.find((x) => x.id === userId)) && (
+            {(isAdmin || props.discountConfig.find((x) => x.id === userId)) && props.status == 2 && (
               <Tooltip title="Aplicar descuento">
                 <IconButton onClick={() => setOpenDiscount(true)}>
                   <Discount color="success" />
@@ -226,7 +220,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
           />
         </>
       </Modal>
-      <Modal
+      {/* <Modal
         open={openPrint}
         onClose={() => {
           setOpenPrint(false);
@@ -248,18 +242,12 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
         >
           <HeaderModal setOpen={setOpenPrint} title="PDF cuenta de paciente" />
           <Box sx={{ overflowY: 'auto', bgcolor: 'background.paper', p: 2 }}>
-            {accountInfo !== null && !isLoading ? (
-              <Button variant="contained" color="primary" disabled={isLoading}>
-                {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
-              </Button>
-            ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                <CircularProgress size={35} />
-              </Box>
-            )}
+            <Button variant="contained" color="primary" disabled={isLoading}>
+              {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
+            </Button>
           </Box>
         </Box>
-      </Modal>
+      </Modal> */}
       <Modal open={openDiscount} onClose={() => setOpenDiscount(false)}>
         <>
           <DiscountModal setOpen={setOpenDiscount} Id_CuentaPaciente={data.id_Cuenta} />

@@ -158,3 +158,12 @@ export const addMedicToRegister = async (data: { id_Registro: string; id_Medico:
   const res = await axios.put(`${apiRegister}/agregar-medico-registro`, data);
   return res.data;
 };
+
+export const deleteRegisterRoom = async (data: { id_RegistroCuarto: string }) => {
+  const res = await axios.delete(`${apiRegister}/eliminar-registro-cuarto`, {
+    params: {
+      id_RegistroCuarto: data.id_RegistroCuarto,
+    },
+  });
+  return res.data;
+};

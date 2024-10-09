@@ -1,5 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 
 // Estilos para el documento PDF
 const styles = StyleSheet.create({
@@ -196,6 +196,7 @@ type CierreCuenta = {
   ventaArticuloSinIVA: number;
   ventaArticuloIVA: number;
   totalPagoSami: number;
+  fechaCierre: string;
 };
 
 type Props = {
@@ -214,7 +215,7 @@ export const BillCloseReport = ({ cierreCuenta, descuento, total, notas }: Props
           Nombre: {cierreCuenta.paciente.nombre} {cierreCuenta.paciente.apellidoPaterno}{' '}
           {cierreCuenta.paciente.apellidoMaterno}
         </Text>
-        <Text>Fecha: {dayjs().format('DD/MM/YYYY - HH:mm')}</Text>
+        <Text>Fecha Cierre: {cierreCuenta.fechaCierre}</Text>
         <Text>Nombre Doctor: {cierreCuenta.medico}</Text>
         <Text style={{ marginBottom: 10 }}>
           Tipo: {cierreCuenta.esHospitalizacion ? 'Hospitalización' : 'Ambulatoria o Endopro'}

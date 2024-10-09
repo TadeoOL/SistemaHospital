@@ -1,4 +1,5 @@
 import {
+  Backdrop,
   Box,
   Button,
   CircularProgress,
@@ -33,7 +34,7 @@ import { registerSell } from '../../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 import { Settings } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
@@ -305,6 +306,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     }
     return result;
   };
+
+  if (isLoading)
+    return (
+      <Backdrop open={isLoading}>
+        <CircularProgress />
+      </Backdrop>
+    );
+
   if (errorflag && !isLoading) {
     return (
       <Box sx={style}>
@@ -387,6 +396,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 ventaConcepto={accountInfo.ventaConcepto}
                 ventaArticuloIVA={accountInfo.ventaArticuloIVA}
                 ventaArticuloSinIVA={accountInfo.ventaArticuloSinIVA}
+                closeDate={accountInfo.fechaCierre}
               />
               <DataTable
                 title="Cuartos"
@@ -740,6 +750,7 @@ interface PatientInformationProps {
   ventaConcepto: number;
   ventaArticuloIVA: number;
   ventaArticuloSinIVA: number;
+  closeDate: string;
 }
 
 export const PatientInformation: React.FC<PatientInformationProps> = ({
@@ -749,6 +760,7 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({
   ventaConcepto,
   ventaArticuloIVA,
   ventaArticuloSinIVA,
+  closeDate,
 }) => (
   <Grid container sx={{ p: 1 }} spacing={1}>
     <Grid item xs={12}>
@@ -761,11 +773,13 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({
         <b>Nombre:</b> {`${patient.nombre} ${patient.apellidoPaterno} ${patient.apellidoMaterno}`}
       </Typography>
     </Grid>
-    <Grid item xs={6}>
-      <Typography>
-        <b>Fecha:</b> {dayjs().format('DD/MM/YYYY - HH:mm')}
-      </Typography>
-    </Grid>
+    {closeDate && (
+      <Grid item xs={6}>
+        <Typography>
+          <b>Fecha Cierre:</b> {closeDate}
+        </Typography>
+      </Grid>
+    )}
     <Grid item xs={12}>
       <Typography>
         <b>Nombre Doctor:</b> {medic}

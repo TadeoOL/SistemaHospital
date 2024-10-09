@@ -35,6 +35,7 @@ import { LuPackagePlus } from 'react-icons/lu';
 //import { CreatePackageModal } from './Modal/CreatePackageModal';
 import { IArticleHistory, IPrebuildedArticleFromArticleRequest } from '../../../types/types';
 import { RequestBuildingModalMutation } from './Modal/CreatePackageModalMutation';
+import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
@@ -333,17 +334,9 @@ export const WaitingPackages = () => {
                     <TableCell>Doctor</TableCell>
                     <TableCell>Quirofano</TableCell>
                     <TableCell>Hora cirugía</TableCell>
+                    <TableCell>Nombre Paciente</TableCell>
                     <TableCell>Edad Paciente</TableCell>
-                    <TableCell>
-                      <SortComponent tableCellLabel="Solicitado por" headerName="enfermero" setSortFunction={setSort} />
-                    </TableCell>
-                    <TableCell>
-                      <SortComponent
-                        tableCellLabel="Fecha Solicitud"
-                        headerName="fechaSolicitud"
-                        setSortFunction={setSort}
-                      />
-                    </TableCell>
+                    <TableCell>Procedimientos</TableCell>
                     <TableCell>
                       <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
                     </TableCell>
@@ -392,15 +385,16 @@ export const WaitingPackages = () => {
                               movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.horaInicio as string
                             ) ?? ''}
                           </TableCell>
+                          <TableCell> {movimiento.nombrePaciente} </TableCell>
                           <TableCell>
                             {calculateAge(
                               getDDMMYYYY(movimiento?.infoExtra?.[0]?.registro?.paciente?.fechaNacimiento ?? '')
                             )}{' '}
                             años{' '}
                           </TableCell>
-
-                          <TableCell> {movimiento.solicitadoPor} </TableCell>
-                          <TableCell>{movimiento.fechaSolicitud}</TableCell>
+                          <TableCell>
+                            {<SurgeryProceduresChip surgeries={movimiento.procedimientosQuirurgicos} />}
+                          </TableCell>
                           <TableCell>{movimiento.estatus && STATUS[movimiento.estatus]}</TableCell>
                           <TableCell>
                             <Box

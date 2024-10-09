@@ -18,6 +18,7 @@ interface State {
   endDate: string;
   operatingRoomFilter: string;
   sort: string;
+  accountStatus: string;
 }
 
 interface Action {
@@ -33,6 +34,7 @@ interface Action {
   setSort: (sort: string) => void;
   clearData: () => void;
   clearFilters: () => void;
+  setAccountStatus: (accountStatus: string) => void;
 }
 
 const initialValues = {
@@ -50,10 +52,12 @@ const initialValues = {
   endDate: '',
   operatingRoomFilter: '',
   sort: '',
+  accountStatus: '1',
 };
 
 export const usePatientRegisterPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setAccountStatus: (accountStatus: string) => set({ accountStatus }),
   setSort: (sort: string) => set({ sort, pageIndex: 0 }),
   setOperatingRoomFilter: (operatingRoomFilter: string) => set({ operatingRoomFilter }),
   setStartDate: (startDate: string) => set({ startDate }),
@@ -64,7 +68,8 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort } = get();
+    const { enabled, search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort, accountStatus } =
+      get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -76,7 +81,7 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
 
     try {
       const res = await getPatientRegisterPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}&EstatusCuentaPaciente=${accountStatus}`
       );
       set({
         data: res.data,
@@ -100,6 +105,6 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
     set({ ...initialValues });
   },
   clearFilters: () => {
-    set({ startDate: '', endDate: '', search: '', operatingRoomFilter: '' });
+    set({ startDate: '', endDate: '', search: '', operatingRoomFilter: '', accountStatus: '1' });
   },
 }));

@@ -21,7 +21,7 @@ import { useGetRoomsByRegister } from '../../../../../hooks/admission/useGetRoom
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { IRoomEvent } from '../../../../../types/types';
 import dayjs from 'dayjs';
-import { Add, Close, Edit, Save } from '@mui/icons-material';
+import { Add, Close, Delete, Edit, Save } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
 import { checkRoomAvailabilityToEdit, getRoomsEventsByDate } from '../../../../../services/programming/roomsService';
 import { AddEditCalendar } from './AddEditCalendar';
@@ -32,7 +32,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { validateDates } from '../../../../../schema/hospitalization/hospitalizationSchema';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { modifyRoomsEvents } from '../../../../../services/programming/admissionRegisterService';
+import { deleteRegisterRoom, modifyRoomsEvents } from '../../../../../services/programming/admissionRegisterService';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
 import { useGetAllRooms } from '../../../../../hooks/programming/useGetAllRooms';
 
@@ -276,6 +276,39 @@ const EventTableRow = (props: {
       });
   };
 
+  const handleDelete = () => {
+    Swal.fire({
+      title: '¿Estás seguro de eliminar el espacio?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Si',
+      cancelButtonText: 'No',
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteRegisterRoom({
+            id_RegistroCuarto: roomData.id,
+          });
+          props.setRooms(props.rooms.filter((x) => x.id !== roomData.id));
+          Swal.fire({
+            title: '¡Espacio eliminado!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error('Error al eliminar el espacio:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Hubo un error al eliminar el espacio, intenta de nuevo.',
+            icon: 'error',
+          });
+        }
+      }
+    });
+  };
+
   return (
     <TableRow>
       <TableCell sx={{ width: '25%' }}>
@@ -355,17 +388,30 @@ const EventTableRow = (props: {
       </TableCell>
       <TableCell>
         {!edit ? (
-          <Tooltip title="Editar">
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setEdit(true);
-              }}
-            >
-              <Edit />
-            </IconButton>
-          </Tooltip>
+          <>
+            <Tooltip title="Editar">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setEdit(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Eliminar">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleDelete();
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </>
         ) : (
           <>
             <Tooltip title="Guardar">

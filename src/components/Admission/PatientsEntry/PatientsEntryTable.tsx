@@ -63,10 +63,15 @@ const useGetData = () => {
   const isLoading = usePatientRegisterPaginationStore((state) => state.loading);
   const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
   const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
+  const accountStatus = usePatientRegisterPaginationStore((state) => state.accountStatus);
+  const clearData = usePatientRegisterPaginationStore((state) => state.clearData);
 
   useEffect(() => {
     fetchData();
-  }, [search, setPageIndex, setPageSize, startDate, endDate,pageIndex, pageSize]);
+    return () => {
+      clearData();
+    };
+  }, [search, setPageIndex, setPageSize, startDate, endDate, pageIndex, pageSize, accountStatus]);
   return {
     data,
     pageIndex,

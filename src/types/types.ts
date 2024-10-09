@@ -465,6 +465,8 @@ export interface IWarehouseMovementData {
   id_CuentaPaciente?: string;
   solicitadoPor?: string;
   autorizadoPor?: string;
+  nombrePaciente: string;
+  procedimientosQuirurgicos: { id: string; nombre: string }[];
   estatus?: number;
   folio: string;
   infoExtra: any;

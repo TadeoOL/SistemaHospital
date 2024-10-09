@@ -95,6 +95,7 @@ export interface IAcountAllInformation {
   ventaConcepto: number;
   ventaArticuloSinIVA: number;
   ventaArticuloIVA: number;
+  fechaCierre: string;
 }
 
 export interface IAcountAllInformationAdmission {
