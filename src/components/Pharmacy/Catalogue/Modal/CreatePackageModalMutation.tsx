@@ -26,6 +26,7 @@ import { buildPackage } from '../../../../api/api.routes';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
 import { isValidIntegerOrZero } from '../../../../utils/functions/dataUtils';
+//import { PackageReport2 } from '../../../Export/Pharmacy/PackageReport2';
 
 const style = {
   position: 'absolute',
@@ -52,12 +53,20 @@ const styleBar = {
   },
 };
 
+type PackageExtraInfo ={
+  cuartos: string;
+  horaCirugia: string;
+  nombreDoctor: string;
+  edadPaciente: string;
+}
+
 interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
   requestedItems: IArticleHistory[];
   preLoadedArticles: IPrebuildedArticleFromArticleRequest[];
   movementHistoryId: string;
+  packageExtraInfo: PackageExtraInfo;
 }
 
 export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) => {
@@ -163,12 +172,18 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
                 props.setOpen(false);
                 props.refetch();
               }}
-              document={<PackageReport articulos={articles.map((artr)=>({
-                id_Articulo: artr.id_Articulo,
+              document={
+              <PackageReport 
+              articulos={articles.map((artr)=>({
                 nombre: artr.nombre,
-                cantidadSeleccionar: artr.cantidadSeleccionar,
                 cantidad: artr.cantidad
-              }))} />}
+              }))}
+              cuartos={props.packageExtraInfo.cuartos}
+              horaCirugia={props.packageExtraInfo.horaCirugia}
+              nombreDoctor={props.packageExtraInfo.nombreDoctor}
+              edadPaciente={props.packageExtraInfo.edadPaciente}
+               />
+              }
               fileName={`${Date.now()}.pdf`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
@@ -219,7 +234,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
 
   return (
     <Box sx={{ ...style }}>
-      <HeaderModal setOpen={props.setOpen} title="Solicitud de Artículos" />
+      <HeaderModal setOpen={props.setOpen} title="Armar Paquete de Artículos" />
       <Box sx={{ overflowY: 'auto', ...styleBar, bgcolor: 'background.paper', p: 2 }}>
         <Box
           sx={{
@@ -359,9 +374,9 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                   if (isEditing) {
                     //handleSaveValue();
                     const quant = Number(amountText);
-                    if(quant > article.stock){
+                    /*if(quant > article.stock){
                       return toast.error('La cantidad excede el stock del articulo '+article.nombre);
-                    }
+                    }*/
 
                     handleAddArticle({...article, cantidad: quant, id_ArticuloAlmacen : article.id_ArticuloAlmacen})
                   }

@@ -66,6 +66,13 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
     }
   }, [props.openModal]);
 
+  useEffect(() => {
+    if (props.articleSelectedByBarCode !== null) {
+      handleAddArticleToBasket(props.articleSelectedByBarCode);
+      //props.setOpenLoteModal(false); // para reiniciar el estado de busqueda por codigo de barras
+    }
+  }, [props.articleSelectedByBarCode]);
+
   /*const handleAddArticle = (articles: IArticlePOS) => {
     if (articleSelected) {
       const alreadyAddedArticle = articlesOnBasket.find((a) => a.id_Articulo === (articleSelected?.id_Articulo || ''));

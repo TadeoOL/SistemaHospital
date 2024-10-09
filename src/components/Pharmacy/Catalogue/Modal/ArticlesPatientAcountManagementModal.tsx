@@ -40,6 +40,10 @@ const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
 });
 const filterSearchArticleOptions = createFilterOptions<IArticleFromSearchWithQuantity>({
   limit: OPTIONS_LIMIT,
+  matchFrom: 'any',
+  stringify: (option) => {
+    return `${option.nombre} ${option.codigoBarras || ''}`;
+  },
 });
 
 const style = {
@@ -94,19 +98,6 @@ export const ArticlesPatientAcountManagementModal = (props: {
     setWarehouseId(props.warehouseId);
   }, []);
 
-  useEffect(() => {
-    const fetch = async () => {
-      setIsLoadingWarehouse(true);
-      try {
-        // nursesCall();
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoadingWarehouse(false);
-      }
-    };
-    fetch();
-  }, []);
   const [articles, setArticles] = useState<IArticlesFromPatientAcount[] | []>([]);
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
   const [userError, setUserError] = useState(false);
@@ -244,250 +235,283 @@ export const ArticlesPatientAcountManagementModal = (props: {
         nombre: item.nombre,
         stock: item.stockActual,
         id_ArticuloAlmacen: item.id_ArticuloAlmacen,
+        codigoBarras: item.codigoBarras,
       }));
       setDataWerehouseSelected(transformedData);
     } catch (error) {
-      console.log(error);
-    }
-  };
+    console.log(error);
+  }
+};
 
-  const changeArticleQuantityInMap = (idArticle: string, cantidad: number) => {
-    const articleToedit = articlesMap.get(idArticle);
-    if (articleToedit) {
-      articleToedit.cantidad = cantidad;
-      setArticlesMap(articlesMap.set(idArticle, articleToedit));
-    }
-  };
+const changeArticleQuantityInMap = (idArticle: string, cantidad: number) => {
+  const articleToedit = articlesMap.get(idArticle);
+  if (articleToedit) {
+    articleToedit.cantidad = cantidad;
+    setArticlesMap(articlesMap.set(idArticle, articleToedit));
+  }
+};
 
-  const { handleSubmit } = useForm<IArticlesPackage>({
-    defaultValues: {
-      nombre: '',
-      descripcion: '',
-    },
-    resolver: zodResolver(addNewArticlesPackage),
-  });
-  const validateAmount = (articlesToCheck: IArticlesFromPatientAcount[]) => {
-    for (const articulo of articlesToCheck) {
-      if (articulo.cantidad > articulo.stock) {
-        toast.error(`La cantidad de salida del articulo ${articulo.nombre} está superando las existencias actuales!`);
-        return false;
-      }
+const { handleSubmit } = useForm<IArticlesPackage>({
+  defaultValues: {
+    nombre: '',
+    descripcion: '',
+  },
+  resolver: zodResolver(addNewArticlesPackage),
+});
+/*const validateAmount = (articlesToCheck: IArticlesFromPatientAcount[]) => {
+  for (const articulo of articlesToCheck) {
+    if (articulo.cantidad > articulo.stock) {
+      toast.error(`La cantidad de salida del articulo ${articulo.nombre} está superando las existencias actuales!`);
+      return false;
     }
-    return true;
-  };
-  const onSubmit = async () => {
-    if (!userSelected) {
-      setUserError(true);
-      toast.error('Selecciona un paciente');
-      return;
-    }
-    try {
-      const resultComparation = compareMaps(originalMap, articlesMap);
-      if (!validateAmount(resultComparation.addedOrIncreased)) return;
-      setLoadingSubmit(true);
-      const object = {
-        //NombreEnfermero: nurseSelected.nombre,
-        Id_Almacen: props.warehouseId,
-        ArticulosPorSalir:
-          resultComparation.addedOrIncreased.length > 0
-            ? resultComparation.addedOrIncreased.map((newArt) => ({
-                Id_Articulo: newArt.id_Articulo,
-                Nombre: newArt.nombre,
-                Cantidad: newArt.cantidad,
-              }))
-            : undefined,
-        ArticulosPorEntrar:
-          resultComparation.removedOrDecreased.length > 0
-            ? resultComparation.removedOrDecreased.map((newArt) => ({
-                Id_Articulo: newArt.id_Articulo,
-                Id_ArticuloCuenta: newArt.id_ArticuloCuenta,
-                Nombre: newArt.nombre,
-                Cantidad: newArt.cantidad,
-              }))
-            : undefined,
-        IngresoMotivo: 'Devolución de artículos',
-        Id_CuentaPaciente: userSelected.id_Cuenta,
-        SolicitadoEn: 2,
-      };
-      await patientArticlesManagement(object);
-      props.refetch();
-      toast.success('Entrada de artículos con éxito!');
-      setLoadingSubmit(false);
-      props.setOpen(false);
-      setDataWerehouseArticlesSelected([]);
-      setArticleSelected(null);
-    } catch (error) {
-      console.log(error);
-      setLoadingSubmit(false);
-      toast.error('Algo salio mal');
-    }
-  };
+  }
+  return true;
+};*/
+const onSubmit = async () => {
+  if (!userSelected) {
+    setUserError(true);
+    toast.error('Selecciona un paciente');
+    return;
+  }
+  try {
+    const resultComparation = compareMaps(originalMap, articlesMap);
+    //if (!validateAmount(resultComparation.addedOrIncreased)) return; validacion de cantidad
+    setLoadingSubmit(true);
+    const object = {
+      //NombreEnfermero: nurseSelected.nombre,
+      Id_Almacen: props.warehouseId,
+      ArticulosPorSalir:
+        resultComparation.addedOrIncreased.length > 0
+          ? resultComparation.addedOrIncreased.map((newArt) => ({
+            Id_Articulo: newArt.id_Articulo,
+            Nombre: newArt.nombre,
+            Cantidad: newArt.cantidad,
+          }))
+          : undefined,
+      ArticulosPorEntrar:
+        resultComparation.removedOrDecreased.length > 0
+          ? resultComparation.removedOrDecreased.map((newArt) => ({
+            Id_Articulo: newArt.id_Articulo,
+            Id_ArticuloCuenta: newArt.id_ArticuloCuenta,
+            Nombre: newArt.nombre,
+            Cantidad: newArt.cantidad,
+          }))
+          : undefined,
+      IngresoMotivo: 'Devolución de artículos',
+      Id_CuentaPaciente: userSelected.id_Cuenta,
+      SolicitadoEn: 2,
+    };
+    await patientArticlesManagement(object);
+    props.refetch();
+    toast.success('Entrada de artículos con éxito!');
+    setLoadingSubmit(false);
+    props.setOpen(false);
+    setDataWerehouseArticlesSelected([]);
+    setArticleSelected(null);
+  } catch (error) {
+    console.log(error);
+    setLoadingSubmit(false);
+    toast.error('Algo salio mal');
+  }
+};
 
-  return (
-    <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Movimientos de Quirofano" />
-      <Box sx={style2}>
-        {isLoadingWarehouse ? (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
-            <CircularProgress size={40} />
-          </Box>
-        ) : (
-          <form noValidate onSubmit={handleSubmit(onSubmit)}>
-            <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  columnGap: 2,
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  rowGap: { xs: 2, sm: 0 },
-                }}
-              >
-                <Stack sx={{ display: 'flex', flex: 1 }}>
-                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar paciente</Typography>
-                  <Autocomplete
-                    disablePortal
-                    fullWidth
-                    filterOptions={filterPatientOptions}
-                    onChange={(e, val) => {
-                      e.stopPropagation();
-                      setUserSelected(val);
-                      if (val !== null) {
-                        handleFetchArticlesFromAccount(val.id_Cuenta);
-                      }
-                    }}
-                    //cambiar loading
-                    loading={isLoadingArticlesFromPatient || usersData.length === 0}
-                    getOptionLabel={(option) => option.nombreCompleto}
-                    options={usersData}
-                    value={userSelected}
-                    noOptionsText="No se encontraron pacientes"
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={userError}
-                        helperText={userError && 'Selecciona un paciente'}
-                        placeholder="Pacientes"
-                        onChange={(e) => {
-                          if (e.target.value === null) {
-                            setPatientSearch('');
-                          }
-                          setPatientSearch(e.target.value);
-                        }}
-                      />
-                    )}
-                  />
-                </Stack>
-              </Box>
+const handleKeyDown = (event: any) => {
+  const codigoBarra = event.target.value;
+  if (event.key === 'Enter' && codigoBarra !== '') {
+    setSearch('');
+    event.target.value = '';
+    const alreadyAdded = articles.findIndex((art) => art.codigoBarras === codigoBarra);
+    if(alreadyAdded !== -1)return toast.error('El articulo ya existe en la cuenta');
+    const article = dataWerehouseArticles
+      .map((article) => {
+        return article;
+      })
+      .filter((article) => article.codigoBarras === codigoBarra);
+    if (article[0]) {
+      console.log("encontro ubn papu",article[0]);
+      articlesMap.set(article[0].id_Articulo, {
+        id_Articulo: article[0].id_Articulo,
+        id_ArticuloCuenta: '',
+        id_CuentaPAciente: '',
+        cantidad: 1,
+        codigoBarras: article[0].codigoBarras ?? null,
+        nombre: article[0].nombre,
+        stock: article[0].stock,
+      });
+      setArticlesMap(articlesMap);
+      setGridKey(gridKey + 1);
+    }
+
+    if (article.length === 0 || !article) return toast.error('No existe el articulo en la base de datos!');
+  }
+};
+
+return (
+  <Box sx={style}>
+    <HeaderModal setOpen={props.setOpen} title="Movimientos de Quirofano" />
+    <Box sx={style2}>
+      {isLoadingWarehouse ? (
+        <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', alignContent: 'center' }}>
+          <CircularProgress size={40} />
+        </Box>
+      ) : (
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+          <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 1,
+                justifyContent: 'space-between',
+                columnGap: 2,
+                flexDirection: { xs: 'column', sm: 'row' },
+                rowGap: { xs: 2, sm: 0 },
+              }}
+            >
               <Stack sx={{ display: 'flex', flex: 1 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar paciente</Typography>
                 <Autocomplete
-                  disabled={userSelected === null}
-                  key={`autocompleteArt${gridKey}`}
                   disablePortal
                   fullWidth
-                  filterOptions={filterSearchArticleOptions}
+                  filterOptions={filterPatientOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
+                    setUserSelected(val);
                     if (val !== null) {
-                      if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
-                        return;
-                      } else if (val.stock === 0) {
-                        toast.error(
-                          `La cantidad de salida del articulo ${val.nombre} esta superando la existencias actuales! `
-                        );
-                        return;
-                      }
-                      setArticleId(val.id_Articulo);
-                      articlesMap.set(val.id_Articulo, {
-                        id_Articulo: val.id_Articulo,
-                        id_ArticuloCuenta: '',
-                        id_CuentaPAciente: '',
-                        cantidad: 1,
-                        codigoBarras: '',
-                        nombre: val.nombre,
-                        stock: val.stock,
-                      });
-                      setArticlesMap(articlesMap);
-                      setGridKey(gridKey + 1);
-                      setArticleError(false);
-                      setSearch('');
-                    } else {
-                      setSearch('');
-                      setArticleSelected(null);
+                      handleFetchArticlesFromAccount(val.id_Cuenta);
                     }
                   }}
-                  loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}
-                  getOptionLabel={(option) => option.nombre}
-                  options={dataWerehouseArticles}
-                  value={articleSelected}
-                  noOptionsText="No se encontraron artículos"
+                  //cambiar loading
+                  loading={isLoadingArticlesFromPatient || usersData.length === 0}
+                  getOptionLabel={(option) => option.nombreCompleto}
+                  options={usersData}
+                  value={userSelected}
+                  noOptionsText="No se encontraron pacientes"
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      error={articleError}
-                      helperText={articleError && 'Selecciona un articulo'}
+                      error={userError}
+                      helperText={userError && 'Selecciona un paciente'}
+                      placeholder="Pacientes"
                       onChange={(e) => {
-                        setSearch(e.target.value);
+                        if (e.target.value === null) {
+                          setPatientSearch('');
+                        }
+                        setPatientSearch(e.target.value);
                       }}
-                      placeholder="Artículos"
-                      sx={{ width: '100%' }}
                     />
                   )}
                 />
               </Stack>
-
-              <ArticlesTable
-                key={gridKey}
-                setOpen={props.setOpen}
-                submitData={onSubmit}
-                initialData={[]}
-                setArticles={setArticles}
-                articles={articles || []}
-                setArticleId={setArticleId}
-                deleteArticles={deleteArticles}
-                setAmountText={changeArticleQuantityInMap}
-                articlesMap={Array.from(articlesMap.values())}
-                loading={isLoadingArticlesFromPatient}
+            </Box>
+            <Stack sx={{ display: 'flex', flex: 1 }}>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+              <Autocomplete
+                disabled={userSelected === null}
+                key={`autocompleteArt${gridKey}`}
+                disablePortal
+                fullWidth
+                filterOptions={filterSearchArticleOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  if (val !== null) {
+                    if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
+                      return;
+                    } /*else if (val.stock === 0) {
+                      toast.error(
+                        `La cantidad de salida del articulo ${val.nombre} está superando las existencias actuales!`
+                      );
+                      return;
+                    }*/
+                    setArticleId(val.id_Articulo);
+                    articlesMap.set(val.id_Articulo, {
+                      id_Articulo: val.id_Articulo,
+                      id_ArticuloCuenta: '',
+                      id_CuentaPAciente: '',
+                      cantidad: 1,
+                      codigoBarras: '',
+                      nombre: val.nombre,
+                      stock: val.stock,
+                    });
+                    setArticlesMap(articlesMap);
+                    setGridKey(gridKey + 1);
+                    setArticleError(false);
+                    setSearch('');
+                  } else {
+                    setSearch('');
+                    setArticleSelected(null);
+                  }
+                }}
+                loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}
+                getOptionLabel={(option) => option.nombre}
+                options={dataWerehouseArticles}
+                value={articleSelected}
+                noOptionsText="No se encontraron artículos"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={articleError}
+                    helperText={articleError && 'Selecciona un artículo'}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Artículos"
+                    sx={{ width: '100%' }}
+                  />
+                )}
               />
+            </Stack>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  mt: 2,
-                  bottom: 0,
+            <ArticlesTable
+              key={gridKey}
+              setOpen={props.setOpen}
+              submitData={onSubmit}
+              initialData={[]}
+              setArticles={setArticles}
+              articles={articles || []}
+              setArticleId={setArticleId}
+              deleteArticles={deleteArticles}
+              setAmountText={changeArticleQuantityInMap}
+              articlesMap={Array.from(articlesMap.values())}
+              loading={isLoadingArticlesFromPatient}
+            />
+
+            <Box
+              sx={{
+                display: 'flex',
+                flex: 1,
+                justifyContent: 'space-between',
+                mt: 2,
+                bottom: 0,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<Cancel />}
+                color="error"
+                onClick={() => {
+                  props.setOpen(false);
                 }}
               >
-                <Button
-                  variant="outlined"
-                  startIcon={<Cancel />}
-                  color="error"
-                  onClick={() => {
-                    props.setOpen(false);
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="contained"
-                  endIcon={<Save />}
-                  disabled={articlesMap.size === 0 || loadingSubmit}
-                  onClick={() => {
-                    onSubmit();
-                  }}
-                >
-                  Guardar
-                </Button>
-              </Box>
-            </Stack>
-          </form>
-        )}
-      </Box>
+                Cancelar
+              </Button>
+              <Button
+                variant="contained"
+                endIcon={<Save />}
+                disabled={articlesMap.size === 0 || loadingSubmit}
+                onClick={() => {
+                  onSubmit();
+                }}
+              >
+                Guardar
+              </Button>
+            </Box>
+          </Stack>
+        </form>
+      )}
     </Box>
-  );
+  </Box>
+);
 };
 
 const ArticlesTable = (props: {
@@ -514,20 +538,20 @@ const ArticlesTable = (props: {
         <Card sx={{ mt: 4, overflowX: 'auto' }}>
           <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
             <Table>
-              <Box sx={{ display:'flex', flexDirection:'row' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Button
                   disabled={props.articlesMap.length === 0}
                   variant="outlined"
                   startIcon={<Delete />}
                   color="error"
-                  sx={{ml:2}}
+                  sx={{ ml: 2 }}
                   onClick={() => {
                     props.deleteArticles(idsSelected);
                   }}
                 >
                   Eliminar seleccionados
                 </Button>
-                <Typography sx={{ ml:'auto', mr:5, my:'auto'}} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
+                <Typography sx={{ ml: 'auto', mr: 5, my: 'auto' }} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Box>

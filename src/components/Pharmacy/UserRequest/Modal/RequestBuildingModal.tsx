@@ -305,9 +305,9 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                   if (isEditing) {
                     //handleSaveValue();
                     const quant = Number(amountText);
-                    if (quant > article.stock) {
+                    /*if (quant > article.stock) {
                       return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
-                    }
+                    }*/
 
                     handleAddArticle({ ...article, cantidad: quant, id_ArticuloAlmacen: article.id_ArticuloAlmacen });
                   }

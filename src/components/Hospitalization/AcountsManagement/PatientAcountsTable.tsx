@@ -183,7 +183,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
                 </IconButton>
               </Tooltip>
             ) : (
-              <Tooltip title="Imprimir">
+              <Tooltip title="Imprimirsss">
                 <IconButton
                   onClick={() => {
                     handleOpenPDF();
