@@ -40,8 +40,11 @@ const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
 });
 const filterSearchArticleOptions = createFilterOptions<IArticleFromSearchWithQuantity>({
   limit: OPTIONS_LIMIT,
+  matchFrom: 'any',
+  stringify: (option) => {
+    return `${option.nombre} ${option.codigoBarras || ''}`;
+  },
 });
-
 const style = {
   position: 'absolute',
   top: '50%',
@@ -245,6 +248,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
         nombre: item.nombre,
         stock: item.stockActual,
         id_ArticuloAlmacen: item.id_ArticuloAlmacen,
+        codigoBarras: item.codigoBarras,
       }));
       setDataWerehouseSelected(transformedData);
     } catch (error) {
@@ -267,7 +271,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
     },
     resolver: zodResolver(addNewArticlesPackage),
   });
-  const validateAmount = (articlesToCheck: IArticlesFromPatientAcount[]) => {
+  /*const validateAmount = (articlesToCheck: IArticlesFromPatientAcount[]) => {
     for (const articulo of articlesToCheck) {
       if (articulo.cantidad > articulo.stock) {
         toast.error(`La cantidad de salida del articulo ${articulo.nombre} está superando las existencias actuales!`);
@@ -275,7 +279,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
       }
     }
     return true;
-  };
+  };*/
   const onSubmit = async () => {
     if (!userSelected) {
       setUserError(true);
@@ -284,7 +288,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
     }
     try {
       const resultComparation = compareMaps(originalMap, articlesMap);
-      if (!validateAmount(resultComparation.addedOrIncreased)) return;
+      //if (!validateAmount(resultComparation.addedOrIncreased)) return;
       setLoadingSubmit(true);
       const object = {
         //NombreEnfermero: nurseSelected.nombre,
@@ -292,19 +296,19 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
         ArticulosPorSalir:
           resultComparation.addedOrIncreased.length > 0
             ? resultComparation.addedOrIncreased.map((newArt) => ({
-                Id_Articulo: newArt.id_Articulo,
-                Nombre: newArt.nombre,
-                Cantidad: newArt.cantidad,
-              }))
+              Id_Articulo: newArt.id_Articulo,
+              Nombre: newArt.nombre,
+              Cantidad: newArt.cantidad,
+            }))
             : undefined,
         ArticulosPorEntrar:
           resultComparation.removedOrDecreased.length > 0
             ? resultComparation.removedOrDecreased.map((newArt) => ({
-                Id_Articulo: newArt.id_Articulo,
-                Id_ArticuloCuenta: newArt.id_ArticuloCuenta,
-                Nombre: newArt.nombre,
-                Cantidad: newArt.cantidad,
-              }))
+              Id_Articulo: newArt.id_Articulo,
+              Id_ArticuloCuenta: newArt.id_ArticuloCuenta,
+              Nombre: newArt.nombre,
+              Cantidad: newArt.cantidad,
+            }))
             : undefined,
         IngresoMotivo: 'Devolución de artículos',
         Id_CuentaPaciente: userSelected.id_Cuenta,
@@ -324,6 +328,37 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
     }
   };
 
+  const handleKeyDown = (event: any) => {
+    const codigoBarra = event.target.value;
+    if (event.key === 'Enter' && codigoBarra !== '') {
+      setSearch('');
+      event.target.value = '';
+      const alreadyAdded = articles.findIndex((art) => art.codigoBarras === codigoBarra);
+      if(alreadyAdded !== -1)return toast.error('El articulo ya existe en la cuenta');
+      const article = dataWerehouseArticles
+        .map((article) => {
+          return article;
+        })
+        .filter((article) => article.codigoBarras === codigoBarra);
+      if (article[0]) {
+        console.log("encontro ubn papu",article[0]);
+        articlesMap.set(article[0].id_Articulo, {
+          id_Articulo: article[0].id_Articulo,
+          id_ArticuloCuenta: '',
+          id_CuentaPAciente: '',
+          cantidad: 1,
+          codigoBarras: article[0].codigoBarras ?? null,
+          nombre: article[0].nombre,
+          stock: article[0].stock,
+        });
+        setArticlesMap(articlesMap);
+        setGridKey(gridKey + 1);
+      }
+  
+      if (article.length === 0 || !article) return toast.error('No existe el articulo en la base de datos!');
+    }
+  };
+  
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Movimientos Hospitalarios" />
@@ -394,12 +429,12 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                     if (val !== null) {
                       if (articles.map((art) => art.id_Articulo).includes(val.id_Articulo)) {
                         return;
-                      } else if (val.stock === 0) {
+                      } /*else if (val.stock === 0) {
                         toast.error(
                           `La cantidad de salida del articulo ${val.nombre} esta superando la existencias actuales! `
                         );
                         return;
-                      }
+                      }*/
                       setArticleId(val.id_Articulo);
                       //setArticleSelected(val);
                       articlesMap.set(val.nombre, {
@@ -417,7 +452,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                       setSearch('');
                     } else {
                       setSearch('');
-                    setArticleSelected(null);
+                      setArticleSelected(null);
                     }
                   }}
                   loading={isLoadingArticlesFromPatient && dataWerehouseSelectedArticles.length === 0}
@@ -433,6 +468,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                       onChange={(e) => {
                         setSearch(e.target.value);
                       }}
+                    onKeyDown={handleKeyDown}
                       placeholder="Artículos"
                       sx={{ width: '100%' }}
                     />
@@ -523,20 +559,20 @@ const ArticlesTable = (props: {
         <Card sx={{ mt: 4, overflowX: 'auto' }}>
           <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
             <Table>
-              <Box sx={{ display:'flex', flexDirection:'row' }}>
-              <Button
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                <Button
                   disabled={props.articlesMap.length === 0}
                   variant="outlined"
                   startIcon={<Delete />}
                   color="error"
-                  sx={{ml:2}}
+                  sx={{ ml: 2 }}
                   onClick={() => {
                     props.deleteArticles(idsSelected);
                   }}
                 >
                   Eliminar seleccionados
                 </Button>
-                <Typography sx={{ ml:'auto', mr:5, my:'auto'}} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
+                <Typography sx={{ ml: 'auto', mr: 5, my: 'auto' }} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Box>

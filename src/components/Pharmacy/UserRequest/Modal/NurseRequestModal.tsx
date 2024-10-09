@@ -219,10 +219,10 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function,
       setAmountError(true);
       return toast.warning('Agrega una cantidad!');
     }
-    if (Number(amountText) > articleSelected.stock) {
+    /*if (Number(amountText) > articleSelected.stock) {
       setAmountError(true);
       return toast.warning('La cantidad excede el stock!');
-    }
+    }*/
     const objectArticle = {
       id: articleSelected.id,
       name: articleSelected.nombre,
@@ -585,10 +585,10 @@ const ArticlesTable = (props: { setEditingRow: Function }) => {
 
     if (articleToUpdate) {
       const newAmount = parseFloat(newQuantity);
-      if (newAmount > (articleToUpdate.stock as number)) {
+      /*if (newAmount > (articleToUpdate.stock as number)) {
         toast.warning('La cantidad excede el stock disponible');
         return;
-      }
+      }*/
       const updatedArticles = articles.map((article) => {
         if (article.id === id) {
           return {

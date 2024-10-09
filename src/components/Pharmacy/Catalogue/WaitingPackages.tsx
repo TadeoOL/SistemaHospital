@@ -49,6 +49,13 @@ enum STATUS_ENUM {
   ArmarPaquete = 4,
 }
 
+type PackageExtraInfo ={
+  cuartos: string;
+  horaCirugia: string;
+  nombreDoctor: string;
+  edadPaciente: string;
+}
+
 const useGetMovements = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const {
@@ -131,6 +138,12 @@ export const WaitingPackages = () => {
   const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
   const [loadingPackage, setLoadingPackage] = useState(false);
   const [packageSelected, setPackageSelected] = useState('');
+  const [extrainfoSelected, setExtrainfoSelected] = useState<PackageExtraInfo>({
+    cuartos: '',
+    horaCirugia: '',
+    nombreDoctor: '',
+    edadPaciente: ''
+  });
   const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
   const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
   const rejectRequest = (idRequest: string) => {
@@ -424,6 +437,18 @@ export const WaitingPackages = () => {
                                         //Agregar Loader
                                         setLoadingPackage(true);
                                         const packRes = await getPackagePreBuilded(movimiento.id);
+                                        setExtrainfoSelected({
+                                          cuartos: movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.cuarto?.nombre ?? '',
+                                          horaCirugia: sendDateHHMMDDMMYYYY(
+                                            movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.horaInicio as string
+                                          ) ?? '',
+                                          nombreDoctor: movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.nombres ?? '' + 
+                                          movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.apellidoPaterno ?? '' +
+                                          movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.apellidoMaterno ?? '',
+                                          edadPaciente: calculateAge(
+                                            getDDMMYYYY(movimiento?.infoExtra?.[0]?.registro?.paciente?.fechaNacimiento ?? '')
+                                          ).toString()
+                                        })
                                         createPackage(movimiento.id, packRes);
                                       } catch (error) {
                                         console.log(error);
@@ -450,14 +475,13 @@ export const WaitingPackages = () => {
                           </TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell colSpan={7} sx={{ p: 0 }}>
+                          <TableCell colSpan={12} sx={{ p: 0 }}>
                             <Collapse in={viewArticles[movimiento.id]}>
                               <Table>
                                 <TableHead>
                                   <TableRow>
                                     <TableCell align="center">Articulo</TableCell>
                                     <TableCell align="center">Cantidad</TableCell>
-                                    <TableCell align="center">Fecha Caducidad</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -467,7 +491,6 @@ export const WaitingPackages = () => {
                                       <TableRow key={(movimientoArticuclo.nombre, i)}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
-                                        <TableCell align="center">{movimientoArticuclo.fechaCaducidad}</TableCell>
                                       </TableRow>
                                     ))}
                                 </TableBody>
@@ -541,6 +564,7 @@ export const WaitingPackages = () => {
             }}
             preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
             movementHistoryId={packageSelected}
+            packageExtraInfo={extrainfoSelected}
           />
         </>
       </Modal>

@@ -89,7 +89,7 @@ const SearchBar = (props: ISearchBar) => {
     setText(event.currentTarget.value);
     event.preventDefault();
   };
-
+  
   const handleKeyDown = (event: any) => {
     const codigoBarra = event.target.value;
     if (event.key === 'Enter' && codigoBarra !== '') {

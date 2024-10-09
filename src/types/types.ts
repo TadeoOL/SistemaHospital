@@ -153,6 +153,7 @@ export interface IArticleFromSearchWithQuantity {
   nombre: string;
   stock: number;
   cantidad: number | null; //esta no debe venir desde el back se define en front
+  codigoBarras?: string;
 }
 export interface IArticleFromSearchWithBarCode {
   id_Articulo: string;

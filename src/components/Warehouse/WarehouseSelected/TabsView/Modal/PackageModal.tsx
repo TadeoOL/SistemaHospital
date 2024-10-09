@@ -402,10 +402,10 @@ const ArticlesTable = (props: { setOpen: Function; submitData: Function }) => {
 
     if (articleToUpdate) {
       const newAmount = parseFloat(newQuantity);
-      if (newAmount > (articleToUpdate.stock as number)) {
+      /*if (newAmount > (articleToUpdate.stock as number)) {
         toast.warning('La cantidad excede el stock disponible');
         return;
-      }
+      }*/
       const updatedArticles = articles.map((article) => {
         if (article.id === id) {
           return {
