@@ -55,6 +55,7 @@ type PackageExtraInfo ={
   horaCirugia: string;
   nombreDoctor: string;
   edadPaciente: string;
+  nombrePaciente: string;
 }
 
 const useGetMovements = () => {
@@ -143,7 +144,8 @@ export const WaitingPackages = () => {
     cuartos: '',
     horaCirugia: '',
     nombreDoctor: '',
-    edadPaciente: ''
+    edadPaciente: '',
+    nombrePaciente: ''
   });
   const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
   const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
@@ -432,6 +434,7 @@ export const WaitingPackages = () => {
                                         setLoadingPackage(true);
                                         const packRes = await getPackagePreBuilded(movimiento.id);
                                         setExtrainfoSelected({
+                                          nombrePaciente: movimiento.nombrePaciente,
                                           cuartos: movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.cuarto?.nombre ?? '',
                                           horaCirugia: sendDateHHMMDDMMYYYY(
                                             movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.horaInicio as string

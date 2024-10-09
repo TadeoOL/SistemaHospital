@@ -89,6 +89,7 @@ type BillCloseReportprops = {
   cuartos: string;
   horaCirugia: string;
   nombreDoctor: string;
+  nombrePaciente: string;
   edadPaciente: string;
   articulos: Articulo[];
   notas?: string;
@@ -101,6 +102,9 @@ export const PackageReport = (  props: BillCloseReportprops) => (
         <Text style={styles.header}>Información de la cirugía</Text>
         <Text>
           Nombre del doctor: {props.nombreDoctor}
+        </Text>
+        <Text>
+          Nombre del paciente: {props.nombrePaciente}
         </Text>
         <Text>
           Edad del paciente: {props.edadPaciente}
