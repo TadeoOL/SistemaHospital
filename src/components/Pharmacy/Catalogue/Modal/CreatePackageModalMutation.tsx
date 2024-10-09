@@ -58,6 +58,7 @@ type PackageExtraInfo ={
   horaCirugia: string;
   nombreDoctor: string;
   edadPaciente: string;
+  nombrePaciente: string;
 }
 
 interface RequestBuildingModalProps {
@@ -182,6 +183,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
               horaCirugia={props.packageExtraInfo.horaCirugia}
               nombreDoctor={props.packageExtraInfo.nombreDoctor}
               edadPaciente={props.packageExtraInfo.edadPaciente}
+              nombrePaciente={props.packageExtraInfo.nombrePaciente}
                />
               }
               fileName={`${Date.now()}.pdf`}
