@@ -30,7 +30,7 @@ import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { IArticleFromSearch, IWarehouseData } from '../../../../../types/types';
-import { articlesOutputToWarehouseToWarehouse, getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
+import { articlesOutputToWarehouseToWarehouse, getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch, getWarehouseById } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -281,6 +281,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
   const [amountText, setAmountText] = useState('');
+  const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
 
   useEffect(() => {
     const fetch = async () => {
@@ -301,7 +302,30 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   }, [search, warehouseData]);
 
   useEffect(() => {
+    const fetch = async () => {
+      const warehouse: IWarehouseData = await getWarehouseById(warehouseData.id);
+      if (warehouse?.esSubAlmacen) {
+        const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
+        const subWH = fatherWarehouse.subAlmacenes
+          .map((swh: IWarehouseData) => ({
+            nombre: swh.nombre,
+            id: swh.id,
+          }))
+          .concat({ nombre: fatherWarehouse.nombre, id: fatherWarehouse.id });
+        setWarehousesFetched(subWH);
+      } else {
+        const subWH = warehouse.subAlmacenes
+          .map((swh: IWarehouseData) => ({
+            nombre: swh.nombre,
+            id: swh.id,
+          }))
+          .concat({ nombre: warehouse.nombre, id: warehouse.id });
+        setWarehousesFetched(subWH);
+      }
+    }
     setWarehouseId(warehouseData.id);
+    fetch()
+    
   }, []);
 
   const handleAddArticle = (articleToAdd: ArticlesFetched, edit: boolean) => {
@@ -450,7 +474,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               onChange={(e: any) => setRadioSelected(Number(e.target.value))}
               value={0}
               control={<Radio />}
-              label={warehouseData.esSubAlmacen ? 'Se dirige al almacen principal' : 'Se dirige a otro almacén'}
+              label={'Se dirige a otro almacén'}
             />
             <FormControlLabel
               value={1}
@@ -461,7 +485,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           </RadioGroup>
         </FormControl>
         <Stack flexDirection={'row'}>
-          {warehouseData.subAlmacenes.length > 0 && !warehouseData.esSubAlmacen && (
+          {warehousesFetched && warehousesFetched.length > 0 && (
             <Box sx={{ width: '35%' }}>
               <Autocomplete
                 disabled={radioSelected === 1}
@@ -473,7 +497,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
                   setSubWarehouse(val);
                 }}
                 getOptionLabel={(option) => option.nombre}
-                options={warehouseData.subAlmacenes}
+                options={warehousesFetched.filter((wr) => wr.id !== warehouseData.id)}
                 value={subWarehouse}
                 noOptionsText="No existen registros de Sub Almacenes"
                 renderInput={(params) => <TextField {...params} placeholder="Sub Almacén..." fullWidth />}
