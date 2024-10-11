@@ -142,11 +142,10 @@ export interface IArticlePOS {
   stockMinimo: string;
   precioCompra: string;
   precioVenta: string;
-  stockActual: number;
+  cantidad: number;
   codigoBarras?: string;
   esCaja?: boolean;
   unidadesPorCaja?: string;
-  cantidad?: number;
   iva?: number;
 }
 

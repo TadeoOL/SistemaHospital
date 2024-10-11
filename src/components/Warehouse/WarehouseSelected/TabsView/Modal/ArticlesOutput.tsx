@@ -30,14 +30,11 @@ import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
 import { IArticleFromSearch, IWarehouseData } from '../../../../../types/types';
-import {
-  articlesOutputToWarehouseToWarehouse,
-  getAmountForArticleInWarehouse,
-  getArticlesFromWarehouseSearch,
-} from '../../../../../api/api.routes';
+import { getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
+import { articlesOutputToWarehouseToWarehouse } from '../../../../../services/warehouse/articleWarehouseService';
 
 const style = {
   position: 'absolute',
@@ -141,10 +138,9 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       };
     });
     const object = {
-      ArticulosSalida: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id_Almacen : '') : '',
-      id_almacenOrigen: warehouseData.id_Almacen,
-      SalidaMotivo: radioSelected === 1 ? reasonMessage : undefined,
+      articulos: existingArticles,
+      id_Almacen: warehouseData.id_Almacen,
+      motivo: radioSelected === 1 ? reasonMessage : undefined,
     };
     try {
       await articlesOutputToWarehouseToWarehouse(object);

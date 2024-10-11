@@ -116,7 +116,7 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    fetchData(false, warehouseSL?.id_Almacen ?? warehouseIdSeted);
+    fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
   }, [search, startDate, endDate, clearFilters, sort, pageSize, pageIndex]);
   return {
     data,
@@ -166,7 +166,7 @@ export const NurseRequestManagementTable = () => {
   const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   //setWarehouseId
   useEffect(() => {
-    fetchData(false, warehouseSL?.id_Almacen ?? warehouseIdSeted);
+    fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
   }, [status]);
 
   const rejectRequest = (idRequest: string, Id_warehouseRequest: string) => {
@@ -192,7 +192,7 @@ export const NurseRequestManagementTable = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchData(false, warehouseSL?.id_Almacen ?? warehouseIdSeted);
+          fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Solicitud cancelada',
@@ -232,7 +232,7 @@ export const NurseRequestManagementTable = () => {
       })
       .then(async (result) => {
         if (result.isConfirmed) {
-          fetchData(false, warehouseSL?.id_Almacen ?? warehouseIdSeted);
+          fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Solicitud entregada',
@@ -403,7 +403,7 @@ export const NurseRequestManagementTable = () => {
           <RequestBuildingModal
             setOpen={setOpenModalBuild}
             refetch={() => {
-              fetchData(false, warehouseSL?.id_Almacen ?? warehouseIdSeted);
+              fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
             }}
             request={nurseRequest as InurseRequest}
             preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}

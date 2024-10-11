@@ -1,8 +1,8 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getWaitingPackagesByWarehouse } from '../../api/api.routes';
 import { IWarehouseMovementData } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { getWaitingPackagesByWarehouse } from '../../services/pharmacy/inventoryOutflowsService';
 
 interface State {
   count: number;

@@ -18,7 +18,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { patientArticlesManagement, getExistingArticles } from '../../../../api/api.routes';
+import { patientArticlesManagement } from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { Save, Delete, Info, Cancel } from '@mui/icons-material';
@@ -33,6 +33,7 @@ import { useExistingArticleLotesPagination } from '../../../../store/warehouseSt
 import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getArticlesFromAcountId } from '../../../../store/programming/AcountArticlesService';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
+import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
@@ -514,20 +515,23 @@ const ArticlesTable = (props: {
         <Card sx={{ mt: 4, overflowX: 'auto' }}>
           <TableContainer sx={{ minWidth: 380, display: 'flex', flexDirection: 'row' }}>
             <Table>
-              <Box sx={{ display:'flex', flexDirection:'row' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Button
                   disabled={props.articlesMap.length === 0}
                   variant="outlined"
                   startIcon={<Delete />}
                   color="error"
-                  sx={{ml:2}}
+                  sx={{ ml: 2 }}
                   onClick={() => {
                     props.deleteArticles(idsSelected);
                   }}
                 >
                   Eliminar seleccionados
                 </Button>
-                <Typography sx={{ ml:'auto', mr:5, my:'auto'}} fontWeight={'bold'} > Total de articulos: {props.articlesMap.length} </Typography>
+                <Typography sx={{ ml: 'auto', mr: 5, my: 'auto' }} fontWeight={'bold'}>
+                  {' '}
+                  Total de articulos: {props.articlesMap.length}{' '}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Box>

@@ -1,7 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getExistingArticles } from '../../api/api.routes';
 import { IExistingArticle } from '../../types/types';
 import { debouncedSetSearch, getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { getExistingArticles } from '../../services/warehouse/articleWarehouseService';
 
 interface State {
   count: number;
@@ -74,8 +74,18 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchExistingArticles: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, warehouseId, startDate,
-      subcategory ,endDate, sort, principalWarehouseId } = get();
+    const {
+      pageIndex,
+      pageSize,
+      search,
+      enabled,
+      warehouseId,
+      startDate,
+      subcategory,
+      endDate,
+      sort,
+      principalWarehouseId,
+    } = get();
     const page = pageIndex + 1;
     try {
       let mainWarehouseId = '';
@@ -89,7 +99,8 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_SubCategoria=${
-          subcategory }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
+          subcategory
+        }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
       );
       set(() => ({
         data: res.data,
@@ -114,7 +125,7 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
       isLoading: true,
       startDate: '',
       endDate: '',
-      subcategory:'',
+      subcategory: '',
     });
   },
   clearAllData: () => {

@@ -1,4 +1,4 @@
-import { Box, Button, Card, CircularProgress, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { alpha, Box, Button, Card, CircularProgress, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import AnimateButton from '../../@extended/AnimateButton';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { useEffect, useMemo } from 'react';
@@ -125,20 +125,22 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                           display: 'flex',
                           flexDirection: 'column',
                           position: 'relative',
-                          '&:hover': {
-                            cursor: 'pointer',
-                            transform: 'scale(1.02)',
-                            transition: 'transform 0.2s ease-in-out',
-                            boxShadow: 3,
-                          },
                           boxShadow: 3,
+                          bgcolor: article.cantidad > 0 ? null : alpha(neutral[500], 0.2),
+                          ...(article.cantidad > 0 && {
+                            '&:hover': {
+                              cursor: 'pointer',
+                              transform: 'scale(1.02)',
+                              transition: 'transform 0.2s ease-in-out',
+                              boxShadow: 3,
+                            },
+                          }),
                         }}
                         onClick={() => {
-                          if(article.stockActual > 0){
-                            handleAddArticleToBasket(article)
-                          }
-                          else{
-                            toast.warning('No hay existencias disponibles del articulo: '+article.nombre);
+                          if (article.cantidad > 0) {
+                            handleAddArticleToBasket(article);
+                          } else {
+                            toast.warning('No hay existencias disponibles del articulo: ' + article.nombre);
                           }
                         }}
                       >
@@ -168,7 +170,7 @@ export const ArticlesToSale = (props: ArticlesToSaleProps) => {
                               Precio: ${article.precioVenta}
                             </Typography>
                             <Typography sx={{ fontSize: 13, fontWeight: 500, color: neutral[400] }}>
-                              / {article.stockActual} pza.
+                              / {article.cantidad} pza.
                             </Typography>
                           </Box>
                         </Box>

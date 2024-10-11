@@ -95,7 +95,7 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    fetchData(true);
+    fetchData();
   }, [search, startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex]);
   return {
     data,
@@ -285,7 +285,11 @@ export const NurseRequestTable = () => {
       </Stack>
       <Modal open={openModal} onClose={() => setOpenModal(!openModal)}>
         <>
-          <NurseRequestModal setOpen={setOpenModal} refetch={fetchData} warehouseId={warehousePharmacyData.id_Almacen} />
+          <NurseRequestModal
+            setOpen={setOpenModal}
+            refetch={fetchData}
+            warehouseId={warehousePharmacyData.id_Almacen}
+          />
         </>
       </Modal>
     </>

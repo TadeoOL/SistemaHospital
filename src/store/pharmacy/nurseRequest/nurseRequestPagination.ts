@@ -1,7 +1,7 @@
 import { InurseRequest } from '../../../types/types';
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { getNurseRequestPending, getNurseEmiterRequestPending } from '../../../api/api.routes';
+import { getNurseRequestPending } from '../../../services/pharmacy/inventoryOutflowsService';
 
 interface State {
   count: number;
@@ -28,7 +28,7 @@ interface Action {
   setStatus: (status: number) => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
-  fetchData: (isNurse: boolean, id_Almacen?: string) => void;
+  fetchData: (id_Almacen?: string) => void;
   setEnabled: (enabled: boolean) => void;
   clearFilters: () => void;
   setSort: (sort: string) => void;
@@ -63,7 +63,7 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
   setStartDate: (startDate: string) => set({ startDate, pageIndex: 0 }),
   setEndDate: (endDate: string) => set({ endDate, pageIndex: 0 }),
   setSort: (sort: string) => set({ sort }),
-  fetchData: async (isNurse: boolean, id_Almacen?: string) => {
+  fetchData: async (id_Almacen?: string) => {
     const { enabled, search, pageIndex, pageSize, status, sort } = get();
     const index = pageIndex + 1;
     set({ loading: true });
@@ -75,21 +75,11 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
     set({ cancelToken: cancelToken });
 
     try {
-      let res: any;
-      if (isNurse) {
-        console.log('enfermero');
-        res = await getNurseRequestPending(
-          `&pageIndex=${index}&${
-            pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&sort=${sort}`
-        );
-      } else {
-        res = await getNurseEmiterRequestPending(
-          `&pageIndex=${index}&${
-            pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}&id_Almacen=${id_Almacen}`
-        );
-      }
+      const res = await getNurseRequestPending(
+        `&pageIndex=${index}&${
+          pageSize === 0 ? '' : 'pageSize=' + pageSize
+        }&search=${search}&habilitado=${enabled}&estatus=${status}&sort=${sort}&id_Almacen=${id_Almacen}`
+      );
       set({
         data: res.data,
         pageSize: res.pageSize,

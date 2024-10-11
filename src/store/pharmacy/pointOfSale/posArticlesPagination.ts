@@ -2,7 +2,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { IArticlePOS } from '../../../types/types';
 import axios, { CancelTokenSource } from 'axios';
 import { usePosTabNavStore } from './posTabNav';
-import { getExistingArticlesPOS } from '../../../services/pharmacy/pointOfSaleService';
+import { getArticlesToSaleOnPOS } from '../../../services/pharmacy/pointOfSaleService';
 
 interface State {
   count: number;
@@ -71,7 +71,7 @@ export const usePosArticlesPaginationStore = createWithEqualityFn<State & Action
       if (fetchPagination) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
-      const res = await getExistingArticlesPOS(
+      const res = await getArticlesToSaleOnPOS(
         `&pageIndex=${pageIndex}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&id_Almacen=${

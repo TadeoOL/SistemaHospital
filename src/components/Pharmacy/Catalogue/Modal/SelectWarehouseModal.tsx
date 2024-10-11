@@ -176,7 +176,7 @@ export const SelectWarehouseModal = (props: { setOpen: Function }) => {
                       localStorage.setItem('pharmacyWarehouse_Selected', JSON.stringify(warehouseSelected));
                       props.setOpen(false);
                       setWarehouseId(warehouseSelected?.id_Almacen ?? warehouseIdSeted);
-                      fetchData(false, warehouseSelected?.id_Almacen ?? warehouseIdSeted);
+                      fetchData(warehouseSelected?.id_Almacen ?? warehouseIdSeted);
                       if (warehouseSelected && warehouseSelected?.esSubAlmacen) {
                         setPrincipalWarehouseId(warehouseSelected.id_AlmacenPrincipal ?? warehouseIdSeted);
                         fetchWareHouseMovements(warehouseSelected.id_Almacen ?? warehouseIdSeted);

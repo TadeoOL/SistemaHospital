@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { usePosArticlesPaginationStore } from '../../../store/pharmacy/pointOfSale/posArticlesPagination';
 import { CloseSaleRegisterModal } from './Modal/CloseSaleRegisterModal';
-import { getCategoriesForPOS } from '../../../services/pharmacy/pointOfSaleService';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { getCategoriesForPOS } from '../../../services/checkout/subcategoryController';
 
 interface CategoriesProps {
   sx?: any;
@@ -17,7 +17,7 @@ export const Categories = (props: CategoriesProps) => {
   const warehouseId = usePosTabNavStore((state) => state.warehouseId);
   const { data } = useQuery({
     queryKey: ['categoriesForPOS'],
-    queryFn: async () => getCategoriesForPOS(warehouseId),
+    queryFn: async () => getCategoriesForPOS({ warehouseId }),
   });
   const setSubCategoryId = usePosArticlesPaginationStore((state) => state.setSubCategoryId);
 
@@ -54,7 +54,7 @@ export const Categories = (props: CategoriesProps) => {
                 <Typography variant="body1">Todos los artículos</Typography>
               </Card>
             </AnimateButton>
-            {data?.map((category, i) => (
+            {data?.map((subcategory, i) => (
               <AnimateButton>
                 <Card
                   sx={{
@@ -75,10 +75,10 @@ export const Categories = (props: CategoriesProps) => {
                   }}
                   onClick={() => {
                     setValue(i + 1);
-                    setSubCategoryId(category.id);
+                    setSubCategoryId(subcategory.id_SubCategoria);
                   }}
                 >
-                  <Typography variant="body1">{category.nombre}</Typography>
+                  <Typography variant="body1">{subcategory.nombre}</Typography>
                 </Card>
               </AnimateButton>
             ))}
