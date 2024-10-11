@@ -2,7 +2,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { getWaitingPackagesByWarehouse } from '../../api/api.routes';
 import { IWarehouseMovementData } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
-import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { getTodayDate } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -47,7 +47,7 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
   data: null,
   isLoading: true,
   search: '',
-  startDate: getFirstDayOfTheMonth(),
+  startDate: getTodayDate(),
   endDate: '',
   enabled: true,
   handleChangeSubWarehouse: false,

@@ -517,7 +517,7 @@ export const ArticlesPatientAcountManagementPharmacyModal = (props: {
                 <Button
                   variant="contained"
                   endIcon={<Save />}
-                  disabled={articlesMap.size === 0 || loadingSubmit}
+                  disabled={loadingSubmit}
                   onClick={() => {
                     onSubmit();
                   }}

@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Grid,
   IconButton,
+  MenuItem,
   Modal,
   Stack,
   Table,
@@ -14,14 +15,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Add, CheckCircle, DeleteSweep, Edit, RestorePage } from '@mui/icons-material';
-import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/api.routes';
-import { IPurchaseOrder, IPurchaseOrderArticle, ISubWarehouse } from '../../../../../types/types';
+import { addArticlesToWarehouse, getOrderRequestById, getWarehouseById } from '../../../../../api/api.routes';
+import { IPurchaseOrder, IPurchaseOrderArticle, ISubWarehouse, IWarehouseData } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
 import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
@@ -85,6 +87,7 @@ const useGetArticleEntryData = (orderId: string) => {
   const [isLoadingArticleEntryData, setIsLoadingArticleEntryData] = useState(true);
   const [articleEntryData, setArticleEntryData] = useState<PurchaseOrder | null>(null);
   const [error, setError] = useState(false);
+  const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
 
   useEffect(() => {
     const fetch = async () => {
@@ -96,6 +99,26 @@ const useGetArticleEntryData = (orderId: string) => {
           return art;
         });
         setArticleEntryData(data);
+        const warehouse: IWarehouseData = await getWarehouseById(data.almacen.id);
+        if (warehouse?.esSubAlmacen) {
+          const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
+          const subWH = fatherWarehouse.subAlmacenes
+            .map((swh: IWarehouseData) => ({
+              nombre: swh.nombre,
+              id: swh.id,
+            }))
+            .concat({ nombre: warehouse.nombre, id: warehouse.id });
+          setWarehousesFetched(subWH);
+        } else {
+          const subWH = warehouse.subAlmacenes
+            .map((swh: IWarehouseData) => ({
+              nombre: swh.nombre,
+              id: swh.id,
+            }))
+            .concat({ nombre: warehouse.nombre, id: warehouse.id });
+          setWarehousesFetched(subWH);
+        }
+
       } catch (error) {
         console.log(error);
         setError(true);
@@ -105,11 +128,11 @@ const useGetArticleEntryData = (orderId: string) => {
     };
     fetch();
   }, []);
-  return { isLoadingArticleEntryData, articleEntryData, error };
+  return { isLoadingArticleEntryData, articleEntryData, warehousesFetched, error };
 };
 
 export const ArticlesEntry = (props: ArticlesEntryProps) => {
-  const { isLoadingArticleEntryData, articleEntryData, error } = useGetArticleEntryData(props.orderId);
+  const { isLoadingArticleEntryData, articleEntryData, warehousesFetched, error } = useGetArticleEntryData(props.orderId);
   const [openModal, setOpenModal] = useState(false);
   const [articleSelected, setArticleSelected] = useState<ArticleSelected>();
   const [articles, setArticles] = useState<IPurchaseOrderArticle[]>([]);
@@ -120,6 +143,8 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   useEffect(() => {
     if (!articleEntryData) return;
     setArticles(structuredClone(articleEntryData.ordenCompraArticulo));
+    setWarehouseSelected(articleEntryData.almacen.id);
+    setWarehouseError(false);
   }, [articleEntryData]);
 
   const missingSomeEntryData = useMemo(() => {
@@ -144,6 +169,8 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     },
     [articles]
   );
+  const [warehouseError, setWarehouseError] = useState(false);
+  const [warehouseSelected, setWarehouseSelected] = useState('');
 
   const handleSubmit = async () => {
     if (!articleEntryData || !articles) return;
@@ -231,7 +258,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   return (
     <>
       <Box sx={style}>
-        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos xxx" />
+        <HeaderModal setOpen={props.setOpen} title="Entrada de artículos" />
         <Stack spacing={2} sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto', ...styleBar }}>
           <Box sx={{ maxHeight: 450 }}>
             <Grid container spacing={2}>
@@ -241,7 +268,28 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Almacén dirigido:</Typography>
-                <Typography variant="body1">{articleEntryData?.almacen.nombre}</Typography>
+                {!isLoadingArticleEntryData && (
+                  <TextField
+                    select
+                    label="Almacén"
+                    fullWidth
+                    error={warehouseError}
+                    helperText={warehouseError && 'Selecciona un almacén'}
+                    value={warehouseSelected}
+                    onChange={(e) => {
+                      setWarehouseError(false);
+                      setWarehouseSelected(e.target.value);
+                    }}
+                  >
+                    {warehousesFetched &&
+                      warehousesFetched?.length > 0 &&
+                      warehousesFetched.map((warehouse) => (
+                        <MenuItem key={warehouse.id} value={warehouse.id}>
+                          {warehouse.nombre}
+                        </MenuItem>
+                      ))}
+                  </TextField>
+                )}
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Instrucciones de entrega:</Typography>
@@ -285,7 +333,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                 <Typography className="textoTachado">
                                   {!findArticleInArticleToBox(a.id_Articulo)
                                     ? (a?.unidadesTotal || a.cantidad) -
-                                      (findOriginalArticle(a.id_Articulo)?.unidadesTotal as number)
+                                    (findOriginalArticle(a.id_Articulo)?.unidadesTotal as number)
                                     : findOriginalArticle(a.id_Articulo)?.unidadesTotal}
                                 </Typography>
                                 <Typography>{a.unidadesTotal}</Typography>
@@ -338,7 +386,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                               </Tooltip>
                               {dataCompleted(a) && (
                                 <Tooltip title="Completado">
-                                  <IconButton onClick={() => {}}>
+                                  <IconButton onClick={() => { }}>
                                     <CheckCircle sx={{ color: 'green' }} />
                                   </IconButton>
                                 </Tooltip>

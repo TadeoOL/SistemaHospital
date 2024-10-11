@@ -299,6 +299,7 @@ export const WaitingPackages = () => {
                   size="small"
                 />
                 <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
+                  <Typography sx={{my:'auto'}}>Fecha inicial</Typography>
                   <TextField
                     label="Fecha inicio"
                     size="small"
@@ -309,6 +310,7 @@ export const WaitingPackages = () => {
                       setStartDate(e.target.value);
                     }}
                   />
+                  <Typography sx={{my:'auto'}}>Fecha final</Typography>
                   <TextField
                     label=" Fecha final"
                     size="small"
