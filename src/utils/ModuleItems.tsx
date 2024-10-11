@@ -37,7 +37,6 @@ import {
   SensorDoor,
   CalendarMonth,
   GroupAdd,
-  History,
   Hotel,
   HowToReg,
   LocalHospital,
@@ -161,22 +160,16 @@ export const ModuleList: IModuleItemsList[] = [
     icon: <LocalPharmacy />,
     moduleItems: [
       {
-        title: 'Punto de venta',
+        title: 'Punto de Venta',
         path: '/farmacia/punto-venta',
         icon: <PointOfSale sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyManager,
       },
       {
-        title: 'Salidas y existencias',
+        title: 'Salidas y Existencias',
         path: '/farmacia/catalogo',
         icon: <ArticleIcon sx={{ color: '#fff' }} />,
         protectedRoles: pharmacyManager,
-      },
-      {
-        title: 'Historial de ventas',
-        path: '/farmacia/historial-ventas',
-        icon: <History sx={{ color: '#fff' }} />,
-        protectedRoles: pharmacyDirectorRole,
       },
       {
         title: 'Configuración',
