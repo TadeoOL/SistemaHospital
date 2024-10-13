@@ -73,20 +73,20 @@ export const OutputReasonMessage = ({ open, moduleApi, setReasonMessage }: Outpu
   const [openDialog, setOpenDialog] = useState(false);
   const [mensajeIdToDelete, setMensajeIdToDelete] = useState('');
   const [selectedMensaje, setSelectedMensaje] = useState<Mensaje | null>(null);
-  const [editingMessageId, setEditingMessageId] = useState('');
-  const [editingMessageText, setEditingMessageText] = useState('');
-  const [mostrarInput, setMostrarInput] = useState(false);
-  const [selectedReason, setSelectedReason] = useState<Mensaje | null>(null);
-  const [otroSelected, setOtroSelected] = useState<boolean>(false);
+  const [editingMessageId, setEditingMessageId] = useState(''); 
+  const [editingMessageText, setEditingMessageText] = useState('');  
+  const [mostrarInput, setMostrarInput] = useState(false);  
+  const [selectedReason, setSelectedReason] = useState<Mensaje | null>(null);  
+  const [otroSelected, setOtroSelected] = useState<boolean>(false);              
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await obtenerMensajes(moduleApi);
+        const res = await obtenerMensajes(moduleApi); 
         setMensajes(res);
-      } catch (error: any) {
+      } catch (error: any) { 
         console.error('Error al obtener los mensajes:', error);
-        console.log('Código de estado HTTP:', error.response?.status);
+        console.log('Código de estado HTTP:', error.response?.status); 
       }
     };
 
@@ -111,26 +111,26 @@ export const OutputReasonMessage = ({ open, moduleApi, setReasonMessage }: Outpu
   const eliminarMensajes = async (mensajeId: string) => {
     try {
       handleOpenDialog(mensajeId);
-    } catch (error) {
+    } catch (error) { 
       console.error('Error al eliminar el mensaje:', error);
     }
   };
   const handleOpenDialog = (mensajeId: string) => {
     setMensajeIdToDelete(mensajeId);
     setOpenDialog(true);
-    const selected = mensajes.find((mensaje) => mensaje.id_Mensaje === mensajeId);
+    const selected = mensajes.find((mensaje) => mensaje.id_Mensaje === mensajeId); 
     setSelectedMensaje(selected || null);
   };
   const handleCloseDialog = () => {
-    setOpenDialog(false);
+    setOpenDialog(false); 
     setSelectedMensaje(null);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async () => { 
     if (mensajeIdToDelete) {
-      await eliminarMensaje(mensajeIdToDelete, moduleApi);
-      handleCloseDialog();
-      const res = await obtenerMensajes(moduleApi);
+      await eliminarMensaje(mensajeIdToDelete, moduleApi); 
+      handleCloseDialog();  
+      const res = await obtenerMensajes(moduleApi); 
       setMensajes(res);
     }
   };

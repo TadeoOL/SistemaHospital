@@ -301,25 +301,25 @@ export interface ArticleObject {
 }
 
 export interface MerchandiseEntry {
-  id: string;
+  folio: string;
+  id_SolicitudAlmacen: string;
   id_AlmacenOrigen: string;
   id_AlmacenDestino: string;
+  tipoSolicitud: number;
+  estatus: number;
   almacenOrigen: string;
   almacenDestino: string;
-  historialArticulos: ArticleObjectInPetition[];
+  usuarioSolicito?: string;
+  usuarioAutorizo?: string;
+  articulos: ArticleObjectInPetition[];
   fechaSolicitud: string;
-  estatus: number;
-  solicitadoPor?: string;
-  autorizadoPor?: string;
-  folio: string;
+ 
 }
 
 export interface ArticleObjectInPetition {
   cantidad: number;
   nombre: string;
-  fechaCaducidad: string | null;
   id_Articulo: string;
-  lote?: IExistingArticleList;
 }
 
 export interface ICheckedArticles {

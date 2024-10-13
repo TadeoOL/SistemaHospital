@@ -15,19 +15,31 @@ import {
   TablePagination,
   Button,
   Modal,
+  FormControlLabel,
+  Switch,
+  Tooltip,
 } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { Info } from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
+import Swal from 'sweetalert2';
+import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
+import SettingsIcon from '@mui/icons-material/Settings';
 import React, { useEffect, useState } from 'react';
 import { merchandiseEntryPagination } from '../../../../store/warehouseStore/merchandiseEntry';
 import { AddMerchandisePetitionModal } from './Modal/AddMerchandisePetition';
 import { SortComponent } from '../../../Commons/SortComponent';
+import { MerchandiseEntry } from '../../../../types/types';
+import withReactContent from 'sweetalert2-react-content';
+import { articlesOutputToWarehouse } from '../../../../api/api.routes';
+import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest';
 
 export const WarehousePurchases = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [openModal, setOpenModal] = useState(false);
+  const [openAceptModal, setOAceptpenModal] = useState(false);
   const {
     data,
     fetchMerchandiseEntries,
@@ -41,6 +53,8 @@ export const WarehousePurchases = () => {
     setSearch,
     search,
     setSort,
+    setStatus,
+    status,
     sort,
   } = merchandiseEntryPagination((state) => ({
     data: state.data,
@@ -55,12 +69,161 @@ export const WarehousePurchases = () => {
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
     setSort: state.setSort,
+    setStatus: state.setStatus,
+    status: state.status,
     sort: state.sort,
   }));
+  const [request, setRequest] = useState<MerchandiseEntry>();
+
+  const getStatus = (petition: MerchandiseEntry) => {
+    switch (petition.estatus) {
+      case 0:
+        return <>{'Cancelado'}</>;
+      case 1:
+        return <>
+          
+          <Box
+            sx={{
+              flexDirection: 'row',
+              alignContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {'Pendiente'}
+            <Tooltip title="Armar solicitud">
+            <IconButton>
+              <SettingsIcon
+                onClick={() => {
+                  console.log('peticion', petition);
+                  setRequest(petition);
+                  setOAceptpenModal(true);
+                }}
+              />
+            </IconButton>
+            </Tooltip>
+            <Tooltip title="Cancelar solicitud">
+            <IconButton
+              size="small"
+              onClick={() => {
+                rejectRequest(petition.id_SolicitudAlmacen);
+              }}
+            >
+              <CloseIcon sx={{ color: 'red' }} />
+            </IconButton>
+            </Tooltip>
+          </Box>
+        </>;
+      case 2:
+        return <>
+        {'En espera'}
+        <Tooltip title="Marcar como Entregado">
+              <IconButton
+                onClick={() => {
+                  markAsDelivered(petition.id_SolicitudAlmacen);
+                }}
+              >
+                <MarkunreadMailboxIcon sx={{ color: 'green' }} />
+              </IconButton>
+            </Tooltip>
+        </>;
+      case 3:
+        return <>{'Entregado/Aceptado'}</>;
+    }
+  }
+  const rejectRequest = (idRequest: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Advertencia',
+        text: `¿Seguro que deseas cancelar esta solicitud de articulos?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'red',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          const { value: reason } = await withReactContent(Swal).fire({
+            title: 'Ingresa un motivo de cancelación:',
+            input: 'textarea',
+            inputPlaceholder: 'Escribe aquí...',
+            inputAttributes: {
+              'aria-label': 'Ingresa un motivo de cancelación',
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: (inputReason) => {
+              return articlesOutputToWarehouse({
+                Estatus: 0,
+                Id_SolicitudAlmacen: idRequest,
+                Motivo: inputReason as string,
+              });
+            },
+            allowOutsideClick: () => !Swal.isLoading(),
+          });
+          if (reason) {
+            fetchMerchandiseEntries();
+            withReactContent(Swal).fire({
+              title: 'Éxito!',
+              text: 'Solicitud Cancelada',
+              icon: 'success',
+            });
+          } else {
+            withReactContent(Swal).fire({
+              title: 'Operación Cancelada',
+              text: 'No se proporcionó un motivo de cancelación.',
+              icon: 'info',
+            });
+          }
+        }
+      });
+  };
+
+  const markAsDelivered = (idRequest: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Confirmación',
+        text: `¿Seguro que deseas marcar como entregada esta solicitud?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'green',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return articlesOutputToWarehouse({
+            Estatus: 3,
+            Id_SolicitudAlmacen: idRequest,
+            Motivo: '',
+          });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          //fetchData(false, warehouseSL?.id_Almacen ?? warehouseIdSeted);
+          withReactContent(Swal).fire({
+            title: 'Éxito!',
+            text: 'Solicitud entregada',
+            icon: 'success',
+          });
+        } else {
+          withReactContent(Swal).fire({
+            title: 'No se cambio la solicitud',
+            icon: 'info',
+          });
+        }
+      });
+  };
 
   useEffect(() => {
+    //setStatus(null)
     fetchMerchandiseEntries();
-  }, [pageCount, pageSize, pageIndex, search, sort]);
+  }, [pageCount, pageSize, pageIndex, search, sort, status]);
 
   return (
     <React.Fragment>
@@ -72,6 +235,21 @@ export const WarehousePurchases = () => {
               searchState={setSearch}
               sx={{ display: 'flex', flex: 1 }}
               size="small"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={status === 1}
+                  onChange={(val) => {
+                    if (val.target.checked) {
+                      setStatus(1);
+                    } else {
+                      setStatus(null);
+                    }
+                  }}
+                />
+              }
+              label="Pendientes"
             />
             <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
               <Button
@@ -94,7 +272,7 @@ export const WarehousePurchases = () => {
                     </TableCell>
                     <TableCell>
                       <SortComponent
-                        tableCellLabel="Almacen Solicitado"
+                        tableCellLabel="Almacen Solicitante"
                         headerName="almacenProveniente"
                         setSortFunction={setSort}
                       />
@@ -124,11 +302,11 @@ export const WarehousePurchases = () => {
                       <React.Fragment key={i}>
                         <TableRow>
                           <TableCell sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {!viewArticles[petition.id] ? (
+                            {!viewArticles[petition.id_SolicitudAlmacen] ? (
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [petition.id]: !viewArticles[petition.id],
+                                    [petition.id_SolicitudAlmacen]: !viewArticles[petition.id_SolicitudAlmacen],
                                   })
                                 }
                               >
@@ -138,7 +316,7 @@ export const WarehousePurchases = () => {
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [petition.id]: !viewArticles[petition.id],
+                                    [petition.id_SolicitudAlmacen]: !viewArticles[petition.id_SolicitudAlmacen],
                                   })
                                 }
                               >
@@ -147,16 +325,16 @@ export const WarehousePurchases = () => {
                             )}
                             <Typography>{petition.folio}</Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>{petition.almacenOrigen}</TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>{petition.solicitadoPor}</TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            {petition.estatus === 1 ? 'Espera' : 'Completado'}
+                          <TableCell >{petition.almacenDestino}</TableCell>
+                          <TableCell >{petition.usuarioSolicito}</TableCell>
+                          <TableCell >{petition.fechaSolicitud}</TableCell>
+                          <TableCell >
+                            {getStatus(petition)}
                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={7} sx={{ p: 0 }}>
-                            <Collapse in={viewArticles[petition.id]}>
+                            <Collapse in={viewArticles[petition.id_SolicitudAlmacen]}>
                               <Table>
                                 <TableHead>
                                   <TableRow>
@@ -165,9 +343,9 @@ export const WarehousePurchases = () => {
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {petition?.historialArticulos &&
-                                    petition?.historialArticulos?.length > 0 &&
-                                    petition.historialArticulos.map((movimientoArticuclo) => (
+                                  {petition?.articulos &&
+                                    petition?.articulos?.length > 0 &&
+                                    petition.articulos.map((movimientoArticuclo) => (
                                       <TableRow key={movimientoArticuclo.nombre}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
@@ -235,6 +413,20 @@ export const WarehousePurchases = () => {
       >
         <React.Fragment>
           <AddMerchandisePetitionModal setOpen={setOpenModal} refetch={fetchMerchandiseEntries} />
+        </React.Fragment>
+      </Modal>
+      <Modal
+        open={openAceptModal}
+        onClose={() => {
+          setOAceptpenModal(false);
+        }}
+      >
+        <React.Fragment>
+          <AceptWareHouseRequestModalRework
+            setOpen={setOAceptpenModal}
+            refetch={fetchMerchandiseEntries}
+            request={request as MerchandiseEntry}
+          />
         </React.Fragment>
       </Modal>
     </React.Fragment>

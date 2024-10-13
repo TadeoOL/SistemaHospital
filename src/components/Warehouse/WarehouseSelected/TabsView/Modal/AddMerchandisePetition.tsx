@@ -72,17 +72,18 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
         const warehouse = await getWarehouseById(warehouseId as string);
         if (warehouse?.esSubAlmacen) {
           console.log("caen 77");
+          console.log(warehouse);
           const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
           setWarehouseSelected(fatherWarehouse.id_Almacen);
           setSubWarehouseSelected(warehouse.id_Almacen);
           console.log("truena aca - 1");
-          console.log("fatherWarehouse.id_Almacen",fatherWarehouse.id_Almacen);
-          console.log("warehouse.id_Almacen",warehouse.id_Almacen);
+          console.log("fatherWarehouse.id_Almacen", fatherWarehouse.id_Almacen);
+          console.log("warehouse.id_Almacen", warehouse.id_Almacen);
           handleFetchArticlesFromWareHouse(fatherWarehouse.id_Almacen, warehouse.id_Almacen);
           setSubWarehouseFlag(true);
         } else {
-          console.log("caen 23",warehouse);
+          console.log("caen 23", warehouse);
           setWarehouseData(warehouse.subAlmacenes);
           setWarehouseSelected(warehouse.id_Almacen);
           setSubWarehouseFlag(false);
@@ -98,8 +99,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   useEffect(() => {
     if (warehouseSelected) {
       console.log("truena aca - 2");
-      console.log("warehouseSelected ",warehouseSelected);
-      console.log("subWarehouseSelected ",subWarehouseSelected);
+      console.log("warehouseSelected ", warehouseSelected);
+      console.log("subWarehouseSelected ", subWarehouseSelected);
       handleFetchArticlesFromWareHouse(warehouseSelected, subWarehouseSelected);
     }
   }, [serch]);
@@ -159,7 +160,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${subwareH}&Id_AlmacenPrincipal=${wareH}&fechaInicio=&fechaFin=&sort=`
+        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${
+          true}&Id_Almacen=${subwareH}&Id_AlmacenPrincipal=${
+            wareH}&EsSubAlmacen=${true}&fechaInicio=&fechaFin=&sort=`
       );
       const transformedData = res.data.map((item: any) => ({
         id: item.id_Articulo,
@@ -192,7 +195,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
         Id_AlmacenDestino: subWarehouseFlag ? subWarehouseSelected : (warehouseId as string),
-        ListaArticulos: data.historialArticulos,
+        Articulos: data.articulos,
       };
       await addMerchandiseEntry(object);
       toast.success('Solicitud creada');
@@ -226,13 +229,15 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               value={subWarehouseFlag ? warehouseSelected : subWarehouseSelected}
               onChange={(e) => {
                 setWarehouseError(false);
+                console.log("entra ala ptm mierda");
                 if (subWarehouseFlag) {
+                  console.log(e.target.value);
                   setWarehouseSelected(e.target.value);
                 } else {
                   setSubWarehouseSelected(e.target.value);
                   console.log("truena aca - 3");
-                  console.log("e.target.value ",e.target.value);
-                  console.log("warehouseSelected aca - 3 ",warehouseSelected);
+                  console.log("e.target.value ", e.target.value);
+                  console.log("warehouseSelected aca - 3 ", warehouseSelected);
                   handleFetchArticlesFromWareHouse(warehouseSelected, e.target.value);
                 }
 
@@ -243,7 +248,26 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                 warehouseData
                   .filter((warehouse) => warehouse.id_Almacen !== warehouseId)
                   .map((warehouse) => (
-                    <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
+                    <MenuItem
+                      key={warehouse.id_Almacen}
+                      value={warehouse.id_Almacen}
+                      onClick={() => {
+                        console.log("entra ala ptm mierda");
+                        if (subWarehouseFlag) {
+                          console.log("es subalmacen");
+                          console.log(warehouse.id_Almacen);
+                          setWarehouseSelected(warehouse.id_Almacen);
+                        } else {
+                          console.log("es almacen");
+                          console.log(warehouse);
+                          setSubWarehouseSelected(warehouse.id_Almacen);
+                          console.log("truena aca - 3");
+                          console.log("e.target.value ",warehouse.id_Almacen);
+                          console.log("warehouseSelected aca - 3 ",warehouseSelected);
+                          handleFetchArticlesFromWareHouse(warehouseSelected, warehouse.id_Almacen);
+                        }
+                      }}
+                    >
                       {warehouse.nombre}
                     </MenuItem>
                   ))}
@@ -400,10 +424,10 @@ const ArticlesTable = (props: {
     const articleToAdd = articles.find((a) => a.id === id);
     const articleToAddModified = articleToAdd
       ? {
-          id: articleToAdd.id,
-          nombre: articleToAdd.name,
-          precio: 0,
-        }
+        id: articleToAdd.id,
+        nombre: articleToAdd.name,
+        precio: 0,
+      }
       : null;
     if (articleToAddModified) {
       setArticlesFetched([...articlesFetched, articleToAddModified]);
@@ -551,11 +575,10 @@ const ArticlesTable = (props: {
             //subWarehouseSelected
             await props.submitData({
               almacenDestino: props.subWarehouseFlag ? warehouseSelected : props.subWarehouseSelected,
-              historialArticulos: articles.map((art) => ({
-                Id_ArticuloExistente: art.id,
+              articulos: articles.map((art) => ({
+                Id_Articulo: art.id,
                 Nombre: art.name,
                 Cantidad: art.amount,
-                FechaCaducidad: null,
               })),
             });
             setIsLoading(false);

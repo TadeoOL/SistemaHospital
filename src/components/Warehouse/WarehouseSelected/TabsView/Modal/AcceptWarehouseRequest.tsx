@@ -99,11 +99,11 @@ interface ArticlesViewProps {
 
 export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
   const [articles, setArticles] = useState<ArticlesToSelectLote[]>(
-    props.request.historialArticulos.map((art) => ({
+    props.request.articulos.map((art) => ({
       nombre: art.nombre,
       cantidadSeleccionar: art.cantidad,
       cantidad: 0,
-      id_Articulo: (art as any).id_ArticuloExistente,
+      id_Articulo: art.id_Articulo,
       id_ArticuloAlmacen: null,
     }))
   );
@@ -129,9 +129,8 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
     setLoading(true);
     // NO HACE NADA EN HD
     const object = {
-      Id_HistorialMovimiento: props.request.id,
-      ArticulosSalida: articles.map((art) => ({
-        Id_ArticuloAlmacenStock: art.id_ArticuloAlmacen !== null ? art.id_ArticuloAlmacen : '',
+      Id_SolicitudAlmacen: props.request.id_SolicitudAlmacen,
+      Articulos: articles.map((art) => ({
         Id_Articulo: art.id_Articulo,
         Nombre: art.nombre,
         Cantidad: art.cantidad,
@@ -221,12 +220,12 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
         </Button>
         <Button
           variant="contained"
-          disabled={props.request.historialArticulos.length < 1 || loading}
+          disabled={props.request.articulos.length < 1 || loading}
           onClick={() => {
             console.log('Articulos que mando');
             console.log(articles);
             console.log('Articulos que solicitan');
-            console.log(props.request.historialArticulos);
+            console.log(props.request.articulos);
 
             if (articles.length === 0) return toast.error('Agrega artículos!');
             if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0)) {
@@ -243,7 +242,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
                   return;
                 }
               });
-              if (articles.length < props.request.historialArticulos.length || flagQuant) {
+              if (articles.length < props.request.articulos.length || flagQuant) {
                 continueRequest();
               } else {
                 setValue(1);
@@ -361,20 +360,17 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   const [amountText, setAmountText] = useState(article.cantidadSeleccionar.toString());
   const [isLoading, setIsLoading] = useState(false);
   const [amountArticleSelected, setAmountArticleSelected] = useState(0);
-  const [idArticleSelected, setIdArticleSelected] = useState('');
 
   const searchArticleAmount = async (Id_Articulo: string) => {
     setIsLoading(true);
     try {
       const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo, request.id_AlmacenOrigen);
       setIsLoading(false);
-      setAmountArticleSelected(amountResponse.stockActual as number);
-      setIdArticleSelected(amountResponse.id_ArticuloStock);
+      setAmountArticleSelected(amountResponse as number);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
       setAmountArticleSelected(0);
-      setIdArticleSelected('');
     }
   };
 
@@ -399,8 +395,9 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                       return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
                     }
 
-                    handleAddArticle({ ...article, cantidad: quant, id_ArticuloAlmacen: idArticleSelected });
+                    handleAddArticle({ ...article, cantidad: quant});
                   } else {
+                    console.log("me estoy cagando",article);
                     searchArticleAmount(article.id_Articulo);
                   }
                   /*setLoteSelected(article.lote);

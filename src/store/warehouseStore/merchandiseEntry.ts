@@ -22,6 +22,7 @@ interface State {
   setEndDate: Function;
   setSearch: Function;
   sort: string;
+  status: number | null;
 }
 
 interface Action {
@@ -36,6 +37,7 @@ interface Action {
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
   setSort: (sort: string) => void;
+  setStatus: (status: number | null) => void;
 }
 
 export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((set, get) => ({
@@ -53,6 +55,8 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   handleChangeSubWarehouse: false,
   searchUser: '',
   sort: '',
+  status: null,
+  setStatus: (status: number | null) => set({ status }),
   setSort: (sort: string) => set({ sort }),
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
@@ -66,7 +70,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
   fetchMerchandiseEntries: async () => {
-    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort } = get();
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort, status } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
@@ -76,7 +80,7 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${
           useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
-        }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
+        }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}${status !== null ? `&Estatus=${status}`  : ''}`
       );
       console.log('yagora?', res.data);
       set(() => ({

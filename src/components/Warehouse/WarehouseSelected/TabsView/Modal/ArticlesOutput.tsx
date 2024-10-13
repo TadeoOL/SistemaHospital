@@ -138,24 +138,24 @@ export const ArticlesView = (props: ArticlesViewProps) => {
         Id_ArticuloAlmacenStock: article.id_ArticuloStock,
         Nombre: article.nombre,
         Cantidad: Number(article.cantidad),
-      };
+      }; 
     });
-    const object = {
+    const object = { 
       ArticulosSalida: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id_Almacen : '') : '',
-      id_almacenOrigen: warehouseData.id_Almacen,
+      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id_Almacen : '') : '', 
+      id_almacenOrigen: warehouseData.id_Almacen, 
       SalidaMotivo: radioSelected === 1 ? reasonMessage : undefined,
-    };
+    }; 
     try {
-      await articlesOutputToWarehouseToWarehouse(object);
+      await articlesOutputToWarehouseToWarehouse(object); 
       useExistingArticlePagination.getState().fetchExistingArticles();
       toast.success('Salida a artículos con éxito!');
       props.setOpen(false);
-    } catch (error) {
+    } catch (error) { 
       console.log(error);
-      toast.error('Error al dar salida a artículos!');
-    } finally {
-      setIsLoading(false);
+      toast.error('Error al dar salida a artículos!'); 
+    } finally { 
+      setIsLoading(false); 
     }
   };
   return (
@@ -190,15 +190,15 @@ export const ArticlesView = (props: ArticlesViewProps) => {
           px: 2,
         }}
       >
-        <Button
+        <Button 
           color="error"
           disabled={isLoading}
           variant="outlined"
-          onClick={() => {
+          onClick={() => { 
             if (value === 0) {
-              props.setOpen(false);
+              props.setOpen(false); 
             } else {
-              setValue((prev) => prev - 1);
+              setValue((prev) => prev - 1); 
             }
           }}
         >
@@ -279,11 +279,11 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   const [articleSelected, setArticleSelected] = useState<IArticleFromSearch | null>(null);
   const [amountArticleSelected, setAmountArticleSelected] = useState(0);
   const [idArticleSelected, setIdArticleSelected] = useState('');
-  const ExitReasonRef = useRef<HTMLInputElement | null>(null);
+  const ExitReasonRef = useRef<HTMLInputElement | null>(null); 
   const [amountError, setAmountError] = useState(false);
-  const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
+  const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId); 
   const setArticleId = useExistingArticleLotesPagination((state) => state.setArticleId);
-  const [amountText, setAmountText] = useState('');
+  const [amountText, setAmountText] = useState(''); 
 
   useEffect(() => {
     const fetch = async () => {
@@ -307,15 +307,15 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
     setWarehouseId(warehouseData.id_Almacen);
   }, []);
 
-  const handleAddArticle = (articleToAdd: ArticlesFetched, edit: boolean) => {
+  const handleAddArticle = (articleToAdd: ArticlesFetched, edit: boolean) => { 
     if (edit) {
       const direction = articles.findIndex(
         (art: any) => art.id_Articulo === ((articleSelected as any)?.id_Articulo || '')
-      );
+      ); 
       articles.splice(direction, 1);
       setArticles([...(articles as any), articleToAdd]);
-      setArticleSelected(null);
-    } else {
+      setArticleSelected(null); 
+    } else { 
       setArticles((prev: any) => [...prev, articleToAdd]);
       setArticleSelected(null);
     }
@@ -465,15 +465,15 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               <Autocomplete
                 disabled={radioSelected === 1}
                 disablePortal
-                sx={{ width: 200, mx: 'auto' }}
+                sx={{ width: 200, mx: 'auto' }} 
                 filterOptions={filterSubWarehousesOptions}
                 onChange={(e, val) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); 
                   setSubWarehouse(val);
                 }}
-                getOptionLabel={(option) => option.nombre}
+                getOptionLabel={(option) => option.nombre} 
                 options={warehouseData.subAlmacenes}
-                value={subWarehouse}
+                value={subWarehouse} 
                 noOptionsText="No existen registros de Sub Almacenes"
                 renderInput={(params) => <TextField {...params} placeholder="Sub Almacén..." fullWidth />}
               />

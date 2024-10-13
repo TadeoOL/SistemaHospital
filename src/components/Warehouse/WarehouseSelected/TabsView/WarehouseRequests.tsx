@@ -21,7 +21,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { Info } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
-import { merchandiseEntryRequestPagination } from '../../../../store/warehouseStore/merchandiseEntryRequest';
 import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest';
 import CloseIcon from '@mui/icons-material/Close';
 import { MerchandiseEntry } from '../../../../types/types';
@@ -29,6 +28,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { articlesOutputToWarehouse } from '../../../../api/api.routes';
 import { SortComponent } from '../../../Commons/SortComponent';
+import { merchandiseEntryPagination } from '../../../../store/warehouseStore/merchandiseEntry';
 
 export const WarehouseRequest = () => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
@@ -47,10 +47,11 @@ export const WarehouseRequest = () => {
     setSearch,
     search,
     setSort,
+    setStatus,
     sort,
-  } = merchandiseEntryRequestPagination((state) => ({
+  } = merchandiseEntryPagination((state) => ({
     data: state.data,
-    fetchEntryRequest: state.fetchEntryRequest,
+    fetchEntryRequest: state.fetchMerchandiseEntries,
     isLoading: state.isLoading,
     pageCount: state.pageCount,
     pageIndex: state.pageIndex,
@@ -61,6 +62,7 @@ export const WarehouseRequest = () => {
     setPageIndex: state.setPageIndex,
     setPageSize: state.setPageSize,
     setSort: state.setSort,
+    setStatus: state.setStatus,
     sort: state.sort,
   }));
 
@@ -92,8 +94,8 @@ export const WarehouseRequest = () => {
             preConfirm: (inputReason) => {
               return articlesOutputToWarehouse({
                 Estatus: 0,
-                Id_HistorialMovimiento: idRequest,
-                Mensaje: inputReason as string,
+                Id_SolicitudAlmacen: idRequest,
+                Motivo: inputReason as string,
               });
             },
             allowOutsideClick: () => !Swal.isLoading(),
@@ -117,6 +119,7 @@ export const WarehouseRequest = () => {
   };
 
   useEffect(() => {
+    setStatus(1)
     fetchEntryRequest();
   }, [pageCount, pageSize, pageIndex, search, sort]);
   return (
@@ -174,11 +177,11 @@ export const WarehouseRequest = () => {
                       <React.Fragment key={i}>
                         <TableRow>
                           <TableCell sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {!viewArticles[petition.id] ? (
+                            {!viewArticles[petition.id_SolicitudAlmacen] ? (
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [petition.id]: !viewArticles[petition.id],
+                                    [petition.id_SolicitudAlmacen]: !viewArticles[petition.id_SolicitudAlmacen],
                                   })
                                 }
                               >
@@ -188,7 +191,7 @@ export const WarehouseRequest = () => {
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [petition.id]: !viewArticles[petition.id],
+                                    [petition.id_SolicitudAlmacen]: !viewArticles[petition.id_SolicitudAlmacen],
                                   })
                                 }
                               >
@@ -198,7 +201,7 @@ export const WarehouseRequest = () => {
                             <Typography>{petition.folio}</Typography>
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.almacenDestino}</TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>{petition.solicitadoPor}</TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>{petition.usuarioSolicito}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>{petition.fechaSolicitud}</TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
                             {petition.estatus === 0 ? 'Cancelada' : 'Pendiente'}
@@ -223,7 +226,7 @@ export const WarehouseRequest = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => {
-                                  rejectRequest(petition.id);
+                                  rejectRequest(petition.id_SolicitudAlmacen);
                                 }}
                               >
                                 <CloseIcon sx={{ color: 'red' }} />
@@ -233,7 +236,7 @@ export const WarehouseRequest = () => {
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={7} sx={{ p: 0 }}>
-                            <Collapse in={viewArticles[petition.id]}>
+                            <Collapse in={viewArticles[petition.id_SolicitudAlmacen]}>
                               <Table>
                                 <TableHead>
                                   <TableRow>
@@ -242,9 +245,9 @@ export const WarehouseRequest = () => {
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {petition?.historialArticulos &&
-                                    petition?.historialArticulos?.length > 0 &&
-                                    petition.historialArticulos.map((movimientoArticuclo) => (
+                                  {petition?.articulos &&
+                                    petition?.articulos?.length > 0 &&
+                                    petition.articulos.map((movimientoArticuclo) => (
                                       <TableRow key={movimientoArticuclo.nombre}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
