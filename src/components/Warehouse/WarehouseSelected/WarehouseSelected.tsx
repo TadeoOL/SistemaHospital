@@ -8,7 +8,6 @@ import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehous
 import { useShallow } from 'zustand/react/shallow';
 import { WarehouseArticles } from './TabsView/WarehouseArticles';
 import { WarehousePurchases } from './TabsView/WarehousePurchases';
-import { WarehouseRequest } from './TabsView/WarehouseRequests';
 import { SubWarehouses } from './TabsView/SubWarehouses';
 import { WarehouseHistory } from './TabsView/WarehouseHistory';
 import { NotFoundPage } from '../../../views/404Page';
@@ -23,8 +22,8 @@ const GetWarehouseView: React.FC = () => {
       return <SubWarehouses />;
     case 2:
       return <WarehousePurchases />;
-    case 3:
-      return <WarehouseRequest />;
+    /*case 3: ELIMINADO
+      return <WarehouseRequest />;*/
     case 4:
       return <WarehouseHistory />;
     /*case 5:

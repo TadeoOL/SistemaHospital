@@ -489,6 +489,7 @@ export interface IWarehouseMovementData {
   estatus?: number;
   folio: string;
   infoExtra: any;
+  conceptoSolicitud: string;
 }
 export interface IArticleHistory {
   nombre: string;

@@ -199,8 +199,8 @@ export const WarehouseHistory = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell>
-                            {movimiento.almacenOrigen == movimiento.almacenDestino && movimiento.ingresoMotivo != null
-                              ? movimiento.ingresoMotivo
+                            {movimiento.almacenOrigen == null
+                              ? movimiento.conceptoSolicitud
                               : movimiento.almacenOrigen}
                           </TableCell>
                           <TableCell> {movimiento.solicitadoPor} </TableCell>

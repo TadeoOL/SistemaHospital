@@ -75,10 +75,23 @@ export const WarehousePurchases = () => {
   }));
   const [request, setRequest] = useState<MerchandiseEntry>();
 
-  const getStatus = (petition: MerchandiseEntry) => {
+  const getStatusLabel = (petition: MerchandiseEntry) => {
     switch (petition.estatus) {
       case 0:
         return <>{'Cancelado'}</>;
+      case 1:
+        return <>{'Pendiente'} </>;
+      case 2:
+        return <>{'En espera'} </>;
+      case 3:
+        return <>{'Entregado/Aceptado'}</>;
+    }
+  }
+
+  const getStatusIcons = (petition: MerchandiseEntry) => {
+    switch (petition.estatus) {
+      case 0:
+        return <></>;
       case 1:
         return <>
           
@@ -89,7 +102,6 @@ export const WarehousePurchases = () => {
               alignItems: 'center',
             }}
           >
-            {'Pendiente'}
             <Tooltip title="Armar solicitud">
             <IconButton>
               <SettingsIcon
@@ -115,7 +127,6 @@ export const WarehousePurchases = () => {
         </>;
       case 2:
         return <>
-        {'En espera'}
         <Tooltip title="Marcar como Entregado">
               <IconButton
                 onClick={() => {
@@ -127,7 +138,7 @@ export const WarehousePurchases = () => {
             </Tooltip>
         </>;
       case 3:
-        return <>{'Entregado/Aceptado'}</>;
+        return <></>;
     }
   }
   const rejectRequest = (idRequest: string) => {
@@ -294,6 +305,9 @@ export const WarehousePurchases = () => {
                     <TableCell>
                       <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
                     </TableCell>
+                    <TableCell>
+                      Acción
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -329,7 +343,10 @@ export const WarehousePurchases = () => {
                           <TableCell >{petition.usuarioSolicito}</TableCell>
                           <TableCell >{petition.fechaSolicitud}</TableCell>
                           <TableCell >
-                            {getStatus(petition)}
+                            {getStatusLabel(petition)}
+                          </TableCell>
+                          <TableCell >
+                            {getStatusIcons(petition)}
                           </TableCell>
                         </TableRow>
                         <TableRow>
