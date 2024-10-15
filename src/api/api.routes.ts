@@ -892,32 +892,6 @@ export const waitingpackageChangeStatus = async (data: {
   return res.data;
 };
 
-export const articlesOutputToWarehouseToWarehouse = async (data: {
-  id_almacenOrigen: string;
-  id_almacenDestino: string;
-  Lotes?: {
-    Id_Articulo: string;
-    Id_ArticuloAlmacenStock: string;
-    Nombre: string;
-    Cantidad: number;
-  }[];
-  ArticulosSalida?: {
-    Id_Articulo: string;
-    Id_ArticuloAlmacenStock: string;
-    Nombre: string;
-    Cantidad: number;
-  }[];
-  SalidaMotivo?: string;
-  SolicitadoPor?: string;
-  Id_Enfermero?: string;
-  Id_CuentaPaciente?: string;
-}) => {
-  const res = await axios.post(`/api/Almacen/salida-articulo-almacen`, {
-    ...data,
-  });
-  return res.data;
-};
-
 export const addArticlesPackage = async (packagePost: {
   Contenido: string;
   Nombre: string;
@@ -977,11 +951,6 @@ export const disablePackage = async (data: { id: string }) => {
   const res = await axios.put(`/api/Almacen/estatus-paquete`, {
     ...data,
   });
-  return res.data;
-};
-
-export const getWaitingPackagesByWarehouse = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/paginacion-historial-movimientos-paquetes?${paramUrl}`);
   return res.data;
 };
 
@@ -1112,16 +1081,6 @@ export const updateStatusNurseRequest = async (data: {
   const res = await axios.put(`/api/SolicitudEnfemero/cambiar-estatus-solicitud-enfermero`, {
     ...data,
   });
-  return res.data;
-};
-
-export const getNurseRequestPending = async (paramUrl: string) => {
-  const res = await axios.get(`/api/SolicitudEnfemero/paginacion-solicitud-enfermero?${paramUrl}`);
-  return res.data;
-};
-
-export const getNurseEmiterRequestPending = async (paramUrl: string) => {
-  const res = await axios.get(`/api/SolicitudEnfemero/paginacion-solicitud-enfermero-emisor?${paramUrl}`);
   return res.data;
 };
 

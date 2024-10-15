@@ -18,29 +18,25 @@ import {
   TextField,
   Tooltip,
   Typography,
-  createFilterOptions, 
+  createFilterOptions,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import {
-  articlesOutputToWarehouseToWarehouse,
-  getExistingArticles,
-} from '../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../schema/schemas';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { Save, Edit, Delete, Info, Cancel, WarningAmber } from '@mui/icons-material';
-import {
-  IArticleFromSearchWithQuantity,
-  IArticlesPackage,
-  IPatientFromSearch,
-} from '../../../../types/types';
+import { IArticleFromSearchWithQuantity, IArticlesPackage, IPatientFromSearch } from '../../../../types/types';
 //import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import AnimateButton from '../../../@extended/AnimateButton';
+import {
+  articlesOutputToWarehouseToWarehouse,
+  getExistingArticles,
+} from '../../../../services/warehouse/articleWarehouseService';
 ///cambiar esta fokin she
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearchWithQuantity>({
@@ -80,7 +76,9 @@ const style2 = {
 export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: string; refetch: Function }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
-  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearchWithQuantity[]>([]);
+  const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticleFromSearchWithQuantity[]>(
+    []
+  );
   const textFieldRef = useRef<HTMLInputElement | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [reasonMessage, setReasonMessage] = useState('');
@@ -97,7 +95,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        handleFetchArticlesFromWareHouse()
+        handleFetchArticlesFromWareHouse();
       } catch (error) {
         console.log(error);
       } finally {
@@ -108,7 +106,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   }, []);
   useEffect(() => {
     const fetch = async () => {
-      await handleFetchArticlesFromWareHouse()
+      await handleFetchArticlesFromWareHouse();
     };
     fetch();
   }, [search]);
@@ -147,14 +145,16 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     };
 
     setArticles([...articles, objectArticle]);
-    setDataWerehouseArticlesSelected(dataWerehouseSelectedArticles.filter((art) => art.id_Articulo !== articleSelected.id_Articulo));
+    setDataWerehouseArticlesSelected(
+      dataWerehouseSelectedArticles.filter((art) => art.id_Articulo !== articleSelected.id_Articulo)
+    );
     setArticleSelected(null);
     setAmountText('');
   };
 
   const handleEditArticle = (editedArticle: IArticleFromSearchWithQuantity) => {
-    console.log("lo q manda", editedArticle);
-    const direction = articles.findIndex(artp => artp.id_Articulo === editedArticle.id_Articulo);
+    console.log('lo q manda', editedArticle);
+    const direction = articles.findIndex((artp) => artp.id_Articulo === editedArticle.id_Articulo);
     const copy = articles.slice();
     copy[direction] = editedArticle;
     setArticles(copy);
@@ -170,7 +170,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         id_Articulo: item.id_Articulo,
         nombre: item.nombre,
         stock: item.stockActual,
-        id_ArticuloAlmacen: item.id_ArticuloAlmacen
+        id_ArticuloAlmacen: item.id_ArticuloAlmacen,
       }));
       console.log(transformedData);
       setDataWerehouseArticlesSelected(transformedData);
@@ -223,8 +223,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       if (!validateAmount) return;
       setLoadingSubmit(true);
 
-      const existingArticles = articles
-      .map((article) => {
+      const existingArticles = articles.map((article) => {
         return {
           Id_Articulo: article.id_Articulo,
           Id_ArticuloAlmacenStock: article.id_ArticuloAlmacen,
@@ -234,12 +233,11 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       });
 
       const object = {
-        ArticulosSalida: existingArticles,
-        id_almacenDestino: '',
-        id_almacenOrigen: props.warehouseId,
+        articulos: existingArticles,
+        id_Almacen: props.warehouseId,
         //EnEspera: true,
         //Id_CuentaPaciente: userSelected?.id_Cuenta,
-        SalidaMotivo:
+        motivo:
           reasonMessage === 'Otro'
             ? textFieldRef.current?.value
             : `${reasonMessage} ${userSelected?.nombreCompleto || ''}`,
@@ -293,95 +291,99 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                 }}
               >
                 <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            justifyContent: 'space-between',
-            columnGap: 2,
-            flexDirection: { xs: 'column', sm: 'row' },
-            rowGap: { xs: 2, sm: 0 },
-          }}
-        >
-                <Stack sx={{ display: 'flex', flex: 1 }}>
-                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
-                  <Autocomplete
-                    disablePortal
-                    fullWidth
-                    filterOptions={filterArticleOptions}
-                    onChange={(e, val) => {
-                      e.stopPropagation();
-                      if (val !== null) {
-                        if (
-                          !(
-                            articles.map((art) => art.id_Articulo).includes(val.id_Articulo) ||
-                            articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
-                          )
-                        ) {
-                          console.log("no se wey");
+                  sx={{
+                    display: 'flex',
+                    flex: 1,
+                    justifyContent: 'space-between',
+                    columnGap: 2,
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    rowGap: { xs: 2, sm: 0 },
+                  }}
+                >
+                  <Stack sx={{ display: 'flex', flex: 1 }}>
+                    <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
+                    <Autocomplete
+                      disablePortal
+                      fullWidth
+                      filterOptions={filterArticleOptions}
+                      onChange={(e, val) => {
+                        e.stopPropagation();
+                        if (val !== null) {
+                          if (
+                            !(
+                              articles.map((art) => art.id_Articulo).includes(val.id_Articulo) ||
+                              articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
+                            )
+                          ) {
+                            console.log('no se wey');
+                          }
+                          setArticleId(val.id_Articulo);
+                          setArticleSelected(val);
+                          console.log('eldeste', val);
+                          setArticleError(false);
                         }
-                        setArticleId(val.id_Articulo);
-                        setArticleSelected(val);
-                        console.log("eldeste",val);
-                        setArticleError(false);
-                      }
-                    }}
-                    loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
-                    getOptionLabel={(option) => option.nombre}
-                    options={dataWerehouseSelectedArticles}
-                    value={articleSelected}
-                    noOptionsText="No se encontraron artículos"
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={articleError}
-                        helperText={articleError && 'Selecciona un articulo'}
-                        onChange={(e) => {
-                          setSearch(e.target.value);
-                        }}
-                        placeholder="Artículos"
-                        sx={{ width: '100%' }}
-                      />
+                      }}
+                      loading={isLoadingArticlesWareH && dataWerehouseSelectedArticles.length === 0}
+                      getOptionLabel={(option) => option.nombre}
+                      options={dataWerehouseSelectedArticles}
+                      value={articleSelected}
+                      noOptionsText="No se encontraron artículos"
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={articleError}
+                          helperText={articleError && 'Selecciona un articulo'}
+                          onChange={(e) => {
+                            setSearch(e.target.value);
+                          }}
+                          placeholder="Artículos"
+                          sx={{ width: '100%' }}
+                        />
+                      )}
+                    />
+                  </Stack>
+
+                  <Stack sx={{ display: 'flex' }}>
+                    <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
+                    <TextField
+                      sx={{ width: '60%' }}
+                      size="small"
+                      fullWidth
+                      placeholder="Cantidad"
+                      value={amountText}
+                      error={amountError}
+                      helperText={amountError && 'Agrega una cantidad'}
+                      onChange={(e) => {
+                        if (!isValidInteger(e.target.value)) return;
+                        setAmountText(e.target.value);
+                        setAmountError(false);
+                      }}
+                    />
+                    {articleSelected?.id_Articulo && (
+                      <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                        Stock Disponible : {articleSelected.stock}
+                      </Typography>
                     )}
-                  />
-                </Stack>
-
-                <Stack sx={{ display: 'flex' }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Ingresar cantidad</Typography>
-            <TextField
-              sx={{ width: '60%' }}
-              size="small"
-              fullWidth
-              placeholder="Cantidad"
-              value={amountText}
-              error={amountError}
-              helperText={amountError && 'Agrega una cantidad'}
-              onChange={(e) => {
-                if (!isValidInteger(e.target.value)) return;
-                setAmountText(e.target.value);
-                setAmountError(false);
-              }}
-            />
-            {articleSelected?.id_Articulo && (
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-                Stock Disponible : {articleSelected.stock}
-              </Typography>
-            )}
-            <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            mt: 2,
-          }}
-        >
-          <AnimateButton>
-            <Button size="medium" variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAddArticle()}>
-              Agregar
-            </Button>
-          </AnimateButton>
-        </Box>
-          </Stack>
-          </Box>
-
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flex: 1,
+                        mt: 2,
+                      }}
+                    >
+                      <AnimateButton>
+                        <Button
+                          size="medium"
+                          variant="contained"
+                          startIcon={<AddCircleIcon />}
+                          onClick={() => handleAddArticle()}
+                        >
+                          Agregar
+                        </Button>
+                      </AnimateButton>
+                    </Box>
+                  </Stack>
+                </Box>
               </Box>
               <ArticlesTable
                 setOpen={props.setOpen}
@@ -608,54 +610,45 @@ interface ArticlesRowsProps {
   setArticles: Function;
   articleRow: IArticleFromSearchWithQuantity;
   articles: IArticleFromSearchWithQuantity[];
-  handleEditArticle: Function
+  handleEditArticle: Function;
 }
-const ArticlesRows: React.FC<ArticlesRowsProps> = ({
-  setArticles,
-  articleRow,
-  articles,
-  handleEditArticle,
-}) => {
+const ArticlesRows: React.FC<ArticlesRowsProps> = ({ setArticles, articleRow, articles, handleEditArticle }) => {
   const [edit, setEdit] = useState(false);
-  const [amountText, setAmountText] = useState(articleRow.cantidad?.toString() ?? "");
+  const [amountText, setAmountText] = useState(articleRow.cantidad?.toString() ?? '');
 
   return (
     <>
       <TableRow key={articleRow.id_Articulo}>
         <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {articleRow.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>{articleRow.nombre}</Box>
         </TableCell>
         <TableCell align={'center'}>
-          { edit ? 
-            (
-              <>
-                  <TextField
-                    label="Cantidad"
-                    size="small"
-                    InputLabelProps={{ style: { fontSize: 12 } }}
-                    value={amountText}
-                    onChange={(e) => {
-                      if (!isValidInteger(e.target.value)) return;
-                      setAmountText(e.target.value)
-                    }}
-                  />
-                  <Typography>stack max: {articleRow.stock} </Typography>
-                </>
-            )
-            :
-          (articleRow.cantidad)
-          }
+          {edit ? (
+            <>
+              <TextField
+                label="Cantidad"
+                size="small"
+                InputLabelProps={{ style: { fontSize: 12 } }}
+                value={amountText}
+                onChange={(e) => {
+                  if (!isValidInteger(e.target.value)) return;
+                  setAmountText(e.target.value);
+                }}
+              />
+              <Typography>stack max: {articleRow.stock} </Typography>
+            </>
+          ) : (
+            articleRow.cantidad
+          )}
         </TableCell>
         <TableCell align={'center'}>
           <>
-            <Tooltip title={ edit ? 'Guardar' : 'Editar'}>
+            <Tooltip title={edit ? 'Guardar' : 'Editar'}>
               <IconButton
                 onClick={() => {
                   setEdit(!edit);
-                  if(edit){
-                    handleEditArticle({...articleRow, cantidad: Number(amountText)})
+                  if (edit) {
+                    handleEditArticle({ ...articleRow, cantidad: Number(amountText) });
                   }
                 }}
               >
@@ -677,8 +670,6 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
     </>
   );
 };
-
-
 
 //Filas temporales de articulos que faltan de seleccionar lote
 interface TemporalArticlesRowsProps {
@@ -703,7 +694,7 @@ const TemporalArticlesRows: React.FC<TemporalArticlesRowsProps> = ({
             <WarningAmber
               sx={{
                 mr: 1,
-                color: articleRow.cantidad ?? 0 > 0 ? 'rgb(204, 153, 0)' : 'red',
+                color: (articleRow.cantidad ?? 0 > 0) ? 'rgb(204, 153, 0)' : 'red',
               }}
             />
             {articleRow.nombre}

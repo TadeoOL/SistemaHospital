@@ -70,9 +70,9 @@ const useGetUserSalesRegister = (navigate: NavigateFunction) => {
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
-      const res = await getUserSalesRegister(profile.id);
-      if (!res.tieneCaja || res.cerrada) return alert(navigate, userSalesRegisterData, setIsLoading);
-      setUserSalesRegisterData(res);
+      // const res = await getUserSalesRegister(profile.id);
+      // if (!res.tieneCaja || res.cerrada) return alert(navigate, userSalesRegisterData, setIsLoading);
+      // setUserSalesRegisterData(res);
       try {
       } catch (error) {
         console.log(error);

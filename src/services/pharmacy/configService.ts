@@ -1,7 +1,6 @@
 import axios from '../../libs/axios';
-const apiConfig = '/api/ConfiguracionFarmacia';
 
 export const getPharmacyConfig = async () => {
-  const res = await axios.get(`${apiConfig}/obtener-configuracion-farmacia`);
+  const res = await axios.get(`/api/Sistema/obtener-configuracion/Farmacia`);
   return res.data;
 };

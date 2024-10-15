@@ -13,19 +13,10 @@ export const getSoldResume = async (checkoutId: string, sellStates: number[], ca
 };
 
 export const getArticlesToSaleOnPOS = async (paramUrl: string) => {
-  const res = await axios.get(`${apiPos}/obtener-articulos-venta?${paramUrl}`);
-  return res.data;
-};
-//acomodar despues
-export const getExistingArticlesPOS = async (paramUrl: string) => {
-  const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente-pos?${paramUrl}`);
+  const res = await axios.get(`${apiPos}/paginacion-articulos-venta?${paramUrl}`);
   return res.data;
 };
 
-export const getCategoriesForPOS = async (warehouseId: string) => {
-  const res = await axios.get(`${apiPos}/obtener-subCategorias-puntoVenta/almacen/${warehouseId}`);
-  return res.data as any[];
-};
 export const registerSale = async (data: IRegisterSale) => {
   const res = await axios.post(`${apiPos}/registrar-venta`, data);
   return res.data;

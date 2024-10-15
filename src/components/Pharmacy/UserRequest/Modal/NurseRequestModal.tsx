@@ -19,7 +19,7 @@ import {
   createFilterOptions,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { addNurseRequest, getExistingArticles, getWarehouseById } from '../../../../api/api.routes';
+import { addNurseRequest, getWarehouseById } from '../../../../api/api.routes';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { toast } from 'react-toastify';
@@ -31,6 +31,7 @@ import { Cancel, Save, Edit, Delete, Info } from '@mui/icons-material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { getPatientInfoById, getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { ICuartosInfo } from '../../../../types/admissionTypes';
+import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
 
 type Article = {
   id: string;

@@ -31,7 +31,8 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
-import { addMerchandiseEntry, getExistingArticles, getWarehouseById } from '../../../../../api/api.routes';
+import { addMerchandiseEntry, getWarehouseById } from '../../../../../api/api.routes';
+import { getExistingArticles } from '../../../../../services/warehouse/articleWarehouseService';
 
 type Article = {
   id: string;
