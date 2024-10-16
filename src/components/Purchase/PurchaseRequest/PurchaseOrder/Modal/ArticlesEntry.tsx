@@ -118,7 +118,6 @@ const useGetArticleEntryData = (orderId: string) => {
             .concat({ nombre: warehouse.nombre, id: warehouse.id });
           setWarehousesFetched(subWH);
         }
-
       } catch (error) {
         console.log(error);
         setError(true);
@@ -132,7 +131,9 @@ const useGetArticleEntryData = (orderId: string) => {
 };
 
 export const ArticlesEntry = (props: ArticlesEntryProps) => {
-  const { isLoadingArticleEntryData, articleEntryData, warehousesFetched, error } = useGetArticleEntryData(props.orderId);
+  const { isLoadingArticleEntryData, articleEntryData, warehousesFetched, error } = useGetArticleEntryData(
+    props.orderId
+  );
   const [openModal, setOpenModal] = useState(false);
   const [articleSelected, setArticleSelected] = useState<ArticleSelected>();
   const [articles, setArticles] = useState<IPurchaseOrderArticle[]>([]);
@@ -143,7 +144,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   useEffect(() => {
     if (!articleEntryData) return;
     setArticles(structuredClone(articleEntryData.ordenCompraArticulo));
-    setWarehouseSelected(articleEntryData.almacen.id);
+    // setWarehouseSelected(articleEntryData.almacen.id);
     setWarehouseError(false);
   }, [articleEntryData]);
 
@@ -186,7 +187,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
       })
       .filter((a) => a.cantidad !== 0);
     const articlesEntryObject = {
-      id_almacen: articleEntryData.almacen.id,
+      id_almacen: warehouseSelected,
       articulos: articlesFormatted,
       id_ordenCompra: props.orderId,
       devolucionCompras: returnArticlesArray,
@@ -333,7 +334,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                 <Typography className="textoTachado">
                                   {!findArticleInArticleToBox(a.id_Articulo)
                                     ? (a?.unidadesTotal || a.cantidad) -
-                                    (findOriginalArticle(a.id_Articulo)?.unidadesTotal as number)
+                                      (findOriginalArticle(a.id_Articulo)?.unidadesTotal as number)
                                     : findOriginalArticle(a.id_Articulo)?.unidadesTotal}
                                 </Typography>
                                 <Typography>{a.unidadesTotal}</Typography>
@@ -386,7 +387,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                               </Tooltip>
                               {dataCompleted(a) && (
                                 <Tooltip title="Completado">
-                                  <IconButton onClick={() => { }}>
+                                  <IconButton onClick={() => {}}>
                                     <CheckCircle sx={{ color: 'green' }} />
                                   </IconButton>
                                 </Tooltip>
