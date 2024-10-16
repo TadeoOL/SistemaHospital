@@ -144,7 +144,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   useEffect(() => {
     if (!articleEntryData) return;
     setArticles(structuredClone(articleEntryData.ordenCompraArticulo));
-    // setWarehouseSelected(articleEntryData.almacen.id);
+    setWarehouseSelected(articleEntryData.almacen.id);
     setWarehouseError(false);
   }, [articleEntryData]);
 
