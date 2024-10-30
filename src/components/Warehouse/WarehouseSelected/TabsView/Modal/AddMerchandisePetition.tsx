@@ -70,7 +70,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       try {
         const warehouse = await getWarehouseById(props.idWarehouse);
         if (warehouse?.esSubAlmacen) {
-          console.log(warehouse);
           const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
           setWarehouseSelected(fatherWarehouse.id_Almacen);
@@ -227,7 +226,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               value={subWarehouseFlag ? warehouseSelected : subWarehouseSelected}
               onChange={(e) => {
                 setWarehouseError(false);
-                console.log("entra ala ptm mierda");
                 if (subWarehouseFlag) {
                   console.log(e.target.value);
                   setWarehouseSelected(e.target.value);
