@@ -267,7 +267,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   };
 
   const searchArticleAmount = async (Id_Articulo: string) => {
-    console.log("el condeonao fokin id asterisco: ",Id_Articulo);
     setIsLoading(true);
     try {
       const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo, warehouseData.id_Almacen);
@@ -316,7 +315,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
                 onChange={(e, val) => {
                   e.stopPropagation();
                   if (val && val.id_Articulo) {
-                    console.log("er mardito diablo",val);
                     setArticleId(val.id_Articulo);
                     //setOpenLoteModal(true);
                     //hacer el c mamut
