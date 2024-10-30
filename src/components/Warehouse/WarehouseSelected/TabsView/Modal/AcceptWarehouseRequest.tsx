@@ -21,7 +21,7 @@ import { Cancel, Delete, Edit, Check, Warning, Save } from '@mui/icons-material'
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
+import { MerchandiseEntry } from '../../../../../types/types';
 import { articlesOutputToWarehouse, getAmountForArticleInWarehouse } from '../../../../../api/api.routes';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
 import withReactContent from 'sweetalert2-react-content';
@@ -72,7 +72,6 @@ const renderOutputView = (
   step: number,
   articles: ArticlesToSelectLote[],
   setArticles: Function,
-  subWarehouse: any,
   request: MerchandiseEntry,
   handleAddArticle: Function
 ) => {
@@ -88,13 +87,14 @@ const renderOutputView = (
       );
 
     case 1:
-      return <OutputResume articles={articles} subWarehouse={subWarehouse} request={request} />;
+      return <OutputResume articles={articles} request={request} />;
   }
 };
 interface ArticlesViewProps {
   setOpen: Function;
   refetch: Function;
   request: MerchandiseEntry;
+  idWarehouse: string;
 }
 
 export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
@@ -108,21 +108,13 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
     }))
   );
   const [value, setValue] = useState(0);
-  const [subWarehouse, setSubWarehouse] = useState<IWarehouseData | null>(null);
 
   const [loading, setLoading] = useState(false);
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
   const wData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
-  const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
 
   useEffect(() => {
-    console.log(warehouseData);
     setWarehouseId(wData.id_Almacen);
-    console.log(props.request);
-    const subwarehousefind = warehouseData.subAlmacenes.find(
-      (sbw) => sbw.id_Almacen === props.request.id_AlmacenDestino
-    );
-    setSubWarehouse(subwarehousefind ?? null);
   }, []);
 
   const handleSubmit = async () => {
@@ -191,7 +183,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
             maxHeight: 500,
           }}
         >
-          {renderOutputView(value, articles, setArticles, subWarehouse, props.request, handleAddArticle)}
+          {renderOutputView(value, articles, setArticles, props.request, handleAddArticle)}
         </Box>
       </Box>
       <Box
@@ -211,7 +203,7 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
             if (value === 0) {
               props.setOpen(false);
             } else {
-              setValue(1);
+              setValue(0);
             }
           }}
           startIcon={<Cancel />}
@@ -222,14 +214,9 @@ export const AceptWareHouseRequestModalRework = (props: ArticlesViewProps) => {
           variant="contained"
           disabled={props.request.articulos.length < 1 || loading}
           onClick={() => {
-            console.log('Articulos que mando');
-            console.log(articles);
-            console.log('Articulos que solicitan');
-            console.log(props.request.articulos);
 
             if (articles.length === 0) return toast.error('Agrega artículos!');
             if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0)) {
-              console.log('elfokinpana');
               return toast.error('Rellena todas las cantidades');
             }
             if (value === 1) {
@@ -366,7 +353,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
     try {
       const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo, request.id_AlmacenOrigen);
       setIsLoading(false);
-      setAmountArticleSelected(amountResponse as number);
+      setAmountArticleSelected(amountResponse.stockActual as number);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -460,22 +447,18 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
 
 interface OutputResumeProps {
   articles: any[];
-  subWarehouse: any;
   request: MerchandiseEntry;
 }
 
-const OutputResume: React.FC<OutputResumeProps> = ({ articles, subWarehouse, request }) => {
-  const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
+const OutputResume: React.FC<OutputResumeProps> = ({ articles, request }) => {
   const dateNow = Date.now();
   const today = new Date(dateNow);
-  const flagSubwarehouse = warehouseData.esSubAlmacen;
-  console.log(warehouseData);
   return (
     <Stack spacing={2}>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Typography variant="subtitle1">Almacen de origen:</Typography>
-          <Typography>{flagSubwarehouse ? 'nombre origen' : warehouseData.nombre}</Typography>
+          <Typography>{request.almacenOrigen}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography variant="subtitle1">Fecha de salida:</Typography>
@@ -484,7 +467,7 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, subWarehouse, req
         <Grid item xs={12} md={6}>
           {/*no se si falta un caso por si no se mandra a otro almacen*/}
           <Typography variant="subtitle1">Almacen de destino:</Typography>
-          <Typography>{flagSubwarehouse ? warehouseData.nombre : subWarehouse.nombre}</Typography>
+          <Typography>{request.almacenDestino}</Typography>
         </Grid>
       </Grid>
       <ArticlesTable articles={articles} isResume={true} handleAddArticle={() => {}} request={request} />

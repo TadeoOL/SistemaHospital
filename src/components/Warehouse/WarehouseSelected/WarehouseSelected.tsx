@@ -15,13 +15,15 @@ import { NotFoundPage } from '../../../views/404Page';
 
 const GetWarehouseView: React.FC = () => {
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
+  const { warehouseId } = useParams();
+  
   switch (tabValue) {
     case 0:
       return <WarehouseArticles />;
     case 1:
       return <SubWarehouses />;
     case 2:
-      return <WarehousePurchases />;
+      return <WarehousePurchases idWarehouse={warehouseId as string} />;
     /*case 3: ELIMINADO
       return <WarehouseRequest />;*/
     case 4:

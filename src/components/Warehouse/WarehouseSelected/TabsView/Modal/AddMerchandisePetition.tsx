@@ -29,7 +29,6 @@ import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purch
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
 import { addMerchandiseEntry, getWarehouseById } from '../../../../../api/api.routes';
 import { getExistingArticles } from '../../../../../services/warehouse/articleWarehouseService';
@@ -56,8 +55,7 @@ const style = {
   maxHeight: { xs: 600 },
 };
 
-export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
-  const { warehouseId } = useParams();
+export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function; idWarehouse: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [warehouseData, setWarehouseData] = useState<IWarehouseData[]>([]);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
@@ -70,21 +68,16 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        const warehouse = await getWarehouseById(warehouseId as string);
+        const warehouse = await getWarehouseById(props.idWarehouse);
         if (warehouse?.esSubAlmacen) {
-          console.log("caen 77");
           console.log(warehouse);
           const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
           setWarehouseSelected(fatherWarehouse.id_Almacen);
           setSubWarehouseSelected(warehouse.id_Almacen);
-          console.log("truena aca - 1");
-          console.log("fatherWarehouse.id_Almacen", fatherWarehouse.id_Almacen);
-          console.log("warehouse.id_Almacen", warehouse.id_Almacen);
           handleFetchArticlesFromWareHouse(fatherWarehouse.id_Almacen, warehouse.id_Almacen);
           setSubWarehouseFlag(true);
         } else {
-          console.log("caen 23", warehouse);
           setWarehouseData(warehouse.subAlmacenes);
           setWarehouseSelected(warehouse.id_Almacen);
           setSubWarehouseFlag(false);
@@ -96,12 +89,9 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       }
     };
     fetch();
-  }, [warehouseId]);
+  }, [props.idWarehouse]);
   useEffect(() => {
     if (warehouseSelected) {
-      console.log("truena aca - 2");
-      console.log("warehouseSelected ", warehouseSelected);
-      console.log("subWarehouseSelected ", subWarehouseSelected);
       handleFetchArticlesFromWareHouse(warehouseSelected, subWarehouseSelected);
     }
   }, [serch]);
@@ -160,11 +150,18 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const handleFetchArticlesFromWareHouse = async (wareH: string, subwareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${
+      let url = "";
+      if(subWarehouseFlag){
+        url = `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${
+          true}&Id_Almacen=${wareH}&Id_AlmacenPrincipal=${
+            wareH}&EsSubAlmacen=${false}&fechaInicio=&fechaFin=&sort=`;
+      }
+      else{
+        url = `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${
           true}&Id_Almacen=${subwareH}&Id_AlmacenPrincipal=${
-            wareH}&EsSubAlmacen=${true}&fechaInicio=&fechaFin=&sort=`
-      );
+            wareH}&EsSubAlmacen=${true}&fechaInicio=&fechaFin=&sort=`;
+      }
+      const res = await getExistingArticles(url);
       const transformedData = res.data.map((item: any) => ({
         id: item.id_Articulo,
         nombre: item.nombre,
@@ -195,7 +192,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       }
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
-        Id_AlmacenDestino: subWarehouseFlag ? subWarehouseSelected : (warehouseId as string),
+        Id_AlmacenDestino: subWarehouseFlag ? subWarehouseSelected : props.idWarehouse,
         Articulos: data.articulos,
       };
       await addMerchandiseEntry(object);
@@ -236,9 +233,6 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
                   setWarehouseSelected(e.target.value);
                 } else {
                   setSubWarehouseSelected(e.target.value);
-                  console.log("truena aca - 3");
-                  console.log("e.target.value ", e.target.value);
-                  console.log("warehouseSelected aca - 3 ", warehouseSelected);
                   handleFetchArticlesFromWareHouse(warehouseSelected, e.target.value);
                 }
 
@@ -247,24 +241,16 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
             >
               {warehouseData?.length > 0 &&
                 warehouseData
-                  .filter((warehouse) => warehouse.id_Almacen !== warehouseId)
+                  .filter((warehouse) => warehouse.id_Almacen !== props.idWarehouse)
                   .map((warehouse) => (
                     <MenuItem
                       key={warehouse.id_Almacen}
                       value={warehouse.id_Almacen}
                       onClick={() => {
-                        console.log("entra ala ptm mierda");
                         if (subWarehouseFlag) {
-                          console.log("es subalmacen");
-                          console.log(warehouse.id_Almacen);
                           setWarehouseSelected(warehouse.id_Almacen);
                         } else {
-                          console.log("es almacen");
-                          console.log(warehouse);
                           setSubWarehouseSelected(warehouse.id_Almacen);
-                          console.log("truena aca - 3");
-                          console.log("e.target.value ",warehouse.id_Almacen);
-                          console.log("warehouseSelected aca - 3 ",warehouseSelected);
                           handleFetchArticlesFromWareHouse(warehouseSelected, warehouse.id_Almacen);
                         }
                       }}

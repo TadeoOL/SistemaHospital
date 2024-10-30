@@ -4,9 +4,7 @@ import {
   Button,
   Card,
   Divider,
-  FormControl,
   FormControlLabel,
-  FormLabel,
   Grid,
   IconButton,
   Radio,
@@ -21,7 +19,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  createFilterOptions,
 } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import React, { useEffect, useState, useRef } from 'react';
@@ -29,7 +26,7 @@ import { Delete, Edit, Save, ArrowForward } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useWarehouseTabsNavStore } from '../../../../../store/warehouseStore/warehouseTabsNav';
 import { useShallow } from 'zustand/react/shallow';
-import { IArticleFromSearch, IWarehouseData } from '../../../../../types/types';
+import { IArticleFromSearch } from '../../../../../types/types';
 import { getAmountForArticleInWarehouse, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { useExistingArticlePagination } from '../../../../../store/warehouseStore/existingArticlePagination';
 import { useExistingArticleLotesPagination } from '../../../../../store/warehouseStore/existingArticleLotePagination';
@@ -61,11 +58,6 @@ const styleBar = {
   },
 };
 
-const OPTIONS_LIMIT = 30;
-const filterSubWarehousesOptions = createFilterOptions<any>({
-  limit: OPTIONS_LIMIT,
-});
-
 export type ArticlesFetched = {
   id_Articulo: string;
   //id_ArticuloCuenta: string; Cambio del tadeo arreglar despois
@@ -84,10 +76,6 @@ const renderOutputView = (
   setArticles: Function,
   reasonMessage: string,
   setReasonMessage: Function,
-  radioSelected: number,
-  setRadioSelected: Function,
-  subWarehouse: any,
-  setSubWarehouse: Function
 ) => {
   switch (step) {
     case 0:
@@ -97,10 +85,6 @@ const renderOutputView = (
           setArticles={setArticles}
           reasonMessage={reasonMessage}
           setReasonMessage={setReasonMessage}
-          radioSelected={radioSelected}
-          setRadioSelected={setRadioSelected}
-          subWarehouse={subWarehouse}
-          setSubWarehouse={setSubWarehouse}
         />
       );
 
@@ -109,8 +93,6 @@ const renderOutputView = (
         <OutputResume
           articles={articles}
           reasonMessage={reasonMessage}
-          radioSelected={radioSelected}
-          subWarehouse={subWarehouse}
         />
       );
   }
@@ -122,8 +104,6 @@ export const ArticlesView = (props: ArticlesViewProps) => {
   const [articles, setArticles] = useState<ArticlesFetched[] | []>([]);
   const [reasonMessage, setReasonMessage] = useState('');
   const [value, setValue] = useState(0);
-  const [radioSelected, setRadioSelected] = useState(0);
-  const [subWarehouse, setSubWarehouse] = useState<IWarehouseData | null>(null);
   const warehouseData = useWarehouseTabsNavStore(useShallow((state) => state.warehouseData));
   const [isLoading, setIsLoading] = useState(false);
 
@@ -138,10 +118,9 @@ export const ArticlesView = (props: ArticlesViewProps) => {
       }; 
     });
     const object = { 
-      ArticulosSalida: existingArticles,
-      id_almacenDestino: radioSelected === 0 ? (subWarehouse ? subWarehouse.id_Almacen : '') : '', 
-      id_almacenOrigen: warehouseData.id_Almacen, 
-      SalidaMotivo: radioSelected === 1 ? reasonMessage : undefined,
+      articulos: existingArticles,
+      id_Almacen:  warehouseData.id_Almacen,
+      motivo: reasonMessage,
     }; 
     try {
       //Arreglar endpoint back
@@ -171,10 +150,6 @@ export const ArticlesView = (props: ArticlesViewProps) => {
             setArticles,
             reasonMessage,
             setReasonMessage,
-            radioSelected,
-            setRadioSelected,
-            subWarehouse,
-            setSubWarehouse
           )}
         </Box>
       </Box>
@@ -213,34 +188,11 @@ export const ArticlesView = (props: ArticlesViewProps) => {
                 articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === '' || cantidad === '0')
               )
                 return toast.error('Rellena todas las cantidades');
-              if (radioSelected === 0) {
-                if (!subWarehouse) {
-                  if (warehouseData.esSubAlmacen) {
-                    setSubWarehouse({
-                      nombre: '',
-                      descripcion: '',
-                      esSubAlmacen: false,
-                      id_AlmacenPrincipal: null,
-                      id_UsuarioEncargado: null,
-                      articuloExistentes: null,
-                      id_Almacen: warehouseData.id_AlmacenPrincipal || '',
-                      fechaCreacion: '',
-                      fechaModificacion: '',
-                      habilitado: true,
-                      subAlmacenes: [],
-                    });
-                  } else {
-                    return toast.error('Selecciona un Sub Almacén');
-                  }
-                }
-              } else {
                 if (reasonMessage === '') return toast.error('Agrega un motivo de salida');
-              }
               setValue((prev) => prev + 1);
-            } else {
+
               handleSubmit();
-            }
-          }}
+          }}}
         >
           {value === 0 ? 'Siguiente' : 'Guardar'}
         </Button>
@@ -254,10 +206,6 @@ interface ArticlesOutputProp {
   setArticles: Function;
   reasonMessage: string;
   setReasonMessage: Function;
-  radioSelected: number;
-  setRadioSelected: Function;
-  subWarehouse: any;
-  setSubWarehouse: Function;
 }
 
 const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
@@ -265,10 +213,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   setArticles,
   reasonMessage,
   setReasonMessage,
-  radioSelected,
-  setRadioSelected,
-  subWarehouse,
-  setSubWarehouse,
 }) => {
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -323,6 +267,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
   };
 
   const searchArticleAmount = async (Id_Articulo: string) => {
+    console.log("el condeonao fokin id asterisco: ",Id_Articulo);
     setIsLoading(true);
     try {
       const amountResponse = await getAmountForArticleInWarehouse(Id_Articulo, warehouseData.id_Almacen);
@@ -371,6 +316,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
                 onChange={(e, val) => {
                   e.stopPropagation();
                   if (val && val.id_Articulo) {
+                    console.log("er mardito diablo",val);
                     setArticleId(val.id_Articulo);
                     //setOpenLoteModal(true);
                     //hacer el c mamut
@@ -438,45 +384,7 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           setArticleSelected={setArticleSelected}
         />
         <Divider />
-        <FormControl>
-          <FormLabel>
-            <b>Seleccione el tipo de salida</b>
-          </FormLabel>
-          <RadioGroup row value={radioSelected} sx={{ justifyContent: 'space-between', px: 4 }}>
-            <FormControlLabel
-              onChange={(e: any) => setRadioSelected(Number(e.target.value))}
-              value={0}
-              control={<Radio />}
-              label={warehouseData.esSubAlmacen ? 'Se dirige al almacen principal' : 'Se dirige a otro almacén'}
-            />
-            <FormControlLabel
-              value={1}
-              onChange={(e: any) => setRadioSelected(Number(e.target.value))}
-              control={<Radio />}
-              label="Salida del sistema por motivo"
-            />
-          </RadioGroup>
-        </FormControl>
         <Stack flexDirection={'row'}>
-          {warehouseData.subAlmacenes.length > 0 && !warehouseData.esSubAlmacen && (
-            <Box sx={{ width: '35%' }}>
-              <Autocomplete
-                disabled={radioSelected === 1}
-                disablePortal
-                sx={{ width: 200, mx: 'auto' }} 
-                filterOptions={filterSubWarehousesOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation(); 
-                  setSubWarehouse(val);
-                }}
-                getOptionLabel={(option) => option.nombre} 
-                options={warehouseData.subAlmacenes}
-                value={subWarehouse} 
-                noOptionsText="No existen registros de Sub Almacenes"
-                renderInput={(params) => <TextField {...params} placeholder="Sub Almacén..." fullWidth />}
-              />
-            </Box>
-          )}
 
           <Box
             sx={{
@@ -484,7 +392,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              visibility: radioSelected === 0 ? 'hidden' : 'visible',
             }}
           >
             <Typography textAlign={'center'}>Motivos de salida:</Typography>
@@ -518,17 +425,6 @@ const ArticlesOutput: React.FC<ArticlesOutputProp> = ({
           </Box>
         </Stack>
       </Stack>
-      {/*<Modal open={openLoteModal} onClose={() => setOpenLoteModal(false)}>
-        <LoteSelectionRemake2
-          sx={{ p: 2 }}
-          setOpen={setOpenLoteModal}
-          articleName={articleSelected?.nombre || ''}
-          addFunction={handleAddArticle}
-          editing={loteEditing}
-          selectedLotes={lotesSelected?.length > 0 ? lotesSelected : undefined}
-          empityLotes={true}
-        />
-      </Modal>*/}
     </>
   );
 };
@@ -671,11 +567,9 @@ const NestedArticlesTable: React.FC<NestedArticlesTableProps> = ({ open, article
 interface OutputResumeProps {
   articles: any[];
   reasonMessage: string;
-  radioSelected: number;
-  subWarehouse: any;
 }
 
-const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, radioSelected, subWarehouse }) => {
+const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage }) => {
   const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
   const dateNow = Date.now();
   const today = new Date(dateNow);
@@ -692,17 +586,8 @@ const OutputResume: React.FC<OutputResumeProps> = ({ articles, reasonMessage, ra
           <Typography>{today.toLocaleDateString('es-ES')}</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          {radioSelected === 0 ? (
-            <>
-              <Typography variant="subtitle1">Almacen de destino:</Typography>
-              <Typography>{subWarehouse.nombre}</Typography>
-            </>
-          ) : (
-            <>
               <Typography variant="subtitle1">Motivo de salida:</Typography>
               <Typography>{reasonMessage}</Typography>
-            </>
-          )}
         </Grid>
       </Grid>
       <ArticlesTable articles={articles} isResume={true} setArticleSelected={() => {}} />

@@ -30,7 +30,8 @@ export const PackageTabs = () => {
           <Tab label="Artículos" value={0} />
           <Tab label="Solicitudes de Enfermeros" value={1} />
           <Tab label="Paquetes en espera" value={2} />
-          <Tab label="Movimientos" value={3} />
+          <Tab label="Solicitud de Productos" value={3} />
+          <Tab label="Movimientos" value={4} />
         </Tabs>
       </AppBar>
     </Box>

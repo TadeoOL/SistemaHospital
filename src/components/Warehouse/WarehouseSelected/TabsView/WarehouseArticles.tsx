@@ -320,8 +320,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
     const modified = {
       stockMinimo: minAmountText,
       stock: isNaN(Number(amountText)) ? article.stockActual : Number(amountText),
-      id_almacen: useWarehouseTabsNavStore.getState().warehouseData.id_Almacen,
-      id_articulo: article.id_Articulo,
+      id_Almacen: useWarehouseTabsNavStore.getState().warehouseData.id_Almacen,
+      id_Articulo: article.id_Articulo,
     };
     try {
       await modifyMinStockExistingArticle(modified);
@@ -401,6 +401,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ article }) => {
             <IconButton
               onClick={() => {
                 if (isEditing) {
+                  console.log("Lo edita asterisco");
                   handleSaveValue();
                 }
                 setIsEditing(!isEditing);

@@ -36,7 +36,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { articlesOutputToWarehouse } from '../../../../api/api.routes';
 import { AceptWareHouseRequestModalRework } from './Modal/AcceptWarehouseRequest';
 
-export const WarehousePurchases = () => {
+export const WarehousePurchases = (props: {idWarehouse: string}) => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const [openModal, setOpenModal] = useState(false);
   const [openAceptModal, setOAceptpenModal] = useState(false);
@@ -113,12 +113,14 @@ export const WarehousePurchases = () => {
               />
             </IconButton>
             </Tooltip>
-            <Tooltip title="Cancelar solicitud">
+            <Tooltip title="Cancelar solicitud"
+            onClick={() => {
+              rejectRequest(petition.id_SolicitudAlmacen);
+            }}
+            >
             <IconButton
               size="small"
-              onClick={() => {
-                rejectRequest(petition.id_SolicitudAlmacen);
-              }}
+              
             >
               <CloseIcon sx={{ color: 'red' }} />
             </IconButton>
@@ -127,6 +129,13 @@ export const WarehousePurchases = () => {
         </>;
       case 2:
         return <>
+        <Box
+            sx={{
+              flexDirection: 'row',
+              alignContent: 'center',
+              alignItems: 'center',
+            }}
+          >
         <Tooltip title="Marcar como Entregado">
               <IconButton
                 onClick={() => {
@@ -136,6 +145,19 @@ export const WarehousePurchases = () => {
                 <MarkunreadMailboxIcon sx={{ color: 'green' }} />
               </IconButton>
             </Tooltip>
+            <Tooltip title="Cancelar solicitud"
+            onClick={() => {
+              rejectRequest(petition.id_SolicitudAlmacen);
+            }}
+            >
+            <IconButton
+              size="small"
+              
+            >
+              <CloseIcon sx={{ color: 'red' }} />
+            </IconButton>
+            </Tooltip>
+            </Box>
         </>;
       case 3:
         return <></>;
@@ -176,7 +198,7 @@ export const WarehousePurchases = () => {
             allowOutsideClick: () => !Swal.isLoading(),
           });
           if (reason) {
-            fetchMerchandiseEntries();
+            fetchMerchandiseEntries(props.idWarehouse);
             withReactContent(Swal).fire({
               title: 'Éxito!',
               text: 'Solicitud Cancelada',
@@ -228,12 +250,13 @@ export const WarehousePurchases = () => {
             icon: 'info',
           });
         }
+        fetchMerchandiseEntries(props.idWarehouse);
       });
   };
 
   useEffect(() => {
     //setStatus(null)
-    fetchMerchandiseEntries();
+    fetchMerchandiseEntries(props.idWarehouse);
   }, [pageCount, pageSize, pageIndex, search, sort, status]);
 
   return (
@@ -429,7 +452,7 @@ export const WarehousePurchases = () => {
         }}
       >
         <React.Fragment>
-          <AddMerchandisePetitionModal setOpen={setOpenModal} refetch={fetchMerchandiseEntries} />
+          <AddMerchandisePetitionModal setOpen={setOpenModal} refetch={()=>{fetchMerchandiseEntries(props.idWarehouse)}} idWarehouse={props.idWarehouse} />
         </React.Fragment>
       </Modal>
       <Modal
@@ -441,8 +464,9 @@ export const WarehousePurchases = () => {
         <React.Fragment>
           <AceptWareHouseRequestModalRework
             setOpen={setOAceptpenModal}
-            refetch={fetchMerchandiseEntries}
+            refetch={()=>{fetchMerchandiseEntries(props.idWarehouse)}}
             request={request as MerchandiseEntry}
+            idWarehouse={props.idWarehouse}
           />
         </React.Fragment>
       </Modal>

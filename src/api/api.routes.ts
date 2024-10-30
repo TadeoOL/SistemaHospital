@@ -267,7 +267,7 @@ export const getAllCategories = async () => {
 };
 
 export const getAllCategoriesByWarehouse = async (Id_Warehouse: string) => {
-  const res = await axios.get(`/api/Compras/Catalogo/Categoria/obtener-categorias-almacen?Id_Almacen=${Id_Warehouse}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Categoria/obtener-categorias?Id_Almacen=${Id_Warehouse}`);
   return res.data;
 };
 
@@ -426,7 +426,7 @@ export const getAllArticles = async () => {
 };
 
 export const getArticlesFromWarehouseSearch = async (search: string, idWarehouse: string) => {
-  const res = await axios.get(`/api/Articulo/obtener-articulos?search=${search}&id_Almacen=${idWarehouse}`);
+  const res = await axios.get(`/api/AlmacenArticulo/obtener-almacen-articulos?search=${search}&id_Almacen=${idWarehouse}`);
   return res.data;
 };
 
@@ -854,12 +854,12 @@ export const addMerchandiseEntry = async (merchandisePetition: {
 };
 
 export const modifyMinStockExistingArticle = async (data: {
-  id_almacen: string;
-  id_articulo: string;
+  id_Almacen: string;
+  id_Articulo: string;
   stockMinimo: string;
   stock: number;
 }) => {
-  const res = await axios.put(`/api/ArticuloExistente/actualizar-articulo-existente`, {
+  const res = await axios.put(`/api/AlmacenArticulo/ajuste-inventario-almacen-articulo`, {
     ...data,
   });
   return res.data;
