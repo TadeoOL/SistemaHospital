@@ -90,7 +90,7 @@ export const PackageCatalogueTable = (props:{ warehouseId: string}) => {
   const [open, setOpen] = useState(false);
   const [packageSelected, setPackageSelected] = useState<IArticlesPackage>({
     id_Almacen: '',
-    contenido: [],
+    articulos: [],
     descripcion: '',
     id_PaqueteArticulo: '',
     nombre: '',
@@ -224,9 +224,9 @@ export const PackageCatalogueTable = (props:{ warehouseId: string}) => {
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {pack.contenido &&
-                                    pack.contenido?.length > 0 &&
-                                    pack.contenido.map((articleInPackage, i) => (
+                                  {pack.articulos &&
+                                    pack.articulos?.length > 0 &&
+                                    pack.articulos.map((articleInPackage, i) => (
                                       <TableRow key={(articleInPackage.nombre, i)}>
                                         <TableCell align="center">{articleInPackage.nombre}</TableCell>
                                         <TableCell align="center">{articleInPackage.cantidad}</TableCell>

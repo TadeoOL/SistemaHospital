@@ -1,7 +1,6 @@
 import { createWithEqualityFn } from 'zustand/traditional';
 import { getPetitionsListByWareHouseId } from '../../api/api.routes';
 import { MerchandiseEntry } from '../../types/types';
-import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 
 interface State {
@@ -22,6 +21,7 @@ interface State {
   setEndDate: Function;
   setSearch: Function;
   sort: string;
+  status: number | null;
 }
 
 interface Action {
@@ -32,10 +32,11 @@ interface Action {
   setSearch: (search: string) => void;
   setEnabled: (enabled: boolean) => void;
   setHandleChangeSubWarehouse: (handleChangeSubWarehouse: boolean) => void;
-  fetchMerchandiseEntries: () => Promise<void>;
+  fetchMerchandiseEntries: (idWarehouse: string) => Promise<void>;
   clearData: () => void;
   setSearchUser: (searchUser: string) => void;
   setSort: (sort: string) => void;
+  setStatus: (status: number | null) => void;
 }
 
 export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((set, get) => ({
@@ -53,6 +54,8 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   handleChangeSubWarehouse: false,
   searchUser: '',
   sort: '',
+  status: 1,
+  setStatus: (status: number | null) => set({ status }),
   setSort: (sort: string) => set({ sort }),
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
@@ -65,20 +68,18 @@ export const merchandiseEntryPagination = createWithEqualityFn<State & Action>((
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
-  fetchMerchandiseEntries: async () => {
-    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort } = get();
+  fetchMerchandiseEntries: async (idWarehouse: string) => {
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort, status } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
     try {
-      const res = await getPetitionsListByWareHouseId(
-        `${page === 0 ? '' : 'pageIndex=' + page}&${
+      const url = `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&Id_Almacen=${
-          useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
-        }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
-      );
-      console.log('yagora?', res.data);
+        }&search=${search}&habilitado=${enabled}&Id_Almacen=${idWarehouse
+        }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}${status !== null ? `&Estatus=${status}`  : ''}`
+
+        const res = await getPetitionsListByWareHouseId(url);
       set(() => ({
         data: res.data,
         count: res.count,

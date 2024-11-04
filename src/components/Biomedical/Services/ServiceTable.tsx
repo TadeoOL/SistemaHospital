@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { Delete, Edit } from '@mui/icons-material';
-import { AddAndEditXRay } from './Modal/AddAndEditXRay';
+import { AddAndEditXRay } from './Modal/AddAndEditService';
 import { useEffect, useState } from 'react';
 import { IXRay, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
 import Swal from 'sweetalert2';
@@ -28,7 +28,7 @@ interface XRayTableBodyProps {
 interface XRayTableRowProps {
   data: IXRay;
 }
-const useGetXRayData = () => {
+const useGetServicesData = () => {
   const fetchData = useXRayPaginationStore((state) => state.fetchData);
   const data = useXRayPaginationStore((state) => state.data);
   const search = useXRayPaginationStore((state) => state.search);
@@ -51,8 +51,8 @@ const useGetXRayData = () => {
     pageSize,
   };
 };
-export const XRayTable = () => {
-  const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetXRayData();
+export const ServicesTable = () => {
+  const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetServicesData();
   if (isLoading && data.length === 0)
     return (
       <Box sx={{ display: 'flex', p: 4, justifyContent: 'center' }}>
@@ -86,7 +86,7 @@ const XRayTableBody = (props: XRayTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((a) => (
-        <XRayTableRow key={a.id} data={a} />
+        <XRayTableRow key={a.id_Servicio} data={a} />
       ))}
     </TableBody>
   );
@@ -112,7 +112,7 @@ const XRayTableRow = (props: XRayTableRowProps) => {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await disableXRay(data.id);
+          await disableXRay(data.id_Servicio);
           refetch();
           Swal.fire({
             title: 'Eliminado!',

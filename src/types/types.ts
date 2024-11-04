@@ -300,25 +300,25 @@ export interface ArticleObject {
 }
 
 export interface MerchandiseEntry {
-  id: string;
+  folio: string;
+  id_SolicitudAlmacen: string;
   id_AlmacenOrigen: string;
   id_AlmacenDestino: string;
+  tipoSolicitud: number;
+  estatus: number;
   almacenOrigen: string;
   almacenDestino: string;
-  historialArticulos: ArticleObjectInPetition[];
+  usuarioSolicito?: string;
+  usuarioAutorizo?: string;
+  articulos: ArticleObjectInPetition[];
   fechaSolicitud: string;
-  estatus: number;
-  solicitadoPor?: string;
-  autorizadoPor?: string;
-  folio: string;
+ 
 }
 
 export interface ArticleObjectInPetition {
   cantidad: number;
   nombre: string;
-  fechaCaducidad: string | null;
   id_Articulo: string;
-  lote?: IExistingArticleList;
 }
 
 export interface ICheckedArticles {
@@ -488,6 +488,7 @@ export interface IWarehouseMovementData {
   estatus?: number;
   folio: string;
   infoExtra: any;
+  conceptoSolicitud: string;
 }
 export interface IArticleHistory {
   nombre: string;
@@ -507,7 +508,7 @@ export interface IWarehousePurchaseOrder {
 }
 
 export interface ISubWarehouse {
-  id: string;
+  id_Almacen: string;
   nombre: string;
   descripcion: string;
   usuarioEncargado: string;
@@ -531,7 +532,7 @@ export interface IArticlesPackage {
   id_PaqueteArticulo: string;
   nombre: string;
   descripcion?: string;
-  contenido: Articulos_contenidos[];
+  articulos: Articulos_contenidos[];
   id_Almacen: string;
   almacen?: string;
   id_ArticuloPaquete?: string;

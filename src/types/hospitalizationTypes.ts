@@ -20,13 +20,14 @@ export interface IAnesthesiologist {
 }
 
 export interface IXRay {
-  id: string;
+  id_Servicio: string;
   nombre: string;
   descripcion: string;
   precio: number;
   tipo: number;
-  codigoSAT?: string;
-  codigoUnidadMedida?: number;
+  requiereAutorizacion: boolean;
+  //codigoSAT?: string;
+  //codigoUnidadMedida?: number;
 }
 
 export interface IXRayRequest {

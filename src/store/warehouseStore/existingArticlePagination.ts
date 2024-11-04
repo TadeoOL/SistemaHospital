@@ -99,8 +99,9 @@ export const useExistingArticlePagination = createWithEqualityFn<State & Action>
         `${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&Id_Almacen=${warehouseId}&Id_SubCategoria=${
-          subcategory
-        }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}`
+          subcategory }&Id_AlmacenPrincipal=${mainWarehouseId}&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&EsSubAlmacen=${
+            principalWarehouseId !== ''
+          }`
       );
       set(() => ({
         data: res.data,

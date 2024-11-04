@@ -89,7 +89,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
   useEffect(() => {
     if (!editData) return;
     const roomType = data.find((d) => d.nombre === editData.tipoCuarto);
-    setValue('roomType', roomType ? roomType.id : '');
+    setValue('roomType', roomType ? roomType.id_TipoCuarto : '');
   }, [editData]);
 
   if (isLoadingTypeRoom)
@@ -130,7 +130,7 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
               >
                 {data.map((roomType) => {
                   return (
-                    <MenuItem value={roomType.id} key={roomType.id}>
+                    <MenuItem value={roomType.id_TipoCuarto} key={roomType.id_TipoCuarto}>
                       {roomType.nombre}
                     </MenuItem>
                   );

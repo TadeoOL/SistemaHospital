@@ -1,8 +1,8 @@
 import axios from '../../libs/axios';
-const apiHospitalizationRooms = '/api/CuartosHospitalizacion';
+const apiHospitalizationRooms = '/api/Programacion/Catalogo/Quirofano';
 
 export const getHospitalRoomsPagination = async (params: string) => {
-  const res = await axios.get(`${apiHospitalizationRooms}/paginacion-cuartos-hospitalizacion?${params}`);
+  const res = await axios.get(`${apiHospitalizationRooms}/paginacion-quirofano?${params}`);
   return res.data;
 };
 

@@ -9,8 +9,16 @@ import { NurseRequestManagementTable } from './NurseRequestManagementTable';
 import { SelectWarehouseModal } from './Modal/SelectWarehouseModal';
 import { useState } from 'react';
 import { IWarehouseData } from '../../../types/types';
+import { WarehousePurchases } from '../../Warehouse/WarehouseSelected/TabsView/WarehousePurchases';
+import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 
 const GetWarehouseView: React.FC = () => {
+  const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
+  const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
+
+  console.log("setiado ",warehouseIdSeted);
+  console.log("el otro" ,warehouseSL?.id_Almacen);
+
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
   switch (tabValue) {
     case 0:
@@ -20,6 +28,8 @@ const GetWarehouseView: React.FC = () => {
     case 2:
       return <WaitingPackages />;
     case 3:
+      return <WarehousePurchases idWarehouse={warehouseSL?.id_Almacen != null ? warehouseSL.id_Almacen : warehouseIdSeted  } />;
+    case 4:
       return <WarehouseHistoryPharmacy />;
     default:
       break;
@@ -32,35 +42,35 @@ export const PackageView = () => {
   return (
     <Stack>
       <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            justifyContent: 'flex-end',
-            mb: 1,
-            columnGap: 1,
-          }}
-        >
-        <Typography variant="h4" fontWeight={"bold"} sx={{mr:'auto'}} >
+        sx={{
+          display: 'flex',
+          flex: 1,
+          justifyContent: 'flex-end',
+          mb: 1,
+          columnGap: 1,
+        }}
+      >
+        <Typography variant="h4" fontWeight={"bold"} sx={{ mr: 'auto' }} >
           Almacen: {warehouseSL?.nombre}
         </Typography>
         <Button
-            size="large"
-            variant="contained"
-            onClick={() => setOpenModal(true)}
-          >
-            Cambiar almacen
+          size="large"
+          variant="contained"
+          onClick={() => setOpenModal(true)}
+        >
+          Cambiar almacen
         </Button>
-        </Box>
+      </Box>
       <Stack sx={{ bgcolor: 'background.paper' }}>
         <PackageTabs />
         <Box sx={{ p: 2 }}>
           {<>
             <GetWarehouseView />
             <Modal open={openModal}>
-              <SelectWarehouseModal 
-                setOpen={setOpenModal}/>
+              <SelectWarehouseModal
+                setOpen={setOpenModal} />
             </Modal>
-            </>}
+          </>}
         </Box>
       </Stack>
     </Stack>

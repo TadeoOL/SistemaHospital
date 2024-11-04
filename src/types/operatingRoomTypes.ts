@@ -25,6 +25,18 @@ export interface IRoomInformation {
   datosClinicos?: HistorialClinico;
 }
 
+//nuevo
+export interface IRoomInformationnew {
+  id_IngresoPaciente: string;
+  estatus: number;
+  quirofano: string;
+  paciente?: string;
+  cirugias?: string;
+  medico?: string
+  anestesiologo?: string;
+  TiempoEstimado?: string;
+}
+
 export interface IRegisterOperatingRoom {
   id: string;
   id_RegistroCuarto: string;

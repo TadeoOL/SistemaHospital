@@ -1,6 +1,6 @@
 import axios from '../../libs/axios';
 import { IRoomEvent } from '../../types/types';
-const apiRoom = '/api/Cuartos';
+const apiRoom = '/api/Programacion/Catalogo/Cuarto';
 
 export const registerRoom = async (data: { nombre: string; descripcion: string; id_TipoCuarto: string }) => {
   const res = await axios.post(`${apiRoom}/registrar-cuarto`, data);
@@ -37,11 +37,13 @@ export const getUnavailableRoomsByIdAndDate = async (roomId: string, date: Date)
   return res.data;
 };
 
-export const getRoomsEventsByDate = async (date: string, tipoCuarto?: number | string, roomId?: string) => {
+export const getRoomsEventsByDate = async (endDate: string, initialDate: string, typeId?: string, roomId?: string) => {
+  //obtener-reservacion-cuartos
   const res = await axios.get(`${apiRoom}/obtener-todos-registros-cuarto-por-fecha`, {
     params: {
-      fecha: date,
-      tipoCuarto,
+      fechaInicial: initialDate,
+      fechaFinal: endDate,
+      id_TipoCuarto: typeId,
       id_Cuarto: roomId,
     },
   });

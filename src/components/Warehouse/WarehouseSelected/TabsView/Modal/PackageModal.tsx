@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IArticle, IArticlesPackage } from '../../../../../types/types';
-import { addArticlesPackage, getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
+import { getArticlesFromWarehouseSearch } from '../../../../../api/api.routes';
 import { addNewArticlesPackage } from '../../../../../schema/schemas';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
@@ -33,6 +33,7 @@ import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purch
 import { shallow } from 'zustand/shallow';
 import { Save, Edit, Delete, Info, Cancel } from '@mui/icons-material';
 import { usePackagePaginationStore } from '../../../../../store/warehouseStore/packagesPagination';
+import { addArticlesPackage } from '../../../../../services/operatingRoom/dailyOperatingPackageService';
 
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticle>({
@@ -190,8 +191,7 @@ export const PackageModal = (props: { setOpen: Function; warehouseId: string }) 
       const object = {
         Nombre: data.nombre,
         Descripcion: data.descripcion,
-        Id_Almacen: props.warehouseId as string,
-        Contenido: data.historialArticulos,
+        Articulos: data.historialArticulos,
       };
       await addArticlesPackage(object);
       toast.success('Paquete creado');

@@ -1,6 +1,6 @@
 import axios from '../../libs/axios';
 import { IEventDetails } from '../../types/admissionTypes';
-const apiRegister = '/api/Registro';
+const apiRegister = '/api/Programacion/Registro';
 
 interface RegisterAdmission {
   pacienteId: string;

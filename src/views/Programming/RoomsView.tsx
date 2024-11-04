@@ -1,6 +1,6 @@
-import { Rooms } from '../../components/Programming/Rooms/Rooms';
+import { RoomsTabNav } from '../../components/Programming/Rooms/RoomsTavNav';
 
 const RoomsView = () => {
-  return <Rooms />;
+  return <RoomsTabNav />;
 };
 export default RoomsView;

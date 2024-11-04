@@ -8,7 +8,6 @@ import { useWarehouseTabsNavStore } from '../../../store/warehouseStore/warehous
 import { useShallow } from 'zustand/react/shallow';
 import { WarehouseArticles } from './TabsView/WarehouseArticles';
 import { WarehousePurchases } from './TabsView/WarehousePurchases';
-import { WarehouseRequest } from './TabsView/WarehouseRequests';
 import { SubWarehouses } from './TabsView/SubWarehouses';
 import { WarehouseHistory } from './TabsView/WarehouseHistory';
 import { NotFoundPage } from '../../../views/404Page';
@@ -16,15 +15,17 @@ import { NotFoundPage } from '../../../views/404Page';
 
 const GetWarehouseView: React.FC = () => {
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
+  const { warehouseId } = useParams();
+  
   switch (tabValue) {
     case 0:
       return <WarehouseArticles />;
     case 1:
       return <SubWarehouses />;
     case 2:
-      return <WarehousePurchases />;
-    case 3:
-      return <WarehouseRequest />;
+      return <WarehousePurchases idWarehouse={warehouseId as string} />;
+    /*case 3: ELIMINADO
+      return <WarehouseRequest />;*/
     case 4:
       return <WarehouseHistory />;
     /*case 5:

@@ -66,8 +66,9 @@ export const xraySchema = z.object({
       return p;
     })
     .refine((p) => p !== 0, { message: 'El numero debe ser mayor a 0' }),
-  codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
+    autorization: z.boolean(),
+  //codigoSAT: z.string().min(1, 'El código es necesario'),
+  //codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
 
 export const medicSchema = z.object({

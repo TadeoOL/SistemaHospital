@@ -29,7 +29,6 @@ import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purch
 import AnimateButton from '../../../../@extended/AnimateButton';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { SubmitHandler } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import { IWarehouseData, MerchandiseEntry } from '../../../../../types/types';
 import { addMerchandiseEntry, getWarehouseById } from '../../../../../api/api.routes';
 import { getExistingArticles } from '../../../../../services/warehouse/articleWarehouseService';
@@ -56,8 +55,7 @@ const style = {
   maxHeight: { xs: 600 },
 };
 
-export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function }) => {
-  const { warehouseId } = useParams();
+export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch: Function; idWarehouse: string }) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [warehouseData, setWarehouseData] = useState<IWarehouseData[]>([]);
   const [isLoadingArticlesWareH, setIsLoadingArticlesWareH] = useState(false);
@@ -70,7 +68,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
     const fetch = async () => {
       setIsLoadingWarehouse(true);
       try {
-        const warehouse = await getWarehouseById(warehouseId as string);
+        const warehouse = await getWarehouseById(props.idWarehouse);
         if (warehouse?.esSubAlmacen) {
           const fatherWarehouse = await getWarehouseById(warehouse.id_AlmacenPrincipal ?? '');
           setWarehouseData([fatherWarehouse]);
@@ -90,7 +88,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       }
     };
     fetch();
-  }, [warehouseId]);
+  }, [props.idWarehouse]);
   useEffect(() => {
     if (warehouseSelected) {
       handleFetchArticlesFromWareHouse(warehouseSelected, subWarehouseSelected);
@@ -151,9 +149,18 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
   const handleFetchArticlesFromWareHouse = async (wareH: string, subwareH: string) => {
     try {
       setIsLoadingArticlesWareH(true);
-      const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${true}&Id_Almacen=${subwareH}&Id_AlmacenPrincipal=${wareH}&fechaInicio=&fechaFin=&sort=`
-      );
+      let url = "";
+      if(subWarehouseFlag){
+        url = `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${
+          true}&Id_Almacen=${wareH}&Id_AlmacenPrincipal=${
+            wareH}&EsSubAlmacen=${false}&fechaInicio=&fechaFin=&sort=`;
+      }
+      else{
+        url = `${'pageIndex=1&pageSize=10'}&search=${serch}&habilitado=${
+          true}&Id_Almacen=${subwareH}&Id_AlmacenPrincipal=${
+            wareH}&EsSubAlmacen=${true}&fechaInicio=&fechaFin=&sort=`;
+      }
+      const res = await getExistingArticles(url);
       const transformedData = res.data.map((item: any) => ({
         id: item.id_Articulo,
         nombre: item.nombre,
@@ -184,8 +191,8 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
       }
       const object = {
         Id_AlmacenOrigen: data.almacenDestino,
-        Id_AlmacenDestino: subWarehouseFlag ? subWarehouseSelected : (warehouseId as string),
-        ListaArticulos: data.historialArticulos,
+        Id_AlmacenDestino: subWarehouseFlag ? subWarehouseSelected : props.idWarehouse,
+        Articulos: data.articulos,
       };
       await addMerchandiseEntry(object);
       toast.success('Solicitud creada');
@@ -220,6 +227,7 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
               onChange={(e) => {
                 setWarehouseError(false);
                 if (subWarehouseFlag) {
+                  console.log(e.target.value);
                   setWarehouseSelected(e.target.value);
                 } else {
                   setSubWarehouseSelected(e.target.value);
@@ -231,9 +239,20 @@ export const AddMerchandisePetitionModal = (props: { setOpen: Function; refetch:
             >
               {warehouseData?.length > 0 &&
                 warehouseData
-                  .filter((warehouse) => warehouse.id_Almacen !== warehouseId)
+                  .filter((warehouse) => warehouse.id_Almacen !== props.idWarehouse)
                   .map((warehouse) => (
-                    <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
+                    <MenuItem
+                      key={warehouse.id_Almacen}
+                      value={warehouse.id_Almacen}
+                      onClick={() => {
+                        if (subWarehouseFlag) {
+                          setWarehouseSelected(warehouse.id_Almacen);
+                        } else {
+                          setSubWarehouseSelected(warehouse.id_Almacen);
+                          handleFetchArticlesFromWareHouse(warehouseSelected, warehouse.id_Almacen);
+                        }
+                      }}
+                    >
                       {warehouse.nombre}
                     </MenuItem>
                   ))}
@@ -390,10 +409,10 @@ const ArticlesTable = (props: {
     const articleToAdd = articles.find((a) => a.id === id);
     const articleToAddModified = articleToAdd
       ? {
-          id: articleToAdd.id,
-          nombre: articleToAdd.name,
-          precio: 0,
-        }
+        id: articleToAdd.id,
+        nombre: articleToAdd.name,
+        precio: 0,
+      }
       : null;
     if (articleToAddModified) {
       setArticlesFetched([...articlesFetched, articleToAddModified]);
@@ -541,11 +560,10 @@ const ArticlesTable = (props: {
             //subWarehouseSelected
             await props.submitData({
               almacenDestino: props.subWarehouseFlag ? warehouseSelected : props.subWarehouseSelected,
-              historialArticulos: articles.map((art) => ({
-                Id_ArticuloExistente: art.id,
+              articulos: articles.map((art) => ({
+                Id_Articulo: art.id,
                 Nombre: art.name,
                 Cantidad: art.amount,
-                FechaCaducidad: null,
               })),
             });
             setIsLoading(false);

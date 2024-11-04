@@ -2,7 +2,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { IWarehouseMovementData } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
-import { getWaitingPackagesByWarehouse } from '../../services/pharmacy/inventoryOutflowsService';
+import { getQurirgicalPackagePagination } from '../../services/operatingRoom/dailyOperatingPackageService';
 
 interface State {
   count: number;
@@ -73,13 +73,13 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
     try {
       let res: any;
       if (specificWarehouseId !== undefined) {
-        res = await getWaitingPackagesByWarehouse(
+        res = await getQurirgicalPackagePagination(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
         );
       } else {
-        res = await getWaitingPackagesByWarehouse(
+        res = await getQurirgicalPackagePagination(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${

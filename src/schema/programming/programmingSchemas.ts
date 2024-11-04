@@ -165,8 +165,8 @@ export const typeRoomSchema = z
     priceByTimeRange: z.array(priceByTimeRange).optional(),
     recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),
-    codigoSATRecuperacion: z.string().nullable(),
-    codigoSAT: z.string().min(1, 'El código es necesario'),
+    //codigoSATRecuperacion: z.string().nullable(),
+    //codigoSAT: z.string().min(1, 'El código es necesario'),
     codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
     codigoUnidadMedidaRecuperacion: z.number({invalid_type_error: 'El código es necesario'}).optional(),
     priceRoom: z
@@ -178,7 +178,7 @@ export const typeRoomSchema = z
     message: 'El precio del cuarto es necesario',
     path: ['priceRoom'],
   })
-  .refine(
+  /*.refine(
     (values) => values.type !== '1' || (values.codigoSATRecuperacion && values.codigoSATRecuperacion.length > 0),
     {
       message: 'El código de SAT de Recuperación es necesario para quirófanos',
@@ -191,4 +191,4 @@ export const typeRoomSchema = z
       message: 'El código de Unidad de Medida de Recuperación es necesario para quirófanos',
       path: ['codigoUnidadMedidaRecuperacion'],
     }
-  );
+  );*/

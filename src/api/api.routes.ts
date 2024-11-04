@@ -267,7 +267,7 @@ export const getAllCategories = async () => {
 };
 
 export const getAllCategoriesByWarehouse = async (Id_Warehouse: string) => {
-  const res = await axios.get(`/api/Compras/Catalogo/Categoria/obtener-categorias-almacen?Id_Almacen=${Id_Warehouse}`);
+  const res = await axios.get(`/api/Compras/Catalogo/Categoria/obtener-categorias?Id_Almacen=${Id_Warehouse}`);
   return res.data;
 };
 
@@ -404,6 +404,17 @@ export const getArticleById = async (articleId: string) => {
 };
 
 //barra kill
+/*export const getExistingArticles = async (paramUrl: string) => {
+  const res = await axios.get(`/api/ArticuloExistente/paginacion-articulo-existente?${paramUrl}`);
+  return res.data;
+};*/
+export const getExistingArticles = async (paramUrl: string) => {
+  const res = await axios.get(`/api/AlmacenArticulo/paginacion-almacen-articulo?${paramUrl}`);
+  return res.data;
+};
+
+//paginacion-almacen-articulo
+
 export const getExistingArticleById = async (existingArticleId: string) => {
   const res = await axios.get(`/api/ArticuloExistente/${existingArticleId}`);
   return res.data;
@@ -415,7 +426,7 @@ export const getAllArticles = async () => {
 };
 
 export const getArticlesFromWarehouseSearch = async (search: string, idWarehouse: string) => {
-  const res = await axios.get(`/api/Articulo/obtener-articulos?search=${search}&id_Almacen=${idWarehouse}`);
+  const res = await axios.get(`/api/AlmacenArticulo/obtener-almacen-articulos?search=${search}&id_Almacen=${idWarehouse}`);
   return res.data;
 };
 
@@ -823,50 +834,48 @@ export const getArticlesByWarehouseIdAndSearch = async (warehouseId: string, sea
 };
 
 export const getPetitionsListByWareHouseId = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/paginacion-peticion-articulos?${paramUrl}`);
+  const res = await axios.get(`/api/SolicitudAlmacen/paginacion-solicitud-almacen?${paramUrl}`);
   return res.data;
 };
 export const getRequestListByWareHouseId = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/paginacion-solicitud-articulos?${paramUrl}`);
+  const res = await axios.get(`/api/SolicitudAlmacen/paginacion-solicitud-almacen?${paramUrl}`);
   return res.data;
 };
 
 export const addMerchandiseEntry = async (merchandisePetition: {
   Id_AlmacenOrigen: string;
   Id_AlmacenDestino: string;
-  ListaArticulos: any;
+  Articulos: any;
 }) => {
-  const res = await axios.post(`/api/Almacen/registrar-peticion-almacen`, {
+  const res = await axios.post(`/api/SolicitudAlmacen/registrar-solicitud-almacen`, {
     ...merchandisePetition,
   });
   return res.data;
 };
 
 export const modifyMinStockExistingArticle = async (data: {
-  id_almacen: string;
-  id_articulo: string;
+  id_Almacen: string;
+  id_Articulo: string;
   stockMinimo: string;
   stock: number;
 }) => {
-  const res = await axios.put(`/api/ArticuloExistente/actualizar-articulo-existente`, {
+  const res = await axios.put(`/api/AlmacenArticulo/ajuste-inventario-almacen-articulo`, {
     ...data,
   });
   return res.data;
 };
 
 export const articlesOutputToWarehouse = async (data: {
-  ArticulosSalida?: {
-    Id_ArticuloAlmacenStock: string;
+  Articulos?: {
     Id_Articulo: string;
     Nombre: string;
     Cantidad: number;
   }[];
   Estatus: number;
-  Id_HistorialMovimiento: string;
-  Id_CuentaPaciente?: string;
-  Mensaje?: string;
+  Motivo?: string;
+  Id_SolicitudAlmacen: string;
 }) => {
-  const res = await axios.put(`/api/Almacen/estatus-peticion-almacen`, {
+  const res = await axios.put(`/api/SolicitudAlmacen/estatus-peticion-almacen`, {
     ...data,
   });
   return res.data;
@@ -883,22 +892,10 @@ export const waitingpackageChangeStatus = async (data: {
   return res.data;
 };
 
-export const addArticlesPackage = async (packagePost: {
-  Contenido: string;
-  Nombre: string;
-  Descripcion: string;
-  Id_Almacen: string;
-}) => {
-  const res = await axios.post(`/api/Almacen/registrar-paquete`, {
-    ...packagePost,
-  });
+/*export const getQurirgicalPackage = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/obtener-paquetes-quirurgicos?&${paramUrl}`);
   return res.data;
-};
-
-export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/paginacion-paquete?&${paramUrl}`);
-  return res.data;
-};
+};*/
 
 export const getPackagesNamesByWarehouseIdAndSearch = async (paramUrl: string) => {
   const res = await axios.get(`/api/Almacen/obtener-paquetes-nombres?&${paramUrl}`);
@@ -1040,7 +1037,7 @@ export const articlesLoteDelete = async (data: { Id_ArticuloExistente: string })
 
 export const getAmountForArticleInWarehouse = async (id_Articulo: string, Id_Almacen: string) => {
   const res = await axios.get(
-    `/api/ArticuloExistente/obtener-lotes?Id_Articulo=${id_Articulo}&Id_Almacen=${Id_Almacen}`
+    `/api/AlmacenArticulo/obtener-stock-articulo?Id_Articulo=${id_Articulo}&Id_Almacen=${Id_Almacen}`
   );
   return res.data;
 };
