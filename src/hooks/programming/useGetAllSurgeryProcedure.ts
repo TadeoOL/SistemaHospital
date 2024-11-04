@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAllSurgeryProcedures } from '../../services/programming/surgeryProcedureService';
+import { getAllSurgeryProcedures } from '../../services/operatingRoom/surgeryProcedureService';
 
 export const useGetAllSurgeryProcedures = () => {
   const {

@@ -32,7 +32,7 @@ export const biomedicalEquipmentSchema = z.object({
 });
 
 export const anesthesiologistSchema = z.object({
-  id: z.string().optional(),
+  id_Anestesiologo: z.string().optional(),
   name: z.string().min(1, 'El nombre es requerido'),
   lastName: z.string().min(1, 'El apellido paterno es requerido'),
   secondLastName: z.string().min(1, 'El apellido materno es requerido'),

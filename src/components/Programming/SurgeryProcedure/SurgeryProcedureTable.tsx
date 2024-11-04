@@ -19,17 +19,10 @@ import { useSurgeryProcedurePaginationStore } from '../../../store/programming/s
 import { useEffect, useState } from 'react';
 import { Delete, Edit } from '@mui/icons-material';
 import Swal from 'sweetalert2';
-import { deleteSurgeryProcedure } from '../../../services/programming/surgeryProcedureService';
+import { deleteSurgeryProcedure } from '../../../services/operatingRoom/surgeryProcedureService';
 import { AddSurgeryProcedureModal } from './Modal/AddSurgeryProcedureModal';
 
-const HEADERS = [
-  'Nombre',
-  'Duración de Hospitalización',
-  'Duración de Cirugía',
-  'Precio Cirugía',
-  'Descripción',
-  'Acciones',
-];
+const HEADERS = ['Nombre', 'Precio', 'Descripción', 'Acciones'];
 
 interface TableRowSurgeryProcedureProps {
   surgeryProcedure: ISurgeryProcedure;
@@ -99,7 +92,7 @@ const TableBodySurgeryProcedure = (props: TableBodySurgeryProcedureProps) => {
   return (
     <TableBody>
       {props.surgeryProcedures.map((surgeryProcedure) => (
-        <TableRowSurgeryProcedure key={surgeryProcedure.id} surgeryProcedure={surgeryProcedure} />
+        <TableRowSurgeryProcedure key={surgeryProcedure.id_Cirugia} surgeryProcedure={surgeryProcedure} />
       ))}
     </TableBody>
   );
@@ -124,7 +117,7 @@ const TableRowSurgeryProcedure = (props: TableRowSurgeryProcedureProps) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await deleteSurgeryProcedure(surgeryProcedure.id);
+          await deleteSurgeryProcedure(surgeryProcedure.id_Cirugia);
           refetch();
           Swal.fire({
             title: 'Eliminado!',
@@ -151,9 +144,7 @@ const TableRowSurgeryProcedure = (props: TableRowSurgeryProcedureProps) => {
     <>
       <TableRow>
         <TableCell>{surgeryProcedure.nombre}</TableCell>
-        <TableCell>{surgeryProcedure.duracionHospitalizacion}</TableCell>
-        <TableCell>{surgeryProcedure.duracionCirujia}</TableCell>
-        <TableCell>{surgeryProcedure.precioCirujia ? `$${surgeryProcedure.precioCirujia}` : 'Sin precio'}</TableCell>
+        <TableCell>{surgeryProcedure.precio ? `$${surgeryProcedure.precio}` : 'Sin precio'}</TableCell>
         <TableCell>{surgeryProcedure.descripcion}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

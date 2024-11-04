@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { ISurgeryProcedure } from '../../types/types';
-import { getSurgeryProceduresPagination } from '../../services/programming/surgeryProcedureService';
+import { getSurgeryProceduresPagination } from '../../services/operatingRoom/surgeryProcedureService';
 
 interface State {
   count: number;

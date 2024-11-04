@@ -124,7 +124,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
     data.paciente?.nombre + ' ' + data.paciente?.apellidoPaterno + ' ' + data.paciente?.apellidoMaterno;
   const medicName = data.medico?.nombres + ' ' + data.medico?.apellidoPaterno + ' ' + data.medico?.apellidoMaterno;
   const anesthesiologistName =
-    data.anestesiologo?.nombres + ' ' + data.anestesiologo?.apellidoPaterno + ' ' + data.anestesiologo?.apellidoMaterno;
+    data.anestesiologo?.nombre + ' ' + data.anestesiologo?.apellidoPaterno + ' ' + data.anestesiologo?.apellidoMaterno;
 
   const diffHours = dayjs(data.horaFin).diff(data.horaInicio, 'hour');
   const diffMinutes = dayjs(data.horaFin).diff(data.horaInicio, 'minute') % 60;
@@ -345,7 +345,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
             nurses={data.enfermeros}
             anesthesiologist={
               data.anestesiologo && {
-                id: data.anestesiologo.id,
+                id_Anestesiologo: data.anestesiologo.id_Anestesiologo,
                 nombre: anesthesiologistName,
               }
             }

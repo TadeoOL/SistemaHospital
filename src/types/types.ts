@@ -715,14 +715,10 @@ export interface IRoom {
 }
 
 export interface ISurgeryProcedure {
-  id: string;
+  id_Cirugia: string;
   nombre: string;
-  duracionHospitalizacion: number;
-  precioCirujia: number;
-  duracionCirujia: string;
+  precio: number;
   descripcion: string;
-  codigoSAT?: string;
-  codigoUnidadMedida?: number;
 }
 
 export interface IRegisterRoom {

@@ -20,7 +20,7 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import dayjs from 'dayjs';
 import { AddAndEditAnesthesiologist } from './Modal/AddAndEditAnesthesiologist';
 import Swal from 'sweetalert2';
-import { disableAnesthesiologist } from '../../../services/hospitalization/anesthesiologistService';
+import { disableAnesthesiologist } from '../../../services/operatingRoom/anesthesiologistService';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 const HEADERS = ['Nombre', 'Telefono', 'Correo electrónico', 'Fecha de nacimiento', 'Acciones'];
 interface AnesthesiologistTableBodyProps {
@@ -90,7 +90,7 @@ const AnesthesiologistTableBody = (props: AnesthesiologistTableBodyProps) => {
   return (
     <TableBody>
       {props.data.map((a) => (
-        <AnesthesiologistTableRow key={a.id} data={a} />
+        <AnesthesiologistTableRow key={a.id_Anestesiologo} data={a} />
       ))}
     </TableBody>
   );
@@ -118,7 +118,7 @@ const AnesthesiologistTableRow = (props: AnesthesiologistTableRowProps) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await disableAnesthesiologist(data.id);
+          await disableAnesthesiologist(data.id_Anestesiologo);
           Swal.fire({
             title: 'Deshabilitado!',
             text: 'Anestesiologo deshabilitado',
@@ -143,7 +143,7 @@ const AnesthesiologistTableRow = (props: AnesthesiologistTableRowProps) => {
   return (
     <>
       <TableRow>
-        <TableCell>{data.nombres + ' ' + data.apellidoPaterno + ' ' + data.apellidoMaterno}</TableCell>
+        <TableCell>{data.nombre + ' ' + data.apellidoPaterno + ' ' + data.apellidoMaterno}</TableCell>
         <TableCell>{data.telefono}</TableCell>
         <TableCell>{data.email}</TableCell>
         <TableCell>{dayjs(data.fechaNacimiento).format('DD/MM/YYYY')}</TableCell>

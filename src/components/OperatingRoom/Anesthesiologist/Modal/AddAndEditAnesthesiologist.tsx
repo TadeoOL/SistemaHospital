@@ -9,7 +9,7 @@ import { useAnesthesiologistPaginationStore } from '../../../../store/hospitaliz
 import {
   createAnesthesiologist,
   modifyAnesthesiologist,
-} from '../../../../services/hospitalization/anesthesiologistService';
+} from '../../../../services/operatingRoom/anesthesiologistService';
 import { anesthesiologistSchema } from '../../../../schema/hospitalization/hospitalizationSchema';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -35,7 +35,7 @@ interface AddAndEditAnesthesiologistProps {
 }
 
 interface Inputs {
-  id?: string;
+  id_Anestesiologo?: string;
   name: string;
   lastName: string;
   secondLastName: string;
@@ -56,8 +56,8 @@ export const AddAndEditAnesthesiologist = (props: AddAndEditAnesthesiologistProp
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
-      id: anesthesiologist?.id ?? '',
-      name: anesthesiologist?.nombres ?? '',
+      id_Anestesiologo: anesthesiologist?.id_Anestesiologo ?? '',
+      name: anesthesiologist?.nombre ?? '',
       lastName: anesthesiologist?.apellidoPaterno ?? '',
       secondLastName: anesthesiologist?.apellidoMaterno ?? '',
       email: anesthesiologist?.email ?? '',
@@ -66,14 +66,14 @@ export const AddAndEditAnesthesiologist = (props: AddAndEditAnesthesiologistProp
     },
     resolver: zodResolver(anesthesiologistSchema),
   });
-
+  console.log({ anesthesiologist });
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
     try {
       anesthesiologist
         ? await modifyAnesthesiologist({
-            id: data.id as string,
-            nombres: data.name,
+            id: data.id_Anestesiologo as string,
+            nombre: data.name,
             apellidoPaterno: data.lastName,
             apellidoMaterno: data.secondLastName,
             email: data.email,
@@ -81,7 +81,7 @@ export const AddAndEditAnesthesiologist = (props: AddAndEditAnesthesiologistProp
             telefono: data.phoneNumber,
           })
         : await createAnesthesiologist({
-            nombres: data.name,
+            nombre: data.name,
             apellidoPaterno: data.lastName,
             apellidoMaterno: data.secondLastName,
             email: data.email,

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAllAnesthesiologists } from '../../services/hospitalization/anesthesiologistService';
+import { getAllAnesthesiologists } from '../../services/operatingRoom/anesthesiologistService';
 
 export const useGetAnesthesiologists = () => {
   const {
