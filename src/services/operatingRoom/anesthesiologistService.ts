@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-const apiAnesthesiologist = '/api/Anestesiologo';
+const apiAnesthesiologist = '/api/Quirofano/Catalogo/Anestesiologo';
 
 export const getAnesthesiologistPagination = async (params: string) => {
   const res = await axios.get(`${apiAnesthesiologist}/paginacion-anestesiologo?${params}`);
@@ -7,7 +7,7 @@ export const getAnesthesiologistPagination = async (params: string) => {
 };
 
 export const createAnesthesiologist = async (data: {
-  nombres: string;
+  nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   telefono: string;
@@ -20,19 +20,19 @@ export const createAnesthesiologist = async (data: {
 
 export const modifyAnesthesiologist = async (data: {
   id: string;
-  nombres: string;
+  nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   telefono: string;
   email: string;
   fechaNacimiento: Date;
 }) => {
-  const res = await axios.put(`${apiAnesthesiologist}/modificar-anestesiologo`, data);
+  const res = await axios.put(`${apiAnesthesiologist}/actualizar-anestesiologo`, data);
   return res.data;
 };
 
 export const disableAnesthesiologist = async (id: string) => {
-  const res = await axios.put(`${apiAnesthesiologist}/deshabilitar-anestesiologo`, { id: id });
+  const res = await axios.put(`${apiAnesthesiologist}/estatus-anestesiologo`, { id: id });
   return res.data;
 };
 

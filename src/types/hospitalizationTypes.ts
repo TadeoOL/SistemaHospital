@@ -10,8 +10,8 @@ export interface IBiomedicalEquipment {
 }
 
 export interface IAnesthesiologist {
-  id: string;
-  nombres: string;
+  id_Anestesiologo: string;
+  nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   telefono: string;

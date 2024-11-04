@@ -87,22 +87,8 @@ export const roomSchema = z.object({
 
 export const surgeryProcedureSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
-  surgeryDuration: z
-    .string()
-    .min(1, 'La duración de la cirugía es requerida')
-    .refine((val) => val !== '00:00:00', {
-      message: 'La duración de la cirugía es requerida',
-    }),
-  hospitalizationDuration: z
-    .string()
-    .min(1, 'La duración de hospitalización requerida')
-    .refine((val) => parseInt(val, 10) > 0, {
-      message: 'La duración de hospitalización tiene que ser mayor a 0',
-    }),
   description: z.string().optional(),
   price: z.string().optional(),
-  codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
 
 export const addRoomReservation = z

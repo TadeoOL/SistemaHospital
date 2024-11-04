@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -6,16 +6,13 @@ import { toast } from 'react-toastify';
 import { surgeryProcedureSchema } from '../../../../schema/programming/programmingSchemas';
 import { useState } from 'react';
 import { ISurgeryProcedure } from '../../../../types/types';
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import {
   modifySurgeryProcedure,
   registerSurgeryProcedure,
-} from '../../../../services/programming/surgeryProcedureService';
+} from '../../../../services/operatingRoom/surgeryProcedureService';
 import { useSurgeryProcedurePaginationStore } from '../../../../store/programming/surgeryProcedurePagination';
 import 'dayjs/locale/es-mx';
-import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
 const style = {
@@ -33,12 +30,8 @@ const style = {
 
 type Inputs = {
   name: string;
-  surgeryDuration: string;
-  hospitalizationDuration: string;
   description: string;
   price: string;
-  codigoSAT?: string;
-  codigoUnidadMedida?: number;
 };
 
 interface AddSurgeryProcedureModalProps {
@@ -48,7 +41,6 @@ interface AddSurgeryProcedureModalProps {
 export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
-  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const refetch = useSurgeryProcedurePaginationStore((state) => state.fetchData);
 
   const {
@@ -56,17 +48,12 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
     handleSubmit,
     control,
     formState: { errors },
-    watch,
   } = useForm<Inputs>({
     resolver: zodResolver(surgeryProcedureSchema),
     defaultValues: {
       name: editData ? editData.nombre : '',
-      surgeryDuration: editData ? editData.duracionCirujia : '',
-      hospitalizationDuration: editData ? editData.duracionHospitalizacion.toString() : '',
       description: editData ? editData.descripcion : '',
-      price: editData ? editData.precioCirujia.toString() : '',
-      codigoSAT: editData?.codigoSAT ?? '',
-      codigoUnidadMedida: editData?.codigoUnidadMedida ?? 0,
+      price: editData ? editData.precio.toString() : '',
     },
   });
 
@@ -76,24 +63,16 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
       if (!editData) {
         await registerSurgeryProcedure({
           nombre: data.name,
-          duracionCirujia: data.surgeryDuration,
-          duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
-          precioCirujia: parseFloat(data.price),
-          codigoSAT: data.codigoSAT,
-          codigoUnidadMedida: data.codigoUnidadMedida,
+          precio: parseFloat(data.price),
         });
         toast.success('Procedimiento dado de alta correctamente');
       } else {
         await modifySurgeryProcedure({
           nombre: data.name,
-          duracionCirujia: data.surgeryDuration,
-          duracionHospitalizacion: parseInt(data.hospitalizationDuration),
           descripcion: data.description,
-          precioCirujia: parseFloat(data.price),
-          id: editData.id,
-          codigoSAT: data.codigoSAT,
-          codigoUnidadMedida: data.codigoUnidadMedida,
+          precio: parseFloat(data.price),
+          id: editData.id_Cirugia,
         });
         toast.success('Procedimiento modificado correctamente');
       }
@@ -129,54 +108,11 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 {...register('name')}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography>Duración de hospitalización</Typography>
-              <Controller
-                control={control}
-                name="hospitalizationDuration"
-                defaultValue={editData ? editData.duracionHospitalizacion.toString() : ''}
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    placeholder="Duracion Hospitalizacion"
-                    value={value}
-                    type={'number'}
-                    onChange={onChange}
-                    error={!!errors.hospitalizationDuration?.message}
-                    helperText={errors.hospitalizationDuration?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography>Duración de Cirugía</Typography>
-              <Controller
-                control={control}
-                name="surgeryDuration"
-                defaultValue={editData ? editData.duracionCirujia : ''}
-                render={({ field: { onChange, value } }) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker
-                      label="Duración de cirugía"
-                      onChange={(newValue) => onChange(newValue ? newValue.format('HH:mm:ss') : '')}
-                      value={value ? dayjs(value, 'HH:mm:ss') : null}
-                      ampm={false}
-                      slotProps={{
-                        textField: {
-                          error: !!errors.surgeryDuration?.message,
-                          helperText: errors.surgeryDuration?.message,
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               <Typography>Precio de la Cirugía</Typography>
               <Controller
                 control={control}
                 name="price"
-                defaultValue={editData ? editData.precioCirujia.toString() : ''}
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     placeholder="Precio Cirugía"
@@ -199,38 +135,6 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 helperText={errors.description?.message}
                 {...register('description')}
               />
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>Código de SAT</Typography>
-              <TextField
-                placeholder="Escriba un codigo de SAT"
-                fullWidth
-                error={!!errors.codigoSAT?.message}
-                helperText={errors.codigoSAT?.message}
-                {...register('codigoSAT')}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>Código de Unidad de Medida</Typography>
-              <TextField
-                label="Selecciona una unidad de medida"
-                fullWidth
-                error={!!errors.codigoUnidadMedida?.message}
-                helperText={errors.codigoUnidadMedida?.message}
-                {...register('codigoUnidadMedida')}
-                value={watch('codigoUnidadMedida')}
-                select
-              >
-                {isLoadingConcepts ? (
-                  <MenuItem>Cargando...</MenuItem>
-                ) : (
-                  sizeUnit.map((item) => (
-                    <MenuItem value={item.id_UnidadMedida} key={item.id_UnidadMedida}>
-                      {item.nombre}
-                    </MenuItem>
-                  ))
-                )}
-              </TextField>
             </Grid>
           </Grid>
         </Box>

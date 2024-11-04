@@ -48,13 +48,13 @@ interface Props {
   setOption: (option: number) => void;
   registerRoomId: string;
   surgeon?: { id: string; nombre: string };
-  anesthesiologist?: { id: string; nombre: string };
+  anesthesiologist?: { id_Anestesiologo: string; nombre: string };
 }
 interface OptionsModalProps {
   setOpen: (open: boolean) => void;
   registerRoomId: string;
   medical?: { id: string; nombre: string };
-  anesthesiologist?: { id: string; nombre: string };
+  anesthesiologist?: { id_Anestesiologo: string; nombre: string };
   nurses?: { id_Enfermero: string; nombre: string }[];
 }
 interface CardOptionsProps {

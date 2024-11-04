@@ -171,7 +171,7 @@ const PersonalServiceSurgeryInfo = (props: {
     ? surgeon?.nombres + ' ' + surgeon?.apellidoPaterno + ' ' + surgeon?.apellidoMaterno
     : 'Sin asignar';
   const anesthesiologistName = anesthesiologist
-    ? anesthesiologist?.nombres + ' ' + anesthesiologist?.apellidoPaterno + ' ' + anesthesiologist?.apellidoMaterno
+    ? anesthesiologist?.nombre + ' ' + anesthesiologist?.apellidoPaterno + ' ' + anesthesiologist?.apellidoMaterno
     : 'Sin asignar';
   return (
     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', rowGap: 2 }}>
