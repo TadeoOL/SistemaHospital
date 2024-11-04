@@ -1,7 +1,7 @@
-import { XRay } from '../../components/Biomedical/XRay/XRay';
+import { Services } from '../../components/Biomedical/Services/Services';
 
 const XRayView = () => {
-  return <XRay />;
+  return <Services />;
 };
 
 export default XRayView;

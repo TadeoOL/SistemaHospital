@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-const apiTypeRoom = '/api/TipoCuarto';
+const apiTypeRoom = '/api/Programacion/Catalogo/TipoCuarto';
 
 export const getTypesRoomPagination = async (params: string) => {
   const res = await axios.get(`${apiTypeRoom}/paginacion-tipo-cuarto?${params}`);
@@ -47,6 +47,7 @@ export const deleteTypeRoom = async (typeRoomId: string) => {
 };
 
 export const getAllTypesRoom = async () => {
-  const res = await axios.get(`${apiTypeRoom}/lista-tipo-cuarto`);
+//  const res = await axios.get(`${apiTypeRoom}/lista-tipo-cuarto`);
+  const res = await axios.get(`${apiTypeRoom}/obtener-tipo-cuartos`);
   return res.data;
 };

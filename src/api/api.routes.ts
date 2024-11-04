@@ -892,22 +892,10 @@ export const waitingpackageChangeStatus = async (data: {
   return res.data;
 };
 
-export const addArticlesPackage = async (packagePost: {
-  Contenido: string;
-  Nombre: string;
-  Descripcion: string;
-  Id_Almacen: string;
-}) => {
-  const res = await axios.post(`/api/Almacen/registrar-paquete`, {
-    ...packagePost,
-  });
+/*export const getQurirgicalPackage = async (paramUrl: string) => {
+  const res = await axios.get(`/api/Almacen/obtener-paquetes-quirurgicos?&${paramUrl}`);
   return res.data;
-};
-
-export const getPackagesByWarehouseIdAndSearch = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/paginacion-paquete?&${paramUrl}`);
-  return res.data;
-};
+};*/
 
 export const getPackagesNamesByWarehouseIdAndSearch = async (paramUrl: string) => {
   const res = await axios.get(`/api/Almacen/obtener-paquetes-nombres?&${paramUrl}`);

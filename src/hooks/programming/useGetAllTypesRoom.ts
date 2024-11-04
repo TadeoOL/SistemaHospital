@@ -13,7 +13,7 @@ export const useGetAllTypesRoom = () => {
 
   return {
     isLoadingTypeRoom: isLoading,
-    data: data as { id: string; nombre: string }[],
+    data: data as { id_TipoCuarto: string; nombre: string }[],
     isError,
   };
 };

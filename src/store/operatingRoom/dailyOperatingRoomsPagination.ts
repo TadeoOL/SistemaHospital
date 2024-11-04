@@ -2,6 +2,7 @@ import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { IRoomInformation } from '../../types/operatingRoomTypes';
 import { getDailyOperatingRooms } from '../../services/operatingRoom/dailyOperatingRoomService';
+import { getTodayAndYesterdayDates } from '../../utils/functions/dataUtils';
 
 interface State {
   count: number;
@@ -62,8 +63,11 @@ export const useDailyOperatingRoomsPaginationStore = create<State & Action>((set
     set({ cancelToken: cancelToken });
 
     try {
+      const dates = getTodayAndYesterdayDates();
       const res = await getDailyOperatingRooms(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Quirofano=${operatingRoomId}`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search
+        }&habilitado=${enabled}&Id_Quirofano=${operatingRoomId}&fechaInicio=${dates.fechaInicio 
+        }&fechaFin=${dates.fechaFin}`
       );
 
       set({

@@ -111,3 +111,26 @@ export const convertPdfToByteArray = async (pdf: File | null): Promise<string | 
   uint8Array.forEach((byte) => (binary += String.fromCharCode(byte)));
   return btoa(binary);
 };
+
+export const getTodayAndYesterdayDates = (): { fechaInicio: string; fechaFin: string } => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  yesterday.setHours(0, 0, 0, 0);
+  today.setHours(23, 59, 59, 999);
+
+  const formatDate = (date: Date) =>
+      date.toLocaleString("es-ES", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+      }).replace(",", "");
+
+  return {
+      fechaInicio: formatDate(yesterday),
+      fechaFin: formatDate(today),
+  };
+}

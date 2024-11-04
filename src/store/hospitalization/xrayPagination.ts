@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { IXRay } from '../../types/hospitalizationTypes';
-import { getXRayPagination } from '../../services/hospitalization/xrayService';
+import { getServicesPagination } from '../../services/hospitalization/ServicesService';
 
 interface State {
   count: number;
@@ -63,7 +63,7 @@ export const useXRayPaginationStore = create<State & Action>((set, get) => ({
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getXRayPagination(
+      const res = await getServicesPagination(
         `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Tipo=${typeString}`
       );
 

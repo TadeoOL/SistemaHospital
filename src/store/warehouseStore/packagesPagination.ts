@@ -1,8 +1,8 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPackagesByWarehouseIdAndSearch } from '../../api/api.routes';
 import { IArticlesPackage } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { debouncedSetSearch, getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { getQurirgicalPackagePagination } from '../../services/operatingRoom/dailyOperatingPackageService';
 
 interface State {
   count: number;
@@ -69,7 +69,7 @@ export const usePackagePaginationStore = createWithEqualityFn<State & Action>((s
 
     const page = pageIndex + 1;
     try {
-      const res = await getPackagesByWarehouseIdAndSearch(
+      const res = await getQurirgicalPackagePagination(
         `Id_Almacen=${useWarehouseTabsNavStore.getState().warehouseData.id_Almacen}&${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`

@@ -532,7 +532,7 @@ export interface IArticlesPackage {
   id_PaqueteArticulo: string;
   nombre: string;
   descripcion?: string;
-  contenido: Articulos_contenidos[];
+  articulos: Articulos_contenidos[];
   id_Almacen: string;
   almacen?: string;
   id_ArticuloPaquete?: string;

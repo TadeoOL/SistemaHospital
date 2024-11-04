@@ -10,7 +10,7 @@ import {
   FormLabel,
   Grid,
   IconButton,
-  MenuItem,
+  //MenuItem,
   Radio,
   RadioGroup,
   Table,
@@ -43,7 +43,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
 import 'dayjs/locale/es-mx';
-import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
+//import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
 const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
@@ -69,8 +69,8 @@ type Inputs = {
   recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
-  codigoSATRecuperacion?: string;
-  codigoSAT?: string;
+  //codigoSATRecuperacion?: string;
+  //codigoSAT?: string;
   codigoUnidadMedida?: number;
   codigoUnidadMedidaRecuperacion?: number;
 };
@@ -83,7 +83,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
-  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
+  //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -104,8 +104,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
       type: editData ? editData.tipo.toString() : '0',
       priceRoom: editData ? editData.precio?.toString() : '0',
-      codigoSATRecuperacion: editData?.codigoSATRecuperacion,
-      codigoSAT: editData?.codigoSAT,
+      //codigoSATRecuperacion: editData?.codigoSATRecuperacion,
+      //codigoSAT: editData?.codigoSAT,
       codigoUnidadMedida: editData?.codigoUnidadMedida ? editData.codigoUnidadMedida : 0,
       codigoUnidadMedidaRecuperacion: editData?.codigoUnidadMedidaRecuperacion
         ? editData.codigoUnidadMedidaRecuperacion
@@ -129,8 +129,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             : undefined,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
-          codigoSATRecuperacion: data.codigoSATRecuperacion,
-          codigoSAT: data.codigoSAT,
+          //codigoSATRecuperacion: data.codigoSATRecuperacion,
+          //codigoSAT: data.codigoSAT,
           codigoUnidadMedida: data.codigoUnidadMedida,
           codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
             ? data.codigoUnidadMedidaRecuperacion
@@ -151,8 +151,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           id: editData.id,
           tipo: parseInt(data.type),
           precio: parseFloat(data.priceRoom),
-          codigoSATRecuperacion: data.codigoSATRecuperacion,
-          codigoSAT: data.codigoSAT,
+          //codigoSATRecuperacion: data.codigoSATRecuperacion,
+          //codigoSAT: data.codigoSAT,
           codigoUnidadMedida: data.codigoUnidadMedida,
           codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
             ? data.codigoUnidadMedidaRecuperacion
@@ -296,14 +296,17 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 />
               </>
             ) : (
+              <>
+              <Typography>Precio cuarto del hospitalario:</Typography>
               <AddPriceHospitalizationRoom
                 priceRoom={watch('priceRoom')}
                 updatePriceRoom={handleAddPriceRoom}
                 error={errors}
               />
+              </>
             )}
           </Grid>
-          {watch('type') === '1' && (
+          {/*watch('type') === '1' && (
             <Grid item xs={6}>
               <Typography>
                 Codigo de SAT de <b>Recuperación</b>
@@ -316,7 +319,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 {...register('codigoSATRecuperacion')}
               />
             </Grid>
-          )}
+          )
           <Grid item xs={6}>
             <Typography>Código de SAT</Typography>
             <TextField
@@ -327,7 +330,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               {...register('codigoSAT')}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          {<Grid item xs={12} md={6}>
             <Typography>Unidad de Medida Contpaqi</Typography>
             <TextField
               fullWidth
@@ -347,8 +350,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 ))}
               {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
             </TextField>
-          </Grid>
-          {watch('type') === '1' && (
+          </Grid>*/}
+          {/*watch('type') === '1' && (
             <Grid item xs={6}>
               <Typography>
                 Código de Unidad de Medida de <b>Recuperación</b>
@@ -371,7 +374,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
               </TextField>
             </Grid>
-          )}
+          )*/}
         </Grid>
       </Box>
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>

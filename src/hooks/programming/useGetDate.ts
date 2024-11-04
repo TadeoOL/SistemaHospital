@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getRoomsEventsByDate } from '../../services/programming/roomsService';
 import { usePatientRegisterPaginationStore } from '../../store/programming/patientRegisterPagination';
 
-export const useGetDate = (date: Date, setEvents: Function, roomTypeId?: string, roomId?: string) => {
+export const useGetDate = (initialDate: Date, endDate: Date, setEvents: Function, roomTypeId?: string, roomId?: string) => {
   // const fetchEvents = useProgrammingRegisterStore((state) => state.fetchEvents);
   const [isLoading, setIsLoading] = useState(false);
   const eventsFetched = usePatientRegisterPaginationStore((state) => state.data);
@@ -10,8 +10,9 @@ export const useGetDate = (date: Date, setEvents: Function, roomTypeId?: string,
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
-        const formattedDate = date.toISOString();
-        const res = await getRoomsEventsByDate(formattedDate, roomTypeId, roomId);
+        const formattedinitialDate = initialDate.toISOString();
+        const formattedendDate = endDate.toISOString();
+        const res = await getRoomsEventsByDate(formattedinitialDate,formattedendDate, roomTypeId, roomId);
         if (res.length > 0) {
           const formattedRes = res.map((event) => {
             return {
@@ -34,7 +35,7 @@ export const useGetDate = (date: Date, setEvents: Function, roomTypeId?: string,
       }
     };
     fetchEvents();
-  }, [date, eventsFetched, roomTypeId, roomId]);
+  }, [initialDate, endDate, eventsFetched, roomTypeId, roomId]);
   return {
     isLoading,
   };

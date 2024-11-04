@@ -1,10 +1,10 @@
 import { Box, Button, Modal } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { useState } from 'react';
-import { AddAndEditXRay } from './Modal/AddAndEditXRay';
-import { XRayTable } from './XRayTable';
+import { AddAndEditXRay } from './Modal/AddAndEditService';
+import { ServicesTable } from './ServiceTable';
 
-export const XRay = () => {
+export const Services = () => {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -25,7 +25,7 @@ export const XRay = () => {
             Agregar
           </Button>
         </Box>
-        <XRayTable />
+        <ServicesTable />
       </Box>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>

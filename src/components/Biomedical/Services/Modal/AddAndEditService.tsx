@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, MenuItem, Switch, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { IXRay } from '../../../../types/hospitalizationTypes';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -6,9 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
-import { createXRay, modifyXRay } from '../../../../services/hospitalization/xrayService';
 import { xraySchema } from '../../../../schema/hospitalization/hospitalizationSchema';
-import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
+import { createService, modifyService } from '../../../../services/hospitalization/ServicesService';
+//import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 
 const REQUEST_TYPES = [
   {
@@ -56,13 +56,14 @@ interface Inputs {
   price: number;
   type: number;
   description: string;
-  codigoSAT?: string;
-  codigoUnidadMedida?: number;
+  autorization: boolean;
+  //codigoSAT?: string;
+  //codigoUnidadMedida?: number;
 }
 export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
   const { xray } = props;
   const [isLoading, setIsLoading] = useState(false);
-  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
+  //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const refetch = useXRayPaginationStore((state) => state.fetchData);
   const {
     register,
@@ -72,13 +73,14 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
-      id: xray?.id ?? '',
+      id: xray?.id_Servicio ?? '',
       description: xray?.descripcion ?? '',
       name: xray?.nombre ?? '',
       price: xray?.precio ?? 0,
       type: xray?.tipo ?? 0,
-      codigoSAT: xray?.codigoSAT ?? '',
-      codigoUnidadMedida: xray?.codigoUnidadMedida ?? 0,
+      autorization: xray?.requiereAutorizacion ?? false,
+      //codigoSAT: xray?.codigoSAT ?? '',
+      //codigoUnidadMedida: xray?.codigoUnidadMedida ?? 0,
     },
     resolver: zodResolver(xraySchema),
   });
@@ -87,22 +89,24 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
     setIsLoading(true);
     try {
       xray
-        ? await modifyXRay({
+        ? await modifyService({
             id: data.id as string,
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
-            tipo: data.type,
-            codigoSAT: data.codigoSAT,
-            codigoUnidadMedida: data.codigoUnidadMedida,
+            tipoServicio: data.type,
+            requiereAutorizacion: data.autorization,
+            //codigoSAT: data.codigoSAT,
+            //codigoUnidadMedida: data.codigoUnidadMedida,
           })
-        : await createXRay({
+        : await createService({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
-            tipo: data.type,
-            codigoSAT: data.codigoSAT,
-            codigoUnidadMedida: data.codigoUnidadMedida,
+            tipoServicio: data.type,
+            requiereAutorizacion: data.autorization,
+            //codigoSAT: data.codigoSAT,
+            //codigoUnidadMedida: data.codigoUnidadMedida,
           });
       toast.success(`Solicitud ${xray ? 'modificado' : 'agregado'} correctamente`);
       refetch();
@@ -131,7 +135,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
                 helperText={errors.name?.message}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <Typography>Precio</Typography>
               <TextField
                 label="Precio..."
@@ -140,6 +144,14 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
                 {...register('price')}
                 error={!!errors.price?.message}
                 helperText={errors.price?.message}
+              />
+            </Grid>
+            <Grid item xs={6} display="flex" alignItems="center">
+              <Typography>Requiere Autorización</Typography>
+              <Switch
+                {...register('autorization')}
+                checked={watch('autorization')}
+                onChange={(e) => setValue('autorization', e.target.checked)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -167,28 +179,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
             </Grid>
-            <Grid item xs={6}>
-              <Typography>Código de SAT</Typography>
-              <TextField
-                label="Escribe un codigo de SAT"
-                fullWidth
-                {...register('codigoSAT')}
-                error={!!errors.codigoSAT?.message}
-                helperText={errors.codigoSAT?.message}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>Código de Unidad de Medida</Typography>
-              <TextField
-                label="Escribe un codigo de Unidad de Medida"
-                fullWidth
-                {...register('codigoUnidadMedida')}
-                value={watch('codigoUnidadMedida')}
-                error={!!errors.codigoUnidadMedida?.message}
-                helperText={errors.codigoUnidadMedida?.message}
-                select
-              >
-                {isLoadingConcepts ? (
+                {/*isLoadingConcepts ? (
                   <MenuItem>Cargando...</MenuItem>
                 ) : (
                   sizeUnit?.map((item) => (
@@ -196,9 +187,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
                       {item.nombre}
                     </MenuItem>
                   ))
-                )}
-              </TextField>
-            </Grid>
+                )*/}
           </Grid>
         </Box>
         <Box

@@ -1,6 +1,6 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { getSurgeriesHistory } from '../../services/operatingRoom/dailyOperatingRoomService';
+import { getDailyOperatingRooms } from '../../services/operatingRoom/dailyOperatingRoomService';
 import { ISurgeryHistory } from '../../types/operatingRoomTypes';
 
 interface State {
@@ -62,8 +62,8 @@ export const useSurgeriesHistoryPagination = create<State & Action>((set, get) =
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getSurgeriesHistory(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Fecha=${dateFilter}`
+      const res = await getDailyOperatingRooms(
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${dateFilter}`
       );
 
       set({
