@@ -22,14 +22,17 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
-import { createPatient } from '../../../../../services/programming/patientService';
-import { createClinicalHistory } from '../../../../../services/programming/clinicalHistoryService';
 import { createAdmission } from '../../../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { IRegisterRoom } from '../../../../../types/types';
 import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
 import { IBiomedicalEquipment } from '../../../../../types/hospitalizationTypes';
+import {
+  IHospitalSpaceRecord,
+  IPatientRegister,
+  IRegisterPatientCommand,
+} from '../../../../../types/programming/registerTypes';
 
 const style = {
   position: 'absolute',
@@ -98,6 +101,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
   const medicPersonalBiomedicalEquipment = usePatientEntryRegisterStepsStore(
     (state) => state.medicPersonalBiomedicalEquipment
   );
+  const packageSelected = usePatientEntryRegisterStepsStore((state) => state.packageSelected);
   const roomValues = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
   const medicData = JSON.parse(localStorage.getItem('medicData') as string);
   const proceduresList: { id: string; name: string; price: number }[] = JSON.parse(
@@ -145,51 +149,44 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
     }
 
     try {
-      const patientRes = await createPatient(patient);
-      const registerClinicalHistoryObj = {
-        Id_Paciente: patientRes.id,
-        MotivoIngreso: '',
-        DiagnosticoIngreso: '',
-        Comentarios: '',
-        Alergias: '',
-        TipoSangre: '',
+      const patientObj: IPatientRegister = {
+        nombre: patient.name,
+        apellidoPaterno: patient.lastName,
+        apellidoMaterno: patient.secondLastName,
+        fechaNacimiento: patient.birthDate,
+        genero: patient.genere,
       };
-      const clinicalDataRes = await createClinicalHistory(registerClinicalHistoryObj);
-      const registerAdmissionObj = {
-        pacienteId: patientRes.id,
-        historialClinicoId: clinicalDataRes.id,
+      const operatingRoom: IHospitalSpaceRecord = {
+        id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 1)?.id as string,
+        horaInicio: roomValues.find((r) => r.tipoCuarto == 1)?.horaInicio as Date,
+        horaFin: roomValues.find((r) => r.tipoCuarto == 1)?.horaFin as Date,
+      };
+      const hospitalizationRoom = roomValues.find((r) => r.tipoCuarto == 0)
+        ? {
+            id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 0)!.id,
+            horaInicio: roomValues.find((r) => r.tipoCuarto == 0)!.horaInicio,
+            horaFin: roomValues.find((r) => r.tipoCuarto == 0)!.horaFin,
+          }
+        : undefined;
+
+      const registerObject: IRegisterPatientCommand = {
+        paciente: patientObj,
+        registroQuirofano: operatingRoom,
+        registroCuarto: hospitalizationRoom,
+        servicios: cabinetStudiesSelected.flatMap((c) => c.id),
         procedimientos: procedures,
-        fechaInicio: startDate,
-        fechaFin: endDate,
-        cuartos: roomValues.map((r) => {
-          return {
-            cuartoId: r.id,
-            horaInicio: r.horaInicio,
-            horaFin: r.horaFin,
-            id_TipoCuarto: r.id_TipoCuarto,
-          };
-        }),
-        articulos: articlesSelected.map((a) => {
-          return {
-            articuloId: a.id,
-            cantidad: a.cantidad,
-          };
-        }),
-        equipoBiomedicoHonorario: JSON.stringify(
-          medicPersonalBiomedicalEquipment.map((mpbe) => {
-            return {
-              nombre: mpbe.nombre,
-              precio: mpbe.precio,
-              id_Medico: medicId,
-              notas: mpbe.notas,
-            };
-          })
-        ),
-        equiposBiomedico: [],
-        id_Medico: medicId === '' ? null : medicId,
-        estudiosGabinete: cabinetStudiesSelected.flatMap((c) => c.id),
+        id_Medico: medicId,
+        articulosExtra: articlesSelected.map((a) => ({
+          id_Articulo: a.id,
+          cantidad: a.cantidad,
+        })),
+        id_Paquete: packageSelected?.id_PaqueteQuirurgico ?? '',
+        equipoHonorario: medicPersonalBiomedicalEquipment.map((eh) => ({
+          nombre: eh.nombre,
+          precio: eh.precio,
+        })),
       };
-      await createAdmission(registerAdmissionObj);
+      await createAdmission(registerObject);
       refetch();
       toast.success('Paciente dado de alta correctamente');
       setOpen(false);

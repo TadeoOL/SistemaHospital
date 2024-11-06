@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { IOperatingRoomConfig } from '../../types/operatingRoomTypes';
+import { IOperatingRoomConfig } from '../../types/operatingRoom/operatingRoomTypes';
 const apiOperatingRoomConfig = '/api/ConfiguracionQuirofano';
 
 export const getOperatingRoomConfig = async () => {

@@ -21,7 +21,7 @@ import { TableHeaderComponent } from '../Commons/TableHeaderComponent';
 import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
 import { getOperatingRoomConfig } from '../../services/operatingRoom/operatingRoomService';
-import { IOperatingRoomConfig, IRecoveryRoomOperatingRoom } from '../../types/operatingRoomTypes';
+import { IOperatingRoomConfig, IRecoveryRoomOperatingRoom } from '../../types/operatingRoom/operatingRoomTypes';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { recoveryRoomOperatingRoomSchema } from '../../schema/operatingRoom/operatingRoomSchema';

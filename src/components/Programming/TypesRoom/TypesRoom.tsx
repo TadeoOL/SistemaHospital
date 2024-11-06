@@ -26,7 +26,7 @@ import { AddTypeRoomModal } from './Modal/AddTypeRoomModal.tsx';
 import { Delete, Edit, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { deleteTypeRoom } from '../../../services/programming/typesRoomService.ts';
-import { IRecoveryRoomOperatingRoom } from '../../../types/operatingRoomTypes.ts';
+import { IRecoveryRoomOperatingRoom } from '../../../types/operatingRoom/operatingRoomTypes.ts';
 const TABLE_HEADERS = ['Nombre', 'Intervalo de limpieza', 'Precio', 'Descripción', 'Acciones'];
 const TABLE_CONFIG_HEADERS = ['Inicio', 'Fin', 'Precio'];
 

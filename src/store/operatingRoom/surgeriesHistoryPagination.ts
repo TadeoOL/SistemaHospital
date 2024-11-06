@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { getDailyOperatingRooms } from '../../services/operatingRoom/dailyOperatingRoomService';
-import { ISurgeryHistory } from '../../types/operatingRoomTypes';
+import { ISurgeryHistory } from '../../types/operatingRoom/operatingRoomTypes';
 
 interface State {
   count: number;

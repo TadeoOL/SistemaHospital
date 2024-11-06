@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { IRoomInformation } from '../../../types/operatingRoomTypes';
+import { IRoomInformation } from '../../../types/operatingRoom/operatingRoomTypes';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import dayjs from 'dayjs';
 import { useHospitalRoomsPaginationStore } from '../../../store/hospitalization/hospitalRoomsPagination';

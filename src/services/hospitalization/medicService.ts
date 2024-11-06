@@ -1,7 +1,8 @@
 import axios from '../../libs/axios';
-const apiMedic = '/api/Medico';
+import { IMedic } from '../../types/operatingRoom/medicTypes';
+const apiMedic = '/api/Quirofano/Catalogo/Medico';
 
-export const getAllMedics = async () => {
+export const getAllMedics = async (): Promise<IMedic[]> => {
   const res = await axios.get(`${apiMedic}/obtener-medicos`);
   return res.data;
 };
@@ -12,7 +13,7 @@ export const getMedicPagination = async (params: string) => {
 };
 
 export const createMedic = async (data: {
-  nombres: string;
+  nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   telefono: string;
@@ -25,7 +26,7 @@ export const createMedic = async (data: {
 
 export const modifyMedic = async (data: {
   id: string;
-  nombres: string;
+  nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   telefono: string;

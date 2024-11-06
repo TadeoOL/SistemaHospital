@@ -1,4 +1,4 @@
-import { IRecoveryRoomOperatingRoom } from './operatingRoomTypes';
+import { IRecoveryRoomOperatingRoom } from './operatingRoom/operatingRoomTypes';
 
 export interface IEventDetails {
   id: string;

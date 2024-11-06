@@ -81,14 +81,15 @@ export const clinicalDataModifySchema = z.object({
 
 export const roomSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
-  roomType: z.string().min(1, 'El tipo de cuarto es requerido'),
+  roomType: z.string().min(1, 'El tipo de espacio es requerido'),
   description: z.string().min(1, 'La descripción es requerida'),
+  type: z.number().optional(),
 });
 
 export const surgeryProcedureSchema = z.object({
   name: z.string().min(1, 'El nombre del cuarto es requerido'),
   description: z.string().optional(),
-  price: z.string().optional(),
+  price: z.number().optional(),
 });
 
 export const addRoomReservation = z

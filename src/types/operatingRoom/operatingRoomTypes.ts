@@ -1,5 +1,5 @@
-import { HistorialClinico, Paciente } from './admissionTypes';
-import { IAnesthesiologist, IMedic } from './hospitalizationTypes';
+import { HistorialClinico, Paciente } from '../admissionTypes';
+import { IAnesthesiologist, IMedic } from '../hospitalizationTypes';
 
 export interface IOperatingRoomConfig {
   configuracionRecuperacion: IRecoveryRoomOperatingRoom[];

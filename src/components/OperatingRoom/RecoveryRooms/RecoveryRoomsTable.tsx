@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { IRecoveryRoom } from '../../../types/operatingRoomTypes';
+import { IRecoveryRoom } from '../../../types/operatingRoom/operatingRoomTypes';
 import dayjs from 'dayjs';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import { useRecoveryRoomsPaginationStore } from '../../../store/operatingRoom/recoveryRoomsPagination';

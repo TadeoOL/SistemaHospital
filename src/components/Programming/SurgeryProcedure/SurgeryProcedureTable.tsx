@@ -12,7 +12,6 @@ import {
   Tooltip,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { ISurgeryProcedure } from '../../../types/types';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useSurgeryProcedurePaginationStore } from '../../../store/programming/surgeryProcedurePagination';
@@ -21,14 +20,15 @@ import { Delete, Edit } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import { deleteSurgeryProcedure } from '../../../services/operatingRoom/surgeryProcedureService';
 import { AddSurgeryProcedureModal } from './Modal/AddSurgeryProcedureModal';
+import { ISurgery } from '../../../types/operatingRoom/suergeryProcedureTypes';
 
 const HEADERS = ['Nombre', 'Precio', 'Descripción', 'Acciones'];
 
 interface TableRowSurgeryProcedureProps {
-  surgeryProcedure: ISurgeryProcedure;
+  surgeryProcedure: ISurgery;
 }
 interface TableBodySurgeryProcedureProps {
-  surgeryProcedures: ISurgeryProcedure[];
+  surgeryProcedures: ISurgery[];
 }
 
 const useGetData = () => {

@@ -143,7 +143,7 @@ const MedicTableRow = (props: MedicTableRowProps) => {
   return (
     <>
       <TableRow>
-        <TableCell>{data.nombres + ' ' + data.apellidoPaterno + ' ' + data.apellidoMaterno}</TableCell>
+        <TableCell>{data.nombre + ' ' + data.apellidoPaterno + ' ' + data.apellidoMaterno}</TableCell>
         <TableCell>{data.telefono}</TableCell>
         <TableCell>{data.email}</TableCell>
         <TableCell>{dayjs(data.fechaNacimiento).format('DD/MM/YYYY')}</TableCell>

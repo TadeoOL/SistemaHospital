@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { IOperatingRoomConfig } from '../../types/operatingRoomTypes';
+import { IOperatingRoomConfig } from '../../types/operatingRoom/operatingRoomTypes';
 const apiOperatingRoomRegisterConfig = '/api/RegistroQuirofano';
 
 export const createOperatingRoomRegister = async (data: { id_RegistroCuarto: string; horaInicio: Date }) => {

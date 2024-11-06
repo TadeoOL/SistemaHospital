@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { ISurgeryProcedure } from '../../types/types';
 import { getSurgeryProceduresPagination } from '../../services/operatingRoom/surgeryProcedureService';
+import { ISurgery } from '../../types/operatingRoom/suergeryProcedureTypes';
 
 interface State {
   count: number;
@@ -9,7 +9,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: ISurgeryProcedure[];
+  data: ISurgery[];
   loading: boolean;
   search: string;
   enabled: boolean;

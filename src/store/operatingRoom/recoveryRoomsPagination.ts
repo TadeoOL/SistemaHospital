@@ -1,6 +1,6 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { IRecoveryRoom } from '../../types/operatingRoomTypes';
+import { IRecoveryRoom } from '../../types/operatingRoom/operatingRoomTypes';
 import { getRecoveryRoomsPagination } from '../../services/operatingRoom/operatingRoomRegisterService';
 
 interface State {

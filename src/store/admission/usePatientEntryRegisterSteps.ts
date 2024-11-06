@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
 import { IBiomedicalEquipment } from '../../types/hospitalizationTypes';
+import { ISurgicalPackage } from '../../types/operatingRoom/surgicalPackageTypes';
 
 const initialPatientValues: IPatient = {
   name: '',
@@ -34,6 +35,7 @@ interface State {
   startDateSurgery: Date;
   patient: IPatient;
   procedures: string[];
+  packageSelected: ISurgicalPackage | null;
   cabinetStudiesSelected: { id: string; nombre: string }[];
   medicId: string;
   articlesSelected: {
@@ -71,6 +73,7 @@ interface Actions {
   ) => void;
   setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) => void;
   setCabinetStudiesSelected: (cabinetStudiesSelected: { id: string; nombre: string }[]) => void;
+  setPackageSelected: (packageSelected: ISurgicalPackage | null) => void;
 }
 
 const initialValues = {
@@ -89,10 +92,12 @@ const initialValues = {
   articlesSelected: [],
   medicPersonalBiomedicalEquipment: [],
   cabinetStudiesSelected: [],
+  packageSelected: null,
 };
 
 export const usePatientEntryRegisterStepsStore = create<State & Actions>((set) => ({
   ...initialValues,
+  setPackageSelected: (packageSelected: ISurgicalPackage | null) => set({ packageSelected }),
   setCabinetStudiesSelected: (cabinetStudiesSelected: { id: string; nombre: string }[]) =>
     set({ cabinetStudiesSelected }),
   setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) =>

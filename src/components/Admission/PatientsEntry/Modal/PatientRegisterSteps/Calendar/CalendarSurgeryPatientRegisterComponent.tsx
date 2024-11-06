@@ -25,7 +25,7 @@ export const CalendarSurgeryPatientRegisterComponent = ({
   const [view, setView] = useState<View>('month');
   const setAppointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.setAppointmentEndDate);
   const setAppointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.setAppointmentStartDate);
-  const events = usePatientEntryRegisterStepsStore((state) => state.surgeryEvents);
+  const events = usePatientEntryRegisterStepsStore((state) => state.hospitalizationEvents);
   // const setEvents = usePatientEntryRegisterStepsStore((state) => state.setSurgeryEvents);
   // const [hashCleanRoomEvents, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
   const [myEvents, setMyEvents] = useState<IEventsCalendar[]>([]);

@@ -1,6 +1,6 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { IRoomInformation } from '../../types/operatingRoomTypes';
+import { IRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
 import { getAssignedRoomsPagination } from '../../services/hospitalization/hospitalRoomsService';
 
 interface State {

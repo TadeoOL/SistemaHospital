@@ -5,7 +5,6 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { surgeryProcedureSchema } from '../../../../schema/programming/programmingSchemas';
 import { useState } from 'react';
-import { ISurgeryProcedure } from '../../../../types/types';
 import dayjs from 'dayjs';
 import {
   modifySurgeryProcedure,
@@ -13,6 +12,7 @@ import {
 } from '../../../../services/operatingRoom/surgeryProcedureService';
 import { useSurgeryProcedurePaginationStore } from '../../../../store/programming/surgeryProcedurePagination';
 import 'dayjs/locale/es-mx';
+import { ISurgery } from '../../../../types/operatingRoom/suergeryProcedureTypes';
 dayjs.locale('es-mx');
 
 const style = {
@@ -31,12 +31,12 @@ const style = {
 type Inputs = {
   name: string;
   description: string;
-  price: string;
+  price: number;
 };
 
 interface AddSurgeryProcedureModalProps {
   setOpen: Function;
-  editData?: ISurgeryProcedure;
+  editData?: ISurgery;
 }
 export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) => {
   const { editData } = props;
@@ -53,7 +53,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
     defaultValues: {
       name: editData ? editData.nombre : '',
       description: editData ? editData.descripcion : '',
-      price: editData ? editData.precio.toString() : '',
+      price: editData ? editData.precio : 0,
     },
   });
 
@@ -64,14 +64,14 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
         await registerSurgeryProcedure({
           nombre: data.name,
           descripcion: data.description,
-          precio: parseFloat(data.price),
+          precio: data.price,
         });
         toast.success('Procedimiento dado de alta correctamente');
       } else {
         await modifySurgeryProcedure({
           nombre: data.name,
           descripcion: data.description,
-          precio: parseFloat(data.price),
+          precio: data.price,
           id: editData.id_Cirugia,
         });
         toast.success('Procedimiento modificado correctamente');
@@ -116,11 +116,21 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     placeholder="Precio Cirugía"
-                    value={value}
-                    type={'number'}
-                    onChange={onChange}
+                    value={value === 0 ? '' : value}
+                    type="number"
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : Number(e.target.value);
+                      onChange(val);
+                    }}
                     error={!!errors.price?.message}
                     helperText={errors.price?.message}
+                    fullWidth
+                    InputProps={{
+                      inputProps: {
+                        min: 0,
+                        step: 0.01,
+                      },
+                    }}
                   />
                 )}
               />

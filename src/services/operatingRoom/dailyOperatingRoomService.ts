@@ -1,4 +1,5 @@
 import axios from '../../libs/axios';
+import { ISurgeryRoom } from '../../types/programming/surgeryRoomTypes';
 const apiDailyOperatingRoom = '/api/Programacion/Catalogo/Quirofano';
 
 export const getDailyOperatingRooms = async (params: string) => {
@@ -7,7 +8,7 @@ export const getDailyOperatingRooms = async (params: string) => {
   return res.data;
 };
 
-export const getAllOperatingRooms = async () => {
+export const getAllOperatingRooms = async (): Promise<ISurgeryRoom[]> => {
   const res = await axios.get(`${apiDailyOperatingRoom}/obtener-quirofanos`);
   return res.data;
 };

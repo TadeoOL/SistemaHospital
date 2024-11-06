@@ -54,7 +54,7 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
   } = useForm<Inputs>({
     defaultValues: {
       id: medic?.id ?? '',
-      name: medic?.nombres ?? '',
+      name: medic?.nombre ?? '',
       lastName: medic?.apellidoPaterno ?? '',
       secondLastName: medic?.apellidoMaterno ?? '',
       email: medic?.email ?? '',
@@ -70,7 +70,7 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
       medic
         ? await modifyMedic({
             id: data.id as string,
-            nombres: data.name,
+            nombre: data.name,
             apellidoPaterno: data.lastName,
             apellidoMaterno: data.secondLastName,
             email: data.email,
@@ -78,7 +78,7 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
             telefono: data.phoneNumber,
           })
         : await createMedic({
-            nombres: data.name,
+            nombre: data.name,
             apellidoPaterno: data.lastName,
             apellidoMaterno: data.secondLastName,
             email: data.email,
@@ -181,7 +181,7 @@ export const AddAndEditMedic = (props: AddAndEditMedicProps) => {
             borderBottomRightRadius: 10,
           }}
         >
-          <Button variant="outlined" color="error">
+          <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
             Cancelar
           </Button>
           <Button variant="contained" type="submit" disabled={isLoading}>

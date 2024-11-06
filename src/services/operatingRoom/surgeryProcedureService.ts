@@ -1,4 +1,5 @@
 import axios from '../../libs/axios';
+import { ISurgery } from '../../types/operatingRoom/suergeryProcedureTypes';
 const apiSurgeryProcedure = '/api/Quirofano/Catalogo/Cirugia';
 
 export const registerSurgeryProcedure = async (data: {
@@ -30,7 +31,7 @@ export const deleteSurgeryProcedure = async (surgeryProcedureId: string) => {
   return res.data;
 };
 
-export const getAllSurgeryProcedures = async () => {
-  const res = await axios.get(`${apiSurgeryProcedure}/lista-procedimiento-cirujia`);
+export const getAllSurgeryProcedures = async (): Promise<ISurgery[]> => {
+  const res = await axios.get(`${apiSurgeryProcedure}/obtener-cirugias`);
   return res.data;
 };

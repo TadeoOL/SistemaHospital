@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { IRoomInformation } from '../../types/operatingRoomTypes';
+import { IRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
 import { getOperatingRoomInfo } from '../../services/operatingRoom/dailyOperatingRoomService';
 
 export const useGetOperatingRoomInfo = (id: string) => {

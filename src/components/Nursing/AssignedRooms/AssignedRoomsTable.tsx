@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { IRoomInformation } from '../../../types/operatingRoomTypes';
+import { IRoomInformation } from '../../../types/operatingRoom/operatingRoomTypes';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';

@@ -714,13 +714,6 @@ export interface IRoom {
   precio: number;
 }
 
-export interface ISurgeryProcedure {
-  id_Cirugia: string;
-  nombre: string;
-  precio: number;
-  descripcion: string;
-}
-
 export interface IRegisterRoom {
   id: string;
   id_TipoCuarto: string;

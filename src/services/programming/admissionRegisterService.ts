@@ -1,33 +1,11 @@
 import axios from '../../libs/axios';
 import { IEventDetails } from '../../types/admissionTypes';
+import { IRegisterPatientCommand } from '../../types/programming/registerTypes';
 const apiRegister = '/api/Programacion/Registro';
 
-interface RegisterAdmission {
-  pacienteId: string;
-  historialClinicoId: string;
-  id_Medico: string | null;
-  id_Anestesiologo?: string | null;
-  procedimientos: string[];
-  motivoRechazo?: string;
-  radiografias?: string[] | null;
-  equiposBiomedico: string[];
-  equipoBiomedicoHonorario?: string;
-  articulos: { articuloId: string; cantidad: number; notas?: string }[];
-  fechaInicio: Date;
-  fechaFin: Date;
-  cuartos: Cuarto[];
-  estudiosGabinete?: string[];
-}
 
-interface Cuarto {
-  cuartoId: string;
-  horaInicio: Date;
-  horaFin: Date;
-  id_TipoCuarto: string;
-}
-
-export const createAdmission = async (data: RegisterAdmission) => {
-  const res = await axios.post(`${apiRegister}/registrar-admision`, data);
+export const createAdmission = async (data: IRegisterPatientCommand) => {
+  const res = await axios.post(`${apiRegister}/registrar-paciente`, data);
   return res.data;
 };
 

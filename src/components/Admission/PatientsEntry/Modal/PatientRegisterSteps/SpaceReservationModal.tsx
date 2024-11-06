@@ -26,10 +26,6 @@ import { addRoomReservation } from '../../../../../schema/programming/programmin
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
 import { useGetAllRooms } from '../../../../../hooks/programming/useGetAllRooms';
 import { toast } from 'react-toastify';
-import {
-  checkRoomAvailability,
-  getUnavailableRoomsByIdAndDate,
-} from '../../../../../services/programming/roomsService';
 import { IRegisterRoom } from '../../../../../types/types';
 import { v4 as uuidv4 } from 'uuid';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
@@ -38,6 +34,7 @@ import { Delete } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
+import { getSurgeryRoomsReservations } from '../../../../../services/programming/hospitalSpace';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -105,22 +102,22 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     const endDate = data.endDate as any as Date;
     const room = data.room;
 
-    const isAvailable = await checkRoomAvailability({
-      id: room,
-      fechaInicio: dayjs(startTime).format('YYYY/MM/DDTHH:mm:ss'),
-      fechaFin: dayjs(endDate).format('YYYY/MM/DDTHH:mm:ss'),
+    const isAvailable = await getSurgeryRoomsReservations({
+      surgeryRoomId: room,
+      initialDate: dayjs(startTime).format('YYYY/MM/DDTHH:mm:ss'),
+      endDate: dayjs(endDate).format('YYYY/MM/DDTHH:mm:ss'),
     });
-    if (!isAvailable)
+    if (isAvailable.length > 0)
       return toast.warning(
         `El ${roomType == '0' ? 'cuarto' : 'quirófano'} no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
       );
 
-    const roomFound = roomsRes.find((r) => r.id === room);
+    const roomFound = roomsRes.find((r: any) => r.id_Cuarto === room || r.id_Quirofano === room);
     if (roomFound) {
       const roomObj: IRegisterRoom = {
-        id: roomFound.id,
+        id: roomFound.id_Cuarto || roomFound.id_Quirofano,
         nombre: roomFound.nombre,
-        id_TipoCuarto: roomFound.id_TipoCuarto,
+        id_TipoCuarto: roomFound.id_TipoCuarto || roomFound.id_TipoQuirofano,
         precio: roomFound.precio,
         horaFin: endDate,
         horaInicio: startTime,
@@ -174,7 +171,10 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     if (!watchRoomId) return;
     const fetchUnavailableDays = async () => {
       try {
-        const res = await getUnavailableRoomsByIdAndDate(watchRoomId, currentDate);
+        const res = await getSurgeryRoomsReservations({
+          endDate: currentDate.toISOString(),
+          surgeryRoomId: watchRoomId,
+        });
         setUnavailableTimes(res);
       } catch (error) {
         console.log(error);
@@ -261,6 +261,10 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     return false;
   };
 
+  const handleValidateRooms = () => {
+    return roomsRegistered.some((r) => r.tipoCuarto == parseFloat(roomType));
+  };
+
   if (isLoadingRooms)
     return (
       <Backdrop open>
@@ -286,13 +290,19 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
                 fullWidth
                 {...registerRooms('room')}
                 value={watchRoomId}
+                disabled={handleValidateRooms()}
                 error={!!errorsRooms.room?.message}
                 helperText={errorsRooms.room?.message}
               >
                 {roomsRes
-                  .filter((rm) => !roomsRegistered.some((reservedRoom) => reservedRoom.id === rm.id))
-                  .map((rm) => (
-                    <MenuItem key={rm.id} value={rm.id}>
+                  .filter(
+                    (rm: any) =>
+                      !roomsRegistered.some(
+                        (reservedRoom) => reservedRoom.id === rm.id_Cuarto || reservedRoom.id === rm.id_Quirofano
+                      )
+                  )
+                  .map((rm: any) => (
+                    <MenuItem key={rm.id_Cuarto || rm.id_Quirofano} value={rm.id_Cuarto || rm.id_Quirofano}>
                       {rm.nombre}
                     </MenuItem>
                   ))}
@@ -403,7 +413,12 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
             </Grid>
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                <Button variant="outlined" type="button" onClick={handleSubmitRooms(onSubmitRooms)}>
+                <Button
+                  variant="outlined"
+                  type="button"
+                  onClick={handleSubmitRooms(onSubmitRooms)}
+                  disabled={handleValidateRooms()}
+                >
                   Agregar
                 </Button>
               </Box>

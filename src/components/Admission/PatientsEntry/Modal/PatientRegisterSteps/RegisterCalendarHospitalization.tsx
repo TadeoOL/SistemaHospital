@@ -4,6 +4,7 @@ import { usePatientEntryRegisterStepsStore } from '../../../../../store/admissio
 import { useGetHospitalizationAppointments } from '../../../../../hooks/admission/useGetHospitalizationAppointments';
 import { useState } from 'react';
 import { CalendarHospitalizationPatientRegisterComponent } from './Calendar/CalendarHospitalizationPatientRegisterComponent';
+import { toast } from 'react-toastify';
 
 interface RegisterCalendarHospitalizationProps {
   setOpen: Function;
@@ -33,6 +34,7 @@ export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHos
   const setOriginalHospitalizationEvents = usePatientEntryRegisterStepsStore(
     (state) => state.setOriginalHospitalizationEvents
   );
+  const roomsRegistered = usePatientEntryRegisterStepsStore((state) => state.roomsRegistered);
   const [day, _] = useState(new Date());
   useGetHospitalizationAppointments(
     day,
@@ -47,6 +49,8 @@ export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHos
     setStep(step - 1);
   };
   const handleNextStep = () => {
+    if (roomsRegistered.length < 1 || !roomsRegistered.some((r) => r.tipoCuarto == 1))
+      return toast.warning('Es necesario seleccionar un quirófano y/o espacio hospitalario para continuar');
     setStep(step + 1);
   };
 

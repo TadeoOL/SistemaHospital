@@ -366,7 +366,7 @@ export const ModuleList: IModuleItemsList[] = [
           },
           {
             title: 'Procedimientos de cirugía',
-            path: '/programacion/procedimientos-cirugia',
+            path: '/quirofano/procedimientos-cirugia',
             icon: <Vaccines sx={{ color: '#fff' }} />,
             protectedRoles: programation,
           },

@@ -32,7 +32,7 @@ import { typeRoomSchema } from '../../../../schema/programming/programmingSchema
 import { useEffect, useState } from 'react';
 import { ITypeRoom } from '../../../../types/admissionTypes';
 import { useTypesRoomPaginationStore } from '../../../../store/programming/typesRoomPagination';
-import { IRecoveryRoomOperatingRoom } from '../../../../types/operatingRoomTypes';
+import { IRecoveryRoomOperatingRoom } from '../../../../types/operatingRoom/operatingRoomTypes';
 import { recoveryRoomOperatingRoomSchema } from '../../../../schema/operatingRoom/operatingRoomSchema';
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
 import { Delete } from '@mui/icons-material';
@@ -43,6 +43,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
 import 'dayjs/locale/es-mx';
+import { modifySurgeryRoomType, registerSurgeryRoomType } from '../../../../services/programming/suergeryRoomTypes';
 //import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
@@ -117,47 +118,77 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
     setIsLoading(true);
     try {
       if (!editData) {
-        await registerTypeRoom({
-          nombre: data.name,
-          descripcion: data.description,
-          configuracionLimpieza: data.reservedSpaceTime?.isValid()
-            ? data.reservedSpaceTime.format('HH:mm:00')
-            : undefined,
-          configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
-          configuracionRecuperacion: data.recoveryPriceByTimeRange
-            ? JSON.stringify(data.recoveryPriceByTimeRange)
-            : undefined,
-          tipo: parseInt(data.type),
-          precio: parseFloat(data.priceRoom),
-          //codigoSATRecuperacion: data.codigoSATRecuperacion,
-          //codigoSAT: data.codigoSAT,
-          codigoUnidadMedida: data.codigoUnidadMedida,
-          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
-            ? data.codigoUnidadMedidaRecuperacion
-            : undefined,
-        });
+        if (data.type === '0') {
+          await registerTypeRoom({
+            nombre: data.name,
+            descripcion: data.description,
+            configuracionLimpieza: data.reservedSpaceTime?.isValid()
+              ? data.reservedSpaceTime.format('HH:mm:00')
+              : undefined,
+            configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+            configuracionRecuperacion: data.recoveryPriceByTimeRange
+              ? JSON.stringify(data.recoveryPriceByTimeRange)
+              : undefined,
+            precio: parseFloat(data.priceRoom),
+            //codigoSATRecuperacion: data.codigoSATRecuperacion,
+            //codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
+            codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+              ? data.codigoUnidadMedidaRecuperacion
+              : undefined,
+          });
+        } else {
+          await registerSurgeryRoomType({
+            nombre: data.name,
+            descripcion: data.description,
+            intervaloReservacion: data.reservedSpaceTime?.isValid()
+              ? data.reservedSpaceTime.format('HH:mm:00')
+              : undefined,
+            configuracionPrecio: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+            configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
+              ? JSON.stringify(data.recoveryPriceByTimeRange)
+              : undefined,
+            precio: parseFloat(data.priceRoom),
+          });
+        }
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
-        await modifyTypeRoom({
-          nombre: data.name,
-          descripcion: data.description,
-          configuracionLimpieza: data.reservedSpaceTime?.isValid()
-            ? data.reservedSpaceTime.format('HH:mm:00')
-            : undefined,
-          configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
-          configuracionRecuperacion: data.recoveryPriceByTimeRange
-            ? JSON.stringify(data.recoveryPriceByTimeRange)
-            : undefined,
-          id: editData.id,
-          tipo: parseInt(data.type),
-          precio: parseFloat(data.priceRoom),
-          //codigoSATRecuperacion: data.codigoSATRecuperacion,
-          //codigoSAT: data.codigoSAT,
-          codigoUnidadMedida: data.codigoUnidadMedida,
-          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
-            ? data.codigoUnidadMedidaRecuperacion
-            : undefined,
-        });
+        if (data.type === '0') {
+          await modifyTypeRoom({
+            nombre: data.name,
+            descripcion: data.description,
+            configuracionLimpieza: data.reservedSpaceTime?.isValid()
+              ? data.reservedSpaceTime.format('HH:mm:00')
+              : undefined,
+            configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+            configuracionRecuperacion: data.recoveryPriceByTimeRange
+              ? JSON.stringify(data.recoveryPriceByTimeRange)
+              : undefined,
+            id: editData.id,
+            tipo: parseInt(data.type),
+            precio: parseFloat(data.priceRoom),
+            //codigoSATRecuperacion: data.codigoSATRecuperacion,
+            //codigoSAT: data.codigoSAT,
+            codigoUnidadMedida: data.codigoUnidadMedida,
+            codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+              ? data.codigoUnidadMedidaRecuperacion
+              : undefined,
+          });
+        } else {
+          await modifySurgeryRoomType({
+            nombre: data.name,
+            descripcion: data.description,
+            id: editData.id,
+            intervaloReservacion: data.reservedSpaceTime?.isValid()
+              ? data.reservedSpaceTime.format('HH:mm:00')
+              : undefined,
+            configuracionPrecio: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+            configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
+              ? JSON.stringify(data.recoveryPriceByTimeRange)
+              : undefined,
+            precio: parseFloat(data.priceRoom),
+          });
+        }
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
       refetch();
@@ -297,12 +328,12 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               </>
             ) : (
               <>
-              <Typography>Precio cuarto del hospitalario:</Typography>
-              <AddPriceHospitalizationRoom
-                priceRoom={watch('priceRoom')}
-                updatePriceRoom={handleAddPriceRoom}
-                error={errors}
-              />
+                <Typography>Precio cuarto del hospitalario:</Typography>
+                <AddPriceHospitalizationRoom
+                  priceRoom={watch('priceRoom')}
+                  updatePriceRoom={handleAddPriceRoom}
+                  error={errors}
+                />
               </>
             )}
           </Grid>

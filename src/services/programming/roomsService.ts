@@ -1,4 +1,5 @@
 import axios from '../../libs/axios';
+import { IHospitalRoom } from '../../types/programming/hospitalRoomTypes';
 import { IRoomEvent } from '../../types/types';
 const apiRoom = '/api/Programacion/Catalogo/Cuarto';
 
@@ -22,8 +23,8 @@ export const deleteRoom = async (roomId: string) => {
   return res.data;
 };
 
-export const getAllRooms = async (tipoCuarto?: string) => {
-  const res = await axios.get(`${apiRoom}/lista-cuarto?tipoCuarto=${tipoCuarto ? tipoCuarto : ''}`);
+export const getAllHospitalRooms = async (): Promise<IHospitalRoom[]> => {
+  const res = await axios.get(`${apiRoom}/obtener-cuartos`);
   return res.data;
 };
 
@@ -38,7 +39,6 @@ export const getUnavailableRoomsByIdAndDate = async (roomId: string, date: Date)
 };
 
 export const getRoomsEventsByDate = async (endDate: string, initialDate: string, typeId?: string, roomId?: string) => {
-  //obtener-reservacion-cuartos
   const res = await axios.get(`${apiRoom}/obtener-todos-registros-cuarto-por-fecha`, {
     params: {
       fechaInicial: initialDate,

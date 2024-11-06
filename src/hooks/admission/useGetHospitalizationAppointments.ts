@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getRoomsEventsByDate } from '../../services/programming/roomsService';
-// import { usePatientRegisterPaginationStore } from '../../store/programming/patientRegisterPagination';
 import { IEventsCalendar } from '../../types/types';
+import { IHospitalRoomReservation, ISurgeryRoomReservation } from '../../types/programming/hospitalSpacesTypes';
+import { getHospitalRoomReservations, getSurgeryRoomsReservations } from '../../services/programming/hospitalSpace';
 
 export const useGetHospitalizationAppointments = (
   date: Date,
@@ -19,15 +19,21 @@ export const useGetHospitalizationAppointments = (
       setIsLoading(true);
       try {
         const formattedDate = date.toISOString();
-        const res = await getRoomsEventsByDate(formattedDate, roomType);
+        let res: ISurgeryRoomReservation[] | IHospitalRoomReservation[];
+        if(roomType === 1){
+          res = await getSurgeryRoomsReservations({endDate:formattedDate});
+        }else{
+          res = await getHospitalRoomReservations(formattedDate);
+        }
         if (res.length > 0) {
           const formattedRes = res.map((event) => {
+            const isSurgeryRoom = 'id_Quirofano' in event;
             return {
-              id: event.id,
-              roomId: event.id_Cuarto,
-              title: event.nombre,
-              start: new Date(event.fechaInicio),
-              end: new Date(event.fechaFin),
+              id: event.id_CuentaEspacioHospitalario,
+              roomId: isSurgeryRoom ? event.id_Quirofano : event.id_Cuarto,
+              title: isSurgeryRoom ? event.nombreQuirofano : event.nombreCuarto,
+              start: new Date(event.horaInicio),
+              end: new Date(event.horaFin),
             };
           });
           // const eventsFiltered = events.filter((e) => !formattedRes.some((resEvent) => resEvent.id === e.id));

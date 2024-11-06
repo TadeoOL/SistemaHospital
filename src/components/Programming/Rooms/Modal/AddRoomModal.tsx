@@ -9,6 +9,8 @@ import { modifyRoom, registerRoom } from '../../../../services/programming/rooms
 import { IRoom } from '../../../../types/types';
 import { useRoomsPaginationStore } from '../../../../store/programming/roomsPagination';
 import { useGetAllTypesRoom } from '../../../../hooks/programming/useGetAllTypesRoom';
+import { useGetAllSurgeryRoomTypes } from '../../../../hooks/programming/useGetAllSurgeryRoomTypes';
+import { modifySurgeryRoom, registerSurgeryRoom } from '../../../../services/programming/surgeryRoom';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -26,18 +28,25 @@ type Inputs = {
   name: string;
   roomType: string;
   description: string;
+  type: number;
 };
 
 interface AddRoomModalProps {
   setOpen: Function;
   editData?: IRoom;
 }
+
+// Agregar nueva función auxiliar para determinar el tipo
+const isOperatingRoom = (roomType: any) => {
+  return 'id_TipoQuirofano' in roomType;
+};
+
 export const AddRoomModal = (props: AddRoomModalProps) => {
   const { editData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const refetch = useRoomsPaginationStore((state) => state.fetchData);
-  const { isLoadingTypeRoom, data } = useGetAllTypesRoom();
-
+  const { isLoadingTypeRoom, data: typeRoomTypes } = useGetAllTypesRoom();
+  const { isLoadingSurgeryRoomType, data: surgeryRoomTypes } = useGetAllSurgeryRoomTypes();
   const {
     register,
     handleSubmit,
@@ -50,28 +59,55 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
       name: editData ? editData.nombre : '',
       roomType: '',
       description: editData ? editData.descripcion : '',
+      type: 1,
     },
   });
+
+  const dataTypes = [...typeRoomTypes, ...surgeryRoomTypes];
 
   const watchRoomType = watch('roomType');
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
     try {
+      // Encontrar el tipo de cuarto seleccionado
+      const selectedRoomType = dataTypes.find(
+        (type) => (type.id_TipoCuarto || type.id_TipoQuirofano) === data.roomType
+      );
+
+      const isQuirofano = isOperatingRoom(selectedRoomType);
+
       if (!editData) {
-        await registerRoom({
-          nombre: data.name,
-          id_TipoCuarto: data.roomType,
-          descripcion: data.description,
-        });
+        if (isQuirofano) {
+          await registerSurgeryRoom({
+            nombre: data.name,
+            id_TipoQuirofano: data.roomType,
+            descripcion: data.description,
+          });
+        } else {
+          await registerRoom({
+            nombre: data.name,
+            id_TipoCuarto: data.roomType,
+            descripcion: data.description,
+          });
+        }
         toast.success('Espacio hospitalario dado de alta correctamente');
       } else {
-        await modifyRoom({
-          nombre: data.name,
-          id_TipoCuarto: data.roomType,
-          descripcion: data.description,
-          id: editData.id,
-        });
+        if (isQuirofano) {
+          await modifySurgeryRoom({
+            nombre: data.name,
+            id_TipoQuirofano: data.roomType,
+            descripcion: data.description,
+            id: editData.id,
+          });
+        } else {
+          await modifyRoom({
+            nombre: data.name,
+            id_TipoCuarto: data.roomType,
+            descripcion: data.description,
+            id: editData.id,
+          });
+        }
         toast.success('Espacio hospitalario modificado correctamente');
       }
       refetch();
@@ -88,11 +124,16 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
 
   useEffect(() => {
     if (!editData) return;
-    const roomType = data.find((d) => d.nombre === editData.tipoCuarto);
+    const roomType = dataTypes.find((d) => d.nombre === editData.tipoCuarto);
     setValue('roomType', roomType ? roomType.id_TipoCuarto : '');
   }, [editData]);
 
-  if (isLoadingTypeRoom)
+  useEffect(() => {
+    if (!editData) return;
+    setValue('type', editData.tipoCuarto === 'Quirofano' ? 2 : 1);
+  }, [editData]);
+
+  if (isLoadingTypeRoom || isLoadingSurgeryRoomType)
     return (
       <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
         <CircularProgress />
@@ -128,9 +169,12 @@ export const AddRoomModal = (props: AddRoomModalProps) => {
                 {...register('roomType')}
                 value={watchRoomType}
               >
-                {data.map((roomType) => {
+                {dataTypes.map((roomType) => {
                   return (
-                    <MenuItem value={roomType.id_TipoCuarto} key={roomType.id_TipoCuarto}>
+                    <MenuItem
+                      value={roomType.id_TipoCuarto || roomType.id_TipoQuirofano}
+                      key={roomType.id_TipoCuarto || roomType.id_TipoQuirofano}
+                    >
                       {roomType.nombre}
                     </MenuItem>
                   );

@@ -86,9 +86,28 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
   const [childOpen, setChildOpen] = useState(false);
   const isWarehouse = title === 'Almacén';
   const warehousesNames = warehouses ? warehouses.flatMap((w) => w.nombre) : [];
-  const pathSplit = location.pathname.split('/');
-  const isActive = children ? children.some((child) => child.path === location.pathname) : path === location.pathname;
-  const someWarehouseActive = id && pathSplit[2] === id;
+
+  const checkChildrenActive = (items: any[], currentPath: string): boolean => {
+    return items.some((item) => {
+      if (item.path === currentPath) return true;
+      if (item.children) {
+        return checkChildrenActive(item.children, currentPath);
+      }
+      return false;
+    });
+  };
+
+  const isActive = React.useMemo(() => {
+    if (path === location.pathname) return true;
+
+    if (children) {
+      return checkChildrenActive(children, location.pathname);
+    }
+
+    return false;
+  }, [children, path, location.pathname]);
+
+  const someWarehouseActive = id && location.pathname.split('/')[2] === id;
   const isDashboard = title === 'Inicio';
 
   const handleClick = (title: string, roles: string[]) => {
@@ -109,9 +128,6 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
       navigate(path);
     } else {
       if (isOpen && warehousesNames.includes(title) && roles.includes('ADMIN')) {
-        console.log({ isOpen });
-        console.log({ title });
-        console.log({ roles });
         const findId = warehouses.find((w) => w.nombre === title);
         navigate(`almacenes/${findId?.id}`);
         clearWarehouseData();
@@ -152,6 +168,70 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
       ) : null}
     </Box>
   );
+
+  const renderChildren = (childItems: any[]) => {
+    return childItems.map((childItem, i) => {
+      const childIsActive = React.useMemo(() => {
+        if (childItem.path === location.pathname) return true;
+        if (childItem.children) {
+          return checkChildrenActive(childItem.children, location.pathname);
+        }
+        return false;
+      }, [childItem, location.pathname]);
+
+      const uniqueKey = `${childItem.path}-${i}`;
+
+      if (childItem.children && childItem.children.length > 0) {
+        return (
+          <SideNavItems
+            key={uniqueKey}
+            icon={childItem.icon}
+            title={childItem.title}
+            path={childItem.path}
+            children={childItem.children}
+            roles={roles}
+            warehouses={warehouses}
+          />
+        );
+      }
+
+      return (
+        <List component="div" disablePadding key={uniqueKey} sx={{ display: 'flex', flex: 1, pl: 2 }}>
+          <ListItemButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+              navigate(childItem.path);
+            }}
+            selected={childIsActive}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: '#046DBD',
+                opacity: 1,
+              },
+              '&:hover': {
+                backgroundColor: '#373b3e',
+                opacity: 1,
+              },
+              '&.Mui-selected:hover': {
+                backgroundColor: SelectedOptionColor,
+              },
+              borderRadius: 1,
+              my: 0.5,
+              opacity: 0.7,
+            }}
+          >
+            {childItem.icon && <ListItemIcon sx={{ mr: 1 }}>{childItem.icon}</ListItemIcon>}
+            {isOpen ? (
+              <Typography variant="body1" sx={{ display: 'inline' }}>
+                {childItem.title}
+              </Typography>
+            ) : null}
+          </ListItemButton>
+        </List>
+      );
+    });
+  };
 
   if (isWarehouse && !warehouses && !roles.includes('ADMIN')) return null;
   if (isWarehouse && warehouses) return <SideNavWarehouses warehouses={warehouses} roles={roles} />;
@@ -296,54 +376,7 @@ export const SideNavItems: React.FC<SideNavItemsProps> = ({ icon, title, path, c
           </Box>
         </ListItemButton>
         <Collapse in={childOpen} unmountOnExit>
-          {children &&
-            children.map((childItem, i) => {
-              const pathSplit = location.pathname.split('/');
-              const childSplit = childItem.path.split('/');
-              const isActive = pathSplit.includes(childSplit[2] || childSplit[1]);
-              const uniqueKey = `${childItem.path}-${i}`;
-
-              return (
-                <List component="div" disablePadding key={uniqueKey} sx={{ display: 'flex', flex: 1, pl: 2 }}>
-                  <ListItemButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsOpen(false);
-                      navigate(childItem.path);
-                    }}
-                    selected={isActive}
-                    sx={{
-                      '&.Mui-selected': {
-                        backgroundColor: '#046DBD',
-                        opacity: 1,
-                      },
-                      '&:hover': {
-                        backgroundColor: '#373b3e',
-                        opacity: 1,
-                      },
-                      '&.Mui-selected:hover': {
-                        backgroundColor: SelectedOptionColor,
-                      },
-                      borderRadius: 1,
-                      my: 0.5,
-                      opacity: 0.7,
-                    }}
-                  >
-                    {childItem.icon && <ListItemIcon sx={{ mr: 1 }}>{childItem.icon}</ListItemIcon>}
-                    {isOpen ? (
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          display: 'inline',
-                        }}
-                      >
-                        {childItem.title}
-                      </Typography>
-                    ) : null}
-                  </ListItemButton>
-                </List>
-              );
-            })}
+          {children && renderChildren(children)}
         </Collapse>
       </Stack>
     </ListItemButton>

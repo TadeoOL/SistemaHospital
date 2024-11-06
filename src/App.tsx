@@ -124,7 +124,6 @@ function App() {
               <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
               <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
               <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
-              <Route path="programacion/procedimientos-cirugia" element={<SurgeryProcedureView />} />
               {/* <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} /> */}
               <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
@@ -141,8 +140,8 @@ function App() {
             <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
             <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
             <Route element={<ProtectedRoutePharmacyNurse />}>
-                <Route path="/hospitalizacion/solicitud-enfermero" element={<NurseRequestView />} />
-              </Route>
+              <Route path="/hospitalizacion/solicitud-enfermero" element={<NurseRequestView />} />
+            </Route>
             // --------------------------------- Budget ------------------------------- // //
             <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
             // --------------------------------- Nursing ------------------------------- // //
@@ -158,9 +157,10 @@ function App() {
             <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
             <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
             <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
+            <Route path="quirofano/procedimientos-cirugia" element={<SurgeryProcedureView />} />
             <Route element={<PharmacyRoute />}>
               <Route path="/quirofano/paquetes-quirurgicos" element={<OperatingPackagesView />} />
-            </Route>       
+            </Route>
             // ---------------------------------------- Invoice ------------------------------//
             <Route path="/facturas" element={<InvoiceView />} />
           </Route>

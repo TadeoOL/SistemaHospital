@@ -45,7 +45,7 @@ export interface IXRayRequest {
 
 export interface IMedic {
   id: string;
-  nombres: string;
+  nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   telefono: string;

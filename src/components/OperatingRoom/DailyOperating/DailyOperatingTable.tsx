@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { IRoomInformation } from '../../../types/operatingRoomTypes';
+import { IRoomInformation } from '../../../types/operatingRoom/operatingRoomTypes';
 import { useDailyOperatingRoomsPaginationStore } from '../../../store/operatingRoom/dailyOperatingRoomsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';

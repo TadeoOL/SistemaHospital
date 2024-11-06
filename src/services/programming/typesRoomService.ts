@@ -12,7 +12,6 @@ export const registerTypeRoom = async (data: {
   configuracionLimpieza?: string;
   configuracionPrecioHora?: string;
   configuracionRecuperacion?: string;
-  tipo: number;
   precio?: number;
   codigoSATRecuperacion?: string;
   codigoSAT?: string;

@@ -7,28 +7,32 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
 import { xraySchema } from '../../../../schema/hospitalization/hospitalizationSchema';
-import { createService, modifyService } from '../../../../services/hospitalization/ServicesService';
+import {
+  createHospitalService,
+  modifyHospitalService,
+} from '../../../../services/hospitalServices/hospitalServicesService';
+import { ServiceType } from '../../../../types/hospitalServices/hospitalServiceTypes';
 //import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 
 const REQUEST_TYPES = [
   {
-    value: 1,
+    value: ServiceType.Laboratorio,
     label: 'Laboratorio',
   },
   {
-    value: 2,
+    value: ServiceType.Radiografia,
     label: 'Radiografía',
   },
   {
-    value: 3,
+    value: ServiceType.Ultrasonido,
     label: 'Ultra sonido',
   },
   {
-    value: 5,
+    value: ServiceType.Electrocardiograma,
     label: 'Electrocardiograma',
   },
   {
-    value: 6,
+    value: ServiceType.Cuidado_Neonatal,
     label: 'Cuidado Neonatal',
   },
 ];
@@ -89,7 +93,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
     setIsLoading(true);
     try {
       xray
-        ? await modifyService({
+        ? await modifyHospitalService({
             id: data.id as string,
             descripcion: data.description,
             nombre: data.name,
@@ -99,7 +103,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
             //codigoSAT: data.codigoSAT,
             //codigoUnidadMedida: data.codigoUnidadMedida,
           })
-        : await createService({
+        : await createHospitalService({
             descripcion: data.description,
             nombre: data.name,
             precio: data.price,
@@ -179,7 +183,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
             </Grid>
-                {/*isLoadingConcepts ? (
+            {/*isLoadingConcepts ? (
                   <MenuItem>Cargando...</MenuItem>
                 ) : (
                   sizeUnit?.map((item) => (

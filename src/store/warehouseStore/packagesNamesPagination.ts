@@ -1,15 +1,15 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPackagesNamesByWarehouseIdAndSearch } from '../../api/api.routes';
-import { IArticlesPackageSearch } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { debouncedSetSearch, getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { ISurgicalPackage } from '../../types/operatingRoom/surgicalPackageTypes';
+import { getSurgicalPackagesPagination } from '../../services/operatingRoom/surgicalPackage';
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IArticlesPackageSearch[] | null;
+  data: ISurgicalPackage[] | null;
   isLoading: boolean;
   search: string;
   sort: string;
@@ -69,7 +69,7 @@ export const usePackageNamesPaginationStore = createWithEqualityFn<State & Actio
 
     const page = pageIndex + 1;
     try {
-      const res = await getPackagesNamesByWarehouseIdAndSearch(
+      const res = await getSurgicalPackagesPagination(
         `Id_Almacen=${useWarehouseTabsNavStore.getState().warehouseData.id_Almacen}&${page === 0 ? '' : 'pageIndex=' + page}&${
           pageSize === 0 ? '' : 'pageSize=' + pageSize
         }&search=${search}&habilitado=${enabled}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`

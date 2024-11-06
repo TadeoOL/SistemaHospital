@@ -13,7 +13,7 @@ export const useGetMedics = () => {
 
   return {
     isLoadingMedics: isLoading,
-    doctorsData: data as { id: string; nombre: string }[],
+    doctorsData: data,
     isError,
   };
 };

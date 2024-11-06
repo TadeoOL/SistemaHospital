@@ -75,12 +75,12 @@ export const MedicalAndProcedureSelectorModal = (props: MedicalAndProcedureSelec
   const watchProceduresId = watch('proceduresId');
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const medicData = doctorsData.find((m) => m.id === data.medicId);
+    const medicData = doctorsData.find((m) => m.id_Medico === data.medicId);
 
     let proceduresMap: { [key: string]: { id: string; name: string; price: number } } = {};
     for (let i = 0; i < proceduresRes.length; i++) {
-      proceduresMap[proceduresRes[i].id] = {
-        id: proceduresRes[i].id,
+      proceduresMap[proceduresRes[i].id_Cirugia] = {
+        id: proceduresRes[i].id_Cirugia,
         name: proceduresRes[i].nombre,
         price: proceduresRes[i].precio,
       };
@@ -92,7 +92,7 @@ export const MedicalAndProcedureSelectorModal = (props: MedicalAndProcedureSelec
     }
 
     localStorage.setItem('proceduresList', JSON.stringify(proceduresList));
-    localStorage.setItem('medicData', JSON.stringify({ id: medicData?.id, name: medicData?.nombre }));
+    localStorage.setItem('medicData', JSON.stringify({ id: medicData?.id_Medico, name: medicData?.nombre }));
 
     setProcedures(data.proceduresId);
     setMedicId(data.medicId);
@@ -119,19 +119,19 @@ export const MedicalAndProcedureSelectorModal = (props: MedicalAndProcedureSelec
                 options={proceduresRes}
                 noOptionsText="No se encontró resultado"
                 getOptionLabel={(option) => option.nombre}
-                value={proceduresRes.filter((p) => watchProceduresId.includes(p.id))}
+                value={proceduresRes.filter((p) => watchProceduresId.includes(p.id_Cirugia))}
                 onChange={(_, newValue) => {
-                  const procedureIds = newValue.map((procedure) => procedure.id);
+                  const procedureIds = newValue.map((procedure) => procedure.id_Cirugia);
                   setValue('proceduresId', procedureIds);
                 }}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                isOptionEqualToValue={(option, value) => option.id_Cirugia === value.id_Cirugia}
                 renderTags={(selected) =>
                   selected.map((option, index) => (
                     <Chip
                       label={option.nombre}
-                      key={`${option.id}-${index}-${option.nombre}`}
+                      key={`${option.id_Cirugia}-${index}-${option.nombre}`}
                       onDelete={() => {
-                        const procedureList = watchProceduresId.filter((p) => p !== option.id);
+                        const procedureList = watchProceduresId.filter((p) => p !== option.id_Cirugia);
                         setValue('proceduresId', procedureList);
                       }}
                       deleteIcon={<Cancel onMouseDown={(event) => event.stopPropagation()} />}
@@ -140,7 +140,7 @@ export const MedicalAndProcedureSelectorModal = (props: MedicalAndProcedureSelec
                   ))
                 }
                 renderOption={(props, option) => (
-                  <li {...props} key={option.id}>
+                  <li {...props} key={option.id_Cirugia}>
                     <span>{option.nombre}</span>
                   </li>
                 )}
@@ -205,14 +205,14 @@ const MedicSelectComponent = <T extends Inputs>({ error, setValue, watch }: Medi
             options={doctorsData}
             noOptionsText={`No se encontraron medicos`}
             onChange={(_, val) => {
-              setValue('medicId', val?.id ?? '');
+              setValue('medicId', val?.id_Medico ?? '');
             }}
             value={
               valueToFind.find((d) => {
-                return d.id === watch('medicId');
+                return d.id_Medico === watch('medicId');
               }) ?? null
             }
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
             renderInput={(params) => (
               <TextField
                 {...params}

@@ -23,7 +23,6 @@ import {
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
-import { useGetAllXRay } from '../../../../../hooks/hospitalization/useGetAllXRay';
 import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
 import { Add, Delete } from '@mui/icons-material';
 import { useState } from 'react';
@@ -33,6 +32,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { isValidFloat } from '../../../../../utils/functions/dataUtils';
 import { IBiomedicalEquipment } from '../../../../../types/hospitalizationTypes';
+import { useGetHospitalServices } from '../../../../../hooks/hospitalServices/useGetHospitalServicesd';
+import { ServiceType } from '../../../../../types/hospitalServices/hospitalServiceTypes';
 
 const HEADERS = ['Nombre', 'Acciones'];
 const BIOMEDICAL_EQUIPMENT_HEADERS = ['Nombre', 'Precio', 'Acciones'];
@@ -63,7 +64,7 @@ interface Input {
 export const CabinetStudyRequestModal = ({ setOpen }: CabinetStudyRequestModalProps) => {
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
-  const { isLoadingXRay, xrayData } = useGetAllXRay();
+  const { isLoading, data } = useGetHospitalServices({ serviceType: ServiceType.Radiografia });
   const [cabinetStudySelected, setCabinetStudySelected] = useState<{ id: string; nombre: string } | ''>('');
   const [isCabinetStudySelected, setIsCabinetStudySelected] = useState('yes');
   const medicPersonalBiomedicalEquipment = usePatientEntryRegisterStepsStore(
@@ -85,9 +86,9 @@ export const CabinetStudyRequestModal = ({ setOpen }: CabinetStudyRequestModalPr
 
   const handleSelectCabinetStudy = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const id = event.target.value;
-    const cabinetStudy = xrayData.find((x) => x.id === id);
+    const cabinetStudy = data.find((x) => x.id_Servicio === id);
     if (cabinetStudy) {
-      setCabinetStudySelected({ id: cabinetStudy.id, nombre: cabinetStudy.nombre });
+      setCabinetStudySelected({ id: cabinetStudy.id_Servicio, nombre: cabinetStudy.nombre });
     }
   };
 
@@ -119,7 +120,7 @@ export const CabinetStudyRequestModal = ({ setOpen }: CabinetStudyRequestModalPr
     setValue('price', '0');
   };
 
-  if (isLoadingXRay)
+  if (isLoading)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -154,12 +155,12 @@ export const CabinetStudyRequestModal = ({ setOpen }: CabinetStudyRequestModalPr
                   onChange={handleSelectCabinetStudy}
                   value={cabinetStudySelected ? cabinetStudySelected.id : ''}
                 >
-                  {xrayData.length > 0 &&
-                  xrayData.filter((x) => !cabinetStudiesSelected.some((c) => c.id === x.id)).length > 0 ? (
-                    xrayData
-                      .filter((x) => !cabinetStudiesSelected.some((c) => c.id === x.id))
+                  {data.length > 0 &&
+                  data.filter((x) => !cabinetStudiesSelected.some((c) => c.id === x.id_Servicio)).length > 0 ? (
+                    data
+                      .filter((x) => !cabinetStudiesSelected.some((c) => c.id === x.id_Servicio))
                       .map((cs) => (
-                        <MenuItem value={cs.id} key={cs.id}>
+                        <MenuItem value={cs.id_Servicio} key={cs.id_Servicio}>
                           {cs.nombre}
                         </MenuItem>
                       ))
