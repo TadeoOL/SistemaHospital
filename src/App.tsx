@@ -35,7 +35,7 @@ import {
   CloseCheckoutHistoryView,
   CloseCheckoutView,
   ProgrammingRegisterView,
-  PacientsEntryView,
+  PatientsEntryView,
   RoomsView,
   SurgeryProcedureView,
   ProgrammingCalendarView,
@@ -62,6 +62,7 @@ import {
   InvoiceView,
   OutstandingBillsView,
   OperatingPackagesView,
+  MedicalConsultationView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -129,7 +130,8 @@ function App() {
               <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
               <Route path="/configuracion" element={<AccountView />} />
               // ---------------------------Admision------------------------------------- //
-              <Route path="admision/ingreso-pacientes" element={<PacientsEntryView />} />
+              <Route path="admision/ingreso-pacientes" element={<PatientsEntryView />} />
+              <Route path="admision/consultas-medicas" element={<MedicalConsultationView />} />
               <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
             </Route>
             // ------------------------------ Hospitalization-------------------------------- //

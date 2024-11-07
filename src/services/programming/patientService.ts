@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { Paciente, PacienteInfo } from '../../types/admissionTypes';
+import { Paciente, PacienteInfo } from '../../types/admission/admissionTypes';
 import { IPatient, IPatientFromSearch } from '../../types/types';
 const apiPatient = '/api/Paciente';
 

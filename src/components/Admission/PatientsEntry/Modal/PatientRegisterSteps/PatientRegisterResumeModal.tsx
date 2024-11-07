@@ -22,7 +22,7 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
-import { createAdmission } from '../../../../../services/programming/admissionRegisterService';
+import { registerPatient } from '../../../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { IRegisterRoom } from '../../../../../types/types';
@@ -33,6 +33,12 @@ import {
   IPatientRegister,
   IRegisterPatientCommand,
 } from '../../../../../types/programming/registerTypes';
+import {
+  IAdmissionPatient,
+  IPatientAdmission,
+  IRegisterPatientAdmissionCommand,
+} from '../../../../../types/operatingRoom/operatingRoomTypes';
+import { registerPatientAdmission } from '../../../../../services/admission/admisionService';
 
 const style = {
   position: 'absolute',
@@ -149,13 +155,6 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
     }
 
     try {
-      const patientObj: IPatientRegister = {
-        nombre: patient.name,
-        apellidoPaterno: patient.lastName,
-        apellidoMaterno: patient.secondLastName,
-        fechaNacimiento: patient.birthDate,
-        genero: patient.genere,
-      };
       const operatingRoom: IHospitalSpaceRecord = {
         id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 1)?.id as string,
         horaInicio: roomValues.find((r) => r.tipoCuarto == 1)?.horaInicio as Date,
@@ -169,24 +168,66 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
           }
         : undefined;
 
-      const registerObject: IRegisterPatientCommand = {
-        paciente: patientObj,
-        registroQuirofano: operatingRoom,
-        registroCuarto: hospitalizationRoom,
-        servicios: cabinetStudiesSelected.flatMap((c) => c.id),
-        procedimientos: procedures,
-        id_Medico: medicId,
-        articulosExtra: articlesSelected.map((a) => ({
-          id_Articulo: a.id,
-          cantidad: a.cantidad,
-        })),
-        id_Paquete: packageSelected?.id_PaqueteQuirurgico ?? '',
-        equipoHonorario: medicPersonalBiomedicalEquipment.map((eh) => ({
-          nombre: eh.nombre,
-          precio: eh.precio,
-        })),
-      };
-      await createAdmission(registerObject);
+      if (!hospitalization) {
+        const patientObj: IPatientRegister = {
+          nombre: patient.name,
+          apellidoPaterno: patient.lastName,
+          apellidoMaterno: patient.secondLastName,
+          fechaNacimiento: patient.birthDate,
+          genero: patient.genere,
+        };
+        const registerObject: IRegisterPatientCommand = {
+          paciente: patientObj,
+          registroQuirofano: operatingRoom,
+          registroCuarto: hospitalizationRoom,
+          servicios: cabinetStudiesSelected.flatMap((c) => c.id),
+          procedimientos: procedures,
+          id_Medico: medicId,
+          articulosExtra: articlesSelected.map((a) => ({
+            id_Articulo: a.id,
+            cantidad: a.cantidad,
+          })),
+          id_Paquete: packageSelected?.id_PaqueteQuirurgico ?? '',
+          equipoHonorario: medicPersonalBiomedicalEquipment.map((eh) => ({
+            nombre: eh.nombre,
+            precio: eh.precio,
+          })),
+        };
+        await registerPatient(registerObject);
+      } else {
+        const patientAdmissionObj: IAdmissionPatient = {
+          nombre: patient.name,
+          apellidoPaterno: patient.lastName,
+          apellidoMaterno: patient.secondLastName,
+          fechaNacimiento: patient.birthDate,
+          genero: patient.genere,
+          estadoCivil: patient.civilStatus,
+          telefono: patient.phoneNumber,
+          ocupacion: patient.occupation,
+          codigoPostal: patient.zipCode,
+          colonia: patient.neighborhood,
+          direccion: patient.address,
+        };
+        const patientAdmission: IPatientAdmission = {
+          nombreResponsable: patient.personInCharge,
+          parentesco: patient.relationship,
+          domicilioResponsable: patient.personInChargeAddress,
+          coloniaResponsable: patient.neighborhood,
+          estado: patient.state,
+          ciudad: patient.city,
+          codigoPostalResponsable: patient.personInChargeZipCode,
+          telefonoResponsable: patient.personInChargePhoneNumber,
+        };
+        const admissionObj: IRegisterPatientAdmissionCommand = {
+          paciente: patientAdmissionObj,
+          registroCuarto: hospitalizationRoom,
+          procedimientos: procedures,
+          id_Medico: medicId,
+          ingresosPaciente: patientAdmission,
+        };
+        await registerPatientAdmission(admissionObj);
+      }
+
       refetch();
       toast.success('Paciente dado de alta correctamente');
       setOpen(false);

@@ -1,10 +1,9 @@
 import axios from '../../libs/axios';
-import { IEventDetails } from '../../types/admissionTypes';
+import { IEventDetails } from '../../types/admission/admissionTypes';
 import { IRegisterPatientCommand } from '../../types/programming/registerTypes';
 const apiRegister = '/api/Programacion/Registro';
 
-
-export const createAdmission = async (data: IRegisterPatientCommand) => {
+export const registerPatient = async (data: IRegisterPatientCommand) => {
   const res = await axios.post(`${apiRegister}/registrar-paciente`, data);
   return res.data;
 };

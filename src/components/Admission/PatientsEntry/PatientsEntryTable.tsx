@@ -18,8 +18,6 @@ import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
-import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
-import { IPatientRegisterPagination, Procedimiento } from '../../../types/admissionTypes';
 import dayjs from 'dayjs';
 import { DocumentScanner, Edit, MonetizationOn, Paid, Print, Visibility } from '@mui/icons-material';
 import { PatientInfoModal } from '../../Programming/Register/Modal/PatientInfoModal';
@@ -30,6 +28,8 @@ import {
   generateHospitalizationDoc,
   generateSurgeryDoc,
 } from '../../Documents/AdmissionDocs/AdmissionDoc';
+import { IPatientRegisterPagination, Procedimiento } from '../../../types/admission/admissionTypes';
+import { usePatientEntryPaginationStore } from '../../../store/admission/usePatientEntryPagination';
 
 const headers = [
   'Clave paciente',
@@ -52,21 +52,21 @@ interface TableRowPatientsEntryProps {
 }
 
 const useGetData = () => {
-  const fetchData = usePatientRegisterPaginationStore((state) => state.fetchData);
-  const data = usePatientRegisterPaginationStore((state) => state.data);
-  const search = usePatientRegisterPaginationStore((state) => state.search);
-  const pageSize = usePatientRegisterPaginationStore((state) => state.pageSize);
-  const pageIndex = usePatientRegisterPaginationStore((state) => state.pageIndex);
-  const setPageIndex = usePatientRegisterPaginationStore((state) => state.setPageIndex);
-  const setPageSize = usePatientRegisterPaginationStore((state) => state.setPageSize);
-  const count = usePatientRegisterPaginationStore((state) => state.count);
-  const isLoading = usePatientRegisterPaginationStore((state) => state.loading);
-  const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
-  const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
+  const fetchData = usePatientEntryPaginationStore((state) => state.fetchData);
+  const data = usePatientEntryPaginationStore((state) => state.data);
+  const search = usePatientEntryPaginationStore((state) => state.search);
+  const pageSize = usePatientEntryPaginationStore((state) => state.pageSize);
+  const pageIndex = usePatientEntryPaginationStore((state) => state.pageIndex);
+  const setPageIndex = usePatientEntryPaginationStore((state) => state.setPageIndex);
+  const setPageSize = usePatientEntryPaginationStore((state) => state.setPageSize);
+  const count = usePatientEntryPaginationStore((state) => state.count);
+  const isLoading = usePatientEntryPaginationStore((state) => state.loading);
+  const startDate = usePatientEntryPaginationStore((state) => state.startDate);
+  const endDate = usePatientEntryPaginationStore((state) => state.endDate);
 
   useEffect(() => {
     fetchData();
-  }, [search, setPageIndex, setPageSize, startDate, endDate,pageIndex, pageSize]);
+  }, [search, setPageIndex, setPageSize, startDate, endDate, pageIndex, pageSize]);
   return {
     data,
     pageIndex,

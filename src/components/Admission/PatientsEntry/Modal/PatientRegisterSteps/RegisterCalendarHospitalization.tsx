@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 
 interface RegisterCalendarHospitalizationProps {
   setOpen: Function;
+  hospitalization?: boolean;
 }
 
 const style = {
@@ -23,7 +24,7 @@ const style = {
   maxHeight: { xs: 550, xl: 900 },
 };
 
-export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHospitalizationProps) => {
+export const RegisterCalendarHospitalization = ({ setOpen, hospitalization }: RegisterCalendarHospitalizationProps) => {
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const hospitalizationEvents = usePatientEntryRegisterStepsStore((state) => state.hospitalizationEvents);
@@ -46,11 +47,19 @@ export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHos
   );
 
   const handleBackStep = () => {
+    if (hospitalization) {
+      setOpen(false);
+      return;
+    }
     setStep(step - 1);
   };
   const handleNextStep = () => {
-    if (roomsRegistered.length < 1 || !roomsRegistered.some((r) => r.tipoCuarto == 1))
-      return toast.warning('Es necesario seleccionar un quirófano y/o espacio hospitalario para continuar');
+    if (roomsRegistered.length < 1 || (!roomsRegistered.some((r) => r.tipoCuarto == 1) && !hospitalization))
+      if (!hospitalization) {
+        return toast.warning('Es necesario seleccionar un quirófano y/o espacio hospitalario para continuar');
+      } else {
+        return toast.warning('Es necesario seleccionar un espacio hospitalario para continuar');
+      }
     setStep(step + 1);
   };
 
@@ -77,7 +86,7 @@ export const RegisterCalendarHospitalization = ({ setOpen }: RegisterCalendarHos
         }}
       >
         <Button variant="outlined" onClick={handleBackStep}>
-          Regresar
+          {hospitalization ? 'Cancelar' : 'Regresar'}
         </Button>
         <Button variant="contained" onClick={handleNextStep}>
           Siguiente

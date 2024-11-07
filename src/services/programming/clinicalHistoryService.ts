@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { HistorialClinico } from '../../types/admissionTypes';
+import { HistorialClinico } from '../../types/admission/admissionTypes';
 const apiClinicalHistory = '/api/HistorialClinico';
 
 interface ClinicalHistoryRegister {

@@ -21,7 +21,7 @@ export const HospitalizationEntryComponent = ({ setOpen }: HospitalizationEntryC
   }, [clearStore]);
 
   const RENDER_VIEW: Record<number, JSX.Element> = {
-    0: <RegisterCalendarHospitalization setOpen={setOpen} />,
+    0: <RegisterCalendarHospitalization setOpen={setOpen} hospitalization />,
     1: <RegisterPatientInfoComponent setOpen={setOpen} hospitalization />,
     2: <MedicalAndProcedureSelectorModal setOpen={setOpen} />,
     3: <PatientRegisterResumeModal setOpen={setOpen} hospitalization />,

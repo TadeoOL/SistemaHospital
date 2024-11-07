@@ -289,6 +289,12 @@ export const ModuleList: IModuleItemsList[] = [
         icon: <MeetingRoom />,
         protectedRoles: admission,
       },
+      {
+        title: 'Consultas médicas',
+        path: '/admision/consultas-medicas',
+        icon: <MedicalServices />,
+        protectedRoles: admission,
+      },
     ],
     path: 'admision',
   },

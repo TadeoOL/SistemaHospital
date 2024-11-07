@@ -2,6 +2,7 @@ import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { getPatientRegisterPagination } from '../../services/programming/admissionRegisterService';
 import { IPatientRegisterPagination } from '../../types/admission/admissionTypes';
+import { getPatientAdmissionPagination } from '../../services/admission/admisionService';
 
 interface State {
   count: number;
@@ -52,7 +53,7 @@ const initialValues = {
   sort: '',
 };
 
-export const usePatientRegisterPaginationStore = create<State & Action>((set, get) => ({
+export const usePatientEntryPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
   setSort: (sort: string) => set({ sort, pageIndex: 0 }),
   setOperatingRoomFilter: (operatingRoomFilter: string) => set({ operatingRoomFilter }),
@@ -75,7 +76,7 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getPatientRegisterPagination(
+      const res = await getPatientAdmissionPagination(
         `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}`
       );
       set({

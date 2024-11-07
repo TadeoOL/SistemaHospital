@@ -1,5 +1,6 @@
-import { HistorialClinico, Paciente } from '../admissionTypes';
+import { HistorialClinico, Paciente } from '../admission/admissionTypes';
 import { IAnesthesiologist, IMedic } from '../hospitalizationTypes';
+import { IHospitalSpaceRecord } from '../programming/registerTypes';
 
 export interface IOperatingRoomConfig {
   configuracionRecuperacion: IRecoveryRoomOperatingRoom[];
@@ -72,3 +73,40 @@ export interface IRecoveryRoom {
   datosClinicos: HistorialClinico;
   procedimientos: { id: string; nombre: string }[];
 }
+
+
+///////// - ADMISSION - /////////
+
+export interface IRegisterPatientAdmissionCommand {
+  paciente: IAdmissionPatient;
+  registroCuarto?: IHospitalSpaceRecord;
+  id_Medico: string;
+  procedimientos: string[];
+  ingresosPaciente?: IPatientAdmission;
+}
+
+export interface IAdmissionPatient {
+  nombre?: string;
+  apellidoPaterno?: string;
+  apellidoMaterno?: string;
+  fechaNacimiento?: Date;
+  genero?: string;
+  estadoCivil?: string;
+  telefono?: string;
+  ocupacion?: string;
+  codigoPostal?: string;
+  colonia?: string;
+  direccion?: string;
+}
+
+export interface IPatientAdmission {
+  nombreResponsable?: string;
+  parentesco?: string;
+  domicilioResponsable?: string;
+  coloniaResponsable?: string;
+  estado?: string;
+  ciudad?: string;
+  codigoPostalResponsable?: string;
+  telefonoResponsable?: string;
+}
+
