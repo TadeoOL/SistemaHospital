@@ -1,8 +1,8 @@
 import axios from '../../libs/axios';
-const apiSamiRegister = '/api/RegistroSami';
+const apiSamiRegister = '/api/Admision/ConsultaMedica';
 
 export const registerSamiPatient = async (data: {
-  nombre: string;
+  paciente:{nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   fechaNacimiento: Date;
@@ -12,14 +12,15 @@ export const registerSamiPatient = async (data: {
   colonia: string;
   codigoPostal: string;
   estadoCivil: string;
-  nombreResponsable: string;
+  nombreResponsable: string;},
+  id_Medico:string
 }) => {
-  const res = await axios.post(`${apiSamiRegister}/registrar-paciente-sami`, data);
+  const res = await axios.post(`${apiSamiRegister}/registrar-paciente-consulta-medica`, data);
   return res.data;
 };
 
 export const getSamiRegistersPagination = async (params: string) => {
-  const res = await axios.get(`${apiSamiRegister}/paginacion-registros-sami?${params}`);
+  const res = await axios.get(`${apiSamiRegister}/paginacion-pacientes-consulta-medica?${params}`);
   return res.data;
 };
 

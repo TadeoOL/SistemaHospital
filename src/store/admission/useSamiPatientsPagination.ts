@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { ISAMI } from '../../types/admissionTypes';
 import { getSamiRegistersPagination } from '../../services/admission/samiRegisterService';
+import { ISAMI } from '../../types/admission/admissionTypes';
 
 interface State {
   count: number;

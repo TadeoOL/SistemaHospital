@@ -61,7 +61,10 @@ export const patientSAMISchema = z.object({
     })
   ),
   personInCharge: z.string().min(1, 'Es necesario el nombre del responsable'),
+  medicId: z.string().min(1, 'Es necesario seleccionar un medico'),
 });
+
+export type PatientSamiType = z.infer<typeof patientSAMISchema>;
 
 export const clinicalDataSchema = z.object({
   reasonForAdmission: z.string().optional(),

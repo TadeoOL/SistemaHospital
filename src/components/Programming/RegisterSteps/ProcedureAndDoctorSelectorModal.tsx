@@ -104,12 +104,12 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
     ) {
       toast.error('Error, debes seleccionar un medico y un archivo para continuar.');
     }
-    const medicData = doctorsData.find((m) => m.id === data.medicId);
+    const medicData = doctorsData.find((m) => m.id_Medico === data.medicId);
 
     let proceduresMap: { [key: string]: { id: string; name: string; price: number } } = {};
     for (let i = 0; i < proceduresRes.length; i++) {
-      proceduresMap[proceduresRes[i].id] = {
-        id: proceduresRes[i].id,
+      proceduresMap[proceduresRes[i].id_Cirugia] = {
+        id: proceduresRes[i].id_Cirugia,
         name: proceduresRes[i].nombre,
         price: proceduresRes[i].precio,
       };
@@ -122,7 +122,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
 
     let xrayMap: { [key: string]: { id: string; name: string } } = {};
     for (let i = 0; i < xrayData.length; i++) {
-      xrayMap[xrayData[i].id] = { id: xrayData[i].id, name: xrayData[i].nombre };
+      xrayMap[xrayData[i].id_Servicio] = { id: xrayData[i].id_Servicio, name: xrayData[i].nombre };
     }
 
     let xrayList = [];
@@ -133,7 +133,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
 
     localStorage.setItem('proceduresList', JSON.stringify(proceduresList));
     localStorage.setItem('xrayList', JSON.stringify(xrayList));
-    localStorage.setItem('medicData', JSON.stringify({ id: medicData?.id, name: medicData?.nombre }));
+    localStorage.setItem('medicData', JSON.stringify({ id: medicData?.id_Medico, name: medicData?.nombre }));
     localStorage.setItem(
       'anesthesiologist',
       JSON.stringify({ id: anesthesiologist?.id, name: anesthesiologist?.nombre })
@@ -176,7 +176,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
                           selected.map((value: string) => (
                             <Chip
                               key={value}
-                              label={proceduresRes.find((v) => v.id === value)?.nombre}
+                              label={proceduresRes.find((v) => v.id_Cirugia === value)?.nombre}
                               style={{ margin: 2 }}
                               onDelete={() => {
                                 const procedureList = watchProceduresId.filter((p) => p !== value);
@@ -197,7 +197,7 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
                 {...register('proceduresId')}
               >
                 {proceduresRes.map((p) => (
-                  <MenuItem key={p.id} value={p.id}>
+                  <MenuItem key={p.id_Cirugia} value={p.id_Cirugia}>
                     {p.nombre}
                   </MenuItem>
                 ))}
@@ -213,15 +213,15 @@ export const ProcedureAndDoctorSelectorModal = (props: ProcedureAndDoctorSelecto
                 options={xrayData}
                 multiple
                 noOptionsText="No se encontraron estudios de gabinete"
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                isOptionEqualToValue={(option, value) => option.id_Servicio === value.id_Servicio}
                 onChange={(_, val) => {
-                  setValue('xrayIds', val.flatMap((x) => x.id) ?? '');
+                  setValue('xrayIds', val.flatMap((x) => x.id_Servicio) ?? '');
                 }}
                 value={
                   watch('xrayIds').map((x) => {
-                    const xray = xrayData.find((xr) => xr.id === x);
+                    const xray = xrayData.find((xr) => xr.id_Servicio === x);
                     return {
-                      id: xray?.id as string,
+                      id_Servicio: xray?.id_Servicio as string,
                       nombre: xray?.nombre as string,
                     };
                   }) ?? []
@@ -335,7 +335,7 @@ const MedicSelectComponent = <T extends Inputs>({
             noOptionsText={`No se encontraron medicos ${valueRadioButton === 'si' ? 'en guardia' : ''}`}
             onChange={(_, val) => {
               if (valueRadioButton === 'no') {
-                setValue('medicId', val?.id ?? '');
+                setValue('medicId', val?.id_Medico ?? '');
               } else {
                 const value = val as { id: string; id_Medico: string; nombre: string };
                 setValue('medicId', (value?.id_Medico as any) ?? '');
@@ -344,14 +344,14 @@ const MedicSelectComponent = <T extends Inputs>({
             value={
               valueToFind.find((d) => {
                 if (valueRadioButton === 'no') {
-                  return d.id === watch('medicId');
+                  return d.id_Medico === watch('medicId');
                 } else {
                   const val = d as any;
                   return val.id_Medico === watch('medicId');
                 }
               }) ?? null
             }
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -370,7 +370,7 @@ const MedicSelectComponent = <T extends Inputs>({
 };
 interface MedicRejectAppointmentProps {
   isLoading: boolean;
-  medicData: { id: string; nombre: string }[];
+  medicData: { id_Medico: string; nombre: string }[];
 }
 const MedicRejectAppointment = (props: MedicRejectAppointmentProps) => {
   const { isLoading, medicData } = props;
@@ -397,7 +397,7 @@ const MedicRejectAppointment = (props: MedicRejectAppointmentProps) => {
             getOptionLabel={(option) => option.nombre}
             options={medicData}
             noOptionsText="No se encontraron medicos"
-            onChange={(_, val) => val && setRejectedMedicId(val.id)}
+            onChange={(_, val) => val && setRejectedMedicId(val.id_Medico)}
             onInputChange={(_, __, reason) => {
               if (reason === 'clear') {
                 setRejectedMedicId('');

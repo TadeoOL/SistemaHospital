@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { ISAMI } from '../../../types/admissionTypes';
 import { useSamiPAtientsPaginationStore } from '../../../store/admission/useSamiPatientsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
@@ -26,6 +25,7 @@ import { SamiPatientDetailsModal } from './Modal/SamiPatientDetailsModal';
 import { AddPatientsEntrySami } from './Modal/AddPatientsEntrySami';
 import Swal from 'sweetalert2';
 import { admitSamiPatientToHospital } from '../../../services/sami/samiEntryService';
+import { ISAMI } from '../../../types/admission/admissionTypes';
 
 const TABLE_HEADER = ['Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Acciones'];
 
@@ -201,7 +201,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
       </Modal>
       <Modal open={openEdit}>
         <>
-          <AddPatientsEntrySami setOpen={setOpenEdit} isEdit patientData={data.paciente} />
+          <AddPatientsEntrySami setOpen={setOpenEdit} isEdit patientData={data.paciente} medicId="" />
         </>
       </Modal>
     </>
