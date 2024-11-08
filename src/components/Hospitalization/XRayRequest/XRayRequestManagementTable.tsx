@@ -27,14 +27,13 @@ import { shallow } from 'zustand/shallow';
 //import { NurseRequestModal } from './Modal/NurseRequestModal';
 //import { InurseRequest, IArticleInRequest } from '../../../types/types';
 //import { SearchBar } from '../../../Inputs/SearchBar';
-import { IXRayRequest } from '../../../types/hospitalizationTypes';
+import { IServiceRequest } from '../../../types/hospitalizationTypes';
 import { useXRayRequestPaginationStore } from '../../../store/hospitalization/xrayRequestPagination';
 import { getStatus } from '../../../utils/XRayRequestUtils';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { AddXRayRequestModal } from './Modal/AddXRayRequest';
 import withReactContent from 'sweetalert2-react-content';
-import { modifyXRayRequest } from '../../../services/hospitalization/xrayService';
-import { formatDate } from '../../../utils/pointOfSaleUtils';
+import { modifyServiceRequest } from '../../../services/hospitalServices/hospitalServicesService';
 
 export const useGetNursesRequest = () => {
   const {
@@ -138,10 +137,11 @@ export const XRayRequestManagementTable = () => {
 
   useEffect(() => {
     return () => {
+      setStatus(1);
       clearData();
     };
   }, []);
-
+console.log(status);
   const rejectRequest = (Id_Request: string) => {
     withReactContent(Swal)
       .fire({
@@ -155,8 +155,8 @@ export const XRayRequestManagementTable = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return modifyXRayRequest({
-            Id_SolicitudRadiografia: Id_Request,
+          return modifyServiceRequest({
+            Id_CuentaServicio: Id_Request,
             Estatus: 0,
           });
         },
@@ -192,8 +192,8 @@ export const XRayRequestManagementTable = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return modifyXRayRequest({
-            Id_SolicitudRadiografia: Id_Request,
+          return modifyServiceRequest({
+            Id_CuentaServicio: Id_Request,
             Estatus: 2,
           });
         },
@@ -319,7 +319,6 @@ export const XRayRequestManagementTable = () => {
                       <TableCell>Paciente</TableCell>
                       <TableCell>Enfermero</TableCell>
                       <TableCell>Tipo Radiografía</TableCell>
-                      <TableCell>Precio</TableCell>
                       <TableCell>Fecha Solicitud</TableCell>
                       <TableCell>Estatus</TableCell>
                       {status === 1 && <TableCell>Acciones</TableCell>}
@@ -327,7 +326,7 @@ export const XRayRequestManagementTable = () => {
                   </TableHead>
                   <TableBody>
                     {data &&
-                      data.map((request: IXRayRequest) => (
+                      data.map((request: IServiceRequest) => (
                         <TableRowComponent
                           status={status}
                           nurseRequest={request}
@@ -387,7 +386,7 @@ export const XRayRequestManagementTable = () => {
 };
 
 interface TableRowComponentProps {
-  nurseRequest: IXRayRequest;
+  nurseRequest: IServiceRequest;
   rejectRequest: Function;
   acceptRequest: Function;
   status: number | null;
@@ -402,11 +401,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
     <React.Fragment>
       <TableRow>
         <TableCell>{nurseRequest.folio}</TableCell>
-        <TableCell>{nurseRequest.nombrePaciente}</TableCell>
-        <TableCell>{nurseRequest.nombreSolicitante}</TableCell>
-        <TableCell>{nurseRequest.nombre}</TableCell>
-        <TableCell>{nurseRequest.precio}</TableCell>
-        <TableCell>{formatDate(nurseRequest.fechaSolicitud)}</TableCell>
+        <TableCell>{nurseRequest.paciente}</TableCell>
+        <TableCell>{nurseRequest.enfermero}</TableCell>
+        <TableCell>{nurseRequest.servicio}</TableCell>
+        <TableCell>{nurseRequest.fechaSolicitud}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
         {status === 1 && (
           <TableCell>

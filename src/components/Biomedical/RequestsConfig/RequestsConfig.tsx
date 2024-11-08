@@ -1,24 +1,30 @@
-import { Box, Button, Chip, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Chip, CircularProgress, createFilterOptions, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getCheckoutUsers } from '../../../services/checkout/checkoutService';
 import { Cancel, Save } from '@mui/icons-material';
 import { RequestConfigTable } from './RequestConfigTable';
 import { IRequestConfig, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
 import { useGetRequestsConfig } from '../../../hooks/hospitalization/useGetRequestsConfig';
 import { toast } from 'react-toastify';
-import { modifyModuleConfig } from '../../../api/api.routes';
+import { getUsersBySearch, modifyModuleConfig } from '../../../api/api.routes';
+
+const OPTIONS_LIMIT = 30;
+const filterUserOptions = createFilterOptions<{id: string, nombre: string}>({
+  limit: OPTIONS_LIMIT,
+});
+
 
 const useGetUsers = () => {
   const [hashTableUsers, setHashTableUsers] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [userSearch, setUserSearch] = useState<string>('');
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const users = await getCheckoutUsers();
+        const users = await getUsersBySearch(userSearch);
         const newHashTableUsers: typeof hashTableUsers = {};
-        users.forEach((user) => (newHashTableUsers[user.id] = user.nombre));
+        users.forEach((user: any) => (newHashTableUsers[user.id] = user.nombre));
         setHashTableUsers(newHashTableUsers);
       } catch (error) {
         console.error(error);
@@ -28,28 +34,28 @@ const useGetUsers = () => {
     };
     fetchData();
   }, []);
-  return { users: hashTableUsers, loadingUsers: isLoading };
+  return { users: hashTableUsers, loadingUsers: isLoading, setUserSearch };
 };
 
 export const RequestsConfig = () => {
-  const [userSelected, setUserSelected] = useState<string>('');
+  const [userSelected, setUserSelected] = useState<{id: string; nombre: string;} | null >(null);
   const [requestSelected, setRequestSelected] = useState<number[]>([]);
-  const { loadingUsers, users } = useGetUsers();
+  const { loadingUsers, users, setUserSearch } = useGetUsers();
   const { config, refetch } = useGetRequestsConfig();
   const [isLoading, setIsLoading] = useState(false);
   const [userError, setUserError] = useState(false);
   const [depError, setDepError] = useState(false);
 
-  const handleEdit = (id: string) => {
-    setUserSelected(id);
-    const userLeaves = config.find((c) => c.id_Usuario === id);
-    setRequestSelected(userLeaves?.solicitudes as number[]);
+  const handleEdit = (user: IRequestConfig) => {
+    setUserSelected({nombre: user.nombre, id: user.id_Usuario});
+    const userLeaves = config.find((c) => c.id_Usuario === user.id_Usuario);
+    setRequestSelected(userLeaves?.tipoServicio as number[]);
   };
 
   const handleDelete = async (id: string) => {
     const newConfig = config?.filter((c) => c.id_Usuario !== id);
     try {
-      await modifyModuleConfig(newConfig, 'Solicitudes');
+      await modifyModuleConfig(newConfig, 'Servicios');
       toast.success('Usuario eliminado correctamente');
       refetch();
     } catch (error) {
@@ -59,7 +65,7 @@ export const RequestsConfig = () => {
   };
 
   const handleSaveUser = async () => {
-    if (!userSelected || userSelected.trim() === '') {
+    if (!userSelected) {
       toast.warning('Debes de llenar todos los datos para poder agregar un nuevo usuario');
       return setUserError(true);
     }
@@ -68,26 +74,26 @@ export const RequestsConfig = () => {
       return setDepError(true);
     }
     setIsLoading(true);
-    const isEdit = config.findIndex((config) => config.id_Usuario === userSelected);
-    const configFilter = config.filter((config) => config.id_Usuario !== userSelected);
+    const isEdit = config.findIndex((config) => config.id_Usuario === userSelected.id);
+    const configFilter = config.filter((config) => config.id_Usuario !== userSelected.id);
     let configData: IRequestConfig[] = [];
     if (isEdit !== -1) {
-      config[isEdit].solicitudes = requestSelected;
+      config[isEdit].tipoServicio = requestSelected;
     } else {
       configData = [
         {
-          id_Usuario: userSelected,
-          nombre: users[userSelected],
-          solicitudes: requestSelected,
+          id_Usuario: userSelected.id,
+          nombre: userSelected.nombre,
+          tipoServicio: requestSelected,
         },
         ...configFilter,
       ];
     }
     try {
-      await modifyModuleConfig(isEdit !== -1 ? config : configData, 'Solicitudes');
+      await modifyModuleConfig(isEdit !== -1 ? config : configData, 'Servicios');
       setRequestSelected([]);
       refetch();
-      setUserSelected('');
+      setUserSelected(null);
       if (isEdit !== -1) {
         toast.success('Usuario editado correctamente');
       } else {
@@ -115,30 +121,38 @@ export const RequestsConfig = () => {
         <Stack spacing={2}>
           <Box>
             <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 2 }}>Nombre del usuario:</Typography>
-            <TextField
-              label="Usuario"
-              fullWidth
-              onChange={(e: any) => {
-                setUserSelected(e.target.value);
-                setUserError(false);
-              }}
-              select
-              value={userSelected}
-              error={userError}
-              helperText={userError && 'Escribe un nombre de usuario'}
-            >
-              {Object.keys(users).length === 0 ? (
-                <MenuItem value="" disabled>
-                  No hay usuarios disponibles
-                </MenuItem>
-              ) : (
-                Object.keys(users).map((user) => (
-                  <MenuItem key={user} value={user}>
-                    {users[user]}
-                  </MenuItem>
-                ))
-              )}
-            </TextField>
+            <Autocomplete
+                disablePortal
+                fullWidth
+                filterOptions={filterUserOptions}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setUserSelected(val);
+                  setUserError(false);
+                }}
+                //cambiar loading
+                loading={isLoading}
+                getOptionLabel={(option) => option.nombre}
+                options={ Object.entries(users).map(([id, nombre]) => ({ id, nombre})) }
+                value={userSelected}
+                noOptionsText="No se encontraron usuarios"
+                isOptionEqualToValue={(op, val) => op.id === val.id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={userError}
+                    helperText={userError && 'Selecciona un usuario'}
+                    placeholder="Usuario"
+                    sx={{ width: '100%' }}
+                    onChange={(e) => {
+                      if (e.target.value === null) {
+                        setUserSearch('');
+                      }
+                      setUserSearch(e.target.value);
+                    }}
+                  />
+                )}
+              />
           </Box>
           <Box>
             <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 2 }}>Concepto de salida:</Typography>

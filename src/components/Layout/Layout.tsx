@@ -77,7 +77,7 @@ export const Layout: React.FC = () => {
     '/ventas/historial-cortes': 'Historial de cortes de caja',
     '/ventas/cierre-de-cuenta': 'Cierre de cuenta',
     '/ventas/corte-caja': 'Caja del Día',
-    '/hospitalizacion/radiografias-solicitud': 'Solicitud de Estudio de Gabinete',
+    '/hospitalizacion/servicios-solicitud': 'Solicitud de Servicios',
     '/hospitalizacion/solicitudes-administracion': 'Autorización de Estudio de Gabinete',
     '/admision/ingreso-pacientes': 'Ingreso de pacientes',
     '/facturas': 'Facturacion',

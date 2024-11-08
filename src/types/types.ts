@@ -470,9 +470,9 @@ export interface IWarehouseData {
 }
 export interface IPatientFromSearch {
   id_Paciente: string;
-  nombreCompleto: string;
-  id_Cuenta: string;
-  id_ArticuloCuenta: string;
+  nombrePaciente: string;
+  id_CuentaPaciente: string;
+  id_IngresoPaciente: string;
 }
 export interface IWarehouseMovementData {
   almacenOrigen: string | null;

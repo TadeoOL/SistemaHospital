@@ -18,17 +18,17 @@ import { IRequestConfig, REQUEST_TYPES } from '../../../types/hospitalizationTyp
 
 interface UsersEmitterTableBodyProps {
   handleDelete: (id: string) => void;
-  handleEdit: (id: string) => void;
+  handleEdit: (user: IRequestConfig) => void;
   data: IRequestConfig[];
 }
 interface UsersEmitterTableRowProps {
   handleDelete: (id: string) => void;
-  handleEdit: (id: string) => void;
+  handleEdit: (user: IRequestConfig) => void;
   data: IRequestConfig;
 }
 interface RequestConfigTableProps {
   handleDelete: (id: string) => void;
-  handleEdit: (id: string) => void;
+  handleEdit: (user: IRequestConfig) => void;
   data: IRequestConfig[];
   loading: boolean;
 }
@@ -90,12 +90,12 @@ const UsersEmitterTableRow = (props: UsersEmitterTableRowProps) => {
       <TableCell>{props.data.nombre}</TableCell>
       <TableCell>
         <Box sx={{ display: 'flex', flex: 1, columnGap: 0.5, alignItems: 'center' }}>
-          {props.data.solicitudes &&
-            props.data.solicitudes.slice(0, 2).map((dp, i) => <RequestsChip key={dp + i} data={dp} />)}
-          {props.data.solicitudes && props.data.solicitudes.length > 2 && (
-            <Tooltip title={props.data.solicitudes && props.data.solicitudes.slice(2).join(', ')}>
+          {props.data.tipoServicio &&
+            props.data.tipoServicio.slice(0, 2).map((dp, i) => <RequestsChip key={dp + i} data={dp} />)}
+          {props.data.tipoServicio && props.data.tipoServicio.length > 2 && (
+            <Tooltip title={props.data.tipoServicio && props.data.tipoServicio.slice(2).join(', ')}>
               <Box sx={{ borderRadius: '50%', px: 1, bgcolor: '#E2E3E5', py: 0.5 }}>
-                +{props.data.solicitudes.length - 2}
+                +{props.data.tipoServicio.length - 2}
               </Box>
             </Tooltip>
           )}
@@ -107,7 +107,7 @@ const UsersEmitterTableRow = (props: UsersEmitterTableRowProps) => {
             title="Editar"
             onClick={(e) => {
               e.stopPropagation();
-              props.handleEdit(props.data.id_Usuario);
+              props.handleEdit(props.data);
             }}
           >
             <IconButton>

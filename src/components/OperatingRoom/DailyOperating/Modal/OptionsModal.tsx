@@ -9,12 +9,12 @@ import {
   surgeonOperatingRoomSchema,
 } from '../../../../schema/operatingRoom/operatingRoomSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { modifyOperatingRoom } from '../../../../services/programming/admissionRegisterService';
 import { toast } from 'react-toastify';
 import { useDailyOperatingRoomsPaginationStore } from '../../../../store/operatingRoom/dailyOperatingRoomsPagination';
 import { useGetAnesthesiologists } from '../../../../hooks/hospitalization/useGetAnesthesiologists';
 import { LiaUserNurseSolid } from 'react-icons/lia';
 import { NurseSelectorModal } from './NurseSelectorModal';
+import { modifyOperatingRoom } from '../../../../services/operatingRoom/operatingRoomService';
 
 const style = {
   position: 'absolute',
@@ -55,7 +55,7 @@ interface OptionsModalProps {
   registerRoomId: string;
   medical?: { id: string; nombre: string };
   anesthesiologist?: { id_Anestesiologo: string; nombre: string };
-  nurses?: { id_Enfermero: string; nombre: string }[];
+  nurse: { id_Enfermero: string; nombre: string } | null;
 }
 interface CardOptionsProps {
   title: string;
@@ -109,7 +109,7 @@ export const OptionsModal = (props: OptionsModalProps) => {
       <NurseSelectorModal
         setOption={setOption}
         registerRoomId={props.registerRoomId}
-        nurses={props.nurses ?? []}
+        nurse={props.nurse ?? null}
         setOpen={props.setOpen}
       />
     ),
@@ -175,7 +175,7 @@ function AddAnesthesiologist(props: Props) {
   const onSubmit: SubmitHandler<AnesthesiologistInput> = async (data) => {
     try {
       await modifyOperatingRoom({
-        id_RegistroCuarto: props.registerRoomId,
+        id_CuentaEspacioHospitalario: props.registerRoomId,
         id_Anestesiologo: data.anesthesiologist?.id,
       });
       toast.success('Anestesiólogo agregado con éxito!');
@@ -248,7 +248,7 @@ function AddSurgeon(props: Props) {
     console.log(data);
     try {
       await modifyOperatingRoom({
-        id_RegistroCuarto: props.registerRoomId,
+        id_CuentaEspacioHospitalario: props.registerRoomId,
         id_Medico: data.medical?.id,
       });
       toast.success('Cirujano agregado con éxito!');

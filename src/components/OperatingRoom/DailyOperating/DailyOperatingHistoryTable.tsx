@@ -14,10 +14,9 @@ import { useSurgeriesHistoryPagination } from '../../../store/operatingRoom/surg
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { ISurgeryHistory } from '../../../types/operatingRoom/operatingRoomTypes';
-import dayjs from 'dayjs';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import { AllSurgeryInfoModal } from './Modal/AllSurgeryInfoModal';
+import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
 const HEADERS = ['Hora', 'Duración', 'Quirófano', 'Paciente', 'Cirugia', 'Cirujano', 'Anestesiologo'];
 
 const useGetSurgeriesHistory = () => {
@@ -55,7 +54,7 @@ export const DailyOperatingHistoryTable = () => {
             <>
               <TableBody>
                 {data.map((d) => (
-                  <DailyOperatingHistoryTableRow key={d.id} data={d} />
+                  <DailyOperatingHistoryTableRow key={d.id_IngresoPaciente} data={d} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -75,7 +74,7 @@ export const DailyOperatingHistoryTable = () => {
   );
 };
 
-const DailyOperatingHistoryTableRow = (props: { data: ISurgeryHistory }) => {
+const DailyOperatingHistoryTableRow = (props: { data: IRoomInformationnew }) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
 
@@ -95,19 +94,19 @@ const DailyOperatingHistoryTableRow = (props: { data: ISurgeryHistory }) => {
           },
         }}
       >
-        <TableCell>{dayjs(data.horaInicio).format('HH:mm') + ' - ' + dayjs(data.horaFin).format('HH:mm')}</TableCell>
-        <TableCell>{data.duracion}</TableCell>
-        <TableCell>{data.nombre}</TableCell>
+        <TableCell>{(data.horaInicio) + ' - ' +(data.horaFin)}</TableCell>
+        <TableCell>{data.tiempoEstimado}</TableCell>
+        <TableCell>{data.paciente}</TableCell>
         <TableCell>{data.paciente}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={data.procedimientos} />
+          <SurgeryProceduresChip surgeries={data.cirugias?.map((cir) => ({id: cir.id_cirugia, nombre: cir.nombre})) ?? [] } />
         </TableCell>
         <TableCell>{data.medico}</TableCell>
         <TableCell>{data.anestesiologo}</TableCell>
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <AllSurgeryInfoModal setOpen={setOpen} roomId={data.id} />
+          <AllSurgeryInfoModal setOpen={setOpen} roomId={data.id_IngresoPaciente} />
         </>
       </Modal>
     </>

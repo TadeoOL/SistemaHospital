@@ -134,7 +134,7 @@ export const BiomedicalEquipmentSelectorModal = (props: BiomedicalEquipmentSelec
               }}
               sx={{ mb: 1 }}
             >
-              <Tab label="Equipo Biomédico" value="yes" />
+              {/*(<Tab label="Equipo Biomédico" value="yes" />)*/}
               <Tab label="Equipo Biomédico Honorario" value={'no'} />
             </Tabs>
           </Box>

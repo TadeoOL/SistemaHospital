@@ -27,14 +27,13 @@ import { shallow } from 'zustand/shallow';
 //import { NurseRequestModal } from './Modal/NurseRequestModal';
 //import { InurseRequest, IArticleInRequest } from '../../../types/types';
 //import { SearchBar } from '../../../Inputs/SearchBar';
-import { IXRayRequest, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
+import { IServiceRequest, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
 import { useXRayRequestPaginationStore } from '../../../store/hospitalization/xrayRequestPagination';
 import { XRAY_REQUEST_STATUS } from '../../../utils/XRayRequestUtils';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { AddXRayRequestModal } from './Modal/AddXRayRequest';
-import { formatDate } from '../../../utils/pointOfSaleUtils';
 import Swal from 'sweetalert2';
-import { modifyXRayRequest } from '../../../services/hospitalization/xrayService';
+import { modifyServiceRequest } from '../../../services/hospitalServices/hospitalServicesService';
 
 export const useGetNursesRequest = () => {
   const {
@@ -244,7 +243,6 @@ export const XRayRequestTable = () => {
                       <TableCell>Paciente</TableCell>
                       <TableCell>Enfermero</TableCell>
                       <TableCell>Tipo Radiografía</TableCell>
-                      <TableCell>Precio</TableCell>
                       <TableCell>Fecha Solicitud</TableCell>
                       <TableCell>Estatus</TableCell>
                       <TableCell>Tipo</TableCell>
@@ -253,7 +251,7 @@ export const XRayRequestTable = () => {
                   </TableHead>
                   <TableBody>
                     {data &&
-                      data.map((request: IXRayRequest) => (
+                      data.map((request: IServiceRequest) => (
                         <TableRowComponent nurseRequest={request} key={request.id} />
                       ))}
                   </TableBody>
@@ -307,7 +305,7 @@ export const XRayRequestTable = () => {
 };
 
 interface TableRowComponentProps {
-  nurseRequest: IXRayRequest;
+  nurseRequest: IServiceRequest;
 }
 const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) => {
   const fetch = useXRayRequestPaginationStore((state) => state.fetchData);
@@ -324,8 +322,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
       reverseButtons: true,
       showLoaderOnConfirm: true,
       preConfirm: () => {
-        return modifyXRayRequest({
-          Id_SolicitudRadiografia: Id_Request,
+        return modifyServiceRequest({
+          Id_CuentaServicio: Id_Request,
           Estatus: 0,
         });
       },
@@ -350,15 +348,14 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
     <React.Fragment>
       <TableRow>
         <TableCell>{nurseRequest.folio}</TableCell>
-        <TableCell>{nurseRequest.nombrePaciente}</TableCell>
-        <TableCell>{nurseRequest.nombreSolicitante}</TableCell>
-        <TableCell>{nurseRequest.nombre}</TableCell>
-        <TableCell>{nurseRequest.precio}</TableCell>
-        <TableCell>{formatDate(nurseRequest.fechaSolicitud)}</TableCell>
+        <TableCell>{nurseRequest.paciente}</TableCell>
+        <TableCell>{nurseRequest.enfermero}</TableCell>
+        <TableCell>{nurseRequest.servicio}</TableCell>
+        <TableCell>{nurseRequest.fechaSolicitud}</TableCell>
         <TableCell>{XRAY_REQUEST_STATUS[nurseRequest.estatus]}</TableCell>
         <TableCell>{REQUEST_TYPES[nurseRequest.tipo]}</TableCell>
         <TableCell>
-          {nurseRequest.estatus !== 0 && (
+          {nurseRequest.estatus == 1 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
                 onClick={() => {

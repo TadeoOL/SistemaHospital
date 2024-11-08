@@ -2,6 +2,7 @@ import axios from "../../libs/axios";
 import { IHospitalService } from "../../types/hospitalServices/hospitalServiceTypes";
 
 const apiUrl = '/api/Servicio/Catalogo/Servicio';
+const apiRequestService = '/api/Hospitalizacion/SolicitudServicio';
 
 export const getHospitalServicesPagination = async (paramUrl: string) => {
   const res = await axios.get(`${apiUrl}/paginacion-servicio?&${paramUrl}`);
@@ -60,3 +61,13 @@ export const createHospitalService = async (data: {
     return res.data;
   };
 
+  export const getServicesRequestPagination = async (params: string) => {
+    const res = await axios.get(`${apiRequestService}/paginacion-solicitud-servicios?${params}`);
+    return res.data;
+  };
+
+  export const modifyServiceRequest = async (data: { Id_CuentaServicio: string; Estatus: number }) => {
+    const res = await axios.put(`${apiRequestService}/estatus-solicitud-servicio`, data);
+    return res.data;
+  };
+  

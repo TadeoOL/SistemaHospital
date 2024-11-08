@@ -32,10 +32,17 @@ export interface IRoomInformationnew {
   estatus: number;
   quirofano: string;
   paciente?: string;
-  cirugias?: string;
+  cirugias?: { id_cirugia: string; nombre: string }[];
+  enfermero?: { id_Enfermero: string; nombre: string };
   medico?: string
+  id_medico?: string;
+  id_Anestesiologo?: string;
   anestesiologo?: string;
-  TiempoEstimado?: string;
+  tiempoEstimado?: string;
+  horaInicioRecuperacion?: string;
+  horaFinRecuperacion?: string;
+  horaInicio: string;
+  horaFin: string;
 }
 
 export interface IRegisterOperatingRoom {

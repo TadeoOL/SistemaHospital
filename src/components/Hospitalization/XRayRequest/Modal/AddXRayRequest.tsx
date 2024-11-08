@@ -2,9 +2,7 @@ import {
   Autocomplete,
   Box,
   Button,
-  Collapse,
   Divider,
-  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -17,16 +15,15 @@ import { IPatientFromSearch } from '../../../../types/types';
 import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
-import { IXRay, REQUEST_TYPES } from '../../../../types/hospitalizationTypes';
-import { addXRayRequest } from '../../../../services/hospitalization/xrayService';
-import { isValidFloat, isValidInteger } from '../../../../utils/functions/dataUtils';
-import { createSamiSell } from '../../../../services/sami/samiSellService';
+import { IService } from '../../../../types/hospitalizationTypes';
+import { addServiceRequestToPatient } from '../../../../services/hospitalization/ServicesService';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
   limit: OPTIONS_LIMIT,
 });
-const filterXRayOptions = createFilterOptions<IXRay>({
+
+const filterServicesOptions = createFilterOptions<IService>({
   limit: OPTIONS_LIMIT,
 });
 
@@ -43,7 +40,7 @@ const style = {
   maxHeight: { xs: 600 },
 };
 
-const useGetXRayData = () => {
+const useGetServicesData = () => {
   const fetchData = useXRayPaginationStore((state) => state.fetchData);
   const data = useXRayPaginationStore((state) => state.data);
   const search = useXRayPaginationStore((state) => state.search);
@@ -63,24 +60,17 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
   const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const [patientSearch, setPatientSearch] = useState('');
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
-  const [requestSelected, setRequestSelected] = useState<number>(0);
-  const [xraySelected, setXRaySelected] = useState<null | IXRay>(null);
-  const [priceSami, setPriceSami] = useState<string>('');
-  const [hours, setHours] = useState<string>('');
-  const [priceSamiError, setPriceSamiError] = useState(false);
-  const [hoursError, setHoursError] = useState(false);
-  const [samiNote, setSamiNote] = useState<string>('');
+  const [serviceSelected, setServiceSelected] = useState<null | IService>(null);
   const [userError, setUserError] = useState(false);
   const [requestError, setRequestError] = useState(false);
-  const [xrayError, setXRayError] = useState(false);
-  const { data, isLoading, setSearchXray } = useGetXRayData();
   const setType = useXRayPaginationStore((state) => state.setType);
   const refetch = useXRayPaginationStore((state) => state.fetchData);
+  const { data, isLoading, setSearchXray} = useGetServicesData();
 
   useEffect(() => {
     patientsCall();
     return () => {
-      setType(0);
+      setType(null);
     };
   }, [patientSearch]);
 
@@ -105,42 +95,21 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
 
   const onSubmit = async () => {
     try {
-      if (requestSelected === 4 && !priceSami.trim()) {
-        setPriceSamiError(true);
-        return toast.warning('Ingresa el precio de Sami');
-      }
-      if (requestSelected === 6 && !hours.trim()) {
-        setHoursError(true);
-        return toast.warning('Ingresa la cantidad de horas');
-      }
       if (!userSelected) {
         setUserError(true);
         return toast.warning('Selecciona un paciente!');
       }
-      if (!requestSelected) {
-        setRequestError(true);
-        return toast.warning('Selecciona un tipo de estudio de gabinete!');
-      }
-      if (!xraySelected && requestSelected !== 4) {
-        setXRayError(true);
+      if (!serviceSelected) {
+        setRequestError(true)
         return toast.warning('Selecciona un estudio de gabinete!');
       }
       const object = {
-        Id_Paciente: userSelected.id_Paciente,
-        Id_CuentaPaciente: userSelected.id_Cuenta,
-        Id_Radiografia: xraySelected?.id || '',
-        CantidadHorasNeonatal: !hours ? undefined : hours,
+        Id_CuentaPaciente: userSelected.id_CuentaPaciente,
+        Id_Servicio: serviceSelected?.id_Servicio || '',
       };
-      if (requestSelected === 4) {
-        await createSamiSell({
-          id_CuentaPaciente: userSelected.id_Cuenta,
-          venta_Total: priceSami,
-          nota: samiNote,
-        });
-      } else {
-        await addXRayRequest(object);
-      }
+      await addServiceRequestToPatient(object);
       toast.success('Solicitud creada');
+      refetch();
       props.refetch(true);
       props.setOpen(false);
       setUserSelected(null);
@@ -152,7 +121,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Solicitud de Estudio de Gabinete" />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Estudios" />
       <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
         <Box
           sx={{
@@ -178,7 +147,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 }}
                 //cambiar loading
                 loading={usersData.length === 0}
-                getOptionLabel={(option) => option.nombreCompleto}
+                getOptionLabel={(option) => option.nombrePaciente}
                 options={usersData}
                 value={userSelected}
                 noOptionsText="No se encontraron pacientes"
@@ -202,59 +171,31 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
             </Stack>
           </Box>
           <Divider />
-          <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+          {!isLoading && (<Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
             <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
               <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de Estudio de Gabinete</Typography>
-              <TextField
-                select
-                label="Seleccionar el estudio de gabinete"
-                value={requestSelected}
-                error={requestError}
-                helperText={requestError && 'Selecciona un tipo de estudio de gabinete'}
-                onChange={(e) => {
-                  setRequestSelected(parseInt(e.target.value));
-                  setType(parseInt(e.target.value));
-                  setXRaySelected(null);
-                  refetch();
-                }}
-              >
-                <MenuItem key={0} value={0} disabled>
-                  Seleccionar
-                </MenuItem>
-                {Object.keys(REQUEST_TYPES).map((r) => (
-                  <MenuItem key={r} value={r}>
-                    {REQUEST_TYPES[r as any as number]}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Stack>
-          </Box>
-          <Divider />
-          <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Estudio de Gabinete</Typography>
               <Autocomplete
                 disablePortal
-                disabled={!requestSelected || requestSelected === 4}
                 fullWidth
-                filterOptions={filterXRayOptions}
+                filterOptions={filterServicesOptions}
                 onChange={(e, val) => {
                   e.stopPropagation();
-                  setXRaySelected(val);
-                  setXRayError(false);
+                  setServiceSelected(val);
+                  setRequestError(false);
                 }}
                 //cambiar loading
                 loading={isLoading}
                 getOptionLabel={(option) => option.nombre}
                 options={data}
-                value={xraySelected}
-                noOptionsText="No se encontraron estudios de gabinete"
+                value={serviceSelected}
+                noOptionsText="No se encontraron servicios"
+                isOptionEqualToValue={(op, val) => op.id_Servicio === val.id_Servicio}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    error={xrayError}
-                    helperText={xrayError && 'Selecciona un tipo de estudio de gabinete'}
-                    placeholder={REQUEST_TYPES[requestSelected]}
+                    error={requestError}
+                    helperText={requestError && 'Selecciona un servicio'}
+                    placeholder="Servicios"
                     sx={{ width: '100%' }}
                     onChange={(e) => {
                       if (e.target.value === null) {
@@ -266,52 +207,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 )}
               />
             </Stack>
-          </Box>
-          <Collapse in={requestSelected === 4} unmountOnExit>
-            <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
-              <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Precio de SAMI:</Typography>
-                <TextField
-                  label="Escribe un precio"
-                  helperText={priceSamiError && 'Es necesario escribir un precio'}
-                  error={priceSamiError}
-                  value={priceSami}
-                  onChange={(e) => {
-                    if (!isValidFloat(e.target.value)) return;
-                    setPriceSamiError(false);
-                    setPriceSami(e.target.value);
-                  }}
-                />
-              </Stack>
-              <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-                <Typography>Nota:</Typography>
-                <TextField
-                  label="Escribe una nota"
-                  value={samiNote}
-                  multiline
-                  onChange={(e) => {
-                    setSamiNote(e.target.value);
-                  }}
-                />
-              </Stack>
-            </Box>
-          </Collapse>
-          <Collapse in={requestSelected === 6} unmountOnExit>
-            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Cantidad de horas:</Typography>
-              <TextField
-                label="Escribe un precio"
-                helperText={hoursError && 'Es necesario escribir una hora'}
-                error={hoursError}
-                value={hours}
-                onChange={(e) => {
-                  if (!isValidInteger(e.target.value)) return;
-                  setHoursError(false);
-                  setHours(e.target.value);
-                }}
-              />
-            </Stack>
-          </Collapse>
+          </Box>)}
         </Box>
 
         <Box
