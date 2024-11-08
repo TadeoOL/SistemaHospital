@@ -1,6 +1,6 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { IXRay } from '../../types/hospitalizationTypes';
+import { IService } from '../../types/hospitalizationTypes';
 import { getHospitalServicesPagination } from '../../services/hospitalServices/hospitalServicesService';
 
 interface State {
@@ -9,12 +9,12 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IXRay[];
+  data: IService[];
   loading: boolean;
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
-  type: number;
+  type: number | null;
 }
 
 interface Action {
@@ -22,7 +22,7 @@ interface Action {
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
   setSearch: (search: string) => void;
-  setType: (type: number) => void;
+  setType: (type: number | null) => void;
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
   clearData: () => void;
@@ -39,12 +39,12 @@ const initialValues = {
   enabled: true,
   search: '',
   cancelToken: null as CancelTokenSource | null,
-  type: 0,
+  type: null,
 };
 
 export const useXRayPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
-  setType: (type: number) => set({ type }),
+  setType: (type: number | null) => set({ type }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),

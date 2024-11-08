@@ -41,7 +41,7 @@ import {
   ProgrammingCalendarView,
   // ConfigurationProgrammingView,
   ProgrammingRequestView,
-  BiomedicalEquipmentView,
+  //BiomedicalEquipmentView,
   AnesthesiologistView,
   XRayView,
   MedicView,
@@ -135,7 +135,7 @@ function App() {
               <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
             </Route>
             // ------------------------------ Hospitalization-------------------------------- //
-            <Route path="hospitalizacion/radiografias-solicitud" element={<XRayRequestView />} />
+            <Route path="hospitalizacion/servicios-solicitud" element={<XRayRequestView />} />
             {/* <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} /> */}
             {/* <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} /> */}
             <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
@@ -149,10 +149,9 @@ function App() {
             // --------------------------------- Nursing ------------------------------- // //
             <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
             // --------------------------------- Biomedical ------------------------------- // //
-            <Route path="biomedico/solicitudes-administracion" element={<XRayRequestManagementView />} />
-            <Route path="biomedico/equipo-biomedico" element={<BiomedicalEquipmentView />} />
-            <Route path="biomedico/configuracion-solicitudes" element={<RequestsConfigView />} />
-            <Route path="biomedico/solicitudes" element={<XRayView />} />
+            <Route path="servicios/solicitudes-administracion" element={<XRayRequestManagementView />} />
+            <Route path="servicios/configuracion-solicitudes" element={<RequestsConfigView />} />
+            <Route path="servicios/solicitudes" element={<XRayView />} />
             --------------------------------- OperatingRoom ------------------------------- //
             <Route path="quirofano/medicos" element={<MedicView />} />
             <Route path="quirofano/anestesiologos" element={<AnesthesiologistView />} />

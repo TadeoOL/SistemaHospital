@@ -19,24 +19,24 @@ import { useState } from 'react';
 import { useGetAllNursesUsers } from '../../../../hooks/hospitalization/useGetAllNurse';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 import { toast } from 'react-toastify';
-import { modifyOperatingRoom } from '../../../../services/programming/admissionRegisterService';
 import { useDailyOperatingRoomsPaginationStore } from '../../../../store/operatingRoom/dailyOperatingRoomsPagination';
+import { modifyOperatingRoom } from '../../../../services/operatingRoom/operatingRoomService';
 
 interface NurseSelectorModalProps {
   setOption: (value: number) => void;
   registerRoomId: string;
-  nurses: { id_Enfermero: string; nombre: string }[];
+  nurse: { id_Enfermero: string; nombre: string } | null;
   setOpen: (value: boolean) => void;
 }
 export const NurseSelectorModal = (props: NurseSelectorModalProps) => {
-  const [nurses, setNurses] = useState<{ id_Enfermero: string; nombre: string }[]>(props.nurses);
+  const [nurses, setNurse] = useState<{ id_Enfermero: string; nombre: string } | null>(props.nurse);
   const refetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
 
   const handleSubmit = async () => {
     try {
       await modifyOperatingRoom({
-        id_RegistroCuarto: props.registerRoomId,
-        enfermeros: JSON.stringify(nurses),
+        id_CuentaEspacioHospitalario: props.registerRoomId,
+        id_EnfermeroEncargado: nurses?.id_Enfermero,
       });
       toast.success('Enfermeros modificados correctamente');
       props.setOption(0);
@@ -51,7 +51,7 @@ export const NurseSelectorModal = (props: NurseSelectorModalProps) => {
     <>
       <HeaderModal setOpen={props.setOpen} title="Modificar enfermeros de quirófano" />
       <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
-        <SelectedNursesTable nurses={nurses} setNurses={setNurses} />
+        <SelectedNursesTable nurse={nurses} setNurse={setNurse} />
       </Box>
       <Box sx={{ bgcolor: 'background.paper', p: 1, display: 'flex', justifyContent: 'space-between' }}>
         <Button onClick={() => props.setOption(0)} variant="outlined">
@@ -65,11 +65,11 @@ export const NurseSelectorModal = (props: NurseSelectorModalProps) => {
   );
 };
 interface SelectedNursesTableProps {
-  nurses: { id_Enfermero: string; nombre: string }[];
-  setNurses: (value: { id_Enfermero: string; nombre: string }[]) => void;
+  nurse: { id_Enfermero: string; nombre: string } | null;
+  setNurse: (value: { id_Enfermero: string; nombre: string } | null) => void;
 }
 const SelectedNursesTable = (props: SelectedNursesTableProps) => {
-  const { nurses, setNurses } = props;
+  const { nurse, setNurse } = props;
   const { isLoadingNursesUsers, nursesUsersData } = useGetAllNursesUsers();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -84,15 +84,15 @@ const SelectedNursesTable = (props: SelectedNursesTableProps) => {
   };
 
   const handleAddNurse = () => {
-    if (selectedNurse && !nurses.some((n) => n.id_Enfermero === selectedNurse.id_Enfermero)) {
-      setNurses([...nurses, selectedNurse]);
+    if (selectedNurse && !nurse?.id_Enfermero) {
+      setNurse(selectedNurse);
     }
     setSelectedNurse(null);
     handleClose();
   };
 
-  const handleRemoveNurse = (nurseId: string) => {
-    setNurses(nurses.filter((n) => n.id_Enfermero !== nurseId));
+  const handleRemoveNurse = () => {
+    setNurse(null);
   };
 
   const open = Boolean(anchorEl);
@@ -167,9 +167,9 @@ const SelectedNursesTable = (props: SelectedNursesTableProps) => {
             <TableCell align="center">Acciones</TableCell>
           </TableRow>
         </TableHead>
-        {nurses.length > 0 ? (
+        {nurse ? (
           <TableBody>
-            {nurses.map((nurse) => (
+            {/*nurses.map((nurse) => (
               <TableRow key={nurse.id_Enfermero}>
                 <TableCell align="center">{nurse.nombre}</TableCell>
                 <TableCell align="center">
@@ -180,7 +180,18 @@ const SelectedNursesTable = (props: SelectedNursesTableProps) => {
                   </Tooltip>
                 </TableCell>
               </TableRow>
-            ))}
+            ))*/}
+            <TableRow key={nurse.id_Enfermero}>
+                <TableCell align="center">{nurse.nombre}</TableCell>
+                <TableCell align="center">
+                  <Tooltip title="Remover">
+                    <IconButton onClick={() => handleRemoveNurse()}>
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            
           </TableBody>
         ) : (
           <TableCell colSpan={2}>

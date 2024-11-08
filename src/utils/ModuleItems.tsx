@@ -42,7 +42,6 @@ import {
   HowToReg,
   LocalHospital,
   LocalPharmacy,
-  MedicalInformation,
   MonitorHeart,
   PointOfSale,
   ShoppingBasket,
@@ -303,8 +302,8 @@ export const ModuleList: IModuleItemsList[] = [
     icon: <MonitorHeart />,
     moduleItems: [
       {
-        title: 'Solicitud de Estudio de Gabinete',
-        path: '/hospitalizacion/radiografias-solicitud',
+        title: 'Solicitud de Servicios',
+        path: '/hospitalizacion/servicios-solicitud',
         icon: <LiaXRaySolid />,
         protectedRoles: hospitalizationANDnurse,
       },
@@ -388,12 +387,12 @@ export const ModuleList: IModuleItemsList[] = [
     path: 'quirofano',
   },
   {
-    categoryTitle: 'Biomédico',
+    categoryTitle: 'Servicios',
     icon: <MedicationLiquid />,
     moduleItems: [
       {
-        title: 'Administrar Solicitudes de Estudios de Gabinete',
-        path: '/biomedico/solicitudes-administracion',
+        title: 'Administrar Solicitudes de Servicios',
+        path: '/servicios/solicitudes-administracion',
         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
         protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
       },
@@ -404,15 +403,15 @@ export const ModuleList: IModuleItemsList[] = [
         protectedRoles: hospitalization,
         topLevel: true,
         children: [
-          {
+          /*{
             title: 'Equipo Biomédico',
             path: '/biomedico/equipo-biomedico',
             icon: <MedicalInformation sx={{ color: '#fff' }} />,
             protectedRoles: hospitalization,
-          },
+          },*/
           {
             title: 'Estudios de Gabinete',
-            path: '/biomedico/solicitudes',
+            path: '/servicios/solicitudes',
             icon: <LiaXRaySolid />,
             protectedRoles: hospitalization,
           },
@@ -420,7 +419,7 @@ export const ModuleList: IModuleItemsList[] = [
       },
       {
         title: 'Configuración',
-        path: '/biomedico/configuracion-solicitudes',
+        path: '/servicios/configuracion-solicitudes',
         icon: <SettingsIcon />,
         protectedRoles: supplyRoles,
       },

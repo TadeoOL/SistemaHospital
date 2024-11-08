@@ -41,16 +41,6 @@ export const modifyEventRoom = async (data: {
   return res.data;
 };
 
-export const modifyOperatingRoom = async (data: {
-  id_RegistroCuarto: string;
-  id_Medico?: string;
-  id_Anestesiologo?: string;
-  enfermeros?: string;
-}) => {
-  const res = await axios.put(`${apiRegister}/modificar-datos-quirofano`, data);
-  return res.data;
-};
-
 export const deleteRegister = async (registerId: string) => {
   const res = await axios.delete(`${apiRegister}/eliminar-registro`, {
     params: {

@@ -19,28 +19,30 @@ export interface IAnesthesiologist {
   fechaNacimiento: Date;
 }
 
-export interface IXRay {
+export interface IService {
   id_Servicio: string;
   nombre: string;
   descripcion: string;
   precio: number;
-  tipo: number;
+  tipoServicio: number;
   requiereAutorizacion: boolean;
   //codigoSAT?: string;
   //codigoUnidadMedida?: number;
 }
 
-export interface IXRayRequest {
+export interface IServiceRequest {
   id: string;
   folio: string;
+  id_Paciente: string;
+  paciente: string;
   id_Solicitante: string;
-  nombreSolicitante: string;
-  nombrePaciente: string;
-  nombre: string;
-  precio: number;
+  enfermero: string;
+  servicio: string;
+  //precio: number;
   fechaSolicitud: string;
   estatus: number;
-  tipo: number;
+  tipo: number
+  //tipo: number;
 }
 
 export interface IMedic {
@@ -213,7 +215,7 @@ export const REQUEST_TYPES: Record<number, string> = {
 export interface IRequestConfig {
   id_Usuario: string;
   nombre: string;
-  solicitudes: number[];
+  tipoServicio: number[];
 }
 
 export const DISCOUNT_TYPES = {

@@ -2,6 +2,7 @@ import axios from '../../libs/axios';
 import { Paciente, PacienteInfo } from '../../types/admission/admissionTypes';
 import { IPatient, IPatientFromSearch } from '../../types/types';
 const apiPatient = '/api/Paciente';
+const apiPatientRegister = '/api/Programacion/Registro';
 
 export const createPatient = async (data: IPatient) => {
   const res = await axios.post(`${apiPatient}/registrar-paciente`, {
@@ -64,7 +65,7 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
 };
 
 export const getPatientsWithAccount = async (url: string) => {
-  const res = await axios.get(`${apiPatient}/obtener-paciente-activo?${url}`);
+  const res = await axios.get(`${apiPatientRegister}/obtener-pacientes-activos?${url}`);
   return res.data as IPatientFromSearch[];
 };
 

@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { IXRayRequest } from '../../types/hospitalizationTypes';
-import { getXRayRequestPagination } from '../../services/hospitalization/xrayService';
+import { IServiceRequest } from '../../types/hospitalizationTypes';
+import { getServicesRequestPagination } from '../../services/hospitalServices/hospitalServicesService';
 
 interface State {
   count: number;
@@ -9,7 +9,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IXRayRequest[];
+  data: IServiceRequest[];
   loading: boolean;
   status: number | null;
   search: string;
@@ -33,7 +33,7 @@ const initialValues = {
   pageCount: 0,
   resultByPage: 0,
   pageIndex: 0,
-  status: null,
+  status: 1,
   pageSize: 10,
   data: [],
   loading: false,
@@ -62,7 +62,7 @@ export const useXRayRequestPaginationStore = create<State & Action>((set, get) =
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getXRayRequestPagination(
+      const res = await getServicesRequestPagination(
         `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&UsuarioEnfermero=${flag}&search=${search}&habilitado=${enabled}&${!status && status !== 0 ? '' : 'Estatus=' + status}`
       );
 
