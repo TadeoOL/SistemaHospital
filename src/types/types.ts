@@ -566,14 +566,9 @@ export interface IPosArticle {
 }
 
 export interface IRegisterSale {
-  id_Caja: string;
-  tipoPago: number;
-  montoPago: number;
-  totalVenta: number;
   articulos: {
-    id: string;
+    id_Articulo: string;
     cantidad: number;
-    precioUnitario: number;
   }[];
 }
 

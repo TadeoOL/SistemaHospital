@@ -78,7 +78,6 @@ interface ResumeSaleModalProps {
 export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
   const articlesOnBasket = usePosOrderArticlesStore((state) => state.articlesOnBasket);
   const setPaymentMethod = usePosOrderArticlesStore((state) => state.setPaymentMethod);
-  const userSalesRegisterData = usePosOrderArticlesStore((state) => state.userSalesRegisterData);
   const refetch = usePosArticlesPaginationStore((state) => state.fetchData);
   const clearData = usePosOrderArticlesStore((state) => state.clearData);
   const total = usePosOrderArticlesStore((state) => state.total);
@@ -115,12 +114,12 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
     // if (!amountRef.current || amountRef.current.value === '') return toast.error('Ingresa el monto pagado!');
     // if (!isValidFloat(amountRef.current.value)) return toast.error('Ingresa una cantidad de monto valida!');
     let articlesFormatted: any = [];
+    console.log({ articlesOnBasket });
     articlesOnBasket.forEach((article) => {
-        articlesFormatted.push({
-          id: article.id_ArticuloAlmacen,
-          cantidad: article.cantidad,
-          precioUnitario: article.precioVenta,
-        });
+      articlesFormatted.push({
+        id_Articulo: article.id_Articulo,
+        cantidad: article.cantidad,
+      });
     });
     /*((article) => {
       article?.lote?.map((articleNested) => {
@@ -132,11 +131,7 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
       });
     });*/
     const saleObject = {
-      id_Caja: userSalesRegisterData.id,
-      tipoPago: 1,
       articulos: articlesFormatted,
-      montoPago: total,
-      totalVenta: total,
     };
 
     try {
@@ -243,10 +238,7 @@ const TableBodyResume = () => {
   return (
     <TableBody>
       {articlesOnBasket.map((article) => (
-        <TableRowArticleResume
-          article={article}
-          key={article.id_Articulo}
-        />
+        <TableRowArticleResume article={article} key={article.id_Articulo} />
       ))}
     </TableBody>
   );
@@ -256,8 +248,12 @@ interface TableRowArticleResumeProps {
 }
 const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
   const { article } = props;
-  const totalPriceArticle = 
-  ((article.cantidad || 0) * (article.iva? Number(article.precioVenta) + (Number(article.precioVenta) * (article.iva*.01)) : Number(article.precioVenta) )).toFixed(2);
+  const totalPriceArticle = (
+    (article.cantidad || 0) *
+    (article.iva
+      ? Number(article.precioVenta) + Number(article.precioVenta) * (article.iva * 0.01)
+      : Number(article.precioVenta))
+  ).toFixed(2);
   return (
     <TableRow>
       <TableCell>{article.nombre}</TableCell>

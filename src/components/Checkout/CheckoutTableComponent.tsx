@@ -217,13 +217,9 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         showLoaderOnConfirm: true,
         preConfirm: async () => {
           const objSell = {
-            id_VentaPrincipal: data.id_VentaPrincipal,
+            id_VentaCaja: data.id_VentaPrincipal,
             estatus: 0,
-            id_CajaPrincipal: checkoutId as string,
-            tieneIva: false,
-            tipoPago: data.tipoPago,
-            montoPago: data.totalVenta,
-            id_UsuarioPase: data.id_UsuarioPase,
+            id_CajaUsuario: checkoutId as string,
             pago: [
               {
                 tipoPago: 0,

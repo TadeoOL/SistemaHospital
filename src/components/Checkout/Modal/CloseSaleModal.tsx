@@ -115,17 +115,11 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
         });
       }
       const sellChange = {
-        id_VentaPrincipal: sellData.id_VentaPrincipal,
+        id_VentaCaja: sellData.id_VentaPrincipal,
         estatus: 2,
-        id_CajaPrincipal: checkoutId as string,
-        pago: payment,
-        id_UsuarioPase: sellData.id_UsuarioPase,
-        folio: sellData.folio,
-        moduloProveniente: sellData.moduloProveniente,
-        paciente: sellData.paciente,
-        totalVenta: sellData.totalVenta,
+        id_CajaUsuario: checkoutId as string,
         notas: noteRef?.current?.value,
-        factura: numberInvoiceRef?.current?.value,
+        pago: payment,
       };
       await changePrincipalSellStatus(sellChange);
       conn?.invoke('UpdateSell', sellChange);

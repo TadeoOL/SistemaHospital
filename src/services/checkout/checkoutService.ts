@@ -1,6 +1,6 @@
 import axios from '../../libs/axios';
 import { IConfigEmitterUsers } from '../../types/types';
-const apiCheckout = '/api/CorteCaja';
+const apiCheckout = '/api/Caja';
 
 export interface CheckoutResume {
   efectivo: number;
@@ -39,9 +39,9 @@ export const registerSell = async (data: {
 };
 
 export const changePrincipalSellStatus = async (data: {
-  id_VentaPrincipal: string;
+  id_VentaCaja: string;
   estatus: number;
-  id_CajaPrincipal: string;
+  id_CajaUsuario: string;
   pago: {
     tipoPago: number;
     montoPago: number;
@@ -54,7 +54,7 @@ export const changePrincipalSellStatus = async (data: {
 };
 
 export const getCheckout = async () => {
-  const res = await axios.get(`${apiCheckout}/obtener-caja-principal`);
+  const res = await axios.get(`${apiCheckout}/obtener-caja-usuario`);
   return res.data;
 };
 
@@ -64,7 +64,7 @@ export const getCheckoutCloses = async (param: string) => {
 };
 
 export const openCheckout = async (initialValue: number) => {
-  const res = await axios.post(`${apiCheckout}/abrir-caja`, { dineroInicial: initialValue });
+  const res = await axios.post(`${apiCheckout}/registrar-caja-usuario`, { dineroInicial: initialValue });
   return res.data;
 };
 
@@ -79,12 +79,12 @@ export const getCheckoutUsers = async () => {
 };
 
 export const getCheckoutResume = async (checkoutId: string) => {
-  const res = await axios.get(`${apiCheckout}/resumen-corte-caja/${checkoutId}`);
+  const res = await axios.get(`${apiCheckout}/resumen-caja/${checkoutId}`);
   return res.data as CheckoutResume;
 };
 
 export const closePrincipalCheckout = async (data: { dineroAlCorte: number }) => {
-  const res = await axios.put(`${apiCheckout}/cerrar-caja`, data);
+  const res = await axios.put(`${apiCheckout}/cerrar-caja-usuario`, data);
   return res.data;
 };
 
