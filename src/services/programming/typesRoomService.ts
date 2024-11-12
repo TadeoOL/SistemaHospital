@@ -9,9 +9,7 @@ export const getTypesRoomPagination = async (params: string) => {
 export const registerTypeRoom = async (data: {
   nombre: string;
   descripcion: string;
-  configuracionLimpieza?: string;
-  configuracionPrecioHora?: string;
-  configuracionRecuperacion?: string;
+  intervaloReservacion?: string;
   precio?: number;
   codigoSATRecuperacion?: string;
   codigoSAT?: string;
@@ -26,17 +24,14 @@ export const modifyTypeRoom = async (data: {
   nombre: string;
   descripcion: string;
   id: string;
-  configuracionLimpieza?: string;
-  configuracionPrecioHora?: string;
-  configuracionRecuperacion?: string;
-  tipo: number;
+  intervaloReservacion?: string;
   precio?: number;
   codigoSATRecuperacion?: string;
   codigoSAT?: string;
   codigoUnidadMedida?: number;
   codigoUnidadMedidaRecuperacion?: number;
 }) => {
-  const res = await axios.put(`${apiTypeRoom}/editar-tipo-cuarto`, data);
+  const res = await axios.put(`${apiTypeRoom}/actualizar-tipo-cuarto`, data);
   return res.data;
 };
 

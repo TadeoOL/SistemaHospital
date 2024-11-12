@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { ITypeRoom } from '../../types/admissionTypes';
 import { getTypesRoomPagination } from '../../services/programming/typesRoomService';
+import { ITypeRoom } from '../../types/admission/admissionTypes';
 
 interface State {
   count: number;

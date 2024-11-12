@@ -18,7 +18,6 @@ import {
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent.tsx';
 import { SearchBar } from '../../Inputs/SearchBar.tsx';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo.tsx';
-import { ITypeRoom } from '../../../types/admissionTypes.ts';
 import { useTypesRoomPaginationStore } from '../../../store/programming/typesRoomPagination.ts';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent.tsx';
@@ -27,6 +26,7 @@ import { Delete, Edit, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { deleteTypeRoom } from '../../../services/programming/typesRoomService.ts';
 import { IRecoveryRoomOperatingRoom } from '../../../types/operatingRoom/operatingRoomTypes.ts';
+import { ITypeRoom } from '../../../types/admission/admissionTypes.ts';
 const TABLE_HEADERS = ['Nombre', 'Intervalo de limpieza', 'Precio', 'Descripción', 'Acciones'];
 const TABLE_CONFIG_HEADERS = ['Inicio', 'Fin', 'Precio'];
 
@@ -98,7 +98,7 @@ const TypesRoomTable = () => {
             <>
               <TableBody>
                 {data.map((d) => (
-                  <TypesRoomTableRow data={d} key={d.id} />
+                  <TypesRoomTableRow data={d} key={d.id_TipoCuarto} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -131,7 +131,7 @@ const TypesRoomTableRow = (props: TypesOfRoomTableRowProps) => {
 
   const handleDelete = async () => {
     try {
-      await deleteTypeRoom(data.id);
+      await deleteTypeRoom(data.id_TipoCuarto as string);
       toast.success('Tipo de cuarto eliminado correctamente');
       refetch();
     } catch (error) {

@@ -12,6 +12,12 @@ export interface IRecoveryRoomOperatingRoom {
   precio: string;
 }
 
+export interface IPriceConfigRooms{
+  horaInicio: string;
+  horaFin?: string;
+  precio: string;
+}
+
 export interface IRoomInformation {
   id: string;
   nombre: string;

@@ -30,7 +30,6 @@ import { Controller, FieldErrors, SubmitHandler, useForm } from 'react-hook-form
 import { toast } from 'react-toastify';
 import { typeRoomSchema } from '../../../../schema/programming/programmingSchemas';
 import { useEffect, useState } from 'react';
-import { ITypeRoom } from '../../../../types/admissionTypes';
 import { useTypesRoomPaginationStore } from '../../../../store/programming/typesRoomPagination';
 import { IRecoveryRoomOperatingRoom } from '../../../../types/operatingRoom/operatingRoomTypes';
 import { recoveryRoomOperatingRoomSchema } from '../../../../schema/operatingRoom/operatingRoomSchema';
@@ -44,6 +43,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
 import 'dayjs/locale/es-mx';
 import { modifySurgeryRoomType, registerSurgeryRoomType } from '../../../../services/programming/suergeryRoomTypes';
+import { ITypeRoom } from '../../../../types/admission/admissionTypes';
 //import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
@@ -103,7 +103,7 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
       priceByTimeRange: editData ? editData.configuracionPrecioHora : [],
       recoveryPriceByTimeRange: editData ? editData.configuracionRecuperacion : [],
       reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
-      type: editData ? editData.tipo.toString() : '0',
+      type: editData ? (editData.id_TipoCuarto ? '0' : '1') : '0',
       priceRoom: editData ? editData.precio?.toString() : '0',
       //codigoSATRecuperacion: editData?.codigoSATRecuperacion,
       //codigoSAT: editData?.codigoSAT,
@@ -122,12 +122,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           await registerTypeRoom({
             nombre: data.name,
             descripcion: data.description,
-            configuracionLimpieza: data.reservedSpaceTime?.isValid()
+            intervaloReservacion: data.reservedSpaceTime?.isValid()
               ? data.reservedSpaceTime.format('HH:mm:00')
-              : undefined,
-            configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
-            configuracionRecuperacion: data.recoveryPriceByTimeRange
-              ? JSON.stringify(data.recoveryPriceByTimeRange)
               : undefined,
             precio: parseFloat(data.priceRoom),
             //codigoSATRecuperacion: data.codigoSATRecuperacion,
@@ -144,9 +140,19 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             intervaloReservacion: data.reservedSpaceTime?.isValid()
               ? data.reservedSpaceTime.format('HH:mm:00')
               : undefined,
-            configuracionPrecio: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+            configuracionPrecio: data.priceByTimeRange
+              ? data.priceByTimeRange.map((price) => ({
+                  horaInicio: price.inicio,
+                  horaFin: price.fin ? price.fin : undefined,
+                  precio: price.precio,
+                }))
+              : undefined,
             configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
-              ? JSON.stringify(data.recoveryPriceByTimeRange)
+              ? data.recoveryPriceByTimeRange.map((price) => ({
+                  horaInicio: price.inicio,
+                  horaFin: price.fin ? price.fin : undefined,
+                  precio: price.precio,
+                }))
               : undefined,
             precio: parseFloat(data.priceRoom),
           });
@@ -157,15 +163,10 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           await modifyTypeRoom({
             nombre: data.name,
             descripcion: data.description,
-            configuracionLimpieza: data.reservedSpaceTime?.isValid()
+            intervaloReservacion: data.reservedSpaceTime?.isValid()
               ? data.reservedSpaceTime.format('HH:mm:00')
               : undefined,
-            configuracionPrecioHora: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
-            configuracionRecuperacion: data.recoveryPriceByTimeRange
-              ? JSON.stringify(data.recoveryPriceByTimeRange)
-              : undefined,
-            id: editData.id,
-            tipo: parseInt(data.type),
+            id: editData.id_TipoCuarto as string,
             precio: parseFloat(data.priceRoom),
             //codigoSATRecuperacion: data.codigoSATRecuperacion,
             //codigoSAT: data.codigoSAT,
@@ -178,13 +179,23 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
           await modifySurgeryRoomType({
             nombre: data.name,
             descripcion: data.description,
-            id: editData.id,
+            id: editData.id_TipoQuirofano as string,
             intervaloReservacion: data.reservedSpaceTime?.isValid()
               ? data.reservedSpaceTime.format('HH:mm:00')
               : undefined,
-            configuracionPrecio: data.priceByTimeRange ? JSON.stringify(data.priceByTimeRange) : undefined,
+            configuracionPrecio: data.priceByTimeRange
+              ? data.priceByTimeRange.map((price) => ({
+                  horaInicio: price.inicio,
+                  horaFin: price.fin ? price.fin : undefined,
+                  precio: price.precio,
+                }))
+              : undefined,
             configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
-              ? JSON.stringify(data.recoveryPriceByTimeRange)
+              ? data.recoveryPriceByTimeRange.map((price) => ({
+                  horaInicio: price.inicio,
+                  horaFin: price.fin ? price.fin : undefined,
+                  precio: price.precio,
+                }))
               : undefined,
             precio: parseFloat(data.priceRoom),
           });

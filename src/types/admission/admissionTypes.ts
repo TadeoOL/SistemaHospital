@@ -132,7 +132,8 @@ export interface IProgrammingRequestPagination {
 }
 
 export interface ITypeRoom {
-  id: string;
+  id_TipoCuarto?: string;
+  id_TipoQuirofano?: string;
   nombre: string;
   descripcion?: string;
   configuracionLimpieza?: string;
