@@ -13,7 +13,7 @@ const useGetData = () => {
   const sort = useCheckoutUserEmitterPaginationStore((state) => state.sort);
 
   useEffect(() => {
-    fetch('Farmacia');
+    fetch();
   }, [pageIndex, pageSize, search, sort]);
 };
 

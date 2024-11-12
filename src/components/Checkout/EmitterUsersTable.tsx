@@ -87,16 +87,16 @@ const UsersEmitterTableBody = (props: UsersEmitterTableBodyProps) => {
 const UsersEmitterTableRow = (props: UsersEmitterTableRowProps) => {
   return (
     <TableRow>
-      <TableCell>{props.data.nombre}</TableCell>
+      <TableCell>{props.data.nombreUsuario}</TableCell>
       <TableCell>
         <Box sx={{ display: 'flex', flex: 1, columnGap: 0.5, alignItems: 'center' }}>
-          {props.data.departamento.slice(0, 2).map((dp, i) => (
+          {props.data.conceptos.slice(0, 2).map((dp, i) => (
             <LeaveConcepts key={dp + i} data={dp} />
           ))}
-          {props.data.departamento.length > 2 && (
-            <Tooltip title={props.data.departamento.slice(2).join(', ')}>
+          {props.data.conceptos.length > 2 && (
+            <Tooltip title={props.data.conceptos.slice(2).join(', ')}>
               <Box sx={{ borderRadius: '50%', px: 1, bgcolor: '#E2E3E5', py: 0.5 }}>
-                +{props.data.departamento.length - 2}
+                +{props.data.conceptos.length - 2}
               </Box>
             </Tooltip>
           )}

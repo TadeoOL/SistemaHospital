@@ -4,11 +4,11 @@ import { Cancel, Save } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { modifyModuleConfig } from '../../api/api.routes';
-import { getCheckoutUsers } from '../../services/checkout/checkoutService';
 import { IConfigEmitterUsers } from '../../types/types';
 import LoadingView from '../../views/LoadingView/LoadingView';
 import { useGetCheckoutConfig } from '../../hooks/useGetCheckoutConfig';
 import { leaveConcepts } from '../../utils/checkoutUtils';
+import { getEmitterUsersConfig } from '../../services/checkout/configService';
 const useGetUsers = () => {
   const [hashTableUsers, setHashTableUsers] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -17,9 +17,9 @@ const useGetUsers = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const users = await getCheckoutUsers();
+        const users = await getEmitterUsersConfig();
         const newHashTableUsers: typeof hashTableUsers = {};
-        users.forEach((user) => (newHashTableUsers[user.id] = user.nombre));
+        users.forEach((user) => (newHashTableUsers[user.id_Usuario] = user.nombreUsuario));
         setHashTableUsers(newHashTableUsers);
       } catch (error) {
         console.error(error);
@@ -45,13 +45,13 @@ export const ConfigEmitterUsers = () => {
   const handleEdit = (id: string) => {
     setUserSelected(id);
     const userLeaves = config.find((c) => c.id_Usuario === id);
-    setLeaveSelected(userLeaves?.departamento as string[]);
+    setLeaveSelected(userLeaves?.conceptos as string[]);
   };
 
   const handleDelete = async (id: string) => {
     const newConfig = config?.filter((c) => c.id_Usuario !== id);
     try {
-      await modifyModuleConfig(newConfig, 'Ventas');
+      await modifyModuleConfig(newConfig, 'PaseCaja');
       setAddNewUser(!addNewUser);
       toast.success('Usuario eliminado correctamente');
     } catch (error) {
@@ -74,19 +74,19 @@ export const ConfigEmitterUsers = () => {
     const configFilter = config.filter((config) => config.id_Usuario !== userSelected);
     let configData: IConfigEmitterUsers[] = [];
     if (isEdit !== -1) {
-      config[isEdit].departamento = leaveSelected;
+      config[isEdit].conceptos = leaveSelected;
     } else {
       configData = [
         {
           id_Usuario: userSelected,
-          nombre: users[userSelected],
-          departamento: leaveSelected,
+          nombreUsuario: users[userSelected],
+          conceptos: leaveSelected,
         },
         ...configFilter,
       ];
     }
     try {
-      await modifyModuleConfig(isEdit !== -1 ? config : configData, 'Ventas');
+      await modifyModuleConfig(isEdit !== -1 ? config : configData, 'PaseCaja');
       setAddNewUser(!addNewUser);
       setLeaveSelected([]);
       setUserSelected('');
@@ -107,7 +107,7 @@ export const ConfigEmitterUsers = () => {
     if (userSelected.trim() === '') return;
     const userLeaves = config?.find((c) => c.id_Usuario === userSelected);
     if (!userLeaves) return setLeaveSelected([]);
-    setLeaveSelected(userLeaves?.departamento as string[]);
+    setLeaveSelected(userLeaves?.conceptos as string[]);
   }, [userSelected, config]);
 
   if (loadingUsers) return <LoadingView />;

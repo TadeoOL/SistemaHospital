@@ -25,17 +25,15 @@ import { CloseSaleModal } from './Modal/CloseSaleModal';
 import { useState } from 'react';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-// import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
-import { useCheckoutDataStore } from '../../store/checkout/checkoutData';
 import { useConnectionSocket } from '../../store/checkout/connectionSocket';
 import { CheckoutDetailsModal } from './Modal/CheckoutDetailsModal';
 import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
-import { changePrincipalSellStatus } from '../../services/checkout/checkoutService';
 import { SortComponent } from '../Commons/SortComponent';
 import { useCheckoutUserEmitterPaginationStore } from '../../store/checkout/checkoutUserEmitterPagination';
 import { getArticlesSold } from '../../services/pharmacy/pointOfSaleService';
 import { ArticlesSoldReport } from '../Export/Checkout/ArticlesSoldReport';
 import { pdf } from '@react-pdf/renderer';
+import { changeCashVoucherStatus } from '../../services/checkout/chashVoucherService';
 
 const headTitlesCaja = [
   'Folio',
@@ -197,7 +195,6 @@ const CheckoutTableBody = (props: CheckoutTableBodyProps) => {
 const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   const { data, admin } = props;
   const [open, setOpen] = useState(false);
-  const checkoutId = useCheckoutDataStore((state) => state.id);
   const refetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
   const conn = useConnectionSocket((state) => state.conn);
   const [openDetails, setOpenDetails] = useState(false);
@@ -218,16 +215,9 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         preConfirm: async () => {
           const objSell = {
             id_VentaCaja: data.id_VentaPrincipal,
-            estatus: 0,
-            id_CajaUsuario: checkoutId as string,
-            pago: [
-              {
-                tipoPago: 0,
-                montoPago: 0,
-              },
-            ],
+            estadoVenta: 0,
           };
-          await changePrincipalSellStatus(objSell);
+          await changeCashVoucherStatus(objSell);
           conn?.invoke('UpdateSell', objSell);
           return;
         },
@@ -254,7 +244,6 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
     setLoadingPrint(true);
     try {
       const res = await getArticlesSold(data.id_VentaPrincipal);
-      console.log(res);
       const document = <ArticlesSoldReport venta={res} />;
 
       const blob = await pdf(document).toBlob();

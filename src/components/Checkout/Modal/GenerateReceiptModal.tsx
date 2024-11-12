@@ -11,14 +11,13 @@ import {
 } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useRef, useState } from 'react';
-import { registerSell } from '../../../services/checkout/checkoutService';
 import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { useGetCheckoutConfig } from '../../../hooks/useGetCheckoutConfig';
 import { useAuthStore } from '../../../store/auth';
 import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
 import { Note } from '../../Purchase/PurchaseRequest/Modal/Note';
-import { UploadFile } from '../../Commons/UploadFile';
 import { toast } from 'react-toastify';
+import { registerCashVoucher } from '../../../services/checkout/chashVoucherService';
 
 const style = {
   position: 'absolute',
@@ -63,12 +62,15 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
   const concepts = getConcepts(config, profile?.id as string);
   const refetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
   const [note, setNote] = useState('');
-  const [pdf, setPdf] = useState('');
+
+  console.log({ concepts });
 
   function getConcepts(configData: typeof config, userId: string) {
+    console.log({ configData, userId });
     const configFound = configData.find((c) => c.id_Usuario === userId);
+    console.log({ configFound });
     if (configFound) {
-      return configFound.departamento;
+      return configFound.conceptos;
     }
     return [];
   }
@@ -86,9 +88,8 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         totalVenta: parseFloat(totalAmountRef.current.value),
         moduloProveniente: conceptSelected,
         notas: note.trim() === '' ? undefined : note,
-        pdfCadena: pdf.trim() === '' ? undefined : pdf,
       };
-      const res = await registerSell(object);
+      const res = await registerCashVoucher(object);
       const resObj = {
         estatus: res.estadoVenta,
         folio: res.folio,
@@ -192,9 +193,6 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
           <Grid item xs={12}>
             <Typography>Notas:</Typography>
             <Note note={note} setNote={setNote} />
-          </Grid>
-          <Grid item xs={12}>
-            <UploadFile pdf={pdf} setPdf={setPdf} title="Visualizar PDF" />
           </Grid>
         </Grid>
       </Box>

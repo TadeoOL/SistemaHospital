@@ -697,8 +697,8 @@ export interface ICheckoutSell {
 
 export interface IConfigEmitterUsers {
   id_Usuario: string;
-  nombre: string;
-  departamento: string[];
+  nombreUsuario: string;
+  conceptos: string[];
 }
 
 export interface IRoom {

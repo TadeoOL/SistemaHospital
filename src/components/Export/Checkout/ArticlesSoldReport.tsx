@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import dayjs from 'dayjs';
+import { ISale } from '../../../types/pharmacy/pointOfSaleTypes';
 
 // Estilos para el documento PDF
 const styles = StyleSheet.create({
@@ -81,21 +82,7 @@ const styles = StyleSheet.create({
 });
 
 type Sell = {
-  venta: {
-    articulos: {
-      id_DetalleVenta: string;
-      id_ArticuloExistente: string;
-      nombre: string;
-      precioUnitario: number;
-      cantidad: number;
-      subTotal: number;
-      iva: number;
-      total: number;
-    }[];
-    total: number;
-    subTotal: number;
-    iva: number;
-  };
+  venta: ISale;
 };
 
 export const ArticlesSoldReport = ({ venta }: Sell) => (
@@ -122,9 +109,9 @@ export const ArticlesSoldReport = ({ venta }: Sell) => (
                 <View style={styles.tableRow} key={index}>
                   <Text style={styles.tableCell}>$ {articulo.nombre}</Text>
                   <Text style={styles.tableCell}>$ {articulo.precioUnitario}</Text>
-                  <Text style={styles.tableCell}>$ {articulo.subTotal}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.precioBruto}</Text>
                   <Text style={styles.tableCell}>$ {articulo.iva}</Text>
-                  <Text style={styles.tableCell}>$ {articulo.total}</Text>
+                  <Text style={styles.tableCell}>$ {articulo.totalVenta}</Text>
                 </View>
               ))}
             </View>
@@ -134,7 +121,7 @@ export const ArticlesSoldReport = ({ venta }: Sell) => (
           <View style={{ border: 1, borderRadius: 5, padding: 5, width: 'auto', minWidth: 150 }}>
             <Text>SubTotal: $ {venta.subTotal}</Text>
             <Text>IVA: $ {venta.iva}</Text>
-            <Text>Total Pago: $ {venta.total}</Text>
+            <Text>Total Pago: $ {venta.totalVenta}</Text>
           </View>
         </View>
       </View>

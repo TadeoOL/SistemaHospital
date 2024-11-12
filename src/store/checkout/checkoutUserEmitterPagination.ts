@@ -1,8 +1,8 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { type ICheckoutSell } from '../../types/types';
-import { getUserEmitterSells } from '../../services/checkout/checkoutService';
 import { useCheckoutDataStore } from './checkoutData';
+import { getCashVoucherPagination } from '../../services/checkout/chashVoucherService';
 
 const initialValues = {
   count: 0,
@@ -73,7 +73,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
       set({ data: [...copyData] });
     }
   },
-  fetchData: async (module?: string) => {
+  fetchData: async () => {
     const { enabled, search, pageIndex, pageSize, sort, startDate, endDate, status } = get();
 
     set({ loading: true });
@@ -87,8 +87,8 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getUserEmitterSells(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&Id_Caja=${checkoutId}&Modulo=${module}&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}${status === 404 ? '' : `&estatus=${status}`}`
+      const res = await getCashVoucherPagination(
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}${checkoutId ? `&Id_Caja=${checkoutId}` : ''}&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}${status === 404 ? '' : `&estatus=${status}`}`
       );
       set({
         data: res.data,

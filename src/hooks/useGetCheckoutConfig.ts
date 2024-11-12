@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getCheckoutConfig } from '../services/checkout/checkoutService';
 import { IConfigEmitterUsers } from '../types/types';
+import { getCashVoucherConfig } from '../services/checkout/chashVoucherService';
 
 export const useGetCheckoutConfig = (action?: boolean) => {
   const {
@@ -9,7 +9,7 @@ export const useGetCheckoutConfig = (action?: boolean) => {
     isLoading = true,
   } = useQuery({
     queryKey: ['GetCheckoutConfig', action],
-    queryFn: async () => await getCheckoutConfig(),
+    queryFn: async () => await getCashVoucherConfig(),
   });
 
   return {

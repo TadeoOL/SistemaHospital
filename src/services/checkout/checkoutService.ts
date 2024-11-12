@@ -73,11 +73,6 @@ export const getCheckoutConfig = async () => {
   return res.data as IConfigEmitterUsers[];
 };
 
-export const getCheckoutUsers = async () => {
-  const res = await axios.get(`${apiCheckout}/obtener-usuarios-emisores`);
-  return res.data as { id: string; nombre: string }[];
-};
-
 export const getCheckoutResume = async (checkoutId: string) => {
   const res = await axios.get(`${apiCheckout}/resumen-caja/${checkoutId}`);
   return res.data as CheckoutResume;
@@ -85,11 +80,6 @@ export const getCheckoutResume = async (checkoutId: string) => {
 
 export const closePrincipalCheckout = async (data: { dineroAlCorte: number }) => {
   const res = await axios.put(`${apiCheckout}/cerrar-caja-usuario`, data);
-  return res.data;
-};
-
-export const getUserEmitterSells = async (param: string) => {
-  const res = await axios.get(`${apiCheckout}/paginacion-ventas-emisor?${param}`);
   return res.data;
 };
 

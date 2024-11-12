@@ -1,6 +1,7 @@
 import { CancelToken } from 'axios';
 import axios from '../../libs/axios';
 import { IRegisterSale, ISell, IUserSalesRegister } from '../../types/types';
+import { ISale } from '../../types/pharmacy/pointOfSaleTypes';
 
 const apiPos = '/api/PuntoVenta';
 
@@ -81,26 +82,7 @@ export const getCheckoutHistory = async (paramUrl: string, cancelToken?: CancelT
   return res.data;
 };
 
-export const getArticlesSold = async (id_VentaPrincipal: string) => {
-  const res = await axios.get(`${apiPos}/obtener-articulos-vendidos`, {
-    params: {
-      id_VentaPrincipal,
-    },
-  });
-  console.log(res.data);
-  return res.data as {
-    articulos: {
-      id_DetalleVenta: string;
-      id_ArticuloExistente: string;
-      nombre: string;
-      precioUnitario: number;
-      cantidad: number;
-      subTotal: number;
-      iva: number;
-      total: number;
-    }[];
-    total: number;
-    subTotal: number;
-    iva: number;
-  };
+export const getArticlesSold = async (id_VentaPrincipal: string): Promise<ISale> => {
+  const res = await axios.get(`${apiPos}/obtener-venta/${id_VentaPrincipal}`);
+  return res.data;
 };

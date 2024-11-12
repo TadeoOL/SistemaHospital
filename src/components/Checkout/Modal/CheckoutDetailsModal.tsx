@@ -1,9 +1,8 @@
-import { Box, Button, Modal, Stack, Typography, CircularProgress } from '@mui/material';
+import { Box, Button, Stack, Typography, CircularProgress } from '@mui/material';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { ICheckoutSell } from '../../../types/types';
 import { Note } from '../../Purchase/PurchaseRequest/Modal/Note';
 import { useState } from 'react';
-import { ViewBase64Doc } from '../../Commons/ViewBase64Doc';
 import { changeSellNote } from '../../../services/checkout/checkoutService';
 import { toast } from 'react-toastify';
 
@@ -29,7 +28,6 @@ interface CheckoutDetailsModalProps {
 export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
   const { sellData } = props;
   const [note, setNote] = useState(sellData.notas);
-  const [open, setOpen] = useState(false);
   const [savingData, setSavingData] = useState(false);
 
   const handleSubmit = async () => {
@@ -38,7 +36,6 @@ export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
       await changeSellNote({ id_VentaPrincipal: props.sellData.id_VentaPrincipal, Notas: note as string });
       props.refetch();
       toast.success('Notas actualizadas correctamente!');
-      setOpen(false);
       props.setOpen(false);
     } catch (error) {
       console.log(error);
@@ -56,12 +53,6 @@ export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
           sx={{ display: 'flex', flex: 1, flexDirection: 'column', bgcolor: 'background.paper', p: 3, minHeight: 350 }}
         >
           <Stack spacing={4} sx={{ display: 'flex', flex: 1 }}>
-            <Stack spacing={1}>
-              <Typography sx={{ fontSize: 18, fontWeight: 500 }}>PDF - {sellData.folio}</Typography>
-              <Button variant="contained" disabled={!sellData.pdfCadena} onClick={() => setOpen(true)}>
-                Ver PDF
-              </Button>
-            </Stack>
             <Box>
               <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Notas:</Typography>
               <Note note={note ? note : ''} disabled={!props.enableEditNote} setNote={setNote} />
@@ -91,11 +82,6 @@ export const CheckoutDetailsModal = (props: CheckoutDetailsModalProps) => {
           </Box>
         )}
       </Box>
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-          <ViewBase64Doc pdf={sellData.pdfCadena as string} setViewPdf={setOpen} />
-        </>
-      </Modal>
     </>
   );
 };
