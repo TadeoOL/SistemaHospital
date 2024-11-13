@@ -64,7 +64,7 @@ export interface Paciente {
 }
 
 export interface PacienteInfo {
-  //Agregar mas cosas
+  id: string;
   nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
@@ -82,9 +82,34 @@ export interface PacienteInfo {
   coloniaResponsable: string;
   codigoPostalResponsable: string;
   telefonoResponsable: string;
-  id: string;
-  informacionCuartos?: ICuartosInfo[];
-  ingresoSami: boolean;
+  motivoIngreso?: string;
+  diagnosticoIngreso?: string;
+  alergias?: string;
+  tipoSangre?: string;
+  id_Medico?: string;
+  nombreMedico?: string;
+  espaciosHospitalarios: IHospitalSpace[];
+  procedimientosQuirurgicos?: ISurgicalProcedure[];
+}
+
+export enum HospitalSpaceType {
+  OperatingRoom = 1,
+  Room = 2
+}
+
+export interface IHospitalSpace {
+  id_EspacioHospitalario: string;
+  id_Espacio: string;
+  nombreEspacioHospitalario: string;
+  horaInicio: string;
+  horaFin: string;
+  finalizada: boolean;
+  tipoEspacioHospitalario: number;
+}
+
+export interface ISurgicalProcedure {
+  id_Cirugia: string;
+  nombre: string;
 }
 
 export interface ICuartosInfo {

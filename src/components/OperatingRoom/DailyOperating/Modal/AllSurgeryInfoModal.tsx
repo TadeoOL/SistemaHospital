@@ -15,12 +15,12 @@ import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useGetOperatingRoomInfo } from '../../../../hooks/operatingRoom/useGetOperatingRoomInfo';
 import { useState } from 'react';
 import { Check, ExpandLess, ExpandMore } from '@mui/icons-material';
-import { HistorialClinico, Paciente } from '../../../../types/admissionTypes';
 import dayjs from 'dayjs';
 import { IAnesthesiologist, IMedic } from '../../../../types/hospitalizationTypes';
 import { RiNurseFill } from 'react-icons/ri';
 import { useGetHospitalizationRoomInfo } from '../../../../hooks/hospitalization/useGetHospitalizationRoomInfo';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
+import { HistorialClinico, Paciente } from '../../../../types/admission/admissionTypes';
 
 const style = {
   position: 'absolute',
@@ -168,7 +168,7 @@ const PersonalServiceSurgeryInfo = (props: {
 }) => {
   const { surgeon, anesthesiologist, nurses } = props;
   const surgeonName = surgeon
-    ? surgeon?.nombres + ' ' + surgeon?.apellidoPaterno + ' ' + surgeon?.apellidoMaterno
+    ? surgeon?.nombre + ' ' + surgeon?.apellidoPaterno + ' ' + surgeon?.apellidoMaterno
     : 'Sin asignar';
   const anesthesiologistName = anesthesiologist
     ? anesthesiologist?.nombre + ' ' + anesthesiologist?.apellidoPaterno + ' ' + anesthesiologist?.apellidoMaterno

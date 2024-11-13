@@ -5,7 +5,6 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { nurseSchema } from '../../../../schema/hospitalization/hospitalizationSchema';
 import { toast } from 'react-toastify';
-import { modifyOperatingRoom } from '../../../../services/programming/admissionRegisterService';
 import { useHospitalRoomsPaginationStore } from '../../../../store/hospitalization/hospitalRoomsPagination';
 
 const style = {
@@ -46,10 +45,11 @@ export const AssignNurseModal = (props: {
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     try {
-      modifyOperatingRoom({
-        enfermeros: JSON.stringify([...props.nurses, data.nurse]),
-        id_RegistroCuarto: props.registerRoomId,
-      });
+      console.log(data);
+      // modifyOperatingRoomRegister({
+      //   enfermeros: JSON.stringify([...props.nurses, data.nurse]),
+      //   id_RegistroCuarto: props.registerRoomId,
+      // });
       toast.success('Enfermero agregado correctamente');
       refetch();
       props.setOpen(false);

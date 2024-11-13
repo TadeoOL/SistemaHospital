@@ -74,12 +74,8 @@ export const getPatientsWithAccountPagination = async (url: string) => {
   return res.data;
 };
 
-export const getPatientInfoById = async (patientId: string) => {
-  const res = await axios.get(`${apiPatient}/obtener-paciente-info`, {
-    params: {
-      id_Paciente: patientId,
-    },
-  });
+export const getPatientInfoByAdmissionId = async (admissionId: string) => {
+  const res = await axios.get(`${apiPatientRegister}/obtener-paciente-registro/${admissionId}`);
   return res.data as PacienteInfo;
 };
 

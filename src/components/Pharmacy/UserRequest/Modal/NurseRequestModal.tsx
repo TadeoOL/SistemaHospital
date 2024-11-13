@@ -19,7 +19,7 @@ import {
   createFilterOptions,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { addNurseRequest, getWarehouseById } from '../../../../api/api.routes';
+import { getWarehouseById } from '../../../../api/api.routes';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { toast } from 'react-toastify';
@@ -29,9 +29,11 @@ import { useRequestOrderStore } from '../../../../store/pharmacy/nurseRequest/nu
 import { IWarehouseData, IPatientFromSearch } from '../../../../types/types';
 import { Cancel, Save, Edit, Delete, Info } from '@mui/icons-material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { getPatientInfoById, getPatientsWithAccount } from '../../../../services/programming/patientService';
-import { ICuartosInfo } from '../../../../types/admissionTypes';
+import { getPatientInfoByAdmissionId, getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
+import { HospitalSpaceType, IHospitalSpace } from '../../../../types/admission/admissionTypes';
+import { createArticleRequest } from '../../../../services/hospitalization/articleRequestService';
+import { IRegisterArticleRequest } from '../../../../types/hospitalization/articleRequestTypes';
 
 type Article = {
   id: string;
@@ -46,7 +48,7 @@ const filterArticleOptions = createFilterOptions<Article>({
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
   limit: OPTIONS_LIMIT,
 });
-const filterPatientRoomsOptions = createFilterOptions<ICuartosInfo>({
+const filterPatientRoomsOptions = createFilterOptions<IHospitalSpace>({
   limit: OPTIONS_LIMIT,
 });
 
@@ -77,7 +79,15 @@ const style2 = {
     outline: '1px solid slategrey',
   },
 };
-export const NurseRequestModal = (props: { setOpen: Function; refetch: Function; warehouseId: string }) => {
+interface Props {
+  setOpen: Function;
+  refetch: Function;
+  warehouseId: string;
+  id_Patient?: string;
+  id_PatientRoom?: string;
+  id_PatientAdmission?: string;
+}
+export const NurseRequestModal = (props: Props) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<Article[]>([]);
@@ -87,8 +97,8 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
   const [patientSearch, setPatientSearch] = useState('');
   const [articleSelected, setArticleSelected] = useState<null | Article>(null);
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
-  const [roomSelected, setRoomSelected] = useState<null | ICuartosInfo>(null);
-  const [rooms, setRooms] = useState<ICuartosInfo[]>([]);
+  const [roomSelected, setRoomSelected] = useState<null | IHospitalSpace>(null);
+  const [rooms, setRooms] = useState<IHospitalSpace[]>([]);
   const [userError, setUserError] = useState(false);
   const [articleError, setArticleError] = useState(false);
   const [amountError, setAmountError] = useState(false);
@@ -97,8 +107,9 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
   const [mainWarehouse, setMainWarehouse] = useState('');
   const [warehousesFetched, setWarehousesFetched] = useState<{ nombre: string; id: string }[]>();
   const [warehouseError, setWarehouseError] = useState(false);
-  const [samiPatient, setSamiPatient] = useState(false);
+  const [samiPatient] = useState(false);
   const [disableSelectedRoom, setDisableSelectedRoom] = useState(false);
+  const [disableUserSelection, setDisableUserSelection] = useState(false);
 
   const { setArticles, articles, setWarehouseSelected, warehouseSelected } = useRequestOrderStore(
     (state) => ({
@@ -184,31 +195,15 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
     }
   };
 
-  const fetchPatientRooms = async (id_Paciente: string) => {
+  const fetchPatientRooms = async (admissionId: string) => {
     setIsLoadingRooms(true);
-    const resCuartos = await getPatientInfoById(id_Paciente);
-    console.log({ resCuartos });
-    if (resCuartos && resCuartos.informacionCuartos && resCuartos.informacionCuartos.length > 0) {
-      setRooms(resCuartos.informacionCuartos);
-    } else {
-      setRooms([]);
-    }
-    if (resCuartos.ingresoSami) {
-      setSamiPatient(true);
-    } else {
-      setSamiPatient(false);
-    }
+    const resCuartos = await getPatientInfoByAdmissionId(admissionId);
+    const roomsFiltered = resCuartos.espaciosHospitalarios.filter(
+      (r) => r.tipoEspacioHospitalario === HospitalSpaceType.Room
+    );
+    setRooms(roomsFiltered);
     setIsLoadingRooms(false);
   };
-
-  useEffect(() => {
-    if (rooms && rooms.length === 1) {
-      setRoomSelected(rooms[0]);
-      setDisableSelectedRoom(true);
-    } else {
-      setDisableSelectedRoom(false);
-    }
-  }, [rooms]);
 
   const handleAddArticles = () => {
     if (!articleSelected) {
@@ -251,16 +246,13 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
     if (!data || data.length < 1) {
       return toast.warning('Añade un articulo!');
     }
-    const object = {
-      Cuarto: samiPatient ? 'SAMI' : roomSelected!.nombre,
-      Id_Paciente: userSelected.id_Paciente,
-      Id_CuentaPaciente: userSelected.id_Cuenta,
-      SolicitadoEn: '',
-      Id_AlmacenSolicitado: warehouseSelected,
-      ListaSolicitud: data,
+    const object: IRegisterArticleRequest = {
+      id_Almacen: warehouseSelected,
+      id_CuentaEspacioHospitalario: roomSelected!.id_EspacioHospitalario,
+      articulos: data,
     };
     try {
-      await addNurseRequest(object);
+      await createArticleRequest(object);
       toast.success('Solicitud creada');
       props.refetch(true);
       props.setOpen(false);
@@ -275,6 +267,31 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
       toast.error('Algo salio mal');
     }
   };
+
+  useEffect(() => {
+    if (props.id_Patient && usersData.length > 0) {
+      const foundUser = usersData.find((user) => user.id_Paciente === props.id_Patient);
+      if (foundUser) {
+        setUserSelected(foundUser);
+        fetchPatientRooms(foundUser.id_IngresoPaciente);
+        setDisableUserSelection(true);
+      }
+    } else {
+      setDisableUserSelection(false);
+    }
+  }, [props.id_Patient, usersData]);
+
+  useEffect(() => {
+    if (rooms && props.id_PatientRoom) {
+      setRoomSelected(rooms.find((room) => room.id_Espacio === props.id_PatientRoom) || null);
+      setDisableSelectedRoom(true);
+    } else {
+      setDisableSelectedRoom(false);
+    }
+  }, [rooms, props.id_PatientRoom]);
+
+  console.log({ roomSelected });
+  console.log({ rooms });
 
   return (
     <Box sx={style}>
@@ -297,18 +314,19 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
                 <Autocomplete
                   disablePortal
                   fullWidth
+                  disabled={disableUserSelection}
                   filterOptions={filterPatientOptions}
                   onChange={(e, val) => {
                     e.stopPropagation();
                     setUserSelected(val);
-                    if (val?.id_Paciente !== undefined) {
-                      fetchPatientRooms(val.id_Paciente);
+                    if (val?.id_IngresoPaciente !== undefined) {
+                      fetchPatientRooms(val.id_IngresoPaciente);
                     }
                     setUserError(false);
                   }}
-                  //cambiar loading
                   loading={isLoadingArticlesWareH && usersData.length === 0}
-                  getOptionLabel={(option) => option.nombreCompleto}
+                  getOptionLabel={(option) => option.nombrePaciente}
+                  isOptionEqualToValue={(option, value) => option.id_Paciente === value.id_Paciente}
                   options={usersData}
                   value={userSelected}
                   noOptionsText="No se encontraron pacientes"
@@ -374,10 +392,13 @@ export const NurseRequestModal = (props: { setOpen: Function; refetch: Function;
                       setRoomError(false); //ñaca
                     }}
                     loading={isLoadingRooms && rooms.length === 0}
-                    getOptionLabel={(option) => option.nombre}
+                    getOptionLabel={(option) => option.nombreEspacioHospitalario}
                     options={rooms}
                     value={roomSelected}
-                    disabled={disableSelectedRoom}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id_EspacioHospitalario === value.id_EspacioHospitalario
+                    }
+                    disabled={disableSelectedRoom || !userSelected}
                     noOptionsText="No se encontraron cuartos"
                     renderInput={(params) => (
                       <TextField

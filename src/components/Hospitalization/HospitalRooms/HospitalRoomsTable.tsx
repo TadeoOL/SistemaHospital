@@ -13,16 +13,22 @@ import {
   Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { IRoomInformation } from '../../../types/operatingRoom/operatingRoomTypes';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import dayjs from 'dayjs';
 import { useHospitalRoomsPaginationStore } from '../../../store/hospitalization/hospitalRoomsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { AllSurgeryInfoModal } from '../../OperatingRoom/DailyOperating/Modal/AllSurgeryInfoModal';
-import { Check, PersonAdd, Warning } from '@mui/icons-material';
-import { AssignNurseModal } from './Modal/AssignNurseModal';
+import { Check, Warning, EventAvailable, InfoOutlined, MedicationOutlined } from '@mui/icons-material';
+import { IHospitalRoomInformationPagination } from '../../../types/hospitalization/hospitalRoomTypes';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { HospitalRoomInformationModal } from './Modal/hospitalRoomInformation/HospitalRoomInformationModal';
+import { NurseRequestModal } from '../../Pharmacy/UserRequest/Modal/NurseRequestModal';
+import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
+import { DateExitPopover } from '../../Commons/DateExitPopover';
+import Swal from 'sweetalert2';
+import { updateHospitalRoomExitDate } from '../../../services/hospitalization/hospitalRoomsService';
+dayjs.extend(customParseFormat);
 
 const TABLE_HEADERS = [
   'Cuarto',
@@ -32,7 +38,7 @@ const TABLE_HEADERS = [
   'Fecha de entrada',
   'Fecha de salida',
   'Estancia estimada',
-  'Asignar Enfermero',
+  'Acciones',
 ];
 const useGetHospitalizationRooms = () => {
   const fetch = useHospitalRoomsPaginationStore((state) => state.fetchData);
@@ -68,7 +74,7 @@ export const HospitalRoomsTable = () => {
             <>
               <TableBody>
                 {data.map((room) => (
-                  <HospitalRoomsTableRow data={room} key={room.id} />
+                  <HospitalRoomsTableRow data={room} key={room.id_Cuarto} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -88,17 +94,66 @@ export const HospitalRoomsTable = () => {
   );
 };
 
-const HospitalRoomsTableRow = (props: { data: IRoomInformation }) => {
+const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination }) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
-  const [openAssignNurse, setOpenAssignNurse] = useState(false);
-  const diffHours = dayjs(data.horaFin).diff(data.horaInicio, 'hour');
-  const diffMinutes = dayjs(data.horaFin).diff(data.horaInicio, 'minute') % 60;
+  const [openNurseRequest, setOpenNurseRequest] = useState(false);
+  const startDate = dayjs(data.fechaIngreso, 'DD/MM/YYYY HH:mm');
+  const endDate = dayjs(data.fechaSalida, 'DD/MM/YYYY HH:mm');
+  const diffHours = endDate.diff(startDate, 'hour');
+  const diffMinutes = endDate.diff(startDate, 'minute') % 60;
   const formattedDiff = `${diffHours} horas y ${diffMinutes} minutos`;
+  const { data: warehousePharmacyData } = useGetPharmacyConfig();
+  const setData = useHospitalRoomsPaginationStore((state) => state.setData);
+  const dataList = useHospitalRoomsPaginationStore((state) => state.data);
 
-  const patientName =
-    data.paciente?.nombre + ' ' + data.paciente?.apellidoPaterno + ' ' + data.paciente?.apellidoMaterno;
-  const medicName = data.medico?.nombres + ' ' + data.medico?.apellidoPaterno + ' ' + data.medico?.apellidoMaterno;
+  const patientName = data.nombrePaciente;
+  const medicName = data.medico;
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleDateButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDateAccept = (newDate: Date) => {
+    Swal.fire({
+      title: 'Fecha de salida',
+      text: `Fecha de salida sera ${newDate.toLocaleDateString()} ${newDate.toLocaleTimeString()}`,
+      icon: 'info',
+      confirmButtonText: 'Confirmar',
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      preConfirm: async () => {
+        try {
+          await updateHospitalRoomExitDate(data.id_CuentaEspacioHospitalario, newDate);
+          Swal.fire({
+            title: 'Fecha de salida actualizada',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+          });
+          setData(dataList.filter((item) => item.id_CuentaEspacioHospitalario !== data.id_CuentaEspacioHospitalario));
+        } catch (error) {
+          console.error(error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Error al actualizar la fecha de salida',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+          });
+        }
+      },
+    });
+  };
 
   return (
     <>
@@ -120,7 +175,7 @@ const HospitalRoomsTableRow = (props: { data: IRoomInformation }) => {
       >
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', columnGap: 0.5 }}>
-            {data.enfermeros && data.enfermeros.length > 0 ? (
+            {data.enfermero ? (
               <Tooltip title="Enfermero Asignado">
                 <Check color="success" />
               </Tooltip>
@@ -129,28 +184,54 @@ const HospitalRoomsTableRow = (props: { data: IRoomInformation }) => {
                 <Warning color="warning" />
               </Tooltip>
             )}
-            <Typography sx={{ fontSize: 12, fontWeight: 400 }}>{data.nombre}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 400 }}>{data.nombreCuarto}</Typography>
           </Box>
         </TableCell>
-        <TableCell>{data.paciente?.nombre ? patientName : 'Sin asignar'}</TableCell>
+        <TableCell>{data.nombrePaciente ? patientName : 'Sin asignar'}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={data.procedimientos ?? []} />
+          <SurgeryProceduresChip surgeries={[]} />
         </TableCell>
         <TableCell>{data.medico ? medicName : 'Sin asignar'}</TableCell>
-        <TableCell>{dayjs(data.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>{dayjs(data.horaFin).format('DD/MM/YYYY - HH:mm')}</TableCell>
+        <TableCell>{data.fechaIngreso}</TableCell>
+        <TableCell>{data.fechaSalida}</TableCell>
         <TableCell>{formattedDiff}</TableCell>
         <TableCell>
-          <Tooltip title="Asignar">
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenAssignNurse(true);
-              }}
-            >
-              <PersonAdd />
-            </IconButton>
-          </Tooltip>
+          <>
+            <Tooltip title="Asignar Fecha de Salida">
+              <IconButton onClick={handleDateButtonClick}>
+                <EventAvailable />
+              </IconButton>
+            </Tooltip>
+            <DateExitPopover
+              open={Boolean(anchorEl)}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              onAccept={handleDateAccept}
+              title="Fecha de salida"
+            />
+            <Tooltip title="Ver Información">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setOpen(true);
+                }}
+              >
+                <InfoOutlined />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Solicitud de Medicamentos">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setOpenNurseRequest(true);
+                }}
+              >
+                <MedicationOutlined />
+              </IconButton>
+            </Tooltip>
+          </>
         </TableCell>
       </TableRow>
       <Modal
@@ -160,12 +241,19 @@ const HospitalRoomsTableRow = (props: { data: IRoomInformation }) => {
         }}
       >
         <>
-          <AllSurgeryInfoModal setOpen={setOpen} roomId={data.id} isHospitalizationRoom={true} />
+          <HospitalRoomInformationModal hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario} setOpen={setOpen} />
         </>
       </Modal>
-      <Modal open={openAssignNurse} onClose={() => setOpenAssignNurse(false)}>
+      <Modal open={openNurseRequest} onClose={() => setOpenNurseRequest(false)}>
         <>
-          <AssignNurseModal setOpen={setOpenAssignNurse} nurses={data.enfermeros ?? []} registerRoomId={data.id} />
+          <NurseRequestModal
+            setOpen={setOpenNurseRequest}
+            refetch={fetch}
+            warehouseId={warehousePharmacyData.id_Almacen}
+            id_Patient={data.id_Paciente}
+            id_PatientRoom={data.id_Cuarto}
+            id_PatientAdmission={data.id_IngresoPaciente}
+          />
         </>
       </Modal>
     </>

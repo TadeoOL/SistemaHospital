@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { IRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
 import { getHospitalRoomsPagination } from '../../services/hospitalization/hospitalRoomsService';
+import { IHospitalRoomInformationPagination } from '../../types/hospitalization/hospitalRoomTypes';
 
 interface State {
   count: number;
@@ -9,7 +9,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IRoomInformation[];
+  data: IHospitalRoomInformationPagination[];
   loading: boolean;
   search: string;
   enabled: boolean;
@@ -24,6 +24,7 @@ interface Action {
   fetchData: () => void;
   setEnabled: (enabled: boolean) => void;
   clearData: () => void;
+  setData: (data: IHospitalRoomInformationPagination[]) => void;
 }
 
 const initialValues = {
@@ -41,6 +42,7 @@ const initialValues = {
 
 export const useHospitalRoomsPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setData: (data: IHospitalRoomInformationPagination[]) => set({ data }),
   setPageSize: (pageSize: number) => set({ pageSize }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   setPageCount: (pageCount: number) => set({ pageCount }),
