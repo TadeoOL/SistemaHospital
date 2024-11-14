@@ -13,10 +13,6 @@ export const getHospitalRoomInformation = async (id: string): Promise<IHospitalR
   return res.data;
 };
 
-export const getAssignedRoomsPagination = async (params: string) => {
-  const res = await axios.get(`${apiHospitalizationRooms}/paginacion-cuartos-asignados-hospitalizacion?${params}`);
-  return res.data;
-};
 
 export const getHospitalRoomsCalendar = async (date: Date) => {
   const res = await axios.get(`${apiHospitalizationRooms}/cuartos-hospitalizacion-calendario`, {

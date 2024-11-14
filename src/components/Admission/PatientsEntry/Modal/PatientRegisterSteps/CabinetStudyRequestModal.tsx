@@ -32,7 +32,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { isValidFloat } from '../../../../../utils/functions/dataUtils';
 import { IBiomedicalEquipment } from '../../../../../types/hospitalizationTypes';
-import { useGetHospitalServices } from '../../../../../hooks/hospitalServices/useGetHospitalServicesd';
+import { useGetHospitalServices } from '../../../../../hooks/hospitalServices/useGetHospitalServices';
 import { ServiceType } from '../../../../../types/hospitalServices/hospitalServiceTypes';
 
 const HEADERS = ['Nombre', 'Acciones'];

@@ -40,6 +40,15 @@ export const primary = withAlphas({
   contrastText: '#FFFFFF',
 });
 
+export const secondary = withAlphas({
+  lightest: '#EDFCF2',
+  light: '#48D183',
+  main: '#10B981', // Verde esmeralda
+  dark: '#0B815A',
+  darkest: '#065F43',
+  contrastText: '#FFFFFF',
+});
+
 export const success = withAlphas({
   lightest: '#F0FDF9',
   light: '#3FC79A',

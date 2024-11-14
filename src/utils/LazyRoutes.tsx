@@ -53,3 +53,4 @@ export const RequestsConfigView = lazy(() => import('../views/Biomedical/Request
 export const InvoiceView = lazy(() => import('../views/Invoice/InvoiceView'));
 export const OutstandingBillsView = lazy(() => import('../views/Admission/OutstandingBillsView'));
 export const MedicalConsultationView = lazy(() => import('../views/Admission/MedicalConsultationView'));
+export const PatientKardexView = lazy(() => import('../views/Nursing/PatientKardexView'));

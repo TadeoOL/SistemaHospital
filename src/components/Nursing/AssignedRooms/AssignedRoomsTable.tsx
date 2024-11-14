@@ -2,32 +2,24 @@ import {
   Box,
   Card,
   CircularProgress,
-  Modal,
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
+  Tooltip,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { IRoomInformation } from '../../../types/operatingRoom/operatingRoomTypes';
-import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
-import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
-import { AllSurgeryInfoModal } from '../../OperatingRoom/DailyOperating/Modal/AllSurgeryInfoModal';
-import { useAssignedRoomsPaginationStore } from '../../../store/hospitalization/assignedRoomsPagination';
+import { useEffect } from 'react';
+import { useAssignedRoomsPaginationStore } from '../../../store/nursing/assignedRoomsPagination';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
+import { IAssignedRoomsPagination } from '../../../types/nursing/nursingTypes';
+import { MedicalInformationOutlined } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
-const TABLE_HEADERS = [
-  'Cuarto',
-  'Paciente',
-  'Cirugía',
-  'Medico',
-  'Fecha de entrada',
-  'Fecha de salida',
-  'Estancia estimada',
-];
+const TABLE_HEADERS = ['Paciente', 'Cuarto', 'Medico', 'Acciones'];
 
 const useGetAssignedRooms = () => {
   const fetch = useAssignedRoomsPaginationStore((state) => state.fetchData);
@@ -64,7 +56,7 @@ export const AssignedRoomsTable = () => {
             <>
               <TableBody>
                 {data.map((d) => (
-                  <AssignedRoomsTableRow data={d} key={d.id} />
+                  <AssignedRoomsTableRow data={d} key={d.id_IngresoPaciente} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -84,55 +76,49 @@ export const AssignedRoomsTable = () => {
   );
 };
 
-const AssignedRoomsTableRow = (props: { data: IRoomInformation }) => {
+const AssignedRoomsTableRow = (props: { data: IAssignedRoomsPagination }) => {
   const { data } = props;
-  const [open, setOpen] = useState(false);
-  const diffHours = dayjs(data.horaFin).diff(data.horaInicio, 'hour');
-  const diffMinutes = dayjs(data.horaFin).diff(data.horaInicio, 'minute') % 60;
-  const formattedDiff = `${diffHours} horas y ${diffMinutes} minutos`;
+  // const [open, setOpen] = useState(false);
+  console.log(data);
 
-  const patientName =
-    data.paciente?.nombre + ' ' + data.paciente?.apellidoPaterno + ' ' + data.paciente?.apellidoMaterno;
-  const medicName = data.medico?.nombres + ' ' + data.medico?.apellidoPaterno + ' ' + data.medico?.apellidoMaterno;
+  const navigate = useNavigate();
+
+  const handleNavigateToPatientKardex = () => {
+    navigate(`/enfermeria/kardex-paciente/${data.id_IngresoPaciente}`, {
+      state: {
+        nombrePaciente: data.nombrePaciente,
+        nombreCuarto: data.nombreCuarto,
+        medico: data.medico,
+      },
+    });
+  };
 
   return (
     <>
-      <TableRow
-        onClick={() => {
-          setOpen(true);
-        }}
-        sx={{
-          cursor: 'pointer',
-          transition: '0.2s linear',
-          '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.07)',
-            transition: '0.2s linear',
-            '&:focus': {
-              outline: 'none',
-            },
-          },
-        }}
-      >
-        <TableCell>{data.nombre}</TableCell>
-        <TableCell>{data.paciente?.nombre ? patientName : 'Sin asignar'}</TableCell>
+      <TableRow>
+        <TableCell>{data.nombrePaciente}</TableCell>
+        <TableCell>{data.nombreCuarto}</TableCell>
+        <TableCell>{data.medico}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={data.procedimientos ?? []} />
+          <>
+            <Tooltip title="Kardex del paciente">
+              <IconButton onClick={handleNavigateToPatientKardex}>
+                <MedicalInformationOutlined />
+              </IconButton>
+            </Tooltip>
+          </>
         </TableCell>
-        <TableCell>{data.medico ? medicName : 'Sin asignar'}</TableCell>
-        <TableCell>{dayjs(data.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>{dayjs(data.horaFin).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>{formattedDiff}</TableCell>
       </TableRow>
-      <Modal
+      {/* <Modal
         open={open}
         onClose={() => {
           setOpen(false);
         }}
       >
         <>
-          <AllSurgeryInfoModal setOpen={setOpen} roomId={data.id} isHospitalizationRoom={true} />
+          <AllSurgeryInfoModal setOpen={setOpen} roomId={data.id_Cuarto} isHospitalizationRoom={true} />
         </>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

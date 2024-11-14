@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { IRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
-import { getAssignedRoomsPagination } from '../../services/hospitalization/hospitalRoomsService';
+import { IAssignedRoomsPagination } from '../../types/nursing/nursingTypes';
+import { getAssignedRoomsPagination } from '../../services/nursing/nursingService';
 
 interface State {
   count: number;
@@ -9,7 +9,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IRoomInformation[];
+  data: IAssignedRoomsPagination[];
   loading: boolean;
   search: string;
   enabled: boolean;

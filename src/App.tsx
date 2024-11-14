@@ -63,6 +63,7 @@ import {
   OutstandingBillsView,
   OperatingPackagesView,
   MedicalConsultationView,
+  PatientKardexView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -148,6 +149,7 @@ function App() {
             <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
             // --------------------------------- Nursing ------------------------------- // //
             <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
+            <Route path="enfermeria/kardex-paciente/:id" element={<PatientKardexView />} />
             // --------------------------------- Biomedical ------------------------------- // //
             <Route path="servicios/solicitudes-administracion" element={<XRayRequestManagementView />} />
             <Route path="servicios/configuracion-solicitudes" element={<RequestsConfigView />} />
