@@ -1,12 +1,55 @@
-import { Button, Paper, Typography } from '@mui/material';
+import { Button, Paper, Typography, SvgIconProps } from '@mui/material';
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
 
-interface EmptyKardexStateProps {
+export interface EmptyKardexStateProps {
   onCreateClick: () => void;
+  type?: 'kardex' | 'vitalsigns' | 'diet';
+  message?: string;
+  description?: string;
+  buttonText?: string;
+  CustomIcon?: React.ComponentType<SvgIconProps>;
 }
 
-export const EmptyKardexState = ({ onCreateClick }: EmptyKardexStateProps) => {
+export const EmptyKardexState = ({
+  onCreateClick,
+  type = 'kardex',
+  message,
+  description,
+  buttonText,
+  CustomIcon,
+}: EmptyKardexStateProps) => {
+  const getDefaultContent = () => {
+    switch (type) {
+      case 'vitalsigns':
+        return {
+          icon: MonitorHeartIcon,
+          message: 'No hay registros de signos vitales',
+          description: 'Este paciente aún no tiene registros de signos vitales.',
+          buttonText: 'Registrar Signos Vitales',
+        };
+      case 'diet':
+        return {
+          icon: RestaurantIcon,
+          message: 'No hay dietas registradas',
+          description: 'Este paciente aún no tiene dietas registradas.',
+          buttonText: 'Agregar Dieta',
+        };
+      default:
+        return {
+          icon: AssignmentLateIcon,
+          message: 'No hay kardex registrados',
+          description: 'Este paciente aún no tiene ningún kardex registrado.',
+          buttonText: 'Crear Primer Kardex',
+        };
+    }
+  };
+
+  const defaultContent = getDefaultContent();
+  const Icon = CustomIcon || defaultContent.icon;
+
   return (
     <Paper
       elevation={0}
@@ -20,7 +63,7 @@ export const EmptyKardexState = ({ onCreateClick }: EmptyKardexStateProps) => {
         borderColor: 'grey.300',
       }}
     >
-      <AssignmentLateIcon
+      <Icon
         sx={{
           fontSize: { xs: 50, sm: 80 },
           color: 'grey.400',
@@ -28,7 +71,7 @@ export const EmptyKardexState = ({ onCreateClick }: EmptyKardexStateProps) => {
         }}
       />
       <Typography variant="h5" color="text.secondary" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-        No hay kardex registrados
+        {message || defaultContent.message}
       </Typography>
       <Typography
         variant="body1"
@@ -38,10 +81,10 @@ export const EmptyKardexState = ({ onCreateClick }: EmptyKardexStateProps) => {
           px: { xs: 2, sm: 4 },
         }}
       >
-        Este paciente aún no tiene ningún kardex registrado.
+        {description || defaultContent.description}
       </Typography>
       <Button variant="contained" startIcon={<NoteAddIcon />} onClick={onCreateClick} size="large">
-        Crear Primer Kardex
+        {buttonText || defaultContent.buttonText}
       </Button>
     </Paper>
   );

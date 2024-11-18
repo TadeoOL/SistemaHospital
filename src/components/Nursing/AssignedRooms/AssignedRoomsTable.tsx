@@ -89,6 +89,13 @@ const AssignedRoomsTableRow = (props: { data: IAssignedRoomsPagination }) => {
         nombrePaciente: data.nombrePaciente,
         nombreCuarto: data.nombreCuarto,
         medico: data.medico,
+        edad: data.edad.toString(),
+        genero: data.genero,
+        motivoIngreso: data.motivoIngreso,
+        tipoSangre: data.tipoSangre,
+        alergias: data.alergias,
+        comentarios: data.comentarios,
+        diagnosticoIngreso: data.diagnosticoIngreso,
       },
     });
   };

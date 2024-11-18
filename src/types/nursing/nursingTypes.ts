@@ -5,6 +5,13 @@ export interface IAssignedRoomsPagination {
   nombrePaciente: string;
   nombreCuarto: string;
   medico: string;
+  alergias: string | null;
+  comentarios: string | null;
+  diagnosticoIngreso: string | null;
+  edad: number;
+  genero: 'Hombre' | 'Mujer';
+  motivoIngreso: string | null;
+  tipoSangre: string | null;
 }
 
 export interface IPatientKardex {

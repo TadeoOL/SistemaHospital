@@ -1,8 +1,9 @@
 import axios from '../../libs/axios';
 import { IPagination } from '../../types/paginationType';
 import { IAssignedRoomsPagination, ICreateKardexCommand, IPatientKardex } from '../../types/nursing/nursingTypes';
-import { AddMedicationsFormData } from '../../components/Nursing/PatientKardex/AddMedicationsModal';
-import { AddServicesFormData } from '../../components/Nursing/PatientKardex/AddServicesModal';
+import { IPatientVitalSigns } from '../../types/nursing/patientVitalSignsTypes';
+import { IPatientDiet } from '../../types/nursing/patientDietTypes';
+import { VitalSignsFormData } from '../../schema/nursing/vitalSignsSchema';
 
 const apiUrl = '/api/Enfermeria';
 
@@ -25,19 +26,25 @@ export const createPatientKardex = async (data: ICreateKardexCommand): Promise<I
   return res.data;
 };
 
-export const putMedications = async (kardexId: string, data: AddMedicationsFormData): Promise<IPatientKardex> => {
-  const res = await axios.put(`${apiUrl}/agregar-medicamentos-kardex-paciente`, {
-    id_Kardex: kardexId,
-    medicamentos: data.medicamentos,
+export const getPatientDiet = async (id: string): Promise<IPatientDiet[]> => {
+  const res = await axios.get(`${apiUrl}/obtener-dietas-paciente`, {
+    params: {
+      id_IngresoPaciente: id,
+    },
   });
   return res.data;
 };
 
-export const putServices = async (kardexId: string, data: AddServicesFormData): Promise<IPatientKardex> => {
-  const res = await axios.put(`${apiUrl}/agregar-servicios-kardex-paciente`, {
-    id_Kardex: kardexId,
-    servicios: data.servicios,
+export const getVitalSigns = async (id: string): Promise<IPatientVitalSigns[]> => {
+  const res = await axios.get(`${apiUrl}/obtener-signos-paciente`, {
+    params: {
+      id_IngresoPaciente: id,
+    },
   });
   return res.data;
 };
 
+export const createPatientVitalSigns = async (data: VitalSignsFormData): Promise<IPatientVitalSigns> => {
+  const res = await axios.post(`${apiUrl}/crear-signos-paciente`, data);
+  return res.data;
+};

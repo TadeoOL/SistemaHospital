@@ -1,49 +1,105 @@
-import { Box, Typography } from '@mui/material';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import { Box, Grid, Typography } from '@mui/material';
 
 interface PatientHeaderProps {
   nombrePaciente: string;
   nombreCuarto: string;
   medico: string;
+  edad: number;
+  genero: string;
+  motivoIngreso: string;
+  tipoSangre: string;
+  alergias: string;
+  comentarios: string;
+  diagnosticoIngreso: string;
 }
 
-export const PatientHeader = ({ nombrePaciente, nombreCuarto, medico }: PatientHeaderProps) => {
+export const PatientHeader = ({
+  nombrePaciente,
+  medico,
+  edad,
+  genero,
+  motivoIngreso,
+  tipoSangre,
+  alergias,
+  diagnosticoIngreso,
+}: PatientHeaderProps) => {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: { xs: 'column', sm: 'row' },
-        alignItems: { xs: 'flex-start', sm: 'center' },
-        gap: 2,
-        bgcolor: 'rgba(255, 255, 255, 0.1)',
-        p: { xs: 1.5, sm: 2 },
-        borderRadius: 2,
-      }}
-    >
-      <AssignmentIndIcon sx={{ fontSize: { xs: 30, sm: 40 } }} />
-      <Box>
-        <Typography
-          variant="h6"
-          sx={{
-            fontSize: { xs: '1rem', sm: '1.25rem' },
-          }}
-        >
-          {nombrePaciente || ''}
-        </Typography>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            fontSize: { xs: '0.75rem', sm: '0.875rem' },
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: { xs: 0.5, sm: 1 },
-          }}
-        >
-          <Typography>Habitación: {nombreCuarto || ''}</Typography>
-          <Typography sx={{ display: { xs: 'none', sm: 'inline' } }}>•</Typography>
-          <Typography>Médico: {medico || ''}</Typography>
-        </Typography>
-      </Box>
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h3" gutterBottom>
+        Kardex Médico
+      </Typography>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            Paciente
+          </Typography>
+          <Typography>{nombrePaciente}</Typography>
+
+          <Box sx={{ mt: 2 }}>
+            <Typography component="span" fontWeight="bold">
+              Edad:{' '}
+            </Typography>
+            <Typography component="span">{edad} años</Typography>
+          </Box>
+
+          <Box>
+            <Typography component="span" fontWeight="bold">
+              Sexo:{' '}
+            </Typography>
+            <Typography component="span">{genero}</Typography>
+          </Box>
+
+          <Box>
+            <Typography component="span" fontWeight="bold">
+              Tipo de sangre:{' '}
+            </Typography>
+            <Typography component="span">{tipoSangre || 'No especificado'}</Typography>
+          </Box>
+
+          <Box>
+            <Typography component="span" fontWeight="bold">
+              Alergias:{' '}
+            </Typography>
+            <Typography component="span">{alergias || 'No manifestadas'}</Typography>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            Médico tratante
+          </Typography>
+          <Typography>{medico}</Typography>
+
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Motivo de ingreso
+            </Typography>
+            <Typography>{motivoIngreso || 'No especificado'}</Typography>
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Diagnóstico
+            </Typography>
+            <Typography>{diagnosticoIngreso || 'No especificado'}</Typography>
+          </Box>
+        </Grid>
+
+        {/* <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            Antecedentes
+          </Typography>
+          <Typography></Typography>
+        </Grid>
+
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            Observaciones de ingreso
+          </Typography>
+          <Typography></Typography>
+        </Grid> */}
+      </Grid>
     </Box>
   );
 };
