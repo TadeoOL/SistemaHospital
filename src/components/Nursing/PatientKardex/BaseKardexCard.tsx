@@ -3,7 +3,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface BaseKardexCardProps<T> {
   data: T;
-  expanded: string | false;
+  expanded: { [key: string]: boolean };
   onExpandClick: (id: string) => void;
   id: string;
   renderHeader: (data: T) => React.ReactNode;
@@ -36,7 +36,7 @@ export function BaseKardexCard<T>({
             <IconButton
               onClick={() => onExpandClick(id)}
               sx={{
-                transform: expanded === id ? 'rotate(180deg)' : 'rotate(0deg)',
+                transform: expanded[id] ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.3s',
                 p: { xs: 0.5, sm: 1 },
                 ml: { xs: 0.5, sm: 1 },
@@ -47,7 +47,7 @@ export function BaseKardexCard<T>({
           </Box>
         }
       />
-      <Collapse in={expanded === id}>
+      <Collapse in={expanded[id]}>
         <CardContent sx={{ pt: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 } }}>{renderContent(data)}</CardContent>
       </Collapse>
     </Card>

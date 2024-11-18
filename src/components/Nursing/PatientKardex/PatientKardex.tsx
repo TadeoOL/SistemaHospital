@@ -1,5 +1,5 @@
 import { Box, Modal, Paper } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetPatientKardex } from '../../../hooks/nursing/useGetPatientKardex';
 import { useLocation, useParams } from 'react-router-dom';
 import LoadingView from '../../../views/LoadingView/LoadingView';
@@ -32,7 +32,7 @@ export const PatientKardex = () => {
     comentarios,
     diagnosticoIngreso,
   } = location.state || {};
-  const [expanded, setExpanded] = useState<string | false>(false);
+  const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
   const { data, isLoading } = useGetPatientKardex(id || '');
   const { data: diets, isLoading: isLoadingDiets } = useGetPatientDiets(id || '');
   const { data: vitalSigns, isLoading: isLoadingVitalSigns } = useGetPatientVitalSigns(id || '');
@@ -43,8 +43,22 @@ export const PatientKardex = () => {
   const { mutate: createVitalSigns } = useCreatePatientVitalSigns();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    if (data) {
+      setExpanded({
+        ...data.reduce((acc, kardex) => ({ ...acc, [kardex.id]: true }), {}),
+        ...(diets?.reduce((acc, diet) => ({ ...acc, [diet.id]: true }), {}) || {}),
+        ...(vitalSigns?.reduce((acc, vitalSign) => ({ ...acc, [vitalSign.id]: true }), {}) || {}),
+      });
+    }
+  }, [data, diets, vitalSigns]);
+
   const handleExpandClick = (kardexId: string) => {
-    setExpanded(expanded === kardexId ? false : kardexId);
+    if (expanded[kardexId]) {
+      setExpanded({ ...expanded, [kardexId]: !expanded[kardexId] });
+    } else {
+      setExpanded({ ...expanded, [kardexId]: true });
+    }
   };
 
   const handleCreateKardex = (data: KardexFormData) => {

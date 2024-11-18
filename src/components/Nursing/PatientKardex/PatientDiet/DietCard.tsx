@@ -1,8 +1,7 @@
 import { BaseKardexCard } from '../BaseKardexCard';
 import { IPatientDiet } from '../../../../types/nursing/patientDietTypes';
-import { Box, Typography, Chip, Button } from '@mui/material';
+import { Box, Typography, Chip } from '@mui/material';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import EditIcon from '@mui/icons-material/Edit';
 
 export const DietCard = ({
   data,
@@ -10,7 +9,7 @@ export const DietCard = ({
   onExpandClick,
 }: {
   data: IPatientDiet;
-  expanded: string | false;
+  expanded: { [key: string]: boolean };
   onExpandClick: (id: string) => void;
 }) => {
   return (
@@ -113,25 +112,6 @@ export const DietCard = ({
             </Typography>
           )}
         </Box>
-      )}
-      renderActions={(data) => (
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<EditIcon />}
-          onClick={(e) => {
-            e.stopPropagation();
-            // Tu función para editar la dieta
-          }}
-          sx={{
-            bgcolor: 'rgba(255,255,255,0.2)',
-            '&:hover': {
-              bgcolor: 'rgba(255,255,255,0.3)',
-            },
-          }}
-        >
-          Editar Dieta
-        </Button>
       )}
     />
   );

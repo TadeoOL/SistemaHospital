@@ -12,7 +12,7 @@ export const VitalSignsCard = ({
   onExpandClick,
 }: {
   data: IPatientVitalSigns;
-  expanded: string | false;
+  expanded: { [key: string]: boolean };
   onExpandClick: (id: string) => void;
 }) => {
   return (

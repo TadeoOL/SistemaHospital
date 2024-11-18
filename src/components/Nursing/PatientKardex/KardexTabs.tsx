@@ -32,7 +32,7 @@ interface KardexTabsProps {
   medicalInstructions: IPatientKardex[];
   vitalSigns: IPatientVitalSigns[];
   diets: IPatientDiet[];
-  expanded: string | false;
+  expanded: { [key: string]: boolean };
   handleExpandClick: (id: string) => void;
 }
 

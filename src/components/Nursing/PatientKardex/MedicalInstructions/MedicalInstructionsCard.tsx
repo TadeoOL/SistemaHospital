@@ -21,7 +21,7 @@ export const MedicalInstructionsCard = ({
   onExpandClick,
 }: {
   data: IPatientKardex;
-  expanded: string | false;
+  expanded: { [key: string]: boolean };
   onExpandClick: (id: string) => void;
 }) => {
   return (
