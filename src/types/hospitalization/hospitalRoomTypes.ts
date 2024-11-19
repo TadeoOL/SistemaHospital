@@ -11,6 +11,9 @@ export interface IHospitalRoomInformationPagination {
   fechaIngreso: string;
   fechaSalida: string;
   enfermero: IBasicUserInformation;
+  altaMedica: boolean;
+  cirugias: string[];
+  motivoIngreso: string;
 }
 
 export interface IClinicalDataHospitalRoom {

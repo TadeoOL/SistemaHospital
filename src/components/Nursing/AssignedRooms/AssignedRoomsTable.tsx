@@ -96,6 +96,10 @@ const AssignedRoomsTableRow = (props: { data: IAssignedRoomsPagination }) => {
         alergias: data.alergias,
         comentarios: data.comentarios,
         diagnosticoIngreso: data.diagnosticoIngreso,
+        id_CuentaPaciente: data.id_CuentaPaciente,
+        id_CuentaEspacioHospitalario: data.id_EspacioHospitalario,
+        id_Cuarto: data.id_Cuarto,
+        id_Paciente: data.id_Paciente,
       },
     });
   };

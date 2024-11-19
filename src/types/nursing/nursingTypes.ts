@@ -2,6 +2,8 @@ export interface IAssignedRoomsPagination {
   id_Cuarto: string;
   id_IngresoPaciente: string;
   id_EspacioHospitalario: string;
+  id_CuentaPaciente: string;
+  id_Paciente: string;
   nombrePaciente: string;
   nombreCuarto: string;
   medico: string;

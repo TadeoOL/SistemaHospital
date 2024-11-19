@@ -31,3 +31,11 @@ export const updateHospitalRoomExitDate = async (id: string, date: Date) => {
   return res.data;
 };
 
+export const registerPatientDischarge = async (data: {
+  Id_IngresoPaciente: string;
+  DiagnosticoEgreso: string;
+  MotivoEgreso: string;
+}) => {
+  const res = await axios.post(`${apiHospitalizationRooms}/registrar-alta-medica`, data);
+  return res.data;
+};

@@ -17,6 +17,8 @@ import {
   Tooltip,
   Typography,
   createFilterOptions,
+  CircularProgress,
+  Backdrop,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getWarehouseById } from '../../../../api/api.routes';
@@ -33,7 +35,7 @@ import { getPatientInfoByAdmissionId, getPatientsWithAccount } from '../../../..
 import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
 import { HospitalSpaceType, IHospitalSpace } from '../../../../types/admission/admissionTypes';
 import { createArticleRequest } from '../../../../services/hospitalization/articleRequestService';
-import { IRegisterArticleRequest } from '../../../../types/hospitalization/articleRequestTypes';
+import { IArticleDto, IRegisterArticleRequest } from '../../../../types/hospitalization/articleRequestTypes';
 
 type Article = {
   id: string;
@@ -86,6 +88,7 @@ interface Props {
   id_Patient?: string;
   id_PatientRoom?: string;
   id_PatientAdmission?: string;
+  articles?: (IArticleDto & { nombreArticulo: string })[];
 }
 export const NurseRequestModal = (props: Props) => {
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
@@ -122,28 +125,84 @@ export const NurseRequestModal = (props: Props) => {
     }),
     shallow
   );
+
   useEffect(() => {
-    setWarehouseSelected('');
-  }, []);
+    if (props.warehouseId) {
+      setWarehouseSelected(props.warehouseId);
+    }
+  }, [props.warehouseId]);
+
+  useEffect(() => {
+    const loadPreloadedArticles = async () => {
+      if (props.articles && props.articles.length > 0 && warehouseSelected) {
+        setIsLoadingArticlesWareH(true);
+        try {
+          const articlePromises = props.articles.map(async (article) => {
+            const response = await getExistingArticles(
+              `pageIndex=1&pageSize=1&search=&habilitado=true&Id_Almacen=${warehouseSelected}&Id_AlmacenPrincipal=${mainWarehouse}&Id_Articulo=${article.id_Articulo}`
+            );
+
+            if (response.data && response.data.length > 0) {
+              const articleData = response.data[0];
+              return {
+                id: articleData.id_Articulo,
+                nombre: article.nombreArticulo || articleData.nombre,
+                stock: articleData.stockActual,
+                amount: 1,
+              };
+            }
+            return null;
+          });
+
+          const resolvedArticles = (await Promise.all(articlePromises)).filter(
+            (article): article is NonNullable<typeof article> => article !== null
+          );
+
+          setArticles(
+            resolvedArticles.map((article) => ({
+              id: article.id,
+              name: article.nombre,
+              amount: article.amount,
+              stock: article.stock,
+            }))
+          );
+        } catch (error) {
+          console.error('Error cargando artículos precargados:', error);
+          toast.error('Error al cargar los artículos preseleccionados');
+        } finally {
+          setIsLoadingArticlesWareH(false);
+        }
+      }
+    };
+
+    loadPreloadedArticles();
+  }, [props.articles, warehouseSelected, mainWarehouse]);
 
   const handleFetchArticlesFromWareHouse = async (id_warehouse: string) => {
     if (isLoadingArticlesWareH) return;
     try {
       setIsLoadingArticlesWareH(true);
       const res = await getExistingArticles(
-        `${'pageIndex=1&pageSize=10'}&search=${search}&habilitado=${true}&Id_Almacen=${id_warehouse}&Id_AlmacenPrincipal=${mainWarehouse}&fechaInicio=&fechaFin=&sort=`
+        `pageIndex=1&pageSize=10&search=${search}&habilitado=true&Id_Almacen=${id_warehouse}&Id_AlmacenPrincipal=${mainWarehouse}&fechaInicio=&fechaFin=&sort=`
       );
+
       const transformedData = res.data.map((item: any) => ({
         id: item.id_Articulo,
         nombre: item.nombre,
         stock: item.stockActual,
       }));
-      const articlesIds = articles.map((a) => a.id);
-      setDataWerehouseArticlesSelected(transformedData.filter((art: any) => !articlesIds.includes(art.id)));
-      //const resUsers = await qwewqqr();
+
+      const existingArticleIds = new Set([
+        ...articles.map((a) => a.id),
+        ...(props.articles?.map((a) => a.id_Articulo) || []),
+      ]);
+
+      setDataWerehouseArticlesSelected(transformedData.filter((art) => !existingArticleIds.has(art.id)));
+
       patientsCall();
     } catch (error) {
-      console.log(error);
+      console.error('Error fetching articles:', error);
+      toast.error('Error al cargar los artículos');
     } finally {
       setIsLoadingArticlesWareH(false);
     }
@@ -182,10 +241,10 @@ export const NurseRequestModal = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    if (warehouseSelected && warehouseSelected !== '') {
+    if (warehouseSelected && props.articles && props.articles.length > 0) {
       handleFetchArticlesFromWareHouse(warehouseSelected);
     }
-  }, [search, warehouseSelected]);
+  }, [warehouseSelected]);
 
   const patientsCall = async () => {
     const url = `Search=${patientSearch}`;
@@ -290,8 +349,12 @@ export const NurseRequestModal = (props: Props) => {
     }
   }, [rooms, props.id_PatientRoom]);
 
-  console.log({ roomSelected });
-  console.log({ rooms });
+  if (isLoadingArticlesWareH)
+    return (
+      <Backdrop open>
+        <CircularProgress size={24} />
+      </Backdrop>
+    );
 
   return (
     <Box sx={style}>
@@ -509,7 +572,7 @@ export const NurseRequestModal = (props: Props) => {
               startIcon={<Cancel />}
               color="error"
               onClick={() => {
-                //props.setOpen(false);
+                props.setOpen(false);
               }}
             >
               Cancelar

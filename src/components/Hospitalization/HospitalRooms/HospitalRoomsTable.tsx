@@ -19,7 +19,14 @@ import { useHospitalRoomsPaginationStore } from '../../../store/hospitalization/
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { Check, Warning, EventAvailable, InfoOutlined, MedicationOutlined } from '@mui/icons-material';
+import {
+  Check,
+  Warning,
+  EventAvailable,
+  InfoOutlined,
+  MedicationOutlined,
+  CheckCircleOutlineOutlined,
+} from '@mui/icons-material';
 import { IHospitalRoomInformationPagination } from '../../../types/hospitalization/hospitalRoomTypes';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { HospitalRoomInformationModal } from './Modal/hospitalRoomInformation/HospitalRoomInformationModal';
@@ -28,6 +35,7 @@ import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
 import { DateExitPopover } from '../../Commons/DateExitPopover';
 import Swal from 'sweetalert2';
 import { updateHospitalRoomExitDate } from '../../../services/hospitalization/hospitalRoomsService';
+import { PatientDischargeModal } from './Modal/PatientDischargeModal';
 dayjs.extend(customParseFormat);
 
 const TABLE_HEADERS = [
@@ -74,7 +82,7 @@ export const HospitalRoomsTable = () => {
             <>
               <TableBody>
                 {data.map((room) => (
-                  <HospitalRoomsTableRow data={room} key={room.id_Cuarto} />
+                  <HospitalRoomsTableRow data={room} key={room.id_IngresoPaciente} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -106,6 +114,7 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
   const { data: warehousePharmacyData } = useGetPharmacyConfig();
   const setData = useHospitalRoomsPaginationStore((state) => state.setData);
   const dataList = useHospitalRoomsPaginationStore((state) => state.data);
+  const [openDischargeModal, setOpenDischargeModal] = useState(false);
 
   const patientName = data.nombrePaciente;
   const medicName = data.medico;
@@ -197,18 +206,34 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
         <TableCell>{formattedDiff}</TableCell>
         <TableCell>
           <>
-            <Tooltip title="Asignar Fecha de Salida">
-              <IconButton onClick={handleDateButtonClick}>
-                <EventAvailable />
-              </IconButton>
-            </Tooltip>
-            <DateExitPopover
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              onAccept={handleDateAccept}
-              title="Fecha de salida"
-            />
+            {data.altaMedica ? (
+              <>
+                <Tooltip title="Asignar Fecha de Salida">
+                  <IconButton onClick={handleDateButtonClick}>
+                    <EventAvailable />
+                  </IconButton>
+                </Tooltip>
+                <DateExitPopover
+                  open={Boolean(anchorEl)}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  onAccept={handleDateAccept}
+                  title="Fecha de salida"
+                />
+              </>
+            ) : (
+              <Tooltip title="Alta médica">
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setOpenDischargeModal(true);
+                  }}
+                >
+                  <CheckCircleOutlineOutlined />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title="Ver Información">
               <IconButton
                 onClick={(e) => {
@@ -253,6 +278,18 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
             id_Patient={data.id_Paciente}
             id_PatientRoom={data.id_Cuarto}
             id_PatientAdmission={data.id_IngresoPaciente}
+          />
+        </>
+      </Modal>
+      <Modal open={openDischargeModal} onClose={() => setOpenDischargeModal(false)}>
+        <>
+          <PatientDischargeModal
+            setOpen={setOpenDischargeModal}
+            patientName={data.nombrePaciente}
+            medicName={data.medico}
+            admissionReason={data.motivoIngreso}
+            surgeries={data.cirugias}
+            id_IngresoPaciente={data.id_IngresoPaciente}
           />
         </>
       </Modal>

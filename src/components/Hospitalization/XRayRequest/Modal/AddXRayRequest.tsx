@@ -1,13 +1,4 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Divider,
-  Stack,
-  TextField,
-  Typography,
-  createFilterOptions,
-} from '@mui/material';
+import { Autocomplete, Box, Button, Divider, Stack, TextField, Typography, createFilterOptions } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Cancel, Save } from '@mui/icons-material';
@@ -56,16 +47,38 @@ const useGetServicesData = () => {
   };
 };
 
-export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Function }) => {
+interface Props {
+  setOpen: Function;
+  refetch: Function;
+  id_Patient?: string;
+  services?: string[];
+  isPreselected?: boolean;
+}
+
+export const AddXRayRequestModal = (props: Props) => {
   const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const [patientSearch, setPatientSearch] = useState('');
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
-  const [serviceSelected, setServiceSelected] = useState<null | IService>(null);
+  const [servicesSelected, setServicesSelected] = useState<IService[]>([]);
   const [userError, setUserError] = useState(false);
   const [requestError, setRequestError] = useState(false);
   const setType = useXRayPaginationStore((state) => state.setType);
   const refetch = useXRayPaginationStore((state) => state.fetchData);
-  const { data, isLoading, setSearchXray} = useGetServicesData();
+  const { data, isLoading, setSearchXray } = useGetServicesData();
+
+  useEffect(() => {
+    if (props.id_Patient && usersData.length > 0) {
+      const patient = usersData.find((user) => user.id_Paciente === props.id_Patient);
+      setUserSelected(patient || null);
+    }
+  }, [props.id_Patient, usersData]);
+
+  useEffect(() => {
+    if (props.services && props.services.length > 0 && data.length > 0) {
+      const selectedServices = data.filter((service) => props.services?.includes(service.id_Servicio));
+      setServicesSelected(selectedServices);
+    }
+  }, [props.services, data]);
 
   useEffect(() => {
     patientsCall();
@@ -73,17 +86,6 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
       setType(null);
     };
   }, [patientSearch]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-      } catch (error) {
-        console.log(error);
-      } finally {
-      }
-    };
-    fetch();
-  }, []);
 
   const patientsCall = async () => {
     const url = `Search=${patientSearch}`;
@@ -99,16 +101,22 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
         setUserError(true);
         return toast.warning('Selecciona un paciente!');
       }
-      if (!serviceSelected) {
-        setRequestError(true)
-        return toast.warning('Selecciona un estudio de gabinete!');
+      if (servicesSelected.length === 0) {
+        setRequestError(true);
+        return toast.warning('Selecciona al menos un estudio de gabinete!');
       }
-      const object = {
-        Id_CuentaPaciente: userSelected.id_CuentaPaciente,
-        Id_Servicio: serviceSelected?.id_Servicio || '',
-      };
-      await addServiceRequestToPatient(object);
-      toast.success('Solicitud creada');
+
+      await Promise.all(
+        servicesSelected.map((service) => {
+          const object = {
+            Id_CuentaPaciente: userSelected.id_CuentaPaciente,
+            Id_Servicio: service.id_Servicio,
+          };
+          return addServiceRequestToPatient(object);
+        })
+      );
+
+      toast.success('Solicitudes creadas');
       refetch();
       props.refetch(true);
       props.setOpen(false);
@@ -149,6 +157,7 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
                 loading={usersData.length === 0}
                 getOptionLabel={(option) => option.nombrePaciente}
                 options={usersData}
+                disabled={props.isPreselected}
                 value={userSelected}
                 noOptionsText="No se encontraron pacientes"
                 isOptionEqualToValue={(op, val) => op.id_Paciente === val.id_Paciente}
@@ -171,43 +180,46 @@ export const AddXRayRequestModal = (props: { setOpen: Function; refetch: Functio
             </Stack>
           </Box>
           <Divider />
-          {!isLoading && (<Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de Estudio de Gabinete</Typography>
-              <Autocomplete
-                disablePortal
-                fullWidth
-                filterOptions={filterServicesOptions}
-                onChange={(e, val) => {
-                  e.stopPropagation();
-                  setServiceSelected(val);
-                  setRequestError(false);
-                }}
-                //cambiar loading
-                loading={isLoading}
-                getOptionLabel={(option) => option.nombre}
-                options={data}
-                value={serviceSelected}
-                noOptionsText="No se encontraron servicios"
-                isOptionEqualToValue={(op, val) => op.id_Servicio === val.id_Servicio}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={requestError}
-                    helperText={requestError && 'Selecciona un servicio'}
-                    placeholder="Servicios"
-                    sx={{ width: '100%' }}
-                    onChange={(e) => {
-                      if (e.target.value === null) {
-                        setSearchXray('');
-                      }
-                      setSearchXray(e.target.value);
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-          </Box>)}
+          {!isLoading && (
+            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+              <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de Estudio de Gabinete</Typography>
+                <Autocomplete
+                  multiple
+                  disablePortal
+                  fullWidth
+                  disabled={props.isPreselected}
+                  filterOptions={filterServicesOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setServicesSelected(val);
+                    setRequestError(false);
+                  }}
+                  loading={isLoading}
+                  getOptionLabel={(option) => option.nombre}
+                  options={data}
+                  value={servicesSelected}
+                  noOptionsText="No se encontraron servicios"
+                  isOptionEqualToValue={(op, val) => op.id_Servicio === val.id_Servicio}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={requestError}
+                      helperText={requestError && 'Selecciona al menos un servicio'}
+                      placeholder="Servicios"
+                      sx={{ width: '100%' }}
+                      onChange={(e) => {
+                        if (e.target.value === null) {
+                          setSearchXray('');
+                        }
+                        setSearchXray(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+            </Box>
+          )}
         </Box>
 
         <Box

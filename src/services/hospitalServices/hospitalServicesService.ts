@@ -70,4 +70,9 @@ export const createHospitalService = async (data: {
     const res = await axios.put(`${apiRequestService}/estatus-solicitud-servicio`, data);
     return res.data;
   };
+
+  export const addHospitalServicesRequest = async (data: { Id_CuentaPaciente: string; Id_Servicios: string[] }) => {
+    const res = await axios.post(`${apiRequestService}/registrar-solicitud-servicios`, data);
+    return res.data;
+  };
   

@@ -4,24 +4,24 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { KardexFormData, kardexSchema } from '../../../../schema/nursing/karedexSchema';
-import { useGetPharmacyConfig } from '../../../../hooks/useGetPharmacyConfig';
 import { useState, useEffect, useMemo } from 'react';
 import { IWarehouseArticle } from '../../../../types/warehouse/article/warehouseArticle';
 import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
 import debounce from 'lodash/debounce';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetHospitalServices } from '../../../../hooks/hospitalServices/useGetHospitalServices';
+import { IPharmacyConfig } from '../../../../types/types';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: KardexFormData) => void;
   id_IngresoPaciente: string;
+  pharmacyConfig: IPharmacyConfig;
 }
 
-export const CreateKardexModal = ({ open, onClose, onSubmit, id_IngresoPaciente }: Props) => {
+export const CreateKardexModal = ({ open, onClose, onSubmit, id_IngresoPaciente, pharmacyConfig }: Props) => {
   const [filteredArticles, setFilteredArticles] = useState<{ [key: number]: IWarehouseArticle[] }>({});
-  const { data: pharmacyConfig } = useGetPharmacyConfig();
   const { data: hospitalServices } = useGetHospitalServices({ serviceType: 2 });
 
   const debouncedFetchArticles = useMemo(
@@ -50,6 +50,7 @@ export const CreateKardexModal = ({ open, onClose, onSubmit, id_IngresoPaciente 
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<KardexFormData>({
     defaultValues: {
@@ -184,6 +185,9 @@ export const CreateKardexModal = ({ open, onClose, onSubmit, id_IngresoPaciente 
                               }}
                               onChange={(_, newValue) => {
                                 onChange(newValue ? newValue.id_Articulo : '');
+                                if (newValue) {
+                                  setValue(`medicamentos.${index}.nombreArticulo`, newValue.nombre);
+                                }
                               }}
                               value={articles.find((art) => art.id_Articulo === value) || null}
                               renderInput={(params) => (

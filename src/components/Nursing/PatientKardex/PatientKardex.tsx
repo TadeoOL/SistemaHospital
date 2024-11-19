@@ -16,6 +16,11 @@ import { AddVitalSignsModal } from './PatientVitalSigns/AddVitalSignsModal';
 import { VitalSignsFormData } from '../../../schema/nursing/vitalSignsSchema';
 import { useCreatePatientVitalSigns } from '../../../hooks/nursing/useCreatePatientVitalSigns';
 import { AddPatientDietModal, DietFormData } from './PatientDiet/AddPatientDietModal';
+import Swal from 'sweetalert2';
+import { IArticleDto } from '../../../types/hospitalization/articleRequestTypes';
+import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
+import { NurseRequestModal } from '../../Pharmacy/UserRequest/Modal/NurseRequestModal';
+import { AddXRayRequestModal } from '../../Hospitalization/XRayRequest/Modal/AddXRayRequest';
 
 export const PatientKardex = () => {
   const { id } = useParams();
@@ -31,6 +36,10 @@ export const PatientKardex = () => {
     alergias,
     comentarios,
     diagnosticoIngreso,
+    id_CuentaEspacioHospitalario,
+    id_CuentaPaciente,
+    id_Cuarto,
+    id_Paciente,
   } = location.state || {};
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
   const { data, isLoading } = useGetPatientKardex(id || '');
@@ -41,7 +50,13 @@ export const PatientKardex = () => {
   const [openAddPatientDietModal, setOpenAddPatientDietModal] = useState(false);
   const { mutate: createKardex } = useCreateKardex();
   const { mutate: createVitalSigns } = useCreatePatientVitalSigns();
+  const { data: pharmacyConfig } = useGetPharmacyConfig();
+  const [openArticlesRequestModal, setOpenArticlesRequestModal] = useState(false);
+  const [openXRayRequestModal, setOpenXRayRequestModal] = useState(false);
   const queryClient = useQueryClient();
+  const [selectedArticles, setSelectedArticles] = useState<(IArticleDto & { nombreArticulo: string })[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [modalCloseCallback, setModalCloseCallback] = useState<() => void>(() => {});
 
   useEffect(() => {
     if (data) {
@@ -61,11 +76,93 @@ export const PatientKardex = () => {
     }
   };
 
-  const handleCreateKardex = (data: KardexFormData) => {
+  const handleCreateServicesRequest = async (data: { Id_CuentaPaciente: string; Id_Servicios: string[] }) => {
+    if (!data.Id_Servicios.length) return true;
+
+    const result = await Swal.fire({
+      title: '¿Deseas realizar una solicitud de los servicios seleccionados?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Si, registrar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      setSelectedServices(data.Id_Servicios);
+      return new Promise((resolve) => {
+        const handleModalClose = () => {
+          setOpenXRayRequestModal(false);
+          resolve(true);
+        };
+        setModalCloseCallback(() => handleModalClose);
+        setOpenXRayRequestModal(true);
+      });
+    }
+
+    return false;
+  };
+
+  const handleCreateArticlesRequest = async (data: {
+    Id_CuentaEspacioHospitalario: string;
+    articulos: (IArticleDto & { nombreArticulo: string })[];
+  }) => {
+    if (!data.articulos.length) {
+      return true;
+    }
+
+    const result = await Swal.fire({
+      title: '¿Deseas realizar una solicitud de los artículos seleccionados?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Si, registrar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      setSelectedArticles(data.articulos);
+      setOpenArticlesRequestModal(true);
+
+      return new Promise((resolve) => {
+        const handleModalClose = () => {
+          setOpenArticlesRequestModal(false);
+          resolve(true);
+        };
+        setModalCloseCallback(() => handleModalClose);
+      });
+    }
+
+    return false;
+  };
+
+  const handleCreateKardex = async (data: KardexFormData) => {
     createKardex(data, {
-      onSuccess: () => {
-        setOpenCreateModal(false);
-        toast.success('Kardex creado correctamente');
+      onSuccess: async () => {
+        const servicios = data.servicios?.map((service) => service.id_Servicio) || [];
+        const articulos =
+          data.medicamentos?.map((medicament) => ({
+            id_Articulo: medicament.id_Articulo || '',
+            cantidad: 1,
+            nombreArticulo: medicament.nombreArticulo || '',
+          })) || [];
+
+        const servicesResult = await handleCreateServicesRequest({
+          Id_CuentaPaciente: id_CuentaPaciente,
+          Id_Servicios: servicios,
+        });
+
+        if (servicesResult) {
+          const articlesResult = await handleCreateArticlesRequest({
+            Id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
+            articulos: articulos,
+          });
+
+          if (articlesResult) {
+            setOpenCreateModal(false);
+            toast.success('Kardex creado correctamente');
+          }
+        }
       },
       onError: () => {
         toast.error('Error al crear el kardex');
@@ -144,6 +241,7 @@ export const PatientKardex = () => {
             onClose={() => setOpenCreateModal(false)}
             onSubmit={handleCreateKardex}
             id_IngresoPaciente={id || ''}
+            pharmacyConfig={pharmacyConfig}
           />
         </>
       </Modal>
@@ -160,6 +258,45 @@ export const PatientKardex = () => {
         onSubmit={handleCreatePatientDiet}
         id_IngresoPaciente={id || ''}
       />
+      <Modal
+        open={openArticlesRequestModal}
+        onClose={() => {
+          setOpenArticlesRequestModal(false);
+        }}
+      >
+        <Box>
+          <NurseRequestModal
+            setOpen={(value: boolean) => {
+              if (!value) {
+                modalCloseCallback?.();
+              }
+              setOpenArticlesRequestModal(value);
+            }}
+            refetch={() => {}}
+            warehouseId={pharmacyConfig?.id_Almacen || ''}
+            id_PatientAdmission={id || ''}
+            id_PatientRoom={id_Cuarto || ''}
+            id_Patient={id_Paciente || ''}
+            articles={selectedArticles}
+          />
+        </Box>
+      </Modal>
+      <Modal open={openXRayRequestModal} onClose={() => setOpenXRayRequestModal(false)}>
+        <>
+          <AddXRayRequestModal
+            setOpen={(value: boolean) => {
+              if (!value) {
+                modalCloseCallback();
+              }
+              setOpenXRayRequestModal(value);
+            }}
+            refetch={() => {}}
+            services={selectedServices}
+            id_Patient={id_Paciente}
+            isPreselected
+          />
+        </>
+      </Modal>
     </>
   );
 };
