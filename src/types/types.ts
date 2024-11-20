@@ -724,12 +724,6 @@ export interface ICheckoutSell {
   pdfCadena?: string;
 }
 
-export interface IConfigEmitterUsers {
-  id_Usuario: string;
-  nombreUsuario: string;
-  conceptos: string[];
-}
-
 export interface IRoom {
   id: string;
   tipoCuarto: string;

@@ -12,7 +12,7 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import { IConfigEmitterUsers } from '../../types/types';
+import { IConfigEmitterUsers } from '../../types/checkout/checkoutConfigTypes';
 import { Delete, Edit } from '@mui/icons-material';
 import { NoDataInTableInfo } from '../Commons/NoDataInTableInfo';
 

@@ -1,15 +1,18 @@
 import { Autocomplete, Box, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
-import { useGetUsersBySearch } from '../../../../../hooks/useGetUsersBySearch';
 import { useState } from 'react';
+import { User } from '../../../hooks/useGetUsersBySearch';
 
 export const DiscountInputs = ({
   setUsersDiscount,
   usersDiscount,
+  usersRes,
+  isLoadingUsers,
 }: {
   setUsersDiscount: React.Dispatch<React.SetStateAction<{ id: string; name: string }[]>>;
   usersDiscount: { id: string; name: string }[];
+  usersRes: User[];
+  isLoadingUsers: boolean;
 }) => {
-  const { usersRes, isLoadingUsers } = useGetUsersBySearch();
   const [selectedUser, setSelectedUser] = useState<{ id: string; nombre: string } | null>(null);
 
   const handleAddUser = () => {

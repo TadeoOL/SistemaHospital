@@ -69,11 +69,6 @@ export const getPatientsWithAccount = async (url: string) => {
   return res.data as IPatientFromSearch[];
 };
 
-export const getPatientsWithAccountPagination = async (url: string) => {
-  const res = await axios.get(`${apiPatient}/obtener-cuentas?${url}`);
-  return res.data;
-};
-
 export const getPatientInfoByAdmissionId = async (admissionId: string) => {
   const res = await axios.get(`${apiPatientRegister}/obtener-paciente-registro/${admissionId}`);
   return res.data as PacienteInfo;

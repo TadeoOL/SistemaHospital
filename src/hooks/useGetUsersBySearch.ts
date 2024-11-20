@@ -3,7 +3,7 @@ import { getUsersBySearch } from '../api/api.routes';
 import { useShallow } from 'zustand/react/shallow';
 import { useSubWarehousePaginationStore } from '../store/warehouseStore/subWarehousePagination';
 
-type User = {
+export type User = {
   id: string;
   nombre: string;
 };

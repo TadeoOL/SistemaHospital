@@ -60,18 +60,6 @@ export const getAccountAdmissionInformation = async (params: string) => {
   return res.data;
 };
 
-export const closeRegisterAndAccount = async (data: {
-  Id_Registro: string;
-  Id_Paciente: string;
-  Id_CuentaPaciente: string;
-  TotalCuenta: number;
-  SubTotal: number;
-  IVA: number;
-}) => {
-  const res = await axios.put(`${apiRegister}/cerrar-registro`, data);
-  return res.data;
-};
-
 export const admitRegister = async (data: { Id_Registro: string }) => {
   const res = await axios.put(`${apiRegister}/admitir-registro`, data);
   return res.data;
