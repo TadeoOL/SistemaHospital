@@ -475,13 +475,13 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
   const handleSave: SubmitHandler<InputsRoomHourCost> = (data) => {
     if (!open) return handleAdd();
     const newData = {
-      inicio: data.inicio,
-      fin: data.fin ? data.fin : null,
+      horaInicio: data.inicio,
+      horaFin: data.fin ? data.fin : null,
       precio: data.precio,
     };
     if (!validateConfig(configList, newData)) return;
     const config = [...configList, newData];
-    setConfigList((prev) => [...prev, { ...newData, fin: newData.fin ? newData.fin : '' }]);
+    setConfigList((prev) => [...prev, { ...newData, fin: newData.horaFin ? newData.horaFin : '' }]);
     props.updateRecoveryConfig(config);
     reset();
     setOpen(false);
@@ -515,7 +515,7 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
               {configList &&
                 configList.map((d, n) => (
                   <TableRow key={n}>
-                    <TableCell>{`${d.inicio} - ${!d.fin ? 'En adelante' : d.fin}`}</TableCell>
+                    <TableCell>{`${d.horaInicio} - ${!d.horaFin ? 'En adelante' : d.horaFin}`}</TableCell>
                     <TableCell>{d.precio}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -631,16 +631,16 @@ const AddPriceHospitalizationRoom = (props: {
 
 function validateConfig(currentConfig: IRecoveryRoomOperatingRoom[], config: IRecoveryRoomOperatingRoom): boolean {
   for (const existingConfig of currentConfig) {
-    if (existingConfig.fin === null) {
-      if (config.inicio >= existingConfig.inicio) {
+    if (existingConfig.horaFin === null) {
+      if (config.horaInicio >= existingConfig.horaInicio) {
         toast.warning('No se puede crear una configuración que comienza después de una configuración abierta.');
         return false;
       }
     } else {
       if (
-        (config.inicio >= existingConfig.inicio && config.inicio < existingConfig.fin) ||
-        (config.fin !== null && config.fin > existingConfig.inicio && config.fin <= existingConfig.fin) ||
-        (config.inicio <= existingConfig.inicio && (config.fin === null || config.fin >= existingConfig.fin))
+        (config.horaInicio >= existingConfig.horaInicio && config.horaInicio < existingConfig.horaFin) ||
+        (config.horaFin !== null && config.horaFin > existingConfig.horaInicio && config.horaFin <= existingConfig.horaFin) ||
+        (config.horaInicio <= existingConfig.horaInicio && (config.horaFin === null || config.horaFin >= existingConfig.horaFin))
       ) {
         toast.warning('El rango de horas está interfiere con una configuración existente.');
         return false;
@@ -659,8 +659,8 @@ function validateConfig(currentConfig: IRecoveryRoomOperatingRoom[], config: IRe
 function sortByInicio(array?: IRecoveryRoomOperatingRoom[]) {
   if (!array) return [];
   return array.sort((a, b) => {
-    if (a.inicio === null) return 1;
-    if (b.inicio === null) return -1;
-    return parseInt(a.inicio) - parseInt(b.inicio);
+    if (a.horaInicio === null) return 1;
+    if (b.horaInicio === null) return -1;
+    return parseInt(a.horaInicio) - parseInt(b.horaInicio);
   });
 }

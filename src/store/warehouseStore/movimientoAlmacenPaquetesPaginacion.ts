@@ -1,15 +1,15 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { IWarehouseMovementData } from '../../types/types';
+import { IWaitingPackagesRequestData } from '../../types/types';
 import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
-import { getQurirgicalPackagePagination } from '../../services/operatingRoom/dailyOperatingPackageService';
+import { getWaitingPackagesByWarehouse } from '../../services/pharmacy/inventoryOutflowsService';
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IWarehouseMovementData[] | null;
+  data: IWaitingPackagesRequestData[] | null;
   isLoading: boolean;
   search: string;
   enabled: boolean;
@@ -21,11 +21,13 @@ interface State {
   setStartDate: Function;
   setEndDate: Function;
   setSearch: Function;
+  status: number | null;
   sort: string;
 }
 
 interface Action {
   setCount: (count: number) => void;
+  setStatus: (count: number | null) => void;
   setPageCount: (pageCount: number) => void;
   setPageIndex: (pageIndex: number) => void;
   setPageSize: (pageSize: number) => void;
@@ -52,8 +54,10 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
   enabled: true,
   handleChangeSubWarehouse: false,
   searchUser: '',
+  status: 1,
   sort: '',
   setSort: (sort: string) => set({ sort }),
+  setStatus: (status: number | null) => set({ status }),
   setEndDate: (endDate: string) => set({ endDate }),
   setStartDate: (startDate: string) => set({ startDate }),
   setSearchUser: (searchUser: string) => set({ searchUser }),
@@ -66,25 +70,25 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
   setEnabled: (enabled: boolean) => set({ enabled }),
   clearFilters: () => set({ endDate: '', startDate: '' }),
   fetchWarehouseMovements: async (specificWarehouseId?: string) => {
-    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort } = get();
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort, status } = get();
     set(() => ({ isLoading: true }));
 
     const page = pageIndex + 1;
     try {
       let res: any;
       if (specificWarehouseId !== undefined) {
-        res = await getQurirgicalPackagePagination(
+        res = await getWaitingPackagesByWarehouse(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
+          }&search=${search}&habilitado=${enabled}&Id_Almacen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}&Estatus=${status? status :  ''}`
         );
       } else {
-        res = await getQurirgicalPackagePagination(
+        res = await getWaitingPackagesByWarehouse(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&Id_AlmacenOrigen=${
+          }&search=${search}&habilitado=${enabled}&Id_Almacen=${
             useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
-          }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}`
+          }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}&Estatus=${status? status :  ''}`
         );
       }
       set(() => ({

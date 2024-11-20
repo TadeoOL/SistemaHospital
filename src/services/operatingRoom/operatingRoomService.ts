@@ -17,3 +17,13 @@ export const modifyOperatingRoom = async (data: {
   const res = await axios.put(`${OperatingRoomCon}/completar-datos-cirugia`, data);
   return res.data;
 };
+
+export const changeOperatingRoomStatus = async (data: {
+  id_CuentaEspacioHospitalario: string;
+  estatus?: number;
+  horaAsignada?: string;
+  id_UsuarioRecuperacion?: string;
+}) => {
+  const res = await axios.post(`${OperatingRoomCon}/estado-cirugia`, data);
+  return res.data;
+};

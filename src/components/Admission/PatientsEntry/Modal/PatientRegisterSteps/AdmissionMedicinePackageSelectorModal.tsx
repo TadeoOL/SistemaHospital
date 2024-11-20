@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  createFilterOptions,
   Divider,
   IconButton,
   Table,
@@ -22,16 +23,21 @@ import { useExistingArticlePagination } from '../../../../../store/warehouseStor
 import { usePackageNamesPaginationStore } from '../../../../../store/warehouseStore/packagesNamesPagination';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { IExistingArticle } from '../../../../../types/types';
+import { IExistingArticle, IWarehouseData } from '../../../../../types/types';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
 import { getPharmacyConfig } from '../../../../../services/pharmacy/configService';
+import { getWarehouseById } from '../../../../../api/api.routes';
 
 const TABLE_HEADER = ['Nombre', 'Cantidad', 'Acciones'];
 interface AdmissionMedicinePackageSelectorModalProps {
   setOpen: Function;
 }
+const OPTIONS_LIMIT = 20;
+const filterWarehouseOptions = createFilterOptions<IWarehouseData>({
+  limit: OPTIONS_LIMIT,
+});
 
 const style = {
   position: 'absolute',
@@ -147,6 +153,7 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
   const [articles, setArticles] = useState(articlesRes);
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
+  const setWarehouseSelectedSS = usePatientEntryRegisterStepsStore((state) => state.setWarehouseSelected);
   const articlesSelected = usePatientEntryRegisterStepsStore((state) => state.articlesSelected);
   const setArticlesSelected = usePatientEntryRegisterStepsStore((state) => state.setArticlesSelected);
   const [articleSelected, setArticleSelected] = useState<{
@@ -163,6 +170,23 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
     if (!isValidInteger(num)) return toast.warning('Escribe un número valido!');
     setArticleAmount(num);
   };
+  const [warehouses, setWarehouses] = useState<IWarehouseData[]>([]);
+  const [warehouseSelected, setWarehouseSelected] = useState<IWarehouseData | null>(null);
+  const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
+
+  useEffect(() => {
+    if(principalWarehouseId){
+      const fetchWarehouse = async () => {
+        const warehouseInfo = await getWarehouseById(principalWarehouseId);
+        const allWarehouses = [warehouseInfo, ...warehouseInfo.subAlmacenes];
+        setWarehouseSelected(allWarehouses[0]);
+        setWarehouseSelectedSS(allWarehouses[0].id_Almacen)
+        setIsLoadingWarehouse(false);
+        setWarehouses(allWarehouses);
+      };
+      fetchWarehouse();
+    }
+  }, [principalWarehouseId]);
 
   const handleAddArticle = () => {
     if (!articleSelected) return toast.warning('Selecciona un artículo');
@@ -198,6 +222,9 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
   }, [isLoadingArticles, articlesRes]);
 
   const handleSubmit = () => {
+    if (!warehouseSelected){
+      return toast.warning('Selecciona un almacen!');
+    }
     if (articlesSelected.length === 0 && !packageSelected)
       return toast.warning('Selecciona un paquete quirurgico o agrega artículos al paquete');
     toast.success('Artículos agregados con éxito!');
@@ -209,13 +236,51 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
       <HeaderModal setOpen={props.setOpen} title="Paquete de medicinas" />
 
       <Box sx={{ backgroundColor: 'background.paper', p: 1 }}>
-        <Typography>Selección de paquete:</Typography>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+      <Typography>Almacen:</Typography>
+        <Autocomplete
+          disablePortal
+          fullWidth
+          filterOptions={filterWarehouseOptions}
+          loading={isLoadingPackages}
+          getOptionLabel={(option) => option.nombre ?? ''}
+          options={warehouses ?? []}
+          sx={{ width: { xs: 350, sm: 400 } }}
+          noOptionsText="No se encontraron almacenes"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Almacen a solicitar"
+              sx={{ width: '100%' }}
+              onChange={(e) => {
+                setSearchPack(e.target.value);
+              }}
+            />
+          )}
+          onChange={async (_, val) => {
+            if (!val) return;
+            setWarehouseSelected(val);
+            setWarehouseSelectedSS(val.id_Almacen)
+          }}
+          onInputChange={(_, __, reason) => {
+            if (reason === 'clear') {
+              setWarehouseSelected(null);
+              setWarehouseSelectedSS('')
+            }
+          }}
+          value={warehouseSelected}
+          isOptionEqualToValue={(op, val) => op.id_Almacen === val.id_Almacen}
+        />
+      </Box>
+      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+      <Typography>Selección de almacen:</Typography>
         <Autocomplete
           disabled={!!packageSelected}
           disablePortal
           fullWidth
           // filterOptions={filterPackageOptions}
-          loading={isLoadingPackages}
+          loading={isLoadingWarehouse}
           getOptionLabel={(option) => option.nombre ?? ''}
           options={dataPack ?? []}
           sx={{ width: { xs: 350, sm: 400 } }}
@@ -242,6 +307,10 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
           value={packageSelected}
           isOptionEqualToValue={(op, val) => op.id_PaqueteQuirurgico === val.id_PaqueteQuirurgico}
         />
+      </Box>
+      </Box>
+      
+        
         <Divider sx={{ my: 1 }} />
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
           <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
@@ -249,7 +318,7 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
             <Autocomplete
               disablePortal
               fullWidth
-              // filterOptions={filterArticleOptions}
+              // filterOptions={filterWarehouseOptions}
               onChange={(_, val) => {
                 if (val) {
                   setArticleSelected({

@@ -13,7 +13,7 @@ export const useGetAllNursesUsers = () => {
 
   return {
     isLoadingNursesUsers: isLoading,
-    nursesUsersData: data as { id_Enfermero: string; nombre: string }[],
+    nursesUsersData: data as { id: string; nombre: string }[],
     isError,
   };
 };

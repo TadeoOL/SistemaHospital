@@ -7,9 +7,11 @@ import {
   Card,
   CircularProgress,
   Collapse,
+  FormControlLabel,
   IconButton,
   Modal,
   Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -18,6 +20,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import React, { useEffect } from 'react';
@@ -28,25 +31,25 @@ import withReactContent from 'sweetalert2-react-content';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import Swal from 'sweetalert2';
-import { articlesOutputToWarehouse, getPackagePreBuilded, waitingpackageChangeStatus } from '../../../api/api.routes';
+import { buildPackage, getPackagePreBuilded } from '../../../api/api.routes';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
 import { SortComponent } from '../../Commons/SortComponent';
 import { LuPackagePlus } from 'react-icons/lu';
 //import { CreatePackageModal } from './Modal/CreatePackageModal';
-import { IArticleHistory, IPrebuildedArticleFromArticleRequest } from '../../../types/types';
+import { IArticleHistory, IarticlesPrebuildedRequest } from '../../../types/types';
 import { RequestBuildingModalMutation } from './Modal/CreatePackageModalMutation';
 
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
-  2: 'Aceptada',
-  3: 'En espera',
-  4: 'Armar paquete',
+  1: 'Armar paquete',
+  2: 'En espera',
+  3: 'Aceptada',
 };
 enum STATUS_ENUM {
   Cancelada = 0,
-  Aceptada = 2,
-  Esperando = 3,
-  ArmarPaquete = 4,
+  ArmarPaquete = 1,
+  Esperando = 2,
+  Aceptada = 3,
 }
 
 const useGetMovements = () => {
@@ -69,6 +72,8 @@ const useGetMovements = () => {
     search,
     sort,
     setSort,
+    status,
+    setStatus,
   } = useWarehouseMovementPackagesPaginationStore((state) => ({
     data: state.data,
     fetchWareHouseMovements: state.fetchWarehouseMovements,
@@ -77,6 +82,8 @@ const useGetMovements = () => {
     pageIndex: state.pageIndex,
     pageSize: state.pageSize,
     count: state.count,
+    status: state.status,
+    setStatus: state.setStatus,
     startDate: state.startDate,
     setStartDate: state.setStartDate,
     endDate: state.endDate,
@@ -91,7 +98,7 @@ const useGetMovements = () => {
 
   useEffect(() => {
     fetchWareHouseMovements(warehouseIdSeted);
-  }, [pageCount, pageSize, pageIndex, startDate, sort, endDate, search]);
+  }, [pageCount, pageSize, pageIndex, startDate, status, sort, endDate, search]);
   return {
     data,
     isLoading,
@@ -103,6 +110,8 @@ const useGetMovements = () => {
     setStartDate,
     startDate,
     setEndDate,
+    status,
+    setStatus,
     setPageIndex,
     setPageSize,
     setSort,
@@ -122,6 +131,8 @@ export const WaitingPackages = () => {
     setStartDate,
     setEndDate,
     startDate,
+    status,
+    setStatus,
     setPageIndex,
     setPageSize,
     fetchWareHouseMovements,
@@ -130,10 +141,10 @@ export const WaitingPackages = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
   const [loadingPackage, setLoadingPackage] = useState(false);
-  const [packageSelected, setPackageSelected] = useState('');
+  const [packageSelected, setPackageSelected] = useState<{ id_SolicitudAlmacen: string; id_CuentaEspacioHospitalario: string; } | null>(null);
   const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
-  const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
-  const rejectRequest = (idRequest: string) => {
+  const [prebuildedArticles, setPrebuildedArticles] = useState<IarticlesPrebuildedRequest[] | null>(null);
+  const rejectRequest = (id_SolicitudAlmacen: string, id_CuentaEspacioHospitalario: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
@@ -146,9 +157,10 @@ export const WaitingPackages = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return waitingpackageChangeStatus({
-            Estatus: 0,
-            Id_HistorialMovimiento: idRequest,
+          return buildPackage({
+            estatus: 0,
+            id_SolicitudAlmacen: id_SolicitudAlmacen,
+            id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -170,7 +182,7 @@ export const WaitingPackages = () => {
       });
   };
 
-  const acceptRequest = (idRequest: string, lotes: any, id_CuentaPaciente?: string) => {
+  const acceptRequest = (id_SolicitudAlmacen: string, id_CuentaEspacioHospitalario: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -183,11 +195,10 @@ export const WaitingPackages = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return articlesOutputToWarehouse({
-            Estatus: 2,
-            Id_HistorialMovimiento: idRequest,
-            ArticulosSalida: lotes,
-            Id_CuentaPaciente: id_CuentaPaciente,
+          return buildPackage({
+            estatus: 3,
+            id_SolicitudAlmacen: id_SolicitudAlmacen,
+            id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -210,58 +221,19 @@ export const WaitingPackages = () => {
       });
   };
 
-  const createPackage = (id: string, request: IPrebuildedArticleFromArticleRequest[]) => {
+  const createPackage = (id_request: string, id_account: string, request: IarticlesPrebuildedRequest[]) => {
     setPrebuildedArticles(request);
     setOpenCreatePackageModal(true);
-    setPackageSelected(id);
+    setPackageSelected({
+      id_SolicitudAlmacen: id_request,
+      id_CuentaEspacioHospitalario: id_account
+    });
     setLoadingPackage(false);
   };
 
-  const sendDateHHMMDDMMYYYY = (datestr: string) => {
-    const date = new Date(datestr);
-    const formattedDate = date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-
-    const formattedTime = date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-    return `${formattedTime} ${formattedDate} `;
-  };
-
-  const getDDMMYYYY = (datestr: string) => {
-    const date = new Date(datestr);
-    const formattedDate = date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-    return `${formattedDate}`;
-  };
-
-  const calculateAge = (birthDateString: string): number => {
-    const [day, month, year] = birthDateString.split('/').map(Number);
-    const today = new Date();
-    const birthDate = new Date(year, month - 1, day);
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-
-    // Restar un año si no ha llegado el mes y día del cumpleaños de este año
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    return age;
-  };
-
   useEffect(() => {
-    setProvisionalArticles(data?.find((d) => d.id === packageSelected)?.historialArticulos ?? []);
+    setProvisionalArticles(data?.find((d) => d.id_SolicitudAlmacen === packageSelected?.id_SolicitudAlmacen)?.articulos ?? []);
   }, [packageSelected]);
-  console.log(data);
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -281,6 +253,21 @@ export const WaitingPackages = () => {
                   searchState={setSearch}
                   sx={{ display: 'flex', flex: 1 }}
                   size="small"
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={status === 1}
+                      onChange={(val) => {
+                        if (val.target.checked) {
+                          setStatus(1);
+                        } else {
+                          setStatus(2);
+                        }
+                      }}
+                    />
+                  }
+                  label="Pendientes"
                 />
                 <Box sx={{ display: 'flex', flex: 1, columnGap: 2, justifyContent: 'flex-end' }}>
                   <TextField
@@ -340,14 +327,14 @@ export const WaitingPackages = () => {
                 <TableBody>
                   {data && data.length > 0 ? (
                     data.map((movimiento) => (
-                      <React.Fragment key={movimiento.id}>
+                      <React.Fragment key={movimiento.id_SolicitudAlmacen}>
                         <TableRow>
                           <TableCell sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {!viewArticles[movimiento.id] ? (
+                            {!viewArticles[movimiento.id_SolicitudAlmacen] ? (
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [movimiento.id]: !viewArticles[movimiento.id],
+                                    [movimiento.id_SolicitudAlmacen]: !viewArticles[movimiento.id_SolicitudAlmacen],
                                   })
                                 }
                               >
@@ -357,7 +344,7 @@ export const WaitingPackages = () => {
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [movimiento.id]: !viewArticles[movimiento.id],
+                                    [movimiento.id_SolicitudAlmacen]: !viewArticles[movimiento.id_SolicitudAlmacen],
                                   })
                                 }
                               >
@@ -367,28 +354,21 @@ export const WaitingPackages = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell>
-                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.nombres ?? ''}{' '}
-                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.apellidoPaterno ?? ''}{' '}
-                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.medico?.apellidoMaterno ?? ''}
+                            {movimiento.medico}
                           </TableCell>
                           <TableCell>
-                            {movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.cuarto?.nombre ?? ''}
+                            {movimiento.quirofano}
                           </TableCell>
                           <TableCell>
-                            {sendDateHHMMDDMMYYYY(
-                              movimiento?.infoExtra?.[0]?.registro?.registroCuartos?.[0]?.horaInicio as string
-                            ) ?? ''}
+                            {movimiento.horaCirugia}
                           </TableCell>
                           <TableCell>
-                            {calculateAge(
-                              getDDMMYYYY(movimiento?.infoExtra?.[0]?.registro?.paciente?.fechaNacimiento ?? '')
-                            )}{' '}
-                            años{' '}
+                            {movimiento.paciente}
                           </TableCell>
 
-                          <TableCell> {movimiento.solicitadoPor} </TableCell>
+                          <TableCell> {movimiento.usuarioSolicito} </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
-                          <TableCell>{movimiento.estatus && STATUS[movimiento.estatus]}</TableCell>
+                          <TableCell>{STATUS[movimiento.estatus]}</TableCell>
                           <TableCell>
                             <Box
                               sx={{
@@ -399,75 +379,77 @@ export const WaitingPackages = () => {
                             >
                               {(movimiento.estatus as number) === STATUS_ENUM.Esperando ? (
                                 <>
-                                  <IconButton
-                                    onClick={() => {
-                                      acceptRequest(
-                                        movimiento.id,
-                                        movimiento.historialArticulos?.map((art) => ({
-                                          Id_ArticuloAlmacenStock: art.id_ArticuloExistente, //corregir
-                                          Id_Articulo: art.id_Articulo,
-                                          Nombre: art.nombre,
-                                          Cantidad: art.cantidad,
-                                        })),
-                                        movimiento.id_CuentaPaciente
-                                      );
-                                    }}
-                                  >
-                                    <DoneIcon />
-                                  </IconButton>
-                                </>
-                              ) : (
-                                <>
-                                  <IconButton
-                                    onClick={async () => {
-                                      try {
-                                        //Agregar Loader
-                                        setLoadingPackage(true);
-                                        const packRes = await getPackagePreBuilded(movimiento.id);
-                                        createPackage(movimiento.id, packRes);
-                                      } catch (error) {
-                                        console.log(error);
-                                      }
-                                    }}
-                                  >
-                                    <LuPackagePlus
-                                      style={{
-                                        color: '#8F959E',
+                                  <Tooltip title="Aceptar paquete">
+                                    <IconButton
+                                      onClick={() => {
+                                        acceptRequest(
+                                          movimiento.id_SolicitudAlmacen,
+                                          movimiento.id_CuentaEspacioHospitalario
+                                        );
                                       }}
-                                    />
-                                  </IconButton>
+                                    >
+                                      <DoneIcon />
+                                    </IconButton>
+                                  </Tooltip>
+
                                 </>
-                              )}
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  rejectRequest(movimiento.id);
-                                }}
-                              >
-                                <CloseIcon sx={{ color: 'red' }} />
-                              </IconButton>
+                              ) : (movimiento.estatus as number) === STATUS_ENUM.ArmarPaquete ? (
+                                <>
+                                  <Tooltip title="Armar paquete">
+                                    <IconButton
+                                      onClick={async () => {
+                                        try {
+                                          //Agregar Loader
+                                          setLoadingPackage(true);
+                                          const packRes = await getPackagePreBuilded(movimiento.id_SolicitudAlmacen);
+                                          createPackage(movimiento.id_SolicitudAlmacen, movimiento.id_CuentaEspacioHospitalario, packRes);
+                                        } catch (error) {
+                                          console.log(error);
+                                        }
+                                      }}
+                                    >
+                                      <LuPackagePlus
+                                        style={{
+                                          color: '#8F959E',
+                                        }}
+                                      />
+                                    </IconButton>
+                                  </Tooltip>
+
+                                </>
+                              ) : (<></>)
+
+                              }
+                              {movimiento.estatus !== 0 && movimiento.estatus !== 3 && (<Tooltip title="Cancelar paquete">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    rejectRequest(movimiento.id_SolicitudAlmacen, movimiento.id_CuentaEspacioHospitalario);
+                                  }}
+                                >
+                                  <CloseIcon sx={{ color: 'red' }} />
+                                </IconButton>
+                              </Tooltip>)}
                             </Box>
                           </TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell colSpan={7} sx={{ p: 0 }}>
-                            <Collapse in={viewArticles[movimiento.id]}>
+                          <TableCell colSpan={9} sx={{ p: 0 }}>
+                            <Collapse in={viewArticles[movimiento.id_SolicitudAlmacen]}>
                               <Table>
                                 <TableHead>
                                   <TableRow>
                                     <TableCell align="center">Articulo</TableCell>
                                     <TableCell align="center">Cantidad</TableCell>
-                                    <TableCell align="center">Fecha Caducidad</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {movimiento?.historialArticulos &&
-                                    movimiento?.historialArticulos?.length > 0 &&
-                                    movimiento.historialArticulos.map((movimientoArticuclo, i) => (
+                                  {movimiento?.articulos &&
+                                    movimiento?.articulos?.length > 0 &&
+                                    movimiento.articulos.map((movimientoArticuclo, i) => (
                                       <TableRow key={(movimientoArticuclo.nombre, i)}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>
-                                        <TableCell align="center">{movimientoArticuclo.fechaCaducidad}</TableCell>
                                       </TableRow>
                                     ))}
                                 </TableBody>
@@ -539,8 +521,9 @@ export const WaitingPackages = () => {
             refetch={() => {
               fetchWareHouseMovements(warehouseIdSeted);
             }}
-            preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
-            movementHistoryId={packageSelected}
+            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])}
+            id_SolicitudAlmacen={packageSelected?.id_SolicitudAlmacen ?? ""}
+            id_CuentaEspacioHospitalario={packageSelected?.id_CuentaEspacioHospitalario ?? ""}
           />
         </>
       </Modal>
