@@ -4,6 +4,7 @@ import {
   IAddUser,
   IArticle,
   IArticlesPackage,
+  IarticlesPrebuildedRequest,
   ICategory,
   IProvider,
   IPurchaseConfig,
@@ -960,8 +961,8 @@ export const modifyOrderPurcharse = async (data: {
   return res.data;
 };
 
-export const getNursesUsers = async () => {
-  const res = await axios.get(`/api/ConfiguracionFarmacia/obtener-enfermeros`);
+export const getNursesUsers = async (search?: string) => {
+  const res = await axios.get(`/api/Usuario/busqueda-usuario-enfermeros?search=${search ? search : '' }`);
   return res.data;
 };
 
@@ -1073,17 +1074,19 @@ export const updateStatusNurseRequest = async (data: {
 };
 
 export const buildPackage = async (data: {
-  id_HistorialMovimiento: string;
-  id_AlmacenOrigen: string;
-  lotes: { Id_ArticuloAlmacenStock: string; Id_Articulo: string; Cantidad: number }[];
+  id_SolicitudAlmacen: string;
+  id_CuentaEspacioHospitalario: string;
+  articulos?: { Id_Articulo: string; Cantidad: number }[];
+  estatus: number;
+  motivo?: string;
 }) => {
-  const res = await axios.post(`/api/Almacen/armar-paquete`, data);
+  const res = await axios.put(`/api/SalidasExistencias/estatus-solicitud-paciente`, data);
   return res.data;
 };
 
 export const getPackagePreBuilded = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Almacen/prearmado-solicitud-paquete?Id_historialPaquete=${paramUrl}`);
-  return res.data.articulosSolicitados;
+  const res = await axios.get(`/api/SalidasExistencias/armar-solicitud-espera/${paramUrl}`);
+  return res.data as IarticlesPrebuildedRequest[];
 };
 
 export const getNurseRequestPreBuilded = async (id_solicitud: string, id_Almacen: string) => {

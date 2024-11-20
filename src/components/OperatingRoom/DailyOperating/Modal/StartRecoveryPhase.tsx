@@ -4,13 +4,13 @@ import { useGetAllNursesUsers } from '../../../../hooks/hospitalization/useGetAl
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { startRecoveryPhaseSchema } from '../../../../schema/operatingRoom/operatingRoomSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { modifyOperatingRoomRegister } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { useDailyOperatingRoomsPaginationStore } from '../../../../store/operatingRoom/dailyOperatingRoomsPagination';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { changeOperatingRoomStatus } from '../../../../services/operatingRoom/operatingRoomService';
 
 const style = {
   position: 'absolute',
@@ -25,10 +25,10 @@ const style = {
   maxHeight: { xs: 900 },
 };
 interface Inputs {
-  nurse: { id_Enfermero: string; nombre: string } | null;
+  nurse: { id: string; nombre: string } | null;
   startTime: string | Date;
 }
-export const StartRecoveryPhase = (props: { setOpen: Function; operatingRoomId: string; surgeryEndTime: Date }) => {
+export const StartRecoveryPhase = (props: { setOpen: Function; id_CuentaEspacioHospitalario: string; surgeryEndTime: Date }) => {
   const { isLoadingNursesUsers, nursesUsersData } = useGetAllNursesUsers();
   const refetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
   const {
@@ -68,10 +68,11 @@ export const StartRecoveryPhase = (props: { setOpen: Function; operatingRoomId: 
       .then(async (res) => {
         if (res.isConfirmed) {
           try {
-            await modifyOperatingRoomRegister({
-              id_RegistroQuirofano: props.operatingRoomId,
-              Enfermero: data.nurse ?? undefined,
-              horaInicioRecuperacion: new Date(data.startTime),
+            await changeOperatingRoomStatus({
+              id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
+              estatus: 3,
+              horaAsignada: data.startTime as string,
+              id_UsuarioRecuperacion: data.nurse?.id
             });
             Swal.fire({
               title: 'Recuperación comenzada',
@@ -118,7 +119,7 @@ export const StartRecoveryPhase = (props: { setOpen: Function; operatingRoomId: 
                 options={nursesUsersData}
                 noOptionsText="No se encontraron enfermeros"
                 getOptionLabel={(option) => option.nombre}
-                isOptionEqualToValue={(option, value) => option.id_Enfermero === value.id_Enfermero}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => (
                   <TextField
                     {...params}

@@ -23,7 +23,6 @@ import { IRegisterRoom } from '../../../types/types';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { createPatient } from '../../../services/programming/patientService';
 import { createClinicalHistory } from '../../../services/programming/clinicalHistoryService';
-import { createAdmission } from '../../../services/programming/admissionRegisterService';
 import { toast } from 'react-toastify';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { useState } from 'react';
@@ -184,7 +183,7 @@ export const ProgrammingRegisterResume = (props: RegisterResumeProps) => {
         id_Medico: medicId === '' ? null : medicId,
         id_Anestesiologo: anesthesiologistId === '' ? null : anesthesiologistId,
       };
-      await createAdmission(registerAdmissionObj);
+      //await createAdmission(registerAdmissionObj); ???? ya no existe
       refetch();
       toast.success('Paciente dado de alta correctamente');
       props.setOpen(false);

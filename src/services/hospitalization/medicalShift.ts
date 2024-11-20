@@ -25,14 +25,14 @@ export const getRegisteredMedicalShifts = async (date: Date) => {
   return res.data;
 };
 
-export const getMedicalShiftsByDate = async (date: Date) => {
+/*export const getMedicalShiftsByDate = async (date: Date) => {
   const res = await axios.get(`${apiMedicalShift}/obtener-guardias-medicos`, {
     params: {
       fechaInicio: date,
     },
   });
   return res.data;
-};
+};*/
 
 export const modifyMedicalShifts = async (data: {
   id: string;

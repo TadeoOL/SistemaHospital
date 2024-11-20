@@ -23,11 +23,6 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import dayjs from 'dayjs';
 import { AddCircleOutline, CheckCircle, DoneAll, Info, VerifiedUser, Warning } from '@mui/icons-material';
 import { FaNotesMedical } from 'react-icons/fa';
-import { OptionsModal } from './Modal/OptionsModal';
-import {
-  createOperatingRoomRegister,
-  modifyOperatingRoomRegister,
-} from '../../../services/operatingRoom/operatingRoomRegisterService';
 import { toast } from 'react-toastify';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import { FaHandHoldingMedical } from 'react-icons/fa6';
@@ -39,6 +34,8 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
 import withReactContent from 'sweetalert2-react-content';
 import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
+import { FormSurgeryInfoEditModal } from './Modal/FormSurgeryInfoModal';
+import { changeOperatingRoomStatus } from '../../../services/operatingRoom/operatingRoomService';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-mx');
 
@@ -57,6 +54,7 @@ const TABLE_HEADERS = [
 const useGetDailyOperatingRooms = () => {
   const fetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
   const data = useDailyOperatingRoomsPaginationStore((state) => state.data);
+  const setStatus = useDailyOperatingRoomsPaginationStore((state) => state.setStatus);
   const isLoading = useDailyOperatingRoomsPaginationStore((state) => state.loading);
   const search = useDailyOperatingRoomsPaginationStore((state) => state.search);
   const pageSize = useDailyOperatingRoomsPaginationStore((state) => state.pageSize);
@@ -67,6 +65,7 @@ const useGetDailyOperatingRooms = () => {
   const operatingRoomId = useDailyOperatingRoomsPaginationStore((state) => state.operatingRoomId);
 
   useEffect(() => {
+    setStatus(1);
     fetch();
   }, [search, pageSize, pageIndex, operatingRoomId]);
   return { data, isLoading, setPageIndex, setPageSize, count, pageIndex, pageSize };
@@ -185,9 +184,11 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
       })
       .then(async (res) => {
         if (res.isConfirmed) {
-          await createOperatingRoomRegister({
-            id_RegistroCuarto: data.id_IngresoPaciente,
-            horaInicio: new Date(startOperatingRoom),
+          console.log(startOperatingRoom);
+          await changeOperatingRoomStatus({
+            id_CuentaEspacioHospitalario: data.id_CuentaEspacioHospitalario,
+            estatus: 1,
+            horaAsignada: (startOperatingRoom),
           });
           toast.success('Hora de inicio registrada con éxito!');
           refetch();
@@ -227,10 +228,10 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
       .then(async (res) => {
         if (res.isConfirmed) {
           try {
-            await modifyOperatingRoomRegister({
-              //id_RegistroQuirofano: data.registroQuirofano?.id as string, quiza este mal
-              id_RegistroQuirofano: data.id_IngresoPaciente as string,
-              horaFin: new Date(endOperatingRoom),
+            await changeOperatingRoomStatus({
+              id_CuentaEspacioHospitalario: data.id_CuentaEspacioHospitalario,
+              estatus: 2,
+              horaAsignada: (endOperatingRoom),
             });
             Swal.fire({
               title: 'Quirófano finalizado con éxito!',
@@ -261,21 +262,21 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
     <>
       <TableRow sx={{ backgroundColor: validateData() ? 'white' : theme.palette.warning.light }}>
         <TableCell>
-          {validateData() && !data.quirofano ? (
+          {validateData() && data.quirofano ? (
             <Tooltip title="Datos correctos">
               <CheckCircle color="success" />
             </Tooltip>
-          ) : data.quirofano && !data.horaFinRecuperacion ? (
+          ) : data.quirofano && !data.horaFinRecuperacion && data.horaInicioRecuperacion  !== "01/01/0001 - 00:00" ? (
             <Tooltip title="Es necesario cerrar el quirófano">
               <Info color="warning" />
             </Tooltip>
-          ) : data.quirofano && data.horaInicioRecuperacion ? (
+          ) : data.quirofano && data.horaInicioRecuperacion !== "01/01/0001 - 00:00" ? (
             <Tooltip title="Cirugía finalizada">
               <VerifiedUser color="success" />
             </Tooltip>
           ) : data.quirofano &&
-            !data.horaInicioRecuperacion &&
-            data.horaFinRecuperacion ? (
+            !data.horaInicioRecuperacion  &&
+            data.horaFinRecuperacion  !== "01/01/0001 - 00:00" ? (
             <Tooltip title="Comenzar recuperación">
               <Info color="warning" />
             </Tooltip>
@@ -286,40 +287,38 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
           )}
         </TableCell>
         <TableCell>{data.horaInicio}</TableCell>
-        <TableCell>{data.paciente}</TableCell>
+        <TableCell>{data.quirofano}</TableCell>
         <TableCell>{patientName}</TableCell>
         <TableCell>
-          { data.cirugias && (<SurgeryProceduresChip surgeries={data.cirugias.map((cir) => ({id: cir.id_cirugia, nombre: cir.nombre}))} />)}
+          { data.cirugias && (<SurgeryProceduresChip surgeries={data.cirugias.map((cir) => ({id: cir.id_Cirugia, nombre: cir.nombre}))} />)}
         </TableCell>
         <TableCell>{data.medico ? medicName : 'Sin asignar'}</TableCell>
         <TableCell>{data.anestesiologo ? anesthesiologistName : 'Sin asignar'}</TableCell>
         <TableCell>{data.tiempoEstimado}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {!data.quirofano && validateData() && (
+            { data.quirofano && validateData() && data.estatus == 0 && (
               <Tooltip title="Comenzar cirugía">
                 <IconButton onClick={handleClick}>
                   <AddCircleOutline style={{ color: '#686D76' }} />
                 </IconButton>
               </Tooltip>
             )}
-            {!data.quirofano && (
+            {data.quirofano && (
               <Tooltip title={`${!validateData() ? 'Agregar datos' : 'Modificar datos'}`}>
                 <IconButton onClick={() => setOpen(true)}>
                   <FaNotesMedical style={{ color: '#686D76' }} />
                 </IconButton>
               </Tooltip>
             )}
-            {data.quirofano && !data.horaFinRecuperacion && (
+            {data.quirofano && data.estatus == 1 && (
               <Tooltip title="Cerrar cirugía">
                 <IconButton onClick={handleClickEnd}>
                   <DoneAll style={{ color: 'red' }} />
                 </IconButton>
               </Tooltip>
             )}
-            {data.quirofano &&
-              !data.horaInicioRecuperacion &&
-              data.horaFinRecuperacion && (
+            {data.quirofano && data.estatus == 2 && (
                 <Tooltip title="Comenzar recuperación">
                   <IconButton onClick={() => setOpenRecoveryPhase(true)}>
                     <FaHandHoldingMedical style={{ color: '#686D76' }} />
@@ -331,20 +330,25 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <OptionsModal
-            setOpen={setOpen}
-            registerRoomId={data.id_IngresoPaciente}
-            medical={
-              data.medico ? {
-                id: data.id_medico ?? '',
-                nombre: medicName ?? '',
-              } : undefined
-            }
-            nurse={data.enfermero ?? null}
+          <FormSurgeryInfoEditModal
+            setOpen={() => setOpen(false)}
+            registerRoomId={data.id_CuentaEspacioHospitalario}
             anesthesiologist={
               data.anestesiologo ? {
                 id_Anestesiologo: data.id_Anestesiologo ?? " ",
                 nombre: anesthesiologistName ?? " ",
+              } : undefined
+            }
+            nurse={
+              data.id_Enfermero ? {
+                id: data.id_Enfermero ?? " ",
+                nombre: data.enfermero ?? " ",
+              } : undefined
+            }
+            surgeon={
+              data.id_Medico ? {
+                id_Medico: data.id_Medico ?? " ",
+                nombre: data.medico ?? " ",
               } : undefined
             }
           />
@@ -444,8 +448,8 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
         <>
           <StartRecoveryPhase
             setOpen={setOpenRecoveryPhase}
-            operatingRoomId={data.id_IngresoPaciente as string}
-            surgeryEndTime={ new Date( hours, minutes, 0 ,0 ) }
+            surgeryEndTime={new Date(hours, minutes, 0, 0)} 
+            id_CuentaEspacioHospitalario={data.id_CuentaEspacioHospitalario}  
           />
         </>
       </Modal>

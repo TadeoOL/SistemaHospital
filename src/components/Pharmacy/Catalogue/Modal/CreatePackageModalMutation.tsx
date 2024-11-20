@@ -18,10 +18,9 @@ import {
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import withReactContent from 'sweetalert2-react-content';
-import { IArticleHistory, IPrebuildedArticleFromArticleRequest } from '../../../../types/types';
+import { IArticleHistory, IarticlesPrebuildedRequest } from '../../../../types/types';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import Swal from 'sweetalert2';
-import { useGetPharmacyConfig } from '../../../../hooks/useGetPharmacyConfig';
 import { buildPackage } from '../../../../api/api.routes';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
@@ -56,36 +55,31 @@ interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
   requestedItems: IArticleHistory[];
-  preLoadedArticles: IPrebuildedArticleFromArticleRequest[];
-  movementHistoryId: string;
+  preLoadedArticles: IarticlesPrebuildedRequest[];
+  id_SolicitudAlmacen: string;
+  id_CuentaEspacioHospitalario: string;
 }
 
 export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) => {
-  const [articles, setArticles] = useState<IPrebuildedArticleFromArticleRequest[]>(
+  const [articles, setArticles] = useState<IarticlesPrebuildedRequest[]>(
     props.preLoadedArticles
   );
   const [value, setValue] = useState(0);
   const [loading, setLoading] = useState(false);
-  const { data } = useGetPharmacyConfig();
-  /*const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
-
-  useEffect(() => {
-    setWarehouseId(props.request.id_AlmacenSolicitado);
-  }, []); no se papu */
 
   const handleSubmit = async () => {
     setLoading(true);
     const object = {
-      id_HistorialMovimiento: props.movementHistoryId,
-      lotes: articles
+      id_SolicitudAlmacen: props.id_SolicitudAlmacen,
+      id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
+      articulos: articles
       .map((art) =>({
           Id_Articulo: art.id_Articulo,
-          Id_ArticuloAlmacenStock: art.id_ArticuloAlmacen ?? "",
-          Cantidad: art.cantidad,
+          Cantidad: art.cantidadSeleccionada,
           Nombre: art.nombre
         })
       ),
-      id_AlmacenOrigen: data.id_Almacen,
+      estatus: 2
     };
     try {
       await buildPackage(object);
@@ -99,15 +93,14 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     }
   };
 
-  const handleAddArticle = (articleEdited: IPrebuildedArticleFromArticleRequest) => {
+  const handleAddArticle = (articleEdited: IarticlesPrebuildedRequest) => {
+    console.log(articleEdited);
+    console.log(articles);
     const direction = articles.findIndex((art) => art.id_Articulo === articleEdited.id_Articulo);
     if (direction > -1) {
     articles.splice(direction, 1);
     setArticles([...articles, articleEdited]);
-  } /*else {
-    articles.push(articleEdited)
-    setArticles(articles);
-  }*/
+  } 
   };
 
   const continueRequest = () => {
@@ -132,8 +125,8 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     let diferentNumbers = false;
     articles.forEach((article) => {
       let totalToSendByArticle = 0;
-        totalToSendByArticle += article.cantidad;
-      if (totalToSendByArticle < Number(article.cantidadSeleccionar)) diferentNumbers = true;
+        totalToSendByArticle += article.cantidadSeleccionada;
+      if (totalToSendByArticle < Number(article.cantidadSolicitada)) diferentNumbers = true;
     });
     if (diferentNumbers || articles.length !== props.requestedItems.length) {
       continueRequest();
@@ -166,8 +159,8 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
               document={<PackageReport articulos={articles.map((artr)=>({
                 id_Articulo: artr.id_Articulo,
                 nombre: artr.nombre,
-                cantidadSeleccionar: artr.cantidadSeleccionar,
-                cantidad: artr.cantidad
+                cantidadSeleccionar: artr.cantidadSolicitada,
+                cantidad: artr.cantidadSeleccionada
               }))} />}
               fileName={`${Date.now()}.pdf`}
               style={{ textDecoration: 'none', color: 'inherit' }}
@@ -196,7 +189,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
           cantidad: 0,
         };
       }
-          quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidad;
+          quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidadSeleccionada;
     });
 
     // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
@@ -268,7 +261,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
           disabled={props.requestedItems.length < 1 || loading}
           onClick={() => {
             if (articles.length === 0) return toast.error('Agrega artículos!');
-            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0))
+            if (articles.flatMap((article) => article.cantidadSeleccionada).some((cantidad) => cantidad === 0))
               return toast.error('Rellena todas las cantidades');
 
             checkQuantyties();
@@ -282,7 +275,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
   );
 };
 interface ArticlesTableProps {
-  articles: IPrebuildedArticleFromArticleRequest[];
+  articles: IarticlesPrebuildedRequest[];
   setArticles?: Function;
   isResume: boolean;
   handleAddArticle: Function;
@@ -324,8 +317,8 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({
 };
 
 interface ArticlesTableRowProps {
-  articles: IPrebuildedArticleFromArticleRequest[];
-  article: IPrebuildedArticleFromArticleRequest;
+  articles: IarticlesPrebuildedRequest[];
+  article: IarticlesPrebuildedRequest;
   setArticles: Function;
   isResume: boolean;
   handleAddArticle: Function;
@@ -338,7 +331,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   handleAddArticle
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [amountText, setAmountText] = useState(article.cantidadSeleccionar.toString());
+  const [amountText, setAmountText] = useState(article.cantidadSolicitada.toString());
 
   return (
     <React.Fragment>
@@ -348,7 +341,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             {article.nombre}
           </Box>
         </TableCell>
-        <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSeleccionar}</TableCell>
+        <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSolicitada}</TableCell>
         {!isResume && (
           <TableCell>
             <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
@@ -363,7 +356,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                       return toast.error('La cantidad excede el stock del articulo '+article.nombre);
                     }
 
-                    handleAddArticle({...article, cantidad: quant, id_ArticuloAlmacen : article.id_ArticuloAlmacen})
+                    handleAddArticle({...article, cantidadSeleccionada: quant})
                   }
                 }}
               >
@@ -402,11 +395,11 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             ) 
           :
           (<Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
-            {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
+            {article.cantidadSeleccionada === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
+            {article.cantidadSeleccionada !== 0 && article.cantidadSeleccionada < Number(article.cantidadSolicitada) && (
               <Warning sx={{ color: '#FFA500', mr: 2 }} />
             )}
-            {article.cantidad}
+            {article.cantidadSeleccionada}
           </Box>)}
         </TableCell>
       </TableRow>

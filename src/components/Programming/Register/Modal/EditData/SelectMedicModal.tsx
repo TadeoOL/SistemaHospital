@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import {
   addMedicToRegister,
-  getRegisterValidation,
 } from '../../../../../services/programming/admissionRegisterService';
 import Swal from 'sweetalert2';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
@@ -22,7 +21,6 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { surgeonOperatingRoomSchema } from '../../../../../schema/operatingRoom/operatingRoomSchema';
 import { useGetMedics } from '../../../../../hooks/programming/useGetDoctors';
-import { useGetMedicalShiftsByDate } from '../../../../../hooks/hospitalization/useGetMedicalShiftsByDate';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 
 const style = {
@@ -58,7 +56,7 @@ interface SelectMedicModalProps {
 }
 
 interface Input {
-  medical: { id: string; nombre: string } | null;
+  medical: { id_Medico: string; nombre: string } | null;
 }
 
 const useGetValidation = (registerId: string) => {
@@ -68,7 +66,7 @@ const useGetValidation = (registerId: string) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const validateData = await getRegisterValidation(registerId);
+      const validateData = true//await getRegisterValidation(registerId);
       setValidate(validateData);
       setIsLoading(false);
     };
@@ -85,8 +83,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
   const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
   const { isLoading, validate } = useGetValidation(registerId);
   const { doctorsData, isLoadingMedics } = useGetMedics();
-  const [date, _] = useState(new Date());
-  const { medicalShiftsData, isLoadingMedicalShifts } = useGetMedicalShiftsByDate(date);
+  //const [date, _] = useState(new Date());
 
   const {
     setValue,
@@ -105,7 +102,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
     try {
       await addMedicToRegister({
         id_Registro: registerId,
-        id_Medico: data.medical?.id as string,
+        id_Medico: data.medical?.id_Medico as string,
       });
       toast.success('Medico agregado con éxito!');
       setOpen(false);
@@ -167,10 +164,10 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
                   if (!val) return;
                   setValue('medical', val);
                 }}
-                loading={isLoadingMedicalShifts}
+                loading={isLoadingMedics}
                 getOptionLabel={(option) => option.nombre}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                options={medicalShiftsData}
+                isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
+                options={doctorsData}
                 value={watch('medical') ?? null}
                 onInputChange={(_, __, reason) => {
                   if (reason === 'clear') {
@@ -198,7 +195,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
                 }}
                 loading={isLoadingMedics}
                 getOptionLabel={(option) => option.nombre}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
                 options={doctorsData}
                 value={watch('medical') ?? null}
                 onInputChange={(_, __, reason) => {

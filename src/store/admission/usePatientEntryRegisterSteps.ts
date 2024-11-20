@@ -38,6 +38,7 @@ interface State {
   packageSelected: ISurgicalPackage | null;
   cabinetStudiesSelected: { id: string; nombre: string }[];
   medicId: string;
+  warehouseSelected: string;
   articlesSelected: {
     id: string;
     nombre: string;
@@ -62,6 +63,7 @@ interface Actions {
   setPatient: (patient: IPatient) => void;
   setProcedures: (procedures: string[]) => void;
   setMedicId: (medicId: string) => void;
+  setWarehouseSelected: (warehouseSelected: string) => void;
   setArticlesSelected: (
     articlesSelected: {
       id: string;
@@ -89,6 +91,7 @@ const initialValues = {
   patient: initialPatientValues,
   procedures: [],
   medicId: '',
+  warehouseSelected: '',
   articlesSelected: [],
   medicPersonalBiomedicalEquipment: [],
   cabinetStudiesSelected: [],
@@ -112,6 +115,7 @@ export const usePatientEntryRegisterStepsStore = create<State & Actions>((set) =
     }[]
   ) => set({ articlesSelected }),
   setMedicId: (medicId: string) => set({ medicId }),
+  setWarehouseSelected: (warehouseSelected: string) => set({ warehouseSelected }),
   setProcedures: (procedures: string[]) => set({ procedures }),
   setPatient: (patient: IPatient) => set({ patient }),
   setStep: (step: number) => set({ step }),

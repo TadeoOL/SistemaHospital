@@ -5,6 +5,7 @@ export interface IRegisterPatientCommand {
   id_Medico: string;
   procedimientos: string[];
   id_Paquete?: string;
+  id_AlmacenPaquete?: string;
   articulosExtra?: IAccountItem[];
   servicios?: string[];
   equipoHonorario?: ITeamFee[];

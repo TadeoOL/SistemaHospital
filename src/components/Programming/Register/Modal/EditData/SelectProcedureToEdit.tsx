@@ -18,7 +18,6 @@ import {
   Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
-import { Procedimiento } from '../../../../../types/admissionTypes';
 import { useState } from 'react';
 import { useGetAllSurgeryProcedures } from '../../../../../hooks/programming/useGetAllSurgeryProcedure';
 import { toast } from 'react-toastify';
@@ -26,6 +25,7 @@ import { editRegisterProcedures } from '../../../../../services/programming/admi
 import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
 import Swal from 'sweetalert2';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
+import { ISurgery } from '../../../../../types/operatingRoom/suergeryProcedureTypes';
 
 const HEADERS_TABLE = ['Nombre', 'Precio', 'Acciones'];
 const style = {
@@ -44,7 +44,7 @@ const style = {
 interface SelectProcedureToEditProps {
   setOpen: Function;
   setValue: Function;
-  procedures?: Procedimiento[];
+  procedures?: ISurgery[];
   registerId: string;
 }
 
@@ -57,7 +57,7 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
   // const [selectedRow, setSelectedRow] = useState<any>(null);
   const [procedure, setProcedure] = useState<string>('');
   const [proceduresList, setProceduresList] = useState<
-    Array<Procedimiento | { id: string; nombre: string; precio: number }>
+    Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>
   >(procedures ?? []);
 
   const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
@@ -75,8 +75,8 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
 
   const handleAddProcedure = () => {
     if (!procedure) return handleClose();
-    if (proceduresList.flatMap((p) => p.id).includes(procedure)) return handleClose();
-    const procedureFound = proceduresRes.find((p) => p.id === procedure);
+    if (proceduresList.flatMap((p) => p.id_Cirugia).includes(procedure)) return handleClose();
+    const procedureFound = proceduresRes.find((p) => p.id_Cirugia === procedure);
     if (!procedureFound) return toast.error('Procedimiento no encontrado');
     const newProceduresList = [...proceduresList, procedureFound];
     setProceduresList(newProceduresList);
@@ -99,7 +99,7 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
         try {
           await editRegisterProcedures({
             id_Registro: registerId,
-            id_Procedimientos: proceduresList.flatMap((p) => p.id),
+            id_Procedimientos: proceduresList.flatMap((p) => p.id_Cirugia),
           });
           Swal.fire({
             title: 'Agregado!',
@@ -179,7 +179,7 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
               <em>Seleccionar el procedimiento</em>
             </MenuItem>
             {proceduresRes.map((opRoom) => (
-              <MenuItem key={opRoom.id} value={opRoom.id}>
+              <MenuItem key={opRoom.id_Cirugia} value={opRoom.id_Cirugia}>
                 {opRoom.nombre}
               </MenuItem>
             ))}
@@ -194,8 +194,8 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
 };
 
 const ProceduresTable = (props: {
-  procedures?: Array<Procedimiento | { id: string; nombre: string; precio: number }>;
-  setProcedures: (procedures: Array<Procedimiento | { id: string; nombre: string; precio: number }>) => void;
+  procedures?: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>;
+  setProcedures: (procedures: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>) => void;
 }) => {
   const { procedures, setProcedures } = props;
   return (
@@ -206,7 +206,7 @@ const ProceduresTable = (props: {
           <TableBody>
             {procedures?.map((procedure) => (
               <ProceduresTableRow
-                key={procedure.id}
+                key={procedure.id_Cirugia}
                 procedure={procedure}
                 setProcedures={setProcedures}
                 procedures={procedures}
@@ -223,9 +223,9 @@ const ProceduresTable = (props: {
 };
 
 const ProceduresTableRow = (props: {
-  procedure: Procedimiento | { id: string; nombre: string; precio: number };
-  setProcedures: (procedures: Array<Procedimiento | { id: string; nombre: string; precio: number }>) => void;
-  procedures: Array<Procedimiento | { id: string; nombre: string; precio: number }>;
+  procedure: ISurgery | { id_Cirugia: string; nombre: string; precio: number };
+  setProcedures: (procedures: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>) => void;
+  procedures: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>;
 }) => {
   const { procedure } = props;
   const handleDelete = () => {
@@ -241,7 +241,7 @@ const ProceduresTableRow = (props: {
       cancelButtonText: 'Cancelar',
     }).then((res) => {
       if (res.isConfirmed) {
-        props.setProcedures(props.procedures.filter((p) => p.id !== procedure.id));
+        props.setProcedures(props.procedures.filter((p) => p.id_Cirugia !== procedure.id_Cirugia));
         Swal.fire('Procedimiento eliminado', 'El procedimiento ha sido eliminado exitosamente', 'success');
       }
     });
