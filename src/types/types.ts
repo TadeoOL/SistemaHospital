@@ -94,10 +94,10 @@ export interface ICategory {
   descripcion: string;
   id_Almacen: string;
   almacen: string;
-  subCategorias?: ISubCategory[];
+  subcategorias?: ISubCategory[];
 }
 export interface ISubCategory {
-  id_SubCategoria: string;
+  id_Subcategoria: string;
   nombre: string;
   descripcion: string;
   id_categoria: string;
@@ -312,7 +312,6 @@ export interface MerchandiseEntry {
   usuarioAutorizo?: string;
   articulos: ArticleObjectInPetition[];
   fechaSolicitud: string;
- 
 }
 
 export interface ArticleObjectInPetition {

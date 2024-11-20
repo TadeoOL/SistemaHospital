@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -10,22 +10,20 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import {
-  Box,
   Card,
-  CircularProgress,
+  FormControl,
   IconButton,
+  MenuItem,
   Modal,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
+  Pagination,
+  Stack,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { IArticle } from '../../../../types/types';
-import { SortComponent } from '../../../Commons/SortComponent';
+import { Select } from '@mui/material';
+import TableBasic from '../../../../common/components/TableBasic';
 
 const useGetAllData = () => {
   const {
@@ -169,117 +167,121 @@ export const ArticleTable = () => {
     event?.stopPropagation();
     setPageIndex(value);
   }, []);
+
+  const [goto, setGoto] = useState<string | number>(1);
+
+  const handleChangeGoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const totalPages = Math.ceil(count / pageSize);
+    if (+event.target.value > 0 && +event.target.value <= totalPages) {
+      setGoto(+event.target.value);
+      handlePageChange(event as any, +event.target.value - 1);
+    } else {
+      setGoto('');
+    }
+  };
+
+  const columns: any[] = useMemo(
+    () => [
+      {
+        header: 'Nombre',
+        value: 'nombre',
+        sort: setSort,
+      },
+      {
+        header: 'Presentacion',
+        value: 'presentacion',
+        sort: setSort,
+      },
+      {
+        header: 'Precio Compra',
+        value: 'precioCompra',
+        sort: setSort,
+      },
+      {
+        header: 'Precio Venta Externo',
+        value: 'precioVentaExterno',
+        sort: setSort,
+      },
+      {
+        header: 'Precio Venta Externo',
+        value: 'precioVentaInterno',
+        sort: setSort,
+      },
+      {
+        header: 'Sub categoria',
+        value: 'subCategoria',
+        sort: setSort,
+      },
+      {
+        header: 'Acciones',
+        value: (row: any) => (
+          <>
+            <Tooltip title="Editar">
+              <IconButton
+                size="small"
+                sx={{ color: 'neutral.700' }}
+                onClick={() => {
+                  setArticleId(row.id);
+                  setOpenEditModal(true);
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
+              <IconButton size="small" onClick={() => disableArticle(row.id)}>
+                {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
+              </IconButton>
+            </Tooltip>
+          </>
+        ),
+      },
+    ],
+    []
+  );
+
   //:´v
   return (
     <>
-      <Card sx={{ m: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell width={'22%'}>
-                <SortComponent tableCellLabel="Nombre" headerName="nombre" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'22%'}>
-                <SortComponent tableCellLabel="Presentación" headerName="presentacion" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'7%'}>
-                <SortComponent tableCellLabel="Stock mínimo" headerName="stockMinimo" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'7%'}>
-                <SortComponent tableCellLabel="Stock alerta" headerName="stockAlerta" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'10%'}>
-                <SortComponent tableCellLabel="Precio Compra" headerName="precioCompra" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'10%'}>
-                <SortComponent tableCellLabel="Precio Venta" headerName="precioVenta" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'10%'}>
-                <SortComponent tableCellLabel="Precio Interno" headerName="precioVentaPI" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'22%'}>
-                <SortComponent tableCellLabel="Sub categoria" headerName="subCategoria" setSortFunction={setSort} />
-              </TableCell>
-              <TableCell width={'10%'}>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.length === 0
-              ? null
-              : isLoading
-                ? null
-                : data.map((article) => (
-                    <React.Fragment key={article.id}>
-                      <TableRow>
-                        <TableCell>{article.nombre}</TableCell>
-                        <TableCell>{article.unidadMedida}</TableCell>
-                        <TableCell>$ {article.precioCompra}</TableCell>
-                        <TableCell>$ {article.precioVentaExterno}</TableCell>
-                        <TableCell>$ {article.precioVentaInterno}</TableCell>
-                        <TableCell>{article.subCategoria as string}</TableCell>
-                        <TableCell>
-                          <Tooltip title="Editar">
-                            <IconButton
-                              size="small"
-                              sx={{ color: 'neutral.700' }}
-                              onClick={() => {
-                                setArticleId(article.id);
-                                setOpenEditModal(true);
-                              }}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
-                            <IconButton size="small" onClick={() => disableArticle(article.id)}>
-                              {enabled ? (
-                                <RemoveCircleIcon sx={{ color: 'red' }} />
-                              ) : (
-                                <CheckIcon sx={{ color: 'green' }} />
-                              )}
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    </React.Fragment>
-                  ))}
-          </TableBody>
-        </Table>
-        {isLoading && (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
-        )}
-        {data.length === 0 && !isLoading && (
-          <Card
-            sx={{
-              display: 'flex',
-              flexGrow: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              p: 2,
-              columnGap: 1,
-            }}
-          >
-            <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
-            <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
-              No existen registros
-            </Typography>
-          </Card>
-        )}
-        <TablePagination
-          component="div"
-          count={count}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={(e: any) => {
-            setPageSize(e.target.value);
-          }}
-          page={pageIndex}
-          rowsPerPage={pageSize}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          labelRowsPerPage="Filas por página"
+      <TableBasic rows={data} columns={columns} isLoading={isLoading} />
+
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 2, ml: 2, mr: 2 }}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <Select
+              id="demo-controlled-open-select"
+              value={pageSize}
+              onChange={(e: any) => {
+                setPageSize(e.target.value);
+              }}
+              size="small"
+              sx={{ '& .MuiSelect-select': { py: 0.75, px: 1.25 } }}
+            >
+              <MenuItem value={5}>5 / page</MenuItem>
+              <MenuItem value={10}>10 / page</MenuItem>
+              <MenuItem value={25}>25 / page</MenuItem>
+              <MenuItem value={50}>50 / page</MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="h6">Go to</Typography>
+          <TextField
+            id="outlined-name"
+            placeholder="Page"
+            value={goto}
+            onChange={handleChangeGoto}
+            size="small"
+            sx={{ '& .MuiOutlinedInput-input': { py: 0.75, px: 1.25, width: 50 } }}
+          />
+        </Stack>
+        <Pagination
+          count={Math.ceil(count / pageSize)}
+          page={pageIndex + 1}
+          onChange={(e, v) => handlePageChange(e as any, v - 1)}
+          variant="combined"
+          color="primary"
         />
-      </Card>
+      </Stack>
+
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <div>
           <ModifyArticleModal articleId={articleId} open={setOpenEditModal} />

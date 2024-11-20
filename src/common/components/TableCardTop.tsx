@@ -4,7 +4,7 @@ interface TableCardTopProps {
   children?: React.ReactNode;
 }
 
-export const TableCardTop = (props: TableCardTopProps) => {
+export const TableTop = (props: TableCardTopProps) => {
   return (
     <>
       <Stack
@@ -13,12 +13,12 @@ export const TableCardTop = (props: TableCardTopProps) => {
           display: 'flex',
           flexGrow: 1,
           justifyContent: 'space-between',
-          alignItems: 'center',
-          p: 1,
-          pt: 3,
+          alignItems: 'flex-end',
+          pb: 2,
+          pt: 0,
         }}
       >
-        {props.children}
+        <>{props.children}</>
       </Stack>
     </>
   );

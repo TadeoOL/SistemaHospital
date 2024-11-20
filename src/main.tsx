@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { IconContext } from 'react-icons/lib';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es-mx'; // Importa los locales que necesites
+import ThemeCustomization from './themes/index.tsx';
 
 const theme = createTheme();
 const queryClient = new QueryClient();
@@ -20,7 +21,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <App />
+          <ThemeCustomization>
+            <App />
+          </ThemeCustomization>
         </ThemeProvider>
       </QueryClientProvider>
     </IconContext.Provider>

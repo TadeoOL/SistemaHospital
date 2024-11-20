@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import MainCard from './MainCard';
 
 interface TableCardProps {
   children?: React.ReactNode;
@@ -7,9 +8,9 @@ export const TableCard = (props: TableCardProps) => {
   const { children } = props;
   return (
     <>
+      {/* <MainCard> */}
       <Box
         sx={{
-          boxShadow: 10,
           borderBottomLeftRadius: 10,
           borderBottomRightRadius: 10,
           overflowX: 'auto',
@@ -24,6 +25,7 @@ export const TableCard = (props: TableCardProps) => {
           {children}
         </Box>
       </Box>
+      {/* </MainCard> */}
     </>
   );
 };
