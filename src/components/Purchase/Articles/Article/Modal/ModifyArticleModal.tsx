@@ -116,7 +116,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
   const { subCategories, isLoading } = useGetSubCategories();
   const [textValue, setTextValue] = useState('');
   const config = useGetPurchaseConfig();
-  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
+  // const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const [isBox, setIsBox] = useState(esCaja || false);
   const textQuantityRef = useRef<HTMLTextAreaElement>();
   const precioQuantityRef = useRef<HTMLTextAreaElement>();
@@ -558,7 +558,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                   {...register('codigoBarras')}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              {/* <Grid item xs={12} md={6}>
                 <Typography>Código de SAT</Typography>
                 <TextField
                   fullWidth
@@ -589,7 +589,7 @@ export const ModifyArticleModal = (props: IModifyCategoryModal) => {
                     ))}
                   {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
                 </TextField>
-              </Grid>
+              </Grid> */}
             </Grid>
             <Stack
               sx={{

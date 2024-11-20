@@ -118,7 +118,7 @@ export const addArticle = z.object({
   //     },
   //     { message: 'Escribe una cantidad válida y mayor que cero' }
   //   ),
-  codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
+  // codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
   precioCompra: z
     .string()
     .nullable() // Permitir valores nulos
@@ -160,7 +160,7 @@ export const addArticle = z.object({
     ),
   id_subcategoria: z.string().min(1, 'Selecciona una sub categoría'),
   codigoBarras: z.string().nullable(),
-  codigoSAT: z.string().min(1, 'Escribe un código valido'),
+  // codigoSAT: z.string().min(1, 'Escribe un código valido'),
   presentacion: z.string().min(1, 'Escribe una presentación'),
 });
 
