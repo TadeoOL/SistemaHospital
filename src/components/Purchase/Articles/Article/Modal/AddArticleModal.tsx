@@ -84,9 +84,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const textQuantityRef = useRef<HTMLTextAreaElement>();
   const precioQuantityRef = useRef<HTMLTextAreaElement>();
 
-  const { handleChangeArticle, setHandleChangeArticle } = useArticlePagination((state) => ({
-    setHandleChangeArticle: state.setHandleChangeArticle,
-    handleChangeArticle: state.handleChangeArticle,
+  const { fetchArticles } = useArticlePagination((state) => ({
+    fetchArticles: state.fetchArticles,
   }));
   const [isBox, setIsBox] = useState(false);
 
@@ -135,7 +134,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
       // data.precioVenta = precioVenta;
       // data.precioVentaPI = precioVentaPI;
       await addNewArticle(data);
-      setHandleChangeArticle(!handleChangeArticle);
+      fetchArticles();
       toast.success('Articulo creado con éxito!');
       open(false);
     } catch (error) {
@@ -475,7 +474,7 @@ export const AddArticleModal = (props: IAddArticleModal) => {
                   render={({ field }) => (
                     <TextField {...field} select label="Seleccione una Sub Categoria" fullWidth>
                       {subCategories.map((data) => (
-                        <MenuItem value={data.id_SubCategoria} key={data.id_SubCategoria}>
+                        <MenuItem value={data.id_Subcategoria} key={data.id_Subcategoria}>
                           {data.nombre}
                         </MenuItem>
                       ))}

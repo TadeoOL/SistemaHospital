@@ -13,52 +13,63 @@ import { SortComponent } from '../../components/Commons/SortComponent';
 import { Box, Card, CircularProgress, Typography } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-interface Column {
+export interface TableBasicColumn {
   header: string | React.ReactNode;
   value: string | Function | React.ReactNode;
   align?: 'left' | 'right' | 'center';
   sort?: Function;
 }
 
-const getHeader = (column: Column) => {
+const getHeader = (column: TableBasicColumn, key: number) => {
   if (!column?.header) return null;
 
   if (column.sort && typeof column.value === 'string') {
     const { header, value, sort } = column as any;
     return (
-      <TableCell sx={{ position: 'sticky !important' }} align={column.align || 'left'}>
+      <TableCell key={key} sx={{ position: 'sticky !important' }} align={column.align || 'left'}>
         <SortComponent tableCellLabel={header} headerName={value} setSortFunction={sort} />
       </TableCell>
     );
   }
 
   return (
-    <TableCell sx={{ position: 'sticky !important' }} align={column.align || 'left'}>
+    <TableCell key={key} sx={{ position: 'sticky !important' }} align={column.align || 'left'}>
       {column.header}
     </TableCell>
   );
 };
 
-const getCell = (column: Column, row: any) => {
+const getCell = (column: TableBasicColumn, row: any, key: string) => {
   if (!column?.value) return null;
 
   if (typeof column.value === 'string') {
-    return <TableCell align={column.align || 'left'}>{row[column.value]}</TableCell>;
+    return (
+      <TableCell key={key} align={column.align || 'left'}>
+        {row[column.value]}
+      </TableCell>
+    );
   }
 
   if (typeof column.value === 'function') {
-    return <TableCell align={column.align || 'left'}>{column.value(row)}</TableCell>;
+    return (
+      <TableCell key={key} align={column.align || 'left'}>
+        {column.value(row)}
+      </TableCell>
+    );
   }
 
-  return <TableCell align={column.align || 'left'}>{column.value}</TableCell>;
+  return (
+    <TableCell key={key} align={column.align || 'left'}>
+      {column.value}
+    </TableCell>
+  );
 };
 
-interface TableBasicProps {
+export interface TableBasicProps {
   rows: any[];
-  columns: Column[];
+  columns: TableBasicColumn[];
   isLoading?: boolean;
 }
-// ==============================|| MUI TABLE - BASIC ||============================== //
 
 export default function TableBasic(props: TableBasicProps) {
   const { rows, columns, isLoading } = props;
@@ -99,12 +110,12 @@ export default function TableBasic(props: TableBasicProps) {
       <TableContainer sx={{ maxHeight: tableMaxHeight }}>
         <Table stickyHeader sx={{ minWidth: 350 }} aria-label="simple table">
           <TableHead>
-            <TableRow>{columns.map((column) => getHeader(column))}</TableRow>
+            <TableRow>{columns.map((column, i) => getHeader(column, i))}</TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow hover key={row.name}>
-                {columns.map((column) => getCell(column, row))}
+            {rows.map((row, i) => (
+              <TableRow key={i} hover>
+                {columns.map((column, j) => getCell(column, row, `${i}-${j}`))}
               </TableRow>
             ))}
           </TableBody>

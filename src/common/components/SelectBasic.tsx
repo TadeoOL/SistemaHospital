@@ -17,10 +17,8 @@ export const SelectBasic = (props: SelectComponentProps) => {
   const [selected, setSelected] = useState('');
 
   useEffect(() => {
-    if (value) {
-      setSelected(value || '');
-    }
-  }, []);
+    setSelected(value || '');
+  }, [value]);
 
   const handleChange = (e: any) => {
     const value = e?.target?.value || null;

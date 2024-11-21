@@ -1,33 +1,38 @@
-import { Button, CircularProgress, Divider, IconButton, MenuItem, Modal, Stack, TextField } from '@mui/material';
+import { Button, CircularProgress, Divider, IconButton, Modal, Tooltip } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
-import { useEffect, useState } from 'react';
-import { ArticleTable } from './ArticleTable';
+import { useMemo, useRef, useState } from 'react';
 import { AddArticleModal } from './Modal/AddArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
 import { useGetCategories } from '../../../../hooks/useGetCategories';
-import { ICategory, ISubCategory } from '../../../../types/types';
+import { ISubCategory } from '../../../../types/types';
 import { FilterListOff } from '@mui/icons-material';
 import { TableTop } from '../../../../common/components/TableCardTop';
 import { SelectBasic } from '../../../../common/components/SelectBasic';
-// import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
+import { ModifyArticleModal } from './Modal/ModifyArticleModal';
+import { useDisableArticle } from './hooks/useDisableArticle';
+import EditIcon from '@mui/icons-material/Edit';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import CheckIcon from '@mui/icons-material/Check';
+import { getArticles } from '../../../../api/articles';
+import { TablePaginated } from '../../../../common/components/TablePaginated';
 
 const Article = () => {
   const [open, setOpen] = useState(false);
-  // const [warehouseSelected, setWarehouseSelected] = useState('');
-  //const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
-  // const { almacenes } = useGetAlmacenes();
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [articleId, setArticleId] = useState('');
+
   const { almacenes } = useGetAlmacenes();
+
   const {
     enabled,
+    search,
+    warehouseSelected,
     subcategory,
     setEnabled,
     setSearch,
-    refetchArticles,
-    cleanArticles,
-    warehouseSelected,
     setWarehouseSelected,
     setSubcategory,
   } = useArticlePagination((state) => ({
@@ -36,19 +41,79 @@ const Article = () => {
     setSearch: state.setSearch,
     setSubcategory: state.setSubcategory,
     subcategory: state.subcategory,
-    cleanArticles: state.cleanArticles,
-    refetchArticles: state.fetchArticles,
     warehouseSelected: state.warehouseSelected,
     setWarehouseSelected: state.setWarehouseSelected,
+    search: state.search,
   }));
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { categories, isLoading: isLoadingCategories } = useGetCategories();
   const [selectedCategorySubcategories, setSelectedCategorySubcategories] = useState<ISubCategory[] | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
-  useEffect(() => {
-    refetchArticles();
-  }, [warehouseSelected, subcategory]);
+  const tableRef = useRef<any>();
+  const onSuccess = () => tableRef.current.refetch();
+  const disableArticle = useDisableArticle(onSuccess);
+
+  const handleEdit = (row: any) => {
+    return () => {
+      setArticleId(row.id);
+      setOpenEditModal(true);
+    };
+  };
+
+  const columns: any[] = useMemo(
+    () => [
+      {
+        header: 'Nombre',
+        value: 'nombre',
+        sort: true,
+      },
+      {
+        header: 'Presentacion',
+        value: 'presentacion',
+        sort: true,
+      },
+      {
+        header: 'Precio Compra',
+        value: 'precioCompra',
+        sort: true,
+      },
+      {
+        header: 'Precio Venta Externo',
+        value: 'precioVentaExterno',
+        sort: true,
+      },
+      {
+        header: 'Precio Venta Externo',
+        value: 'precioVentaInterno',
+        sort: true,
+      },
+      {
+        header: 'Sub categoria',
+        value: 'subCategoria',
+        sort: true,
+      },
+      {
+        header: 'Acciones',
+        value: (row: any) => (
+          <>
+            <Tooltip title="Editar">
+              <IconButton size="small" sx={{ color: 'neutral.700' }} onClick={handleEdit(row)}>
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
+              <IconButton size="small" onClick={() => disableArticle(row.id)}>
+                {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
+              </IconButton>
+            </Tooltip>
+          </>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <>
@@ -70,24 +135,23 @@ const Article = () => {
           <>
             <SelectBasic
               sx={{ width: 150 }}
+              value={selectedCategory}
               label="Categoria"
               options={categories.filter((cat) => cat.id_Almacen === warehouseSelected)}
               uniqueProperty="id_Categoria"
               displayProperty="nombre"
               onChange={(value) => {
-                console.log('value:', value);
                 setSelectedCategory(value);
                 if (!value) {
                   setSelectedCategorySubcategories(null);
                   return;
                 }
                 const subCategories = categories.find((cat) => cat.id_Categoria === value)?.subcategorias ?? null;
-                console.log('categories:', categories);
-                console.log('subCategories:', subCategories);
                 setSelectedCategorySubcategories(subCategories);
               }}
             />
             <SelectBasic
+              value={selectedSubcategory}
               sx={{ width: 150 }}
               label="Subcategoria"
               options={selectedCategorySubcategories}
@@ -105,7 +169,6 @@ const Article = () => {
             height: '40px',
           }}
           onClick={() => {
-            cleanArticles();
             setSubcategory('');
             setSelectedCategory(null);
             setSelectedCategorySubcategories(null);
@@ -135,11 +198,29 @@ const Article = () => {
         </Button>
       </TableTop>
 
-      <ArticleTable />
+      <TablePaginated
+        ref={tableRef}
+        columns={columns}
+        fetchData={getArticles}
+        params={{
+          habilitado: enabled,
+          id_AlmacenPrincipal: warehouseSelected,
+          id_Almacen: warehouseSelected,
+          Id_Subcategoria: subcategory,
+          search,
+        }}
+      />
+
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
           <AddArticleModal open={setOpen} />
         </>
+      </Modal>
+
+      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+        <div>
+          <ModifyArticleModal articleId={articleId} open={setOpenEditModal} />
+        </div>
       </Modal>
     </>
   );
