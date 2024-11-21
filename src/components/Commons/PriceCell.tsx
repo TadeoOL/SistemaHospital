@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 
 interface PriceCellProps {
   originalPrice: number;
-  discountedPrice: number;
+  discountedPrice?: number | null;
   variant?: 'default' | 'medium' | 'large';
 }
 
@@ -32,29 +32,29 @@ export const PriceCell: React.FC<PriceCellProps> = ({ originalPrice, discountedP
 
   const styles = getStyles();
 
+  if (!discountedPrice) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', ...styles.container }}>
+        <Typography sx={{ fontWeight: 'bold', ...styles.discounted }}>${originalPrice.toFixed(2)}</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ...styles.container }}>
-      {originalPrice === 0 ? (
-        <Typography component="span" sx={{ fontWeight: 'bold', ...styles.discounted }}>
-          ${discountedPrice.toFixed(2)}
-        </Typography>
-      ) : (
-        <>
-          <Typography
-            component="span"
-            sx={{
-              textDecoration: 'line-through',
-              color: 'error.main',
-              ...styles.original,
-            }}
-          >
-            ${originalPrice.toFixed(2)}
-          </Typography>
-          <Typography component="span" sx={{ fontWeight: 'bold', ...styles.discounted }}>
-            ${discountedPrice.toFixed(2)}
-          </Typography>
-        </>
-      )}
+      <Typography
+        component="span"
+        sx={{
+          textDecoration: 'line-through',
+          color: 'error.main',
+          ...styles.original,
+        }}
+      >
+        ${originalPrice.toFixed(2)}
+      </Typography>
+      <Typography component="span" sx={{ fontWeight: 'bold', ...styles.discounted }}>
+        ${discountedPrice.toFixed(2)}
+      </Typography>
     </Box>
   );
 };

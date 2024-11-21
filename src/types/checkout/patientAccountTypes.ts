@@ -26,6 +26,7 @@ export interface IPatientAccount {
     total: number;
     totalPagos: number;
     totalRestante: number;
+    subTotalDescuento: number;
   }
   
   export interface IPatientInfo {
@@ -43,6 +44,7 @@ export interface IPatientAccount {
     neto: number;
     iva: number;
     total: number;
+    netoDescuento: number;
   }
   
   export interface IOperatingRoom {
@@ -52,6 +54,7 @@ export interface IPatientAccount {
     neto: number;
     iva: number;
     total: number;
+    netoDescuento: number;
   }
   
   export interface ISurgery {
@@ -60,6 +63,7 @@ export interface IPatientAccount {
     neto: number;
     iva: number;
     total: number;
+    netoDescuento: number;
   }
   
   export interface IService {
@@ -68,6 +72,7 @@ export interface IPatientAccount {
     neto: number;
     iva: number;
     total: number;
+    netoDescuento: number;
   }
   
   export interface IHonoraryTeam {
@@ -76,6 +81,7 @@ export interface IPatientAccount {
     neto: number;
     iva: number;
     total: number;
+    netoDescuento: number;
   }
   
   export interface IArticle {
@@ -87,6 +93,7 @@ export interface IPatientAccount {
     neto: number;
     iva: number;
     total: number;
+    netoDescuento: number;
   }
   
   export interface IAccountPayment {

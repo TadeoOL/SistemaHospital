@@ -236,6 +236,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   };
 
   const result = calcularTotalConDescuento();
+  const totalServices = data?.servicios?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalArticles = data?.articulos?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalEquipment = data?.equipoHonorario?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
 
   if (error && !isLoading) {
     return (
@@ -304,9 +307,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 patient={data.paciente ?? ({} as IPatientInfo)}
                 medic={data.paciente?.nombreMedico ?? ''}
                 isHospitalization={false}
-                ventaConcepto={0}
-                ventaArticuloIVA={0}
-                ventaArticuloSinIVA={0}
+                ventaConcepto={totalServices}
+                ventaArticuloIVA={totalArticles}
+                ventaArticuloSinIVA={totalEquipment}
               />
               <DataTable
                 title="Cuartos"
@@ -319,7 +322,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'iva', header: 'IVA' },
                   { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={data?.descuento}
               />
               <DataTable
                 title="Quirofanos / Recuperacion"
@@ -331,7 +333,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'iva', header: 'IVA' },
                   { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={data?.descuento}
                 isOperatingRoom={!props.viewOnly}
                 modified={modified}
                 setModified={setModified}
@@ -376,7 +377,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'total', header: 'Precio Total' },
                   // { key: 'estatus', header: 'Estatus' },
                 ]}
-                haveDiscount={data?.descuento}
               />
 
               <DataTable
@@ -388,7 +388,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'iva', header: 'IVA' },
                   { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={data?.descuento}
               />
               {/* <DataTable
                 title="Equipos Biomédicos"
@@ -410,7 +409,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'iva', header: 'IVA' },
                   { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={data?.descuento}
               />
               <DataTable
                 title="Artículos"
@@ -423,7 +421,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'iva', header: 'IVA' },
                   { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={data?.descuento}
               />
               <DataTable
                 title="Pagos de la Cuenta"
@@ -437,7 +434,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal:</Typography>
+                    <PriceCell originalPrice={data.subTotal} discountedPrice={data.subTotalDescuento} />
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
@@ -488,21 +485,6 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     </Typography>
                   </Box>
                 </Box>
-              </Box>
-
-              <Typography textAlign={'start'} variant="h4">
-                <b>Pago SAMI:</b> ${0}
-              </Typography>
-
-              <Box sx={{ display: 'flex', flex: 1, mt: 2 }}>
-                <TextField
-                  multiline
-                  label="Notas"
-                  fullWidth
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  disabled={props.viewOnly}
-                />
               </Box>
             </Box>
           )
@@ -711,7 +693,6 @@ interface DataTableProps<T> {
   modified?: boolean;
   setModified?: Function;
   id_PatientBill?: string;
-  haveDiscount?: number;
 }
 interface Column<T> {
   key: keyof T;
@@ -727,7 +708,6 @@ export const DataTable = <T,>({
   modified,
   setModified,
   id_PatientBill,
-  haveDiscount,
 }: DataTableProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
@@ -793,24 +773,15 @@ export const DataTable = <T,>({
                 <TableRow key={index}>
                   {columns.map((col) => {
                     const cellValue = row[col.key];
-                    if (
-                      haveDiscount &&
-                      (col.key === 'precioNeto' ||
-                        col.key === 'precioTotal' ||
-                        col.key === 'precio' ||
-                        col.key === 'precioIVA')
-                    ) {
-                      const discountedPrice = calculateDiscountedPrice(cellValue, haveDiscount);
+                    if (col.key === 'neto' && row.netoDescuento !== undefined) {
                       return (
                         <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
-                          <PriceCell originalPrice={cellValue} discountedPrice={discountedPrice} />
+                          <PriceCell originalPrice={cellValue} discountedPrice={row.netoDescuento} />
                         </TableCell>
                       );
                     }
                     const formattedValue =
-                      (col.key as String).toLowerCase().includes('precio') && typeof cellValue === 'number'
-                        ? `$${cellValue.toFixed(2)}`
-                        : String(cellValue);
+                      typeof cellValue === 'number' ? `$${cellValue.toFixed(2)}` : String(cellValue);
                     return (
                       <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
                         {formattedValue}
