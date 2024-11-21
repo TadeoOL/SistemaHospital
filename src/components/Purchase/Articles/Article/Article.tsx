@@ -1,7 +1,7 @@
-import { Button, CircularProgress, Divider, IconButton, Modal, Tooltip } from '@mui/material';
+import { Button, CircularProgress, Divider, IconButton, Tooltip } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
-import { useMemo, useRef, useState } from 'react';
-import { AddArticleModal } from './Modal/AddArticleModal';
+import { useEffect, useRef, useState } from 'react';
+import { AddArticleModal } from './Modal/ArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
@@ -11,7 +11,6 @@ import { ISubCategory } from '../../../../types/types';
 import { FilterListOff } from '@mui/icons-material';
 import { TableTop } from '../../../../common/components/TableCardTop';
 import { SelectBasic } from '../../../../common/components/SelectBasic';
-import { ModifyArticleModal } from './Modal/ModifyArticleModal';
 import { useDisableArticle } from './hooks/useDisableArticle';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
@@ -20,9 +19,12 @@ import { getArticles } from '../../../../api/articles';
 import { TablePaginated } from '../../../../common/components/TablePaginated';
 
 const Article = () => {
-  const [open, setOpen] = useState(false);
-  const [openEditModal, setOpenEditModal] = useState(false);
   const [articleId, setArticleId] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
 
   const { almacenes } = useGetAlmacenes();
 
@@ -52,68 +54,74 @@ const Article = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   const tableRef = useRef<any>();
-  const onSuccess = () => tableRef.current.refetch();
+  const onSuccess = () => tableRef.current.fetchData();
   const disableArticle = useDisableArticle(onSuccess);
+
+  useEffect(() => {
+    tableRef.current.fetchData();
+  }, []);
+
+  const handleAdd = () => {
+    setArticleId('');
+    setModalOpen(true);
+  };
 
   const handleEdit = (row: any) => {
     return () => {
       setArticleId(row.id);
-      setOpenEditModal(true);
+      setModalOpen(true);
     };
   };
 
-  const columns: any[] = useMemo(
-    () => [
-      {
-        header: 'Nombre',
-        value: 'nombre',
-        sort: true,
-      },
-      {
-        header: 'Presentacion',
-        value: 'presentacion',
-        sort: true,
-      },
-      {
-        header: 'Precio Compra',
-        value: 'precioCompra',
-        sort: true,
-      },
-      {
-        header: 'Precio Venta Externo',
-        value: 'precioVentaExterno',
-        sort: true,
-      },
-      {
-        header: 'Precio Venta Externo',
-        value: 'precioVentaInterno',
-        sort: true,
-      },
-      {
-        header: 'Sub categoria',
-        value: 'subCategoria',
-        sort: true,
-      },
-      {
-        header: 'Acciones',
-        value: (row: any) => (
-          <>
-            <Tooltip title="Editar">
-              <IconButton size="small" sx={{ color: 'neutral.700' }} onClick={handleEdit(row)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
-              <IconButton size="small" onClick={() => disableArticle(row.id)}>
-                {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
-              </IconButton>
-            </Tooltip>
-          </>
-        ),
-      },
-    ],
-    []
-  );
+  const columns: any[] = [
+    {
+      header: 'Nombre',
+      value: 'nombre',
+      sort: true,
+    },
+    {
+      header: 'Presentacion',
+      value: 'presentacion',
+      sort: true,
+    },
+    {
+      header: 'Precio Compra',
+      value: 'precioCompra',
+      sort: true,
+    },
+    {
+      header: 'Precio Venta Externo',
+      value: 'precioVentaExterno',
+      sort: true,
+    },
+    {
+      header: 'Precio Venta Externo',
+      value: 'precioVentaInterno',
+      sort: true,
+    },
+    {
+      header: 'Sub categoria',
+      value: 'subCategoria',
+      sort: true,
+    },
+    {
+      header: 'Acciones',
+      value: (row: any) => (
+        <>
+          <Tooltip title="Editar">
+            <IconButton size="small" sx={{ color: 'neutral.700' }} onClick={handleEdit(row)}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
+            <IconButton size="small" onClick={() => disableArticle(row.id)}>
+              {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
+            </IconButton>
+          </Tooltip>
+        </>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -172,6 +180,7 @@ const Article = () => {
             setSubcategory('');
             setSelectedCategory(null);
             setSelectedCategorySubcategories(null);
+            setSelectedSubcategory(null);
           }}
         >
           <FilterListOff />
@@ -192,7 +201,7 @@ const Article = () => {
           sx={{ height: '40px', mt: '8px', marginRight: '20px' }}
           variant="contained"
           startIcon={<AddCircleOutlinedIcon />}
-          onClick={() => setOpen(!open)}
+          onClick={handleAdd}
         >
           Agregar
         </Button>
@@ -211,17 +220,16 @@ const Article = () => {
         }}
       />
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <AddArticleModal open={modalOpen} itemId={articleId} onClose={handleModalClose} onSuccess={onSuccess} />
+      {/* <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <AddArticleModal open={setOpen} />
         </>
-      </Modal>
-
-      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+      </Modal> */}
+      {/* <Modal open={openEditModal} onClose={() => setModalOpen(false)}>
         <div>
           <ModifyArticleModal articleId={articleId} open={setOpenEditModal} />
         </div>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

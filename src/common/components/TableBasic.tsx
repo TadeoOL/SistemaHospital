@@ -26,14 +26,14 @@ const getHeader = (column: TableBasicColumn, key: number) => {
   if (column.sort && typeof column.value === 'string') {
     const { header, value, sort } = column as any;
     return (
-      <TableCell key={key} sx={{ position: 'sticky !important' }} align={column.align || 'left'}>
+      <TableCell key={key} sx={{ zIndex: 100, position: 'sticky !important' }} align={column.align || 'left'}>
         <SortComponent tableCellLabel={header} headerName={value} setSortFunction={sort} />
       </TableCell>
     );
   }
 
   return (
-    <TableCell key={key} sx={{ position: 'sticky !important' }} align={column.align || 'left'}>
+    <TableCell key={key} sx={{ zIndex: 100, position: 'sticky !important' }} align={column.align || 'left'}>
       {column.header}
     </TableCell>
   );

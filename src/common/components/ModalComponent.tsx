@@ -1,6 +1,6 @@
-import { Backdrop, Box, CircularProgress, IconButton, Modal, styled, Typography } from '@mui/material';
+import { Box, IconButton, Modal, styled, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 const style = {
   position: 'absolute',
@@ -45,18 +45,21 @@ const Header = styled('div')(() => ({
 }));
 
 interface ModalFormProps {
-  title?: string;
+  open?: boolean;
+  header?: string;
   children?: React.ReactNode;
-  open: boolean;
-  onClose?: () => void;
-  setOpen: (open: boolean) => void;
+  onClose?: Function;
 }
 
-export const ModalComponent = forwardRef(({ title, open, setOpen, children, onClose }: ModalFormProps, ref) => {
-  const [isLoading, setIsLoading] = useState(false);
+export const ModalComponent = forwardRef(({ open, header, children, onClose }: ModalFormProps, ref) => {
+  const [innerOpen, setOpen] = useState(open || false);
+
+  useEffect(() => {
+    setOpen(open || false);
+  }, [open]);
 
   useImperativeHandle(ref, () => ({
-    setIsLoading,
+    setOpen,
   }));
 
   const handleClose = () => {
@@ -64,15 +67,8 @@ export const ModalComponent = forwardRef(({ title, open, setOpen, children, onCl
     onClose && onClose();
   };
 
-  if (isLoading)
-    return (
-      <Backdrop open>
-        <CircularProgress />
-      </Backdrop>
-    );
-
   return (
-    <Modal open={open || false} onClose={() => handleClose()}>
+    <Modal open={innerOpen || false} onClose={() => handleClose()}>
       <div>
         <Box sx={style}>
           <Header
@@ -84,7 +80,7 @@ export const ModalComponent = forwardRef(({ title, open, setOpen, children, onCl
             }}
           >
             <Typography fontWeight={500} fontSize={20} color="common.white">
-              {title}
+              {header}
             </Typography>
             <IconButton onClick={() => setOpen && setOpen(false)}>
               <CloseIcon />
