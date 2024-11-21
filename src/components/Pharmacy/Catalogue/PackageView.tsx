@@ -16,9 +16,6 @@ const GetWarehouseView: React.FC = () => {
   const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
 
-  console.log("setiado ",warehouseIdSeted);
-  console.log("el otro" ,warehouseSL?.id_Almacen);
-
   const tabValue = useWarehouseTabsNavStore(useShallow((state) => state.tabValue));
   switch (tabValue) {
     case 0:

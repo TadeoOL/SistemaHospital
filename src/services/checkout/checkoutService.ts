@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { IConfigEmitterUsers } from '../../types/types';
+import { IConfigEmitterUsers } from '../../types/checkout/checkoutConfigTypes';
 const apiCheckout = '/api/Caja';
 
 export interface CheckoutResume {
@@ -26,7 +26,7 @@ export const getSells = async (param: string) => {
   return res.data;
 };
 
-export const registerSell = async (data: {
+export const registerSell = async (data: { // Eliminar
   paciente: string;
   totalVenta: number;
   moduloProveniente: string;

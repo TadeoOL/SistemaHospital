@@ -119,18 +119,24 @@ export const getTodayAndYesterdayDates = (): { fechaInicio: string; fechaFin: st
   yesterday.setHours(0, 0, 0, 0);
   today.setHours(23, 59, 59, 999);
 
-  const formatDate = (date: Date) =>
-      date.toLocaleString("es-ES", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-      }).replace(",", "");
+  const formatDate = (date: Date) => {
+    const formattedDate = date.toLocaleString("es-ES", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+    }).replace(",", "");
+
+    const [day, month, yearAndTime] = formattedDate.split("/");
+    const [year, time] = yearAndTime.split(" ");
+
+    return `${month}/${day}/${year} ${time}`;
+  };
 
   return {
       fechaInicio: formatDate(yesterday),
       fechaFin: formatDate(today),
   };
-}
+};

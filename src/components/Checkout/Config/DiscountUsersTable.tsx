@@ -1,7 +1,7 @@
 import { TableContainer, Table, TableRow, TableCell, Card, IconButton, Tooltip } from '@mui/material';
-import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { Delete } from '@mui/icons-material';
-import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
+import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
+import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 
 const HEADER_COLUMNS: string[] = ['Nombre del usuario', 'Acciones'];
 

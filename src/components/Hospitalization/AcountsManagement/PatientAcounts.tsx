@@ -1,68 +1,40 @@
-import { Box, FormControlLabel, IconButton, Modal, Switch, Tooltip } from '@mui/material';
+import { Box, MenuItem, Select } from '@mui/material';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { PatientAccountTable } from './PatientAcountsTable';
-import { usePatientAccountPaginationStore } from '../../../store/hospitalization/patientAcountsPagination';
-import { Settings } from '@mui/icons-material';
-import { useAuthStore } from '../../../store/auth';
-import { useState } from 'react';
-import { DiscountConfigModal } from './Modal/Config/DiscountConfigModal';
+import { usePatientAccountPaginationStore } from '../../../store/checkout/patientAcountsPagination';
+import { PatientAccountStatus, PatientAccountStatusLabels } from '../../../types/checkout/patientAccountTypes';
+import { isNumber } from 'lodash';
 
 export const PatientAcounts = () => {
   const setSearch = usePatientAccountPaginationStore((state) => state.setSearch);
   const setStatus = usePatientAccountPaginationStore((state) => state.setStatus);
   const status = usePatientAccountPaginationStore((state) => state.status);
-  const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
-  const [open, setOpen] = useState(false);
 
   return (
-    <>
-      <Box
-        sx={{
-          bgcolor: 'background.paper',
-          p: 2,
-          borderRadius: 4,
-          boxShadow: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          rowGap: isAdmin ? 0 : 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={setSearch} size="medium" sx={{ width: '100%' }} title="Buscar la cuenta..." />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={status === 1}
-                onChange={(val) => {
-                  if (val.target.checked) {
-                    setStatus(1);
-                  } else {
-                    setStatus(2);
-                  }
-                }}
-              />
-            }
-            label="Pendientes"
-          />
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column' }}>
-          {isAdmin && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Tooltip title="Configuración">
-                <IconButton color="primary" onClick={() => setOpen(true)}>
-                  <Settings />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          )}
-          <PatientAccountTable status={status} />
-        </Box>
+    <Box
+      sx={{
+        bgcolor: 'background.paper',
+        p: 2,
+        borderRadius: 4,
+        boxShadow: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 2,
+      }}
+    >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <SearchBar searchState={setSearch} size="medium" sx={{ width: '100%' }} title="Buscar la cuenta..." />
+        <Select value={status} onChange={(val) => setStatus(val.target.value as PatientAccountStatus)}>
+          {Object.values(PatientAccountStatus)
+            .filter((v) => isNumber(v) && v !== PatientAccountStatus.Scheduled)
+            .map((status) => (
+              <MenuItem key={status} value={status}>
+                {PatientAccountStatusLabels[status as PatientAccountStatus]}
+              </MenuItem>
+            ))}
+        </Select>
       </Box>
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-          <DiscountConfigModal setOpen={setOpen} />
-        </>
-      </Modal>
-    </>
+      <PatientAccountTable status={status} />
+    </Box>
   );
 };

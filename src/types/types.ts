@@ -369,6 +369,14 @@ export interface OrdenCompraArticulo {
   nombre?: string;
 }
 
+export interface IarticlesPrebuildedRequest {
+  id_Articulo: string;
+  cantidadSeleccionada: number;
+  cantidadSolicitada: number;
+  stock: number;
+  nombre: string;
+}
+
 // enum ConceptPayment {
 //   'Contado' = 0,
 //   'Credito' = 1,
@@ -488,6 +496,27 @@ export interface IWarehouseMovementData {
   folio: string;
   infoExtra: any;
   conceptoSolicitud: string;
+}
+
+export interface IWaitingPackagesRequestData {
+  id_SolicitudAlmacen: string;
+  id_CuentaEspacioHospitalario: string;
+  folio: string;
+  paciente: string;
+  quirofano: string;
+  medico: string;
+  horaCirugia: string;
+  edadPaciente: number;
+  usuarioSolicito: string;
+  fechaSolicitud: string;
+  estatus: number;
+  articulos: IArticlesInPackageRequest[];
+}
+
+export interface IArticlesInPackageRequest {
+  nombre: string;
+  cantidad: number;
+  id_Articulo: string;
 }
 export interface IArticleHistory {
   nombre: string;
@@ -692,12 +721,6 @@ export interface ICheckoutSell {
   montoPago?: number;
   nombreUsuario?: string;
   pdfCadena?: string;
-}
-
-export interface IConfigEmitterUsers {
-  id_Usuario: string;
-  nombreUsuario: string;
-  conceptos: string[];
 }
 
 export interface IRoom {

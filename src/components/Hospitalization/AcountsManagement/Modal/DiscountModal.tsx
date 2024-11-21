@@ -2,12 +2,13 @@ import { Box, keyframes, Backdrop, Button, Typography, TextField, MenuItem, Circ
 import { styled } from '@mui/system';
 import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { getPatientBillById, createDiscountPatientBill } from '../../../../services/hospitalization/patientBillService';
-import { DISCOUNT_TYPES, DiscountType, DiscountTypeKey, IDiscount } from '../../../../types/hospitalizationTypes';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { discountFormSchema } from '../../../../schema/hospitalization/hospitalizationSchema';
 import { toast } from 'react-toastify';
+import { DISCOUNT_TYPES, DiscountType, DiscountTypeKey } from '../../../../types/checkout/discountTypes';
+import { applyDiscountPatientBill } from '../../../../services/checkout/patientAccount';
+import { useGetPatientAccountDiscount } from '../../../../hooks/checkout/useGetPatientAccountDiscount';
 
 const style = {
   position: 'absolute',
@@ -97,30 +98,6 @@ const Coin = styled(Box)(() => ({
   animation: `${coinFlip} 4s cubic-bezier(0, 0.2, 0.8, 1) infinite`,
 }));
 
-const useDiscountData = (Id_CuentaPaciente: string) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [existingDiscount, setExistingDiscount] = useState<IDiscount | null>(null);
-
-  useEffect(() => {
-    const fetchExistingDiscount = async () => {
-      try {
-        const discounts = await getPatientBillById(Id_CuentaPaciente);
-        if (discounts) {
-          setExistingDiscount(discounts);
-        }
-      } catch (error) {
-        console.error('Error al obtener el descuento existente:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchExistingDiscount();
-  }, [Id_CuentaPaciente]);
-
-  return { isLoading, existingDiscount };
-};
-
 export const DiscountModal = ({
   setOpen,
   Id_CuentaPaciente,
@@ -128,7 +105,7 @@ export const DiscountModal = ({
   setOpen: (open: boolean) => void;
   Id_CuentaPaciente: string;
 }) => {
-  const { isLoading, existingDiscount } = useDiscountData(Id_CuentaPaciente);
+  const { isLoading, data: existingDiscount } = useGetPatientAccountDiscount(Id_CuentaPaciente);
   const [isGeneratingDiscount, setIsGeneratingDiscount] = useState(false);
   const { control, handleSubmit, reset } = useForm<DiscountFormData>({
     defaultValues: {
@@ -163,8 +140,8 @@ export const DiscountModal = ({
   const onSubmit = async (data: DiscountFormData) => {
     try {
       setIsGeneratingDiscount(true);
-      await createDiscountPatientBill({
-        id_CuentaPaciente: data.Id_CuentaPaciente,
+      await applyDiscountPatientBill({
+        id: data.Id_CuentaPaciente,
         montoDescuento: data.MontoDescuento,
         motivoDescuento: data.MotivoDescuento,
         tipoDescuento: data.TipoDescuento,

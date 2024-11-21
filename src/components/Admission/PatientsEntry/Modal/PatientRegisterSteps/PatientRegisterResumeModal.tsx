@@ -98,6 +98,7 @@ const TextTypography = styled(Typography)(({}) => ({
 }));
 export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: RegisterResumeProps) => {
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
+  const warehouseSelected = usePatientEntryRegisterStepsStore((state) => state.warehouseSelected);
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
   const patient = usePatientEntryRegisterStepsStore((state) => state.patient);
   const procedures = usePatientEntryRegisterStepsStore((state) => state.procedures);
@@ -180,6 +181,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
           paciente: patientObj,
           registroQuirofano: operatingRoom,
           registroCuarto: hospitalizationRoom,
+          id_AlmacenPaquete: warehouseSelected,
           servicios: cabinetStudiesSelected.flatMap((c) => c.id),
           procedimientos: procedures,
           id_Medico: medicId,

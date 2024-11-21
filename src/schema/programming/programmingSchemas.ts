@@ -140,8 +140,8 @@ export const medicPersonalBiomedicalEquipmentSchema = z.object({
 
 const priceByTimeRange = z
   .object({
-    inicio: z.string().min(1, 'La hora inicio es necesaria'),
-    fin: z.string().nullable(),
+    horaInicio: z.string().min(1, 'La hora inicio es necesaria'),
+    horaFin: z.string().nullable(),
     precio: z.number().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: 'El precio debe ser un número decimal positivo',
     }),
@@ -149,8 +149,8 @@ const priceByTimeRange = z
   })
   .refine(
     (val) => {
-      if (!val.noneHour && val.fin) {
-        return val.inicio <= val.fin;
+      if (!val.noneHour && val.horaFin) {
+        return val.horaInicio <= val.horaFin;
       }
       return true;
     },

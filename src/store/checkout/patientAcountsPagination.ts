@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios, { CancelTokenSource } from 'axios';
-import { IPatientAccount } from '../../types/admissionTypes';
-import { getPatientsWithAccountPagination } from '../../services/programming/patientService';
+import { IPatientAccountPagination } from '../../types/checkout/patientAccountTypes';
+import { getPatientAccountPagination } from '../../services/checkout/patientAccount';
 
 interface State {
   count: number;
@@ -9,7 +9,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IPatientAccount[];
+  data: IPatientAccountPagination[];
   loading: boolean;
   enabled: boolean;
   status: number;
@@ -40,7 +40,7 @@ const initialValues = {
   data: [],
   loading: false,
   enabled: true,
-  status: 1,
+  status: 2,
   search: '',
   cancelToken: null as CancelTokenSource | null,
   sort: '',
@@ -67,7 +67,7 @@ export const usePatientAccountPaginationStore = create<State & Action>((set, get
     set({ cancelToken: cancelToken });
 
     try {
-      const res = await getPatientsWithAccountPagination(
+      const res = await getPatientAccountPagination(
         `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&estatus=${status}`
       );
       set({

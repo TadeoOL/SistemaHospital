@@ -18,18 +18,8 @@ import {
   Typography,
 } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import {
-  IAcountAllInformation,
-  IPatientInAccount,
-  IOperatingRoomsAccount,
-} from '../../../../types/hospitalizationTypes';
 import { toast } from 'react-toastify';
-import React, { useEffect, useState } from 'react';
-import {
-  closeRegisterAndAccount,
-  getAccountFullInformation,
-} from '../../../../services/programming/admissionRegisterService';
-import { registerSell } from '../../../../services/checkout/checkoutService';
+import React, { useState } from 'react';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -38,11 +28,14 @@ import { Settings } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
-import { usePatientAccountPaginationStore } from '../../../../store/hospitalization/patientAcountsPagination';
+import { usePatientAccountPaginationStore } from '../../../../store/checkout/patientAcountsPagination';
 import { pdf } from '@react-pdf/renderer';
 import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { PriceCell } from '../../../Commons/PriceCell';
 import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
+import { useGetPatientAccount } from '../../../../hooks/checkout/useGetPatientAccount';
+import { IPatientInfo, PatientAccountStatus } from '../../../../types/checkout/patientAccountTypes';
+import { changeStatusPatientAccount } from '../../../../services/checkout/patientAccount';
 
 const style = {
   position: 'absolute',
@@ -74,26 +67,21 @@ const style2 = {
 interface CloseAccountModalProps {
   setOpen: Function;
   id_Cuenta: string;
-  id_Paciente: string;
   viewOnly?: boolean;
 }
 
 export const CloseAccountModal = (props: CloseAccountModalProps) => {
-  const conn = useConnectionSocket((state) => state.conn);
-  const [isLoading, setIsLoading] = useState(false);
-  const [accountInfo, setAccountInfo] = useState<IAcountAllInformation | null>(null);
+  // const [isLoading, setIsLoading] = useState(false);
   const refetch = usePatientAccountPaginationStore((state) => state.fetchData);
   // const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   // const profile = useAuthStore(useShallow((state) => state.profile));
   const [notes, setNotes] = useState('');
+  const { data, isLoading, error } = useGetPatientAccount(props.id_Cuenta);
 
-  const [errorflag, setErrorflag] = useState(true);
   // const [discount, setDiscount] = useState('');
   // const [discountPercent, setDiscountPercent] = useState('');
 
-  const [discountSurgeryRoomFlag, _] = useState(false);
-  const [surgeryPrice, __] = useState('');
-  const [initialSurgeryPrice, setInitialSurgeryPrice] = useState(0);
+  const [surgeryPrice] = useState('');
   const [modified, setModified] = useState(false);
 
   // const [discountType, setDiscountType] = useState<'percentage' | 'amount' | null>(null);
@@ -101,69 +89,16 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   // const [discountedTotal, setDiscountedTotal] = useState(accountInfo?.totalPagoCuentaRestante || 0);
   // const [discountReason, setDiscountReason] = useState('');
 
-  useEffect(() => {
-    const fetchAccountInfo = async () => {
-      setIsLoading(true);
-      try {
-        const paramURL = `Id_Paciente=${props.id_Paciente}&Id_CuentaPaciente=${props.id_Cuenta}`;
-        const accountRes = await getAccountFullInformation(paramURL);
-        setAccountInfo(accountRes);
-        let totalQuirofanos = 0;
-        accountRes.quirofanos.forEach((quirofano: IOperatingRoomsAccount) => {
-          totalQuirofanos += quirofano.precioTotal;
-        });
-        setInitialSurgeryPrice(totalQuirofanos);
-        setErrorflag(false);
-      } catch (error) {
-        setErrorflag(true);
-        console.log(error);
-        console.log('La cuenta aun no se puede cerrar');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAccountInfo();
-  }, [modified]);
-
-  const handleSubmit = async (totalVentaV: number) => {
-    if (!accountInfo) {
+  const handleSubmit = async () => {
+    if (!data) {
       toast.error('No se encontró la cuenta');
       return;
     }
-    if (conn === null) {
-      toast.error('Error, sin conexión al websocket');
-      return;
-    }
     try {
-      await closeRegisterAndAccount({
-        Id_Registro: accountInfo.id,
-        Id_Paciente: props.id_Paciente,
-        Id_CuentaPaciente: props.id_Cuenta,
-        TotalCuenta: accountInfo.totalPagoCuenta,
-        SubTotal: accountInfo.subTotal,
-        IVA: accountInfo.iva,
+      await changeStatusPatientAccount({
+        id: props.id_Cuenta,
+        estatus: PatientAccountStatus.Closed,
       });
-      const object = {
-        paciente: `${accountInfo.paciente.nombre || ''} ${accountInfo.paciente.apellidoPaterno || ''} ${accountInfo.paciente.apellidoMaterno || ''}`,
-        totalVenta: totalVentaV,
-        moduloProveniente: 'Cierre de cuenta',
-        id_CuentaPaciente: props.id_Cuenta,
-      };
-      const res = await registerSell(object);
-      const resObj = {
-        estatus: res.estadoVenta,
-        folio: res.folio,
-        id_VentaPrincipal: res.id,
-        moduloProveniente: res.moduloProveniente,
-        paciente: res.paciente,
-        totalVenta: res.totalVenta,
-        tipoPago: res.tipoPago,
-        id_UsuarioPase: res.id_UsuarioPase,
-        nombreUsuario: res.nombreUsuario,
-      };
-      conn.invoke('SendSell', resObj);
-
       refetch();
       toast.success('Cierre de cuenta y Pase a caja generado correctamente');
       props.setOpen(false);
@@ -176,7 +111,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const acceptRequest = () => {
     withReactContent(Swal).fire({
       title: 'Confirmación',
-      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de $${accountInfo?.totalPagoCuentaRestante.toFixed(2)}?`,
+      text: `¿Estás seguro de CERRAR la cuenta por la cantidad de $${data?.totalRestante.toFixed(2)}?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
@@ -185,7 +120,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       reverseButtons: true,
       showLoaderOnConfirm: true,
       preConfirm: () => {
-        handleSubmit(accountInfo?.totalPagoCuentaRestante ?? 0);
+        handleSubmit();
       },
       allowOutsideClick: () => !Swal.isLoading(),
     });
@@ -290,29 +225,24 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   //     setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
   //   }
   // };
-  const CaclTotalBill = () => {
-    let result = 0;
-    if (accountInfo?.porcentajeDescuento && discountSurgeryRoomFlag) {
-      result = accountInfo?.porcentajeDescuento;
-    } else if (discountSurgeryRoomFlag) {
-      result =
-        (accountInfo?.totalPagoCuentaRestante ?? 0) +
-        (isNaN(Number(surgeryPrice) - initialSurgeryPrice) ? 0 : Number(surgeryPrice) - initialSurgeryPrice);
-    } else if (accountInfo?.porcentajeDescuento) {
-      result = accountInfo?.porcentajeDescuento;
-    } else {
-      result = accountInfo?.totalPagoCuentaRestante ?? 0;
+  const calcularTotalConDescuento = () => {
+    if (!data?.totalRestante || !data?.descuento) {
+      return data?.totalRestante ?? 0;
     }
-    return result;
+
+    const porcentajeDescuento = data.descuento / 100;
+    const montoDescuento = data.totalRestante * porcentajeDescuento;
+    return (data.totalRestante - montoDescuento).toFixed(2);
   };
-  if (errorflag && !isLoading) {
+
+  const result = calcularTotalConDescuento();
+
+  if (error && !isLoading) {
     return (
       <Box sx={style}>
         <HeaderModal
           setOpen={props.setOpen}
-          title={`Cierre de cuenta ${
-            accountInfo ? ` - Paciente: ${accountInfo.paciente.nombre} ${accountInfo.paciente.apellidoPaterno}` : ''
-          }`}
+          title={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
         />
         <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
           <b>La información de la cuenta del paciente no esta completa</b>
@@ -335,22 +265,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   }
 
   const handleOpenPDF = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
 
     const document = (
       <BillCloseReport
-        cierreCuenta={{ ...accountInfo, notas: notes } as any}
-        descuento={accountInfo?.porcentajeDescuento ? accountInfo?.porcentajeDescuento.toString() : undefined}
-        total={CaclTotalBill()}
-        notas={
-          accountInfo?.porcentajeDescuento || discountSurgeryRoomFlag
-            ? 'Se le hizo Descuento porcentual y cambio de precio en quirofano '
-            : accountInfo?.porcentajeDescuento
-              ? 'Se le hizo descuento'
-              : discountSurgeryRoomFlag
-                ? 'Se cambio el precio de quirofano'
-                : ''
-        }
+        cierreCuenta={{ ...data, notas: notes } as any}
+        descuento={data?.descuento ? data?.descuento.toFixed(2).toString() : undefined}
+        total={result}
+        notas={data?.descuento ? 'Se le hizo Descuento porcentual' : ''}
       />
     );
 
@@ -361,57 +283,55 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     const url = URL.createObjectURL(blob);
     window.open(url);
 
-    setIsLoading(false);
+    // setIsLoading(false);
   };
 
   return (
     <Box sx={style}>
       <HeaderModal
         setOpen={props.setOpen}
-        title={`Cierre de cuenta ${
-          accountInfo ? ` - Paciente: ${accountInfo.paciente.nombre} ${accountInfo.paciente.apellidoPaterno}` : ''
-        }`}
+        title={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
       />
       <Box sx={style2}>
-        {isLoading && !errorflag ? (
+        {isLoading && !error ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress size={35} />
           </Box>
         ) : (
-          accountInfo && (
+          data && (
             <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
               <PatientInformation
-                patient={accountInfo.paciente}
-                medic={accountInfo.medico}
-                isHospitalization={accountInfo.esHospitalizacion}
-                ventaConcepto={accountInfo.ventaConcepto}
-                ventaArticuloIVA={accountInfo.ventaArticuloIVA}
-                ventaArticuloSinIVA={accountInfo.ventaArticuloSinIVA}
+                patient={data.paciente ?? ({} as IPatientInfo)}
+                medic={data.paciente?.nombreMedico ?? ''}
+                isHospitalization={false}
+                ventaConcepto={0}
+                ventaArticuloIVA={0}
+                ventaArticuloSinIVA={0}
               />
               <DataTable
                 title="Cuartos"
-                data={accountInfo.cuartos}
+                data={data.cuartos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidadDias', header: 'Cantidad de Dias' },
                   { key: 'precioDia', header: 'Precio por Dia' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precioTotal', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
+                haveDiscount={data?.descuento}
               />
               <DataTable
                 title="Quirofanos / Recuperacion"
-                data={accountInfo.quirofanos}
+                data={data.quirofanos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'tiempoCirugia', header: 'Tiempo' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precioTotal', header: 'Precio Total' },
+                  { key: 'tiempo', header: 'Tiempo' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
+                haveDiscount={data?.descuento}
                 isOperatingRoom={!props.viewOnly}
                 modified={modified}
                 setModified={setModified}
@@ -448,75 +368,70 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               </Box> */}
               <DataTable
                 title="Procedimientos"
-                data={accountInfo.procedimientos}
+                data={data.cirugias ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                   // { key: 'estatus', header: 'Estatus' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
+                haveDiscount={data?.descuento}
               />
 
               <DataTable
-                title="Estudios de Gabinete"
-                data={accountInfo.registrosRadiografias}
+                title="Servicios"
+                data={data.servicios ?? []}
                 columns={[
-                  { key: 'folio', header: 'Folio' },
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'nombreSolicitante', header: 'Nombre del Solicitante' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
-                  // { key: 'estatus', header: 'Estatus' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
+                haveDiscount={data?.descuento}
               />
-              <DataTable
+              {/* <DataTable
                 title="Equipos Biomédicos"
-                data={accountInfo.registrosEquiposBiomedicos}
+                data={data.equiposBiomedicos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'precioNeto', header: 'Precio Neto' },
                   { key: 'precioIVA', header: 'IVA' },
                   { key: 'precio', header: 'Precio Total' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
-              />
+                haveDiscount={data?.descuento}
+              /> */}
               <DataTable
                 title="Equipos Biomédicos Externos"
-                data={accountInfo.registrosEquiposBiomedicosHonorario}
+                data={data.equipoHonorario ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
+                haveDiscount={data?.descuento}
               />
               <DataTable
                 title="Artículos"
-                data={accountInfo.articulos}
+                data={data.articulos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'cantidad', header: 'Cantidad' },
-                  { key: 'solicitud', header: 'Solicitud' },
+                  { key: 'solicitadoEn', header: 'Solicitado en' },
                   { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
-                  { key: 'precioVenta', header: 'Precio Unitario' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'Precio IVA' },
-                  { key: 'precioTotal', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
-                haveDiscount={accountInfo?.porcentajeDescuento}
+                haveDiscount={data?.descuento}
               />
               <DataTable
                 title="Pagos de la Cuenta"
-                data={accountInfo.pagosCuenta}
+                data={data.pagosCuenta ?? []}
                 columns={[
                   { key: 'folio', header: 'Folio' },
                   { key: 'fechaPago', header: 'Fecha de Pago' },
-                  { key: 'total', header: 'Monto' },
+                  { key: 'monto', header: 'Monto' },
                 ]}
               />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
@@ -525,7 +440,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Subtotal:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.subTotal.toFixed(2)}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -533,9 +448,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      {accountInfo.porcentajeDescuento.toFixed(2)}%
-                    </Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data.descuento?.toFixed(2)}%</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -543,7 +456,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.iva.toFixed(2)}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.iva.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -551,9 +464,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo.totalPagoCuenta.toFixed(2)}
-                    </Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.total.toFixed(2)}</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -564,9 +475,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuentaAbonos.toFixed(2)}
-                    </Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.totalPagos.toFixed(2)}</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -575,14 +484,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${(accountInfo?.totalPagoCuenta - accountInfo.totalPagoCuentaAbonos).toFixed(2)}
+                      ${(data.total - data.totalPagos).toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
               </Box>
 
               <Typography textAlign={'start'} variant="h4">
-                <b>Pago SAMI:</b> ${accountInfo?.totalPagoSami ?? 0}
+                <b>Pago SAMI:</b> ${0}
               </Typography>
 
               <Box sx={{ display: 'flex', flex: 1, mt: 2 }}>
@@ -723,7 +632,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
             {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
           </Button>
         )}
-        {!isLoading && !errorflag && (
+        {!isLoading && !error && (
           <Button variant="contained" color="primary" disabled={isLoading} onClick={handleOpenPDF}>
             {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
           </Button>
@@ -734,7 +643,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
 };
 
 interface PatientInformationProps {
-  patient: IPatientInAccount;
+  patient: IPatientInfo;
   medic: string;
   isHospitalization: boolean;
   ventaConcepto: number;
@@ -758,7 +667,7 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({
     </Grid>
     <Grid item xs={6}>
       <Typography>
-        <b>Nombre:</b> {`${patient.nombre} ${patient.apellidoPaterno} ${patient.apellidoMaterno}`}
+        <b>Nombre:</b> {`${patient.nombrePaciente}`}
       </Typography>
     </Grid>
     <Grid item xs={6}>

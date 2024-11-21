@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { IConfigEmitterUsers } from '../types/types';
 import { getCashVoucherConfig } from '../services/checkout/chashVoucherService';
+import { IConfigEmitterUsers } from '../types/checkout/checkoutConfigTypes';
 
 export const useGetCheckoutConfig = (action?: boolean) => {
   const {

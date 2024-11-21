@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { IRecoveryRoom } from '../../../types/operatingRoom/operatingRoomTypes';
+import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
 import dayjs from 'dayjs';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
 import { useRecoveryRoomsPaginationStore } from '../../../store/operatingRoom/recoveryRoomsPagination';
@@ -24,31 +24,33 @@ import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { HowToReg } from '@mui/icons-material';
-import { modifyOperatingRoomRegister } from '../../../services/operatingRoom/operatingRoomRegisterService';
-import { HistorialClinico } from '../../../types/admissionTypes';
 import { ClinicalDataInfo } from './Modal/ClinicalDataInfo';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { useDailyOperatingRoomsPaginationStore } from '../../../store/operatingRoom/dailyOperatingRoomsPagination';
+import { changeOperatingRoomStatus } from '../../../services/operatingRoom/operatingRoomService';
 
 const HEADERS = ['Hora', 'Quirófano', 'Paciente', 'Cirugía', 'Cirujano', 'Datos Clínicos', 'Acciones'];
 
 const useGetRecoveryRooms = () => {
-  const fetch = useRecoveryRoomsPaginationStore((state) => state.fetchData);
-  const data = useRecoveryRoomsPaginationStore((state) => state.data);
-  const isLoading = useRecoveryRoomsPaginationStore((state) => state.loading);
-  const search = useRecoveryRoomsPaginationStore((state) => state.search);
-  const pageSize = useRecoveryRoomsPaginationStore((state) => state.pageSize);
-  const pageIndex = useRecoveryRoomsPaginationStore((state) => state.pageIndex);
-  const setPageIndex = useRecoveryRoomsPaginationStore((state) => state.setPageIndex);
-  const setPageSize = useRecoveryRoomsPaginationStore((state) => state.setPageSize);
-  const count = useRecoveryRoomsPaginationStore((state) => state.count);
+  const fetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
+  const data = useDailyOperatingRoomsPaginationStore((state) => state.data);
+  const setStatus = useDailyOperatingRoomsPaginationStore((state) => state.setStatus);
+  const isLoading = useDailyOperatingRoomsPaginationStore((state) => state.loading);
+  const search = useDailyOperatingRoomsPaginationStore((state) => state.search);
+  const pageSize = useDailyOperatingRoomsPaginationStore((state) => state.pageSize);
+  const pageIndex = useDailyOperatingRoomsPaginationStore((state) => state.pageIndex);
+  const setPageIndex = useDailyOperatingRoomsPaginationStore((state) => state.setPageIndex);
+  const setPageSize = useDailyOperatingRoomsPaginationStore((state) => state.setPageSize);
+  const count = useDailyOperatingRoomsPaginationStore((state) => state.count);
+  const operatingRoomId = useDailyOperatingRoomsPaginationStore((state) => state.operatingRoomId);
 
   useEffect(() => {
+    setStatus(3);
     fetch();
-  }, [search, pageSize, pageIndex]);
-
+  }, [search, pageSize, pageIndex, operatingRoomId]);
   return { data, isLoading, setPageIndex, setPageSize, count, pageIndex, pageSize };
 };
 
@@ -70,7 +72,7 @@ export const RecoveryRoomsTable = () => {
             <>
               <TableBody>
                 {data.map((d) => (
-                  <RecoveryRoomsTableRow key={d.id} data={d} />
+                  <RecoveryRoomsTableRow key={d.id_IngresoPaciente} data={d} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -89,14 +91,11 @@ export const RecoveryRoomsTable = () => {
     </Card>
   );
 };
-
-const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
+const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
   const [openClinicalData, setOpenClinicalData] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const patientName =
-    data?.paciente.nombre + ' ' + data?.paciente.apellidoPaterno + ' ' + data?.paciente.apellidoMaterno;
 
   const handleClick = (event: any) => {
     setOpen(true);
@@ -110,11 +109,11 @@ const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
   return (
     <>
       <TableRow>
-        <TableCell>{dayjs(data?.horaInicio).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell>{data?.nombre}</TableCell>
-        <TableCell>{patientName}</TableCell>
+        <TableCell>{data?.horaInicioRecuperacion}</TableCell>
+        <TableCell>{data?.quirofano}</TableCell>
+        <TableCell>{data?.paciente}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={data?.procedimientos ?? []} />
+          <SurgeryProceduresChip surgeries={data?.cirugias?.map((cir) => ({id: cir.id_Cirugia, nombre: cir.nombre})) ?? []} />
         </TableCell>
         <TableCell>{data?.medico}</TableCell>
         <TableCell>
@@ -160,7 +159,7 @@ const RecoveryRoomsTableRow = (props: { data?: IRecoveryRoom }) => {
         }}
       >
         <DischargeDateSelector
-          operatingRoomId={data?.id as string}
+          operatingRoomId={data?.id_CuentaEspacioHospitalario as string}
           recoveryStartTime={dayjs(data?.horaInicio).format('YYYY-MM-DDTHH:mm')}
         />
       </Menu>
@@ -202,9 +201,10 @@ const DischargeDateSelector = (props: { operatingRoomId: string; recoveryStartTi
       .then(async (res) => {
         if (res.isConfirmed) {
           try {
-            await modifyOperatingRoomRegister({
-              id_RegistroQuirofano: props.operatingRoomId,
-              horaFinRecuperacion: new Date(date),
+            await changeOperatingRoomStatus({
+              id_CuentaEspacioHospitalario: props.operatingRoomId,
+              estatus: 4,
+              horaAsignada: date,
             });
             Swal.fire({
               title: 'Alta exitosa',
