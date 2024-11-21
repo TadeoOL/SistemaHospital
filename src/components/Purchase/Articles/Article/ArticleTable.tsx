@@ -247,6 +247,16 @@ export const ArticleTable = () => {
 
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 2, ml: 2, mr: 2 }}>
         <Stack direction="row" spacing={1} alignItems="center">
+          <Typography variant="h6">Página:</Typography>
+          <TextField
+            id="outlined-name"
+            placeholder="Page"
+            value={goto}
+            onChange={handleChangeGoto}
+            size="small"
+            sx={{ '& .MuiOutlinedInput-input': { py: 0.75, px: 1.25, width: 50 } }}
+          />
+
           <FormControl sx={{ m: 1, minWidth: 120 }}>
             <Select
               id="demo-controlled-open-select"
@@ -257,21 +267,12 @@ export const ArticleTable = () => {
               size="small"
               sx={{ '& .MuiSelect-select': { py: 0.75, px: 1.25 } }}
             >
-              <MenuItem value={5}>5 / page</MenuItem>
-              <MenuItem value={10}>10 / page</MenuItem>
-              <MenuItem value={25}>25 / page</MenuItem>
-              <MenuItem value={50}>50 / page</MenuItem>
+              <MenuItem value={5}>5 por página</MenuItem>
+              <MenuItem value={10}>10 por página</MenuItem>
+              <MenuItem value={25}>25 por página</MenuItem>
+              <MenuItem value={50}>50 por página</MenuItem>
             </Select>
           </FormControl>
-          <Typography variant="h6">Go to</Typography>
-          <TextField
-            id="outlined-name"
-            placeholder="Page"
-            value={goto}
-            onChange={handleChangeGoto}
-            size="small"
-            sx={{ '& .MuiOutlinedInput-input': { py: 0.75, px: 1.25, width: 50 } }}
-          />
         </Stack>
         <Pagination
           count={Math.ceil(count / pageSize)}
