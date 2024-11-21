@@ -68,6 +68,13 @@ const styleBar = {
     zIndex: 1,
   },
 };
+
+const convertDate = (date?: Date): any => {
+  if (!date) return;
+  const offset = new Date().getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString();
+};
+
 interface RegisterResumeProps {
   setOpen: Function;
   hospitalization?: boolean;
@@ -143,24 +150,28 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    console.log('roomValues:', roomValues);
     let startDate = roomValues[0].horaInicio;
+    console.log('startDate:', startDate);
     let endDate = roomValues[0].horaFin;
+    console.log('endDate:', endDate);
 
     for (let i = 1; i < roomValues.length; i++) {
       if (roomValues[i].horaInicio < startDate) {
-        startDate = roomValues[i].horaInicio;
+        startDate = convertDate(roomValues[i].horaInicio);
       }
       if (roomValues[i].horaFin > endDate) {
-        endDate = roomValues[i].horaFin;
+        endDate = convertDate(roomValues[i].horaFin);
       }
     }
 
     try {
       const operatingRoom: IHospitalSpaceRecord = {
         id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 1)?.id as string,
-        horaInicio: roomValues.find((r) => r.tipoCuarto == 1)?.horaInicio as Date,
-        horaFin: roomValues.find((r) => r.tipoCuarto == 1)?.horaFin as Date,
+        horaInicio: convertDate(roomValues.find((r) => r.tipoCuarto == 1)?.horaInicio),
+        horaFin: convertDate(roomValues.find((r) => r.tipoCuarto == 1)?.horaFin),
       };
+      console.log('operatingRoom:', operatingRoom);
       const hospitalizationRoom = roomValues.find((r) => r.tipoCuarto == 0)
         ? {
             id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 0)!.id,

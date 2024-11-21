@@ -8,8 +8,8 @@ export const useFetchArticle = (articleId?: string) => {
 
   useEffect(() => {
     if (!articleId) {
-      setIsLoadingArticle(false);
       setArticle(null);
+      setIsLoadingArticle(false);
       return;
     }
 

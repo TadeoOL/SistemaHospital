@@ -1,6 +1,7 @@
 import { Box, IconButton, Modal, styled, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { ModalLoader } from './ModalLoader';
 
 const style = {
   position: 'absolute',
@@ -49,9 +50,10 @@ interface ModalFormProps {
   header?: string;
   children?: React.ReactNode;
   onClose?: Function;
+  isLoading?: boolean;
 }
 
-export const ModalComponent = forwardRef(({ open, header, children, onClose }: ModalFormProps, ref) => {
+export const ModalComponent = forwardRef(({ open, isLoading, header, children, onClose }: ModalFormProps, ref) => {
   const [innerOpen, setOpen] = useState(open || false);
 
   useEffect(() => {
@@ -67,13 +69,16 @@ export const ModalComponent = forwardRef(({ open, header, children, onClose }: M
     onClose && onClose();
   };
 
+  if (isLoading) {
+    return <ModalLoader />;
+  }
+
   return (
     <Modal open={innerOpen || false} onClose={() => handleClose()}>
       <div>
         <Box sx={style}>
           <Header
             sx={{
-              bgcolor: 'neutral.700',
               borderTopLeftRadius: 10,
               borderTopRightRadius: { xs: 0, sm: 10 },
               p: 1,

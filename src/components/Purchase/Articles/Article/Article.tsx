@@ -68,6 +68,7 @@ const Article = () => {
 
   const handleEdit = (row: any) => {
     return () => {
+      setArticleId('');
       setArticleId(row.id);
       setModalOpen(true);
     };

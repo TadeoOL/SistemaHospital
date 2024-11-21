@@ -3,7 +3,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
 import { IArticle, ISubCategory } from '../../../../../types/types';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import { addNewArticle } from '../../../../../api/api.routes';
@@ -36,55 +36,57 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const [isBox, setIsBox] = useState(false);
 
   const { isLoadingArticle, article } = useFetchArticle(itemId);
+  // const [defaultValues, setDefaultValues] = useState<any>(null);
 
-  const getDefaultValues = () => {
-    const {
-      id,
-      descripcion,
-      nombre,
-      unidadMedida,
-      precioCompra,
-      precioVentaExterno,
-      precioVentaInterno,
-      unidadesPorCaja,
-      esCaja,
-      codigoSAT,
-      codigoUnidadMedida,
-      subCategoria,
-    } = article ?? {};
+  // useEffect(() => {
+  //   console.log('getDefaultValues', !!article);
+  //   if (!article) {
+  //     setDefaultValues({
+  //       nombre: '',
+  //       descripcion: '',
+  //       id_subcategoria: '',
+  //       unidadMedida: '',
+  //       precioCompra: '',
+  //       precioVentaExterno: '',
+  //       precioVentaInterno: '',
+  //       codigoBarras: '',
+  //       codigoSAT: '',
+  //       codigoUnidadMedida: 0,
+  //       presentacion: '',
+  //     });
+  //     return;
+  //   }
 
-    if (article) {
-      return {
-        id: id,
-        nombre: nombre,
-        descripcion: descripcion,
-        id_subcategoria: subCategoria ? (subCategoria as ISubCategory).id_Subcategoria : '',
-        unidadMedida: unidadMedida,
-        precioCompra: precioCompra,
-        precioVentaExterno: precioVentaExterno,
-        precioVentaInterno: precioVentaInterno,
-        unidadesPorCaja: unidadesPorCaja,
-        esCaja: esCaja,
-        codigoSAT: codigoSAT ?? '',
-        codigoUnidadMedida: codigoUnidadMedida ?? 0,
-      };
-    } else {
-      return {
-        nombre: '',
-        descripcion: '',
-        id_subcategoria: '',
-        // stockAlerta: '',
-        // stockMinimo: '',
-        unidadMedida: '',
-        precioCompra: '',
-        precioVentaExterno: '',
-        precioVentaInterno: '',
-        codigoBarras: '',
-        codigoSAT: '',
-        codigoUnidadMedida: 0,
-        presentacion: '',
-      };
-    }
+  //   console.log('article:', article);
+
+  //   setDefaultValues({
+  //     id: id,
+  //     nombre: nombre,
+  //     descripcion: descripcion,
+  //     id_subcategoria: subCategoria ? (subCategoria as ISubCategory).id_Subcategoria : '',
+  //     unidadMedida: unidadMedida,
+  //     precioCompra: precioCompra,
+  //     precioVentaExterno: precioVentaExterno,
+  //     precioVentaInterno: precioVentaInterno,
+  //     unidadesPorCaja: unidadesPorCaja,
+  //     esCaja: esCaja,
+  //     codigoSAT: codigoSAT ?? '',
+  //     codigoUnidadMedida: codigoUnidadMedida ?? 0,
+  //   });
+  // }, []);
+
+  const defaultValues = {
+    nombre: '',
+    descripcion: '',
+    id_subcategoria: '',
+    unidadMedida: '',
+    precioCompra: '',
+    precioVentaExterno: '',
+    precioVentaInterno: '',
+    codigoBarras: '',
+    codigoSAT: '',
+    codigoUnidadMedida: 0,
+    presentacion: '',
   };
 
   const {
@@ -95,7 +97,8 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     control,
     formState: { errors },
   } = useForm<IArticle>({
-    defaultValues: getDefaultValues(),
+    defaultValues,
+    values: isLoadingArticle ? defaultValues : article,
     resolver: zodResolver(addArticle),
   });
 
@@ -294,7 +297,12 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   }
 
   return (
-    <ModalComponent open={open} header={itemId ? 'Modificar articulo' : 'Agregar articulo'} onClose={onClose}>
+    <ModalComponent
+      isLoading={(isLoading && isLoadingConcepts) || isLoadingArticle}
+      open={open}
+      header={itemId ? 'Modificar articulo' : 'Agregar articulo'}
+      onClose={onClose}
+    >
       <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
         <Stack sx={{ p: 4 }}>
           <Grid component="span" container spacing={2}>
