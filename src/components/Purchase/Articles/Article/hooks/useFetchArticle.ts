@@ -6,22 +6,26 @@ export const useFetchArticle = (articleId?: string) => {
   const [isLoadingArticle, setIsLoadingArticle] = useState(true);
   const [article, setArticle] = useState<IArticle | null>(null);
 
+  const setDebug = (value: any) => {
+    setIsLoadingArticle(value);
+  };
+
   useEffect(() => {
     if (!articleId) {
       setArticle(null);
-      setIsLoadingArticle(false);
+      setDebug(false);
       return;
     }
 
     const fetchData = async () => {
-      setIsLoadingArticle(true);
+      setDebug(true);
       try {
         const data = await getArticleById(articleId);
         setArticle({ ...data, unidadesPorCaja: data?.unidadesPorCaja?.toString() });
       } catch (error) {
         console.log(error);
       } finally {
-        setIsLoadingArticle(false);
+        setDebug(false);
       }
     };
     fetchData();

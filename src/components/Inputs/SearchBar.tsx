@@ -36,7 +36,7 @@ export const SearchBar = (props: ISearchBar) => {
   };
 
   return (
-    <Box sx={{ px: 2, ...sx }}>
+    <Box sx={{ pl: 0, pr: 1, ...sx }}>
       <TextField
         fullWidth
         size={size ? size : 'medium'}

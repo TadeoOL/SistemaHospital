@@ -1,7 +1,7 @@
 import { Button, CircularProgress, Divider, IconButton, Tooltip } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useEffect, useRef, useState } from 'react';
-import { AddArticleModal } from './Modal/ArticleModal';
+import { ArticleModal } from './Modal/ArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
@@ -9,7 +9,7 @@ import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
 import { useGetCategories } from '../../../../hooks/useGetCategories';
 import { ISubCategory } from '../../../../types/types';
 import { FilterListOff } from '@mui/icons-material';
-import { TableTop } from '../../../../common/components/TableCardTop';
+import { TableTop } from '../../../../common/components/TableTop';
 import { SelectBasic } from '../../../../common/components/SelectBasic';
 import { useDisableArticle } from './hooks/useDisableArticle';
 import EditIcon from '@mui/icons-material/Edit';
@@ -127,29 +127,30 @@ const Article = () => {
   return (
     <>
       <TableTop>
-        <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%', px: 0 }} />
+        <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%' }} />
         <SelectBasic
-          sx={{ width: '20%' }}
+          sx={{ width: '25%', px: 1 }}
           label="Busqueda por almacén"
           options={almacenes}
           uniqueProperty="id_Almacen"
           displayProperty="nombre"
-          onChange={(value) => {
+          onChange={(value: any) => {
             setWarehouseSelected(value);
           }}
+          large
         />
         {isLoadingCategories ? (
           <CircularProgress />
         ) : (
           <>
             <SelectBasic
-              sx={{ width: 150 }}
+              sx={{ width: '25%', px: 1 }}
               value={selectedCategory}
               label="Categoria"
               options={categories.filter((cat) => cat.id_Almacen === warehouseSelected)}
               uniqueProperty="id_Categoria"
               displayProperty="nombre"
-              onChange={(value) => {
+              onChange={(value: any) => {
                 setSelectedCategory(value);
                 if (!value) {
                   setSelectedCategorySubcategories(null);
@@ -158,18 +159,20 @@ const Article = () => {
                 const subCategories = categories.find((cat) => cat.id_Categoria === value)?.subcategorias ?? null;
                 setSelectedCategorySubcategories(subCategories);
               }}
+              large
             />
             <SelectBasic
               value={selectedSubcategory}
-              sx={{ width: 150 }}
+              sx={{ width: '25%', px: 1 }}
               label="Subcategoria"
               options={selectedCategorySubcategories}
               uniqueProperty="id_Subcategoria"
               displayProperty="nombre"
-              onChange={(value) => {
+              onChange={(value: any) => {
                 setSelectedSubcategory(value);
                 setSubcategory(value);
               }}
+              large
             />
           </>
         )}
@@ -221,16 +224,7 @@ const Article = () => {
         }}
       />
 
-      <AddArticleModal open={modalOpen} itemId={articleId} onClose={handleModalClose} onSuccess={onSuccess} />
-      {/* <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-        </>
-      </Modal> */}
-      {/* <Modal open={openEditModal} onClose={() => setModalOpen(false)}>
-        <div>
-          <ModifyArticleModal articleId={articleId} open={setOpenEditModal} />
-        </div>
-      </Modal> */}
+      <ArticleModal open={modalOpen} itemId={articleId} onClose={handleModalClose} onSuccess={onSuccess} />
     </>
   );
 };

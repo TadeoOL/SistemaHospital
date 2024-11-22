@@ -1,6 +1,6 @@
 import { Backdrop, CircularProgress } from '@mui/material';
 
-export const ModalLoader = () => {
+export const FullscreenLoader = () => {
   return (
     <Backdrop sx={{ zIndex: 10000 }} open>
       <CircularProgress />

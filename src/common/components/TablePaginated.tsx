@@ -98,9 +98,25 @@ export const TablePaginated = memo(
       }
     };
 
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+    useEffect(() => {
+      const handleResize = () => {
+        setWindowHeight(window.innerHeight);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+
+    const dynamicHeight = `${windowHeight - 390}px`;
+
     return (
       <>
-        <TableBasic rows={data} columns={newColumns as any} isLoading={isLoading} />
+        <TableBasic maxHeight={dynamicHeight} rows={data} columns={newColumns as any} isLoading={isLoading} />
 
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 2, ml: 2, mr: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">

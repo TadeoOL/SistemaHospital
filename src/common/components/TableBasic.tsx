@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 
 // project imports
 import MainCard from './MainCard';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { SortComponent } from '../../components/Commons/SortComponent';
 import { Box, Card, CircularProgress, Typography } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -69,10 +69,11 @@ export interface TableBasicProps {
   rows: any[];
   columns: TableBasicColumn[];
   isLoading?: boolean;
+  maxHeight?: string;
 }
 
 export default function TableBasic(props: TableBasicProps) {
-  const { rows, columns, isLoading } = props;
+  const { rows, columns, isLoading, maxHeight } = props;
 
   if (isLoading)
     return (
@@ -101,13 +102,9 @@ export default function TableBasic(props: TableBasicProps) {
     );
   }
 
-  const tableMaxHeight = useMemo(() => {
-    return window.innerHeight - 390;
-  }, []);
-
   return (
     <MainCard content={false}>
-      <TableContainer sx={{ maxHeight: tableMaxHeight }}>
+      <TableContainer sx={{ maxHeight: maxHeight || undefined }}>
         <Table stickyHeader sx={{ minWidth: 350 }} aria-label="simple table">
           <TableHead>
             <TableRow>{columns.map((column, i) => getHeader(column, i))}</TableRow>

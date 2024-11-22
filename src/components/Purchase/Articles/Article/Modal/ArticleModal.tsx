@@ -1,8 +1,8 @@
-import { Box, Button, Checkbox, DialogActions, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Box, Button, Checkbox, FormControlLabel, Grid } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
-import { IArticle, ISubCategory } from '../../../../../types/types';
+import { IArticle } from '../../../../../types/types';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
@@ -10,10 +10,11 @@ import { addNewArticle } from '../../../../../api/api.routes';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useGetSizeUnit } from '../../../../../hooks/contpaqi/useGetSizeUnit';
-import { ModalComponent } from '../../../../../common/components/ModalComponent';
-import { ModalLoader } from '../../../../../common/components/ModalLoader';
+import { ModalBasic } from '../../../../../common/components/ModalBasic';
 import { useFetchArticle } from '../hooks/useFetchArticle';
 import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
+import { InputBasic } from '../../../../../common/components/InputBasic';
+import { SelectBasic } from '../../../../../common/components/SelectBasic';
 
 interface IAddArticleModal {
   itemId?: string;
@@ -22,7 +23,7 @@ interface IAddArticleModal {
   onClose: Function;
 }
 
-export const AddArticleModal = (props: IAddArticleModal) => {
+export const ArticleModal = (props: IAddArticleModal) => {
   const { open, onClose, onSuccess, itemId } = props;
 
   const { subCategories, isLoading } = useGetSubCategories();
@@ -36,46 +37,10 @@ export const AddArticleModal = (props: IAddArticleModal) => {
   const [isBox, setIsBox] = useState(false);
 
   const { isLoadingArticle, article } = useFetchArticle(itemId);
-  // const [defaultValues, setDefaultValues] = useState<any>(null);
-
-  // useEffect(() => {
-  //   console.log('getDefaultValues', !!article);
-  //   if (!article) {
-  //     setDefaultValues({
-  //       nombre: '',
-  //       descripcion: '',
-  //       id_subcategoria: '',
-  //       unidadMedida: '',
-  //       precioCompra: '',
-  //       precioVentaExterno: '',
-  //       precioVentaInterno: '',
-  //       codigoBarras: '',
-  //       codigoSAT: '',
-  //       codigoUnidadMedida: 0,
-  //       presentacion: '',
-  //     });
-  //     return;
-  //   }
-
-  //   console.log('article:', article);
-
-  //   setDefaultValues({
-  //     id: id,
-  //     nombre: nombre,
-  //     descripcion: descripcion,
-  //     id_subcategoria: subCategoria ? (subCategoria as ISubCategory).id_Subcategoria : '',
-  //     unidadMedida: unidadMedida,
-  //     precioCompra: precioCompra,
-  //     precioVentaExterno: precioVentaExterno,
-  //     precioVentaInterno: precioVentaInterno,
-  //     unidadesPorCaja: unidadesPorCaja,
-  //     esCaja: esCaja,
-  //     codigoSAT: codigoSAT ?? '',
-  //     codigoUnidadMedida: codigoUnidadMedida ?? 0,
-  //   });
-  // }, []);
 
   const defaultValues = {
+    id: '',
+    subCategoria: '',
     nombre: '',
     descripcion: '',
     id_subcategoria: '',
@@ -94,19 +59,25 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     handleSubmit,
     setValue,
     watch,
-    control,
+    clearErrors,
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues,
-    values: isLoadingArticle ? defaultValues : article,
+    values: isLoadingArticle ? defaultValues : article || defaultValues,
     resolver: zodResolver(addArticle),
   });
+
+  useEffect(() => {
+    clearErrors();
+  }, [open]);
 
   const handleError = (err: any) => {
     console.log({ err });
   };
 
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
+    console.log('data:', data);
+    return;
     try {
       if (isBox && !textQuantityRef.current?.value) {
         toast.error('escribe un número de unidades por caja');
@@ -288,245 +259,157 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     });
   };
 
+  const actions = (
+    <>
+      <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => onClose()}>
+        Cancelar
+      </Button>
+      <div className="col"></div>
+      <Button variant="contained" onClick={handleSubmit(onSubmit, handleError)} startIcon={<SaveOutlinedIcon />}>
+        Guardar
+      </Button>
+    </>
+  );
+
   return (
-    <ModalComponent
+    <ModalBasic
       isLoading={(isLoading && isLoadingConcepts) || (!!itemId && isLoadingArticle)}
       open={open}
       header={itemId ? 'Modificar articulo' : 'Agregar articulo'}
       onClose={onClose}
+      actions={actions}
     >
-      <form noValidate onSubmit={handleSubmit(onSubmit, handleError)}>
-        <Stack sx={{ p: 4 }}>
-          <Grid component="span" container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography>Nombre</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.nombre}
-                helperText={errors?.nombre?.message}
-                size="small"
-                placeholder="Escriba un Nombre"
-                {...register('nombre')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Presentación</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.presentacion}
-                helperText={errors?.presentacion?.message}
-                size="small"
-                placeholder="Escriba una presentación"
-                {...register('presentacion')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography>Es un Paquete</Typography>
-                  <Checkbox
-                    checked={isBox}
-                    onChange={() => {
-                      setIsBox(!isBox);
-                    }}
-                  />
-                </Box>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Unidades por Paquete"
-                  disabled={!isBox}
-                  inputRef={textQuantityRef}
-                  sx={{ display: isBox ? 'block' : 'none' }}
-                  inputProps={{
-                    type: 'number',
-                    pattern: '[0-9]*',
-                    inputMode: 'numeric',
-                    min: 0,
-                    onInput: (e: any) => handleInputBox(e),
-                  }}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={12}>
-              <Typography>Descripción</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.descripcion}
-                size="small"
-                placeholder="Escriba una Descripción"
-                {...register('descripcion')}
-                multiline
-                onChange={handleChangeText}
-                helperText={
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexGrow: 1,
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>{errors ? (errors.descripcion ? errors.descripcion.message : null) : null}</Box>
-                    <Box>{`${valueState.length}/${200}`}</Box>
-                  </Box>
-                }
-                maxRows={3}
-                inputProps={{ maxLength: 200 }}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Typography>Precio de Compra</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.precioCompra}
-                helperText={errors?.precioCompra?.message}
-                inputRef={precioQuantityRef}
-                size="small"
-                inputProps={{
-                  maxLength: 10,
-                  onInput: (e: any) => handleInputDecimalChange(e),
-                }}
-                placeholder="Escriba un Precio de Compra"
-                {...register('precioCompra')}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography>Precio de Venta</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.precioVentaExterno}
-                helperText={errors?.precioVentaExterno?.message}
-                size="small"
-                value={watch('precioVentaExterno')}
-                inputProps={{
-                  maxLength: 10,
-                }}
-                placeholder="Escriba un Precio de Venta"
-                // {...register('precioVenta')}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography>Venta Interna</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.precioVentaInterno}
-                helperText={errors?.precioVentaInterno?.message}
-                size="small"
-                value={watch('precioVentaInterno')}
-                inputProps={{
-                  maxLength: 10,
-                }}
-                placeholder="Escriba un Precio de Venta PI"
-                // {...register('precioVentaPI')}
-              />
-            </Grid>
-            {/* <Grid item xs={12} md={6}>
-                <Typography>Stock Mínimo</Typography>
-                <TextField
-                  fullWidth
-                  error={!!errors.stockMinimo}
-                  helperText={errors?.stockMinimo?.message}
-                  size="small"
-                  inputProps={{
-                    maxLength: 10,
-                    onInput: handleInputNumberChange,
-                  }}
-                  placeholder="Dígite un Stock Mínimo"
-                  {...register('stockMinimo')}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography>Stock Alerta</Typography>
-                <TextField
-                  fullWidth
-                  error={!!errors.stockAlerta}
-                  helperText={errors?.stockAlerta?.message}
-                  size="small"
-                  inputProps={{
-                    maxLength: 10,
-                    onInput: handleInputNumberChange,
-                  }}
-                  placeholder="Dígite un Stock Alerta"
-                  {...register('stockAlerta')}
-                />
-              </Grid> */}
-            <Grid item xs={12} md={6}>
-              <Typography>Sub Categoría</Typography>
-              <Controller
-                render={({ field }) => (
-                  <TextField {...field} select label="Seleccione una Sub Categoria" fullWidth>
-                    {subCategories.map((data) => (
-                      <MenuItem value={data.id_Subcategoria} key={data.id_Subcategoria}>
-                        {data.nombre}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-                control={control}
-                name="id_subcategoria"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Código de Barras (Opcional)</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.codigoBarras}
-                helperText={errors?.codigoBarras?.message}
-                size="small"
-                placeholder="Escriba un código de barras"
-                {...register('codigoBarras')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Código de SAT</Typography>
-              <TextField
-                fullWidth
-                error={!!errors.codigoSAT}
-                helperText={errors?.codigoSAT?.message}
-                size="small"
-                placeholder="Escriba un código de SAT"
-                {...register('codigoSAT')}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography>Unidad de Medida Contpaqi</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                label="Seleccione una unidad de medida"
-                error={!!errors.codigoUnidadMedida}
-                helperText={errors?.codigoUnidadMedida?.message}
-                {...register('codigoUnidadMedida')}
-                value={unidadMedida}
-                onChange={handleChangeUnidadMedida}
-              >
-                {sizeUnit.map((data) => (
-                  <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
-                    {data.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+      <form noValidate>
+        <Grid component="span" container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <InputBasic
+              label="Nombre"
+              placeholder="Escriba un Nombre"
+              {...register('nombre')}
+              error={!!errors.nombre}
+              helperText={errors?.nombre?.message}
+            />
           </Grid>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              columnGap: 2,
-              justifyContent: 'space-between',
-              pt: 4,
-            }}
-          >
-            <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => onClose()}>
-              Cancelar
-            </Button>
-            <Button variant="contained" type="submit" startIcon={<SaveOutlinedIcon />}>
-              Guardar
-            </Button>
-          </Stack>
-        </Stack>
+          <Grid item xs={12} md={6}>
+            <InputBasic
+              label="Presentación"
+              placeholder="Escriba una Presentación"
+              {...register('presentacion')}
+              error={!!errors.presentacion}
+              helperText={errors?.presentacion?.message}
+            />
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <FormControlLabel
+              sx={{ ml: 0 }}
+              control={
+                <Checkbox
+                  checked={isBox}
+                  onChange={() => {
+                    setIsBox(!isBox);
+                  }}
+                />
+              }
+              label="Es un Paquete"
+              labelPlacement="start"
+            />
+          </Grid>
+
+          {isBox && (
+            <Grid item xs={12} md={6}>
+              <InputBasic
+                label="Unidades por Caja"
+                placeholder="Escriba un Número de Unidades por Caja"
+                // {...register('unidadesPorCaja')}
+                error={!!errors.unidadesPorCaja}
+                helperText={errors?.unidadesPorCaja?.message}
+                inputProps={{
+                  type: 'number',
+                  pattern: '[0-9]*',
+                  inputMode: 'numeric',
+                  min: 0,
+                  onInput: (e: any) => handleInputBox(e),
+                }}
+              />
+            </Grid>
+          )}
+
+          <Grid item xs={12} md={12}>
+            <InputBasic
+              label="Descripción"
+              placeholder="Escriba una Descripción"
+              {...register('descripcion')}
+              error={!!errors.descripcion}
+              helperText={errors?.descripcion?.message}
+              multiline
+              maxRows={3}
+              maxLength={200}
+              onChange={handleChangeText}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <InputBasic
+              label="Precio de Compra"
+              placeholder="Escriba un Precio de Compra"
+              {...register('precioCompra')}
+              error={!!errors.precioCompra}
+              helperText={errors?.precioCompra?.message}
+              inputProps={{
+                maxLength: 10,
+                onInput: (e: any) => handleInputDecimalChange(e),
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <InputBasic
+              label="Precio de Venta Externo"
+              placeholder="Escriba un Precio de Venta Externo"
+              {...register('precioVentaExterno')}
+              error={!!errors.precioVentaExterno}
+              helperText={errors?.precioVentaExterno?.message}
+              inputProps={{
+                maxLength: 10,
+                onInput: (e: any) => handleInputDecimalChange(e),
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <InputBasic
+              label="Precio de Venta Interno"
+              placeholder="Escriba un Precio de Venta Interno"
+              {...register('precioVentaInterno')}
+              error={!!errors.precioVentaInterno}
+              helperText={errors?.precioVentaInterno?.message}
+              value={watch('precioVentaInterno')}
+              inputProps={{
+                maxLength: 10,
+                onInput: (e: any) => handleInputDecimalChange(e),
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <SelectBasic
+              label="Sub Categoria"
+              options={subCategories}
+              uniqueProperty="id_SubCategoria"
+              displayProperty="nombre"
+              placeholder="Seleccione una Sub Categoria"
+              helperText={errors?.id_subcategoria?.message}
+              error={!!errors.id_subcategoria}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <InputBasic
+              label="Código de Barras"
+              placeholder="Escriba un Código de Barras"
+              {...register('codigoBarras')}
+              error={!!errors.codigoBarras}
+              helperText={errors?.codigoBarras?.message}
+            />
+          </Grid>
+        </Grid>
       </form>
-    </ModalComponent>
+    </ModalBasic>
   );
 };
