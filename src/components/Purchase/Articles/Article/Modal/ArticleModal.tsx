@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, DialogActions, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addArticle } from '../../../../../schema/schemas';
@@ -288,17 +288,9 @@ export const AddArticleModal = (props: IAddArticleModal) => {
     });
   };
 
-  if (isLoading && isLoadingConcepts) {
-    return <ModalLoader />;
-  }
-
-  if (isLoadingArticle) {
-    return <ModalLoader />;
-  }
-
   return (
     <ModalComponent
-      isLoading={(isLoading && isLoadingConcepts) || isLoadingArticle}
+      isLoading={(isLoading && isLoadingConcepts) || (!!itemId && isLoadingArticle)}
       open={open}
       header={itemId ? 'Modificar articulo' : 'Agregar articulo'}
       onClose={onClose}

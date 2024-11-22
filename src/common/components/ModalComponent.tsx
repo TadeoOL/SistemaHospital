@@ -1,7 +1,11 @@
-import { Box, IconButton, Modal, styled, Typography } from '@mui/material';
+import { Box, Dialog, IconButton, Modal, styled, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { ModalLoader } from './ModalLoader';
+import DialogTitle from '@mui/material/DialogTitle';
+import { CloseOutlined } from '@mui/icons-material';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 const style = {
   position: 'absolute',
@@ -53,6 +57,38 @@ interface ModalFormProps {
   isLoading?: boolean;
 }
 
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(3),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1.25),
+    paddingRight: theme.spacing(2),
+  },
+}));
+
+function BootstrapDialogTitle({ children, onClose, ...other }: any) {
+  return (
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          color="secondary"
+          sx={{
+            position: 'absolute',
+            right: 10,
+            top: 10,
+          }}
+        >
+          <CloseOutlined />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+}
+
 export const ModalComponent = forwardRef(({ open, isLoading, header, children, onClose }: ModalFormProps, ref) => {
   const [innerOpen, setOpen] = useState(open || false);
 
@@ -69,33 +105,18 @@ export const ModalComponent = forwardRef(({ open, isLoading, header, children, o
     onClose && onClose();
   };
 
-  if (isLoading) {
+  if (open && isLoading) {
     return <ModalLoader />;
   }
 
   return (
-    <Modal open={innerOpen || false} onClose={() => handleClose()}>
-      <div>
-        <Box sx={style}>
-          <Header
-            sx={{
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: { xs: 0, sm: 10 },
-              p: 1,
-            }}
-          >
-            <Typography fontWeight={500} fontSize={20} color="common.white">
-              {header}
-            </Typography>
-            <IconButton onClick={() => setOpen && setOpen(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Header>
-          <Box sx={style2}>
-            <>{children}</>
-          </Box>
-        </Box>
-      </div>
-    </Modal>
+    <BootstrapDialog aria-labelledby="customized-dialog-title" open={innerOpen || false} onClose={() => handleClose()}>
+      <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+        {header}
+      </BootstrapDialogTitle>
+      <DialogContent dividers sx={{ p: 3 }}>
+        <>{children}</>
+      </DialogContent>
+    </BootstrapDialog>
   );
 });
