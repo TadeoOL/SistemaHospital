@@ -72,9 +72,8 @@ export const ArticleModal = (props: IAddArticleModal) => {
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
       data.esCaja = isBox;
-      // data.precioVenta = precioVenta;
-      // data.precioVentaPI = precioVentaPI;
-      await addNewArticle(data);
+      const res = await addNewArticle(data);
+      console.log('res:', res);
       onSuccess();
       onClose();
       toast.success('Articulo creado con éxito!');
@@ -82,23 +81,6 @@ export const ArticleModal = (props: IAddArticleModal) => {
       toast.error('Error al crear el articulo!');
     }
   };
-
-  // const handleInputNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
-  //   // Validar si el valor ingresado es un número
-  //   const inputValue = event.target.value;
-  //   const isNumber = /^\d*$/.test(inputValue);
-  //   if (!isNumber) {
-  //     // Si no es un número, eliminar el último carácter ingresado
-  //     event.target.value = inputValue.slice(0, -1);
-  //   }
-
-  //   const inputValuePI = event.target.value;
-  //   const isNumberPI = /^\d*$/.test(inputValuePI);
-  //   if (!isNumberPI) {
-  //     // Si no es un número, eliminar el último carácter ingresado
-  //     event.target.value = inputValuePI.slice(0, -1);
-  //   }
-  // };
 
   const validateDecimal = (event: any) => {
     const precioCompra = event.target.value;
@@ -108,9 +90,13 @@ export const ArticleModal = (props: IAddArticleModal) => {
     }
   };
 
+  const [multVentaExterno, setMultVentaExterno] = useState(1);
+  const [multVentaInterno, setMultVentaInterno] = useState(1);
+
   const getPrices = () => {
     const precioCompra = Number(watch('precioCompra'));
     const unidadesPorCaja = Number(watch('unidadesPorCaja'));
+    console.log('unidadesPorCaja:', unidadesPorCaja);
 
     if (!precioCompra) return;
     if (isBox && !unidadesPorCaja) return;
@@ -137,13 +123,16 @@ export const ArticleModal = (props: IAddArticleModal) => {
     const precioVentaExterno = (precioCompra * multiplicadorVentaExterno) / unidades;
     const precioVentaInterno = (precioCompra * multiplicadorVentaInterno) / unidades;
 
+    setMultVentaExterno(multiplicadorVentaExterno);
+    setMultVentaInterno(multiplicadorVentaInterno);
+
     setValue('precioVentaExterno', precioVentaExterno.toString());
     setValue('precioVentaInterno', precioVentaInterno.toString());
   };
 
   useEffect(() => {
     getPrices();
-  }, [watch('precioCompra')]);
+  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox]);
 
   const actions = (
     <>
@@ -248,7 +237,7 @@ export const ArticleModal = (props: IAddArticleModal) => {
           </Grid>
           <Grid item xs={12} md={3}>
             <InputBasic
-              label="Precio de Venta Externo"
+              label={`Precio de Venta Externo (x${multVentaExterno})`}
               placeholder="Escriba un Precio de Venta Externo"
               {...register('precioVentaExterno')}
               error={!!errors.precioVentaExterno}
@@ -260,7 +249,7 @@ export const ArticleModal = (props: IAddArticleModal) => {
           </Grid>
           <Grid item xs={12} md={3}>
             <InputBasic
-              label="Precio de Venta Interno"
+              label={`Precio de Venta Interno (x${multVentaInterno})`}
               placeholder="Escriba un Precio de Venta Interno"
               {...register('precioVentaInterno')}
               error={!!errors.precioVentaInterno}

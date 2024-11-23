@@ -1,6 +1,6 @@
-import { Button, CircularProgress, Divider, IconButton, Tooltip } from '@mui/material';
+import { Button, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArticleModal } from './Modal/ArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
@@ -10,13 +10,13 @@ import { useGetCategories } from '../../../../hooks/useGetCategories';
 import { ISubCategory } from '../../../../types/types';
 import { FilterListOff } from '@mui/icons-material';
 import { TableTop } from '../../../../common/components/TableTop';
-import { SelectBasic } from '../../../../common/components/SelectBasic';
 import { useDisableArticle } from './hooks/useDisableArticle';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
 import { getArticles } from '../../../../api/articles';
 import { TablePaginated } from '../../../../common/components/TablePaginated';
+import { SelectBasic } from '../../../../common/components/SelectBasic';
 
 const Article = () => {
   const [articleId, setArticleId] = useState('');
@@ -57,10 +57,6 @@ const Article = () => {
   const onSuccess = () => tableRef.current.fetchData();
   const disableArticle = useDisableArticle(onSuccess);
 
-  useEffect(() => {
-    tableRef.current.fetchData();
-  }, []);
-
   const handleAdd = () => {
     setArticleId('');
     setModalOpen(true);
@@ -79,6 +75,7 @@ const Article = () => {
       header: 'Nombre',
       value: 'nombre',
       sort: true,
+      width: 'auto',
     },
     {
       header: 'Presentacion',
@@ -89,21 +86,25 @@ const Article = () => {
       header: 'Precio Compra',
       value: 'precioCompra',
       sort: true,
+      width: '100px',
     },
     {
       header: 'Precio Venta Externo',
       value: 'precioVentaExterno',
       sort: true,
+      width: '100px',
     },
     {
-      header: 'Precio Venta Externo',
+      header: 'Precio Venta Interno',
       value: 'precioVentaInterno',
       sort: true,
+      width: '100px',
     },
     {
       header: 'Sub categoria',
       value: 'subCategoria',
       sort: true,
+      width: 'auto',
     },
     {
       header: 'Unidades por caja',
@@ -193,6 +194,7 @@ const Article = () => {
             height: '40px',
           }}
           onClick={() => {
+            setWarehouseSelected(null);
             setSubcategory('');
             setSelectedCategory(null);
             setSelectedCategorySubcategories(null);
@@ -201,10 +203,10 @@ const Article = () => {
         >
           <FilterListOff />
         </IconButton>
-        <Divider sx={{ my: 1 }} />
         <Button
           sx={{
             height: '40px',
+            mx: 1,
           }}
           onClick={() => {
             setEnabled(!enabled);
@@ -228,11 +230,11 @@ const Article = () => {
         columns={columns}
         fetchData={getArticles}
         params={{
-          habilitado: enabled,
-          id_AlmacenPrincipal: warehouseSelected,
-          id_Almacen: warehouseSelected,
-          Id_Subcategoria: subcategory,
           search,
+          id_AlmacenPrincipal: warehouseSelected || null,
+          id_Almacen: warehouseSelected || null,
+          Id_SubCategoria: subcategory || null,
+          habilitado: enabled,
         }}
       />
 

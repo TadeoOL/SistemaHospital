@@ -24,7 +24,8 @@ export interface TableBasicColumn {
 const getHeader = (column: TableBasicColumn, key: number) => {
   if (!column?.header) return null;
 
-  const { header, value, sort, width } = column as any;
+  const { header, value, sort } = column as any;
+  const width = column.width || 'auto';
   if (column.sort && typeof column.value === 'string') {
     return (
       <TableCell
@@ -53,9 +54,11 @@ const getHeader = (column: TableBasicColumn, key: number) => {
 const getCell = (column: TableBasicColumn, row: any, key: string) => {
   if (!column?.value) return null;
 
+  const width = column.width || 'auto';
+
   if (typeof column.value === 'string') {
     return (
-      <TableCell key={key} align={column.align || 'left'}>
+      <TableCell width={width} key={key} align={column.align || 'left'}>
         {row[column.value]}
       </TableCell>
     );
@@ -63,14 +66,14 @@ const getCell = (column: TableBasicColumn, row: any, key: string) => {
 
   if (typeof column.value === 'function') {
     return (
-      <TableCell key={key} align={column.align || 'left'}>
+      <TableCell width={width} key={key} align={column.align || 'left'}>
         {column.value(row)}
       </TableCell>
     );
   }
 
   return (
-    <TableCell key={key} align={column.align || 'left'}>
+    <TableCell width={width} key={key} align={column.align || 'left'}>
       {column.value}
     </TableCell>
   );
@@ -116,7 +119,7 @@ export default function TableBasic(props: TableBasicProps) {
   return (
     <MainCard content={false}>
       <TableContainer sx={{ maxHeight: maxHeight || undefined }}>
-        <Table stickyHeader sx={{ minWidth: 350 }} aria-label="simple table">
+        <Table stickyHeader sx={{ minWidth: 350 }}>
           <TableHead>
             <TableRow>{columns.map((column, i) => getHeader(column, i))}</TableRow>
           </TableHead>

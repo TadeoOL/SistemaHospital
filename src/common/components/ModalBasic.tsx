@@ -31,7 +31,6 @@ function BootstrapDialogTitle({ children, onClose, ...other }: any) {
       {children}
       {onClose ? (
         <IconButton
-          aria-label="close"
           onClick={onClose}
           color="secondary"
           sx={{

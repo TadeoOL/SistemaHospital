@@ -29,6 +29,7 @@ interface TablePaginatedProps {
 export const TablePaginated = memo(
   forwardRef((props: TablePaginatedProps, ref) => {
     const { columns, fetchData, params } = props;
+    console.log('params:', params);
 
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -38,8 +39,6 @@ export const TablePaginated = memo(
     const [sort, setSort] = useState('');
 
     const getData = async () => {
-      console.log('get');
-
       setIsLoading(true);
       const page = pageIndex + 1;
       try {
@@ -51,7 +50,7 @@ export const TablePaginated = memo(
         };
 
         const response = await fetchData(finalParams);
-        console.log({ response });
+        console.log('response:', response);
 
         setData(response.data);
         setCount(response.count);
@@ -66,6 +65,10 @@ export const TablePaginated = memo(
       }
     };
 
+    useEffect(() => {
+      getData();
+    }, [pageIndex, pageSize, sort, JSON.stringify(params)]);
+
     const newColumns = columns.map((c) => {
       if (!c.sort) return c;
 
@@ -73,7 +76,6 @@ export const TablePaginated = memo(
         ...c,
         sort: (value: any) => {
           setSort(value);
-          getData();
         },
       };
     });
@@ -85,7 +87,6 @@ export const TablePaginated = memo(
     const handlePageChange = useCallback((event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
       event?.stopPropagation();
       setPageIndex(value);
-      getData();
     }, []);
 
     const [goto, setGoto] = useState<string | number>(1);
@@ -95,10 +96,8 @@ export const TablePaginated = memo(
       if (+event.target.value > 0 && +event.target.value <= totalPages) {
         setGoto(+event.target.value);
         setPageSize(+event.target.value - 1);
-        getData();
       } else {
         setGoto('');
-        getData();
       }
     };
 
@@ -116,7 +115,7 @@ export const TablePaginated = memo(
       };
     }, []);
 
-    const dynamicHeight = `${windowHeight - 390}px`;
+    const dynamicHeight = `${windowHeight - 360}px`;
 
     return (
       <>
