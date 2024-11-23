@@ -16,6 +16,7 @@ interface TablePaginatedColumn {
   header: string | React.ReactNode;
   value: string | Function | React.ReactNode;
   align?: 'left' | 'right' | 'center';
+  width?: string;
   sort?: boolean;
 }
 
@@ -36,16 +37,9 @@ export const TablePaginated = memo(
     const [pageSize, setPageSize] = useState(10);
     const [sort, setSort] = useState('');
 
-    const newColumns = columns.map((c) => {
-      if (!c.sort) return c;
-
-      return {
-        ...c,
-        sort: setSort,
-      };
-    });
-
     const getData = async () => {
+      console.log('get');
+
       setIsLoading(true);
       const page = pageIndex + 1;
       try {
@@ -55,7 +49,6 @@ export const TablePaginated = memo(
           sort,
           ...params,
         };
-        console.log('params:', params);
 
         const response = await fetchData(finalParams);
         console.log({ response });
@@ -73,9 +66,17 @@ export const TablePaginated = memo(
       }
     };
 
-    useEffect(() => {
-      getData();
-    }, [pageIndex, pageSize, sort, JSON.stringify(params)]);
+    const newColumns = columns.map((c) => {
+      if (!c.sort) return c;
+
+      return {
+        ...c,
+        sort: (value: any) => {
+          setSort(value);
+          getData();
+        },
+      };
+    });
 
     useImperativeHandle(ref, () => ({
       fetchData: getData,
@@ -84,6 +85,7 @@ export const TablePaginated = memo(
     const handlePageChange = useCallback((event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
       event?.stopPropagation();
       setPageIndex(value);
+      getData();
     }, []);
 
     const [goto, setGoto] = useState<string | number>(1);
@@ -93,8 +95,10 @@ export const TablePaginated = memo(
       if (+event.target.value > 0 && +event.target.value <= totalPages) {
         setGoto(+event.target.value);
         setPageSize(+event.target.value - 1);
+        getData();
       } else {
         setGoto('');
+        getData();
       }
     };
 
@@ -137,6 +141,7 @@ export const TablePaginated = memo(
                 onChange={(e: any) => {
                   setPageSize(e.target.value);
                   setPageIndex(0);
+                  getData();
                 }}
                 size="small"
                 sx={{ '& .MuiSelect-select': { py: 0.75, px: 1.25 } }}

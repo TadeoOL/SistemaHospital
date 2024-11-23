@@ -9,7 +9,7 @@ interface SelectComponentProps {
   displayProperty?: string;
   label?: string;
   options: any[] | undefined | null;
-  onChange?: (value: any) => void;
+  onChange?: (event: PointerEvent) => void;
   placeholder?: string;
   large?: boolean;
   [key: string]: any;
@@ -28,6 +28,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
     large,
     error,
     helperText,
+    name,
     ...other
   } = props;
   const [selected, setSelected] = useState('');
@@ -37,9 +38,9 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
   }, [value]);
 
   const handleChange = (e: any) => {
+    onChange && onChange(e);
     const value = e?.target?.value || null;
     setSelected(value || '');
-    onChange && onChange(value);
   };
 
   const getUniqueProperty = (item: any) => {
@@ -65,6 +66,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
         <FormControl fullWidth>
           <TextField
             ref={ref as any}
+            name={name}
             error={error}
             select
             size={large ? undefined : 'small'}

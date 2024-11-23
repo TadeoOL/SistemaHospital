@@ -106,6 +106,16 @@ const Article = () => {
       sort: true,
     },
     {
+      header: 'Unidades por caja',
+      value: (row: any) => row.unidadesCaja ?? 'N/A',
+      sort: true,
+    },
+    {
+      header: 'Usa Factor',
+      value: (row: any) => (row.Factor ? 'Si' : 'No'),
+      sort: true,
+    },
+    {
       header: 'Acciones',
       value: (row: any) => (
         <>
@@ -134,8 +144,8 @@ const Article = () => {
           options={almacenes}
           uniqueProperty="id_Almacen"
           displayProperty="nombre"
-          onChange={(value: any) => {
-            setWarehouseSelected(value);
+          onChange={(e: any) => {
+            setWarehouseSelected(e.target.value);
           }}
           large
         />
@@ -150,7 +160,8 @@ const Article = () => {
               options={categories.filter((cat) => cat.id_Almacen === warehouseSelected)}
               uniqueProperty="id_Categoria"
               displayProperty="nombre"
-              onChange={(value: any) => {
+              onChange={(e: any) => {
+                const value = e.target.value;
                 setSelectedCategory(value);
                 if (!value) {
                   setSelectedCategorySubcategories(null);
@@ -168,7 +179,8 @@ const Article = () => {
               options={selectedCategorySubcategories}
               uniqueProperty="id_Subcategoria"
               displayProperty="nombre"
-              onChange={(value: any) => {
+              onChange={(e: any) => {
+                const value = e.target.value;
                 setSelectedSubcategory(value);
                 setSubcategory(value);
               }}

@@ -46,10 +46,24 @@ export const PurchaseConfig = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [directlyTender, setDirectlyTender] = useState('');
 
+  const sortFactors = (a: IFactor, b: IFactor) => {
+    if (a.cantidadMinima > b.cantidadMinima) {
+      return 1;
+    }
+    if (a.cantidadMinima < b.cantidadMinima) {
+      return -1;
+    }
+    return 0;
+  };
+
   useEffect(() => {
     if (isLoadingPurchaseConfig) return;
     setIsChecked(config.activarLicitacion ? config.activarLicitacion : false);
-    setConfigPurchase(config);
+    setConfigPurchase({
+      ...config,
+      factorExterno: config.factorExterno.sort(sortFactors),
+      factorInterno: config.factorInterno.sort(sortFactors),
+    });
     setValue(config.cantidadOrdenDirecta.toString());
     setDirectlyTender(config.cantidadLicitacionDirecta.toString());
   }, [config]);
@@ -59,7 +73,7 @@ export const PurchaseConfig = () => {
       if (prevConfig) {
         return {
           ...prevConfig,
-          factorExterno: [...prevConfig.factorExterno, data],
+          factorExterno: [...prevConfig.factorExterno, data].sort(sortFactors),
         };
       }
       return prevConfig;
@@ -72,7 +86,7 @@ export const PurchaseConfig = () => {
       if (prevConfig) {
         return {
           ...prevConfig,
-          factorInterno: [...prevConfig.factorInterno, data],
+          factorInterno: [...prevConfig.factorInterno, data].sort(sortFactors),
         };
       }
       return prevConfig;
@@ -331,26 +345,50 @@ const FactorConfigTable: React.FC<FactorConfigTableProps> = ({
   });
 
   const onSubmitNewFactor: SubmitHandler<IFactor> = async (data) => {
-    const isOverlapping = factor?.some(
-      (f) =>
-        (data.cantidadMinima >= f.cantidadMinima && data.cantidadMinima <= f.cantidadMaxima) ||
-        (data.cantidadMaxima >= f.cantidadMinima && data.cantidadMaxima <= f.cantidadMaxima)
-    );
+    const isOverlapping = factor?.some((f) => {
+      if (!data.cantidadMaxima && !f.cantidadMaxima) {
+        return true;
+      }
+
+      if (!data.cantidadMaxima) {
+        return data.cantidadMinima <= f.cantidadMaxima;
+      }
+
+      if (!f.cantidadMaxima) {
+        return f.cantidadMinima <= data.cantidadMaxima;
+      }
+
+      const isBetweenOldFactorRange = (value: any) => {
+        return f.cantidadMinima <= value && value <= f.cantidadMaxima;
+      };
+
+      const isBetweenNewFactorRange = (value: any) => {
+        return data.cantidadMinima <= value && value <= data.cantidadMaxima;
+      };
+
+      return (
+        isBetweenOldFactorRange(data.cantidadMinima) ||
+        isBetweenOldFactorRange(data.cantidadMaxima) ||
+        isBetweenNewFactorRange(f.cantidadMinima) ||
+        isBetweenNewFactorRange(f.cantidadMaxima)
+      );
+    });
     const isFactorDuplicated = factor?.some((f) => f.factorMultiplicador === data.factorMultiplicador);
 
-    if (!isOverlapping && !isFactorDuplicated) {
-      handleSubmit(data);
-      setAddNewFactor(false);
-      setHasChanges(true);
-      reset();
-    } else {
-      if (isOverlapping) {
-        toast.error('El nuevo factor se superpone con un factor existente.');
-      }
-      if (isFactorDuplicated) {
-        toast.error('El factor multiplicador ya existe en los factores existentes.');
-      }
+    if (isOverlapping) {
+      toast.error('El nuevo factor se superpone con un factor existente.');
+      return;
     }
+
+    if (isFactorDuplicated) {
+      toast.error('El factor multiplicador ya existe en los factores existentes.');
+      return;
+    }
+
+    handleSubmit(data);
+    setAddNewFactor(false);
+    setHasChanges(true);
+    reset();
   };
 
   return (
@@ -370,7 +408,7 @@ const FactorConfigTable: React.FC<FactorConfigTableProps> = ({
               {factor?.map((i) => (
                 <TableRow key={i.factorMultiplicador}>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                    ${i.cantidadMinima} a ${i.cantidadMaxima}
+                    {i.cantidadMaxima ? `$ ${i.cantidadMinima} a $ ${i.cantidadMaxima}` : `$ ${i.cantidadMinima} o más`}
                   </TableCell>
                   <TableCell>{i.factorMultiplicador}</TableCell>
                   <TableCell>

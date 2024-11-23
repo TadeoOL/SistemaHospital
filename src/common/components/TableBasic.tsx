@@ -18,22 +18,33 @@ export interface TableBasicColumn {
   value: string | Function | React.ReactNode;
   align?: 'left' | 'right' | 'center';
   sort?: Function;
+  width?: string;
 }
 
 const getHeader = (column: TableBasicColumn, key: number) => {
   if (!column?.header) return null;
 
+  const { header, value, sort, width } = column as any;
   if (column.sort && typeof column.value === 'string') {
-    const { header, value, sort } = column as any;
     return (
-      <TableCell key={key} sx={{ zIndex: 100, position: 'sticky !important' }} align={column.align || 'left'}>
+      <TableCell
+        width={width}
+        key={key}
+        sx={{ zIndex: 100, position: 'sticky !important' }}
+        align={column.align || 'left'}
+      >
         <SortComponent tableCellLabel={header} headerName={value} setSortFunction={sort} />
       </TableCell>
     );
   }
 
   return (
-    <TableCell key={key} sx={{ zIndex: 100, position: 'sticky !important' }} align={column.align || 'left'}>
+    <TableCell
+      width={width}
+      key={key}
+      sx={{ zIndex: 100, position: 'sticky !important' }}
+      align={column.align || 'left'}
+    >
       {column.header}
     </TableCell>
   );
