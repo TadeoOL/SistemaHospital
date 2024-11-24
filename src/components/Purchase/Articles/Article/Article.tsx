@@ -24,6 +24,7 @@ const Article = () => {
 
   const handleModalClose = () => {
     setModalOpen(false);
+    setArticleId('');
   };
 
   const { almacenes } = useGetAlmacenes();

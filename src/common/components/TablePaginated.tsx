@@ -29,7 +29,6 @@ interface TablePaginatedProps {
 export const TablePaginated = memo(
   forwardRef((props: TablePaginatedProps, ref) => {
     const { columns, fetchData, params } = props;
-    console.log('params:', params);
 
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);

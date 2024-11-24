@@ -97,7 +97,7 @@ export interface ICategory {
   subcategorias?: ISubCategory[];
 }
 export interface ISubCategory {
-  id_Subcategoria: string;
+  id_SubCategoria: string;
   nombre: string;
   descripcion: string;
   id_categoria: string;
@@ -112,7 +112,7 @@ export interface ISubCategory {
 }
 
 export interface IArticle {
-  id: string;
+  id?: string;
   nombre: string;
   descripcion: string | null;
   // stockMinimo: string;

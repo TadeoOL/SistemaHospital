@@ -6,7 +6,6 @@ import { IArticle } from '../../../../../types/types';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
-import { addNewArticle } from '../../../../../api/api.routes';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { ModalBasic } from '../../../../../common/components/ModalBasic';
@@ -14,6 +13,7 @@ import { useFetchArticle } from '../hooks/useFetchArticle';
 import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
 import { InputBasic } from '../../../../../common/components/InputBasic';
 import { SelectBasic } from '../../../../../common/components/SelectBasic';
+import { addNewArticle, modifyArticle } from '../../../../../api/articles';
 
 interface IAddArticleModal {
   itemId?: string;
@@ -57,7 +57,14 @@ export const ArticleModal = (props: IAddArticleModal) => {
     formState: { errors },
   } = useForm<IArticle>({
     defaultValues,
-    values: isLoadingArticle ? defaultValues : article || defaultValues,
+    values:
+      isLoadingArticle || !article
+        ? defaultValues
+        : {
+            ...article,
+            precioCompra: article.precioCompra.toString(),
+            id_subcategoria: (article.subCategoria as any)?.id_SubCategoria,
+          },
     resolver: zodResolver(addArticle),
   });
 
@@ -71,13 +78,21 @@ export const ArticleModal = (props: IAddArticleModal) => {
 
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
     try {
+      data.id = itemId || undefined;
       data.esCaja = isBox;
-      const res = await addNewArticle(data);
-      console.log('res:', res);
+      console.log('data:', data);
+      if (!itemId) {
+        const res = await addNewArticle(data);
+        console.log('res:', res);
+      } else {
+        const res = await modifyArticle(data);
+        console.log('res:', res);
+      }
       onSuccess();
       onClose();
       toast.success('Articulo creado con éxito!');
     } catch (error) {
+      console.log('error:', error);
       toast.error('Error al crear el articulo!');
     }
   };
@@ -96,7 +111,6 @@ export const ArticleModal = (props: IAddArticleModal) => {
   const getPrices = () => {
     const precioCompra = Number(watch('precioCompra'));
     const unidadesPorCaja = Number(watch('unidadesPorCaja'));
-    console.log('unidadesPorCaja:', unidadesPorCaja);
 
     if (!precioCompra) return;
     if (isBox && !unidadesPorCaja) return;
@@ -262,6 +276,7 @@ export const ArticleModal = (props: IAddArticleModal) => {
           </Grid>
           <Grid item xs={12} md={6}>
             <SelectBasic
+              value={watch('id_subcategoria')}
               label="Sub Categoria"
               options={subCategories}
               uniqueProperty="id_SubCategoria"

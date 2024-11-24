@@ -34,7 +34,17 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
   const [selected, setSelected] = useState('');
 
   useEffect(() => {
-    setSelected(value || '');
+    if (!options?.length) return;
+
+    const valueUnique = getUniqueProperty(value);
+
+    const found = options.find((item) => {
+      return getUniqueProperty(item) === valueUnique;
+    });
+
+    if (!found) return;
+
+    setSelected(valueUnique);
   }, [value]);
 
   const handleChange = (e: any) => {
@@ -45,8 +55,9 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
 
   const getUniqueProperty = (item: any) => {
     if (!uniqueProperty) return item;
+    if (!item) return '';
 
-    const result = item[uniqueProperty];
+    const result = item[uniqueProperty] || item;
 
     if (result === undefined) {
       console.error(`property ${uniqueProperty} not found in item:`, item);
