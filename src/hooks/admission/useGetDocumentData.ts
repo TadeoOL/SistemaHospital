@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getDocumentData } from '../../services/programming/admissionRegisterService';
-import { IDocumentsInfo } from '../../types/admissionTypes';
+import { IDocumentsInfo } from '@/types/admission/admissionTypes';
 
 export const useGetDocumentData = (registerId: string) => {
   const {
