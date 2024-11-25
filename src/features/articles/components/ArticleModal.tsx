@@ -1,19 +1,19 @@
 import { Button, Checkbox, FormControlLabel, Grid } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addArticle } from '../../../../schema/schemas';
-import { IArticle } from '../../../../types/types';
+import { addArticle } from '../../../schema/schemas';
+import { IArticle } from '../../../types/types';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { InputBasic } from '../../../../common/components/InputBasic';
-import { SelectBasic } from '../../../../common/components/SelectBasic';
-import { addNewArticle, modifyArticle } from '../../../../api/articles';
-import { ModalBasic } from '../../../../common/components/ModalBasic';
-import { useGetSubCategories } from '../../../../hooks/useGetSubCategories';
-import { useFetchArticle } from './hooks/useFetchArticle';
-import { useGetPurchaseConfig } from './hooks/usePurchaseConfig';
+import { InputBasic } from '../../../common/components/InputBasic';
+import { SelectBasic } from '../../../common/components/SelectBasic';
+import { addNewArticle, modifyArticle } from '../services/articles';
+import { ModalBasic } from '../../../common/components/ModalBasic';
+import { useGetSubCategories } from '../../../hooks/useGetSubCategories';
+import { useFetchArticle } from '../hooks/useFetchArticle';
+import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
 
 interface ArticleModalProps {
   itemId?: string;
@@ -255,7 +255,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <InputBasic
               label="Precio de Compra"
               placeholder="Escriba un Precio de Compra"
@@ -268,7 +268,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4}>
             <InputBasic
               label={`Precio de Venta Externo (x${multVentaExterno})`}
               placeholder="Escriba un Precio de Venta Externo"
@@ -281,7 +281,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
               disabled={factor}
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4}>
             <InputBasic
               label={`Precio de Venta Interno (x${multVentaInterno})`}
               placeholder="Escriba un Precio de Venta Interno"

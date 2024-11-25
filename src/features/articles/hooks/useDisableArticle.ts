@@ -1,8 +1,8 @@
 import { shallow } from 'zustand/shallow';
-import { useArticlePagination } from '../../../../../store/purchaseStore/articlePagination';
 import withReactContent from 'sweetalert2-react-content';
-import { disableArticle } from '../../../../../api/api.routes';
 import Swal from 'sweetalert2';
+import { useArticlePagination } from '../stores/articlePagination';
+import { disableArticle } from '../services/articles';
 
 export const useDisableArticle = (callback?: () => void) => {
   const { enabled } = useArticlePagination(

@@ -1,22 +1,22 @@
 import { Button, CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { SearchBar } from '../../../Inputs/SearchBar';
+import { SearchBar } from '../../../components/Inputs/SearchBar';
 import { useEffect, useRef, useState } from 'react';
-import { ArticleModal } from './ArticleModal';
-import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
+import { ArticleModal } from '../components/ArticleModal';
+import { useArticlePagination } from '../stores/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
-import { useGetCategories } from '../../../../hooks/useGetCategories';
-import { ISubCategory } from '../../../../types/types';
+import { useGetAlmacenes } from '../../../hooks/useGetAlmacenes';
+import { useGetCategories } from '../../../hooks/useGetCategories';
+import { ISubCategory } from '../../../types/types';
 import { FilterListOff } from '@mui/icons-material';
-import { TableTop } from '../../../../common/components/TableTop';
-import { useDisableArticle } from './hooks/useDisableArticle';
+import { TableTop } from '../../../common/components/TableTop';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
-import { getArticles } from '../../../../api/articles';
-import { TablePaginated } from '../../../../common/components/TablePaginated';
-import { SelectBasic } from '../../../../common/components/SelectBasic';
+import { getArticles } from '../services/articles';
+import { TablePaginated } from '../../../common/components/TablePaginated';
+import { SelectBasic } from '../../../common/components/SelectBasic';
+import { useDisableArticle } from '../hooks/useDisableArticle';
 
 const Article = () => {
   const [articleId, setArticleId] = useState('');

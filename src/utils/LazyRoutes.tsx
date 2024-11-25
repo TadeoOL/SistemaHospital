@@ -3,7 +3,7 @@ import { lazy } from 'react';
 export const Dashboard = lazy(() => import('../views/Layout/DashboardView'));
 export const PurchaseRequest = lazy(() => import('../views/Purchase/PurchaseRequestView'));
 export const ArticleView = lazy(() => import('../views/Purchase/ArticleView'));
-export const Article = lazy(() => import('../components/Purchase/Articles/Article/Article'));
+export const Article = lazy(() => import('../features/articles/screens/Article'));
 export const ExistingArticle = lazy(() => import('../components/Purchase/Articles/ExistingArticle/ExistingArticle'));
 export const CategoryView = lazy(() => import('../views/Purchase/CategoryView'));
 export const Category = lazy(() => import('../components/Purchase/Categorys/Category/Category'));

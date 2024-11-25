@@ -1,6 +1,6 @@
-import axios from '../libs/axios';
-import { GetParams } from './interface/params.interface';
-import { IArticle } from '../types/types';
+import axios from '../../../libs/axios';
+import { GetParams } from '../../../api/interface/params.interface';
+import { IArticle } from '../../../types/types';
 
 interface GetArticlesParams extends GetParams {
   id_AlmacenPrincipal?: string;
@@ -94,5 +94,15 @@ export const addNewArticle = async (article: IArticle) => {
     presentacion,
     factor,
   });
+  return res.data;
+};
+
+export const disableArticle = async (id: string) => {
+  const res = await axios.put(`/api/Compras/Catalogo/Articulo/estatus-articulo`, { id });
+  return res.data;
+};
+
+export const getArticleById = async (articleId: string) => {
+  const res = await axios.get(`/api/Compras/Catalogo/Articulo/${articleId}`);
   return res.data;
 };

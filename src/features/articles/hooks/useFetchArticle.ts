@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getArticleById } from '../../../../../api/api.routes';
-import { IArticle } from '../../../../../types/types';
+import { getArticleById } from '../services/articles';
+import { IArticle } from '../interfaces/article.interface';
 
 export const useFetchArticle = (id?: string) => {
   const [isLoadingArticle, setIsLoadingArticle] = useState(true);
