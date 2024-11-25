@@ -1,6 +1,6 @@
-import axios from '../../../libs/axios';
-import { GetParams } from '../../../api/interface/params.interface';
-import { IArticle } from '../../../types/types';
+import axios from '../../../../libs/axios';
+import { GetParams } from '../../../../api/interface/params.interface';
+import { IArticle } from '../../../../types/types';
 
 interface GetArticlesParams extends GetParams {
   id_AlmacenPrincipal?: string;

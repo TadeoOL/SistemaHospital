@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getPurchaseConfig } from '../../../api/api.routes';
-import { IPurchaseConfig } from '../../../types/types';
+import { getPurchaseConfig } from '../../../../api/api.routes';
+import { IPurchaseConfig } from '../../../../types/types';
 
 export const useGetPurchaseConfig = () => {
   const [config, setConfig] = useState<IPurchaseConfig>();

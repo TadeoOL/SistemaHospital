@@ -43,7 +43,7 @@ export interface MainCardProps extends KeyedObject {
   modal?: boolean;
 }
 
-const MainCard = forwardRef<HTMLDivElement, MainCardProps>(function MainCard(
+export const MainCard = forwardRef<HTMLDivElement, MainCardProps>(function MainCard(
   {
     border = true,
     boxShadow,
@@ -142,5 +142,3 @@ const MainCard = forwardRef<HTMLDivElement, MainCardProps>(function MainCard(
     </Card>
   );
 });
-
-export default MainCard;

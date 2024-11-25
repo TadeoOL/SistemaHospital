@@ -1,4 +1,4 @@
-import Article from '../../features/articles/screens/Article';
+import Article from '../../features/purchase/articles/screens/Article';
 
 const ArticleView = () => {
   return <Article />;

@@ -1,4 +1,4 @@
-import { IExistingArticleList, ISubCategory } from '../../../types/types';
+import { ISubCategory, IExistingArticleList } from '../../../../types/types';
 
 export interface IArticle {
   id?: string;

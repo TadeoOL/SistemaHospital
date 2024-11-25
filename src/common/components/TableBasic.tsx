@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
 // project imports
-import MainCard from './MainCard';
+import { MainCard } from './MainCard';
 import React from 'react';
 import { SortComponent } from '../../components/Commons/SortComponent';
 import { Box, Card, CircularProgress, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
@@ -81,13 +81,14 @@ const getCell = (column: TableBasicColumn, row: any, key: string) => {
 
 export interface TableBasicProps {
   rows: any[];
+
   columns: TableBasicColumn[];
   isLoading?: boolean;
   maxHeight?: string;
   children?: React.ReactNode;
 }
 
-export default function TableBasic(props: TableBasicProps) {
+export const TableBasic = (props: TableBasicProps) => {
   const { rows, columns, isLoading, maxHeight } = props;
 
   const theme = useTheme();
@@ -150,4 +151,4 @@ export default function TableBasic(props: TableBasicProps) {
       </TableContainer>
     </MainCard>
   );
-}
+};

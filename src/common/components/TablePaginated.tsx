@@ -1,5 +1,5 @@
 import { FormControl, MenuItem, Pagination, Select, Stack, TextField, Typography } from '@mui/material';
-import TableBasic from './TableBasic';
+import { TableBasic } from './TableBasic';
 import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 
 interface PaginatedResponse {

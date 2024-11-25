@@ -1,6 +1,6 @@
 import axios from '../libs/axios';
 import { ICategory } from '../types/types';
-import { GetParams } from './interface/params.interface';
+import { GetParams } from 'interface/params.interface';
 
 interface GetCategoriesParams extends GetParams {
   Id_Almacen?: string;
