@@ -19,11 +19,10 @@ import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
 import dayjs from 'dayjs';
 import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
-import { useRecoveryRoomsPaginationStore } from '../../../store/operatingRoom/recoveryRoomsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { HowToReg, InfoOutlined } from '@mui/icons-material';
+import { DoneAll, HowToReg, InfoOutlined } from '@mui/icons-material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Swal from 'sweetalert2';
@@ -130,11 +129,18 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
             </Tooltip>
         </TableCell>
         <TableCell>
-          <Tooltip title="Dar de alta a paciente">
+          {data?.estatus == 4 && (
+              <Tooltip title="Cerrar recuperación">
+                <IconButton onClick={handleClick}>
+                  <DoneAll style={{ color: 'red' }} />
+                </IconButton>
+              </Tooltip>
+            )}
+          {data?.estatus == 5 && (<Tooltip title="Dar de alta a paciente">
             <IconButton onClick={()=>{setOpenDischargeModal(true)}}>
               <HowToReg />
             </IconButton>
-          </Tooltip>
+          </Tooltip>)}
         </TableCell>
       </TableRow>
       <Menu
@@ -205,7 +211,7 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
 const DischargeDateSelector = (props: { operatingRoomId: string; recoveryStartTime: string }) => {
   const [date, setDate] = useState<string>(props.recoveryStartTime);
   const [error, setError] = useState('');
-  const refetch = useRecoveryRoomsPaginationStore((state) => state.fetchData);
+  const refetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
 
   const handleAdd = async () => {
     if (!date) return setError('Selecciona una fecha');
@@ -233,7 +239,7 @@ const DischargeDateSelector = (props: { operatingRoomId: string; recoveryStartTi
           try {
             await changeOperatingRoomStatus({
               id_CuentaEspacioHospitalario: props.operatingRoomId,
-              estatus: 4,
+              estatus: 5,
               horaAsignada: date,
             });
             Swal.fire({
