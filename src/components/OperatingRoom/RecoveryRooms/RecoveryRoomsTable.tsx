@@ -23,14 +23,15 @@ import { useRecoveryRoomsPaginationStore } from '../../../store/operatingRoom/re
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { HowToReg } from '@mui/icons-material';
-import { ClinicalDataInfo } from './Modal/ClinicalDataInfo';
+import { HowToReg, InfoOutlined } from '@mui/icons-material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useDailyOperatingRoomsPaginationStore } from '../../../store/operatingRoom/dailyOperatingRoomsPagination';
 import { changeOperatingRoomStatus } from '../../../services/operatingRoom/operatingRoomService';
+import { PatientDischargeModal } from '../../Hospitalization/HospitalRooms/Modal/PatientDischargeModal';
+import { HospitalRoomInformationModal } from '../../Hospitalization/HospitalRooms/Modal/hospitalRoomInformation/HospitalRoomInformationModal';
 
 const HEADERS = ['Hora', 'Quirófano', 'Paciente', 'Cirugía', 'Cirujano', 'Datos Clínicos', 'Acciones'];
 
@@ -48,7 +49,7 @@ const useGetRecoveryRooms = () => {
   const operatingRoomId = useDailyOperatingRoomsPaginationStore((state) => state.operatingRoomId);
 
   useEffect(() => {
-    setStatus(3);
+    setStatus(7);
     fetch();
   }, [search, pageSize, pageIndex, operatingRoomId]);
   return { data, isLoading, setPageIndex, setPageSize, count, pageIndex, pageSize };
@@ -96,6 +97,7 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
   const [open, setOpen] = useState(false);
   const [openClinicalData, setOpenClinicalData] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openDischargeModal, setOpenDischargeModal] = useState(false);
 
   const handleClick = (event: any) => {
     setOpen(true);
@@ -117,13 +119,19 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
         </TableCell>
         <TableCell>{data?.medico}</TableCell>
         <TableCell>
-          <Button variant="outlined" size="small" onClick={() => setOpenClinicalData(true)}>
-            Ver
-          </Button>
+        <Tooltip title="Ver Información">
+              <IconButton
+                onClick={() => {
+                  setOpenClinicalData(true)
+                }}
+              >
+                <InfoOutlined />
+              </IconButton>
+            </Tooltip>
         </TableCell>
         <TableCell>
           <Tooltip title="Dar de alta a paciente">
-            <IconButton onClick={handleClick}>
+            <IconButton onClick={()=>{setOpenDischargeModal(true)}}>
               <HowToReg />
             </IconButton>
           </Tooltip>
@@ -163,9 +171,31 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
           recoveryStartTime={dayjs(data?.horaInicio).format('YYYY-MM-DDTHH:mm')}
         />
       </Menu>
-      <Modal open={openClinicalData} onClose={() => setOpenClinicalData(false)}>
+      {/*<Modal open={openClinicalData} onClose={() => setOpenClinicalData(false)}>
         <>
           <ClinicalDataInfo clinicalData={data?.datosClinicos as HistorialClinico} setOpen={setOpenClinicalData} />
+        </>
+      </Modal>*/}
+      <Modal open={openDischargeModal} onClose={() => setOpenDischargeModal(false)}>
+        <>
+          <PatientDischargeModal
+            setOpen={setOpenDischargeModal}
+            patientName={data?.paciente ?? ''}
+            medicName={data?.medico ?? ''}
+            admissionReason={data?.motivoIngreso ?? ''}
+            surgeries={data?.cirugias?.map((cir) => cir.nombre) ?? []}
+            id_IngresoPaciente={data?.id_IngresoPaciente ?? ''}
+          />
+        </>
+      </Modal>
+      <Modal
+        open={openClinicalData}
+        onClose={() => {
+          setOpenClinicalData(false);
+        }}
+      >
+        <>
+          <HospitalRoomInformationModal hospitalSpaceAccountId={data?.id_CuentaEspacioHospitalario ?? ''} setOpen={setOpenClinicalData} fromHospitalRoom={false} />
         </>
       </Modal>
     </>

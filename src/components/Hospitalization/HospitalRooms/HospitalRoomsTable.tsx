@@ -266,7 +266,7 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
         }}
       >
         <>
-          <HospitalRoomInformationModal hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario} setOpen={setOpen} />
+          <HospitalRoomInformationModal hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario} setOpen={setOpen} fromHospitalRoom />
         </>
       </Modal>
       <Modal open={openNurseRequest} onClose={() => setOpenNurseRequest(false)}>

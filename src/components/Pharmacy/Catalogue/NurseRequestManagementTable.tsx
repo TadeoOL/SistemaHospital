@@ -33,13 +33,13 @@ import Swal from 'sweetalert2';
 import { useNurseRequestPaginationStore } from '../../../store/pharmacy/nurseRequest/nurseRequestPagination';
 import {
   IArticleInRequest,
+  IarticlesPrebuildedRequest,
   InurseRequest,
-  IPrebuildedArticleFromArticleRequest,
   IWarehouseData,
 } from '../../../types/types';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
-import { getNurseRequestPreBuilded, updateStatusNurseRequest } from '../../../api/api.routes';
+import { buildPackage, getPackagePreBuilded } from '../../../api/api.routes';
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { SortComponent } from '../../Commons/SortComponent';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
@@ -161,7 +161,7 @@ export const NurseRequestManagementTable = () => {
   const [openModalBuild, setOpenModalBuild] = useState(false);
   const [openPrint, setOpenPrint] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
-  const [prebuildedArticles, setPrebuildedArticles] = useState<IPrebuildedArticleFromArticleRequest[] | null>(null);
+  const [prebuildedArticles, setPrebuildedArticles] = useState<IarticlesPrebuildedRequest[] | null>(null);
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const warehouseSL: IWarehouseData | null = JSON.parse(localStorage.getItem('pharmacyWarehouse_Selected') as string);
   //setWarehouseId
@@ -169,7 +169,7 @@ export const NurseRequestManagementTable = () => {
     fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
   }, [status]);
 
-  const rejectRequest = (idRequest: string, Id_warehouseRequest: string) => {
+  const rejectRequest = (id_SolicitudAlmacen: string, id_CuentaEspacioHospitalario: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
@@ -182,10 +182,10 @@ export const NurseRequestManagementTable = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return updateStatusNurseRequest({
-            Id_AlmacenOrigen: Id_warehouseRequest,
-            EstadoSolicitud: 0,
-            Id: idRequest,
+          return buildPackage({
+            estatus: 0,
+            id_SolicitudAlmacen: id_SolicitudAlmacen,
+            id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -207,7 +207,7 @@ export const NurseRequestManagementTable = () => {
       });
   };
 
-  const markAsDelivered = (idRequest: string, Id_warehouseRequest: string, Id_PacientAccount: string) => {
+  const markAsDelivered = (id_SolicitudAlmacen: string, id_CuentaEspacioHospitalario: string) => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
@@ -220,12 +220,10 @@ export const NurseRequestManagementTable = () => {
         reverseButtons: true,
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return updateStatusNurseRequest({
-            Id_AlmacenOrigen: Id_warehouseRequest,
-            EstadoSolicitud: 3,
-            Id: idRequest,
-            Id_CuentaPaciente: Id_PacientAccount,
-            //Id_Enfermero : '',
+          return buildPackage({
+            estatus: 3,
+            id_SolicitudAlmacen: id_SolicitudAlmacen,
+            id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
           });
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -326,12 +324,8 @@ export const NurseRequestManagementTable = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <SortComponent tableCellLabel="Solicitado" headerName="solicitado" setSortFunction={setSort} />
-                      </TableCell>
-                      <TableCell>Almacén Solicitado</TableCell>
-                      <TableCell>
                         <SortComponent
-                          tableCellLabel="Entregado Por"
+                          tableCellLabel={status == 1? "Armado Por" : "Entregado/Cancelado Por"}
                           headerName="entregadoPor"
                           setSortFunction={setSort}
                         />
@@ -352,7 +346,7 @@ export const NurseRequestManagementTable = () => {
                           setNurseRequest={setNurseRequest}
                           setPrebuildedArticles={setPrebuildedArticles}
                           markAsDelivered={markAsDelivered}
-                          key={request.id_SolicitudEnfermero}
+                          key={request.id_SolicitudAlmacen}
                           rejectRequest={rejectRequest}
                         />
                       ))}
@@ -404,9 +398,11 @@ export const NurseRequestManagementTable = () => {
             setOpen={setOpenModalBuild}
             refetch={() => {
               fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
-            }}
+            } }
             request={nurseRequest as InurseRequest}
-            preLoadedArticles={prebuildedArticles ?? ([] as IPrebuildedArticleFromArticleRequest[])}
+            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])} 
+            id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''} 
+            id_CuentaEspacioHospitalario={nurseRequest?.id_CuentaEspacioHospitalario ?? ''} 
           />
         </>
       </Modal>
@@ -473,7 +469,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   const [open, setOpen] = useState(false);
 
   //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
-  const createPackage = (request: IPrebuildedArticleFromArticleRequest[]) => {
+  const createPackage = (request: IarticlesPrebuildedRequest[]) => {
     setPrebuildedArticles(request);
     setNurseRequest(nurseRequest);
     setOpenModalBuild(true);
@@ -488,12 +484,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
             {nurseRequest.folio}
           </Box>
         </TableCell>
-        <TableCell>{nurseRequest.pacienteNombre}</TableCell>
+        <TableCell>{nurseRequest.paciente}</TableCell>
         <TableCell>{nurseRequest.cuarto}</TableCell>
-        <TableCell>{nurseRequest.usuarioEmisorNombre}</TableCell>
-        <TableCell>{nurseRequest.solicitadoEn}</TableCell>
-        <TableCell>{nurseRequest.almacenNombre}</TableCell>
-        <TableCell>{nurseRequest.usuarioEntregoNombre}</TableCell>
+        <TableCell>{nurseRequest.usuarioSolicitante}</TableCell>
+        <TableCell>{nurseRequest.usuarioAutorizo}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
         <TableCell>
           {nurseRequest.estatus === 1 && (
@@ -502,9 +496,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
                 onClick={async () => {
                   try {
                     //Agregar Loader
-                    const packRes = await getNurseRequestPreBuilded(
-                      nurseRequest.id_SolicitudEnfermero,
-                      nurseRequest.id_AlmacenSolicitado
+                    const packRes = await getPackagePreBuilded(
+                      nurseRequest.id_SolicitudAlmacen
                     );
                     createPackage(packRes);
                   } catch (error) {
@@ -521,9 +514,8 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               <IconButton
                 onClick={() => {
                   markAsDelivered(
-                    nurseRequest.id_SolicitudEnfermero,
-                    nurseRequest.id_AlmacenSolicitado,
-                    nurseRequest.id_CuentaPaciente
+                    nurseRequest.id_SolicitudAlmacen,
+                    nurseRequest.id_CuentaEspacioHospitalario
                   );
                 }}
               >
@@ -535,7 +527,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
             <Tooltip title="Cancelar solicitud">
               <IconButton
                 onClick={() => {
-                  rejectRequest(nurseRequest.id_SolicitudEnfermero, nurseRequest.id_AlmacenSolicitado);
+                  rejectRequest(
+                    nurseRequest.id_SolicitudAlmacen,
+                    nurseRequest.id_CuentaEspacioHospitalario
+                  );
                 }}
               >
                 <Cancel sx={{ color: 'red' }} />

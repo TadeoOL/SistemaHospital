@@ -307,7 +307,7 @@ export const WaitingPackages = () => {
                     <TableCell>Doctor</TableCell>
                     <TableCell>Quirofano</TableCell>
                     <TableCell>Hora cirugía</TableCell>
-                    <TableCell>Edad Paciente</TableCell>
+                    <TableCell>Nombre Paciente</TableCell>
                     <TableCell>
                       <SortComponent tableCellLabel="Solicitado por" headerName="enfermero" setSortFunction={setSort} />
                     </TableCell>

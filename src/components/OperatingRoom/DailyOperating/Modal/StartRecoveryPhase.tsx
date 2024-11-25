@@ -70,7 +70,7 @@ export const StartRecoveryPhase = (props: { setOpen: Function; id_CuentaEspacioH
           try {
             await changeOperatingRoomStatus({
               id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
-              estatus: 3,
+              estatus: 4,
               horaAsignada: data.startTime as string,
               id_UsuarioRecuperacion: data.nurse?.id
             });

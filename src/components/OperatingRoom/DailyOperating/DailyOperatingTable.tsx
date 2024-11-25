@@ -65,7 +65,7 @@ const useGetDailyOperatingRooms = () => {
   const operatingRoomId = useDailyOperatingRoomsPaginationStore((state) => state.operatingRoomId);
 
   useEffect(() => {
-    setStatus(1);
+    setStatus(6);
     fetch();
   }, [search, pageSize, pageIndex, operatingRoomId]);
   return { data, isLoading, setPageIndex, setPageSize, count, pageIndex, pageSize };
@@ -187,7 +187,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
           console.log(startOperatingRoom);
           await changeOperatingRoomStatus({
             id_CuentaEspacioHospitalario: data.id_CuentaEspacioHospitalario,
-            estatus: 1,
+            estatus: 2,
             horaAsignada: (startOperatingRoom),
           });
           toast.success('Hora de inicio registrada con éxito!');
@@ -230,7 +230,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
           try {
             await changeOperatingRoomStatus({
               id_CuentaEspacioHospitalario: data.id_CuentaEspacioHospitalario,
-              estatus: 2,
+              estatus: 3,
               horaAsignada: (endOperatingRoom),
             });
             Swal.fire({
@@ -297,7 +297,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
         <TableCell>{data.tiempoEstimado}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            { data.quirofano && validateData() && data.estatus == 0 && (
+            { data.quirofano && validateData() && data.estatus == 1 && (
               <Tooltip title="Comenzar cirugía">
                 <IconButton onClick={handleClick}>
                   <AddCircleOutline style={{ color: '#686D76' }} />
@@ -311,14 +311,14 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
                 </IconButton>
               </Tooltip>
             )}
-            {data.quirofano && data.estatus == 1 && (
+            {data.quirofano && data.estatus == 2 && (
               <Tooltip title="Cerrar cirugía">
                 <IconButton onClick={handleClickEnd}>
                   <DoneAll style={{ color: 'red' }} />
                 </IconButton>
               </Tooltip>
             )}
-            {data.quirofano && data.estatus == 2 && (
+            {data.quirofano && data.estatus == 3 && (
                 <Tooltip title="Comenzar recuperación">
                   <IconButton onClick={() => setOpenRecoveryPhase(true)}>
                     <FaHandHoldingMedical style={{ color: '#686D76' }} />

@@ -1,4 +1,5 @@
 import { HistorialClinico, Paciente } from '../admission/admissionTypes';
+import { IChargedItemsHospitalRoom, IClinicalDataHospitalRoom } from '../hospitalization/hospitalRoomTypes';
 import { IAnesthesiologist, IMedic } from '../hospitalizationTypes';
 import { IHospitalSpaceRecord } from '../programming/registerTypes';
 
@@ -51,6 +52,8 @@ export interface IRoomInformationnew {
   horaFinRecuperacion?: string;
   horaInicio: string;
   horaFin: string;
+  motivoIngreso?: string;
+  altaMedica: boolean;
 }
 
 export interface IRegisterOperatingRoom {
@@ -125,3 +128,7 @@ export interface IPatientAdmission {
   telefonoResponsable?: string;
 }
 
+export interface IOperatingRoomInformation {
+  datosClinicos?: IClinicalDataHospitalRoom;
+  articulosCargados?: IChargedItemsHospitalRoom[];
+}
