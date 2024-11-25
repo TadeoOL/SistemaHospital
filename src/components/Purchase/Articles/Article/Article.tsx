@@ -1,7 +1,7 @@
 import { Button, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
-import { useRef, useState } from 'react';
-import { ArticleModal } from './Modal/ArticleModal';
+import { useEffect, useRef, useState } from 'react';
+import { ArticleModal } from './ArticleModal';
 import { useArticlePagination } from '../../../../store/purchaseStore/articlePagination';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
@@ -27,7 +27,11 @@ const Article = () => {
     setArticleId('');
   };
 
-  const { almacenes } = useGetAlmacenes();
+  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
+
+  useEffect(() => {
+    setWarehouseSelected(almacenes[0]?.id_Almacen);
+  }, [isLoadingAlmacenes]);
 
   const {
     enabled,
@@ -64,11 +68,9 @@ const Article = () => {
   };
 
   const handleEdit = (row: any) => {
-    return () => {
-      setArticleId('');
-      setArticleId(row.id);
-      setModalOpen(true);
-    };
+    setArticleId('');
+    setArticleId(row.id);
+    setModalOpen(true);
   };
 
   const columns: any[] = [
@@ -122,7 +124,7 @@ const Article = () => {
       value: (row: any) => (
         <>
           <Tooltip title="Editar">
-            <IconButton size="small" sx={{ color: 'neutral.700' }} onClick={handleEdit(row)}>
+            <IconButton size="small" sx={{ color: 'neutral.700' }} onClick={() => handleEdit(row)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -141,6 +143,7 @@ const Article = () => {
       <TableTop>
         <SearchBar title="Busca el articulo..." searchState={setSearch} sx={{ width: '30%' }} />
         <SelectBasic
+          value={warehouseSelected}
           sx={{ width: '25%', px: 1 }}
           label="Busqueda por almacén"
           options={almacenes}
@@ -161,6 +164,7 @@ const Article = () => {
               label="Categoria"
               options={categories.filter((cat) => cat.id_Almacen === warehouseSelected)}
               uniqueProperty="id_Categoria"
+              placeholder=""
               displayProperty="nombre"
               onChange={(e: any) => {
                 const value = e.target.value;
@@ -226,18 +230,26 @@ const Article = () => {
         </Button>
       </TableTop>
 
-      <TablePaginated
-        ref={tableRef}
-        columns={columns}
-        fetchData={getArticles}
-        params={{
-          search,
-          id_AlmacenPrincipal: warehouseSelected || null,
-          id_Almacen: warehouseSelected || null,
-          Id_SubCategoria: subcategory || null,
-          habilitado: enabled,
-        }}
-      />
+      {!warehouseSelected && !isLoadingAlmacenes && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+          <h2>Selecciona un almacén para ver los artículos</h2>
+        </div>
+      )}
+
+      {warehouseSelected && !isLoadingAlmacenes && (
+        <TablePaginated
+          ref={tableRef}
+          columns={columns}
+          fetchData={getArticles}
+          params={{
+            search,
+            id_AlmacenPrincipal: warehouseSelected || null,
+            id_Almacen: warehouseSelected || null,
+            Id_SubCategoria: subcategory || null,
+            habilitado: enabled,
+          }}
+        ></TablePaginated>
+      )}
 
       <ArticleModal open={modalOpen} itemId={articleId} onClose={handleModalClose} onSuccess={onSuccess} />
     </>

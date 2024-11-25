@@ -1,19 +1,19 @@
 import { Button, Checkbox, FormControlLabel, Grid } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addArticle } from '../../../../../schema/schemas';
-import { IArticle } from '../../../../../types/types';
+import { addArticle } from '../../../../schema/schemas';
+import { IArticle } from '../../../../types/types';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useGetSubCategories } from '../../../../../hooks/useGetSubCategories';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { ModalBasic } from '../../../../../common/components/ModalBasic';
-import { useFetchArticle } from '../hooks/useFetchArticle';
-import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
-import { InputBasic } from '../../../../../common/components/InputBasic';
-import { SelectBasic } from '../../../../../common/components/SelectBasic';
-import { addNewArticle, modifyArticle } from '../../../../../api/articles';
+import { InputBasic } from '../../../../common/components/InputBasic';
+import { SelectBasic } from '../../../../common/components/SelectBasic';
+import { addNewArticle, modifyArticle } from '../../../../api/articles';
+import { ModalBasic } from '../../../../common/components/ModalBasic';
+import { useGetSubCategories } from '../../../../hooks/useGetSubCategories';
+import { useFetchArticle } from './hooks/useFetchArticle';
+import { useGetPurchaseConfig } from './hooks/usePurchaseConfig';
 
 interface IAddArticleModal {
   itemId?: string;
@@ -30,7 +30,7 @@ export const ArticleModal = (props: IAddArticleModal) => {
 
   const [isBox, setIsBox] = useState(false);
 
-  const { isLoadingArticle, article } = useFetchArticle(itemId);
+  const { article, isLoadingArticle } = useFetchArticle(itemId);
 
   const defaultValues = {
     id: '',

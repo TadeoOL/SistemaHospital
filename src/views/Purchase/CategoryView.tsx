@@ -1,7 +1,8 @@
-import { CategorysTabNav } from '../../components/Purchase/Categorys/CategorysTabNav';
-
-const CategoryView = () => {
-  return <CategorysTabNav />;
+interface ICategoryViewProps {
+  children: React.ReactNode;
+}
+const CategoryView = (props: ICategoryViewProps) => {
+  return <>{props.children}</>;
 };
 
 export default CategoryView;

@@ -35,15 +35,12 @@ export const InputBasic = forwardRef((props: InputBasicProps, ref) => {
 
   return (
     <>
-      <Stack>
-        <InputLabel shrink htmlFor="with-label-input">
-          {label}
-        </InputLabel>
+      <Stack spacing={1}>
+        <InputLabel>{label}</InputLabel>
         <TextField
           ref={ref as any}
           placeholder={placeholder || ''}
           fullWidth={fullWidth ?? true}
-          size="small"
           variant="outlined"
           inputProps={{ maxLength, ...inputProps }}
           error={error}

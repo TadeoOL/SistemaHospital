@@ -1,5 +1,5 @@
 import { Box, InputLabel, Stack, TextField } from '@mui/material';
-import { FormControl, MenuItem, SxProps, Theme } from '@mui/material';
+import { MenuItem, SxProps, Theme } from '@mui/material';
 import { forwardRef, useEffect, useState } from 'react';
 
 interface SelectComponentProps {
@@ -34,7 +34,10 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
   const [selected, setSelected] = useState('');
 
   useEffect(() => {
-    if (!options?.length) return;
+    if (!options?.length || !value) {
+      setSelected('');
+      return;
+    }
 
     const valueUnique = getUniqueProperty(value);
 
@@ -45,7 +48,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
     if (!found) return;
 
     setSelected(valueUnique);
-  }, [value]);
+  }, [value, options]);
 
   const handleChange = (e: any) => {
     onChange && onChange(e);
@@ -73,15 +76,15 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
   return (
     <Stack sx={{ ...sx }}>
       <>
-        <InputLabel>{label}</InputLabel>
-        <FormControl fullWidth>
+        <Stack spacing={1}>
+          <InputLabel>{label}</InputLabel>
           <TextField
             ref={ref as any}
             name={name}
             error={error}
             select
-            size={large ? undefined : 'small'}
             sx={{
+              backgroundColor: 'white',
               '& .MuiSelect-select span::before': {
                 content: `"${placeholder || ''}"`,
               },
@@ -96,7 +99,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
               </MenuItem>
             ))}
           </TextField>
-        </FormControl>
+        </Stack>
         <Box
           sx={{
             display: 'flex',

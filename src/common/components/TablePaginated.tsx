@@ -1,6 +1,6 @@
 import { FormControl, MenuItem, Pagination, Select, Stack, TextField, Typography } from '@mui/material';
 import TableBasic from './TableBasic';
-import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 
 interface PaginatedResponse {
   count: number;
@@ -24,6 +24,8 @@ interface TablePaginatedProps {
   columns: TablePaginatedColumn[];
   fetchData: (params: any) => Promise<PaginatedResponse>;
   params: any;
+  isLoading?: any;
+  children?: React.ReactNode;
 }
 
 export const TablePaginated = memo(
@@ -39,6 +41,7 @@ export const TablePaginated = memo(
 
     const getData = async () => {
       setIsLoading(true);
+      if (!!props.isLoading) return;
       const page = pageIndex + 1;
       try {
         const finalParams = {
@@ -47,6 +50,7 @@ export const TablePaginated = memo(
           sort,
           ...params,
         };
+        console.log('finalParams:', finalParams);
 
         const response = await fetchData(finalParams);
         console.log('response:', response);
@@ -66,7 +70,7 @@ export const TablePaginated = memo(
 
     useEffect(() => {
       getData();
-    }, [pageIndex, pageSize, sort, JSON.stringify(params)]);
+    }, [props.isLoading, pageIndex, pageSize, sort, JSON.stringify(params)]);
 
     const newColumns = columns.map((c) => {
       if (!c.sort) return c;
@@ -103,7 +107,7 @@ export const TablePaginated = memo(
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
     useEffect(() => {
-      const handleResize = () => {
+      const handleResize = (): void => {
         setWindowHeight(window.innerHeight);
       };
 
@@ -118,7 +122,9 @@ export const TablePaginated = memo(
 
     return (
       <>
-        <TableBasic maxHeight={dynamicHeight} rows={data} columns={newColumns as any} isLoading={isLoading} />
+        <TableBasic maxHeight={dynamicHeight} rows={data} columns={newColumns as any} isLoading={isLoading}>
+          {props.children}
+        </TableBasic>
 
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 2, ml: 2, mr: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">

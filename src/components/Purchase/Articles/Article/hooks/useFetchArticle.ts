@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react';
 import { getArticleById } from '../../../../../api/api.routes';
 import { IArticle } from '../../../../../types/types';
 
-export const useFetchArticle = (articleId?: string) => {
+export const useFetchArticle = (id?: string) => {
   const [isLoadingArticle, setIsLoadingArticle] = useState(true);
   const [article, setArticle] = useState<IArticle | null>(null);
 
   const fetchData = async () => {
     setIsLoadingArticle(true);
 
-    if (!articleId) {
+    if (!id) {
       setArticle(null);
       setIsLoadingArticle(false);
       return;
     }
 
     try {
-      const data = await getArticleById(articleId);
+      const data = await getArticleById(id);
       setArticle(data);
     } catch (error) {
       console.log(error);
@@ -27,7 +27,7 @@ export const useFetchArticle = (articleId?: string) => {
 
   useEffect(() => {
     fetchData();
-  }, [articleId]);
+  }, [id]);
 
   return { isLoadingArticle, article };
 };
