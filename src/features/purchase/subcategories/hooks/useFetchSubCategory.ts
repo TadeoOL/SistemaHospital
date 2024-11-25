@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getSubCategoryById } from '../../../../../api/api.routes';
-import { ISubCategory } from '../../../../../types/types';
+import { ISubCategory } from '../interfaces/subcategories.interface';
+import { getSubCategoryById } from '../services/subcategories';
 
 export const useFetchSubCategory = (id?: string) => {
   const [isLoadingSubCategory, setIsLoadingSubCategory] = useState(true);

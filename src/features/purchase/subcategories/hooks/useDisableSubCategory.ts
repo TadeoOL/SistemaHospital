@@ -1,8 +1,8 @@
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
-import { disableCategory } from '../../../../../api/api.routes';
+import { disableCategory } from '@/api/api.routes';
 import Swal from 'sweetalert2';
-import { useSubCategoryPagination } from '../../../../../store/purchaseStore/subCategoryPagination';
+import { useSubCategoryPagination } from '../stores/subCategoryPagination';
 
 export const useDisableSubCategory = (callback?: () => void) => {
   const { enabled } = useSubCategoryPagination(

@@ -1,8 +1,13 @@
-import axios from '../libs/axios';
-import { ISubCategory } from '../types/types';
+import axios from '@/libs/axios';
+import { ISubCategory } from '../interfaces/subcategories.interface';
 
 export const getSubCategories = async (params: string) => {
   const res = await axios.get(`/api/Compras/Catalogo/SubCategoria/paginacion-subcategoria`, { params });
+  return res.data;
+};
+
+export const getSubCategoryById = async (subCategoryId: string) => {
+  const res = await axios.get(`/api/Compras/Catalogo/SubCategoria/${subCategoryId}`);
   return res.data;
 };
 

@@ -1,22 +1,22 @@
-import { Button, CircularProgress } from '@mui/material';
-import { SearchBar } from '../../../Inputs/SearchBar';
 import { useRef, useState } from 'react';
-import { useSubCategoryPagination } from '../../../../store/purchaseStore/subCategoryPagination';
+import { Button, IconButton, Tooltip, CircularProgress } from '@mui/material';
+
+import { SearchBar } from '@/components/Inputs/SearchBar';
+import { useSubCategoryPagination } from '../stores/subCategoryPagination';
+
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
-import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
-import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
-import { useGetCategories } from '../../../../hooks/useGetCategories';
-import { useDisableSubCategory } from './hooks/useDisableSubCategory';
-import { TableTop } from '../../../../common/components/TableTop';
-import { TablePaginated } from '../../../../common/components/TablePaginated';
-import { getSubCategories } from '../../../../api/subcategories';
-import { SubCategoryModal } from './SubCategoryModal';
-import { SelectBasic } from '../../../../common/components/SelectBasic';
-import { Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
-import { IconButton } from '@mui/material';
+
+import { TableTop, TablePaginated, SelectBasic } from '@/common/components';
+import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
+import { useGetCategories } from '@/hooks/useGetCategories';
+
+import { useDisableSubCategory } from '../hooks/useDisableSubCategory';
+import { getSubCategories } from '../services/subcategories';
+import { SubCategoryModal } from '../components/SubCategoryModal';
 
 const SubCategory = () => {
   const [categoryId, setCategoryId] = useState('');
@@ -136,7 +136,7 @@ const SubCategory = () => {
         >
           {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
         </Button>
-        <Button variant="contained" startIcon={<AddCircleOutlinedIcon />} onClick={() => handleAdd()}>
+        <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAdd()}>
           Agregar
         </Button>
       </TableTop>

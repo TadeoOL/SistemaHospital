@@ -1,9 +1,6 @@
 import { useRef, useState } from 'react';
 import { Button, IconButton, Tooltip } from '@mui/material';
 
-import { SearchBar } from '@/components/Inputs/SearchBar';
-import { useCategoryPagination } from '@/store/purchaseStore/categoryPagination';
-
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,6 +8,8 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
 
 import { TableTop, TablePaginated, SelectBasic } from '@/common/components';
+import { SearchBar } from '@/components/Inputs/SearchBar';
+import { useCategoryPagination } from '@/store/purchaseStore/categoryPagination';
 import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
 
 import { useDisableCategory } from '../hooks/useDisableCategory';
