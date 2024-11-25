@@ -18,9 +18,9 @@ import {
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import withReactContent from 'sweetalert2-react-content';
-import { updateStatusNurseRequest } from '../../../../api/api.routes';
+import { buildPackage } from '../../../../api/api.routes';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { InurseRequest, IPrebuildedArticleFromArticleRequest } from '../../../../types/types';
+import { IarticlesPrebuildedRequest, InurseRequest } from '../../../../types/types';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import Swal from 'sweetalert2';
 import { isValidIntegerOrZero } from '../../../../utils/functions/dataUtils';
@@ -54,11 +54,13 @@ interface RequestBuildingModalProps {
   setOpen: Function;
   refetch: Function;
   request: InurseRequest;
-  preLoadedArticles: IPrebuildedArticleFromArticleRequest[];
+  preLoadedArticles: IarticlesPrebuildedRequest[];
+  id_SolicitudAlmacen: string;
+  id_CuentaEspacioHospitalario: string;
 }
 
 export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
-  const [articles, setArticles] = useState<IPrebuildedArticleFromArticleRequest[]>(props.preLoadedArticles);
+  const [articles, setArticles] = useState<IarticlesPrebuildedRequest[]>(props.preLoadedArticles);
   const [value, setValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const setWarehouseId = useExistingArticleLotesPagination((state) => state.setWarehouseId);
@@ -69,20 +71,35 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const object = {
-      Id: props.request.id_SolicitudEnfermero,
+    /*const object = {
+      Id: props.request.id_SolicitudAlmacen,
       Lotes: articles.map((art) => ({
         Id_Articulo: art.id_Articulo,
-        Id_ArticuloAlmacen: art.id_ArticuloAlmacen ?? '',
-        Cantidad: art.cantidad.toString(),
+        Cantidad: art.cantidadSeleccionada.toString(),
       })),
       EstadoSolicitud: 2,
       Id_AlmacenOrigen: props.request.id_AlmacenSolicitado,
-      Id_CuentaPaciente: props.request.id_CuentaPaciente,
+      Id_CuentaPaciente: '',
+      //Id_CuentaPaciente: props.request.id_CuentaPaciente,
+    };*/
+
+    const object = {
+      id_SolicitudAlmacen: props.id_SolicitudAlmacen,
+      id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
+      articulos: articles
+      .map((art) =>({
+          Id_Articulo: art.id_Articulo,
+          Cantidad: art.cantidadSeleccionada,
+          Nombre: art.nombre
+        })
+      ),
+      estatus: 2
     };
+
     try {
       //await articlesOutputToWarehouse(object);
-      await updateStatusNurseRequest(object);
+      await buildPackage(object);
+      //await updateStatusNurseRequest(object);
       props.refetch();
       toast.success('Solicitud aceptada');
       props.setOpen(false);
@@ -94,7 +111,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
     }
   };
 
-  const handleAddArticle = (articleEdited: IPrebuildedArticleFromArticleRequest) => {
+  const handleAddArticle = (articleEdited: IarticlesPrebuildedRequest) => {
     const direction = articles.findIndex((art) => art.id_Articulo === articleEdited.id_Articulo);
     if (direction > -1) {
       articles.splice(direction, 1);
@@ -127,8 +144,8 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
     let diferentNumbers = false;
     articles.forEach((article) => {
       let totalToSendByArticle = 0;
-      totalToSendByArticle += article.cantidad;
-      if (totalToSendByArticle < Number(article.cantidadSeleccionar)) diferentNumbers = true;
+      totalToSendByArticle += article.cantidadSeleccionada;
+      if (totalToSendByArticle < Number(article.cantidadSolicitada)) diferentNumbers = true;
     });
     if (diferentNumbers || articles.length !== props.request.articulos.length) {
       continueRequest();
@@ -149,7 +166,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
           cantidad: 0,
         };
       }
-      quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidad;
+      quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidadSeleccionada;
     });
 
     // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
@@ -221,7 +238,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
           disabled={props.request.articulos.length < 1 || loading}
           onClick={() => {
             if (articles.length === 0) return toast.error('Agrega artículos!');
-            if (articles.flatMap((article) => article.cantidad).some((cantidad) => cantidad === 0))
+            if (articles.flatMap((article) => article.cantidadSeleccionada).some((cantidad) => cantidad === 0))
               return toast.error('Rellena todas las cantidades');
 
             checkQuantyties();
@@ -235,7 +252,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
   );
 };
 interface ArticlesTableProps {
-  articles: IPrebuildedArticleFromArticleRequest[];
+  articles: IarticlesPrebuildedRequest[];
   setArticles?: Function;
   isResume: boolean;
   handleAddArticle: Function;
@@ -272,8 +289,8 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, is
 };
 
 interface ArticlesTableRowProps {
-  articles: IPrebuildedArticleFromArticleRequest[];
-  article: IPrebuildedArticleFromArticleRequest;
+  articles: IarticlesPrebuildedRequest[];
+  article: IarticlesPrebuildedRequest;
   setArticles: Function;
   isResume: boolean;
   handleAddArticle: Function;
@@ -286,7 +303,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   handleAddArticle,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [amountText, setAmountText] = useState(article.cantidadSeleccionar.toString());
+  const [amountText, setAmountText] = useState(article.cantidadSolicitada.toString());
 
   return (
     <React.Fragment>
@@ -294,7 +311,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
         <TableCell>
           <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
-        <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSeleccionar}</TableCell>
+        <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSolicitada}</TableCell>
         {!isResume && (
           <TableCell>
             <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
@@ -309,7 +326,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                       return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
                     }
 
-                    handleAddArticle({ ...article, cantidad: quant, id_ArticuloAlmacen: article.id_ArticuloAlmacen });
+                    handleAddArticle({ ...article, cantidad: quant });
                   }
                 }}
               >
@@ -345,11 +362,11 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-              {article.cantidad === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
-              {article.cantidad !== 0 && article.cantidad < Number(article.cantidadSeleccionar) && (
+              {article.cantidadSeleccionada === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
+              {article.cantidadSeleccionada !== 0 && article.cantidadSeleccionada < Number(article.cantidadSolicitada) && (
                 <Warning sx={{ color: '#FFA500', mr: 2 }} />
               )}
-              {article.cantidad}
+              {article.cantidadSeleccionada}
             </Box>
           )}
         </TableCell>

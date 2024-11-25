@@ -169,14 +169,14 @@ export interface IArticleFromSearchWithBarCode {
   cantidad: number;
 }
 
-export interface IPrebuildedArticleFromArticleRequest {
+/*export interface IPrebuildedArticleFromArticleRequest {
   id_Articulo: string;
   id_ArticuloAlmacen?: string;
   nombre: string;
   cantidadSeleccionar: number;
   cantidad: number;
   stock: number;
-}
+}*/
 
 export interface IExistingArticle {
   id_Articulo: string;
@@ -652,23 +652,19 @@ export interface ICheckoutHistory {
 }
 
 export interface InurseRequest {
-  id_SolicitudEnfermero: string;
-  id_CuentaPaciente: string;
+  id_SolicitudAlmacen: string;
   folio: string;
   cuarto: string;
   id_paciente: string;
-  usuarioEmisor: string;
-  solicitadoEn: string; //en que piso se solicito
-  id_AlmacenSolicitado: string;
-  almacenNombre: string;
-  usuarioEntrego: string;
+  paciente: string;
+  usuarioSolicitante: string;
+  usuarioAutorizo: string;
+  fechaSoliocitud: string; //en que piso se solicito
   estatus: number;
-  usuarioEmisorNombre: string;
-  usuarioEntregoNombre: string;
-  pacienteNombre: string;
+  id_AlmacenSolicitado: string;
+  id_CuentaEspacioHospitalario: string;
+  //almacenNombre: string;
   articulos: IArticleInRequest[];
-  lista_ArticulosEntregados: IArticlesDelivered[] | null;
-  fechaSolicitud: string;
 }
 
 export interface IArticleInRequest {

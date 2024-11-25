@@ -4,10 +4,12 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { ClinicalDataTab } from './tabs/ClinicalDataTab';
 import { ChargedItemsTab } from './tabs/ChargedItemsTab';
 import { useGetHospitalRoomInformation } from '../../../../../hooks/hospitalization/hospitalRoom/useGetHospitalRoomInformation';
+import { useGetOperatingRoomInformation } from '../../../../../hooks/operatingRoom/useGetOperatingRoomInformation';
 
 interface Props {
   hospitalSpaceAccountId: string;
   setOpen: (open: boolean) => void;
+  fromHospitalRoom: boolean;
 }
 
 const style = {
@@ -45,8 +47,9 @@ function TabPanel({ children, value, index, ...other }: TabPanelProps) {
   );
 }
 
-export const HospitalRoomInformationModal = ({ hospitalSpaceAccountId, setOpen }: Props) => {
-  const { data: hospitalRoomInformation, isLoading } = useGetHospitalRoomInformation(hospitalSpaceAccountId);
+export const HospitalRoomInformationModal = ({ hospitalSpaceAccountId, setOpen, fromHospitalRoom }: Props) => {
+  const { data: hospitalRoomInformation, isLoading } = fromHospitalRoom ?
+  useGetHospitalRoomInformation(hospitalSpaceAccountId) : useGetOperatingRoomInformation(hospitalSpaceAccountId); 
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {

@@ -1,4 +1,5 @@
 import axios from '../../libs/axios';
+import { IOperatingRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
 import { IHospitalRoomReservation, ISurgeryRoomReservation } from '../../types/programming/hospitalSpacesTypes';
 
 const apiHospitalSpace = '/api/Programacion/EspacioHospitalario';
@@ -24,3 +25,7 @@ export const getHospitalRoomReservations = async (endDate?: string, initialDate?
   return res.data;
 };
 
+export const getOperatingRoomInformation = async (id: string): Promise<IOperatingRoomInformation> => {
+  const res = await axios.get(`${apiHospitalSpace}/quirofano-paciente/${id}`);
+  return res.data;
+};
