@@ -1,4 +1,4 @@
-import { Button, Stack } from '@mui/material';
+import { Button } from '@mui/material';
 import { SearchBar } from '../../../Inputs/SearchBar';
 import { useRef, useState } from 'react';
 import { useCategoryPagination } from '../../../../store/purchaseStore/categoryPagination';
@@ -21,15 +21,17 @@ const Category = () => {
   const [categoryId, setCategoryId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { search, enabled, setEnabled, setSearch, setWarehouseId } = useCategoryPagination((state) => ({
+  const { search, enabled, setEnabled, setSearch } = useCategoryPagination((state) => ({
     enabled: state.enabled,
     search: state.search,
     setEnabled: state.setEnabled,
     setWarehouseId: state.setWarehouseId,
     setSearch: state.setSearch,
   }));
-  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
+
   const [warehouseSelected, setWarehouseSelected] = useState('');
+
+  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
 
   const tableRef = useRef<any>();
   const onSuccess = () => tableRef.current.fetchData();
@@ -93,24 +95,17 @@ const Category = () => {
     <>
       <TableTop>
         <SearchBar title="Busca la categoría..." searchState={setSearch} sx={{ width: '30%' }} />
-        <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
-          <SelectBasic
-            value={warehouseSelected}
-            label="Busqueda por almacén"
-            options={almacenes}
-            uniqueProperty="id_Almacen"
-            displayProperty="nombre"
-            onChange={(e: any) => {
-              //setWarehouseSelected(e.target.value);
-              setWarehouseSelected(e.target.value);
-              if (e.target.value === 'Todos') {
-                setWarehouseId('');
-                return;
-              }
-              setWarehouseId(e.target.value ?? '');
-            }}
-          />
-        </Stack>
+        <SelectBasic
+          sx={{ width: '25%', px: 1 }}
+          value={warehouseSelected}
+          label="Busqueda por almacén"
+          options={almacenes}
+          uniqueProperty="id_Almacen"
+          displayProperty="nombre"
+          onChange={(e: any) => {
+            setWarehouseSelected(e.target.value);
+          }}
+        />
         <Button
           sx={{
             height: '40px',

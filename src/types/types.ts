@@ -101,7 +101,7 @@ export interface ISubCategory {
   nombre: string;
   descripcion: string;
   id_categoria: string;
-  iva: string;
+  iva: boolean;
   categoria?: {
     id_Categoria: string;
     nombre: string;

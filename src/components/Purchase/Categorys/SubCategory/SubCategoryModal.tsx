@@ -3,30 +3,35 @@ import { ModalBasic } from '../../../../common/components/ModalBasic';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { ICategory } from '../../../../types/types';
-import { useFetchCategory } from './hooks/useFetchCategory';
+import { ISubCategory } from '../../../../types/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addCategory } from '../../../../schema/schemas';
-import { useEffect } from 'react';
+import { addSubCategorySchema } from '../../../../schema/schemas';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { addNewCategory, modifyCategory } from '../../../../api/api.routes';
 import { InputBasic } from '../../../../common/components/InputBasic';
 import { Grid } from '@mui/material';
 import { SelectBasic } from '../../../../common/components/SelectBasic';
-import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
+import { useFetchSubCategory } from './hooks/useFetchSubCategory';
+import { addNewSubCategory, modifySubCategory } from '../../../../api/subcategories';
+import { useGetCategories } from '../../../../hooks/useGetCategories';
+import { FormControlLabel } from '@mui/material';
+import { Checkbox } from '@mui/material';
 
-interface CategoryModalProps {
+interface SubCategoryModalProps {
   itemId?: string;
   open: boolean;
   onSuccess: Function;
   onClose: Function;
 }
 
-export const CategoryModal = (props: CategoryModalProps) => {
+export const SubCategoryModal = (props: SubCategoryModalProps) => {
   const { open, onClose, onSuccess, itemId } = props;
 
-  const { category, isLoadingCategory } = useFetchCategory(itemId);
-  const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
+  const { subCategory, isLoadingSubCategory } = useFetchSubCategory(itemId);
+  const { categories, isLoading: isLoadingCategories } = useGetCategories();
+  console.log('categories:', categories);
+
+  const [iva, setIva] = useState(false);
 
   const defaultValues: any = {
     id: '',
@@ -38,16 +43,16 @@ export const CategoryModal = (props: CategoryModalProps) => {
     handleSubmit,
     clearErrors,
     formState: { errors },
-  } = useForm<ICategory>({
+  } = useForm<ISubCategory>({
     defaultValues,
     values:
-      isLoadingCategory || !category
+      isLoadingSubCategory || !subCategory
         ? defaultValues
         : {
-            ...category,
-            id_Almacen: (category as any)?.id_Almacen,
+            ...subCategory,
+            id_Almacen: (subCategory as any)?.id_Almacen,
           },
-    resolver: zodResolver(addCategory),
+    resolver: zodResolver(addSubCategorySchema),
   });
 
   useEffect(() => {
@@ -58,14 +63,15 @@ export const CategoryModal = (props: CategoryModalProps) => {
     console.log({ err });
   };
 
-  const onSubmit: SubmitHandler<ICategory> = async (data) => {
+  const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
+      data.iva = iva;
       console.log('data:', data);
       if (!itemId) {
-        const res = await addNewCategory(data);
+        const res = await addNewSubCategory(data);
         console.log('res:', res);
       } else {
-        const res = await modifyCategory(data);
+        const res = await modifySubCategory(data);
         console.log('res:', res);
       }
       onSuccess();
@@ -90,9 +96,9 @@ export const CategoryModal = (props: CategoryModalProps) => {
   );
   return (
     <ModalBasic
-      isLoading={(!!itemId && isLoadingCategory) || isLoadingAlmacenes}
+      isLoading={(!!itemId && isLoadingSubCategory) || isLoadingCategories}
       open={open}
-      header={itemId ? 'Modificar categoría' : 'Agregar categoría'}
+      header={itemId ? 'Modificar subcategoría' : 'Agregar subcategoría'}
       onClose={onClose}
       actions={actions}
     >
@@ -121,14 +127,31 @@ export const CategoryModal = (props: CategoryModalProps) => {
           </Grid>
           <Grid item xs={12} md={6}>
             <SelectBasic
-              value={watch('id_Almacen')}
-              label="Almacén"
-              options={almacenes}
-              uniqueProperty="id_Almacen"
+              value={watch('id_categoria')}
+              label="Categoria"
+              options={categories}
+              uniqueProperty="id_Categoria"
               displayProperty="nombre"
-              error={!!errors.id_Almacen}
-              helperText={errors?.id_Almacen?.message}
-              {...register('id_Almacen')}
+              error={!!errors.id_categoria}
+              helperText={errors?.id_categoria?.message}
+              {...register('id_categoria')}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={12}>
+            <FormControlLabel
+              sx={{ ml: 0 }}
+              control={
+                <Checkbox
+                  checked={iva}
+                  {...register('iva')}
+                  onChange={() => {
+                    setIva(!iva);
+                  }}
+                />
+              }
+              label="IVA"
+              labelPlacement="start"
             />
           </Grid>
           {/* <TextField

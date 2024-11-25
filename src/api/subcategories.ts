@@ -1,0 +1,36 @@
+import axios from '../libs/axios';
+import { ISubCategory } from '../types/types';
+
+export const getSubCategories = async (params: string) => {
+  const res = await axios.get(`/api/Compras/Catalogo/SubCategoria/paginacion-subcategoria`, { params });
+  return res.data;
+};
+
+export const disableSubCategory = async (id: string) => {
+  const res = await axios.put(`/api/Compras/Catalogo/SubCategoria/estatus-subcategoria`, { id });
+  return res.data;
+};
+
+export const addNewSubCategory = async (data: ISubCategory) => {
+  const { nombre, descripcion, id_categoria, iva } = data;
+  const res = await axios.post(`/api/Compras/Catalogo/SubCategoria/registrar-subcategoria`, {
+    nombre,
+    descripcion,
+    id_categoria,
+    iva,
+  });
+  return res.data;
+};
+
+export const modifySubCategory = async (subCategory: ISubCategory) => {
+  const { id_SubCategoria, nombre, descripcion, id_categoria, iva } = subCategory;
+  const res = await axios.put(`/api/Compras/Catalogo/SubCategoria/actualizar-subcategoria`, {
+    id: id_SubCategoria,
+    nombre,
+    descripcion,
+    iva,
+    id_categoria,
+  });
+
+  return res.data;
+};

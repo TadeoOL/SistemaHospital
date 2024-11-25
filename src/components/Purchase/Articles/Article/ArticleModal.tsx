@@ -15,14 +15,14 @@ import { useGetSubCategories } from '../../../../hooks/useGetSubCategories';
 import { useFetchArticle } from './hooks/useFetchArticle';
 import { useGetPurchaseConfig } from './hooks/usePurchaseConfig';
 
-interface IAddArticleModal {
+interface ArticleModalProps {
   itemId?: string;
   open: boolean;
   onSuccess: Function;
   onClose: Function;
 }
 
-export const ArticleModal = (props: IAddArticleModal) => {
+export const ArticleModal = (props: ArticleModalProps) => {
   const { open, onClose, onSuccess, itemId } = props;
 
   const { subCategories, isLoading } = useGetSubCategories();
