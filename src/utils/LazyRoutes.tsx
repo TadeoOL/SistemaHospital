@@ -6,7 +6,7 @@ export const ArticleView = lazy(() => import('../views/Purchase/ArticleView'));
 export const Article = lazy(() => import('../features/purchase/articles/screens/Article'));
 export const ExistingArticle = lazy(() => import('../components/Purchase/Articles/ExistingArticle/ExistingArticle'));
 export const CategoryView = lazy(() => import('../views/Purchase/CategoryView'));
-export const Category = lazy(() => import('../components/Purchase/Categorys/Category/Category'));
+export const Category = lazy(() => import('../features/purchase/categories/screens/Category'));
 export const SubCategory = lazy(() => import('../components/Purchase/Categorys/SubCategory/SubCategory'));
 export const ProvidersView = lazy(() => import('../views/Purchase/ProvidersView'));
 export const WarehouseView = lazy(() => import('../views/Purchase/WarehouseView'));

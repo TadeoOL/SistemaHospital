@@ -1,6 +1,6 @@
-import axios from '../libs/axios';
-import { ICategory } from '../types/types';
-import { GetParams } from './interface/params.interface';
+import axios from '@/libs/axios';
+import { ICategory } from '@/types/types';
+import { GetParams } from '@/api/interface/params.interface';
 
 interface GetCategoriesParams extends GetParams {
   Id_Almacen?: string;
@@ -8,6 +8,16 @@ interface GetCategoriesParams extends GetParams {
 
 export const getCategories = async (params: GetCategoriesParams) => {
   const res = await axios.get(`/api/Compras/Catalogo/Categoria/paginacion-categoria`, { params });
+  return res.data;
+};
+
+export const addNewCategory = async (data: ICategory) => {
+  const { nombre, descripcion, id_Almacen } = data;
+  const res = await axios.post(`/api/Compras/Catalogo/Categoria/registrar-categoria`, {
+    Nombre: nombre,
+    Descripcion: descripcion,
+    id_Almacen: id_Almacen,
+  });
   return res.data;
 };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getCategoryById } from '../../../../../api/api.routes';
-import { ICategory } from '../../../../../types/types';
+import { getCategoryById } from '@/api/api.routes';
+import { ICategory } from '@/types/types';
 
 export const useFetchCategory = (id?: string) => {
   const [isLoadingCategory, setIsLoadingCategory] = useState(true);

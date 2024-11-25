@@ -1,19 +1,19 @@
-import { Button } from '@mui/material';
-import { ModalBasic } from '../../../../common/components/ModalBasic';
-import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { ICategory } from '../../../../types/types';
-import { useFetchCategory } from './hooks/useFetchCategory';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { addCategory } from '../../../../schema/schemas';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { addNewCategory, modifyCategory } from '../../../../api/api.routes';
-import { InputBasic } from '../../../../common/components/InputBasic';
-import { Grid } from '@mui/material';
-import { SelectBasic } from '../../../../common/components/SelectBasic';
-import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { Button, Grid } from '@mui/material';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
+
+import { ModalBasic, InputBasic, SelectBasic } from '@/common/components';
+import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
+
+import { ICategory } from '../interfaces/categories.interface';
+import { addCategory } from '../schemas/categories.schemas';
+import { useFetchCategory } from '../hooks/useFetchCategory';
+import { addNewCategory, modifyCategory } from '../services/categories';
 
 interface CategoryModalProps {
   itemId?: string;

@@ -1,21 +1,21 @@
-import { Button } from '@mui/material';
-import { SearchBar } from '../../../Inputs/SearchBar';
 import { useRef, useState } from 'react';
-import { useCategoryPagination } from '../../../../store/purchaseStore/categoryPagination';
+import { Button, IconButton, Tooltip } from '@mui/material';
+
+import { SearchBar } from '@/components/Inputs/SearchBar';
+import { useCategoryPagination } from '@/store/purchaseStore/categoryPagination';
+
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
-import { useGetAlmacenes } from '../../../../hooks/useGetAlmacenes';
-import { TableTop } from '../../../../common/components/TableTop';
-import { TablePaginated } from '../../../../common/components/TablePaginated';
-import { Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
-import { IconButton } from '@mui/material';
-import { useDisableCategory } from './hooks/useDisableCategory';
-import { CategoryModal } from './CategoryModal';
-import { SelectBasic } from '../../../../common/components/SelectBasic';
-import { getCategories } from '../../../../api/categories';
+
+import { TableTop, TablePaginated, SelectBasic } from '@/common/components';
+import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
+
+import { useDisableCategory } from '../hooks/useDisableCategory';
+import { getCategories } from '../services/categories';
+import { CategoryModal } from '../components/CategoryModal';
 
 const Category = () => {
   const [categoryId, setCategoryId] = useState('');
