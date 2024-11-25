@@ -48,8 +48,9 @@ function TabPanel({ children, value, index, ...other }: TabPanelProps) {
 }
 
 export const HospitalRoomInformationModal = ({ hospitalSpaceAccountId, setOpen, fromHospitalRoom }: Props) => {
-  const { data: hospitalRoomInformation, isLoading } = fromHospitalRoom ?
-  useGetHospitalRoomInformation(hospitalSpaceAccountId) : useGetOperatingRoomInformation(hospitalSpaceAccountId); 
+  const { data: hospitalRoomInformation, isLoading } = fromHospitalRoom
+    ? useGetHospitalRoomInformation(hospitalSpaceAccountId)
+    : useGetOperatingRoomInformation(hospitalSpaceAccountId);
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {

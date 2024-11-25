@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { IOperatingRoomConfig } from '../../types/operatingRoom/operatingRoomTypes';
+import { IOperatingRoomConfig, IOperatingRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
 const apiOperatingRoomConfig = '/api/ConfiguracionQuirofano';
 const OperatingRoomCon = '/api/Quirofano';
 
@@ -25,5 +25,10 @@ export const changeOperatingRoomStatus = async (data: {
   id_UsuarioRecuperacion?: string;
 }) => {
   const res = await axios.post(`${OperatingRoomCon}/estado-cirugia`, data);
+  return res.data;
+};
+
+export const getOperatingRoomInformation = async (id: string): Promise<IOperatingRoomInformation> => {
+  const res = await axios.get(`${OperatingRoomCon}/quirofano-paciente/${id}`);
   return res.data;
 };
