@@ -3,22 +3,22 @@ import { InputLabel, Stack, TextField } from '@mui/material';
 import { ChangeEvent, forwardRef, useState } from 'react';
 
 interface InputBasicProps {
+  hide?: boolean;
   label?: string;
   placeholder?: string;
-  value?: string;
-  onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  disabled?: boolean;
   fullWidth?: boolean;
-  error?: boolean;
-  hide?: boolean;
-  multiline?: boolean;
   helperText?: any;
   maxLength?: number;
+  onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  error?: boolean;
+  disabled?: boolean;
+  value?: string;
+  multiline?: boolean;
   [x: string]: any;
 }
 
 export const InputBasic = forwardRef((props: InputBasicProps, ref) => {
-  const { hide, label, placeholder, fullWidth, helperText, maxLength, onChange, error, inputProps, ...other } = props;
+  const { hide, label, placeholder, fullWidth, helperText, maxLength, onChange, error, inputProps, disabled, ...other } = props;
 
   const [charLength, setCharLength] = useState(`0/${maxLength}`);
 
@@ -44,6 +44,7 @@ export const InputBasic = forwardRef((props: InputBasicProps, ref) => {
           variant="outlined"
           inputProps={{ maxLength, ...inputProps }}
           error={error}
+          disabled={disabled}
           onChange={handleChange}
           {...other}
         />

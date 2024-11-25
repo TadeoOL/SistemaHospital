@@ -1,6 +1,6 @@
 import { Box, InputLabel, Stack, TextField } from '@mui/material';
 import { MenuItem, SxProps, Theme } from '@mui/material';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef } from 'react';
 
 interface SelectComponentProps {
   sx?: SxProps<Theme>;
@@ -31,31 +31,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
     name,
     ...other
   } = props;
-  const [selected, setSelected] = useState('');
-
-  useEffect(() => {
-    if (!options?.length || !value) {
-      setSelected('');
-      return;
-    }
-
-    const valueUnique = getUniqueProperty(value);
-
-    const found = options.find((item) => {
-      return getUniqueProperty(item) === valueUnique;
-    });
-
-    if (!found) return;
-
-    setSelected(valueUnique);
-  }, [value, options]);
-
-  const handleChange = (e: any) => {
-    onChange && onChange(e);
-    const value = e?.target?.value || null;
-    setSelected(value || '');
-  };
-
+  
   const getUniqueProperty = (item: any) => {
     if (!uniqueProperty) return item;
     if (!item) return '';
@@ -67,6 +43,29 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
     }
 
     return result;
+  };
+
+  const selected = (() => {
+    if (!options?.length || !value) {
+      return '';
+    }
+
+    const valueUnique = getUniqueProperty(value);
+
+    const found = options.find((item) => {
+      return getUniqueProperty(item) === valueUnique;
+    });
+
+    if (!found) {
+      console.error(`value ${valueUnique} not found in options:`, options);
+      return '';
+    }
+
+    return valueUnique;
+  })();
+
+  const handleChange = (e: any): any => {
+    onChange && onChange(e);
   };
 
   const getDisplayProperty = (item: any) => {
@@ -89,7 +88,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
                 content: `"${placeholder || ''}"`,
               },
             }}
-            value={options?.length ? selected || '' : ''}
+            value={selected}
             onChange={handleChange}
             {...other}
           >

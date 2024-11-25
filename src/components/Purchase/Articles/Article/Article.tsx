@@ -59,7 +59,7 @@ const Article = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   const tableRef = useRef<any>();
-  const onSuccess = () => tableRef.current.fetchData();
+  const onSuccess = () => tableRef?.current?.fetchData();
   const disableArticle = useDisableArticle(onSuccess);
 
   const handleAdd = () => {
@@ -116,7 +116,7 @@ const Article = () => {
     },
     {
       header: 'Usa Factor',
-      value: (row: any) => (row.Factor ? 'Si' : 'No'),
+      value: (row: any) => (row.factor ? 'Si' : 'No'),
       sort: true,
     },
     {

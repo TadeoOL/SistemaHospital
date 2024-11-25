@@ -34,7 +34,7 @@ const Category = () => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
 
   const tableRef = useRef<any>();
-  const onSuccess = () => tableRef.current.fetchData();
+  const onSuccess = () => tableRef?.current?.fetchData();
   const disableCategory = useDisableCategory(onSuccess);
 
   const handleAdd = () => {

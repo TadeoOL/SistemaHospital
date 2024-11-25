@@ -36,7 +36,7 @@ const SubCategory = () => {
   const { categories, isLoading: isLoadingCategories } = useGetCategories();
 
   const tableRef = useRef<any>();
-  const onSuccess = () => tableRef.current.fetchData();
+  const onSuccess = () => tableRef?.current?.fetchData();
   const disableSubCategory = useDisableSubCategory(onSuccess);
 
   const handleAdd = () => {
@@ -46,7 +46,7 @@ const SubCategory = () => {
 
   const handleEdit = (row: any) => {
     setCategoryId('');
-    setCategoryId(row.id_Categoria);
+    setCategoryId(row.id);
     setModalOpen(true);
   };
 
@@ -106,6 +106,7 @@ const SubCategory = () => {
           uniqueProperty="id_Almacen"
           displayProperty="nombre"
           onChange={(e: any) => {
+            setSelectedCategory(null);
             setWarehouseSelected(e.target.value);
           }}
         />
@@ -125,12 +126,15 @@ const SubCategory = () => {
           />
         )}
         <Button
+          sx={{
+            height: '40px',
+          }}
           onClick={() => {
             setEnabled(!enabled);
           }}
           startIcon={<ClassOutlinedIcon />}
         >
-          {enabled ? 'Mostrar sub categorías deshabilitadas' : 'Mostrar sub categorías habilitados'}
+          {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
         </Button>
         <Button variant="contained" startIcon={<AddCircleOutlinedIcon />} onClick={() => handleAdd()}>
           Agregar

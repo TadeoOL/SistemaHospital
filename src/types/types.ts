@@ -97,6 +97,7 @@ export interface ICategory {
   subcategorias?: ISubCategory[];
 }
 export interface ISubCategory {
+  id?: string;
   id_SubCategoria: string;
   nombre: string;
   descripcion: string;
@@ -128,6 +129,7 @@ export interface IArticle {
   codigoSAT?: string;
   lote?: IExistingArticleList[];
   esCaja?: boolean;
+  factor?: boolean;
   unidadesPorCaja?: string;
   codigoUnidadMedida?: number;
   presentacion: string;

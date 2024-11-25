@@ -23,9 +23,9 @@ export const addNewSubCategory = async (data: ISubCategory) => {
 };
 
 export const modifySubCategory = async (subCategory: ISubCategory) => {
-  const { id_SubCategoria, nombre, descripcion, id_categoria, iva } = subCategory;
+  const { id, nombre, descripcion, id_categoria, iva } = subCategory;
   const res = await axios.put(`/api/Compras/Catalogo/SubCategoria/actualizar-subcategoria`, {
-    id: id_SubCategoria,
+    id,
     nombre,
     descripcion,
     iva,

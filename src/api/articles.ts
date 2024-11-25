@@ -32,6 +32,7 @@ export const modifyArticle = async (article: IArticle) => {
     codigoBarras,
     codigoSAT,
     presentacion,
+    factor,
   } = article;
 
   const res = await axios.put(`/api/Compras/Catalogo/Articulo/actualizar-articulo`, {
@@ -50,6 +51,7 @@ export const modifyArticle = async (article: IArticle) => {
     codigoBarras,
     codigoSAT,
     presentacion,
+    factor,
   });
   return res.data;
 };
@@ -71,6 +73,7 @@ export const addNewArticle = async (article: IArticle) => {
     codigoSAT,
     codigoUnidadMedida,
     presentacion,
+    factor,
   } = article;
 
   const res = await axios.post(`/api/Compras/Catalogo/Articulo/registrar-articulo`, {
@@ -89,6 +92,7 @@ export const addNewArticle = async (article: IArticle) => {
     codigoSAT,
     codigoUnidadMedida,
     presentacion,
+    factor,
   });
   return res.data;
 };

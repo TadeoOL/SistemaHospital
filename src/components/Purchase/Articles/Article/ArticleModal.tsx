@@ -29,6 +29,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   const config = useGetPurchaseConfig();
 
   const [isBox, setIsBox] = useState(false);
+  const [factor, setFactor] = useState(true);
 
   const { article, isLoadingArticle } = useFetchArticle(itemId);
 
@@ -80,6 +81,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
     try {
       data.id = itemId || undefined;
       data.esCaja = isBox;
+      data.factor = factor;
       console.log('data:', data);
       if (!itemId) {
         const res = await addNewArticle(data);
@@ -111,6 +113,8 @@ export const ArticleModal = (props: ArticleModalProps) => {
   const getPrices = () => {
     const precioCompra = Number(watch('precioCompra'));
     const unidadesPorCaja = Number(watch('unidadesPorCaja'));
+
+    if (!factor) return;
 
     if (!precioCompra) return;
     if (isBox && !unidadesPorCaja) return;
@@ -146,7 +150,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   useEffect(() => {
     getPrices();
-  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox]);
+  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox, factor]);
 
   const actions = (
     <>
@@ -188,7 +192,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
               helperText={errors?.presentacion?.message}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid item xs={6} md={6}>
             <FormControlLabel
               sx={{ ml: 0 }}
               control={
@@ -200,6 +204,21 @@ export const ArticleModal = (props: ArticleModalProps) => {
                 />
               }
               label="Es un Paquete"
+              labelPlacement="start"
+            />
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <FormControlLabel
+              sx={{ ml: 0 }}
+              control={
+                <Checkbox
+                  checked={factor}
+                  onChange={() => {
+                    setFactor(!factor);
+                  }}
+                />
+              }
+              label="Usa Factor"
               labelPlacement="start"
             />
           </Grid>
@@ -259,6 +278,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
               inputProps={{
                 maxLength: 10,
               }}
+              disabled={factor}
             />
           </Grid>
           <Grid item xs={12} md={3}>
@@ -272,6 +292,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
               inputProps={{
                 maxLength: 10,
               }}
+              disabled={factor}
             />
           </Grid>
           <Grid item xs={12} md={6}>

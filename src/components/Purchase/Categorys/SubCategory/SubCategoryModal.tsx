@@ -29,7 +29,6 @@ export const SubCategoryModal = (props: SubCategoryModalProps) => {
 
   const { subCategory, isLoadingSubCategory } = useFetchSubCategory(itemId);
   const { categories, isLoading: isLoadingCategories } = useGetCategories();
-  console.log('categories:', categories);
 
   const [iva, setIva] = useState(false);
 
@@ -50,7 +49,7 @@ export const SubCategoryModal = (props: SubCategoryModalProps) => {
         ? defaultValues
         : {
             ...subCategory,
-            id_Almacen: (subCategory as any)?.id_Almacen,
+            id_categoria: (subCategory as any)?.categoria?.id_Categoria,
           },
     resolver: zodResolver(addSubCategorySchema),
   });
@@ -65,6 +64,7 @@ export const SubCategoryModal = (props: SubCategoryModalProps) => {
 
   const onSubmit: SubmitHandler<ISubCategory> = async (data) => {
     try {
+      data.id = itemId || undefined;
       data.iva = iva;
       console.log('data:', data);
       if (!itemId) {
