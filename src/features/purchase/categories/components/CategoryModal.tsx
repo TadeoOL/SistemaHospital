@@ -131,20 +131,6 @@ export const CategoryModal = (props: CategoryModalProps) => {
               {...register('id_Almacen')}
             />
           </Grid>
-          {/* <TextField
-              select
-              label="Almacén"
-              size="small"
-              error={warehouseError}
-              helperText={warehouseError && 'Selecciona un almacén'}
-              value={warehouseSelected}
-            >
-              {almacenes.map((warehouse) => (
-                <MenuItem key={warehouse.id_Almacen} value={warehouse.id_Almacen}>
-                  {warehouse.nombre}
-                </MenuItem>
-              ))}
-            </TextField> */}
         </Grid>
       </form>
     </ModalBasic>
