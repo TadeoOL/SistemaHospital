@@ -270,11 +270,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
           </Box>
         </TableCell>
       </TableRow>
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <>
-          <CloseAccountModal id_Cuenta={data.id_CuentaPaciente} setOpen={setOpen} viewOnly={viewOnly} />
-        </>
-      </Modal>
+      <CloseAccountModal id_Cuenta={data.id_CuentaPaciente} setOpen={setOpen} viewOnly={viewOnly} open={open} />
       <Modal
         open={openPrint}
         onClose={() => {

@@ -74,7 +74,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   }, [open]);
 
   const handleError = (err: any) => {
-    onSubmit(watch());
+    console.log('err:', err);
   };
 
   const onSubmit: SubmitHandler<IArticle> = async (data) => {

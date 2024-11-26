@@ -136,6 +136,7 @@ export interface IArticle {
 }
 
 export interface IArticlePOS {
+  stockActual: number;
   //cambio en id
   id_Articulo: string;
   id_ArticuloAlmacen: string;

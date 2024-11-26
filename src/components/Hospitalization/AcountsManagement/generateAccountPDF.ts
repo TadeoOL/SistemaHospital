@@ -1,6 +1,6 @@
 import pdfmake from 'pdfmake/build/pdfmake';
 import { logoWithText } from '../../../common/logoWithText';
-import { IPatientAccount } from '../../../types/checkout/patientAccountTypes';
+import { IPatientAccount, PatientAccountStatus } from '../../../types/checkout/patientAccountTypes';
 
 pdfmake.fonts = {
   Roboto: {
@@ -213,7 +213,16 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
   const sumArticulos = sum(accountInfo.articulos || [], 'total');
   const sumPagos = sum(accountInfo.pagosCuenta || [], 'monto');
 
+  const isOpen = accountInfo.estatusCuenta === PatientAccountStatus.Admitted;
+
   const documentDefinition: any = {
+    watermark: {
+      text: isOpen ? 'CUENTA ABIERTA' : '',
+      color: 'red',
+      opacity: 0.2,
+      bold: true,
+      italics: false,
+    },
     header,
     pageSize: 'LETTER',
     pageMargins: [40, 60, 40, 60],

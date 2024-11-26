@@ -36,38 +36,13 @@ import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedP
 import { useGetPatientAccount } from '../../../../hooks/checkout/useGetPatientAccount';
 import { IPatientInfo, PatientAccountStatus } from '../../../../types/checkout/patientAccountTypes';
 import { changeStatusPatientAccount } from '../../../../services/checkout/patientAccount';
+import { ModalBasic } from '@/common/components';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  borderRadius: 2,
-  boxShadow: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: { xs: 600, xl: 900 },
-};
-const style2 = {
-  bgcolor: 'background.paper',
-  p: 2,
-  overflowY: 'auto',
-  '&::-webkit-scrollbar': {
-    width: '0.4em',
-  },
-  '&::-webkit-scrollbar-track': {
-    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: 'rgba(0,0,0,.1)',
-    outline: '1px solid slategrey',
-  },
-};
 interface CloseAccountModalProps {
   setOpen: Function;
   id_Cuenta: string;
   viewOnly?: boolean;
+  open?: boolean;
 }
 
 export const CloseAccountModal = (props: CloseAccountModalProps) => {
@@ -243,103 +218,106 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
 
   if (error && !isLoading) {
     return (
-      <Box sx={style}>
-        <HeaderModal
-          setOpen={props.setOpen}
-          title={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
-        />
-        <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
-          <b>La información de la cuenta del paciente no esta completa</b>
-        </Typography>
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            display: 'flex',
-            p: 1,
-            borderBottomLeftRadius: 10,
-            borderBottomRightRadius: 10,
-          }}
-        >
-          <Button sx={{ ml: 'auto' }} variant="outlined" color="error" onClick={() => props.setOpen(false)}>
-            Cerrar
-          </Button>
+      <ModalBasic
+        header={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
+        open={props.open}
+        onClose={() => props.setOpen(false)}
+      >
+        <Box>
+          <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'center'} variant="h4">
+            <b>La información de la cuenta del paciente no esta completa</b>
+          </Typography>
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              display: 'flex',
+              p: 1,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+            }}
+          >
+            <Button sx={{ ml: 'auto' }} variant="outlined" color="error" onClick={() => props.setOpen(false)}>
+              Cerrar
+            </Button>
+          </Box>
         </Box>
-      </Box>
+      </ModalBasic>
     );
   }
 
-  const handleOpenPDF = async () => {
-    // setIsLoading(true);
-
-    const document = (
-      <BillCloseReport
-        cierreCuenta={{ ...data, notas: notes } as any}
-        descuento={data?.descuento ? data?.descuento.toFixed(2).toString() : undefined}
-        total={result}
-        notas={data?.descuento ? 'Se le hizo Descuento porcentual' : ''}
-      />
-    );
-
-    // Generar el PDF en formato blob
-    const blob = await pdf(document).toBlob();
-
-    // Crear una URL para el blob y abrir una nueva pestaña
-    const url = URL.createObjectURL(blob);
-    window.open(url);
-
-    // setIsLoading(false);
-  };
+  const actions = (
+    <>
+      <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
+        Cancelar
+      </Button>
+      <div className="col"></div>
+      {!viewOnly && (
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={isLoading}
+          onClick={() => {
+            acceptRequest();
+          }}
+        >
+          {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
+        </Button>
+      )}
+    </>
+  );
 
   return (
-    <Box sx={style}>
-      <HeaderModal
-        setOpen={props.setOpen}
-        title={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
-      />
-      <Box sx={style2}>
-        {isLoading && !error ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress size={35} />
-          </Box>
-        ) : (
-          data && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-              <PatientInformation
-                patient={data.paciente ?? ({} as IPatientInfo)}
-                medic={data.paciente?.nombreMedico ?? ''}
-                isHospitalization={false}
-                ventaConcepto={totalServices}
-                ventaArticuloIVA={totalArticles}
-                ventaArticuloSinIVA={totalEquipment}
-              />
-              <DataTable
-                title="Cuartos"
-                data={data.cuartos ?? []}
-                columns={[
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'cantidadDias', header: 'Cantidad de Dias' },
-                  { key: 'precioDia', header: 'Precio por Dia' },
-                  { key: 'neto', header: 'Precio Neto' },
-                  { key: 'iva', header: 'IVA' },
-                  { key: 'total', header: 'Precio Total' },
-                ]}
-              />
-              <DataTable
-                title="Quirofanos / Recuperacion"
-                data={data.quirofanos ?? []}
-                columns={[
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'tiempo', header: 'Tiempo' },
-                  { key: 'neto', header: 'Precio Neto' },
-                  { key: 'iva', header: 'IVA' },
-                  { key: 'total', header: 'Precio Total' },
-                ]}
-                isOperatingRoom={!viewOnly}
-                modified={modified}
-                setModified={setModified}
-                id_PatientBill={props.id_Cuenta}
-              />
-              {/* <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
+    <ModalBasic
+      header={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
+      open={props.open}
+      onClose={() => props.setOpen(false)}
+      actions={actions}
+    >
+      <Box>
+        <Box>
+          {isLoading && !error ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress size={35} />
+            </Box>
+          ) : (
+            data && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                <PatientInformation
+                  patient={data.paciente ?? ({} as IPatientInfo)}
+                  medic={data.paciente?.nombreMedico ?? ''}
+                  isHospitalization={false}
+                  ventaConcepto={totalServices}
+                  ventaArticuloIVA={totalArticles}
+                  ventaArticuloSinIVA={totalEquipment}
+                />
+                <DataTable
+                  title="Cuartos"
+                  data={data.cuartos ?? []}
+                  columns={[
+                    { key: 'nombre', header: 'Nombre' },
+                    { key: 'cantidadDias', header: 'Cantidad de Dias' },
+                    { key: 'precioDia', header: 'Precio por Dia' },
+                    { key: 'neto', header: 'Precio Neto' },
+                    { key: 'iva', header: 'IVA' },
+                    { key: 'total', header: 'Precio Total' },
+                  ]}
+                />
+                <DataTable
+                  title="Quirofanos / Recuperacion"
+                  data={data.quirofanos ?? []}
+                  columns={[
+                    { key: 'nombre', header: 'Nombre' },
+                    { key: 'tiempo', header: 'Tiempo' },
+                    { key: 'neto', header: 'Precio Neto' },
+                    { key: 'iva', header: 'IVA' },
+                    { key: 'total', header: 'Precio Total' },
+                  ]}
+                  isOperatingRoom={!viewOnly}
+                  modified={modified}
+                  setModified={setModified}
+                  id_PatientBill={props.id_Cuenta}
+                />
+                {/* <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
                 <FormControlLabel
                   required
                   control={
@@ -368,29 +346,29 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                 )}
               </Box> */}
-              <DataTable
-                title="Procedimientos"
-                data={data.cirugias ?? []}
-                columns={[
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'neto', header: 'Precio Neto' },
-                  { key: 'iva', header: 'IVA' },
-                  { key: 'total', header: 'Precio Total' },
-                  // { key: 'estatus', header: 'Estatus' },
-                ]}
-              />
+                <DataTable
+                  title="Procedimientos"
+                  data={data.cirugias ?? []}
+                  columns={[
+                    { key: 'nombre', header: 'Nombre' },
+                    { key: 'neto', header: 'Precio Neto' },
+                    { key: 'iva', header: 'IVA' },
+                    { key: 'total', header: 'Precio Total' },
+                    // { key: 'estatus', header: 'Estatus' },
+                  ]}
+                />
 
-              <DataTable
-                title="Servicios"
-                data={data.servicios ?? []}
-                columns={[
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'neto', header: 'Precio Neto' },
-                  { key: 'iva', header: 'IVA' },
-                  { key: 'total', header: 'Precio Total' },
-                ]}
-              />
-              {/* <DataTable
+                <DataTable
+                  title="Servicios"
+                  data={data.servicios ?? []}
+                  columns={[
+                    { key: 'nombre', header: 'Nombre' },
+                    { key: 'neto', header: 'Precio Neto' },
+                    { key: 'iva', header: 'IVA' },
+                    { key: 'total', header: 'Precio Total' },
+                  ]}
+                />
+                {/* <DataTable
                 title="Equipos Biomédicos"
                 data={data.equiposBiomedicos ?? []}
                 columns={[
@@ -401,109 +379,109 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 ]}
                 haveDiscount={data?.descuento}
               /> */}
-              <DataTable
-                title="Equipos Biomédicos Externos"
-                data={data.equipoHonorario ?? []}
-                columns={[
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'neto', header: 'Precio Neto' },
-                  { key: 'iva', header: 'IVA' },
-                  { key: 'total', header: 'Precio Total' },
-                ]}
-              />
-              <DataTable
-                title="Artículos"
-                data={data.articulos ?? []}
-                columns={[
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'solicitadoEn', header: 'Solicitado en' },
-                  { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
-                  { key: 'neto', header: 'Precio Neto' },
-                  { key: 'iva', header: 'IVA' },
-                  { key: 'total', header: 'Precio Total' },
-                ]}
-              />
-              <DataTable
-                title="Pagos de la Cuenta"
-                data={data.pagosCuenta ?? []}
-                columns={[
-                  { key: 'folio', header: 'Folio' },
-                  { key: 'fechaPago', header: 'Fecha de Pago' },
-                  { key: 'monto', header: 'Monto' },
-                ]}
-              />
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <PriceCell originalPrice={data.subTotal} discountedPrice={data.subTotalDescuento} />
+                <DataTable
+                  title="Equipos Biomédicos Externos"
+                  data={data.equipoHonorario ?? []}
+                  columns={[
+                    { key: 'nombre', header: 'Nombre' },
+                    { key: 'neto', header: 'Precio Neto' },
+                    { key: 'iva', header: 'IVA' },
+                    { key: 'total', header: 'Precio Total' },
+                  ]}
+                />
+                <DataTable
+                  title="Artículos"
+                  data={data.articulos ?? []}
+                  columns={[
+                    { key: 'nombre', header: 'Nombre' },
+                    { key: 'solicitadoEn', header: 'Solicitado en' },
+                    { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
+                    { key: 'neto', header: 'Precio Neto' },
+                    { key: 'iva', header: 'IVA' },
+                    { key: 'total', header: 'Precio Total' },
+                  ]}
+                />
+                <DataTable
+                  title="Pagos de la Cuenta"
+                  data={data.pagosCuenta ?? []}
+                  columns={[
+                    { key: 'folio', header: 'Folio' },
+                    { key: 'fechaPago', header: 'Fecha de Pago' },
+                    { key: 'monto', header: 'Monto' },
+                  ]}
+                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <PriceCell originalPrice={data.subTotal} discountedPrice={data.subTotalDescuento} />
+                    </Box>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
+                    </Box>
                   </Box>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
+                    </Box>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data.descuento?.toFixed(2)}%</Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
+                    </Box>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.iva.toFixed(2)}</Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
+                    </Box>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.total.toFixed(2)}</Typography>
+                    </Box>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
-                  </Box>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data.descuento?.toFixed(2)}%</Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
-                  </Box>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.iva.toFixed(2)}</Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
-                  </Box>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.total.toFixed(2)}</Typography>
-                  </Box>
-                </Box>
-              </Box>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
+                    </Box>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.totalPagos.toFixed(2)}</Typography>
+                    </Box>
                   </Box>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.totalPagos.toFixed(2)}</Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Restante:</Typography>
-                  </Box>
-                  <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${(data.total - data.totalPagos).toFixed(2)}
-                    </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Restante:</Typography>
+                    </Box>
+                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                        ${(data.total - data.totalPagos).toFixed(2)}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
-            </Box>
-          )
-        )}
-      </Box>
-      <Typography
-        sx={{
-          bgcolor: 'background.paper',
-          py: 2,
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        variant="h4"
-        textAlign={'center'}
-      ></Typography>
-      {/* <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
+            )
+          )}
+        </Box>
+        <Typography
+          sx={{
+            bgcolor: 'background.paper',
+            py: 2,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          variant="h4"
+          textAlign={'center'}
+        ></Typography>
+        {/* <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <FormControlLabel
             required
@@ -590,38 +568,18 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         )}
       </Box> */}
 
-      <Box
-        sx={{
-          bgcolor: 'background.paper',
-          display: 'flex',
-          justifyContent: 'space-between',
-          p: 1,
-          borderBottomLeftRadius: 10,
-          borderBottomRightRadius: 10,
-        }}
-      >
-        <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
-          Cancelar
-        </Button>
-        {!viewOnly && (
-          <Button
-            variant="contained"
-            type="submit"
-            disabled={isLoading}
-            onClick={() => {
-              acceptRequest();
-            }}
-          >
-            {isLoading ? <CircularProgress size={25} /> : 'Cerrar Cuenta'}
-          </Button>
-        )}
-        {!isLoading && !error && (
-          <Button variant="contained" color="primary" disabled={isLoading} onClick={handleOpenPDF}>
-            {isLoading ? <CircularProgress size={25} /> : 'Ver PDF'}
-          </Button>
-        )}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            display: 'flex',
+            justifyContent: 'space-between',
+            p: 1,
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+          }}
+        ></Box>
       </Box>
-    </Box>
+    </ModalBasic>
   );
 };
 
