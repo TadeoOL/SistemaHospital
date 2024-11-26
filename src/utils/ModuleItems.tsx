@@ -99,14 +99,21 @@ export const ModuleList: IModuleItemsList[] = [
         children: [
           {
             title: 'Artículos',
-            path: '/compras/articulos/articulo',
+            path: '/compras/articulos',
             icon: <ArticleIcon sx={{ color: '#fff' }} />,
             childrenItems: ['articulo', 'articulo-existente'],
             protectedRoles: supplyRoles,
           },
           {
             title: 'Categorías',
-            path: '/compras/categorias/categoria',
+            path: '/compras/categorias',
+            icon: <FormatListBulletedIcon sx={{ color: '#fff' }} />,
+            childrenItems: ['categoria', 'subcategoria'],
+            protectedRoles: supplyRoles,
+          },
+          {
+            title: 'Subcategorías',
+            path: '/compras/subcategorias',
             icon: <FormatListBulletedIcon sx={{ color: '#fff' }} />,
             childrenItems: ['categoria', 'subcategoria'],
             protectedRoles: supplyRoles,

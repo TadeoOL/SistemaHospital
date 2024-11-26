@@ -13,10 +13,8 @@ import { PharmacyRoute } from './utils/PharmacyRoute';
 import {
   Dashboard,
   PurchaseRequest,
-  ArticleView,
   Article,
   ExistingArticle,
-  CategoryView,
   Category,
   SubCategory,
   ProvidersView,
@@ -84,13 +82,13 @@ function App() {
               <Route path="/compras/solicitud-compras" element={<PurchaseRequest />} />
             </Route>
             <Route element={<ProtectedRouteSupply />}>
-              <Route path="/compras/articulos" element={<ArticleView />}>
-                <Route path="articulo" element={<Article />} />
+              <Route path="/compras">
+                <Route path="articulos" element={<Article />} />
                 <Route path="articulo-existente" element={<ExistingArticle />} />
               </Route>
-              <Route path="/compras/categorias" element={<CategoryView />}>
-                <Route path="categoria" element={<Category />} />
-                <Route path="subcategoria" element={<SubCategory />} />
+              <Route path="/compras/">
+                <Route path="categorias" element={<Category />} />
+                <Route path="subcategorias" element={<SubCategory />} />
               </Route>
               <Route path="/compras/proveedores" element={<ProvidersView />} />
             </Route>

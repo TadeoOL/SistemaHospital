@@ -1,6 +1,6 @@
 import { FormControl, MenuItem, Pagination, Select, Stack, TextField, Typography } from '@mui/material';
-import TableBasic from './TableBasic';
-import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { TableBasic } from './TableBasic';
+import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 
 interface PaginatedResponse {
   count: number;
@@ -24,6 +24,8 @@ interface TablePaginatedProps {
   columns: TablePaginatedColumn[];
   fetchData: (params: any) => Promise<PaginatedResponse>;
   params: any;
+  isLoading?: any;
+  children?: React.ReactNode;
 }
 
 export const TablePaginated = memo(
@@ -38,9 +40,8 @@ export const TablePaginated = memo(
     const [sort, setSort] = useState('');
 
     const getData = async () => {
-      console.log('get');
-
       setIsLoading(true);
+      if (!!props.isLoading) return;
       const page = pageIndex + 1;
       try {
         const finalParams = {
@@ -49,9 +50,10 @@ export const TablePaginated = memo(
           sort,
           ...params,
         };
+        console.log('finalParams:', finalParams);
 
         const response = await fetchData(finalParams);
-        console.log({ response });
+        console.log('response:', response);
 
         setData(response.data);
         setCount(response.count);
@@ -66,6 +68,10 @@ export const TablePaginated = memo(
       }
     };
 
+    useEffect(() => {
+      getData();
+    }, [props.isLoading, pageIndex, pageSize, sort, JSON.stringify(params)]);
+
     const newColumns = columns.map((c) => {
       if (!c.sort) return c;
 
@@ -73,7 +79,6 @@ export const TablePaginated = memo(
         ...c,
         sort: (value: any) => {
           setSort(value);
-          getData();
         },
       };
     });
@@ -85,7 +90,6 @@ export const TablePaginated = memo(
     const handlePageChange = useCallback((event: React.MouseEvent<HTMLButtonElement> | null, value: number) => {
       event?.stopPropagation();
       setPageIndex(value);
-      getData();
     }, []);
 
     const [goto, setGoto] = useState<string | number>(1);
@@ -95,17 +99,15 @@ export const TablePaginated = memo(
       if (+event.target.value > 0 && +event.target.value <= totalPages) {
         setGoto(+event.target.value);
         setPageSize(+event.target.value - 1);
-        getData();
       } else {
         setGoto('');
-        getData();
       }
     };
 
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
     useEffect(() => {
-      const handleResize = () => {
+      const handleResize = (): void => {
         setWindowHeight(window.innerHeight);
       };
 
@@ -116,11 +118,13 @@ export const TablePaginated = memo(
       };
     }, []);
 
-    const dynamicHeight = `${windowHeight - 390}px`;
+    const dynamicHeight = `${windowHeight - 360}px`;
 
     return (
       <>
-        <TableBasic maxHeight={dynamicHeight} rows={data} columns={newColumns as any} isLoading={isLoading} />
+        <TableBasic maxHeight={dynamicHeight} rows={data} columns={newColumns as any} isLoading={isLoading}>
+          {props.children}
+        </TableBasic>
 
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 2, ml: 2, mr: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">

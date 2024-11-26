@@ -3,7 +3,15 @@ import { IHospitalRoomReservation, ISurgeryRoomReservation } from '../../types/p
 
 const apiHospitalSpace = '/api/Programacion/EspacioHospitalario';
 
-export const getSurgeryRoomsReservations = async ({endDate, initialDate, surgeryRoomId}: {endDate?: string, initialDate?: string, surgeryRoomId?: string}): Promise<ISurgeryRoomReservation[]> => {
+export const getSurgeryRoomsReservations = async ({
+  endDate,
+  initialDate,
+  surgeryRoomId,
+}: {
+  endDate?: string;
+  initialDate?: string;
+  surgeryRoomId?: string;
+}): Promise<ISurgeryRoomReservation[]> => {
   const res = await axios.get(`${apiHospitalSpace}/obtener-reservacion-quirofanos`, {
     params: {
       fechaInicial: initialDate,
@@ -14,13 +22,24 @@ export const getSurgeryRoomsReservations = async ({endDate, initialDate, surgery
   return res.data;
 };
 
-export const getHospitalRoomReservations = async (endDate?: string, initialDate?: string ): Promise<IHospitalRoomReservation[]> => {
+export const getHospitalRoomReservations = async ({
+  endDate,
+  initialDate,
+  roomId,
+  hospitalizationSpaceId,
+}: {
+  endDate?: string;
+  initialDate?: string;
+  roomId?: string;
+  hospitalizationSpaceId?: string;
+}): Promise<IHospitalRoomReservation[]> => {
   const res = await axios.get(`${apiHospitalSpace}/obtener-reservacion-cuartos`, {
     params: {
       fechaInicial: initialDate,
       fechaFinal: endDate,
+      id_Cuarto: roomId,
+      id_CuentaEspacioHospitalario: hospitalizationSpaceId,
     },
   });
   return res.data;
 };
-

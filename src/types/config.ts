@@ -1,4 +1,4 @@
-import { MenuOrientation, ThemeMode, ThemeDirection } from './config';
+import { MenuOrientation, ThemeMode, ThemeDirection } from '../config';
 
 export type FontFamily =
   | `'Inter', sans-serif`

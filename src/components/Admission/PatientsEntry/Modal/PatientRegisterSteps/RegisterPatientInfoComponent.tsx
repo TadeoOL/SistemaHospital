@@ -73,6 +73,9 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
     relationship,
     state,
     zipCode,
+    curp,
+    personInChargeCity,
+    personInChargeState,
   } = patient;
 
   const {
@@ -83,7 +86,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
     watch,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(hospitalization ? patientModifySchema : patientRegistrationSchema),
+    resolver: zodResolver(hospitalization ? patientModifySchema() : patientRegistrationSchema),
     defaultValues: {
       name,
       lastName,
@@ -100,11 +103,14 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
       personInCharge,
       personInChargePhoneNumber,
       personInChargeZipCode,
+      personInChargeCity,
+      personInChargeState,
       zipCode,
       personInChargeAddress,
       personInChargeNeighborhood,
       address,
       civilStatus,
+      curp,
     },
   });
 
@@ -119,19 +125,25 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
   const watchAddresPersonInCharge = watch('personInChargeAddress');
   const watchPersonInChargeZipCode = watch('personInChargeZipCode');
   const watchPersonInChargeNeighborhood = watch('personInChargeNeighborhood');
+  const watchPersonInChargeCity = watch('personInChargeCity');
+  const watchPersonInChargeState = watch('personInChargeState');
 
   const watchSameAddress = watch('sameAddress');
   const watchZipCode = watch('zipCode');
   const watchNeighborhood = watch('neighborhood');
   const watchAddress = watch('address');
+  const watchCity = watch('city');
+  const watchState = watch('state');
 
   useEffect(() => {
     if (watchSameAddress) {
       setValue('personInChargeAddress', watchAddress);
       setValue('personInChargeZipCode', watchZipCode);
       setValue('personInChargeNeighborhood', watchNeighborhood);
+      setValue('personInChargeCity', watchCity);
+      setValue('personInChargeState', watchState);
     }
-  }, [watchSameAddress, watchZipCode, watchAddress, watchNeighborhood]);
+  }, [watchSameAddress, watchZipCode, watchAddress, watchNeighborhood, watchCity, watchState]);
 
   useEffect(() => {
     if (
@@ -143,7 +155,9 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
       watchPersonInChargeZipCode &&
       watchAddresPersonInCharge === watchAddress &&
       watchNeighborhood === watchPersonInChargeNeighborhood &&
-      watchZipCode === watchPersonInChargeZipCode
+      watchZipCode === watchPersonInChargeZipCode &&
+      watchCity === watchPersonInChargeCity &&
+      watchState === watchPersonInChargeState
     ) {
       setValue('sameAddress', true);
     }
@@ -154,12 +168,16 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
     watchPersonInChargeNeighborhood,
     watchPersonInChargeZipCode,
     watchAddresPersonInCharge,
+    watchCity,
+    watchState,
+    watchPersonInChargeCity,
+    watchPersonInChargeState,
   ]);
 
   return (
     <Box sx={style}>
       <HeaderModal setOpen={setOpen} title="Alta de Paciente" />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))}>
         <Box
           sx={{
             display: 'flex',
@@ -264,7 +282,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
                     helperText={errors.phoneNumber?.message}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} md={4}>
                   <Typography sx={TYPOGRAPHY_STYLE}>Ocupación/Empleo</Typography>
                   <TextField
                     fullWidth
@@ -272,6 +290,16 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
                     {...register('occupation')}
                     error={!!errors.occupation?.message}
                     helperText={errors.occupation?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>CURP</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="CURP..."
+                    {...register('curp')}
+                    error={!!errors.curp?.message}
+                    helperText={errors.curp?.message}
                   />
                 </Grid>
                 <Grid item xs={12} md={3}>
@@ -383,6 +411,28 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
                     error={!!errors.personInChargeAddress?.message}
                     helperText={errors.personInChargeAddress?.message}
                     {...register('personInChargeAddress')}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Ciudad..."
+                    disabled={watchSameAddress}
+                    error={!!errors.personInChargeCity?.message}
+                    helperText={errors.personInChargeCity?.message}
+                    {...register('personInChargeCity')}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Estado..."
+                    disabled={watchSameAddress}
+                    error={!!errors.personInChargeState?.message}
+                    helperText={errors.personInChargeState?.message}
+                    {...register('personInChargeState')}
                   />
                 </Grid>
                 <Grid item xs={4}>

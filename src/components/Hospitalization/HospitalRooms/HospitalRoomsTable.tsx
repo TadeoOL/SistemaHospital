@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
+import { GenericChip } from '../../Commons/GenericChip';
 import dayjs from 'dayjs';
 import { useHospitalRoomsPaginationStore } from '../../../store/hospitalization/hospitalRoomsPagination';
 import { useEffect, useState } from 'react';
@@ -198,7 +198,7 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
         </TableCell>
         <TableCell>{data.nombrePaciente ? patientName : 'Sin asignar'}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={[]} />
+          <GenericChip data={data.cirugias?.map((cirugia, i) => ({ id: i.toString(), nombre: cirugia || '' })) || []} />
         </TableCell>
         <TableCell>{data.medico ? medicName : 'Sin asignar'}</TableCell>
         <TableCell>{data.fechaIngreso}</TableCell>
@@ -266,7 +266,7 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
         }}
       >
         <>
-          <HospitalRoomInformationModal hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario} setOpen={setOpen} />
+          <HospitalRoomInformationModal hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario} setOpen={setOpen} fromHospitalRoom />
         </>
       </Modal>
       <Modal open={openNurseRequest} onClose={() => setOpenNurseRequest(false)}>

@@ -1,6 +1,6 @@
 import { Box, InputLabel, Stack, TextField } from '@mui/material';
-import { FormControl, MenuItem, SxProps, Theme } from '@mui/material';
-import { forwardRef, useEffect, useState } from 'react';
+import { MenuItem, SxProps, Theme } from '@mui/material';
+import { forwardRef } from 'react';
 
 interface SelectComponentProps {
   sx?: SxProps<Theme>;
@@ -31,28 +31,41 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
     name,
     ...other
   } = props;
-  const [selected, setSelected] = useState('');
-
-  useEffect(() => {
-    setSelected(value || '');
-  }, [value]);
-
-  const handleChange = (e: any) => {
-    onChange && onChange(e);
-    const value = e?.target?.value || null;
-    setSelected(value || '');
-  };
-
+  
   const getUniqueProperty = (item: any) => {
     if (!uniqueProperty) return item;
+    if (!item) return '';
 
-    const result = item[uniqueProperty];
+    const result = item[uniqueProperty] || item;
 
     if (result === undefined) {
       console.error(`property ${uniqueProperty} not found in item:`, item);
     }
 
     return result;
+  };
+
+  const selected = (() => {
+    if (!options?.length || !value) {
+      return '';
+    }
+
+    const valueUnique = getUniqueProperty(value);
+
+    const found = options.find((item) => {
+      return getUniqueProperty(item) === valueUnique;
+    });
+
+    if (!found) {
+      console.error(`value ${valueUnique} not found in options:`, options);
+      return '';
+    }
+
+    return valueUnique;
+  })();
+
+  const handleChange = (e: any): any => {
+    onChange && onChange(e);
   };
 
   const getDisplayProperty = (item: any) => {
@@ -62,20 +75,20 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
   return (
     <Stack sx={{ ...sx }}>
       <>
-        <InputLabel>{label}</InputLabel>
-        <FormControl fullWidth>
+        <Stack spacing={1}>
+          <InputLabel>{label}</InputLabel>
           <TextField
             ref={ref as any}
             name={name}
             error={error}
             select
-            size={large ? undefined : 'small'}
             sx={{
+              backgroundColor: 'white',
               '& .MuiSelect-select span::before': {
                 content: `"${placeholder || ''}"`,
               },
             }}
-            value={options?.length ? selected || '' : ''}
+            value={selected}
             onChange={handleChange}
             {...other}
           >
@@ -85,7 +98,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
               </MenuItem>
             ))}
           </TextField>
-        </FormControl>
+        </Stack>
         <Box
           sx={{
             display: 'flex',

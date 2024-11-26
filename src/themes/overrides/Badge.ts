@@ -5,7 +5,7 @@ import { Theme } from '@mui/material/styles';
 import getColors from '../../utils/getColors';
 
 // types
-import { ExtendedStyleProps } from './types/extended';
+import { ExtendedStyleProps } from '@/types/extended';
 
 // ==============================|| BADGE - COLORS ||============================== //
 

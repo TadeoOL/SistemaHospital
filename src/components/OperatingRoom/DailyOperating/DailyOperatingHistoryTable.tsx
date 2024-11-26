@@ -14,7 +14,7 @@ import { useSurgeriesHistoryPagination } from '../../../store/operatingRoom/surg
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
-import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
+import { GenericChip } from '../../Commons/GenericChip';
 import { AllSurgeryInfoModal } from './Modal/AllSurgeryInfoModal';
 import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
 const HEADERS = ['Hora', 'Duración', 'Quirófano', 'Paciente', 'Cirugia', 'Cirujano', 'Anestesiologo'];
@@ -94,12 +94,12 @@ const DailyOperatingHistoryTableRow = (props: { data: IRoomInformationnew }) => 
           },
         }}
       >
-        <TableCell>{(data.horaInicio) + ' - ' +(data.horaFin)}</TableCell>
+        <TableCell>{data.horaInicio + ' - ' + data.horaFin}</TableCell>
         <TableCell>{data.tiempoEstimado}</TableCell>
         <TableCell>{data.paciente}</TableCell>
         <TableCell>{data.paciente}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={data.cirugias?.map((cir) => ({id: cir.id_cirugia, nombre: cir.nombre})) ?? [] } />
+          <GenericChip data={data.cirugias?.map((cir, i) => ({ id: i.toString(), nombre: cir.nombre })) || []} />
         </TableCell>
         <TableCell>{data.medico}</TableCell>
         <TableCell>{data.anestesiologo}</TableCell>

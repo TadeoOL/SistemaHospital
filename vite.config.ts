@@ -1,5 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { fileURLToPath, URL } from "url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,14 +12,22 @@ export default defineConfig({
   //     process.env.VITE_DEVELOP_API
   //   ),
   // },
+  resolve: {
+    alias: [
+      {
+        find: "@",
+        replacement: fileURLToPath(new URL("./src", import.meta.url)),
+      },
+    ],
+  },
   optimizeDeps: {
-    include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
+    include: ["@emotion/react", "@emotion/styled", "@mui/material/Tooltip"],
   },
   plugins: [
     react({
-      jsxImportSource: '@emotion/react',
+      jsxImportSource: "@emotion/react",
       babel: {
-        plugins: ['@emotion/babel-plugin'],
+        plugins: ["@emotion/babel-plugin"],
       },
     }),
   ],

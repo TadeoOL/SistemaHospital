@@ -1,6 +1,5 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
-import { getPatientRegisterPagination } from '../../services/programming/admissionRegisterService';
 import { IPatientRegisterPagination } from '../../types/admission/admissionTypes';
 import { getPatientAdmissionPagination } from '../../services/admission/admisionService';
 

@@ -7,10 +7,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
 // project imports
-import MainCard from './MainCard';
+import { MainCard } from './MainCard';
 import React from 'react';
 import { SortComponent } from '../../components/Commons/SortComponent';
-import { Box, Card, CircularProgress, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 export interface TableBasicColumn {
@@ -24,7 +24,8 @@ export interface TableBasicColumn {
 const getHeader = (column: TableBasicColumn, key: number) => {
   if (!column?.header) return null;
 
-  const { header, value, sort, width } = column as any;
+  const { header, value, sort } = column as any;
+  const width = column.width || 'auto';
   if (column.sort && typeof column.value === 'string') {
     return (
       <TableCell
@@ -53,9 +54,11 @@ const getHeader = (column: TableBasicColumn, key: number) => {
 const getCell = (column: TableBasicColumn, row: any, key: string) => {
   if (!column?.value) return null;
 
+  const width = column.width || 'auto';
+
   if (typeof column.value === 'string') {
     return (
-      <TableCell key={key} align={column.align || 'left'}>
+      <TableCell width={width} key={key} align={column.align || 'left'}>
         {row[column.value]}
       </TableCell>
     );
@@ -63,14 +66,14 @@ const getCell = (column: TableBasicColumn, row: any, key: string) => {
 
   if (typeof column.value === 'function') {
     return (
-      <TableCell key={key} align={column.align || 'left'}>
+      <TableCell width={width} key={key} align={column.align || 'left'}>
         {column.value(row)}
       </TableCell>
     );
   }
 
   return (
-    <TableCell key={key} align={column.align || 'left'}>
+    <TableCell width={width} key={key} align={column.align || 'left'}>
       {column.value}
     </TableCell>
   );
@@ -78,13 +81,18 @@ const getCell = (column: TableBasicColumn, row: any, key: string) => {
 
 export interface TableBasicProps {
   rows: any[];
+
   columns: TableBasicColumn[];
   isLoading?: boolean;
   maxHeight?: string;
+  children?: React.ReactNode;
 }
 
-export default function TableBasic(props: TableBasicProps) {
+export const TableBasic = (props: TableBasicProps) => {
   const { rows, columns, isLoading, maxHeight } = props;
+
+  const theme = useTheme();
+  const downSM = useMediaQuery(theme.breakpoints.down('sm'));
 
   if (isLoading)
     return (
@@ -103,6 +111,7 @@ export default function TableBasic(props: TableBasicProps) {
           alignItems: 'center',
           p: 2,
           columnGap: 1,
+          height: 150,
         }}
       >
         <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
@@ -115,8 +124,19 @@ export default function TableBasic(props: TableBasicProps) {
 
   return (
     <MainCard content={false}>
+      {props.children && (
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ padding: 2, ...(downSM && { '& .MuiOutlinedInput-root, & .MuiFormControl-root': { width: '100%' } }) }}
+        >
+          <>{props.children}</>
+        </Stack>
+      )}
       <TableContainer sx={{ maxHeight: maxHeight || undefined }}>
-        <Table stickyHeader sx={{ minWidth: 350 }} aria-label="simple table">
+        <Table stickyHeader sx={{ minWidth: 350 }}>
           <TableHead>
             <TableRow>{columns.map((column, i) => getHeader(column, i))}</TableRow>
           </TableHead>
@@ -131,4 +151,4 @@ export default function TableBasic(props: TableBasicProps) {
       </TableContainer>
     </MainCard>
   );
-}
+};

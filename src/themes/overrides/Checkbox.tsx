@@ -11,7 +11,7 @@ import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
 import MinusSquareFilled from '@ant-design/icons/MinusSquareFilled';
 
 // types
-import { ExtendedStyleProps } from './types/extended';
+import { ExtendedStyleProps } from '@/types/extended';
 
 // ==============================|| RADIO - COLORS ||============================== //
 

@@ -13,4 +13,3 @@ export interface IHospitalRoomReservation extends BaseEvent {
   nombreCuarto: string;
   id_Cuarto: string;
 }
-

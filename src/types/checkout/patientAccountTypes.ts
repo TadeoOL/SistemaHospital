@@ -113,8 +113,8 @@ export enum PatientAccountStatus {
 }
 
 export const PatientAccountStatusLabels: Record<PatientAccountStatus, string> = {
-  [PatientAccountStatus.Cancelled]: 'Cancelada',
-  [PatientAccountStatus.Scheduled]: 'Programada',
+  [PatientAccountStatus.Cancelled]: 'Cancelado',
+  [PatientAccountStatus.Scheduled]: 'Programado',
   [PatientAccountStatus.Admitted]: 'Ingresado',
   [PatientAccountStatus.Closed]: 'Cerrada',
   [PatientAccountStatus.Paid]: 'Pagada',

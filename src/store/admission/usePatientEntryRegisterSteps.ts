@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
+import { IClinicalData, IEventsCalendar, IPatient, IRegisterRoom } from '../../types/types';
 import { IBiomedicalEquipment } from '../../types/hospitalizationTypes';
 import { ISurgicalPackage } from '../../types/operatingRoom/surgicalPackageTypes';
 
@@ -21,6 +21,15 @@ const initialPatientValues: IPatient = {
   personInChargeNeighborhood: '',
   personInChargeAddress: '',
   personInChargePhoneNumber: '',
+  curp: '',
+};
+
+const initialClinicalDataValues: IClinicalData = {
+  admissionDiagnosis: '',
+  comments: '',
+  reasonForAdmission: '',
+  allergies: '',
+  bloodType: '',
 };
 
 interface State {
@@ -47,6 +56,7 @@ interface State {
     cantidadDisponible?: number;
   }[];
   medicPersonalBiomedicalEquipment: IBiomedicalEquipment[];
+  clinicalData: IClinicalData;
 }
 
 interface Actions {
@@ -76,6 +86,7 @@ interface Actions {
   setMedicPersonalBiomedicalEquipment: (medicPersonalBiomedicalEquipment: IBiomedicalEquipment[]) => void;
   setCabinetStudiesSelected: (cabinetStudiesSelected: { id: string; nombre: string }[]) => void;
   setPackageSelected: (packageSelected: ISurgicalPackage | null) => void;
+  setClinicalData: (clinicalData: IClinicalData) => void;
 }
 
 const initialValues = {
@@ -96,10 +107,12 @@ const initialValues = {
   medicPersonalBiomedicalEquipment: [],
   cabinetStudiesSelected: [],
   packageSelected: null,
+  clinicalData: initialClinicalDataValues,
 };
 
 export const usePatientEntryRegisterStepsStore = create<State & Actions>((set) => ({
   ...initialValues,
+  setClinicalData: (clinicalData: IClinicalData) => set({ clinicalData }),
   setPackageSelected: (packageSelected: ISurgicalPackage | null) => set({ packageSelected }),
   setCabinetStudiesSelected: (cabinetStudiesSelected: { id: string; nombre: string }[]) =>
     set({ cabinetStudiesSelected }),

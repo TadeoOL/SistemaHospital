@@ -1,28 +1,19 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  Checkbox,
-  CircularProgress,
-  Divider,
-  Grid,
-  MenuItem,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Checkbox, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { patientModifySchema } from '../../../../../schema/programming/programmingSchemas';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
-import { Paciente } from '../../../../../types/admissionTypes';
-import { getPatientById, modifyPatient } from '../../../../../services/programming/patientService';
-import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
+import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es-mx';
+import { IAdmitPatientCommand } from '../../../../../types/admission/admissionTypes';
+import { admitPatient } from '../../../../../services/admission/admisionService';
+import { useGetPatientInfo } from '../../../../../hooks/admission/useGetPatientInfo';
+import { FullscreenLoader } from '../../../../../common/components/FullscreenLoader';
+import { usePatientEntryPaginationStore } from '../../../../../store/admission/usePatientEntryPagination';
 dayjs.locale('es-mx');
 
 const style = {
@@ -30,12 +21,21 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 650 },
+  width: {
+    xs: '95%',
+    sm: '90%',
+    md: '80%',
+    lg: '75%',
+  },
+  maxWidth: '1000px',
+  maxHeight: '90vh',
+  height: '90vh',
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 650, md: 800 },
+  bgcolor: 'background.paper',
+  overflow: 'hidden',
 };
 
 const scrollBarStyle = {
@@ -76,52 +76,69 @@ type Inputs = {
   personInChargePhoneNumber: string;
   state: string;
   city: string;
+  reasonForAdmission: string;
+  admissionDiagnosis: string;
+  allergies: string;
+  bloodType: string;
+  comments: string;
+  curp: string;
+  personInChargeCity: string;
+  personInChargeState: string;
 };
 
 interface EditPersonalInfoModalProps {
   setOpen: Function;
-  patientId: string;
+  id_IngresoPaciente: string;
+  admit?: boolean;
 }
 
-const useGetPersonalData = (patientId: string) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [personalData, setPersonalData] = useState<Paciente>();
-
-  useEffect(() => {
-    setIsLoading(true);
-    const fetchData = async () => {
-      try {
-        const res = await getPatientById(patientId);
-        setPersonalData(res);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-  return {
-    isLoading,
-    personalData,
-  };
-};
+const BLOOD_TYPE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
-  const { isLoading, personalData } = useGetPersonalData(props.patientId);
-  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+  const { data: personalData, isLoading } = useGetPatientInfo(props.id_IngresoPaciente);
+  const refetch = usePatientEntryPaginationStore((state) => state.fetchData);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    const id = props.patientId;
-    const { sameAddress, ...rest } = data;
-    const obj = {
-      id,
-      ...rest,
+    const obj: IAdmitPatientCommand = {
+      id_IngresoPaciente: props.id_IngresoPaciente,
+      datosClinicos: {
+        motivoIngreso: data.reasonForAdmission,
+        diagnosticoIngreso: data.admissionDiagnosis,
+        comentarios: data.comments,
+      },
+      paciente: {
+        nombre: data.name,
+        apellidoPaterno: data.lastName,
+        apellidoMaterno: data.secondLastName,
+        fechaNacimiento: data.birthDate,
+        genero: data.genere,
+        estadoCivil: data.civilStatus,
+        telefono: data.phoneNumber,
+        ocupacion: data.occupation,
+        alergias: data.allergies,
+        tipoSangre: data.bloodType,
+        codigoPostal: data.zipCode,
+        colonia: data.neighborhood,
+        direccion: data.address,
+        curp: data.curp,
+        ciudad: data.city,
+        estado: data.state,
+      },
+      responsablePaciente: {
+        nombreResponsable: data.personInCharge,
+        parentesco: data.relationship,
+        coloniaResponsable: data.personInChargeNeighborhood,
+        domicilioResponsable: data.personInChargeAddress,
+        ciudadResponsable: data.personInChargeCity,
+        estadoResponsable: data.personInChargeState,
+        telefonoResponsable: data.personInChargePhoneNumber,
+        codigoPostalResponsable: data.personInChargeZipCode,
+      },
     };
 
     Swal.fire({
       title: '¿Estas seguro?',
-      text: 'Estas a punto de modificar los datos',
+      text: `Estas a punto de ${props.admit ? 'admitir al paciente' : 'modificar los datos'}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -132,11 +149,11 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await modifyPatient(obj);
+          await admitPatient(obj);
           refetch();
           Swal.fire({
             title: 'Actualizado!',
-            text: 'Datos actualizados correctamente',
+            text: `${props.admit ? 'Paciente admitido' : 'Datos actualizados'} correctamente`,
             icon: 'success',
             showConfirmButton: false,
             timer: 1000,
@@ -146,7 +163,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
           console.log(error);
           Swal.fire({
             title: 'Error!',
-            text: `No se pudo actualizar el paciente`,
+            text: `${props.admit ? 'No se pudo admitir al paciente' : 'No se pudo actualizar los datos'}`,
             icon: 'error',
             showConfirmButton: false,
             timer: 1000,
@@ -164,64 +181,67 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     setValue,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(patientModifySchema),
-    defaultValues: {
-      genere: '',
+    resolver: zodResolver(patientModifySchema(true)),
+    values: {
+      name: personalData?.paciente?.nombre || '',
+      lastName: personalData?.paciente?.apellidoPaterno || '',
+      secondLastName: personalData?.paciente?.apellidoMaterno || '',
+      birthDate: personalData?.paciente?.fechaNacimiento ? new Date(personalData.paciente.fechaNacimiento) : new Date(),
+      genere: personalData?.paciente?.genero || '',
+      civilStatus: personalData?.paciente?.estadoCivil || '',
+      phoneNumber: personalData?.paciente?.telefono || '',
+      occupation: personalData?.paciente?.ocupacion || '',
+      zipCode: personalData?.paciente?.codigoPostal || '',
+      neighborhood: personalData?.paciente?.colonia || '',
+      address: personalData?.paciente?.direccion || '',
+      curp: personalData?.paciente?.curp || '',
+      city: personalData?.paciente?.ciudad || '',
+      state: personalData?.paciente?.estado || '',
+
+      personInCharge: personalData?.responsablePaciente?.nombreResponsable || '',
+      relationship: personalData?.responsablePaciente?.parentesco || '',
+      personInChargeZipCode: personalData?.responsablePaciente?.codigoPostalResponsable || '',
+      personInChargeNeighborhood: personalData?.responsablePaciente?.coloniaResponsable || '',
+      personInChargeAddress: personalData?.responsablePaciente?.domicilioResponsable || '',
+      personInChargePhoneNumber: personalData?.responsablePaciente?.telefonoResponsable || '',
+      personInChargeCity: personalData?.responsablePaciente?.ciudadResponsable || '',
+      personInChargeState: personalData?.responsablePaciente?.estadoResponsable || '',
+
+      reasonForAdmission: personalData?.datosClinicos?.motivoIngreso || '',
+      admissionDiagnosis: personalData?.datosClinicos?.diagnosticoIngreso || '',
+      allergies: personalData?.paciente?.alergias || '',
+      bloodType: personalData?.paciente?.tipoSangre || '',
+      comments: personalData?.datosClinicos?.comentarios || '',
+
       sameAddress: false,
     },
+    disabled: isLoading,
   });
-
-  const defaultValues = {
-    name: personalData?.nombre,
-    lastName: personalData?.apellidoPaterno,
-    secondLastName: personalData?.apellidoMaterno,
-    phoneNumber: personalData?.telefono,
-    genere: personalData?.genero ? personalData.genero : '',
-    zipCode: personalData?.codigoPostal,
-    personInChargeZipCode: personalData?.codigoPostalResponsable,
-    neighborhood: personalData?.colonia,
-    personInChargeNeighborhood: personalData?.coloniaResponsable,
-    address: personalData?.direccion,
-    personInChargeAddress: personalData?.domicilioResponsable,
-    civilStatus: personalData?.estadoCivil,
-    personInCharge: personalData?.nombreResponsable,
-    occupation: personalData?.ocupacion,
-    relationship: personalData?.parentesco,
-    personInChargePhoneNumber: personalData?.telefonoResponsable,
-    state: personalData?.estado,
-    city: personalData?.ciudad,
-    birthDate: new Date(personalData?.fechaNacimiento as Date),
-  };
 
   const watchAddresPersonInCharge = watch('personInChargeAddress');
   const watchPersonInChargeZipCode = watch('personInChargeZipCode');
   const watchPersonInChargeNeighborhood = watch('personInChargeNeighborhood');
+  const watchPersonInChargeCity = watch('personInChargeCity');
+  const watchPersonInChargeState = watch('personInChargeState');
 
   const watchSameAddress = watch('sameAddress');
   const watchZipCode = watch('zipCode');
   const watchNeighborhood = watch('neighborhood');
   const watchAddress = watch('address');
+  const watchCity = watch('city');
+  const watchState = watch('state');
   const watchGenere = watch('genere');
-
-  useEffect(() => {
-    if (!isLoading) {
-      Object.keys(defaultValues).forEach((key) => {
-        if (key === 'birthDate') {
-          setValue(key as keyof typeof defaultValues, defaultValues[key as keyof typeof defaultValues] as Date);
-        } else {
-          setValue(key as keyof typeof defaultValues, defaultValues[key as keyof typeof defaultValues] as string);
-        }
-      });
-    }
-  }, [isLoading, setValue]);
+  const watchBloodType = watch('bloodType');
 
   useEffect(() => {
     if (watchSameAddress) {
       setValue('personInChargeAddress', watchAddress);
       setValue('personInChargeZipCode', watchZipCode);
       setValue('personInChargeNeighborhood', watchNeighborhood);
+      setValue('personInChargeCity', watchCity);
+      setValue('personInChargeState', watchState);
     }
-  }, [watchSameAddress, watchZipCode, watchAddress, watchNeighborhood]);
+  }, [watchSameAddress, watchZipCode, watchAddress, watchNeighborhood, watchCity, watchState]);
 
   useEffect(() => {
     if (
@@ -233,7 +253,9 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
       watchPersonInChargeZipCode &&
       watchAddresPersonInCharge === watchAddress &&
       watchNeighborhood === watchPersonInChargeNeighborhood &&
-      watchZipCode === watchPersonInChargeZipCode
+      watchZipCode === watchPersonInChargeZipCode &&
+      watchCity === watchPersonInChargeCity &&
+      watchState === watchPersonInChargeState
     ) {
       setValue('sameAddress', true);
     }
@@ -241,40 +263,42 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     watchAddress,
     watchZipCode,
     watchNeighborhood,
+    watchCity,
+    watchState,
     watchPersonInChargeNeighborhood,
     watchPersonInChargeZipCode,
     watchAddresPersonInCharge,
+    watchPersonInChargeCity,
+    watchPersonInChargeState,
   ]);
 
-  if (!personalData)
-    return (
-      <Backdrop open>
-        <CircularProgress size={15} />
-      </Backdrop>
-    );
+  if (isLoading) return <FullscreenLoader />;
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Alta de Paciente" />
-      <form
+      <Box
+        component="form"
         onSubmit={handleSubmit(onSubmit, (e) => {
           console.log(e);
         })}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden',
+        }}
       >
         <Box
           sx={{
-            display: 'flex',
             flex: 1,
-            flexDirection: 'column',
-            p: 3,
-            bgcolor: 'background.paper',
             overflowY: 'auto',
-            maxHeight: { xs: 500, md: 500 },
+            p: { xs: 1, sm: 2 },
             ...scrollBarStyle,
           }}
         >
           <Typography sx={{ fontSize: 18, fontWeight: 500 }}>Paciente</Typography>
           <Divider sx={{ my: 1 }} />
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Nombre</Typography>
               <TextField
@@ -373,7 +397,17 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.occupation?.message}
               />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
+              <Typography sx={TYPOGRAPHY_STYLE}>CURP</Typography>
+              <TextField
+                fullWidth
+                placeholder="CURP..."
+                {...register('curp')}
+                error={!!errors.curp?.message}
+                helperText={errors.curp?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
               <TextField
                 fullWidth
@@ -383,7 +417,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 helperText={errors.zipCode?.message}
               />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
               <TextField
                 fullWidth
@@ -494,6 +528,91 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 {...register('personInChargePhoneNumber')}
               />
             </Grid>
+            <Grid item xs={4}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
+              <TextField
+                fullWidth
+                placeholder="Ciudad..."
+                error={!!errors.personInChargeCity?.message}
+                helperText={errors.personInChargeCity?.message}
+                {...register('personInChargeCity')}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
+              <TextField
+                fullWidth
+                placeholder="Estado..."
+                error={!!errors.personInChargeState?.message}
+                helperText={errors.personInChargeState?.message}
+                {...register('personInChargeState')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos clínicos</Typography>
+              <Divider sx={{ my: 1 }} />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Motivo de ingreso</Typography>
+              <TextField
+                fullWidth
+                multiline
+                placeholder="Motivo de ingreso..."
+                {...register('reasonForAdmission')}
+                error={!!errors.reasonForAdmission?.message}
+                helperText={errors.reasonForAdmission?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Diagnostico de ingreso</Typography>
+              <TextField
+                fullWidth
+                multiline
+                placeholder="Diagnostico de ingreso..."
+                {...register('admissionDiagnosis')}
+                error={!!errors.admissionDiagnosis?.message}
+                helperText={errors.admissionDiagnosis?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Alergias</Typography>
+              <TextField
+                fullWidth
+                placeholder="Alergias..."
+                {...register('allergies')}
+                error={!!errors.allergies?.message}
+                helperText={errors.allergies?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Tipo de sangre</Typography>
+              <TextField
+                fullWidth
+                select
+                value={watchBloodType}
+                placeholder="Tipo de sangre..."
+                {...register('bloodType')}
+                error={!!errors.bloodType?.message}
+                helperText={errors.bloodType?.message}
+              >
+                {BLOOD_TYPE.map((bt) => (
+                  <MenuItem key={bt} value={bt}>
+                    {bt}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography sx={TYPOGRAPHY_STYLE}>Comentarios</Typography>
+              <TextField
+                fullWidth
+                multiline
+                placeholder="Comentarios..."
+                {...register('comments')}
+                error={!!errors.comments?.message}
+                helperText={errors.comments?.message}
+              />
+            </Grid>
           </Grid>
         </Box>
         <Box
@@ -501,10 +620,10 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
             display: 'flex',
             justifyContent: 'space-between',
             gap: 1,
-            borderBottomLeftRadius: 10,
-            borderBottomRightRadius: 10,
-            bgcolor: 'background.paper',
             p: 1,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
           }}
         >
           <Button variant="outlined" onClick={() => props.setOpen(false)} color="error">
@@ -514,7 +633,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
             Aceptar
           </Button>
         </Box>
-      </form>
+      </Box>
     </Box>
   );
 };

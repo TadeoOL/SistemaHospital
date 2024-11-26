@@ -20,10 +20,10 @@ export const useGetHospitalizationAppointments = (
       try {
         const formattedDate = date.toISOString();
         let res: ISurgeryRoomReservation[] | IHospitalRoomReservation[];
-        if(roomType === 1){
-          res = await getSurgeryRoomsReservations({endDate:formattedDate});
-        }else{
-          res = await getHospitalRoomReservations(formattedDate);
+        if (roomType === 1) {
+          res = await getSurgeryRoomsReservations({ endDate: formattedDate });
+        } else {
+          res = await getHospitalRoomReservations({ endDate: formattedDate });
         }
         if (res.length > 0) {
           const formattedRes = res.map((event) => {
