@@ -74,7 +74,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   }, [open]);
 
   const handleError = (err: any) => {
-    console.log({ err });
+    onSubmit(watch());
   };
 
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
@@ -94,7 +94,6 @@ export const ArticleModal = (props: ArticleModalProps) => {
       onClose();
       toast.success('Articulo creado con éxito!');
     } catch (error) {
-      console.log('error:', error);
       toast.error('Error al crear el articulo!');
     }
   };
