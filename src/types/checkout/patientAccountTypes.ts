@@ -12,6 +12,7 @@ export interface IPatientAccountPagination {
 
 export interface IPatientAccount {
   id: string;
+  estatusCuenta: number;
   paciente?: IPatientInfo;
   cuartos?: IRoom[];
   quirofanos?: IOperatingRoom[];

@@ -140,17 +140,6 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
     ];
   };
 
-  const now = (() => {
-    const date = new Date();
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    return `${day}/${month}/${year} - ${hours}:${minutes}`;
-  })();
-
-  //TODO agregar los datos de la cuenta
   const patientInfoRows = [
     {
       title: 'Nombre: ',
@@ -158,7 +147,7 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
     },
     {
       title: 'Fecha: ',
-      value: now,
+      value: accountInfo.paciente?.fechaCierreCuenta ? accountInfo.paciente?.fechaIngreso : null,
     },
     {
       title: 'Nombre Doctor: ',
@@ -180,23 +169,25 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
     //   title: 'Total de Medicamento: ',
     //   value: '$5340.21',
     // },
-  ].map((r) => {
-    return [
-      {
-        margin: [0, 0, 0, -3],
-        border: [false, false, false, false],
-        text: [
-          {
-            text: r.title,
-            bold: true,
-          },
-          {
-            text: r.value,
-          },
-        ],
-      },
-    ];
-  });
+  ]
+    .filter((r) => r.value)
+    .map((r) => {
+      return [
+        {
+          margin: [0, 0, 0, -3],
+          border: [false, false, false, false],
+          text: [
+            {
+              text: r.title,
+              bold: true,
+            },
+            {
+              text: r.value,
+            },
+          ],
+        },
+      ];
+    });
 
   const patientInfoTable = {
     margin: [0, 0, 20, 20],

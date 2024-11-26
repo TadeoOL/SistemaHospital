@@ -77,6 +77,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   // const profile = useAuthStore(useShallow((state) => state.profile));
   const [notes, setNotes] = useState('');
   const { data, isLoading, error } = useGetPatientAccount(props.id_Cuenta);
+  const viewOnly = data?.estatusCuenta !== PatientAccountStatus.Admitted;
 
   // const [discount, setDiscount] = useState('');
   // const [discountPercent, setDiscountPercent] = useState('');
@@ -333,7 +334,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   { key: 'iva', header: 'IVA' },
                   { key: 'total', header: 'Precio Total' },
                 ]}
-                isOperatingRoom={!props.viewOnly}
+                isOperatingRoom={!viewOnly}
                 modified={modified}
                 setModified={setModified}
                 id_PatientBill={props.id_Cuenta}
@@ -602,11 +603,11 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cancelar
         </Button>
-        {!props.viewOnly && (
+        {!viewOnly && (
           <Button
             variant="contained"
             type="submit"
-            disabled={isLoading || props.viewOnly}
+            disabled={isLoading}
             onClick={() => {
               acceptRequest();
             }}
@@ -773,7 +774,7 @@ export const DataTable = <T,>({
                 <TableRow key={index}>
                   {columns.map((col) => {
                     const cellValue = row[col.key];
-                    if (col.key === 'neto' && row.netoDescuento !== undefined) {
+                    if (col.key === 'neto' && row.netoDescuento !== undefined && row.netoDescuento !== null) {
                       return (
                         <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
                           <PriceCell originalPrice={cellValue} discountedPrice={row.netoDescuento} />
