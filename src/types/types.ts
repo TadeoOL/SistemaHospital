@@ -786,8 +786,11 @@ export interface IPatient {
   personInChargeNeighborhood?: string;
   personInChargeAddress?: string;
   personInChargePhoneNumber?: string;
+  personInChargeCity?: string;
+  personInChargeState?: string;
   state?: string;
   city?: string;
+  curp?: string;
 }
 
 export interface IClinicalData {

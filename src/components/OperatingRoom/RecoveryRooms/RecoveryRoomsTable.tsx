@@ -18,7 +18,8 @@ import {
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
 import dayjs from 'dayjs';
-import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
+import { GenericChip } from '../../Commons/GenericChip';
+import { useRecoveryRoomsPaginationStore } from '../../../store/operatingRoom/recoveryRoomsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
@@ -114,33 +115,39 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
         <TableCell>{data?.quirofano}</TableCell>
         <TableCell>{data?.paciente}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip surgeries={data?.cirugias?.map((cir) => ({id: cir.id_Cirugia, nombre: cir.nombre})) ?? []} />
+          <GenericChip data={data?.cirugias?.map((cir, i) => ({ id: i.toString(), nombre: cir.nombre })) || []} />
         </TableCell>
         <TableCell>{data?.medico}</TableCell>
         <TableCell>
-        <Tooltip title="Ver Información">
-              <IconButton
-                onClick={() => {
-                  setOpenClinicalData(true)
-                }}
-              >
-                <InfoOutlined />
-              </IconButton>
-            </Tooltip>
+          <Tooltip title="Ver Información">
+            <IconButton
+              onClick={() => {
+                setOpenClinicalData(true);
+              }}
+            >
+              <InfoOutlined />
+            </IconButton>
+          </Tooltip>
         </TableCell>
         <TableCell>
           {data?.estatus == 4 && (
-              <Tooltip title="Cerrar recuperación">
-                <IconButton onClick={handleClick}>
-                  <DoneAll style={{ color: 'red' }} />
-                </IconButton>
-              </Tooltip>
-            )}
-          {data?.estatus == 5 && (<Tooltip title="Dar de alta a paciente">
-            <IconButton onClick={()=>{setOpenDischargeModal(true)}}>
-              <HowToReg />
-            </IconButton>
-          </Tooltip>)}
+            <Tooltip title="Cerrar recuperación">
+              <IconButton onClick={handleClick}>
+                <DoneAll style={{ color: 'red' }} />
+              </IconButton>
+            </Tooltip>
+          )}
+          {data?.estatus == 5 && (
+            <Tooltip title="Dar de alta a paciente">
+              <IconButton
+                onClick={() => {
+                  setOpenDischargeModal(true);
+                }}
+              >
+                <HowToReg />
+              </IconButton>
+            </Tooltip>
+          )}
         </TableCell>
       </TableRow>
       <Menu
@@ -201,7 +208,11 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
         }}
       >
         <>
-          <HospitalRoomInformationModal hospitalSpaceAccountId={data?.id_CuentaEspacioHospitalario ?? ''} setOpen={setOpenClinicalData} fromHospitalRoom={false} />
+          <HospitalRoomInformationModal
+            hospitalSpaceAccountId={data?.id_CuentaEspacioHospitalario ?? ''}
+            setOpen={setOpenClinicalData}
+            fromHospitalRoom={false}
+          />
         </>
       </Modal>
     </>

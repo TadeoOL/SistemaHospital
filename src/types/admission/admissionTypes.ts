@@ -1,4 +1,4 @@
-import { IRecoveryRoomOperatingRoom } from "../operatingRoom/operatingRoomTypes";
+import { IRecoveryRoomOperatingRoom } from '../operatingRoom/operatingRoomTypes';
 
 export interface IEventDetails {
   id: string;
@@ -94,7 +94,7 @@ export interface PacienteInfo {
 
 export enum HospitalSpaceType {
   OperatingRoom = 1,
-  Room = 2
+  Room = 2,
 }
 
 export interface IHospitalSpace {
@@ -110,6 +110,7 @@ export interface IHospitalSpace {
 export interface ISurgicalProcedure {
   id_Cirugia: string;
   nombre: string;
+  precio: number;
 }
 
 export interface ICuartosInfo {
@@ -120,18 +121,20 @@ export interface ICuartosInfo {
 }
 
 export interface IPatientRegisterPagination {
-  id: string;
-  clavePaciente: string;
-  nombrePaciente: string;
-  fechaIngreso: Date;
+  id_IngresoPaciente: string;
   id_Paciente: string;
-  id_HistorialClinico: string;
-  faltanDatos?: boolean;
-  admitido?: boolean;
-  procedimientos?: Procedimiento[];
-  cuartos?: string;
+  id_Medico: string;
+  clavePaciente?: string;
+  cirugias?: ISurgicalProcedure[];
+  nombrePaciente?: string;
   medico?: string;
-  id_Medico?: string;
+  id_CuentaPaciente?: string;
+  quirofano?: string;
+  fechaProgramacion?: Date;
+  procedimientos?: ISurgicalProcedure[];
+  admitido: boolean;
+  espaciosHospitalarios?: string[];
+  estatus: number;
 }
 
 export interface IPatientAccount {
@@ -210,4 +213,65 @@ export interface ISAMIPatient {
   codigoPostal: string;
   nombreResponsable: string;
   estadoCivil: string;
+}
+
+export interface IRegisterPatientAdmissionCommand {
+  paciente: IPatientAdmissionDto;
+  registroCuarto?: IHospitalSpaceRecordDto;
+  id_Medico: string;
+  procedimientos: string[];
+  ingresosPaciente?: IPatientAdmissionEntranceDto;
+}
+
+export interface IPatientAdmissionDto {
+  nombre?: string;
+  apellidoPaterno?: string;
+  apellidoMaterno?: string;
+  fechaNacimiento?: Date;
+  genero?: string;
+  estadoCivil?: string;
+  telefono?: string;
+  ocupacion?: string;
+  codigoPostal?: string;
+  colonia?: string;
+  direccion?: string;
+  tipoSangre?: string;
+  alergias?: string;
+  curp?: string;
+  estado?: string;
+  ciudad?: string;
+}
+
+export interface IPatientAdmissionEntranceDto {
+  nombreResponsable?: string;
+  parentesco?: string;
+  domicilioResponsable?: string;
+  coloniaResponsable?: string;
+  codigoPostalResponsable?: string;
+  telefonoResponsable?: string;
+  motivoIngreso?: string;
+  diagnosticoIngreso?: string;
+  comentarios?: string;
+  estadoResponsable?: string;
+  ciudadResponsable?: string;
+}
+
+export interface IHospitalSpaceRecordDto {
+  id_EspacioHospitalario: string;
+  horaInicio: Date;
+  horaFin: Date;
+}
+
+export interface IAdmitPatientCommand {
+  id_IngresoPaciente: string;
+  paciente?: IPatientAdmissionDto;
+  responsablePaciente?: Omit<IPatientAdmissionEntranceDto, 'motivoIngreso' | 'diagnosticoIngreso' | 'comentarios'>;
+  datosClinicos?: Pick<IPatientAdmissionEntranceDto, 'motivoIngreso' | 'diagnosticoIngreso' | 'comentarios'>;
+}
+
+export interface IPatientHospitalSpace
+  extends Pick<IHospitalSpace, 'id_EspacioHospitalario' | 'tipoEspacioHospitalario'>,
+    ICuartosInfo {
+  estatus: number;
+  id_TipoCuarto: string;
 }

@@ -13,6 +13,9 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { DataTable, PatientInformation } from '../../../Hospitalization/AcountsManagement/Modal/CloseAccount';
 import { usePatientRegisterPaginationStore } from '../../../../store/programming/patientRegisterPagination';
+import { useGetPatientAccount } from '../../../../hooks/checkout/useGetPatientAccount';
+import { createPatientAccountDeposit } from '../../../../services/checkout/patientAccount';
+import { DepositType, IPatientInfo } from '../../../../types/checkout/patientAccountTypes';
 
 const style = {
   position: 'absolute',
@@ -45,42 +48,27 @@ const style2 = {
 interface PatientEntryAdvanceModalProps {
   setOpen: Function;
   isEntryPayment: boolean; //Si es true es el anticipo para darle admision, si no es un abono a la cuenta normal
-  id_Registro: string;
-  id_Paciente: string;
+  id_CuentaPaciente: string;
 }
 
 export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) => {
   const conn = useConnectionSocket((state) => state.conn);
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
-  const [accountInfo, setAccountInfo] = useState<IAcountAllInformationAdmission | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [advance, setAdvance] = useState('');
   const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
-
-  useEffect(() => {
-    const fetchAccountInfo = async () => {
-      setIsLoading(true);
-      try {
-        const paramURL = `Id_Paciente=${props.id_Paciente}&Id_Registro=${props.id_Registro}`;
-        const accountRes = await getAccountAdmissionInformation(paramURL);
-        setAccountInfo(accountRes);
-        setAdvance(handleCalcAnticipo(accountRes.totalPagoCuenta as number));
-      } catch (error) {
-        console.log(error);
-        console.log('La cuenta aun no se puede cerrar');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAccountInfo();
-  }, []);
+  const { data: accountInfo, isLoading } = useGetPatientAccount(props.id_CuentaPaciente);
+  const [advance, setAdvance] = useState('');
 
   const handleCalcAnticipo = (total: number) => {
     const result = (total * 0.2).toFixed(2);
     return result;
   };
+
+  useEffect(() => {
+    if (accountInfo) {
+      setAdvance(handleCalcAnticipo(accountInfo.totalRestante));
+    }
+  }, [accountInfo]);
 
   const handleSubmit = async () => {
     setIsLoadingSubmit(true);
@@ -103,25 +91,24 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
       return;
     }
     try {
-      await admitRegister({ Id_Registro: accountInfo.id });
+      // await admitRegister({ Id_Registro: accountInfo.id });
       const object = {
-        paciente: `${accountInfo.paciente.nombre || ''} ${accountInfo.paciente.apellidoPaterno || ''} ${accountInfo.paciente.apellidoPaterno || ''}`,
-        totalVenta: parseFloat(inputRef.current.value),
-        moduloProveniente: 'Admision',
-        id_CuentaPaciente: accountInfo.id_CuentaPaciente,
+        cantidad: parseFloat(inputRef.current.value),
+        tipoDeposito: DepositType.Advance,
+        id_CuentaPaciente: props.id_CuentaPaciente,
       };
       console.log({ object });
-      const res = await registerSell(object);
+      const res = await createPatientAccountDeposit(object);
       const resObj = {
         estatus: res.estadoVenta,
         folio: res.folio,
         id_VentaPrincipal: res.id,
-        moduloProveniente: res.moduloProveniente,
-        paciente: res.paciente,
+        moduloProveniente: 'Cierre cuenta',
+        paciente: `${accountInfo.paciente?.nombrePaciente || ''}`,
         totalVenta: res.totalVenta,
         tipoPago: res.tipoPago,
-        id_UsuarioPase: res.id_UsuarioPase,
-        nombreUsuario: res.nombreUsuario,
+        id_UsuarioPase: res.id_UsuarioVenta,
+        nombreUsuario: res.usuarioVenta?.nombre,
       };
       conn.invoke('SendSell', resObj);
       refetch();
@@ -163,14 +150,15 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
       event.preventDefault(); // Evitar la entrada si no es válida
     }
   };
+  const totalServices = accountInfo?.servicios?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalArticles = accountInfo?.articulos?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalEquipment = accountInfo?.equipoHonorario?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
 
   return (
     <Box sx={style}>
       <HeaderModal
         setOpen={props.setOpen}
-        title={`Admisión paciente ${
-          accountInfo ? ` - Paciente: ${accountInfo.paciente.nombre} ${accountInfo.paciente.apellidoPaterno}` : ''
-        }`}
+        title={`Admisión paciente ${accountInfo ? ` - Paciente: ${accountInfo.paciente?.nombrePaciente || ''}` : ''}`}
       />
       <Box sx={style2}>
         {isLoading ? (
@@ -181,105 +169,90 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
           accountInfo && (
             <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
               <PatientInformation
-                patient={accountInfo.paciente}
-                medic={accountInfo.medico}
-                isHospitalization={accountInfo.esHospitalizacion}
-                ventaConcepto={accountInfo.ventaConcepto}
-                ventaArticuloIVA={accountInfo.ventaArticuloIVA}
-                ventaArticuloSinIVA={accountInfo.ventaArticuloSinIVA}
+                patient={accountInfo.paciente ?? ({} as IPatientInfo)}
+                medic={accountInfo.paciente?.nombreMedico || ''}
+                isHospitalization={false}
+                ventaConcepto={totalServices}
+                ventaArticuloIVA={totalArticles}
+                ventaArticuloSinIVA={totalEquipment}
               />
               <DataTable
                 title="Cuartos"
-                data={accountInfo.cuartos}
+                data={accountInfo.cuartos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
                   { key: 'cantidadDias', header: 'Cantidad de Dias' },
                   { key: 'precioDia', header: 'Precio por Dia' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precioTotal', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
               />
               <DataTable
                 title="Quirofanos / Recuperacion"
-                data={accountInfo.quirofanos}
+                data={accountInfo.quirofanos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'tiempoCirugia', header: 'Tiempo' },
-                  { key: 'precioHora', header: 'Precio por Hora' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precioTotal', header: 'Precio Total' },
+                  { key: 'tiempo', header: 'Tiempo' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
               />
               <DataTable
                 title="Procedimientos"
-                data={accountInfo.procedimientos}
+                data={accountInfo.cirugias ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                   // { key: 'estatus', header: 'Estatus' },
                 ]}
               />
               <DataTable
-                title="Estudios de Gabinete"
-                data={accountInfo.registrosRadiografias}
-                columns={[
-                  { key: 'folio', header: 'Folio' },
-                  { key: 'nombre', header: 'Nombre' },
-                  { key: 'nombreSolicitante', header: 'Nombre del Solicitante' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
-                  // { key: 'estatus', header: 'Estatus' },
-                ]}
-              />
-              <DataTable
-                title="Equipos Biomédicos"
-                data={accountInfo.registrosEquiposBiomedicos}
+                title="Servicios"
+                data={accountInfo.servicios ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
               />
+
               <DataTable
                 title="Equipos Biomédicos Externos"
-                data={accountInfo.registrosEquiposBiomedicosHonorario}
+                data={accountInfo.equipoHonorario ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'IVA' },
-                  { key: 'precio', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
               />
               <DataTable
                 title="Artículos"
-                data={accountInfo.articulos}
+                data={accountInfo.articulos ?? []}
                 columns={[
                   { key: 'nombre', header: 'Nombre' },
-                  { key: 'cantidad', header: 'Cantidad' },
-                  { key: 'solicitud', header: 'Solicitud' },
+                  { key: 'solicitadoEn', header: 'Solicitado en' },
                   { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
-                  { key: 'precioVenta', header: 'Precio Unitario' },
-                  { key: 'precioNeto', header: 'Precio Neto' },
-                  { key: 'precioIVA', header: 'Precio IVA' },
-                  { key: 'precioTotal', header: 'Precio Total' },
+                  { key: 'neto', header: 'Precio Neto' },
+                  { key: 'iva', header: 'IVA' },
+                  { key: 'total', header: 'Precio Total' },
                 ]}
               />
-              {!props.isEntryPayment && (
-                <DataTable
-                  title="Pagos de la Cuenta"
-                  data={accountInfo.pagosCuenta}
-                  columns={[
-                    { key: 'folio', header: 'Folio' },
-                    { key: 'total', header: 'Monto' },
-                  ]}
-                />
-              )}
+
+              <DataTable
+                title="Pagos de la Cuenta"
+                data={accountInfo.pagosCuenta ?? []}
+                columns={[
+                  { key: 'folio', header: 'Folio' },
+                  { key: 'fechaPago', header: 'Fecha de Pago' },
+                  { key: 'monto', header: 'Monto' },
+                ]}
+              />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
@@ -302,7 +275,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.totalPagoCuenta}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${accountInfo.total.toFixed(2)}</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -314,7 +287,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuentaAbonos}
+                      ${accountInfo?.totalPagos.toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
@@ -324,15 +297,15 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
                   </Box>
                   <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                      ${accountInfo?.totalPagoCuenta - (accountInfo.totalPagoCuentaAbonos ?? 0)}
+                      ${(accountInfo?.total - accountInfo?.totalPagos).toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
               </Box>
-              {!props.isEntryPayment && accountInfo.totalPagoCuentaAbonos && accountInfo.totalPagoCuentaRestante && (
+              {!props.isEntryPayment && accountInfo.total && accountInfo.totalRestante && (
                 <>
                   <Typography textAlign={'start'} variant="h4">
-                    <b>Total Abonos:</b> {accountInfo?.totalPagoCuentaAbonos}
+                    <b>Total Abonos:</b> {accountInfo?.totalPagos.toFixed(2)}
                   </Typography>
                 </>
               )}
@@ -343,38 +316,44 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
 
       {!isLoading && (
         <Box
-          sx={{ display: 'flex', py: 2, bgcolor: 'background.paper', alignContent: 'start', justifyContent: 'start' }}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            p: 2,
+            bgcolor: 'background.paper',
+          }}
         >
-          {!props.isEntryPayment &&
-          accountInfo &&
-          accountInfo.totalPagoCuentaAbonos &&
-          accountInfo.totalPagoCuentaRestante ? (
-            <Typography sx={{ bgcolor: 'background.paper', py: 2 }} textAlign={'start'} variant="h4">
-              <b>Total Restante:</b> {accountInfo?.totalPagoCuentaRestante}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography sx={{ my: 'auto' }} textAlign={'start'} variant="h5">
+              <b>Total Cuenta:</b> {accountInfo?.totalRestante.toFixed(2)}
             </Typography>
-          ) : (
-            <Typography sx={{ py: 2, my: 'auto' }} textAlign={'start'} variant="h5">
-              <b>Total Cuenta:</b> {accountInfo?.totalPagoCuenta}
-            </Typography>
-          )}
 
-          {props.isEntryPayment && (
-            <Typography sx={{ py: 2 }} variant="h6" textAlign={'start'}>
-              <b>Anticipo: {advance} (anticipo sugerido)</b>
-            </Typography>
-          )}
-          <TextField
-            sx={{ mx: 2, py: 2 }}
-            variant="outlined"
-            inputRef={inputRef}
-            onKeyDown={handleKeyDown}
-            inputProps={{
-              inputMode: 'decimal',
-              pattern: '[0-9]*',
-            }}
-            size="small"
-            placeholder="Anticipo"
-          />
+            <Box sx={{ display: 'flex', flexDirection: 'column', mx: 2 }}>
+              <TextField
+                variant="outlined"
+                inputRef={inputRef}
+                onKeyDown={handleKeyDown}
+                inputProps={{
+                  inputMode: 'decimal',
+                  pattern: '[0-9]*',
+                }}
+                size="small"
+                placeholder="Deposito"
+              />
+              {props.isEntryPayment && (
+                <Typography
+                  component="span"
+                  sx={{
+                    color: 'error.main',
+                    fontSize: '0.65rem',
+                    mt: 1,
+                  }}
+                >
+                  Deposito sugerido: ${advance}
+                </Typography>
+              )}
+            </Box>
+          </Box>
         </Box>
       )}
       <Box
@@ -398,7 +377,7 @@ export const PatientEntryAdvanceModal = (props: PatientEntryAdvanceModalProps) =
             acceptRequest();
           }}
         >
-          {isLoading || isLoadingSubmit ? <CircularProgress size={25} /> : 'Generar anticipo'}
+          {isLoading || isLoadingSubmit ? <CircularProgress size={25} /> : 'Generar deposito'}
         </Button>
       </Box>
     </Box>

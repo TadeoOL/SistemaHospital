@@ -21,28 +21,69 @@ export const patientRegistrationSchema = z.object({
   birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
 });
 
-export const patientModifySchema = z.object({
-  name: z.string().nullable(),
-  lastName: z.string().nullable(),
-  secondLastName: z.string().nullable(),
-  genere: z.string().nullable(),
-  civilStatus: z.string().nullable(),
-  phoneNumber: z.string().nullable(),
-  occupation: z.string().nullable(),
-  zipCode: z.string().nullable(),
-  neighborhood: z.string().nullable(),
-  address: z.string().nullable(),
-  personInCharge: z.string().nullable(),
-  relationship: z.string().nullable(),
-  sameAddress: z.boolean(),
-  personInChargeZipCode: z.string().nullable(),
-  personInChargeNeighborhood: z.string().nullable(),
-  personInChargeAddress: z.string().nullable(),
-  personInChargePhoneNumber: z.string().nullable(),
-  state: z.string().nullable(),
-  city: z.string().nullable(),
-  birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-});
+export const patientModifySchema = (required?: boolean) =>
+  z
+    .object({
+      name: z.string().min(1, 'El nombre es requerido'),
+      lastName: z.string().min(1, 'El apellido paterno es requerido'),
+      secondLastName: z.string().min(1, 'El apellido materno es requerido'),
+      genere: z.string().min(1, 'El genero es requerido'),
+      civilStatus: z.string().min(1, 'El estado civil es requerido'),
+      phoneNumber: z.string().min(1, 'El telefono es requerido'),
+      occupation: z.string().min(1, 'La ocupación es requerida'),
+      zipCode: z.string().min(1, 'El codigo postal es requerido'),
+      neighborhood: z.string().min(1, 'La colonia es requerida'),
+      address: z.string().min(1, 'La direccion es requerida'),
+      personInCharge: z.string().min(1, 'El nombre del responsable es requerido'),
+      relationship: z.string().min(1, 'La relacion es requerida'),
+      sameAddress: z.boolean(),
+      personInChargeZipCode: z.string().min(1, 'El codigo postal del responsable es requerido'),
+      personInChargeNeighborhood: z.string().min(1, 'La colonia del responsable es requerida'),
+      personInChargeAddress: z.string().min(1, 'La direccion del responsable es requerida'),
+      personInChargePhoneNumber: z.string().min(1, 'El telefono del responsable es requerido'),
+      personInChargeCity: z.string().min(1, 'La ciudad del responsable es requerida'),
+      personInChargeState: z.string().min(1, 'El estado del responsable es requerido'),
+      state: z.string().min(1, 'El estado es requerido'),
+      city: z.string().min(1, 'La ciudad es requerida'),
+      curp: z.string().min(1, 'La CURP es requerida'),
+      birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+      allergies: z.string().optional(),
+      bloodType: z.string().optional(),
+      comments: z.string().optional(),
+      reasonForAdmission: z.string().optional(),
+      admissionDiagnosis: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (!required) return;
+      if (!data.reasonForAdmission) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'La razón de admisión es requerida',
+          path: ['reasonForAdmission'],
+        });
+      }
+      if (!data.admissionDiagnosis) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El diagnóstico de admisión es requerido',
+          path: ['admissionDiagnosis'],
+        });
+        if (!data.allergies) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Las alergias son requeridas',
+            path: ['allergies'],
+          });
+        }
+        if (!data.bloodType) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'El tipo de sangre es requerido',
+            path: ['bloodType'],
+          });
+        }
+      }
+    });
 
 export const patientSAMISchema = z.object({
   name: z.string().min(1, 'Es necesario el nombre'),
@@ -66,13 +107,46 @@ export const patientSAMISchema = z.object({
 
 export type PatientSamiType = z.infer<typeof patientSAMISchema>;
 
-export const clinicalDataSchema = z.object({
-  reasonForAdmission: z.string().optional(),
-  admissionDiagnosis: z.string().optional(),
-  allergies: z.string().optional(),
-  bloodType: z.string().optional(),
-  comments: z.string().optional(),
-});
+export const clinicalDataSchema = (hospitalization?: boolean) =>
+  z
+    .object({
+      reasonForAdmission: z.string().optional(),
+      admissionDiagnosis: z.string().optional(),
+      allergies: z.string().optional(),
+      bloodType: z.string().optional(),
+      comments: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (!hospitalization) return;
+      if (!data.reasonForAdmission) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'La razón de admisión es requerida',
+          path: ['reasonForAdmission'],
+        });
+      }
+      if (!data.admissionDiagnosis) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'La diagnóstico de admisión es requerido',
+          path: ['admissionDiagnosis'],
+        });
+      }
+      if (!data.allergies) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Las alergias son requeridas',
+          path: ['allergies'],
+        });
+      }
+      if (!data.bloodType) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El tipo de sangre es requerido',
+          path: ['bloodType'],
+        });
+      }
+    });
 
 export const clinicalDataModifySchema = z.object({
   reasonForAdmission: z.string().nullable(),
@@ -122,7 +196,7 @@ export const programmingRegisterSchema = z.object({
   notes: z.string().optional(),
   surgeryProcedures: z.string().array().nonempty({ message: 'El procedimiento es requerido' }),
   date: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-  doctorId:z.string().min(1, 'Es necesario seleccionar un doctor'),
+  doctorId: z.string().min(1, 'Es necesario seleccionar un doctor'),
 });
 
 export const procedureAndDoctorSelectorSchema = z.object({
@@ -171,8 +245,8 @@ export const typeRoomSchema = z
     type: z.string(),
     //codigoSATRecuperacion: z.string().nullable(),
     //codigoSAT: z.string().min(1, 'El código es necesario'),
-    codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
-    codigoUnidadMedidaRecuperacion: z.number({invalid_type_error: 'El código es necesario'}).optional(),
+    codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
+    codigoUnidadMedidaRecuperacion: z.number({ invalid_type_error: 'El código es necesario' }).optional(),
     priceRoom: z
       .string()
       .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
@@ -181,8 +255,8 @@ export const typeRoomSchema = z
   .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
     message: 'El precio del cuarto es necesario',
     path: ['priceRoom'],
-  })
-  /*.refine(
+  });
+/*.refine(
     (values) => values.type !== '1' || (values.codigoSATRecuperacion && values.codigoSATRecuperacion.length > 0),
     {
       message: 'El código de SAT de Recuperación es necesario para quirófanos',

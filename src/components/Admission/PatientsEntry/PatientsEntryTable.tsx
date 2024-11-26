@@ -13,13 +13,14 @@ import {
   TableContainer,
   TableRow,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import { DocumentScanner, Edit, MonetizationOn, Paid, Print, Visibility } from '@mui/icons-material';
+import { CheckCircleOutline, DocumentScanner, Edit, InfoOutlined, Paid, Print, Visibility } from '@mui/icons-material';
 import { PatientInfoModal } from '../../Programming/Register/Modal/PatientInfoModal';
 import { SelectEditOptionModal } from '../../Programming/Register/Modal/SelectEditOptionModal';
 import { PatientEntryAdvanceModal } from './Modal/PatientEntryAdvance';
@@ -28,8 +29,11 @@ import {
   generateHospitalizationDoc,
   generateSurgeryDoc,
 } from '../../Documents/AdmissionDocs/AdmissionDoc';
-import { IPatientRegisterPagination, Procedimiento } from '../../../types/admission/admissionTypes';
+import { IPatientRegisterPagination } from '../../../types/admission/admissionTypes';
 import { usePatientEntryPaginationStore } from '../../../store/admission/usePatientEntryPagination';
+import { GenericChip } from '../../Commons/GenericChip';
+import { PatientAccountStatus } from '../../../types/checkout/patientAccountTypes';
+import { EditPersonalInfoModal } from '../../Programming/Register/Modal/EditData/EditPersonalInfoModal';
 
 const headers = [
   'Clave paciente',
@@ -38,8 +42,7 @@ const headers = [
   'Cuartos/Quirófano',
   'Medico',
   'Fecha Ingreso',
-  'Datos Paciente',
-  'Datos Clínicos',
+  'Información Paciente',
   'Acciones',
 ];
 
@@ -123,8 +126,6 @@ const TableBodyPatientsEntry = (props: TableBodyPatientsEntryProps) => {
 const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
-  const [patientId, setPatientId] = useState<string>();
-  const [clinicalHistoryId, setClinicalHistoryId] = useState<string>();
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdvance, setOpenAdvance] = useState(false);
   const [isAdvanceFlag, setIsAdvanceFlag] = useState(false);
@@ -132,6 +133,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
   const [registerRoomId, setRegisterRoomId] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
+  const [openAdmit, setOpenAdmit] = useState(false);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -146,39 +148,39 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
   return (
     <>
       <TableRow>
-        <TableCell>{data.clavePaciente}</TableCell>
-        <TableCell>{data.nombrePaciente}</TableCell>
         <TableCell>
-          {data.procedimientos?.map((procedimiento: Procedimiento, index: number) => (
-            <span key={index}>
-              {procedimiento.nombre}
-              {index < (data.procedimientos?.length || 0) - 1 && ', '}
-            </span>
-          ))}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {data.estatus <= PatientAccountStatus.Scheduled ? (
+              <Tooltip title="Sin admitir admitido">
+                <InfoOutlined color="primary" sx={{ fontSize: 18 }} />
+              </Tooltip>
+            ) : (
+              <Tooltip title="Admitido">
+                <CheckCircleOutline color="success" sx={{ fontSize: 18 }} />
+              </Tooltip>
+            )}
+            <Typography variant="body2">{data.clavePaciente || 'Sin definir'}</Typography>
+          </Box>
         </TableCell>
-        <TableCell>{data.cuartos}</TableCell>
+        <TableCell>{data.nombrePaciente || 'Sin definir'}</TableCell>
+        <TableCell>
+          <GenericChip
+            data={data.cirugias?.map((cirugia) => ({ id: cirugia.id_Cirugia, nombre: cirugia.nombre || '' })) || []}
+          />
+        </TableCell>
+        <TableCell>
+          <GenericChip
+            label="Sin espacios"
+            data={data.espaciosHospitalarios?.map((espacio, i) => ({ id: i.toString(), nombre: espacio || '' })) || []}
+          />
+        </TableCell>
         <TableCell>{data.medico}</TableCell>
-        <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
-        <TableCell align="center">
-          <Tooltip title="Ver datos generales">
+        <TableCell>{dayjs(data.fechaProgramacion).format('DD/MM/YYYY - HH:mm')}</TableCell>
+        <TableCell>
+          <Tooltip title="Ver datos">
             <IconButton
               onClick={() => {
                 setOpen(true);
-                setPatientId(data.id_Paciente);
-                setClinicalHistoryId(undefined);
-              }}
-            >
-              <Visibility />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-        <TableCell align="center">
-          <Tooltip title="Ver datos clínicos">
-            <IconButton
-              onClick={() => {
-                setOpen(true);
-                setPatientId(undefined);
-                setClinicalHistoryId(data.id_HistorialClinico);
               }}
             >
               <Visibility />
@@ -187,39 +189,35 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Editar">
-              <IconButton onClick={() => setOpenEdit(true)}>
-                <Edit color={data.faltanDatos ? 'warning' : undefined} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Imprimir Documentos">
+            {data.estatus > PatientAccountStatus.Scheduled ? (
               <>
-                <IconButton onClick={handleClick} disabled={data.faltanDatos}>
-                  <Print />
-                </IconButton>
+                <Tooltip title="Editar">
+                  <IconButton onClick={() => setOpenEdit(true)}>
+                    <Edit color={data.admitido ? 'warning' : undefined} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Imprimir Documentos">
+                  <>
+                    <IconButton onClick={handleClick} disabled={data.admitido}>
+                      <Print />
+                    </IconButton>
+                  </>
+                </Tooltip>
+                <Tooltip title="Agregar Abono">
+                  <IconButton
+                    onClick={() => {
+                      setIsAdvanceFlag(false);
+                      setOpenAdvance(true);
+                    }}
+                  >
+                    <Paid />
+                  </IconButton>
+                </Tooltip>
               </>
-            </Tooltip>
-            {!data.admitido && !data.faltanDatos && (
-              <Tooltip title="Agregar anticipo">
-                <IconButton
-                  onClick={() => {
-                    setIsAdvanceFlag(true);
-                    setOpenAdvance(true);
-                  }}
-                >
-                  <MonetizationOn />
-                </IconButton>
-              </Tooltip>
-            )}
-            {data.admitido && (
-              <Tooltip title="Agregar Abono">
-                <IconButton
-                  onClick={() => {
-                    setIsAdvanceFlag(false);
-                    setOpenAdvance(true);
-                  }}
-                >
-                  <Paid />
+            ) : (
+              <Tooltip title="Admitir">
+                <IconButton onClick={() => setOpenAdmit(true)}>
+                  <CheckCircleOutline color="success" />
                 </IconButton>
               </Tooltip>
             )}
@@ -228,7 +226,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <PatientInfoModal setOpen={setOpen} clinicalHistoryId={clinicalHistoryId} patientId={patientId} />
+          <PatientInfoModal setOpen={setOpen} id_IngresoPaciente={data.id_IngresoPaciente} />
         </>
       </Modal>
       <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
@@ -236,25 +234,30 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
           <SelectEditOptionModal
             setOpen={setOpenEdit}
             patientId={data.id_Paciente}
-            clinicalHistoryId={data.id_HistorialClinico}
+            clinicalHistoryId={data.id_IngresoPaciente}
             setValue={setValueView}
             value={valueView}
-            registerId={data.id}
+            patientAccountId={data.id_CuentaPaciente ?? ''}
             setRegisterRoomId={setRegisterRoomId}
             registerRoomId={registerRoomId}
             medic={{ id: data.id_Medico, nombre: data.medico }}
-            procedures={data.procedimientos}
+            procedures={data.cirugias}
+            id_IngresoPaciente={data.id_IngresoPaciente}
           />
         </>
       </Modal>
       <Modal open={openAdvance} onClose={() => setOpenAdvance(false)}>
         <>
           <PatientEntryAdvanceModal
-            id_Registro={data.id}
-            id_Paciente={data.id_Paciente}
+            id_CuentaPaciente={data.id_CuentaPaciente ?? ''}
             setOpen={setOpenAdvance}
             isEntryPayment={isAdvanceFlag}
           />
+        </>
+      </Modal>
+      <Modal open={openAdmit} onClose={() => setOpenAdmit(false)}>
+        <>
+          <EditPersonalInfoModal setOpen={setOpenAdmit} id_IngresoPaciente={data.id_IngresoPaciente} admit />
         </>
       </Modal>
       <Menu
@@ -296,7 +299,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
       >
         <MenuItem
           onClick={() => {
-            generateHospitalizationDoc(data.id);
+            generateHospitalizationDoc(data.id_IngresoPaciente);
             handleClose();
           }}
         >
@@ -307,7 +310,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            generateAdmissionDoc(data.id);
+            generateAdmissionDoc(data.id_IngresoPaciente);
             handleClose();
           }}
         >
@@ -318,7 +321,7 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            generateSurgeryDoc(data.id);
+            generateSurgeryDoc(data.id_IngresoPaciente);
             handleClose();
           }}
         >

@@ -17,7 +17,7 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { useEffect, useState } from 'react';
 import { useInvoicePatientBillPaginationStore } from '../../../store/invoice/invoicePatientBillPagination';
 import { InvoicePatientBillPagination } from '../../../types/invoiceTypes';
-import { SurgeryProceduresChip } from '../../Commons/SurgeryProceduresChip';
+import { GenericChip } from '../../Commons/GenericChip';
 import { CheckCircle, Info } from '@mui/icons-material';
 import { FaFileInvoice } from 'react-icons/fa6';
 import { GeneratePatientAccountInvoice } from './Modal/GeneratePatientAccountInvoice';
@@ -112,8 +112,8 @@ const PatientInvoiceTableRow = ({ data }: PatientInvoiceTableRowProps) => {
         <TableCell>{data.nombrePaciente}</TableCell>
         <TableCell>{data.nombreMedico}</TableCell>
         <TableCell>
-          <SurgeryProceduresChip
-            surgeries={data.procedimientos.map((p, i) => {
+          <GenericChip
+            data={data.procedimientos.map((p, i) => {
               return { id: i.toString(), nombre: p };
             })}
           />

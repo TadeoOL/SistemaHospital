@@ -1,7 +1,6 @@
 import { HistorialClinico, Paciente } from '../admission/admissionTypes';
 import { IChargedItemsHospitalRoom, IClinicalDataHospitalRoom } from '../hospitalization/hospitalRoomTypes';
 import { IAnesthesiologist, IMedic } from '../hospitalizationTypes';
-import { IHospitalSpaceRecord } from '../programming/registerTypes';
 
 export interface IOperatingRoomConfig {
   configuracionRecuperacion: IRecoveryRoomOperatingRoom[];
@@ -95,38 +94,38 @@ export interface IRecoveryRoom {
 
 ///////// - ADMISSION - /////////
 
-export interface IRegisterPatientAdmissionCommand {
-  paciente: IAdmissionPatient;
-  registroCuarto?: IHospitalSpaceRecord;
-  id_Medico: string;
-  procedimientos: string[];
-  ingresosPaciente?: IPatientAdmission;
-}
+// export interface IRegisterPatientAdmissionCommand {
+//   paciente: IAdmissionPatient;
+//   registroCuarto?: IHospitalSpaceRecord;
+//   id_Medico: string;
+//   procedimientos: string[];
+//   ingresosPaciente?: IPatientAdmission;
+// }
 
-export interface IAdmissionPatient {
-  nombre?: string;
-  apellidoPaterno?: string;
-  apellidoMaterno?: string;
-  fechaNacimiento?: Date;
-  genero?: string;
-  estadoCivil?: string;
-  telefono?: string;
-  ocupacion?: string;
-  codigoPostal?: string;
-  colonia?: string;
-  direccion?: string;
-}
+// export interface IAdmissionPatient {
+//   nombre?: string;
+//   apellidoPaterno?: string;
+//   apellidoMaterno?: string;
+//   fechaNacimiento?: Date;
+//   genero?: string;
+//   estadoCivil?: string;
+//   telefono?: string;
+//   ocupacion?: string;
+//   codigoPostal?: string;
+//   colonia?: string;
+//   direccion?: string;
+// }
 
-export interface IPatientAdmission {
-  nombreResponsable?: string;
-  parentesco?: string;
-  domicilioResponsable?: string;
-  coloniaResponsable?: string;
-  estado?: string;
-  ciudad?: string;
-  codigoPostalResponsable?: string;
-  telefonoResponsable?: string;
-}
+// export interface IPatientAdmission {
+//   nombreResponsable?: string;
+//   parentesco?: string;
+//   domicilioResponsable?: string;
+//   coloniaResponsable?: string;
+//   estado?: string;
+//   ciudad?: string;
+//   codigoPostalResponsable?: string;
+//   telefonoResponsable?: string;
+// }
 
 export interface IOperatingRoomInformation {
   datosClinicos?: IClinicalDataHospitalRoom;

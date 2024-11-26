@@ -1,27 +1,14 @@
-import {
-  Autocomplete,
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Autocomplete, Backdrop, Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import {
-  addMedicToRegister,
-} from '../../../../../services/programming/admissionRegisterService';
 import Swal from 'sweetalert2';
-import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { surgeonOperatingRoomSchema } from '../../../../../schema/operatingRoom/operatingRoomSchema';
 import { useGetMedics } from '../../../../../hooks/programming/useGetDoctors';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
+import { modifyPatientMedic } from '@/services/admission/admisionService';
+import { usePatientEntryPaginationStore } from '@/store/admission/usePatientEntryPagination';
 
 const style = {
   position: 'absolute',
@@ -51,22 +38,22 @@ const bottomContainerStyle = {
 interface SelectMedicModalProps {
   setOpen: Function;
   setValue: Function;
-  registerId: string;
   surgeon: { id?: string; nombre?: string };
+  patientAccountId: string;
 }
 
 interface Input {
-  medical: { id_Medico: string; nombre: string } | null;
+  medical: { id_Medico: string; nombre: string; apellidoPaterno: string; apellidoMaterno: string } | null;
 }
 
-const useGetValidation = (registerId: string) => {
+const useGetValidation = () => {
   const [validate, setValidate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const validateData = true//await getRegisterValidation(registerId);
+      const validateData = true; //await getRegisterValidation(registerId);
       setValidate(validateData);
       setIsLoading(false);
     };
@@ -79,9 +66,9 @@ const useGetValidation = (registerId: string) => {
 };
 
 export const SelectMedicModal = (props: SelectMedicModalProps) => {
-  const { setOpen, registerId } = props;
-  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
-  const { isLoading, validate } = useGetValidation(registerId);
+  const { setOpen } = props;
+  const refetch = usePatientEntryPaginationStore((state) => state.fetchData);
+  const { isLoading, validate } = useGetValidation();
   const { doctorsData, isLoadingMedics } = useGetMedics();
   //const [date, _] = useState(new Date());
 
@@ -90,34 +77,30 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
     watch,
     formState: { errors },
     handleSubmit,
-    clearErrors,
   } = useForm<Input>({
     defaultValues: { medical: props.surgeon.id ? props.surgeon : null },
     resolver: zodResolver(surgeonOperatingRoomSchema),
   });
 
-  const [selectedOption, setSelectedOption] = useState<'guardia' | 'otro'>('guardia');
-
   const onSubmit: SubmitHandler<Input> = async (data) => {
     try {
-      await addMedicToRegister({
-        id_Registro: registerId,
+      await modifyPatientMedic({
         id_Medico: data.medical?.id_Medico as string,
+        id_CuentaPaciente: props.patientAccountId,
       });
       toast.success('Medico agregado con éxito!');
       setOpen(false);
       refetch();
-    } catch (error) {
-      console.error(error);
-      toast.error('Error al agregar medico');
+    } catch (error: any) {
+      if (error.errorCode == '1002') {
+        toast.error(error.Detail);
+      } else if (error.errorCode == '1003') {
+        toast.error(error.Detail);
+      } else {
+        console.error(error);
+        toast.error('Error al agregar medico');
+      }
     }
-  };
-
-  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value as 'guardia' | 'otro';
-    setSelectedOption(value);
-    setValue('medical', null);
-    clearErrors();
   };
 
   useEffect(() => {
@@ -125,7 +108,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
     if (!validate) {
       Swal.fire({
         title: 'Advertencia',
-        text: 'Es necesario agregar un Cuarto y/o Quirófano y su procedimiento antes de seleccionar un Medico',
+        text: 'Es necesario agregar un Quirófano y su procedimiento antes de seleccionar un Medico',
         icon: 'warning',
         confirmButtonText: 'Aceptar',
       });
@@ -151,70 +134,32 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
           </Typography>
         </Box>
         <form onSubmit={handleSubmit(onSubmit)} id="form1">
-          <RadioGroup value={selectedOption} onChange={handleRadioChange} row sx={{ mb: 2 }}>
-            <FormControlLabel value="guardia" control={<Radio />} label="Médicos en guardia" />
-            <FormControlLabel value="otro" control={<Radio />} label="Otro" />
-          </RadioGroup>
-
-          {selectedOption === 'guardia' ? (
-            <>
-              <Typography>Agregar medico en guardia</Typography>
-              <Autocomplete
-                onChange={(_, val) => {
-                  if (!val) return;
-                  setValue('medical', val);
-                }}
-                loading={isLoadingMedics}
-                getOptionLabel={(option) => option.nombre}
-                isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
-                options={doctorsData}
-                value={watch('medical') ?? null}
-                onInputChange={(_, __, reason) => {
-                  if (reason === 'clear') {
-                    setValue('medical', null);
-                  }
-                }}
-                noOptionsText="No se encontraron medicos en guardia"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    placeholder="Selecciona un medico en guardia"
-                    error={!!errors.medical?.message}
-                    helperText={errors.medical?.message && 'Seleccione un medico en guardia'}
-                  />
-                )}
+          <Typography>Agregar medico</Typography>
+          <Autocomplete
+            onChange={(_, val) => {
+              if (!val) return;
+              setValue('medical', val);
+            }}
+            loading={isLoadingMedics}
+            getOptionLabel={(option) => `${option.nombre} ${option.apellidoPaterno} ${option.apellidoMaterno}`}
+            isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
+            options={doctorsData}
+            value={watch('medical') ?? null}
+            onInputChange={(_, __, reason) => {
+              if (reason === 'clear') {
+                setValue('medical', null);
+              }
+            }}
+            noOptionsText="No se encontraron medicos"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Medicos"
+                error={!!errors.medical?.message}
+                helperText={errors.medical?.message && 'Seleccione un medico'}
               />
-            </>
-          ) : (
-            <>
-              <Typography>Agregar medico</Typography>
-              <Autocomplete
-                onChange={(_, val) => {
-                  if (!val) return;
-                  setValue('medical', val);
-                }}
-                loading={isLoadingMedics}
-                getOptionLabel={(option) => option.nombre}
-                isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
-                options={doctorsData}
-                value={watch('medical') ?? null}
-                onInputChange={(_, __, reason) => {
-                  if (reason === 'clear') {
-                    setValue('medical', null);
-                  }
-                }}
-                noOptionsText="No se encontraron medicos"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    placeholder="Medicos"
-                    error={!!errors.medical?.message}
-                    helperText={errors.medical?.message && 'Seleccione un medico'}
-                  />
-                )}
-              />
-            </>
-          )}
+            )}
+          />
         </form>
       </Box>
       <Box sx={bottomContainerStyle}>

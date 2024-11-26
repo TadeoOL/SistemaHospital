@@ -3,5 +3,5 @@ export interface IHospitalRoom {
   id_TipoCuarto: string;
   nombre: string;
   descripcion: string;
-  tipoCuarto: string;
+  tipoCuarto: number;
 }

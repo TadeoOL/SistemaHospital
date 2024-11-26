@@ -21,7 +21,6 @@ import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
-import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
 import { registerPatient } from '../../../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
@@ -33,12 +32,13 @@ import {
   IPatientRegister,
   IRegisterPatientCommand,
 } from '../../../../../types/programming/registerTypes';
-import {
-  IAdmissionPatient,
-  IPatientAdmission,
-  IRegisterPatientAdmissionCommand,
-} from '../../../../../types/operatingRoom/operatingRoomTypes';
 import { registerPatientAdmission } from '../../../../../services/admission/admisionService';
+import {
+  IPatientAdmissionDto,
+  IPatientAdmissionEntranceDto,
+  IRegisterPatientAdmissionCommand,
+} from '../../../../../types/admission/admissionTypes';
+import { usePatientEntryPaginationStore } from '@/store/admission/usePatientEntryPagination';
 
 const style = {
   position: 'absolute',
@@ -111,6 +111,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
   const procedures = usePatientEntryRegisterStepsStore((state) => state.procedures);
   const cabinetStudiesSelected = usePatientEntryRegisterStepsStore((state) => state.cabinetStudiesSelected);
   const medicId = usePatientEntryRegisterStepsStore((state) => state.medicId);
+  const clinicalData = usePatientEntryRegisterStepsStore((state) => state.clinicalData);
   const articlesSelected = usePatientEntryRegisterStepsStore((state) => state.articlesSelected);
   const medicPersonalBiomedicalEquipment = usePatientEntryRegisterStepsStore(
     (state) => state.medicPersonalBiomedicalEquipment
@@ -121,7 +122,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
   const proceduresList: { id: string; name: string; price: number }[] = JSON.parse(
     localStorage.getItem('proceduresList') as string
   );
-  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+  const refetch = usePatientEntryPaginationStore((state) => state.fetchData);
   const [isLoading, setIsLoading] = useState(false);
 
   /*const handleCalcAnticipo = () => {
@@ -179,6 +180,8 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
             horaFin: roomValues.find((r) => r.tipoCuarto == 0)!.horaFin,
           }
         : undefined;
+      console.log({ hospitalizationRoom });
+      console.log({ operatingRoom });
 
       if (!hospitalization) {
         const patientObj: IPatientRegister = {
@@ -208,7 +211,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
         };
         await registerPatient(registerObject);
       } else {
-        const patientAdmissionObj: IAdmissionPatient = {
+        const patientAdmissionObj: IPatientAdmissionDto = {
           nombre: patient.name,
           apellidoPaterno: patient.lastName,
           apellidoMaterno: patient.secondLastName,
@@ -220,17 +223,26 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
           codigoPostal: patient.zipCode,
           colonia: patient.neighborhood,
           direccion: patient.address,
+          tipoSangre: clinicalData.bloodType,
+          alergias: clinicalData.allergies,
+          curp: patient.curp,
+          estado: patient.state,
+          ciudad: patient.city,
         };
-        const patientAdmission: IPatientAdmission = {
+        const patientAdmission: IPatientAdmissionEntranceDto = {
           nombreResponsable: patient.personInCharge,
           parentesco: patient.relationship,
           domicilioResponsable: patient.personInChargeAddress,
-          coloniaResponsable: patient.neighborhood,
-          estado: patient.state,
-          ciudad: patient.city,
+          coloniaResponsable: patient.personInChargeNeighborhood,
+          estadoResponsable: patient.personInChargeState,
+          ciudadResponsable: patient.personInChargeCity,
           codigoPostalResponsable: patient.personInChargeZipCode,
           telefonoResponsable: patient.personInChargePhoneNumber,
+          motivoIngreso: clinicalData.reasonForAdmission,
+          diagnosticoIngreso: clinicalData.admissionDiagnosis,
+          comentarios: clinicalData.comments,
         };
+
         const admissionObj: IRegisterPatientAdmissionCommand = {
           paciente: patientAdmissionObj,
           registroCuarto: hospitalizationRoom,
@@ -342,6 +354,12 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
                 <Stack spacing={1}>
+                  <SubtitleTypography variant="subtitle1">CURP:</SubtitleTypography>
+                  <TextTypography>{patient.curp ? patient.curp : 'Sin definir'}</TextTypography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Stack spacing={1}>
                   <SubtitleTypography variant="subtitle1">Persona Responsable:</SubtitleTypography>
                   <TextTypography>{patient.personInCharge ? patient.personInCharge : 'Sin definir'}</TextTypography>
                 </Stack>
@@ -371,6 +389,40 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
             </>
           )}
         </Grid>
+        {hospitalization && (
+          <>
+            <CustomDivider sx={{ my: 2 }} />
+            <Grid sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <TitleTypography>Datos Clínicos</TitleTypography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <SubtitleTypography>Razón de admisión:</SubtitleTypography>
+                  <TextTypography>{clinicalData.reasonForAdmission}</TextTypography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <SubtitleTypography>Diagnóstico de admisión:</SubtitleTypography>
+                  <TextTypography>{clinicalData.admissionDiagnosis}</TextTypography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <SubtitleTypography>Alergias:</SubtitleTypography>
+                  <TextTypography>{clinicalData.allergies}</TextTypography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <SubtitleTypography>Tipo de Sangre:</SubtitleTypography>
+                  <TextTypography>{clinicalData.bloodType}</TextTypography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <SubtitleTypography>Comentarios:</SubtitleTypography>
+                  <TextTypography>{clinicalData.comments}</TextTypography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </>
+        )}
         <CustomDivider sx={{ my: 2 }} />
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <TitleTypography>Datos del Espacio Reservado</TitleTypography>

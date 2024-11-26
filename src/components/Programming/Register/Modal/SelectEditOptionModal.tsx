@@ -1,75 +1,57 @@
-import {
-  AirlineSeatFlatOutlined,
-  Close,
-  MedicalServices,
-  PermIdentity,
-  TextSnippet,
-  Vaccines,
-} from '@mui/icons-material';
-import { Box, Grid, IconButton, Stack, Typography } from '@mui/material';
+import { AirlineSeatFlatOutlined, Close, MedicalServices, PermIdentity, Vaccines } from '@mui/icons-material';
+import { Box, IconButton, Typography } from '@mui/material';
 import { EditPersonalInfoModal } from './EditData/EditPersonalInfoModal';
-import { EditClinicalInfoModal } from './EditData/EditClinicalInfoModal';
 import { SelectProcedureToEdit } from './EditData/SelectProcedureToEdit';
 import { EditCalendarEventModal } from './EditData/EditCalendarEventModal';
-import { Procedimiento } from '../../../../types/admissionTypes';
 import { SelectMedicModal } from './EditData/SelectMedicModal';
+import React from 'react';
+import { ISurgicalProcedure } from '@/types/admission/admissionTypes';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 650 },
+  width: { xs: '90%', sm: 500, md: 600 },
+  maxWidth: 600,
   borderRadius: 2,
-  boxShadow: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+  bgcolor: 'background.paper',
 };
 
-const typographyStyle = {
-  fontSize: { xs: 14, md: 18 },
-  fontWeight: 500,
-};
+const optionStyle = (isLast: boolean) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 2,
+  p: 2,
+  borderBottom: isLast ? 'none' : '1px solid',
+  borderColor: 'divider',
+  transition: '0.2s ease',
+  cursor: 'pointer',
+  '&:hover': {
+    bgcolor: 'action.hover',
+    '& .MuiSvgIcon-root': {
+      color: 'primary.main',
+    },
+  },
+});
 
 const iconStyle = {
-  color: 'rgba(0, 0, 0, 0.54)',
-  height: { md: 50, xs: 25 },
-  width: { md: 50, xs: 25 },
+  color: 'text.secondary',
+  fontSize: { xs: 24, md: 28 },
 };
 
-const cardStyle = {
-  width: { md: '100%', xs: '50%' },
-  height: { md: 200, xs: 75 },
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 10,
-  boxShadow: '5px 5px 5px 5px rgba(0,0,0,.1)',
-  m: 2,
-  cursor: 'pointer',
-  p: 4,
-  transition: '0.15s ease-in-out',
-  '&:hover': {
-    transition: '0.15s ease-in-out',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderRadius: 10,
-    cursor: 'pointer',
-    transform: 'scale(1.05)',
-    boxShadow: '7px 7px 7px 7px rgba(0,0,0,.1)',
-  },
-};
 interface SelectEditOptionModalProps {
   setOpen: Function;
   patientId: string;
   clinicalHistoryId: string;
   value: number;
   setValue: Function;
-  registerId: string;
+  patientAccountId: string;
   setRegisterRoomId: Function;
   registerRoomId: string;
-  procedures?: Procedimiento[];
+  id_IngresoPaciente: string;
+  procedures?: ISurgicalProcedure[];
   medic: { id?: string; nombre?: string };
 }
 export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
@@ -77,18 +59,22 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
     case 0:
       return <MainMenuEditView setOpen={props.setOpen} setValue={props.setValue} />;
     case 1:
-      return <EditPersonalInfoModal setOpen={props.setOpen} patientId={props.patientId} />;
-    case 2:
-      return <EditClinicalInfoModal clinicalDataId={props.clinicalHistoryId} setOpen={props.setOpen} />;
+      return <EditPersonalInfoModal setOpen={props.setOpen} id_IngresoPaciente={props.id_IngresoPaciente} />;
     case 3:
-      return <EditCalendarEventModal setOpen={props.setOpen} registerId={props.registerId} />;
+      return (
+        <EditCalendarEventModal
+          setOpen={props.setOpen}
+          patientAccountId={props.patientAccountId}
+          setValue={props.setValue}
+        />
+      );
     case 4:
       return (
         <SelectProcedureToEdit
           setOpen={props.setOpen}
           setValue={props.setValue}
-          procedures={props.procedures as Procedimiento[]}
-          registerId={props.registerId}
+          procedures={props.procedures}
+          patientAccountId={props.patientAccountId}
         />
       );
     case 5:
@@ -96,8 +82,8 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
         <SelectMedicModal
           setOpen={props.setOpen}
           setValue={props.setValue}
-          registerId={props.registerId}
           surgeon={props.medic}
+          patientAccountId={props.patientAccountId}
         />
       );
     default:
@@ -106,75 +92,68 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
 };
 
 export const MainMenuEditView = (props: { setOpen: Function; setValue: Function }) => {
+  const options = [
+    {
+      icon: <PermIdentity />,
+      label: 'Información personal',
+      value: 1,
+      description: 'Editar datos personales del paciente',
+    },
+    {
+      icon: <AirlineSeatFlatOutlined />,
+      label: 'Cuartos',
+      value: 3,
+      description: 'Gestionar asignación de habitaciones',
+    },
+    {
+      icon: <Vaccines />,
+      label: 'Procedimientos',
+      value: 4,
+      description: 'Modificar procedimientos médicos',
+    },
+    {
+      icon: <MedicalServices />,
+      label: 'Médico',
+      value: 5,
+      description: 'Cambiar médico asignado',
+    },
+  ];
+
   return (
     <Box sx={style}>
-      <Stack sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'gray' }}>
-            Selecciona una opción para editar
+      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" color="text.primary">
+            Opciones de edición
           </Typography>
-          <IconButton onClick={() => props.setOpen(false)}>
-            <Close sx={{ top: 'auto', left: 'auto' }} />
+          <IconButton onClick={() => props.setOpen(false)} size="small" sx={{ color: 'text.secondary' }}>
+            <Close />
           </IconButton>
         </Box>
-        <Grid container spacing={2} justifyContent="space-around" alignItems="center">
-          <Grid
-            sx={cardStyle}
-            item
-            md={5}
-            onClick={() => {
-              props.setValue(1);
-            }}
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Seleccione la información que desea modificar
+        </Typography>
+      </Box>
+
+      <Box>
+        {options.map((option, index) => (
+          <Box
+            key={option.value}
+            sx={optionStyle(index === options.length - 1)}
+            onClick={() => props.setValue(option.value)}
           >
-            <PermIdentity sx={iconStyle} />
-            <Typography sx={typographyStyle}>Información personal</Typography>
-          </Grid>
-          <Grid
-            item
-            md={5}
-            sx={cardStyle}
-            onClick={() => {
-              props.setValue(2);
-            }}
-          >
-            <TextSnippet sx={iconStyle} />
-            <Typography sx={typographyStyle}>Información clínica</Typography>
-          </Grid>
-          <Grid
-            item
-            md={5}
-            sx={cardStyle}
-            onClick={() => {
-              props.setValue(3);
-            }}
-          >
-            <AirlineSeatFlatOutlined sx={iconStyle} />
-            <Typography sx={typographyStyle}>Cuartos</Typography>
-          </Grid>
-          <Grid
-            item
-            md={5}
-            sx={cardStyle}
-            onClick={() => {
-              props.setValue(4);
-            }}
-          >
-            <Vaccines sx={iconStyle} />
-            <Typography sx={typographyStyle}>Procedimientos</Typography>
-          </Grid>
-          <Grid
-            item
-            md={5}
-            sx={cardStyle}
-            onClick={() => {
-              props.setValue(5);
-            }}
-          >
-            <MedicalServices sx={iconStyle} />
-            <Typography sx={typographyStyle}>Medico</Typography>
-          </Grid>
-        </Grid>
-      </Stack>
+            <Box sx={{ color: 'text.secondary' }}>{React.cloneElement(option.icon, { sx: iconStyle })}</Box>
+            <Box>
+              <Typography variant="subtitle1" color="text.primary">
+                {option.label}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {option.description}
+              </Typography>
+            </Box>
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 };

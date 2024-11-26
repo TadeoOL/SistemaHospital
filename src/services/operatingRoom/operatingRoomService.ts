@@ -1,3 +1,4 @@
+import { SurgeryStatus } from '@/types/programming/surgeryRoomTypes';
 import axios from '../../libs/axios';
 import { IOperatingRoomConfig, IOperatingRoomInformation } from '../../types/operatingRoom/operatingRoomTypes';
 const apiOperatingRoomConfig = '/api/ConfiguracionQuirofano';
@@ -20,7 +21,7 @@ export const modifyOperatingRoom = async (data: {
 
 export const changeOperatingRoomStatus = async (data: {
   id_CuentaEspacioHospitalario: string;
-  estatus?: number;
+  estatus?: SurgeryStatus;
   horaAsignada?: string;
   id_UsuarioRecuperacion?: string;
 }) => {

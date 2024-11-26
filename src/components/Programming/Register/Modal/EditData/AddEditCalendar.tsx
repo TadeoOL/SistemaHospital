@@ -33,7 +33,7 @@ interface AddEditCalendarProps {
   calendarWidth?: number | string;
   setDate: Function;
   setEvents: Function;
-  registerId?: string;
+  patientAccountId: string;
   isEdit?: boolean;
   registerRoomId?: string;
   eventView?: Date;
@@ -282,7 +282,12 @@ export const AddEditCalendar = (props: AddEditCalendarProps) => {
       </Box>
       <Modal open={open}>
         <Box sx={style}>
-          <RoomReservationModal setOpen={setOpen} isEdit registerId={props.registerId} setEvents={setMyEvents} />
+          <RoomReservationModal
+            setOpen={setOpen}
+            isEdit
+            patientAccountId={props.patientAccountId}
+            setEvents={setMyEvents}
+          />
         </Box>
       </Modal>
     </>

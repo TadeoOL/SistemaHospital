@@ -1,6 +1,6 @@
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { SurgeryProceduresChip } from '../../../Commons/SurgeryProceduresChip';
+import { GenericChip } from '../../../Commons/GenericChip';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -116,9 +116,7 @@ export const PatientDischargeModal = ({
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant="h6">Cirugías</Typography>
-                <SurgeryProceduresChip
-                  surgeries={surgeries.map((surgery, i) => ({ id: i.toString(), nombre: surgery }))}
-                />
+                <GenericChip data={surgeries.map((surgery, i) => ({ id: i.toString(), nombre: surgery }))} />
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant="h6">Motivo de Egreso</Typography>

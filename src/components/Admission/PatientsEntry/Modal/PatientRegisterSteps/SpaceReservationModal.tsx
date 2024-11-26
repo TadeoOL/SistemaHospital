@@ -35,6 +35,8 @@ import { useEffect, useState } from 'react';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
 import { getSurgeryRoomsReservations } from '../../../../../services/programming/hospitalSpace';
+import { IHospitalRoom } from '../../../../../types/programming/hospitalRoomTypes';
+import { ISurgeryRoom } from '../../../../../types/programming/surgeryRoomTypes';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -51,9 +53,11 @@ const style = {
   maxHeight: { xs: 550, xl: 900 },
 };
 
+type RoomType = '0' | '1';
+
 interface HospitalizationSpaceReservationModalProps {
   setOpen: Function;
-  roomType: string;
+  roomType: RoomType;
 }
 
 interface RoomsInput {
@@ -64,8 +68,17 @@ interface RoomsInput {
 
 const HEADERS = ['Cuarto', 'Hora Inicio', 'Hora Fin', 'Acciones'];
 
+// Type guards
+const isSurgeryRoom = (room: IHospitalRoom | ISurgeryRoom): room is ISurgeryRoom => {
+  return 'id_Quirofano' in room;
+};
+
+const isHospitalRoom = (room: IHospitalRoom | ISurgeryRoom): room is IHospitalRoom => {
+  return 'id_Cuarto' in room;
+};
+
 export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpaceReservationModalProps) => {
-  const { data: roomsRes, isLoadingRooms } = useGetAllRooms(roomType);
+  const { data: roomsRes, isLoading } = useGetAllRooms<RoomType>(roomType);
   const appointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.appointmentStartDate);
   const appointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.appointmentEndDate);
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
@@ -112,17 +125,25 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
         `El ${roomType == '0' ? 'cuarto' : 'quirófano'} no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
       );
 
-    const roomFound = roomsRes.find((r: any) => r.id_Cuarto === room || r.id_Quirofano === room);
+    const roomFound = roomsRes?.find((r) => {
+      if (roomType === '0' && isHospitalRoom(r)) {
+        return r.id_Cuarto === room;
+      } else if (roomType === '1' && isSurgeryRoom(r)) {
+        return r.id_Quirofano === room;
+      }
+      return false;
+    });
+
     if (roomFound) {
       const roomObj: IRegisterRoom = {
-        id: roomFound.id_Cuarto || roomFound.id_Quirofano,
+        id: isHospitalRoom(roomFound) ? roomFound.id_Cuarto : roomFound.id_Quirofano,
         nombre: roomFound.nombre,
-        id_TipoCuarto: roomFound.id_TipoCuarto || roomFound.id_TipoQuirofano,
-        precio: roomFound.precio,
+        id_TipoCuarto: isHospitalRoom(roomFound) ? roomFound.id_TipoCuarto : roomFound.id_TipoQuirofano,
+        precio: 0,
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
-        tipoCuarto: roomType == '0' ? 0 : 1,
+        tipoCuarto: roomType === '0' ? 0 : 1,
       };
       setRoomsRegistered([...roomsRegistered, roomObj]);
     }
@@ -131,13 +152,15 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     setValueRooms('room', '');
   };
 
+  const getRoomTypeLabel = (type: RoomType) => (type === '0' ? 'cuarto' : 'quirófano');
+
   const onSubmit = async () => {
     if (
-      (roomType != '0' && roomsRegistered.length < 1) ||
-      (!roomsRegistered.some((r) => r.tipoCuarto == 1) && roomType != '0')
-    )
-      return toast.warning(`Es necesario agregar un ${roomType == '0' ? 'cuarto' : 'quirófano'} para continuar`);
-
+      (roomType !== '0' && roomsRegistered.length < 1) ||
+      (!roomsRegistered.some((r) => r.tipoCuarto === (roomType === '0' ? 0 : 1)) && roomType !== '0')
+    ) {
+      return toast.warning(`Es necesario agregar un ${getRoomTypeLabel(roomType)} para continuar`);
+    }
     let startDate = roomsRegistered[0].horaInicio;
     for (let i = 1; i < roomsRegistered.length; i++) {
       if (roomsRegistered[i].horaInicio < startDate) {
@@ -262,10 +285,10 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
   };
 
   const handleValidateRooms = () => {
-    return roomsRegistered.some((r) => r.tipoCuarto == parseFloat(roomType));
+    return roomsRegistered.some((r) => r.tipoCuarto === (roomType === '0' ? 0 : 1));
   };
 
-  if (isLoadingRooms)
+  if (isLoading)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -283,7 +306,7 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>{roomType == '0' ? 'Habitaciones' : 'Quirófanos'} disponibles</Typography>
+              <Typography>{roomType === '0' ? 'Habitaciones' : 'Quirófanos'} disponibles</Typography>
               <TextField
                 select
                 label={`${roomType == '0' ? 'Habitaciones' : 'Quirófanos'}`}
@@ -295,17 +318,18 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
                 helperText={errorsRooms.room?.message}
               >
                 {roomsRes
-                  .filter(
-                    (rm: any) =>
-                      !roomsRegistered.some(
-                        (reservedRoom) => reservedRoom.id === rm.id_Cuarto || reservedRoom.id === rm.id_Quirofano
-                      )
-                  )
-                  .map((rm: any) => (
-                    <MenuItem key={rm.id_Cuarto || rm.id_Quirofano} value={rm.id_Cuarto || rm.id_Quirofano}>
-                      {rm.nombre}
-                    </MenuItem>
-                  ))}
+                  ?.filter((rm) => {
+                    const currentId = isHospitalRoom(rm) ? rm.id_Cuarto : rm.id_Quirofano;
+                    return !roomsRegistered.some((reservedRoom) => reservedRoom.id === currentId);
+                  })
+                  .map((rm) => {
+                    const id = isHospitalRoom(rm) ? rm.id_Cuarto : rm.id_Quirofano;
+                    return (
+                      <MenuItem key={id} value={id}>
+                        {rm.nombre}
+                      </MenuItem>
+                    );
+                  })}
               </TextField>
             </Grid>
             <Grid item sm={12} md={4}>

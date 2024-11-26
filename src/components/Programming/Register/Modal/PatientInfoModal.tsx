@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
-import { HistorialClinico, Paciente } from '../../../../types/admissionTypes';
-import { getClinicalHistoryById } from '../../../../services/programming/clinicalHistoryService';
-import { getPatientById } from '../../../../services/programming/patientService';
 import { Box, Button } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { EventPatientDetails } from '../../RegisterSteps/EventsModal/EventPatientDetails';
-import { EventClinicalHistoryDetails } from '../../RegisterSteps/EventsModal/EventClinicalHistoryDetails';
+import { FullscreenLoader } from '../../../../common/components/FullscreenLoader';
+import { useGetPatientInfo } from '../../../../hooks/admission/useGetPatientInfo';
 
 const style = {
   position: 'absolute',
@@ -22,51 +19,19 @@ const style = {
 
 interface PatientInfoModalProps {
   setOpen: Function;
-  clinicalHistoryId?: string;
-  patientId?: string;
+  id_IngresoPaciente: string;
 }
 
-const useGetData = (clinicalHistoryId?: string, patientId?: string) => {
-  const [data, setData] = useState<HistorialClinico | Paciente>();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        if (clinicalHistoryId) {
-          const res = await getClinicalHistoryById(clinicalHistoryId);
-          setData(res);
-          setIsLoading(false);
-        }
-        if (patientId) {
-          const res = await getPatientById(patientId);
-          setData(res);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  return { data, isLoading };
-};
 export const PatientInfoModal = (props: PatientInfoModalProps) => {
-  const patient = props.patientId ? true : false;
-  const { data, isLoading } = useGetData(props.clinicalHistoryId, props.patientId);
+  const { data, isLoading } = useGetPatientInfo(props.id_IngresoPaciente);
 
-  if (isLoading) return <div>Loading</div>;
+  if (isLoading) return <FullscreenLoader />;
   return (
     <Box sx={style}>
-      <HeaderModal
-        setOpen={props.setOpen}
-        title={`Información del ${props.patientId ? 'Paciente' : 'Historial Clínico'}`}
-      />
-      <Box sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto' }}>{data && showViewInfo(patient, data)}</Box>
+      <HeaderModal setOpen={props.setOpen} title={`Información del Paciente`} />
+      <Box sx={{ bgcolor: 'background.paper', p: 3, overflowY: 'auto' }}>
+        <EventPatientDetails patientData={data} />
+      </Box>
       <Box sx={{ bgcolor: 'background.paper', display: 'flex', justifyContent: 'flex-end', p: 1 }}>
         <Button variant="outlined" color="error" onClick={() => props.setOpen(false)}>
           Cerrar
@@ -74,12 +39,4 @@ export const PatientInfoModal = (props: PatientInfoModalProps) => {
       </Box>
     </Box>
   );
-};
-
-const showViewInfo = (patient: boolean, data: HistorialClinico | Paciente) => {
-  if (patient) {
-    return <EventPatientDetails patientData={data as Paciente} />;
-  } else {
-    return <EventClinicalHistoryDetails clinicalHistory={data as HistorialClinico} />;
-  }
 };

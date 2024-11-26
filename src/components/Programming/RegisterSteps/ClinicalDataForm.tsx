@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { clinicalDataSchema } from '../../../schema/programming/programmingSchemas';
 import { toast } from 'react-toastify';
 import { IClinicalData } from '../../../types/types';
+import { usePatientEntryRegisterStepsStore } from '../../../store/admission/usePatientEntryRegisterSteps';
 
 const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
 const BLOOD_TYPE = ['PENDIENTE', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -26,14 +27,25 @@ const scrollBarStyle = {
 
 interface ClinicalDataFormProps {
   setOpen: Function;
+  hospitalization?: boolean;
 }
 
 export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
-  const step = useProgrammingRegisterStore((state) => state.step);
-  const setStep = useProgrammingRegisterStore((state) => state.setStep);
-  const clinicalData = useProgrammingRegisterStore((state) => state.clinicalData);
-  const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
-  const setClinicalData = useProgrammingRegisterStore((state) => state.setClinicalData);
+  const step = props.hospitalization
+    ? usePatientEntryRegisterStepsStore((state) => state.step)
+    : useProgrammingRegisterStore((state) => state.step);
+  const setStep = props.hospitalization
+    ? usePatientEntryRegisterStepsStore((state) => state.setStep)
+    : useProgrammingRegisterStore((state) => state.setStep);
+  const clinicalData = props.hospitalization
+    ? usePatientEntryRegisterStepsStore((state) => state.clinicalData)
+    : useProgrammingRegisterStore((state) => state.clinicalData);
+  const roomValues = props.hospitalization
+    ? usePatientEntryRegisterStepsStore((state) => state.roomsRegistered)
+    : useProgrammingRegisterStore((state) => state.roomValues);
+  const setClinicalData = props.hospitalization
+    ? usePatientEntryRegisterStepsStore((state) => state.setClinicalData)
+    : useProgrammingRegisterStore((state) => state.setClinicalData);
   const { admissionDiagnosis, comments, reasonForAdmission, allergies, bloodType } = clinicalData;
 
   const {
@@ -42,7 +54,7 @@ export const ClinicalDataForm = (props: ClinicalDataFormProps) => {
     watch,
     formState: { errors },
   } = useForm<IClinicalData>({
-    resolver: zodResolver(clinicalDataSchema),
+    resolver: zodResolver(clinicalDataSchema(props.hospitalization)),
     defaultValues: {
       admissionDiagnosis,
       comments,

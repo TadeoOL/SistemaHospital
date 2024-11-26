@@ -12,28 +12,18 @@ import { IEventsCalendar, IRegisterRoom } from '../../../types/types';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
-import { checkRoomAvailability, getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
+import { getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
-import { addRegisterRoom } from '../../../services/programming/admissionRegisterService';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
+import { ISurgeryRoom } from '../../../types/programming/surgeryRoomTypes';
+import { IHospitalRoom } from '../../../types/programming/hospitalRoomTypes';
+import { getHospitalRoomReservations, getSurgeryRoomsReservations } from '../../../services/programming/hospitalSpace';
+import { addHospitalizationSpace } from '../../../services/admission/admisionService';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
-
-// const style = {
-//   position: 'absolute',
-//   top: '50%',
-//   left: '50%',
-//   transform: 'translate(-50%, -50%)',
-//   width: { xs: 350, sm: 550, md: 750 },
-//   borderRadius: 2,
-//   boxShadow: 24,
-//   display: 'flex',
-//   flexDirection: 'column',
-//   maxHeight: { xs: 700, sm: 900 },
-// };
 
 interface RoomsInput {
   room: string;
@@ -44,13 +34,13 @@ interface RoomsInput {
 interface RoomReservationModalProps {
   setOpen: Function;
   isEdit?: boolean;
-  registerId?: string;
+  patientAccountId: string;
   setEvents?: (eventsCalendar: IEventsCalendar[]) => void;
   isOperatingRoomReservation?: boolean;
 }
 
 export const RoomReservationModal = (props: RoomReservationModalProps) => {
-  const { data: roomsRes, isLoadingRooms } = useGetAllRooms();
+  const { data: roomsRes, isLoading } = useGetAllRooms<'0' | '1'>(props.isOperatingRoomReservation ? '1' : '0');
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
@@ -89,23 +79,40 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     const endDate = data.endDate as any as Date;
     const room = data.room;
 
-    const isAvailable = await checkRoomAvailability({
-      id: room,
-      fechaInicio: dayjs(startTime).format('YYYY/MM/DDTHH:mm:ss'),
-      fechaFin: dayjs(endDate).format('YYYY/MM/DDTHH:mm:ss'),
-    });
-    if (!isAvailable)
+    const isAvailable = props.isOperatingRoomReservation
+      ? await getSurgeryRoomsReservations({
+          surgeryRoomId: room,
+          initialDate: dayjs(startTime).format('YYYY/MM/DDTHH:mm:ss'),
+          endDate: dayjs(endDate).format('YYYY/MM/DDTHH:mm:ss'),
+        })
+      : await getHospitalRoomReservations({
+          endDate: dayjs(endDate).format('YYYY/MM/DDTHH:mm:ss'),
+          initialDate: dayjs(startTime).format('YYYY/MM/DDTHH:mm:ss'),
+          roomId: room,
+        });
+    if (isAvailable.length > 0)
       return toast.warning(
         `El cuarto no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
       );
 
-    const roomFound = roomsRes.find((r) => r.id === room);
+    const roomFound = roomsRes?.find((r) => {
+      if (props.isOperatingRoomReservation) {
+        return (r as ISurgeryRoom).id_Quirofano === room;
+      } else {
+        return (r as IHospitalRoom).id_Cuarto === room;
+      }
+    });
+
     if (roomFound) {
       const roomObj: IRegisterRoom = {
-        id: roomFound.id,
+        id: props.isOperatingRoomReservation
+          ? (roomFound as ISurgeryRoom).id_Quirofano
+          : (roomFound as IHospitalRoom).id_Cuarto,
         nombre: roomFound.nombre,
-        id_TipoCuarto: roomFound.id_TipoCuarto,
-        precio: roomFound.precio,
+        id_TipoCuarto: props.isOperatingRoomReservation
+          ? (roomFound as ISurgeryRoom).id_TipoQuirofano
+          : (roomFound as IHospitalRoom).id_TipoCuarto,
+        precio: 0,
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
@@ -117,6 +124,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     setValueRooms('room', '');
   };
 
+  console.log({ roomValues });
   const onSubmitProcedures = async () => {
     if (roomValues.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
 
@@ -155,15 +163,13 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       }).then(async (res) => {
         if (res.isConfirmed) {
           try {
-            await addRegisterRoom({
-              id_Registro: props.registerId as string,
-              Cuartos: roomObj.map((event) => {
-                return {
-                  cuartoId: event.roomId,
-                  horaFin: event.end,
-                  horaInicio: event.start,
-                };
-              }),
+            await addHospitalizationSpace({
+              registroEspacioHospitalario: {
+                id_EspacioHospitalario: roomValues[0].id,
+                horaFin: roomValues[0].horaFin,
+                horaInicio: roomValues[0].horaInicio,
+              },
+              id_CuentaPaciente: props.patientAccountId,
             });
             Swal.fire({
               title: 'Reservación exitosa!',
@@ -273,7 +279,11 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     };
   }, []);
 
-  if (isLoadingRooms)
+  const hasSelectedRoom = () => {
+    return roomValues.length > 0;
+  };
+
+  if (isLoading)
     return (
       <Backdrop open>
         <CircularProgress />
@@ -298,20 +308,39 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>{'Habitaciones disponibles'}</Typography>
+              <Typography>
+                {props.isOperatingRoomReservation ? 'Quirófanos disponibles' : 'Habitaciones disponibles'}
+              </Typography>
               <TextField
                 select
-                label="Habitaciones"
+                label={props.isOperatingRoomReservation ? 'Quirófanos' : 'Habitaciones'}
                 fullWidth
                 {...registerRooms('room')}
                 value={watchRoomId}
                 error={!!errorsRooms.room?.message}
-                helperText={errorsRooms.room?.message}
+                helperText={errorsRooms.room?.message || (hasSelectedRoom() ? 'Ya hay un cuarto seleccionado' : '')}
+                disabled={hasSelectedRoom()}
               >
                 {roomsRes
-                  .filter((rm) => !roomValues.some((reservedRoom) => reservedRoom.id === rm.id))
+                  ?.filter((rm) => {
+                    const roomId = props.isOperatingRoomReservation
+                      ? (rm as ISurgeryRoom).id_Quirofano
+                      : (rm as IHospitalRoom).id_Cuarto;
+                    return !roomValues.some((reservedRoom) => reservedRoom.id === roomId);
+                  })
                   .map((rm) => (
-                    <MenuItem key={rm.id} value={rm.id}>
+                    <MenuItem
+                      key={
+                        props.isOperatingRoomReservation
+                          ? (rm as ISurgeryRoom).id_Quirofano
+                          : (rm as IHospitalRoom).id_Cuarto
+                      }
+                      value={
+                        props.isOperatingRoomReservation
+                          ? (rm as ISurgeryRoom).id_Quirofano
+                          : (rm as IHospitalRoom).id_Cuarto
+                      }
+                    >
                       {rm.nombre}
                     </MenuItem>
                   ))}

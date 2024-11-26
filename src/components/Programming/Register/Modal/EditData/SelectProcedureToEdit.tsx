@@ -21,11 +21,11 @@ import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { useState } from 'react';
 import { useGetAllSurgeryProcedures } from '../../../../../hooks/programming/useGetAllSurgeryProcedure';
 import { toast } from 'react-toastify';
-import { editRegisterProcedures } from '../../../../../services/programming/admissionRegisterService';
 import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
 import Swal from 'sweetalert2';
-import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
-import { ISurgery } from '../../../../../types/operatingRoom/suergeryProcedureTypes';
+import { ISurgicalProcedure } from '@/types/admission/admissionTypes';
+import { editProcedures } from '@/services/admission/admisionService';
+import { usePatientEntryPaginationStore } from '@/store/admission/usePatientEntryPagination';
 
 const HEADERS_TABLE = ['Nombre', 'Precio', 'Acciones'];
 const style = {
@@ -44,21 +44,19 @@ const style = {
 interface SelectProcedureToEditProps {
   setOpen: Function;
   setValue: Function;
-  procedures?: ISurgery[];
-  registerId: string;
+  patientAccountId: string;
+  procedures?: ISurgicalProcedure[];
 }
 
 export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
-  const { setOpen, procedures, registerId } = props;
+  const { setOpen, procedures, patientAccountId } = props;
   const { data: proceduresRes, isLoadingProcedures } = useGetAllSurgeryProcedures();
-  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
+  const refetch = usePatientEntryPaginationStore((state) => state.fetchData);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // const [selectedRow, setSelectedRow] = useState<any>(null);
   const [procedure, setProcedure] = useState<string>('');
-  const [proceduresList, setProceduresList] = useState<
-    Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>
-  >(procedures ?? []);
+  const [proceduresList, setProceduresList] = useState<ISurgicalProcedure[]>(procedures ?? []);
 
   const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -78,6 +76,8 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
     if (proceduresList.flatMap((p) => p.id_Cirugia).includes(procedure)) return handleClose();
     const procedureFound = proceduresRes.find((p) => p.id_Cirugia === procedure);
     if (!procedureFound) return toast.error('Procedimiento no encontrado');
+    console.log({ procedureFound });
+
     const newProceduresList = [...proceduresList, procedureFound];
     setProceduresList(newProceduresList);
     setProcedure('');
@@ -97,9 +97,9 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await editRegisterProcedures({
-            id_Registro: registerId,
-            id_Procedimientos: proceduresList.flatMap((p) => p.id_Cirugia),
+          await editProcedures({
+            id_CuentaPaciente: patientAccountId,
+            id_Cirugias: proceduresList.flatMap((p) => p.id_Cirugia),
           });
           Swal.fire({
             title: 'Agregado!',
@@ -194,8 +194,8 @@ export const SelectProcedureToEdit = (props: SelectProcedureToEditProps) => {
 };
 
 const ProceduresTable = (props: {
-  procedures?: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>;
-  setProcedures: (procedures: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>) => void;
+  procedures?: ISurgicalProcedure[];
+  setProcedures: (procedures: ISurgicalProcedure[]) => void;
 }) => {
   const { procedures, setProcedures } = props;
   return (
@@ -223,9 +223,9 @@ const ProceduresTable = (props: {
 };
 
 const ProceduresTableRow = (props: {
-  procedure: ISurgery | { id_Cirugia: string; nombre: string; precio: number };
-  setProcedures: (procedures: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>) => void;
-  procedures: Array<ISurgery | { id_Cirugia: string; nombre: string; precio: number }>;
+  procedure: ISurgicalProcedure;
+  setProcedures: (procedures: ISurgicalProcedure[]) => void;
+  procedures: ISurgicalProcedure[];
 }) => {
   const { procedure } = props;
   const handleDelete = () => {
