@@ -19,8 +19,6 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { usePatientAccountPaginationStore } from '../../../store/checkout/patientAcountsPagination';
 import { CloseAccountModal } from './Modal/CloseAccount';
-import { pdf } from '@react-pdf/renderer';
-import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { DiscountModal } from './Modal/DiscountModal';
 import { useGetDiscountConfig } from '../../../hooks/admission/useGetDiscountConfig';
@@ -36,6 +34,7 @@ import { createPatientAccountDeposit, getPatientAccount } from '../../../service
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
+import { generateAccountPDF } from './generateAccountPDF';
 const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
 interface PatientAccountTableBodyProps {
@@ -148,19 +147,20 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     try {
       const accountRes = await getPatientAccount(data.id_CuentaPaciente);
       setAccountInfo(accountRes);
-      const document = (
-        <BillCloseReport
-          cierreCuenta={accountInfo as any}
-          descuento={undefined}
-          total={accountInfo?.total}
-          notas={undefined}
-        />
-      );
-      // Generar el PDF en formato blob
-      const blob = await pdf(document).toBlob();
-      // Crear una URL para el blob y abrir una nueva pestaña
-      const url = URL.createObjectURL(blob);
-      window.open(url);
+      generateAccountPDF(accountRes);
+      // const document = (
+      //   <BillCloseReport
+      //     cierreCuenta={accountInfo as any}
+      //     descuento={undefined}
+      //     total={accountInfo?.total}
+      //     notas={undefined}
+      //   />
+      // );
+      // // Generar el PDF en formato blob
+      // const blob = await pdf(document).toBlob();
+      // // Crear una URL para el blob y abrir una nueva pestaña
+      // const url = URL.createObjectURL(blob);
+      // window.open(url);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
