@@ -248,7 +248,7 @@ const Article = () => {
             Id_SubCategoria: subcategory || null,
             habilitado: enabled,
           }}
-        ></TablePaginated>
+        />
       )}
 
       <ArticleModal open={modalOpen} itemId={articleId} onClose={handleModalClose} onSuccess={onSuccess} />

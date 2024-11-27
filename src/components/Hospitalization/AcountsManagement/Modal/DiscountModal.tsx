@@ -96,44 +96,38 @@ export const DiscountModal = ({
   onClose: () => void;
   open: boolean;
 }) => {
-  const { isLoading, data: existingDiscount } = useGetPatientAccountDiscount(Id_CuentaPaciente);
+  const {
+    isLoading,
+    data: existingDiscount,
+    refetch: refetchDiscount,
+  } = useGetPatientAccountDiscount(Id_CuentaPaciente);
+
   const [isGeneratingDiscount, setIsGeneratingDiscount] = useState(false);
+
+  const defaultValues = {
+    Id_CuentaPaciente,
+    TipoDescuento: DISCOUNT_TYPES.Porcentaje,
+    MontoDescuento: '',
+    MotivoDescuento: '',
+  };
+
   const {
     formState: { errors },
     watch,
     setValue,
     register,
     handleSubmit,
-    reset,
   } = useForm<DiscountFormData>({
-    defaultValues: {
+    defaultValues,
+    values: {
       Id_CuentaPaciente,
-      MontoDescuento: existingDiscount?.montoDescuento.toString() || '',
+      TipoDescuento:
+        DISCOUNT_TYPES[existingDiscount?.tipoDescuento as keyof typeof DISCOUNT_TYPES] || DISCOUNT_TYPES.Porcentaje,
+      MontoDescuento: Number(existingDiscount?.montoDescuento) > 0 ? existingDiscount?.montoDescuento.toString() : '',
       MotivoDescuento: existingDiscount?.motivoDescuento || '',
-      TipoDescuento: existingDiscount?.tipoDescuento
-        ? DISCOUNT_TYPES[existingDiscount.tipoDescuento as keyof typeof DISCOUNT_TYPES] || DISCOUNT_TYPES.Porcentaje
-        : DISCOUNT_TYPES.Porcentaje,
     },
     resolver: zodResolver(discountFormSchema),
   });
-
-  useEffect(() => {
-    if (existingDiscount) {
-      reset({
-        Id_CuentaPaciente,
-        MontoDescuento: existingDiscount.montoDescuento.toString(),
-        MotivoDescuento: existingDiscount.motivoDescuento || '',
-        TipoDescuento: DISCOUNT_TYPES[existingDiscount.tipoDescuento as keyof typeof DISCOUNT_TYPES],
-      });
-    } else {
-      reset({
-        Id_CuentaPaciente,
-        MontoDescuento: '',
-        MotivoDescuento: '',
-        TipoDescuento: DISCOUNT_TYPES.Porcentaje as DiscountType,
-      });
-    }
-  }, [existingDiscount, Id_CuentaPaciente, reset]);
 
   const onSubmit = async (data: DiscountFormData) => {
     try {
@@ -146,6 +140,7 @@ export const DiscountModal = ({
       });
       setOpen(false);
       toast.success('Descuento aplicado correctamente');
+      refetchDiscount();
       onClose();
     } catch (error) {
       console.error('Error al aplicar el descuento:', error);
@@ -165,6 +160,28 @@ export const DiscountModal = ({
     handleDiscountTypeChange();
   }, [watch('TipoDescuento')]);
 
+  const handleCancel = async () => {
+    const data = watch();
+    console.log('handleCancel:');
+    try {
+      setIsGeneratingDiscount(true);
+      await applyDiscountPatientBill({
+        id: data.Id_CuentaPaciente,
+        montoDescuento: Number(0),
+        motivoDescuento: data.MotivoDescuento,
+        tipoDescuento: data.TipoDescuento,
+      });
+      setOpen(false);
+      toast.success('Descuento eliminado correctamente');
+      refetchDiscount();
+    } catch (error) {
+      console.error('Error al eliminar el descuento:', error);
+      toast.error('Error al eliminar el descuento');
+    } finally {
+      setIsGeneratingDiscount(false);
+    }
+  };
+
   if (isLoading)
     return (
       <Backdrop open={isLoading}>
@@ -174,7 +191,7 @@ export const DiscountModal = ({
 
   const actions = (
     <>
-      <Button variant="outlined" color="error" onClick={() => setOpen(false)}>
+      <Button variant="outlined" color="error" onClick={handleCancel}>
         Cancelar
       </Button>
       <div className="col"></div>
