@@ -179,7 +179,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Generar venta" />
+      <HeaderModal setOpen={props.setOpen} title="Cobrar Venta" />
       <Box sx={{ display: 'flex', bgcolor: 'background.paper', p: 4, overflowY: 'auto', ...scrollBarStyle }}>
         <Stack sx={{ display: 'flex', flex: 1 }} spacing={2}>
           <Box sx={{ display: 'flex', columnGap: 1 }}>
@@ -271,10 +271,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
               </Stack>
             </>
           )}
-          <Stack>
-            <Typography>No. Factura Relacionada</Typography>
-            <TextField placeholder="No. Factura" inputRef={numberInvoiceRef} />
-          </Stack>
+
           <Stack>
             <Typography>Notas</Typography>
             <TextField placeholder="Notas" multiline inputRef={noteRef} />
@@ -293,7 +290,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
           Cancelar
         </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          Generar venta
+          Cobrar Venta{' '}
         </Button>
       </Box>
     </Box>
