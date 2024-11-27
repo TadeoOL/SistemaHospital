@@ -62,6 +62,7 @@ import {
   OperatingPackagesView,
   MedicalConsultationView,
   PatientKardexView,
+  CheckoutReportView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -164,6 +165,9 @@ function App() {
             </Route>
             // ---------------------------------------- Invoice ------------------------------//
             <Route path="/facturas" element={<InvoiceView />} />
+            <Route path="/reportes">
+              <Route path="caja" element={<CheckoutReportView />}></Route>
+            </Route>
           </Route>
         </Route>
         <Route element={<LoginRoute />}>

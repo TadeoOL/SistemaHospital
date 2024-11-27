@@ -102,6 +102,7 @@ export const Layout: React.FC = () => {
     '/hospitalizacion/configuracion-solicitudes': 'Configuración de Estudios de Gabinete',
     '/hospitalizacion/medicos': 'Medicos',
     '/hospitalizacion/guardias-medicos': 'Calendario de Guardias Medicos',
+    '/reportes/caja': 'Reporte de Caja',
   };
 
   const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
