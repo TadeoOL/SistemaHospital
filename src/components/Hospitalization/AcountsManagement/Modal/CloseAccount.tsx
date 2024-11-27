@@ -34,9 +34,11 @@ import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { PriceCell } from '../../../Commons/PriceCell';
 import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
 import { useGetPatientAccount } from '../../../../hooks/checkout/useGetPatientAccount';
-import { IPatientInfo, PatientAccountStatus } from '../../../../types/checkout/patientAccountTypes';
-import { changeStatusPatientAccount } from '../../../../services/checkout/patientAccount';
+import { DepositType, IPatientInfo, PatientAccountStatus } from '../../../../types/checkout/patientAccountTypes';
+import { changeStatusPatientAccount, createPatientAccountDeposit } from '../../../../services/checkout/patientAccount';
 import { ModalBasic } from '@/common/components';
+import { Modal } from '@mui/material';
+import { DiscountModal } from './DiscountModal';
 
 interface CloseAccountModalProps {
   setOpen: Function;
@@ -51,7 +53,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   // const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   // const profile = useAuthStore(useShallow((state) => state.profile));
   const [notes, setNotes] = useState('');
-  const { data, isLoading, error } = useGetPatientAccount(props.id_Cuenta);
+  const { data, isLoading, error, refetch: refetchAccount } = useGetPatientAccount(props.id_Cuenta);
   const viewOnly = data?.estatusCuenta !== PatientAccountStatus.Admitted;
 
   // const [discount, setDiscount] = useState('');
@@ -59,6 +61,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
 
   const [surgeryPrice] = useState('');
   const [modified, setModified] = useState(false);
+  const [openDiscount, setOpenDiscount] = useState(false);
 
   // const [discountType, setDiscountType] = useState<'percentage' | 'amount' | null>(null);
   // const [discountValue, setDiscountValue] = useState('');
@@ -216,6 +219,52 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const totalArticles = data?.articulos?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
   const totalEquipment = data?.equipoHonorario?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
 
+  const conn = useConnectionSocket((state) => state.conn);
+
+  const handleGenerateCheckout = () => {
+    if (!data) return;
+
+    Swal.fire({
+      title: '¿Estás seguro de querer generar el pase de caja?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      reverseButtons: true,
+      preConfirm: async () => {
+        if (conn === null) {
+          toast.error('Error, sin conexión al websocket');
+          return;
+        }
+        try {
+          const object = {
+            id_CuentaPaciente: props.id_Cuenta,
+            cantidad: data.total,
+            tipoDeposito: DepositType.Settlement,
+          };
+          const res = await createPatientAccountDeposit(object);
+          const resObj = {
+            estatus: res.estadoVenta,
+            folio: res.folio,
+            id_VentaPrincipal: res.id,
+            moduloProveniente: 'Cierre cuenta',
+            paciente: data.paciente?.nombrePaciente,
+            totalVenta: res.totalVenta,
+            tipoPago: res.tipoPago,
+            id_UsuarioPase: res.id_UsuarioVenta,
+            nombreUsuario: res.usuarioVenta?.nombre,
+          };
+          conn.invoke('SendSell', resObj);
+          Swal.fire('Success', 'Pase de caja generado correctamente', 'success');
+          refetch();
+        } catch (error) {
+          console.log('error:', error);
+          Swal.fire('Error', 'Error al generar el pase de caja', 'error');
+        }
+      },
+    });
+  };
+
   if (error && !isLoading) {
     return (
       <ModalBasic
@@ -244,6 +293,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       </ModalBasic>
     );
   }
+  const paseCaja = data?.estatusCuenta === PatientAccountStatus.Closed;
 
   const actions = (
     <>
@@ -251,6 +301,16 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         Cancelar
       </Button>
       <div className="col"></div>
+      {paseCaja && (
+        <>
+          <Button variant="contained" color="primary" onClick={() => setOpenDiscount(true)}>
+            Descuento
+          </Button>
+          <Button variant="contained" color="primary" onClick={handleGenerateCheckout}>
+            Pase de Caja
+          </Button>
+        </>
+      )}
       {!viewOnly && (
         <Button
           variant="contained"
@@ -266,58 +326,71 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     </>
   );
 
+  const onCloseDiscount = () => {
+    console.log('onCloseDiscount:');
+    setOpenDiscount(false);
+    refetchAccount();
+  };
+
   return (
-    <ModalBasic
-      header={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
-      open={props.open}
-      onClose={() => props.setOpen(false)}
-      actions={actions}
-    >
-      <Box>
+    <>
+      <ModalBasic
+        header={`Cierre de cuenta ${data ? ` - Paciente: ${data.paciente?.nombrePaciente}` : ''}`}
+        open={props.open}
+        onClose={() => props.setOpen(false)}
+        actions={actions}
+      >
+        <DiscountModal
+          setOpen={setOpenDiscount}
+          Id_CuentaPaciente={props.id_Cuenta}
+          open={openDiscount}
+          onClose={onCloseDiscount}
+        />
         <Box>
-          {isLoading && !error ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-              <CircularProgress size={35} />
-            </Box>
-          ) : (
-            data && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                <PatientInformation
-                  patient={data.paciente ?? ({} as IPatientInfo)}
-                  medic={data.paciente?.nombreMedico ?? ''}
-                  isHospitalization={false}
-                  ventaConcepto={totalServices}
-                  ventaArticuloIVA={totalArticles}
-                  ventaArticuloSinIVA={totalEquipment}
-                />
-                <DataTable
-                  title="Cuartos"
-                  data={data.cuartos ?? []}
-                  columns={[
-                    { key: 'nombre', header: 'Nombre' },
-                    { key: 'cantidadDias', header: 'Cantidad de Dias' },
-                    { key: 'precioDia', header: 'Precio por Dia' },
-                    { key: 'neto', header: 'Precio Neto' },
-                    { key: 'iva', header: 'IVA' },
-                    { key: 'total', header: 'Precio Total' },
-                  ]}
-                />
-                <DataTable
-                  title="Quirofanos / Recuperacion"
-                  data={data.quirofanos ?? []}
-                  columns={[
-                    { key: 'nombre', header: 'Nombre' },
-                    { key: 'tiempo', header: 'Tiempo' },
-                    { key: 'neto', header: 'Precio Neto' },
-                    { key: 'iva', header: 'IVA' },
-                    { key: 'total', header: 'Precio Total' },
-                  ]}
-                  isOperatingRoom={!viewOnly}
-                  modified={modified}
-                  setModified={setModified}
-                  id_PatientBill={props.id_Cuenta}
-                />
-                {/* <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
+          <Box>
+            {isLoading && !error ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress size={35} />
+              </Box>
+            ) : (
+              data && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                  <PatientInformation
+                    patient={data.paciente ?? ({} as IPatientInfo)}
+                    medic={data.paciente?.nombreMedico ?? ''}
+                    isHospitalization={false}
+                    ventaConcepto={totalServices}
+                    ventaArticuloIVA={totalArticles}
+                    ventaArticuloSinIVA={totalEquipment}
+                  />
+                  <DataTable
+                    title="Cuartos"
+                    data={data.cuartos ?? []}
+                    columns={[
+                      { key: 'nombre', header: 'Nombre' },
+                      { key: 'cantidadDias', header: 'Cantidad de Dias' },
+                      { key: 'precioDia', header: 'Precio por Dia' },
+                      { key: 'neto', header: 'Precio Neto' },
+                      { key: 'iva', header: 'IVA' },
+                      { key: 'total', header: 'Precio Total' },
+                    ]}
+                  />
+                  <DataTable
+                    title="Quirofanos / Recuperacion"
+                    data={data.quirofanos ?? []}
+                    columns={[
+                      { key: 'nombre', header: 'Nombre' },
+                      { key: 'tiempo', header: 'Tiempo' },
+                      { key: 'neto', header: 'Precio Neto' },
+                      { key: 'iva', header: 'IVA' },
+                      { key: 'total', header: 'Precio Total' },
+                    ]}
+                    isOperatingRoom={!viewOnly}
+                    modified={modified}
+                    setModified={setModified}
+                    id_PatientBill={props.id_Cuenta}
+                  />
+                  {/* <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
                 <FormControlLabel
                   required
                   control={
@@ -346,29 +419,29 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   </Box>
                 )}
               </Box> */}
-                <DataTable
-                  title="Procedimientos"
-                  data={data.cirugias ?? []}
-                  columns={[
-                    { key: 'nombre', header: 'Nombre' },
-                    { key: 'neto', header: 'Precio Neto' },
-                    { key: 'iva', header: 'IVA' },
-                    { key: 'total', header: 'Precio Total' },
-                    // { key: 'estatus', header: 'Estatus' },
-                  ]}
-                />
+                  <DataTable
+                    title="Procedimientos"
+                    data={data.cirugias ?? []}
+                    columns={[
+                      { key: 'nombre', header: 'Nombre' },
+                      { key: 'neto', header: 'Precio Neto' },
+                      { key: 'iva', header: 'IVA' },
+                      { key: 'total', header: 'Precio Total' },
+                      // { key: 'estatus', header: 'Estatus' },
+                    ]}
+                  />
 
-                <DataTable
-                  title="Servicios"
-                  data={data.servicios ?? []}
-                  columns={[
-                    { key: 'nombre', header: 'Nombre' },
-                    { key: 'neto', header: 'Precio Neto' },
-                    { key: 'iva', header: 'IVA' },
-                    { key: 'total', header: 'Precio Total' },
-                  ]}
-                />
-                {/* <DataTable
+                  <DataTable
+                    title="Servicios"
+                    data={data.servicios ?? []}
+                    columns={[
+                      { key: 'nombre', header: 'Nombre' },
+                      { key: 'neto', header: 'Precio Neto' },
+                      { key: 'iva', header: 'IVA' },
+                      { key: 'total', header: 'Precio Total' },
+                    ]}
+                  />
+                  {/* <DataTable
                 title="Equipos Biomédicos"
                 data={data.equiposBiomedicos ?? []}
                 columns={[
@@ -379,109 +452,109 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                 ]}
                 haveDiscount={data?.descuento}
               /> */}
-                <DataTable
-                  title="Equipos Biomédicos Externos"
-                  data={data.equipoHonorario ?? []}
-                  columns={[
-                    { key: 'nombre', header: 'Nombre' },
-                    { key: 'neto', header: 'Precio Neto' },
-                    { key: 'iva', header: 'IVA' },
-                    { key: 'total', header: 'Precio Total' },
-                  ]}
-                />
-                <DataTable
-                  title="Artículos"
-                  data={data.articulos ?? []}
-                  columns={[
-                    { key: 'nombre', header: 'Nombre' },
-                    { key: 'solicitadoEn', header: 'Solicitado en' },
-                    { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
-                    { key: 'neto', header: 'Precio Neto' },
-                    { key: 'iva', header: 'IVA' },
-                    { key: 'total', header: 'Precio Total' },
-                  ]}
-                />
-                <DataTable
-                  title="Pagos de la Cuenta"
-                  data={data.pagosCuenta ?? []}
-                  columns={[
-                    { key: 'folio', header: 'Folio' },
-                    { key: 'fechaPago', header: 'Fecha de Pago' },
-                    { key: 'monto', header: 'Monto' },
-                  ]}
-                />
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <PriceCell originalPrice={data.subTotal} discountedPrice={data.subTotalDescuento} />
+                  <DataTable
+                    title="Equipos Biomédicos Externos"
+                    data={data.equipoHonorario ?? []}
+                    columns={[
+                      { key: 'nombre', header: 'Nombre' },
+                      { key: 'neto', header: 'Precio Neto' },
+                      { key: 'iva', header: 'IVA' },
+                      { key: 'total', header: 'Precio Total' },
+                    ]}
+                  />
+                  <DataTable
+                    title="Artículos"
+                    data={data.articulos ?? []}
+                    columns={[
+                      { key: 'nombre', header: 'Nombre' },
+                      { key: 'solicitadoEn', header: 'Solicitado en' },
+                      { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
+                      { key: 'neto', header: 'Precio Neto' },
+                      { key: 'iva', header: 'IVA' },
+                      { key: 'total', header: 'Precio Total' },
+                    ]}
+                  />
+                  <DataTable
+                    title="Pagos de la Cuenta"
+                    data={data.pagosCuenta ?? []}
+                    columns={[
+                      { key: 'folio', header: 'Folio' },
+                      { key: 'fechaPago', header: 'Fecha de Pago' },
+                      { key: 'monto', header: 'Monto' },
+                    ]}
+                  />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <PriceCell originalPrice={data.subTotal} discountedPrice={data.subTotalDescuento} />
+                      </Box>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
+                      </Box>
                     </Box>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
+                      </Box>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data.descuento?.toFixed(2)}%</Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
+                      </Box>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.iva.toFixed(2)}</Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
+                      </Box>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.total.toFixed(2)}</Typography>
+                      </Box>
                     </Box>
                   </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
-                    </Box>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data.descuento?.toFixed(2)}%</Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
-                    </Box>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.iva.toFixed(2)}</Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
-                    </Box>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.total.toFixed(2)}</Typography>
-                    </Box>
-                  </Box>
-                </Box>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
+                      </Box>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.totalPagos.toFixed(2)}</Typography>
+                      </Box>
                     </Box>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.totalPagos.toFixed(2)}</Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Restante:</Typography>
-                    </Box>
-                    <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-                        ${(data.total - data.totalPagos).toFixed(2)}
-                      </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Restante:</Typography>
+                      </Box>
+                      <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                          ${(data.total - data.totalPagos).toFixed(2)}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
-            )
-          )}
-        </Box>
-        <Typography
-          sx={{
-            bgcolor: 'background.paper',
-            py: 2,
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          variant="h4"
-          textAlign={'center'}
-        ></Typography>
-        {/* <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
+              )
+            )}
+          </Box>
+          <Typography
+            sx={{
+              bgcolor: 'background.paper',
+              py: 2,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            variant="h4"
+            textAlign={'center'}
+          ></Typography>
+          {/* <Box sx={{ bgcolor: 'background.paper', py: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <FormControlLabel
             required
@@ -568,18 +641,19 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         )}
       </Box> */}
 
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            display: 'flex',
-            justifyContent: 'space-between',
-            p: 1,
-            borderBottomLeftRadius: 10,
-            borderBottomRightRadius: 10,
-          }}
-        ></Box>
-      </Box>
-    </ModalBasic>
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              display: 'flex',
+              justifyContent: 'space-between',
+              p: 1,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+            }}
+          ></Box>
+        </Box>
+      </ModalBasic>
+    </>
   );
 };
 
@@ -710,99 +784,101 @@ export const DataTable = <T,>({
   };
 
   return (
-    <Box sx={{ p: 1, width: '100%', margin: 'auto', fontSize: '0.875rem' }}>
-      <Typography variant="h6" sx={{ mb: 2, fontSize: '1.1rem' }}>
-        {title}
-      </Typography>
-      <TableContainer sx={{ border: '1px solid #ccc', borderRadius: '4px', fontSize: '0.875rem' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {columns.map((col) => (
-                <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
-                  {col.header}
-                </TableCell>
-              ))}
-              {isOperatingRoom && <TableCell sx={{ fontSize: '0.875rem' }}>Acciones</TableCell>}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.length > 0 ? (
-              data.map((row: any, index) => (
-                <TableRow key={index}>
-                  {columns.map((col) => {
-                    const cellValue = row[col.key];
-                    if (col.key === 'neto' && row.netoDescuento !== undefined && row.netoDescuento !== null) {
+    <>
+      <Box sx={{ p: 1, width: '100%', margin: 'auto', fontSize: '0.875rem' }}>
+        <Typography variant="h6" sx={{ mb: 2, fontSize: '1.1rem' }}>
+          {title}
+        </Typography>
+        <TableContainer sx={{ border: '1px solid #ccc', borderRadius: '4px', fontSize: '0.875rem' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {columns.map((col) => (
+                  <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
+                    {col.header}
+                  </TableCell>
+                ))}
+                {isOperatingRoom && <TableCell sx={{ fontSize: '0.875rem' }}>Acciones</TableCell>}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.length > 0 ? (
+                data.map((row: any, index) => (
+                  <TableRow key={index}>
+                    {columns.map((col) => {
+                      const cellValue = row[col.key];
+                      if (col.key === 'neto' && row.netoDescuento !== undefined && row.netoDescuento !== null) {
+                        return (
+                          <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
+                            <PriceCell originalPrice={cellValue} discountedPrice={row.netoDescuento} />
+                          </TableCell>
+                        );
+                      }
+                      const formattedValue =
+                        typeof cellValue === 'number' ? `$${cellValue.toFixed(2)}` : String(cellValue);
                       return (
                         <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
-                          <PriceCell originalPrice={cellValue} discountedPrice={row.netoDescuento} />
+                          {formattedValue}
                         </TableCell>
                       );
-                    }
-                    const formattedValue =
-                      typeof cellValue === 'number' ? `$${cellValue.toFixed(2)}` : String(cellValue);
-                    return (
-                      <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
-                        {formattedValue}
+                    })}
+                    {isOperatingRoom && (
+                      <TableCell sx={{ fontSize: '0.875rem' }}>
+                        {row['nombre'] !== 'Recuperacion' && (
+                          <Tooltip title="Cambiar configuración">
+                            <IconButton size="small" onClick={(event) => handleClick(event, row)}>
+                              <Settings fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </TableCell>
-                    );
-                  })}
-                  {isOperatingRoom && (
-                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                      {row['nombre'] !== 'Recuperacion' && (
-                        <Tooltip title="Cambiar configuración">
-                          <IconButton size="small" onClick={(event) => handleClick(event, row)}>
-                            <Settings fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  )}
+                    )}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} sx={{ p: 1, fontSize: '0.875rem', textAlign: 'center' }}>
+                    Sin registros
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} sx={{ p: 1, fontSize: '0.875rem', textAlign: 'center' }}>
-                  Sin registros
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        slotProps={{ paper: { sx: { p: 2, width: '250px' } } }}
-      >
-        {[
-          <Typography key="title" variant="subtitle1" gutterBottom>
-            Configurar Quirófano
-          </Typography>,
-          <Select
-            key="select"
-            value={tipoQuirofano}
-            onChange={(e) => handleChangeTipoQuirofano(e)}
-            displayEmpty
-            fullWidth
-            sx={{ mb: 2 }}
-          >
-            <MenuItem value="">
-              <em>Seleccionar tipo de quirófano</em>
-            </MenuItem>
-            {operatingRoomsList.map((opRoom) => (
-              <MenuItem key={opRoom.id} value={opRoom.id}>
-                {opRoom.nombre}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          slotProps={{ paper: { sx: { p: 2, width: '250px' } } }}
+        >
+          {[
+            <Typography key="title" variant="subtitle1" gutterBottom>
+              Configurar Quirófano
+            </Typography>,
+            <Select
+              key="select"
+              value={tipoQuirofano}
+              onChange={(e) => handleChangeTipoQuirofano(e)}
+              displayEmpty
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              <MenuItem value="">
+                <em>Seleccionar tipo de quirófano</em>
               </MenuItem>
-            ))}
-          </Select>,
-          <Button key="button" variant="contained" color="primary" fullWidth onClick={handleConfirm}>
-            Aceptar
-          </Button>,
-        ]}
-      </Menu>
-    </Box>
+              {operatingRoomsList.map((opRoom) => (
+                <MenuItem key={opRoom.id} value={opRoom.id}>
+                  {opRoom.nombre}
+                </MenuItem>
+              ))}
+            </Select>,
+            <Button key="button" variant="contained" color="primary" fullWidth onClick={handleConfirm}>
+              Aceptar
+            </Button>,
+          ]}
+        </Menu>
+      </Box>
+    </>
   );
 };

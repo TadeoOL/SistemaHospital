@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { DISCOUNT_TYPES, DiscountType, DiscountTypeKey } from '../../../../types/checkout/discountTypes';
 import { applyDiscountPatientBill } from '../../../../services/checkout/patientAccount';
 import { useGetPatientAccountDiscount } from '../../../../hooks/checkout/useGetPatientAccountDiscount';
+import { ModalBasic } from '@/common/components';
 
 const style = {
   position: 'absolute',
@@ -101,9 +102,13 @@ const Coin = styled(Box)(() => ({
 export const DiscountModal = ({
   setOpen,
   Id_CuentaPaciente,
+  onClose,
+  open,
 }: {
   setOpen: (open: boolean) => void;
   Id_CuentaPaciente: string;
+  onClose: () => void;
+  open: boolean;
 }) => {
   const { isLoading, data: existingDiscount } = useGetPatientAccountDiscount(Id_CuentaPaciente);
   const [isGeneratingDiscount, setIsGeneratingDiscount] = useState(false);
@@ -148,6 +153,7 @@ export const DiscountModal = ({
       });
       setOpen(false);
       toast.success('Descuento aplicado correctamente');
+      onClose();
     } catch (error) {
       console.error('Error al aplicar el descuento:', error);
       toast.error('Error al aplicar el descuento');
@@ -162,16 +168,33 @@ export const DiscountModal = ({
         <CircularProgress />
       </Backdrop>
     );
+
+  const actions = (
+    <>
+      <Button variant="outlined" color="error" onClick={() => setOpen(false)}>
+        Cancelar
+      </Button>
+      <div className="col"></div>
+      <Button variant="contained" type="submit" form="discount-form">
+        {existingDiscount ? 'Actualizar' : 'Aplicar'}
+      </Button>
+    </>
+  );
   return (
-    <Box sx={style}>
-      <HeaderModal title={existingDiscount ? 'Editar descuento' : 'Aplicar descuento'} setOpen={setOpen} />
+    <ModalBasic header={'Descuento'} isLoading={isLoading} onClose={onClose} open={open} actions={actions}>
       <Box
         component="form"
         id="discount-form"
         onSubmit={handleSubmit(onSubmit, (errors) => {
           console.log(errors);
         })}
-        sx={{ display: 'flex', flexDirection: 'column', p: 2, bgcolor: 'background.paper' }}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          p: 2,
+          bgcolor: 'background.paper',
+          minWidth: { xs: 380, sm: 550 },
+        }}
       >
         <Controller
           name="MontoDescuento"
@@ -239,14 +262,6 @@ export const DiscountModal = ({
           </Box>
         </Backdrop>
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper' }}>
-        <Button variant="outlined" color="error" onClick={() => setOpen(false)}>
-          Cancelar
-        </Button>
-        <Button variant="contained" type="submit" form="discount-form">
-          {existingDiscount ? 'Actualizar' : 'Aplicar'}
-        </Button>
-      </Box>
-    </Box>
+    </ModalBasic>
   );
 };

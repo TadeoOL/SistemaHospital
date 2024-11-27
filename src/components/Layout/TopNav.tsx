@@ -11,6 +11,11 @@ import { AccountPopover } from './AccountPopover';
 import { useAuthStore } from '../../store/auth';
 import homelogo from '../../assets/homeLogoHSB.svg';
 import RightSideNav from './RightSideNav';
+import { ThemeMode } from '@/config';
+import useConfig from '@/hooks/useConfig';
+
+import MenuFoldOutlined from '@ant-design/icons/MenuFoldOutlined';
+import MenuUnfoldOutlined from '@ant-design/icons/MenuUnfoldOutlined';
 
 export const TopNav: React.FC<{
   toggleSidebar: () => void;
@@ -37,6 +42,8 @@ export const TopNav: React.FC<{
   const SIDE_NAV_WIDTH = 70;
   const theme = useTheme();
   const xlUp = useMediaQuery(theme.breakpoints.up('lg'));
+  const { mode } = useConfig();
+  const iconBackColor = mode === ThemeMode.DARK ? 'background.default' : 'grey.100';
 
   return (
     <>
@@ -44,7 +51,7 @@ export const TopNav: React.FC<{
         component="header"
         sx={{
           backdropFilter: 'blur(6px)',
-          backgroundColor: (theme: any) => alpha(theme.palette.background.default, 0.8),
+          backgroundColor: 'white',
           position: 'sticky',
           left: {
             lg: `${SIDE_NAV_WIDTH}px`,
@@ -72,8 +79,13 @@ export const TopNav: React.FC<{
           }}
         >
           <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
-            <IconButton size="small" onClick={toggleSidebar} sx={{ ml: 1 }}>
-              <MenuIcon />
+            <IconButton
+              aria-label="open drawer"
+              onClick={toggleSidebar}
+              color="secondary"
+              sx={{ color: 'text.primary', bgcolor: isOpen ? 'transparent' : iconBackColor, ml: 1 }}
+            >
+              {!isOpen ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </IconButton>
             <Box component="img" src={homelogo} sx={{ height: 30 }} />
           </Stack>

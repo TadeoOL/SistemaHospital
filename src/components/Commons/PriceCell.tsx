@@ -7,8 +7,6 @@ interface PriceCellProps {
 }
 
 export const PriceCell: React.FC<PriceCellProps> = ({ originalPrice, discountedPrice, variant = 'default' }) => {
-  console.log('originalPrice:', originalPrice);
-  console.log('discountedPrice:', discountedPrice);
   const getStyles = () => {
     switch (variant) {
       case 'medium':
