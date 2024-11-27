@@ -1,4 +1,4 @@
-import { Box, keyframes, Backdrop, Button, CircularProgress } from '@mui/material';
+import { Box, keyframes, Backdrop, Button, CircularProgress, Grid } from '@mui/material';
 import { styled } from '@mui/system';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -200,36 +200,44 @@ export const DiscountModal = ({
           minWidth: { xs: 380, sm: 550 },
         }}
       >
-        <InputBasic
-          value={watch('MontoDescuento')}
-          label="Monto de descuento"
-          {...register('MontoDescuento')}
-          error={!!errors.MontoDescuento}
-          helperText={errors.MontoDescuento?.message}
-        />
-        <InputBasic
-          value={watch('MotivoDescuento')}
-          label="Motivo del descuento"
-          {...register('MotivoDescuento')}
-          error={!!errors.MotivoDescuento}
-          helperText={errors.MotivoDescuento?.message}
-          multiline
-          rows={3}
-        />
-        <SelectBasic
-          label="Tipo de descuento"
-          value={watch('TipoDescuento')}
-          {...register('TipoDescuento')}
-          error={!!errors.TipoDescuento}
-          helperText={errors.TipoDescuento?.message}
-          select
-          uniqueProperty="value"
-          displayProperty="label"
-          options={Object.keys(DISCOUNT_TYPES).map((tipo) => ({
-            value: DISCOUNT_TYPES[tipo as DiscountTypeKey],
-            label: tipo,
-          }))}
-        />
+        <Grid component="span" container spacing={2}>
+          <Grid item xs={12} md={12}>
+            <SelectBasic
+              label="Tipo de descuento"
+              value={watch('TipoDescuento')}
+              {...register('TipoDescuento')}
+              error={!!errors.TipoDescuento}
+              helperText={errors.TipoDescuento?.message}
+              select
+              uniqueProperty="value"
+              displayProperty="label"
+              options={Object.keys(DISCOUNT_TYPES).map((tipo) => ({
+                value: DISCOUNT_TYPES[tipo as DiscountTypeKey],
+                label: tipo,
+              }))}
+            />
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <InputBasic
+              value={watch('MontoDescuento')}
+              label="Monto de descuento"
+              {...register('MontoDescuento')}
+              error={!!errors.MontoDescuento}
+              helperText={errors.MontoDescuento?.message}
+            />
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <InputBasic
+              value={watch('MotivoDescuento')}
+              label="Motivo del descuento"
+              {...register('MotivoDescuento')}
+              error={!!errors.MotivoDescuento}
+              helperText={errors.MotivoDescuento?.message}
+              multiline
+              rows={3}
+            />
+          </Grid>
+        </Grid>
 
         <Backdrop open={isGeneratingDiscount}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
