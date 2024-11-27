@@ -65,6 +65,7 @@ const messagesByLink: Record<string, string> = {
   '/hospitalizacion/configuracion-solicitudes': 'Configuración de Servicios',
   '/hospitalizacion/medicos': 'Medicos',
   '/hospitalizacion/guardias-medicos': 'Calendario de Guardias Medicos',
+  '/reportes/caja': 'Reporte de Caja',
 };
 
 const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

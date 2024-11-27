@@ -31,7 +31,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
     name,
     ...other
   } = props;
-  
+
   const getUniqueProperty = (item: any) => {
     if (!uniqueProperty) return item;
     if (!item) return '';

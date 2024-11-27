@@ -7,6 +7,7 @@ import { IPagination } from '../../types/paginationType';
 
 export const getPatientAccount = async (id: string): Promise<IPatientAccount> => {
   const res = await axios.get(`${apiUrl}/obtener-cuenta-paciente/${id}`);
+  console.log('res:', res);
   return res.data;
 };
 
@@ -15,10 +16,7 @@ export const getPatientAccountPagination = async (param: string): Promise<IPagin
   return res.data;
 };
 
-export const changeStatusPatientAccount = async (data: {
-  id: string;
-  estatus: number;
-}) => {
+export const changeStatusPatientAccount = async (data: { id: string; estatus: number }) => {
   const res = await axios.put(`${apiUrl}/estatus-cuenta-paciente`, data);
   return res.data;
 };

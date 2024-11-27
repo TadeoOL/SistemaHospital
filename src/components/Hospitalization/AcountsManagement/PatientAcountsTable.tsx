@@ -131,7 +131,6 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data } = props;
   const [accountInfo, setAccountInfo] = useState<IPatientAccount | null>(null);
-  const [openDiscount, setOpenDiscount] = useState(false);
   const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
   const userId = useAuthStore((state) => state.profile?.id);
   const [viewOnly, setViewOnly] = useState(false);
@@ -243,16 +242,16 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
               data.estatus === PatientAccountStatus.Closed &&
               !data.paseCaja && (
                 <>
-                  <Tooltip title="Aplicar descuento">
+                  {/* <Tooltip title="Aplicar descuento">
                     <IconButton onClick={() => setOpenDiscount(true)}>
                       <Discount color="success" />
                     </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Pase de caja">
+                  </Tooltip> */}
+                  {/* <Tooltip title="Pase de caja">
                     <IconButton onClick={handleGenerateCheckout}>
                       <ReceiptLong color="primary" />
                     </IconButton>
-                  </Tooltip>
+                  </Tooltip> */}
                 </>
               )}
             {data.estatus !== PatientAccountStatus.Scheduled && (
@@ -304,11 +303,6 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
             )}
           </Box>
         </Box>
-      </Modal>
-      <Modal open={openDiscount} onClose={() => setOpenDiscount(false)}>
-        <>
-          <DiscountModal setOpen={setOpenDiscount} Id_CuentaPaciente={data.id_CuentaPaciente} />
-        </>
       </Modal>
     </>
   );

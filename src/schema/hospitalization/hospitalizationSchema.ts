@@ -7,7 +7,7 @@ export const biomedicalEquipmentSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Nombre es requerido'),
   description: z.string().optional(),
-  codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
+  codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
   codigoSAT: z.string().min(1, 'El código es necesario'),
   price: z
     .union([
@@ -66,7 +66,7 @@ export const xraySchema = z.object({
       return p;
     })
     .refine((p) => p !== 0, { message: 'El numero debe ser mayor a 0' }),
-    autorization: z.boolean(),
+  autorization: z.boolean(),
   //codigoSAT: z.string().min(1, 'El código es necesario'),
   //codigoUnidadMedida: z.number({invalid_type_error: 'El código es necesario'}),
 });
@@ -144,17 +144,31 @@ export const discountFormSchema = z
   .object({
     Id_CuentaPaciente: z.string().min(1, 'El id de la cuenta es necesario'),
     MontoDescuento: z
-      .number({ invalid_type_error: 'El monto del descuento es necesario' })
-      .min(0, 'El monto del descuento es necesario'),
-    MotivoDescuento: z.string().optional(),
+      .string({ invalid_type_error: 'El monto del descuento es necesario' })
+      .min(1, 'El monto del descuento es necesario'),
+    MotivoDescuento: z
+      .string({ invalid_type_error: 'El motivo del descuento es necesario' })
+      .min(1, 'El motivo del descuento es necesario'),
     TipoDescuento: z
       .number({ invalid_type_error: 'El tipo de descuento es necesario' })
       .min(1, 'El tipo de descuento es necesario'),
   })
   .refine(
     (data) => {
+      if (isNaN(Number(data.MontoDescuento))) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'El monto del descuento debe ser un número',
+      path: ['MontoDescuento'],
+    }
+  )
+  .refine(
+    (data) => {
       if (data.TipoDescuento === 1) {
-        return data.MontoDescuento <= 100;
+        return Number(data.MontoDescuento) <= 100;
       }
       return true;
     },

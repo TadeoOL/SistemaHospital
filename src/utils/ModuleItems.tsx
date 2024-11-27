@@ -11,6 +11,7 @@ import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import {
   admission,
   checkout,
@@ -50,6 +51,7 @@ import {
   MedicalServices,
   AttachMoney,
   Work,
+  Report,
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
@@ -458,5 +460,18 @@ export const ModuleList: IModuleItemsList[] = [
       },
     ],
     path: 'enfermeria',
+  },
+  {
+    categoryTitle: 'Reportes',
+    icon: <AssignmentIcon />,
+    moduleItems: [
+      {
+        title: 'Reporte de Caja',
+        path: '/reportes/caja',
+        icon: <PointOfSale />,
+        protectedRoles: nurseRole,
+      },
+    ],
+    path: 'reportes',
   },
 ];
