@@ -225,7 +225,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     if (!data) return;
 
     Swal.fire({
-      title: '¿Estás seguro de querer generar el pase de caja?',
+      title: '¿Desea liquidar esta cuenta?',
+      text: `Se generara una venta en caja de un monto de $${data.totalRestante}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -257,9 +258,11 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
           conn.invoke('SendSell', resObj);
           Swal.fire('Success', 'Pase de caja generado correctamente', 'success');
           refetch();
-        } catch (error) {
+          refetchAccount();
+        } catch (error: any) {
           console.log('error:', error);
-          Swal.fire('Error', 'Error al generar el pase de caja', 'error');
+          const message = error.response?.data?.message[0] || 'Error al generar el pase de caja';
+          Swal.fire('Error', message, 'error');
         }
       },
     });
@@ -293,7 +296,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       </ModalBasic>
     );
   }
-  const paseCaja = data?.estatusCuenta === PatientAccountStatus.Closed;
+  const paseCaja = data?.estatusCuenta === PatientAccountStatus.Closed && data?.paseCaja === false;
 
   const actions = (
     <>
@@ -307,7 +310,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
             Descuento
           </Button>
           <Button variant="contained" color="primary" onClick={handleGenerateCheckout}>
-            Pase de Caja
+            Liquidar cuenta
           </Button>
         </>
       )}
@@ -486,7 +489,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%', p: 1 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                        <PriceCell originalPrice={data.subTotal} discountedPrice={data.subTotalDescuento} />
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>SubTotal:</Typography>
                       </Box>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
                         <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>

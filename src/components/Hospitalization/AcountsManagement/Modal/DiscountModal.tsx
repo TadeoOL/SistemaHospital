@@ -1,32 +1,18 @@
-import { Box, keyframes, Backdrop, Button, Typography, TextField, MenuItem, CircularProgress } from '@mui/material';
+import { Box, keyframes, Backdrop, Button, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
 import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { discountFormSchema } from '../../../../schema/hospitalization/hospitalizationSchema';
 import { toast } from 'react-toastify';
 import { DISCOUNT_TYPES, DiscountType, DiscountTypeKey } from '../../../../types/checkout/discountTypes';
 import { applyDiscountPatientBill } from '../../../../services/checkout/patientAccount';
 import { useGetPatientAccountDiscount } from '../../../../hooks/checkout/useGetPatientAccountDiscount';
-import { ModalBasic } from '@/common/components';
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550 },
-  borderRadius: 2,
-  boxShadow: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: { xs: 900 },
-};
+import { InputBasic, ModalBasic, SelectBasic } from '@/common/components';
 
 interface DiscountFormData {
   Id_CuentaPaciente: string;
-  MontoDescuento: number;
+  MontoDescuento: string;
   MotivoDescuento: string;
   TipoDescuento: DiscountType;
 }
@@ -112,10 +98,17 @@ export const DiscountModal = ({
 }) => {
   const { isLoading, data: existingDiscount } = useGetPatientAccountDiscount(Id_CuentaPaciente);
   const [isGeneratingDiscount, setIsGeneratingDiscount] = useState(false);
-  const { control, handleSubmit, reset } = useForm<DiscountFormData>({
+  const {
+    formState: { errors },
+    watch,
+    setValue,
+    register,
+    handleSubmit,
+    reset,
+  } = useForm<DiscountFormData>({
     defaultValues: {
       Id_CuentaPaciente,
-      MontoDescuento: existingDiscount?.montoDescuento || 0,
+      MontoDescuento: existingDiscount?.montoDescuento.toString() || '',
       MotivoDescuento: existingDiscount?.motivoDescuento || '',
       TipoDescuento: existingDiscount?.tipoDescuento
         ? DISCOUNT_TYPES[existingDiscount.tipoDescuento as keyof typeof DISCOUNT_TYPES] || DISCOUNT_TYPES.Porcentaje
@@ -128,14 +121,14 @@ export const DiscountModal = ({
     if (existingDiscount) {
       reset({
         Id_CuentaPaciente,
-        MontoDescuento: existingDiscount.montoDescuento,
+        MontoDescuento: existingDiscount.montoDescuento.toString(),
         MotivoDescuento: existingDiscount.motivoDescuento || '',
         TipoDescuento: DISCOUNT_TYPES[existingDiscount.tipoDescuento as keyof typeof DISCOUNT_TYPES],
       });
     } else {
       reset({
         Id_CuentaPaciente,
-        MontoDescuento: 0,
+        MontoDescuento: '',
         MotivoDescuento: '',
         TipoDescuento: DISCOUNT_TYPES.Porcentaje as DiscountType,
       });
@@ -147,7 +140,7 @@ export const DiscountModal = ({
       setIsGeneratingDiscount(true);
       await applyDiscountPatientBill({
         id: data.Id_CuentaPaciente,
-        montoDescuento: data.MontoDescuento,
+        montoDescuento: Number(data.MontoDescuento),
         motivoDescuento: data.MotivoDescuento,
         tipoDescuento: data.TipoDescuento,
       });
@@ -161,6 +154,16 @@ export const DiscountModal = ({
       setIsGeneratingDiscount(false);
     }
   };
+
+  const handleDiscountTypeChange = () => {
+    const discountType = watch('TipoDescuento');
+    setValue('MontoDescuento', '');
+    console.log('discountType:', discountType);
+  };
+
+  useEffect(() => {
+    handleDiscountTypeChange();
+  }, [watch('TipoDescuento')]);
 
   if (isLoading)
     return (
@@ -180,6 +183,7 @@ export const DiscountModal = ({
       </Button>
     </>
   );
+
   return (
     <ModalBasic header={'Descuento'} isLoading={isLoading} onClose={onClose} open={open} actions={actions}>
       <Box
@@ -196,65 +200,37 @@ export const DiscountModal = ({
           minWidth: { xs: 380, sm: 550 },
         }}
       >
-        <Controller
-          name="MontoDescuento"
-          control={control}
-          rules={{
-            required: 'Este campo es requerido',
-            min: { value: 0, message: 'El monto debe ser mayor o igual a 0' },
-          }}
-          render={({ field, fieldState: { error } }) => (
-            <>
-              <Typography variant="subtitle1" gutterBottom>
-                Monto de descuento
-              </Typography>
-              <TextField
-                {...field}
-                type="number"
-                inputProps={{ step: '0.01' }}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  field.onChange(value === '' ? null : parseFloat(value));
-                }}
-                error={!!error}
-                helperText={error?.message}
-              />
-            </>
-          )}
+        <InputBasic
+          value={watch('MontoDescuento')}
+          label="Monto de descuento"
+          {...register('MontoDescuento')}
+          error={!!errors.MontoDescuento}
+          helperText={errors.MontoDescuento?.message}
+        />
+        <InputBasic
+          value={watch('MotivoDescuento')}
+          label="Motivo del descuento"
+          {...register('MotivoDescuento')}
+          error={!!errors.MotivoDescuento}
+          helperText={errors.MotivoDescuento?.message}
+          multiline
+          rows={3}
+        />
+        <SelectBasic
+          label="Tipo de descuento"
+          value={watch('TipoDescuento')}
+          {...register('TipoDescuento')}
+          error={!!errors.TipoDescuento}
+          helperText={errors.TipoDescuento?.message}
+          select
+          uniqueProperty="value"
+          displayProperty="label"
+          options={Object.keys(DISCOUNT_TYPES).map((tipo) => ({
+            value: DISCOUNT_TYPES[tipo as DiscountTypeKey],
+            label: tipo,
+          }))}
         />
 
-        <Controller
-          name="MotivoDescuento"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Typography variant="subtitle1" gutterBottom>
-                Motivo del descuento
-              </Typography>
-              <TextField {...field} multiline rows={3} />
-            </>
-          )}
-        />
-
-        <Controller
-          name="TipoDescuento"
-          control={control}
-          rules={{ required: 'Este campo es requerido' }}
-          render={({ field, fieldState: { error } }) => (
-            <>
-              <Typography variant="subtitle1" gutterBottom>
-                Tipo de descuento
-              </Typography>
-              <TextField {...field} select error={!!error} helperText={error?.message}>
-                {Object.keys(DISCOUNT_TYPES).map((tipo) => (
-                  <MenuItem key={tipo} value={DISCOUNT_TYPES[tipo as DiscountTypeKey]}>
-                    {tipo}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </>
-          )}
-        />
         <Backdrop open={isGeneratingDiscount}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Coin>$</Coin>
