@@ -9,6 +9,8 @@ const isLonger = (name: string) => {
 };
 
 export const ProviderNameChip = (props: ProviderNameChip) => {
+  if (!props.provider?.length) return null;
+
   return (
     <React.Fragment>
       {props.provider.map((p) => {

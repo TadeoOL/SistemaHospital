@@ -225,7 +225,7 @@ export const PurchaseAuthorizationTable = () => {
                           <TableCell>{auth.usuarioSolicitado}</TableCell>
                           <TableCell>
                             <ProviderNameChip
-                              provider={auth.solicitudProveedor.map((p) => {
+                              provider={auth.solicitudProveedor?.map((p) => {
                                 return {
                                   id: p.proveedor.id_Proveedor,
                                   name: p.proveedor.nombre,
@@ -298,7 +298,7 @@ export const PurchaseAuthorizationTable = () => {
                           </TableCell>
                         </TableRow>
                         <TableCell colSpan={7} sx={{ p: 0 }}>
-                          <Collapse in={viewArticles[auth.id_SolicitudCompra]}>
+                          <Collapse in={(viewArticles && viewArticles[auth.id_SolicitudCompra]) || false}>
                             <Table>
                               <TableHead>
                                 <TableRow>
@@ -308,7 +308,10 @@ export const PurchaseAuthorizationTable = () => {
                                   <TableCell align="center">P. Total</TableCell>
                                 </TableRow>
                               </TableHead>
-                              {auth.solicitudProveedor[0].solicitudCompraArticulos.map((request) => (
+                              {(auth?.solicitudProveedor
+                                ? auth?.solicitudProveedor[0]?.solicitudCompraArticulos
+                                : []
+                              ).map((request) => (
                                 <TableBody key={request.id}>
                                   <TableRow>
                                     <TableCell align="center">{request.articulo.nombre}</TableCell>

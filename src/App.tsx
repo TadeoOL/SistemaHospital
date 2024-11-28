@@ -73,8 +73,12 @@ import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
 import DashboardLayout from './common/components/Layout/DashboardLayout';
+import { useTheme } from '@mui/material';
 
 function App() {
+  // const theme = useTheme();
+  // console.log('theme:', theme);
+  // const font: any = theme.typography.fontFamily;
   return (
     <Locales>
       <BrowserRouter>

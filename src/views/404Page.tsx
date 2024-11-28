@@ -2,9 +2,23 @@ import { Box, Button, Container, SvgIcon, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import NotFoundLogo from '../assets/error-404.webp';
 import { useNavigate } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      navigate('/inicio');
+    }
+  }, [location.pathname]);
+
+  if (location.pathname === '/') {
+    return null;
+  }
+
   return (
     <>
       <Box

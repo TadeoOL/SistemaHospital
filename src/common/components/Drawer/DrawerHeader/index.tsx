@@ -31,11 +31,11 @@ export default function DrawerHeader({ open }: Props) {
         width: isHorizontal ? { xs: '100%', lg: '424px' } : 'initial',
         paddingTop: isHorizontal ? { xs: '10px', lg: '0' } : '8px',
         paddingBottom: isHorizontal ? { xs: '18px', lg: '0' } : '8px',
-        paddingLeft: isHorizontal ? { xs: '24px', lg: '0' } : open ? '24px' : 0,
+        paddingLeft: isHorizontal ? { xs: '24px', lg: '0' } : open ? '0px' : 0,
+        paddingRight: isHorizontal ? { xs: '24px', lg: '0' } : open ? '20px' : 0,
       }}
     >
-      <LogoIcon></LogoIcon>
-      {/* </LogoIcon> */}
+      <LogoIcon big={open} />
       {/* <Logo isIcon={!open} sx={{ width: open ? 'auto' : 35, height: 35 }} /> */}
     </DrawerHeaderStyled>
   );

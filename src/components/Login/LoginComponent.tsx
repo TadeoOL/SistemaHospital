@@ -65,7 +65,6 @@ export const LoginComponent: React.FC<{}> = () => {
       setToken(user.token);
       setProfile(user);
       toast.done('Inicio de sesion correcto!');
-      await sleep(2000);
       navigate('/inicio');
     } catch (error) {
       console.log(error);
