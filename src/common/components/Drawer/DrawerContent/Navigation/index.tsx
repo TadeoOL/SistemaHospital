@@ -36,15 +36,7 @@ export default function Navigation() {
   const [menuItems, setMenuItems] = useState<{ items: NavItemType[] }>({ items: [] });
 
   useLayoutEffect(() => {
-    // const isFound = menuItem.items.some((element) => {
-    //   if (element.id === 'group-dashboard') {
-    //     return true;
-    //   }
-    //   return false;
-    // });
-
     setMenuItems({ items: [...menuItem.items] });
-    // eslint-disable-next-line
   }, []);
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;

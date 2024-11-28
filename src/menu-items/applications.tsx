@@ -97,401 +97,25 @@ const icons = {
   Assignment,
 };
 
-// ==============================|| MENU ITEMS - APPLICATIONS ||============================== //
-
-// export const ModuleList: IModuleItemsList[] = [
-//   {
-//     categoryTitle: 'Inicio',
-//     moduleItems: [
-//       {
-//         title: 'Inicio',
-//         path: '/',
-//         icon: <DashboardIcon sx={{ color: '#fff' }} />,
-//         mainDashboard: purchaseGlobalRoles,
-//       },
-//     ],
-//   },
-//   {
-//     categoryTitle: 'Compras',
-//     icon: <ShoppingBasket />,
-//     path: 'compras',
-//     moduleItems: [
-//       {
-//         title: 'Compras',
-//         path: '/compras/solicitud-compras',
-//         icon: <AddShoppingCartIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: [...supplyRoles, ...purchasingDirector],
-//         mainDashboard: ['ABASTECIMIENTO', 'DIRECTORCOMPRAS'],
-//       },
-//       {
-//         title: 'Autorizaciones',
-//         path: '/compras/autorizacion-compras',
-//         icon: <RuleIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: purchasingDirector,
-//         childrenItems: ['autorizaciones', 'historial-autorizaciones'],
-//       },
-//       {
-//         title: 'Catálogos',
-//         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
-//         path: '#',
-//         protectedRoles: supplyRoles,
-//         topLevel: true,
-//         children: [
-//           {
-//             title: 'Artículos',
-//             path: '/compras/articulos',
-//             icon: <ArticleIcon sx={{ color: '#fff' }} />,
-//             childrenItems: ['articulo', 'articulo-existente'],
-//             protectedRoles: supplyRoles,
-//           },
-//           {
-//             title: 'Categorías',
-//             path: '/compras/categorias',
-//             icon: <FormatListBulletedIcon sx={{ color: '#fff' }} />,
-//             childrenItems: ['categoria', 'subcategoria'],
-//             protectedRoles: supplyRoles,
-//           },
-//           {
-//             title: 'Subcategorías',
-//             path: '/compras/subcategorias',
-//             icon: <FormatListBulletedIcon sx={{ color: '#fff' }} />,
-//             childrenItems: ['categoria', 'subcategoria'],
-//             protectedRoles: supplyRoles,
-//           },
-//           {
-//             title: 'Proveedores',
-//             path: '/compras/proveedores',
-//             icon: <PermContactCalendarIcon sx={{ color: '#fff' }} />,
-//             protectedRoles: supplyRoles,
-//           },
-//         ],
-//       },
-//       {
-//         title: 'Configuración',
-//         path: '/compras/configuracion-compras',
-//         icon: <SettingsIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: purchasingDirector,
-//       },
-//     ],
-//   },
-//   {
-//     categoryTitle: 'Almacen',
-//     icon: <WarehouseIcon />,
-//     moduleItems: [
-//       {
-//         title: 'Almacén',
-//         path: '/almacenes',
-//         icon: <WarehouseIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
-//       },
-//     ],
-//     path: 'almacenes',
-//   },
-//   {
-//     categoryTitle: 'Farmacia',
-//     icon: <LocalPharmacy />,
-//     moduleItems: [
-//       {
-//         title: 'Punto de venta',
-//         path: '/farmacia/punto-venta',
-//         icon: <PointOfSale sx={{ color: '#fff' }} />,
-//         protectedRoles: pharmacyManager,
-//       },
-//       {
-//         title: 'Salidas y existencias',
-//         path: '/farmacia/catalogo',
-//         icon: <ArticleIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: pharmacyManager,
-//       },
-//       {
-//         title: 'Historial de ventas',
-//         path: '/farmacia/historial-ventas',
-//         icon: <History sx={{ color: '#fff' }} />,
-//         protectedRoles: pharmacyDirectorRole,
-//       },
-//       {
-//         title: 'Configuración',
-//         path: '/farmacia/configuracion-farmacia',
-//         icon: <SettingsIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: pharmacyDirectorRole,
-//       },
-//     ],
-//     path: 'farmacia',
-//   },
-//   {
-//     categoryTitle: 'Caja', //Antes Ventas
-//     icon: <PointOfSale />,
-//     moduleItems: [
-//       {
-//         title: 'Caja del Día',
-//         path: '/ventas/caja',
-//         icon: <PointOfSale sx={{ color: '#fff' }} />,
-//         protectedRoles: checkout,
-//         mainDashboard: checkout,
-//       },
-//       {
-//         title: 'Cierre de cuenta',
-//         path: '/ventas/cierre-de-cuenta',
-//         icon: <Receipt sx={{ color: '#fff' }} />,
-//         protectedRoles: closeAccount,
-//       },
-//       {
-//         title: 'Emitir Pase a Caja',
-//         path: '/ventas/emitir-recibo',
-//         icon: <ReceiptLongIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: checkoutSell,
-//         mainDashboard: checkoutSell,
-//       },
-//       {
-//         title: 'Facturación',
-//         path: '/facturas',
-//         icon: <LiaFileInvoiceDollarSolid />,
-//         protectedRoles: invoiceAdmin,
-//       },
-//       {
-//         title: 'Cuentas Pendientes Por Pagar',
-//         path: '/admision/cuentas-pendientes-por-pagar',
-//         icon: <Receipt sx={{ color: '#fff' }} />,
-//         protectedRoles: purchaseGlobalRoles,
-//       },
-//       {
-//         title: 'Historial de Cortes',
-//         path: '/ventas/historial-cortes',
-//         icon: <ManageHistoryIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: checkoutAdmin,
-//         mainDashboard: checkoutAdmin,
-//       },
-//       {
-//         title: 'Configuración',
-//         path: '/ventas/configuracion-usuarios',
-//         icon: <SettingsIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: checkoutAdmin,
-//       },
-//     ],
-//     path: 'ventas',
-//   },
-//   {
-//     categoryTitle: 'Programacion',
-//     icon: <LocalHospital />,
-//     moduleItems: [
-//       {
-//         title: 'Registro de pacientes',
-//         path: '/programacion/registro',
-//         icon: <HowToReg sx={{ color: '#fff' }} />,
-//         protectedRoles: programation,
-//       },
-//       {
-//         title: 'Programación de eventos',
-//         path: '/programacion/registro-eventos',
-//         icon: <HowToReg sx={{ color: '#fff' }} />,
-//         protectedRoles: programation,
-//       },
-//       {
-//         title: 'Catálogos',
-//         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
-//         path: '#',
-//         protectedRoles: programation,
-//         topLevel: true,
-//         children: [
-//           {
-//             title: 'Gestión de espacios hospitalarios',
-//             path: '/programacion/gestion-espacios-hospitalarios',
-//             icon: <Hotel sx={{ color: '#fff' }} />,
-//             protectedRoles: programation,
-//           },
-//           {
-//             title: 'Categorías de espacios hospitalarios',
-//             path: '/programacion/categorias-espacios-hospitalarios',
-//             icon: <FaHouseChimneyMedical />,
-//             protectedRoles: programation,
-//           },
-//         ],
-//       },
-//     ],
-//     path: 'programacion',
-//   },
-//   {
-//     categoryTitle: 'Admisión',
-//     icon: <SensorDoor />,
-//     moduleItems: [
-//       {
-//         title: 'Ingreso de pacientes',
-//         path: '/admision/ingreso-pacientes',
-//         icon: <MeetingRoom />,
-//         protectedRoles: admission,
-//       },
-//       {
-//         title: 'Consultas médicas',
-//         path: '/admision/consultas-medicas',
-//         icon: <MedicalServices />,
-//         protectedRoles: admission,
-//       },
-//     ],
-//     path: 'admision',
-//   },
-//   {
-//     categoryTitle: 'Hospitalización',
-//     icon: <MonitorHeart />,
-//     moduleItems: [
-//       {
-//         title: 'Solicitud de Servicios',
-//         path: '/hospitalizacion/servicios-solicitud',
-//         icon: <LiaXRaySolid />,
-//         protectedRoles: hospitalizationANDnurse,
-//       },
-//       {
-//         title: 'Solicitud de Artículos',
-//         path: '/hospitalizacion/solicitud-enfermero',
-//         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: nurseRole,
-//       },
-//       {
-//         title: 'Cuartos Hospitalarios',
-//         path: '/hospitalizacion/cuartos-hospitalarios',
-//         icon: <FaHospitalSymbol />,
-//         protectedRoles: hospitalization,
-//       },
-//       {
-//         title: 'Calendario de cuartos',
-//         path: '/hospitalizacion/calendario-cuartos-asignados',
-//         icon: <CalendarMonth sx={{ color: '#fff' }} />,
-//         protectedRoles: hospitalizationANDnurse,
-//       },
-//     ],
-//     path: 'hospitalizacion',
-//   },
-//   {
-//     categoryTitle: 'Quirófano',
-//     icon: <MonitorHeart />,
-//     moduleItems: [
-//       {
-//         title: 'Operaciones del dia',
-//         path: '/quirofano/operaciones-del-dia',
-//         icon: <GiMedicalDrip />,
-//         protectedRoles: operatingRoomANDnurse,
-//       },
-//       {
-//         title: 'Recuperación',
-//         path: '/quirofano/recuperacion',
-//         icon: <AirlineSeatFlat sx={{ color: '#fff' }} />,
-//         protectedRoles: operatingRoomANDnurse,
-//       },
-//       {
-//         title: 'Catálogos',
-//         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
-//         path: '#',
-//         protectedRoles: programation,
-//         topLevel: true,
-//         children: [
-//           {
-//             title: 'Paquetes Quirúrgicos',
-//             path: '/quirofano/paquetes-quirurgicos',
-//             icon: <Work sx={{ color: '#fff' }} />,
-//             protectedRoles: programation,
-//           },
-//           {
-//             title: 'Medicos',
-//             path: '/quirofano/medicos',
-//             icon: <FaUserDoctor />,
-//             protectedRoles: programation,
-//           },
-//           {
-//             title: 'Anestesiólogos',
-//             path: '/quirofano/anestesiologos',
-//             icon: <GroupAdd sx={{ color: '#fff' }} />,
-//             protectedRoles: programation,
-//           },
-//           {
-//             title: 'Procedimientos de cirugía',
-//             path: '/quirofano/procedimientos-cirugia',
-//             icon: <Vaccines sx={{ color: '#fff' }} />,
-//             protectedRoles: programation,
-//           },
-//         ],
-//       },
-//     ],
-//     path: 'quirofano',
-//   },
-//   {
-//     categoryTitle: 'Servicios',
-//     icon: <MedicationLiquid />,
-//     moduleItems: [
-//       {
-//         title: 'Administrar Solicitudes de Servicios',
-//         path: '/servicios/solicitudes-administracion',
-//         icon: <FactCheckIcon sx={{ color: '#fff' }} />,
-//         protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
-//       },
-//       {
-//         title: 'Catálogos',
-//         icon: <MenuBookOutlinedIcon sx={{ color: '#fff' }} />,
-//         path: '#',
-//         protectedRoles: hospitalization,
-//         topLevel: true,
-//         children: [
-//           /*{
-//             title: 'Equipo Biomédico',
-//             path: '/biomedico/equipo-biomedico',
-//             icon: <MedicalInformation sx={{ color: '#fff' }} />,
-//             protectedRoles: hospitalization,
-//           },*/
-//           {
-//             title: 'Estudios de Gabinete',
-//             path: '/servicios/solicitudes',
-//             icon: <LiaXRaySolid />,
-//             protectedRoles: hospitalization,
-//           },
-//         ],
-//       },
-//       {
-//         title: 'Configuración',
-//         path: '/servicios/configuracion-solicitudes',
-//         icon: <SettingsIcon />,
-//         protectedRoles: supplyRoles,
-//       },
-//     ],
-//     path: 'biomedico',
-//   },
-//   {
-//     categoryTitle: 'Presupuestos',
-//     icon: <AttachMoney />,
-//     moduleItems: [
-//       {
-//         title: 'Guardias Medicos',
-//         path: '/presupuestos/guardias-medicos',
-//         icon: <FaLaptopMedical />,
-//         protectedRoles: hospitalization,
-//       },
-//     ],
-//     path: 'presupuestos',
-//   },
-//   {
-//     categoryTitle: 'Enfermería',
-//     icon: <MedicalServices />,
-//     moduleItems: [
-//       {
-//         title: 'Cuartos Asignados',
-//         path: '/enfermeria/cuartos-hospitalarios-asignados',
-//         icon: <FaHospitalSymbol />,
-//         protectedRoles: nurseRole,
-//       },
-//     ],
-//     path: 'enfermeria',
-//   },
-//   {
-//     categoryTitle: 'Reportes',
-//     icon: <AssignmentIcon />,
-//     moduleItems: [
-//       {
-//         title: 'Reporte de Caja',
-//         path: '/reportes/caja',
-//         icon: <PointOfSale />,
-//         protectedRoles: nurseRole,
-//       },
-//     ],
-//     path: 'reportes',
-//   },
-// ];
+import {
+  admission,
+  checkout,
+  checkoutAdmin,
+  checkoutSell,
+  closeAccount,
+  hospitalization,
+  hospitalizationANDnurse,
+  invoiceAdmin,
+  nurseRole,
+  operatingRoomANDnurse,
+  pharmacyDirectorRole,
+  pharmacyManager,
+  programation,
+  purchaseGlobalRoles,
+  purchasingDirector,
+  supplyRoles,
+  xrayAdmin,
+} from '@/utils/dataRoles';
 
 const applications: NavItemType = {
   id: 'group-applications',
@@ -518,6 +142,7 @@ const applications: NavItemType = {
           url: '/compras/solicitud-compras',
           icon: icons.AddShoppingCart,
           type: 'item',
+          protectedRoles: [...supplyRoles, ...purchasingDirector],
         },
         {
           id: 'autorizaciones',
@@ -525,6 +150,7 @@ const applications: NavItemType = {
           url: '/compras/autorizacion-compras',
           icon: icons.Rule,
           type: 'item',
+          protectedRoles: purchasingDirector,
         },
         {
           id: 'catalogos',
@@ -538,6 +164,7 @@ const applications: NavItemType = {
               url: '/compras/articulos',
               icon: icons.Article,
               type: 'item',
+              protectedRoles: supplyRoles,
             },
             {
               id: 'categorias',
@@ -545,6 +172,7 @@ const applications: NavItemType = {
               url: '/compras/categorias',
               icon: icons.FormatListBulleted,
               type: 'item',
+              protectedRoles: supplyRoles,
             },
             {
               id: 'subcategorias',
@@ -552,6 +180,7 @@ const applications: NavItemType = {
               url: '/compras/subcategorias',
               icon: icons.FormatListBulleted,
               type: 'item',
+              protectedRoles: supplyRoles,
             },
             {
               id: 'proveedores',
@@ -559,6 +188,7 @@ const applications: NavItemType = {
               url: '/compras/proveedores',
               icon: icons.PermContactCalendar,
               type: 'item',
+              protectedRoles: supplyRoles,
             },
           ],
         },
@@ -568,6 +198,7 @@ const applications: NavItemType = {
           url: '/compras/configuracion-compras',
           icon: icons.Settings,
           type: 'item',
+          protectedRoles: purchasingDirector,
         },
       ],
     },
@@ -577,6 +208,7 @@ const applications: NavItemType = {
       type: 'item',
       url: '/almacenes',
       icon: icons.Warehouse,
+      protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
     },
     {
       id: 'farmacia',
@@ -590,6 +222,7 @@ const applications: NavItemType = {
           url: '/farmacia/punto-venta',
           icon: icons.PointOfSale,
           type: 'item',
+          protectedRoles: pharmacyManager,
         },
         {
           id: 'salidas-existencias',
@@ -597,6 +230,7 @@ const applications: NavItemType = {
           url: '/farmacia/catalogo',
           icon: icons.Article,
           type: 'item',
+          protectedRoles: pharmacyManager,
         },
         {
           id: 'historial-ventas',
@@ -604,6 +238,7 @@ const applications: NavItemType = {
           url: '/farmacia/historial-ventas',
           icon: icons.History,
           type: 'item',
+          protectedRoles: pharmacyDirectorRole,
         },
         {
           id: 'configuracion-farmacia',
@@ -611,6 +246,7 @@ const applications: NavItemType = {
           url: '/farmacia/configuracion-farmacia',
           icon: icons.Settings,
           type: 'item',
+          protectedRoles: pharmacyDirectorRole,
         },
       ],
     },
@@ -626,6 +262,7 @@ const applications: NavItemType = {
           url: '/ventas/caja',
           icon: icons.PointOfSale,
           type: 'item',
+          protectedRoles: checkout,
         },
         {
           id: 'cierre-cuenta',
@@ -633,6 +270,7 @@ const applications: NavItemType = {
           url: '/ventas/cierre-de-cuenta',
           icon: icons.Receipt,
           type: 'item',
+          protectedRoles: closeAccount,
         },
         {
           id: 'emitir-recibo',
@@ -640,6 +278,7 @@ const applications: NavItemType = {
           url: '/ventas/emitir-recibo',
           icon: icons.ReceiptLong,
           type: 'item',
+          protectedRoles: checkoutSell,
         },
         {
           id: 'facturacion',
@@ -647,6 +286,7 @@ const applications: NavItemType = {
           url: '/facturas',
           icon: icons.ReceiptLong,
           type: 'item',
+          protectedRoles: invoiceAdmin,
         },
         {
           id: 'cuentas-pendientes-por-pagar',
@@ -654,6 +294,7 @@ const applications: NavItemType = {
           url: '/admision/cuentas-pendientes-por-pagar',
           icon: icons.Receipt,
           type: 'item',
+          protectedRoles: purchaseGlobalRoles,
         },
         {
           id: 'historial-cortes',
@@ -661,6 +302,7 @@ const applications: NavItemType = {
           url: '/ventas/historial-cortes',
           icon: icons.ManageHistory,
           type: 'item',
+          protectedRoles: checkoutAdmin,
         },
         {
           id: 'configuracion-usuarios',
@@ -668,6 +310,7 @@ const applications: NavItemType = {
           url: '/ventas/configuracion-usuarios',
           icon: icons.Settings,
           type: 'item',
+          protectedRoles: checkoutAdmin,
         },
       ],
     },
@@ -683,6 +326,7 @@ const applications: NavItemType = {
           url: '/programacion/registro',
           icon: icons.HowToReg,
           type: 'item',
+          protectedRoles: programation,
         },
         {
           id: 'registro-eventos',
@@ -690,6 +334,7 @@ const applications: NavItemType = {
           url: '/programacion/registro-eventos',
           icon: icons.HowToReg,
           type: 'item',
+          protectedRoles: programation,
         },
         {
           id: 'catalogos',
@@ -703,6 +348,7 @@ const applications: NavItemType = {
               url: '/programacion/gestion-espacios-hospitalarios',
               icon: icons.Hotel,
               type: 'item',
+              protectedRoles: programation,
             },
             {
               id: 'categorias-espacios-hospitalarios',
@@ -710,6 +356,7 @@ const applications: NavItemType = {
               url: '/programacion/categorias-espacios-hospitalarios',
               icon: icons.Hotel,
               type: 'item',
+              protectedRoles: programation,
             },
           ],
         },
@@ -727,6 +374,7 @@ const applications: NavItemType = {
           url: '/admision/ingreso-pacientes',
           icon: icons.MeetingRoom,
           type: 'item',
+          protectedRoles: admission,
         },
         {
           id: 'consultas-medicas',
@@ -734,6 +382,7 @@ const applications: NavItemType = {
           url: '/admision/consultas-medicas',
           icon: icons.MedicalServices,
           type: 'item',
+          protectedRoles: admission,
         },
       ],
     },
@@ -749,6 +398,7 @@ const applications: NavItemType = {
           url: '/hospitalizacion/servicios-solicitud',
           icon: icons.FactCheck,
           type: 'item',
+          protectedRoles: hospitalizationANDnurse,
         },
         {
           id: 'solicitud-articulos',
@@ -756,6 +406,7 @@ const applications: NavItemType = {
           url: '/hospitalizacion/solicitud-enfermero',
           icon: icons.FactCheck,
           type: 'item',
+          protectedRoles: nurseRole,
         },
         {
           id: 'cuartos-hospitalarios',
@@ -763,6 +414,7 @@ const applications: NavItemType = {
           url: '/hospitalizacion/cuartos-hospitalarios',
           icon: icons.Hotel,
           type: 'item',
+          protectedRoles: hospitalization,
         },
         {
           id: 'calendario-cuartos',
@@ -770,6 +422,7 @@ const applications: NavItemType = {
           url: '/hospitalizacion/calendario-cuartos-asignados',
           icon: icons.CalendarMonth,
           type: 'item',
+          protectedRoles: hospitalizationANDnurse,
         },
       ],
     },
@@ -785,6 +438,7 @@ const applications: NavItemType = {
           url: '/quirofano/operaciones-del-dia',
           icon: icons.AirlineSeatFlat,
           type: 'item',
+          protectedRoles: operatingRoomANDnurse,
         },
         {
           id: 'recuperacion',
@@ -792,6 +446,7 @@ const applications: NavItemType = {
           url: '/quirofano/recuperacion',
           icon: icons.AirlineSeatFlat,
           type: 'item',
+          protectedRoles: operatingRoomANDnurse,
         },
         {
           id: 'catalogos',
@@ -805,6 +460,7 @@ const applications: NavItemType = {
               url: '/quirofano/paquetes-quirurgicos',
               icon: icons.Work,
               type: 'item',
+              protectedRoles: programation,
             },
             {
               id: 'medicos',
@@ -812,6 +468,7 @@ const applications: NavItemType = {
               url: '/quirofano/medicos',
               icon: icons.GroupAdd,
               type: 'item',
+              protectedRoles: programation,
             },
             {
               id: 'anestesiologos',
@@ -819,6 +476,7 @@ const applications: NavItemType = {
               url: '/quirofano/anestesiologos',
               icon: icons.GroupAdd,
               type: 'item',
+              protectedRoles: programation,
             },
             {
               id: 'procedimientos-cirugia',
@@ -826,6 +484,7 @@ const applications: NavItemType = {
               url: '/quirofano/procedimientos-cirugia',
               icon: icons.Vaccines,
               type: 'item',
+              protectedRoles: programation,
             },
           ],
         },
@@ -843,6 +502,7 @@ const applications: NavItemType = {
           url: '/servicios/solicitudes-administracion',
           icon: icons.FactCheck,
           type: 'item',
+          protectedRoles: xrayAdmin, //Cambiar aca por admin de radiografia-radiologo
         },
         {
           id: 'catalogos',
@@ -856,6 +516,7 @@ const applications: NavItemType = {
               url: '/servicios/solicitudes',
               icon: icons.LiaXRaySolid,
               type: 'item',
+              protectedRoles: hospitalization,
             },
           ],
         },
@@ -865,6 +526,7 @@ const applications: NavItemType = {
           url: '/servicios/configuracion-solicitudes',
           icon: icons.Settings,
           type: 'item',
+          protectedRoles: supplyRoles,
         },
       ],
     },
@@ -880,6 +542,7 @@ const applications: NavItemType = {
           url: '/presupuestos/guardias-medicos',
           icon: icons.Work,
           type: 'item',
+          protectedRoles: hospitalization,
         },
       ],
     },
@@ -895,6 +558,7 @@ const applications: NavItemType = {
           url: '/enfermeria/cuartos-hospitalarios-asignados',
           icon: icons.Hotel,
           type: 'item',
+          protectedRoles: nurseRole,
         },
       ],
     },

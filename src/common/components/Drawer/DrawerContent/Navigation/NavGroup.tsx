@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
 
 // material-ui
@@ -35,6 +35,7 @@ import RightOutlined from '@ant-design/icons/RightOutlined';
 import { NavItemType } from '@/types/menu';
 import SimpleBar from '../SimpleBar';
 import { useLayoutStore } from '../../stores/layoutStore';
+import { useAuthStore } from '@/store/auth';
 
 // ==============================|| NAVIGATION - LIST GROUP ||============================== //
 
@@ -90,6 +91,10 @@ export default function NavGroup({
 }: Props) {
   const theme = useTheme();
   const { pathname } = useLocation();
+
+  const { profile } = useAuthStore((state) => ({
+    profile: state.profile,
+  }));
 
   const { drawerOpen } = useLayoutStore((s) => ({
     drawerOpen: s.drawerOpen,
@@ -177,7 +182,37 @@ export default function NavGroup({
     />
   ) : null;
 
-  const navCollapse = item.children?.map((menuItem, index) => {
+  const matchRoles = (roles: string[] | undefined) => {
+    if (!roles || !profile?.roles) return false;
+
+    return roles.some((role) => profile.roles.includes(role));
+  };
+
+  const canShow = (items: NavItemType[] | undefined) => {
+    if (!items) return [] as NavItemType[];
+
+    const itemsToShow: NavItemType[] = [];
+
+    for (const item of items) {
+      if (item.type === 'item') {
+        if (!item.protectedRoles || matchRoles(item.protectedRoles)) {
+          itemsToShow.push(item);
+        }
+      }
+      if (item.type === 'collapse') {
+        const children = canShow(item.children);
+        if (children.length > 0) {
+          itemsToShow.push({ ...item, children });
+        }
+      }
+    }
+
+    return itemsToShow;
+  };
+
+  const filteredChildren: NavItemType[] = useMemo(() => canShow(currentItem.children), [currentItem.children, profile]);
+
+  const navCollapse = filteredChildren.map((menuItem, index) => {
     switch (menuItem.type) {
       case 'collapse':
         return (
