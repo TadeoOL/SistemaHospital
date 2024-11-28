@@ -7,7 +7,7 @@ interface IProtectedRoute {
   children?: React.ReactNode;
 }
 
-export const LoginRoute: React.FC<IProtectedRoute> = ({ redirecTo = '/', children }) => {
+export const LoginRoute: React.FC<IProtectedRoute> = ({ redirecTo = '/inicio', children }) => {
   const isAuth = useAuthStore((state) => state.isAuth);
 
   if (isAuth) return <Navigate to={redirecTo} />;

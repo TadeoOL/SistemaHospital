@@ -47,7 +47,7 @@ export const NotFoundPage = () => {
               You either tried some shady route or you came here by mistake. Whichever it is, try using the navigation
             </Typography>
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/inicio')}
               startIcon={
                 <SvgIcon fontSize="small">
                   <ArrowBackIcon />

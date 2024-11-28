@@ -55,14 +55,18 @@ export const LoginComponent: React.FC<{}> = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  const sleep = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
+
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
+    console.log('data:', data);
     try {
       setIsLoading(true);
       const user: IUser = await login(data.userName, data.password);
       setToken(user.token);
       setProfile(user);
       toast.done('Inicio de sesion correcto!');
-      navigate('/');
+      await sleep(2000);
+      navigate('/inicio');
     } catch (error) {
       console.log(error);
       toast.error('Credenciales incorrectas!');

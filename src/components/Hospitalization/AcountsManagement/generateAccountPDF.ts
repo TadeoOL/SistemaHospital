@@ -215,7 +215,7 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
 
   const isOpen = accountInfo.estatusCuenta === PatientAccountStatus.Admitted;
 
-  const documentDefinition: any = {
+  const docDefinition: any = {
     watermark: {
       text: isOpen ? 'CUENTA ABIERTA' : '',
       color: 'red',
@@ -716,6 +716,6 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
     ],
   };
 
-  const pdf = pdfmake.createPdf(documentDefinition);
+  const pdf = pdfmake.createPdf(docDefinition);
   pdf.open();
 };
