@@ -1,8 +1,21 @@
-import { Button, Card, CardActions, CardContent, CardHeader, Divider, SvgIcon } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Divider,
+  Grid,
+  Stack,
+  SvgIcon,
+  Typography,
+} from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SyncIcon from '@mui/icons-material/Sync';
 import ApexChart from 'react-apexcharts';
+import { MainCard } from '@/common/components';
 
 const useChartOptions = () => {
   const theme = useTheme();
@@ -90,40 +103,49 @@ export const SalesGraph = (props: IOverviewSales) => {
   const chartOptions = useChartOptions();
 
   return (
-    <Card sx={sx}>
-      <CardHeader
-        action={
+    <>
+      <Grid container alignItems="center" justifyContent="space-between">
+        <Grid item>
+          <Typography variant="h5">Ventas del año</Typography>
+        </Grid>
+      </Grid>
+      <MainCard content={false} sx={{ mt: 1.5 }}>
+        <CardContent>
+          <ApexChart height={350} options={chartOptions} series={chartSeries} type="bar" width="100%" />
+        </CardContent>
+        <Divider />
+        <CardActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             color="inherit"
-            size="small"
-            startIcon={
+            endIcon={
               <SvgIcon fontSize="small">
-                <SyncIcon />
+                <ArrowForwardIcon />
               </SvgIcon>
             }
+            size="small"
           >
-            Actualizar
+            Ver
           </Button>
-        }
-        title="Ventas del año"
-      />
-      <CardContent>
-        <ApexChart height={350} options={chartOptions} series={chartSeries} type="bar" width="100%" />
-      </CardContent>
-      <Divider />
-      <CardActions sx={{ justifyContent: 'flex-end' }}>
-        <Button
-          color="inherit"
-          endIcon={
-            <SvgIcon fontSize="small">
-              <ArrowForwardIcon />
-            </SvgIcon>
-          }
-          size="small"
-        >
-          Ver
-        </Button>
-      </CardActions>
-    </Card>
+        </CardActions>
+      </MainCard>
+    </>
+    // <Card sx={sx}>
+    //   <CardHeader
+    //     action={
+    //       <Button
+    //         color="inherit"
+    //         size="small"
+    //         startIcon={
+    //           <SvgIcon fontSize="small">
+    //             <SyncIcon />
+    //           </SvgIcon>
+    //         }
+    //       >
+    //         Actualizar
+    //       </Button>
+    //     }
+    //     title="Ventas del año"
+    //   />
+    // </Card>
   );
 };

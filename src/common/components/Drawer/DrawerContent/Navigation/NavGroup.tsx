@@ -120,7 +120,6 @@ export default function NavGroup({
         setCurrentItem(item);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, lastItem, downLG]);
 
   const checkOpenForParent = (child: NavItemType[], id: string) => {

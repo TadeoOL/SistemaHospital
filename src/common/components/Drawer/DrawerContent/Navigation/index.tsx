@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 // project import
 import NavItem from './NavItem';
 import NavGroup from './NavGroup';
-import menuItem from '@/menu-items';
+import sideBarRoutes from '@/routes/sidebar.routes';
 
 import useConfig from '@/hooks/useConfig';
 import { HORIZONTAL_MAX_ITEM, MenuOrientation } from '@/config';
@@ -23,9 +23,8 @@ import { useLayoutStore } from '../../stores/layoutStore';
 // ==============================|| DRAWER CONTENT - NAVIGATION ||============================== //
 
 export default function Navigation() {
-  const { drawerOpen, setDrawerOpen } = useLayoutStore((s) => ({
+  const { drawerOpen } = useLayoutStore((s) => ({
     drawerOpen: s.drawerOpen,
-    setDrawerOpen: s.setDrawerOpen,
   }));
   const { menuOrientation } = useConfig();
   const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
@@ -33,26 +32,26 @@ export default function Navigation() {
   const [selectedID, setSelectedID] = useState<string | undefined>('');
   const [selectedItems, setSelectedItems] = useState<string | undefined>('');
   const [selectedLevel, setSelectedLevel] = useState<number>(0);
-  const [menuItems, setMenuItems] = useState<{ items: NavItemType[] }>({ items: [] });
+  const [menuItems, setMenuItems] = useState<NavItemType[]>([]);
 
   useLayoutEffect(() => {
-    setMenuItems({ items: [...menuItem.items] });
+    setMenuItems(sideBarRoutes);
   }, []);
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 
   const lastItem = isHorizontal ? HORIZONTAL_MAX_ITEM : null;
-  let lastItemIndex = menuItems.items.length - 1;
+  let lastItemIndex = menuItems.length - 1;
   let remItems: NavItemType[] = [];
   let lastItemId: string;
 
   //  first it checks menu item is more than giving HORIZONTAL_MAX_ITEM after that get lastItemid by giving horizontal max
   // item and it sets horizontal menu by giving horizontal max item lastly slice menuItem from array and set into remItems
 
-  if (lastItem && lastItem < menuItems.items.length) {
-    lastItemId = menuItems.items[lastItem - 1].id!;
+  if (lastItem && lastItem < menuItems.length) {
+    lastItemId = menuItems[lastItem - 1].id!;
     lastItemIndex = lastItem - 1;
-    remItems = menuItems.items.slice(lastItem - 1, menuItems.items.length).map((item) => ({
+    remItems = menuItems.slice(lastItem - 1, menuItems.length).map((item) => ({
       title: item.title,
       elements: item.children,
       icon: item.icon,
@@ -62,7 +61,7 @@ export default function Navigation() {
     }));
   }
 
-  const navGroups = menuItems.items.slice(0, lastItemIndex + 1).map((item, index) => {
+  const navGroups = menuItems.slice(0, lastItemIndex + 1).map((item, index) => {
     switch (item.type) {
       case 'group':
         if (item.url && item.id !== lastItemId) {

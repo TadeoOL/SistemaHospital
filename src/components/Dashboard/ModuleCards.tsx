@@ -1,5 +1,6 @@
+import { MainCard } from '@/common/components';
 import { Avatar, Card, CardContent, SvgIcon, Typography } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Box, Stack } from '@mui/system';
 
 interface IModuleCards {
   sx?: any;
@@ -12,26 +13,32 @@ export const ModuleCards = (props: IModuleCards) => {
   const { sx, value, title, icon } = props;
 
   return (
-    <Card sx={sx}>
-      <CardContent>
-        <Stack alignItems="flex-start" direction="row" justifyContent="space-between" spacing={3}>
-          <Stack spacing={1}>
-            <Typography color="text.secondary" variant="overline">
-              {title}
-            </Typography>
-            <Typography variant="h4">{value}</Typography>
+    <>
+      <MainCard content={false}>
+        <Box sx={{ p: 2.25 }}>
+          <Stack spacing={0.5} direction="row" alignItems="flex-start" justifyContent="space-between">
+            <Stack>
+              <Typography variant="h6" color="text.secondary">
+                {title.toUpperCase()}
+              </Typography>
+              <Stack direction="row" alignItems="center">
+                <Typography variant="h4" color="inherit">
+                  {value}
+                </Typography>
+              </Stack>
+            </Stack>
+            <Avatar
+              sx={{
+                backgroundColor: 'error.main',
+                height: 56,
+                width: 56,
+              }}
+            >
+              <SvgIcon>{icon}</SvgIcon>
+            </Avatar>
           </Stack>
-          <Avatar
-            sx={{
-              backgroundColor: 'error.main',
-              height: 56,
-              width: 56,
-            }}
-          >
-            <SvgIcon>{icon}</SvgIcon>
-          </Avatar>
-        </Stack>
-      </CardContent>
-    </Card>
+        </Box>
+      </MainCard>
+    </>
   );
 };
