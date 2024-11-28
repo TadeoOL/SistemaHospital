@@ -5,7 +5,6 @@ import { ProtectedRoutePurchasingDirector } from './utils/functions/ProtectedRou
 import { ProtectedPurchaseRequest } from './utils/functions/ProtectedRoutesForRole/ProtectedPurchaseRequest';
 import { LoginView } from './views/LoginView';
 import { ScheduleView } from './views/Schedule/ScheduleView';
-import { Layout } from './components/Layout/Layout';
 import { NotFoundPage } from './views/404Page';
 import { LoginRoute } from './utils/LoginRoute';
 import { ToastContainer } from 'react-toastify';
@@ -73,7 +72,7 @@ import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
 import DashboardLayout from './common/components/Layout/DashboardLayout';
-import { useTheme } from '@mui/material';
+import { Layout } from './components/Layout/Layout';
 
 function App() {
   // const theme = useTheme();

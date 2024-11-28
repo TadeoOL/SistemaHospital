@@ -1,14 +1,19 @@
-import { useMemo } from 'react';
+// import { useMemo } from 'react';
 
 // material-ui
 import { Theme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 
 // project import
 // import Search from './Search';
 // import Message from './Message';
-// import Profile from './Profile';
+import Profile from './Profile';
+import { Box } from '@mui/material';
+import { HelpSideBar } from './HelpSideBar';
+import FullScreen from './Fullscreen';
+import { Notification } from './Notification';
+import { Settings } from './Settings';
 // import Localization from './Localization';
 // import Notification from './Notification';
 // import FullScreen from './FullScreen';
@@ -25,7 +30,7 @@ import Box from '@mui/material/Box';
 export default function HeaderContent() {
   //   const { menuOrientation } = useConfig();
 
-  //   const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+  const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
 
   //   const localization = useMemo(() => <Localization />, []);
 
@@ -33,18 +38,21 @@ export default function HeaderContent() {
 
   return (
     <>
-      {/* {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && <DrawerHeader open={true} />}
-      {!downLG && <Search />}
-      {!downLG && megaMenu}
-      {!downLG && localization}
-      {downLG && <Box sx={{ width: '100%', ml: 1 }} />}
+      {/* {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && <DrawerHeader open={true} />} */}
+      {/* {!downLG && <Search />} */}
+      {/* {!downLG && megaMenu} */}
+      {/* {downLG && <Box sx={{ width: '100%', ml: 1 }} />} */}
+      {/* {!downLG && localization} */}
+      <Box sx={{ width: '100%', ml: 1 }} />
 
-      <Notification />
-      <Message />
+      {/* <Notification /> */}
+      {/* <Message /> */}
+      {!downLG && <HelpSideBar />}
+      {!downLG && <Notification />}
       {!downLG && <FullScreen />}
-      <Customization />
+      {!downLG && <Settings />}
       {!downLG && <Profile />}
-      {downLG && <MobileSection />} */}
+      {/* {downLG && <MobileSection />} */}
     </>
   );
 }
