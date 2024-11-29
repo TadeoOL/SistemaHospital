@@ -19,6 +19,7 @@ const initialValues = {
   startDate: '',
   endDate: '',
   status: 1,
+  conceptoVenta: null,
 };
 
 interface Action {
@@ -33,6 +34,7 @@ interface Action {
   setEndDate: (endDate: string) => void;
   setStartDate: (startDate: string) => void;
   clearFilters: () => void;
+  setConceptoVenta: (pageSize: number) => void;
   setStatus: (status: number) => void;
 }
 
@@ -51,6 +53,7 @@ interface State {
   startDate: string;
   endDate: string;
   status: number;
+  conceptoVenta: number | null;
 }
 
 export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set, get) => ({
@@ -64,6 +67,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setSort: (sort: string) => set({ sort }),
   setStatus: (status: number) => set({ status }),
+  setConceptoVenta: (conceptoVenta: number) => set({ conceptoVenta }),
   setUpdateData: (dataUpdated: ICheckoutSell) => {
     const { data } = get();
     const copyData = data;
@@ -74,7 +78,7 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
     }
   },
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, sort, startDate, endDate, status } = get();
+    const { enabled, conceptoVenta, search, pageIndex, pageSize, sort, startDate, endDate, status } = get();
 
     set({ loading: true });
     const index = pageIndex + 1;
@@ -88,7 +92,9 @@ export const useCheckoutUserEmitterPaginationStore = create<State & Action>((set
 
     try {
       const res = await getCashVoucherPagination(
-        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}${checkoutId ? `&Id_Caja=${checkoutId}` : ''}&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}${status === 404 ? '' : `&estatus=${status}`}`
+        `pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}${
+          conceptoVenta === null ? '' : '&conceptoVenta=' + conceptoVenta
+        }&search=${search}&habilitado=${enabled}${checkoutId ? `&Id_Caja=${checkoutId}` : ''}&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}${status === 404 ? '' : `&estatus=${status}`}`
       );
       set({
         data: res.data,

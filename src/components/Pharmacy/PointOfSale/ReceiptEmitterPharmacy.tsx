@@ -11,10 +11,12 @@ const useGetData = () => {
   const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
   const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
   const sort = useCheckoutUserEmitterPaginationStore((state) => state.sort);
+  const setConceptoVenta = useCheckoutUserEmitterPaginationStore((state) => state.setConceptoVenta);
 
   useEffect(() => {
+    setConceptoVenta(1);
     fetch();
-  }, [pageIndex, pageSize, search, sort]);
+  }, [pageIndex, pageSize, search, sort, setConceptoVenta]);
 };
 
 export const ReceiptEmitterPharmacy = () => {
