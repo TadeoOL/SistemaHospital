@@ -13,7 +13,7 @@ import { admitPatient } from '../../../../../services/admission/admisionService'
 import { useGetPatientInfo } from '../../../../../hooks/admission/useGetPatientInfo';
 import { FullscreenLoader } from '../../../../../common/components/FullscreenLoader';
 import { usePatientEntryPaginationStore } from '../../../../../store/admission/usePatientEntryPagination';
-import { admissionPatientSchema, basePatientSchema } from '@/schema/programming/programmingSchemas';
+import { basePatientSchema, editAdmissionPatientSchema } from '@/schema/programming/programmingSchemas';
 import { usePatientRegisterPaginationStore } from '@/store/programming/patientRegisterPagination';
 dayjs.locale('es-mx');
 
@@ -186,7 +186,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     setValue,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(props.isProgramming ? basePatientSchema : admissionPatientSchema),
+    resolver: zodResolver(props.isProgramming ? basePatientSchema : editAdmissionPatientSchema),
     values: {
       name: personalData?.paciente?.nombre || '',
       lastName: personalData?.paciente?.apellidoPaterno || '',

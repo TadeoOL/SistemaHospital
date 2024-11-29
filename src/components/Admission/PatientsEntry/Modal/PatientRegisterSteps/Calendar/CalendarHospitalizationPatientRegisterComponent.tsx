@@ -37,21 +37,17 @@ export const CalendarHospitalizationPatientRegisterComponent = () => {
 
   const handleClickSlot = (slotInfo: SlotInfo) => {
     const { start, end } = slotInfo;
-    const now = new Date();
-
-    if (start < now) {
-      toast.warning('No se puede poner una cita anterior a la fecha actual');
+    const now = dayjs();
+    if (dayjs(end).isBefore(now, 'seconds')) {
+      toast.warning('No se puede poner una cita posterior a la fecha actual');
       return;
     }
-
-    if (view === 'month') {
-      const newEnd = new Date(start);
-      newEnd.setHours(newEnd.getHours() + 3);
+    if (view == 'month') {
+      const newEnd = dayjs(start).add(3, 'hours').toDate();
       setAppointmentEndDate(newEnd);
     } else {
       setAppointmentEndDate(end);
     }
-
     setAppointmentStartDate(start);
     setOpen(true);
   };

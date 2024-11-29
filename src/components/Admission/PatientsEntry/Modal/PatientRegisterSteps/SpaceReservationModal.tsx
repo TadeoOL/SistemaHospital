@@ -163,7 +163,7 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
-        tipoCuarto: roomType === HospitalSpaceType.Room ? 0 : 1,
+        tipoCuarto: roomType,
       };
       setRoomsRegistered([...roomsRegistered, roomObj]);
     }

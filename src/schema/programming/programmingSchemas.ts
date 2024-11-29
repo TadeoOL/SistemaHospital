@@ -13,8 +13,10 @@ const priceSchema = z
     message: 'El precio tiene que ser mayor a 0',
   });
 
-const createPatientSchema = (required: boolean) => {
+const createPatientSchema = (required: boolean, isEditing?: boolean) => {
   const stringField = (message: string) => (required ? z.string().min(1, message) : z.string().optional());
+  const clinicalField = (message: string) =>
+    required && isEditing ? z.string().min(1, message) : z.string().optional();
 
   return z.object({
     name: stringField('El nombre es requerido'),
@@ -42,16 +44,17 @@ const createPatientSchema = (required: boolean) => {
     birthDate: required
       ? z.preprocess((val) => toDate(val as Dayjs), z.date())
       : z.preprocess((val) => toDate(val as Dayjs), z.date()).optional(),
-    allergies: stringField('Las alergias son requeridas'),
-    bloodType: stringField('El tipo de sangre es requerido'),
+    allergies: clinicalField('Las alergias son requeridas'),
+    bloodType: clinicalField('El tipo de sangre es requerido'),
     comments: z.string().optional(),
-    reasonForAdmission: stringField('La razón de admisión es requerida'),
-    admissionDiagnosis: stringField('El diagnóstico de admisión es requerido'),
+    reasonForAdmission: clinicalField('La razón de admisión es requerida'),
+    admissionDiagnosis: clinicalField('El diagnóstico de admisión es requerido'),
   });
 };
 
-export const basePatientSchema = createPatientSchema(false);
-export const admissionPatientSchema = createPatientSchema(true);
+export const basePatientSchema = createPatientSchema(false, false);
+export const admissionPatientSchema = createPatientSchema(true, false);
+export const editAdmissionPatientSchema = createPatientSchema(true, true);
 
 export const patientSAMISchema = z.object({
   name: z.string().min(1, 'Es necesario el nombre'),

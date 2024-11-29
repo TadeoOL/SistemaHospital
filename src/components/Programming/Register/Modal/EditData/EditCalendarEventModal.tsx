@@ -21,7 +21,7 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { useGetPatientHospitalSpaces } from '../../../../../hooks/admission/useGetPatientHospitalSpaces';
 import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import dayjs from 'dayjs';
-import { Add, Close, Edit, Save } from '@mui/icons-material';
+import { Add, Close, Delete, Edit, Save } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
 import { AddEditCalendar } from './AddEditCalendar';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -32,7 +32,10 @@ import withReactContent from 'sweetalert2-react-content';
 import { useGetAllRooms } from '../../../../../hooks/programming/useGetAllRooms';
 import { HospitalSpaceType, IPatientHospitalSpace } from '../../../../../types/admission/admissionTypes';
 import { useGetHospitalizationAppointments } from '../../../../../hooks/admission/useGetHospitalizationAppointments';
-import { getHospitalRoomReservations } from '../../../../../services/programming/hospitalSpace';
+import {
+  deleteHospitalRoomReservation,
+  getHospitalRoomReservations,
+} from '../../../../../services/programming/hospitalSpace';
 import { modifyRoomsEvents } from '../../../../../services/admission/admisionService';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -42,6 +45,7 @@ import { ISurgeryRoom } from '@/types/programming/surgeryRoomTypes';
 import { PatientReentryModal } from '@/components/Admission/PatientsEntry/Modal/PatientReentry/PatientReentryModal';
 import { convertDate } from '@/utils/convertDate';
 import { EditSurgeryRoomModal } from './EditSurgeryRoomModal';
+import { usePatientRegisterPaginationStore } from '@/store/programming/patientRegisterPagination';
 
 const TABLE_HEADERS = ['Cuarto', 'Hora Ingreso', 'Hora Salida', 'Acciones'];
 
@@ -310,6 +314,7 @@ const EventTableRow = (props: {
   const [edit, setEdit] = useState(false);
   const [openSurgeryModal, setOpenSurgeryModal] = useState(false);
   const isSurgeryRoom = roomData.tipoEspacioHospitalario === HospitalSpaceType.OperatingRoom;
+  const refetch = usePatientRegisterPaginationStore((state) => state.fetchData);
 
   const { handleSubmit, watch, setValue } = useForm<Inputs>({
     defaultValues: {
@@ -380,6 +385,32 @@ const EventTableRow = (props: {
     FindAndUpdateRoom(roomData.id_EspacioHospitalario, props.rooms, props.setRooms, dates, props.operatingRooms);
   };
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    Swal.fire({
+      title: '¿Estás seguro de eliminar el espacio?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, eliminar',
+      cancelButtonText: 'No, cancelar',
+      reverseButtons: true,
+      preConfirm: async () => {
+        try {
+          await deleteHospitalRoomReservation(roomData.id_EspacioHospitalario);
+          props.setRooms(props.rooms.filter((r) => r.id_EspacioHospitalario !== roomData.id_EspacioHospitalario));
+          refetch();
+          Swal.fire('Eliminado!', 'El espacio se ha eliminado con éxito.', 'success');
+        } catch (error) {
+          console.error('Error al eliminar el espacio:', error);
+          Swal.fire('Error', 'Hubo un error al eliminar el espacio', 'error');
+        }
+      },
+    });
+  };
+
   return (
     <>
       <TableRow>
@@ -447,11 +478,18 @@ const EventTableRow = (props: {
         <TableCell>
           {canEdit(props.admission, isSurgeryRoom, roomData.estatus) &&
             (!edit ? (
-              <Tooltip title="Editar">
-                <IconButton onClick={handleEdit}>
-                  <Edit />
-                </IconButton>
-              </Tooltip>
+              <>
+                <Tooltip title="Editar">
+                  <IconButton onClick={handleEdit}>
+                    <Edit />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Eliminar">
+                  <IconButton onClick={handleDelete}>
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
+              </>
             ) : (
               <>
                 <Tooltip title="Guardar">
@@ -469,7 +507,6 @@ const EventTableRow = (props: {
         </TableCell>
       </TableRow>
 
-      {/* Modal de edición de quirófano */}
       <Modal open={openSurgeryModal} onClose={() => setOpenSurgeryModal(false)}>
         <>
           <EditSurgeryRoomModal

@@ -46,3 +46,10 @@ export const getHospitalRoomReservations = async ({
   });
   return res.data;
 };
+
+export const deleteHospitalRoomReservation = async (hospitalizationSpaceId: string) => {
+  const res = await axios.delete(
+    `${apiHospitalSpace}/eliminar-espacio-hospitalario-reservado/${hospitalizationSpaceId}`
+  );
+  return res.data;
+};
