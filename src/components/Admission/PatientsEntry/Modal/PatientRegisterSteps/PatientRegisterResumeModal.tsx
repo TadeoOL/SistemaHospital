@@ -33,6 +33,7 @@ import {
 } from '../../../../../types/programming/registerTypes';
 import { registerPatientAdmission } from '../../../../../services/admission/admisionService';
 import {
+  HospitalSpaceType,
   IPatientAdmissionDto,
   IPatientAdmissionEntranceDto,
   IRegisterPatientAdmissionCommand,
@@ -157,6 +158,8 @@ export const PatientRegisterResumeModal = ({
     return (total * 0.2).toFixed(2);
   };*/
 
+  console.log('roomValues', roomValues);
+
   const handleSubmit = async () => {
     setIsLoading(true);
     let startDate = roomValues[0].horaInicio;
@@ -173,10 +176,19 @@ export const PatientRegisterResumeModal = ({
 
     try {
       const operatingRoom: IHospitalSpaceRecord = {
-        id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 1)?.id as string,
-        horaInicio: convertDate(roomValues.find((r) => r.tipoCuarto == 1)?.horaInicio),
-        horaFin: convertDate(roomValues.find((r) => r.tipoCuarto == 1)?.horaFin),
+        id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == HospitalSpaceType.OperatingRoom)?.id as string,
+        horaInicio: convertDate(roomValues.find((r) => r.tipoCuarto == HospitalSpaceType.OperatingRoom)?.horaInicio),
+        horaFin: convertDate(roomValues.find((r) => r.tipoCuarto == HospitalSpaceType.OperatingRoom)?.horaFin),
       };
+
+      const hospitalizationRoom: IHospitalSpaceRecord = {
+        id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == HospitalSpaceType.Room)?.id as string,
+        horaInicio: convertDate(roomValues.find((r) => r.tipoCuarto == HospitalSpaceType.Room)?.horaInicio),
+        horaFin: convertDate(roomValues.find((r) => r.tipoCuarto == HospitalSpaceType.Room)?.horaFin),
+      };
+
+      console.log('operatingRoom', operatingRoom);
+      console.log('hospitalizationRoom', hospitalizationRoom);
 
       if (reentry) {
         const reentryCommand: IRegisterPatientReentryCommand = {
@@ -209,7 +221,7 @@ export const PatientRegisterResumeModal = ({
         const registerObject: IRegisterPatientCommand = {
           paciente: patientObj,
           registroQuirofano: operatingRoom,
-          registroCuarto: undefined,
+          registroCuarto: hospitalizationRoom,
           id_AlmacenPaquete: warehouseSelected,
           servicios: cabinetStudiesSelected.flatMap((c) => c.id),
           procedimientos: procedures,
@@ -260,7 +272,7 @@ export const PatientRegisterResumeModal = ({
 
         const admissionObj: IRegisterPatientAdmissionCommand = {
           paciente: patientAdmissionObj,
-          registroCuarto: undefined,
+          registroCuarto: hospitalizationRoom,
           procedimientos: procedures,
           id_Medico: medicId,
           ingresosPaciente: patientAdmission,

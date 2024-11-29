@@ -49,6 +49,13 @@ export const getHospitalRoomReservations = async ({
   return res.data;
 };
 
+export const deleteHospitalRoomReservation = async (hospitalizationSpaceId: string) => {
+  const res = await axios.delete(
+    `${apiHospitalSpace}/eliminar-espacio-hospitalario-reservado/${hospitalizationSpaceId}`
+  );
+  return res.data;
+};
+
 export const getHospitalRoomInformation = async (id: string): Promise<IHospitalRoomInformation> => {
   const res = await axios.get(`${apiHospitalSpace}/obtener-espacio-hospitalario/${id}`);
   return res.data;
