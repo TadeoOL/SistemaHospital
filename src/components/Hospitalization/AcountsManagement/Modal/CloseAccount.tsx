@@ -83,7 +83,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error('Error al cerrar la cuenta');
+      toast.error((error as any).response.data.message[0]);
     }
   };
 

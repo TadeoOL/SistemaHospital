@@ -664,10 +664,13 @@ export interface InurseRequest {
   usuarioAutorizo: string;
   fechaSoliocitud: string; //en que piso se solicito
   estatus: number;
+  tipoSolicitud: number;
   id_AlmacenSolicitado: string;
   id_CuentaEspacioHospitalario: string;
   //almacenNombre: string;
   articulos: IArticleInRequest[];
+  almacen: string;
+  espacioHospitalario: string;
 }
 
 export interface IArticleInRequest {

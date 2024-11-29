@@ -83,7 +83,7 @@ export const FormSurgeryInfoEditModal = (props: Props) => {
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error('Hubo un error al modificar la informacion!');
+      toast.error((error as any).response.data.message[0]);
     } finally {
       setLoadingSubmit(false);
     }

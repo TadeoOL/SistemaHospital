@@ -33,8 +33,8 @@ import {
 } from '../../../../types/types';
 import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getArticlesFromAcountId } from '../../../../store/programming/AcountArticlesService';
+import { getPatientsWithAccount } from '../../../../services/admission/admisionService';
 
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearchWithBarCode>({

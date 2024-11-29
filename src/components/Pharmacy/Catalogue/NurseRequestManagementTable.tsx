@@ -26,7 +26,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel, LocalPrintshopOutlined } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel, LocalPrintshopOutlined, Undo } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -245,6 +245,44 @@ export const NurseRequestManagementTable = () => {
       });
   };
 
+  const acceptReturn = (id_SolicitudAlmacen: string, id_CuentaEspacioHospitalario: string) => {
+    withReactContent(Swal)
+      .fire({
+        title: 'Confirmación',
+        text: `¿Seguro que deseas aceptar la solicitud de articulos?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        confirmButtonColor: 'green',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return buildPackage({
+            estatus: 4,
+            id_SolicitudAlmacen: id_SolicitudAlmacen,
+            id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
+          });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
+          withReactContent(Swal).fire({
+            title: 'Éxito!',
+            text: 'Devolución aceptada',
+            icon: 'success',
+          });
+        } else {
+          withReactContent(Swal).fire({
+            title: 'No se acepto la devolución',
+            icon: 'info',
+          });
+        }
+      });
+  };
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -345,7 +383,7 @@ export const NurseRequestManagementTable = () => {
                           setOpenPrint={setOpenPrint}
                           setNurseRequest={setNurseRequest}
                           setPrebuildedArticles={setPrebuildedArticles}
-                          markAsDelivered={markAsDelivered}
+                          markAsDelivered={request.tipoSolicitud == 2 ? markAsDelivered : acceptReturn}
                           key={request.id_SolicitudAlmacen}
                           rejectRequest={rejectRequest}
                         />
@@ -485,12 +523,12 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
           </Box>
         </TableCell>
         <TableCell>{nurseRequest.paciente}</TableCell>
-        <TableCell>{nurseRequest.cuarto}</TableCell>
+        <TableCell>{nurseRequest.espacioHospitalario}</TableCell>
         <TableCell>{nurseRequest.usuarioSolicitante}</TableCell>
         <TableCell>{nurseRequest.usuarioAutorizo}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
         <TableCell>
-          {nurseRequest.estatus === 1 && (
+          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == 2 && (
             <Tooltip title={'Armar solicitud'}>
               <IconButton
                 onClick={async () => {
@@ -509,7 +547,21 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          {nurseRequest.estatus === 2 && (
+          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == 6 && (
+            <Tooltip title="Aceptar devolución">
+            <IconButton
+              onClick={() => {
+                markAsDelivered(
+                  nurseRequest.id_SolicitudAlmacen,
+                  nurseRequest.id_CuentaEspacioHospitalario
+                );
+              }}
+            >
+              <Undo sx={{ color: 'green' }} />
+            </IconButton>
+          </Tooltip>
+          )}
+          {nurseRequest.estatus === 2 &&  (
             <Tooltip title="Marcar como Entregado">
               <IconButton
                 onClick={() => {
