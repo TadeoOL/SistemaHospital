@@ -9,6 +9,7 @@ import {
   IRegisterPatientAdmissionCommand,
   IRegisterPatientReentryCommand,
 } from '../../types/admission/admissionTypes';
+import { IPatientFromSearch } from '../../types/types';
 
 const apiUrl = '/api/Admision';
 
@@ -90,3 +91,9 @@ export const getSurgeryRoomDetails = async (id: string): Promise<ISurgeryRoomDet
   const res = await axios.get(`${apiUrl}/obtener-detalles-quirofano-paciente/${id}`);
   return res.data;
 };
+
+export const getPatientsWithAccount = async (url: string) => {
+  const res = await axios.get(`${apiUrl}/obtener-pacientes-activos?${url}`);
+  return res.data as IPatientFromSearch[];
+};
+

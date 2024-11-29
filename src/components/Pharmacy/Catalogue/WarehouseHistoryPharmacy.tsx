@@ -246,13 +246,7 @@ export const WarehouseHistoryPharmacy = () => {
                               : movimiento.almacenDestino}
                           </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
-                          <TableCell>
-                            {movimiento.estatus === 0
-                              ? 'Cancelada'
-                              : movimiento.estatus === 2
-                                ? 'Aceptada'
-                                : 'en espera'}
-                          </TableCell>
+                          <TableCell>{movimiento.estatus === 0 ? 'Cancelada' : 'Aceptada'}</TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={7} sx={{ p: 0 }}>

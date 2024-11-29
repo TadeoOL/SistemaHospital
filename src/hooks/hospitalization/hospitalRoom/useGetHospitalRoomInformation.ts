@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getHospitalRoomInformation } from '../../../services/hospitalization/hospitalRoomsService';
+import { getHospitalRoomInformation } from '../../../services/programming/hospitalSpace';
 
 const minute = 60 * 1000;
 export const useGetHospitalRoomInformation = (hospitalSpaceAccountId: string) => {

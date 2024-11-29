@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getHospitalRoomInformation } from '../../services/hospitalization/hospitalRoomsService';
 import { IHospitalRoomInformation } from '../../types/hospitalization/hospitalRoomTypes';
+import { getHospitalRoomInformation } from '../../services/programming/hospitalSpace';
 
 export const useGetHospitalizationRoomInfo = (id: string) => {
   const { data = [], isError, isLoading } = useQuery({

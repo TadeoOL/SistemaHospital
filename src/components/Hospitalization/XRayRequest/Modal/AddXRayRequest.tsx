@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Cancel, Save } from '@mui/icons-material';
 import { IPatientFromSearch } from '../../../../types/types';
-import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
 import { IService } from '../../../../types/hospitalizationTypes';
 import { addServiceRequestToPatient } from '../../../../services/hospitalization/ServicesService';
+import { getPatientsWithAccount } from '../../../../services/admission/admisionService';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
