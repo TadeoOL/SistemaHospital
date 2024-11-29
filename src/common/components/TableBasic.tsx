@@ -88,7 +88,7 @@ export interface TableBasicProps {
 }
 
 export const TableBasic = (props: TableBasicProps) => {
-  const { rows, columns, isLoading, maxHeight } = props;
+  const { rows = [], columns, isLoading, maxHeight } = props;
 
   const theme = useTheme();
   const downSM = useMediaQuery(theme.breakpoints.down('sm'));

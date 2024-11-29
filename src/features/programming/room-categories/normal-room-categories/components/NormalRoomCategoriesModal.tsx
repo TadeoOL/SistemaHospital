@@ -113,10 +113,8 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
   }, [defaultData?.id_TipoCuarto]);
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log('data:', data);
     setIsLoading(true);
     const intervaloReservacion = getDateOrNull(data.intervaloReservacion)?.format('HH:mm:00');
-    console.log('intervaloReservacion:', intervaloReservacion);
     try {
       if (!defaultData) {
         await registerNormalRoomCategory({
