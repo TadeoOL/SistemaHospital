@@ -19,7 +19,7 @@ import { getSubCategories } from '../services/subcategories';
 import { SubCategoryModal } from '../components/SubCategoryModal';
 
 const SubCategory = () => {
-  const [categoryId, setCategoryId] = useState('');
+  const [selectedId, setSelectedId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const { search, enabled, setSearch, setEnabled } = useSubCategoryPagination((state) => ({
@@ -40,19 +40,19 @@ const SubCategory = () => {
   const disableSubCategory = useDisableSubCategory(onSuccess);
 
   const handleAdd = () => {
-    setCategoryId('');
+    setSelectedId('');
     setModalOpen(true);
   };
 
   const handleEdit = (row: any) => {
-    setCategoryId('');
-    setCategoryId(row.id);
+    setSelectedId('');
+    setSelectedId(row.id);
     setModalOpen(true);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
-    setCategoryId('');
+    setSelectedId('');
   };
 
   const columns: any[] = [
@@ -162,7 +162,7 @@ const SubCategory = () => {
             }}
           ></TablePaginated>
         )}
-        <SubCategoryModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+        <SubCategoryModal open={modalOpen} itemId={selectedId} onClose={handleModalClose} onSuccess={onSuccess} />
       </MainCard>
     </>
     // <Box sx={{ pt: 2 }}>

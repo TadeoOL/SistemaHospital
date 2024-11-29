@@ -166,7 +166,7 @@ export interface ITypeRoom {
   id_TipoQuirofano?: string;
   nombre: string;
   descripcion?: string;
-  configuracionLimpieza?: string;
+  intervaloReservacion?: string;
   configuracionPrecioHora?: IRecoveryRoomOperatingRoom[];
   configuracionRecuperacion?: IRecoveryRoomOperatingRoom[];
   tipo: number;
@@ -333,4 +333,3 @@ export interface IRegisterPatientReentryCommand
   > {
   id_CuentaPaciente: string;
 }
-

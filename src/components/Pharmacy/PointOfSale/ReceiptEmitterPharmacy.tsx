@@ -1,4 +1,4 @@
-import { Box, Card, Modal, Stack, Typography } from '@mui/material';
+import { Card, Modal, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
 import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
@@ -11,10 +11,12 @@ const useGetData = () => {
   const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
   const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
   const sort = useCheckoutUserEmitterPaginationStore((state) => state.sort);
+  const setConceptoVenta = useCheckoutUserEmitterPaginationStore((state) => state.setConceptoVenta);
 
   useEffect(() => {
+    setConceptoVenta(1);
     fetch();
-  }, [pageIndex, pageSize, search, sort]);
+  }, [pageIndex, pageSize, search, sort, setConceptoVenta]);
 };
 
 export const ReceiptEmitterPharmacy = () => {
@@ -35,9 +37,6 @@ export const ReceiptEmitterPharmacy = () => {
     <>
       <Card sx={{ p: 3 }}>
         <Stack spacing={4}>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Departamento</Typography>
-          </Box>
           <CheckoutTableComponent
             data={data}
             admin={false}

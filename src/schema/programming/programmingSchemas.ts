@@ -236,7 +236,7 @@ export const typeRoomSchema = z
   .object({
     name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
     description: z.string().optional(),
-    reservedSpaceTime: zodDay,
+    intervaloReservacion: zodDay,
     priceByTimeRange: z.array(priceByTimeRange).optional(),
     recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
     type: z.string(),

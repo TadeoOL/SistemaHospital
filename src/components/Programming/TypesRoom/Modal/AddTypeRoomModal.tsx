@@ -639,8 +639,11 @@ function validateConfig(currentConfig: IRecoveryRoomOperatingRoom[], config: IRe
     } else {
       if (
         (config.horaInicio >= existingConfig.horaInicio && config.horaInicio < existingConfig.horaFin) ||
-        (config.horaFin !== null && config.horaFin > existingConfig.horaInicio && config.horaFin <= existingConfig.horaFin) ||
-        (config.horaInicio <= existingConfig.horaInicio && (config.horaFin === null || config.horaFin >= existingConfig.horaFin))
+        (config.horaFin !== null &&
+          config.horaFin > existingConfig.horaInicio &&
+          config.horaFin <= existingConfig.horaFin) ||
+        (config.horaInicio <= existingConfig.horaInicio &&
+          (config.horaFin === null || config.horaFin >= existingConfig.horaFin))
       ) {
         toast.warning('El rango de horas está interfiere con una configuración existente.');
         return false;

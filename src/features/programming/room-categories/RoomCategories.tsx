@@ -3,7 +3,7 @@ import { Tab, Tabs } from '@mui/material';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import OperatingRoomType from './operating-room-categories/screens/OperatingRoomTab';
-import NormalRoomTab from './normal-room-categories/screens/NormalRoomTab';
+import NormalRoomTab from './normal-room-categories/screens/NormalRoomCategoriesTab';
 
 const RoomCategories = () => {
   const [selectedTab, setSelectedTab] = useState(0);

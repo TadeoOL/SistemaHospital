@@ -17,6 +17,7 @@ export const registerTypeRoom = async (data: {
   codigoUnidadMedidaRecuperacion?: number;
 }) => {
   const res = await axios.post(`${apiTypeRoom}/registrar-tipo-cuarto`, data);
+  console.log('res.data:', res.data);
   return res.data;
 };
 
@@ -41,7 +42,7 @@ export const deleteTypeRoom = async (typeRoomId: string) => {
 };
 
 export const getAllTypesRoom = async () => {
-//  const res = await axios.get(`${apiTypeRoom}/lista-tipo-cuarto`);
+  //  const res = await axios.get(`${apiTypeRoom}/lista-tipo-cuarto`);
   const res = await axios.get(`${apiTypeRoom}/obtener-tipo-cuartos`);
   return res.data;
 };

@@ -30,10 +30,10 @@ import {
   IPatientFromSearch,
 } from '../../../../types/types';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getArticlesFromAcountId } from '../../../../store/programming/AcountArticlesService';
 import { isValidInteger } from '../../../../utils/functions/dataUtils';
 import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
+import { getPatientsWithAccount } from '../../../../services/admission/admisionService';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<IPatientFromSearch>({

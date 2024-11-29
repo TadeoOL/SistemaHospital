@@ -1,4 +1,6 @@
 import axios from '../../libs/axios';
+import { ArticlesFromRoom } from '../../types/hospitalization/articleRequestTypes';
+import { IHospitalRoomInformation } from '../../types/hospitalization/hospitalRoomTypes';
 import { IHospitalRoomReservation, ISurgeryRoomReservation } from '../../types/programming/hospitalSpacesTypes';
 
 const apiHospitalSpace = '/api/Programacion/EspacioHospitalario';
@@ -51,5 +53,15 @@ export const deleteHospitalRoomReservation = async (hospitalizationSpaceId: stri
   const res = await axios.delete(
     `${apiHospitalSpace}/eliminar-espacio-hospitalario-reservado/${hospitalizationSpaceId}`
   );
+  return res.data;
+};
+
+export const getHospitalRoomInformation = async (id: string): Promise<IHospitalRoomInformation> => {
+  const res = await axios.get(`${apiHospitalSpace}/obtener-espacio-hospitalario/${id}`);
+  return res.data;
+};
+
+export const getHospitalRoomArticles = async (id: string): Promise<ArticlesFromRoom[]> => {
+  const res = await axios.get(`${apiHospitalSpace}/obtener-articulos-espacio-hospitalario/${id}`);
   return res.data;
 };
