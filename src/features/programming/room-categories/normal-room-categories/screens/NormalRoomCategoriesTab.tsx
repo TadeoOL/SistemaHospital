@@ -3,7 +3,7 @@ import { SearchBar } from '@/components/Inputs/SearchBar';
 import { Button, IconButton, Tooltip } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useNormalRoomsPaginationStore } from '../stores/useNormalRoomPagination';
-import { getRoomCategories } from '../services/normal-room-categories';
+import { getNormalRoomCategories } from '../services/normal-room-categories';
 import EditIcon from '@mui/icons-material/Edit';
 import { NormalRoomCategoriesModal } from '../components/NormalRoomCategoriesModal';
 
@@ -82,7 +82,7 @@ const NormalRoomTab = () => {
         <TablePaginated
           ref={tableRef}
           columns={columns}
-          fetchData={getRoomCategories}
+          fetchData={getNormalRoomCategories}
           params={{
             habilitado: true,
             search,

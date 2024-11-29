@@ -1,58 +1,31 @@
-import {
-  Box,
-  Button,
-  Card,
-  Checkbox,
-  CircularProgress,
-  Collapse,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Grid,
-  IconButton,
-  //MenuItem,
-  Radio,
-  RadioGroup,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-import { typeRoomSchema } from '../../../../../schema/programming/programmingSchemas';
-import { useEffect, useState } from 'react';
-import { IRecoveryRoomOperatingRoom } from '../../../../../types/operatingRoom/operatingRoomTypes';
-import { recoveryRoomOperatingRoomSchema } from '../../../../../schema/operatingRoom/operatingRoomSchema';
-import { Delete } from '@mui/icons-material';
-import { isValidFloat, isValidInteger, isValidIntegerIncludeZero } from '../../../../../utils/functions/dataUtils';
+import { Box, Button, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { modifyTypeRoom, registerTypeRoom } from '../../../../../services/programming/typesRoomService';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
 import 'dayjs/locale/es-mx';
-import { ITypeRoom } from '../../../../../types/admission/admissionTypes';
 import { InputBasic, ModalBasic } from '@/common/components';
-import { TableHeaderComponent } from '@/components/Commons/TableHeaderComponent';
+import { ICategoryNormalRoom } from '../interfaces/room-category.interface';
+import { normalRoomCategory } from '../schemas/normal-room-category.schemas';
+import { modifyNormalRoomCategory, registerNormalRoomCategory } from '../services/normal-room-categories';
+
+// import { IRecoveryRoomOperatingRoom } from '../../../../../types/operatingRoom/operatingRoomTypes';
+// import { modifyTypeRoom, registerTypeRoom } from '../../../../../services/programming/typesRoomService';
+
 //import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
-const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
+// const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
 
 type Inputs = {
   name: string;
   description: string;
   intervaloReservacion: Dayjs | null;
-  priceByTimeRange: IRecoveryRoomOperatingRoom[];
-  recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
+  // priceByTimeRange: IRecoveryRoomOperatingRoom[];
+  // recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
   priceRoom: string;
   //codigoSATRecuperacion?: string;
@@ -65,7 +38,7 @@ interface NormalRoomCategoriesModalProps {
   open: boolean;
   onSuccess: Function;
   onClose: Function;
-  defaultData?: ITypeRoom | null;
+  defaultData?: ICategoryNormalRoom | null;
 }
 
 export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps) => {
@@ -73,14 +46,11 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
 
   const [isLoading, setIsLoading] = useState(false);
   //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
-  const theme = useTheme();
-  const xs = useMediaQuery(theme.breakpoints.down('md'));
-
   const defaultValues = {
     name: '',
     description: '',
-    priceByTimeRange: [],
-    recoveryPriceByTimeRange: [],
+    // priceByTimeRange: [],
+    // recoveryPriceByTimeRange: [],
     intervaloReservacion: null,
     type: '0',
     priceRoom: '0',
@@ -93,13 +63,12 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    // setValue,
     control,
     reset,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(typeRoomSchema),
+    resolver: zodResolver(normalRoomCategory),
     defaultValues: defaultValues,
   });
 
@@ -123,8 +92,8 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
     const newValues: any = {
       name: defaultData.nombre,
       description: defaultData.descripcion,
-      priceByTimeRange: defaultData.configuracionPrecioHora,
-      recoveryPriceByTimeRange: defaultData.configuracionRecuperacion,
+      // priceByTimeRange: defaultData.configuracionPrecioHora,
+      // recoveryPriceByTimeRange: defaultData.configuracionRecuperacion,
       intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
       type: defaultData.id_TipoCuarto ? '0' : '1',
       priceRoom: defaultData.precio?.toString(),
@@ -150,7 +119,7 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
     console.log('intervaloReservacion:', intervaloReservacion);
     try {
       if (!defaultData) {
-        await registerTypeRoom({
+        await registerNormalRoomCategory({
           nombre: data.name,
           descripcion: data.description,
           intervaloReservacion,
@@ -189,7 +158,7 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
         // }
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
-        await modifyTypeRoom({
+        await modifyNormalRoomCategory({
           nombre: data.name,
           descripcion: data.description,
           intervaloReservacion,
@@ -242,17 +211,17 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
     }
   };
 
-  const handleAddNewPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
-    setValue('priceByTimeRange', [...config]);
-  };
+  // const handleAddNewPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
+  //   setValue('priceByTimeRange', [...config]);
+  // };
 
-  const handleAddNewRecoveryPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
-    setValue('recoveryPriceByTimeRange', [...config]);
-  };
+  // const handleAddNewRecoveryPriceByTimeRange = (config: IRecoveryRoomOperatingRoom[]) => {
+  //   setValue('recoveryPriceByTimeRange', [...config]);
+  // };
 
-  const handleAddPriceRoom = (price: string) => {
-    setValue('priceRoom', price);
-  };
+  // const handleAddPriceRoom = (price: string) => {
+  //   setValue('priceRoom', price);
+  // };
 
   const actions = (
     <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>
@@ -470,239 +439,239 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
   );
 };
 
-interface InputsRoomHourCost {
-  inicio: string;
-  fin: string | null;
-  precio: string;
-  noneHour: boolean;
-}
+// interface InputsRoomHourCost {
+//   inicio: string;
+//   fin: string | null;
+//   precio: string;
+//   noneHour: boolean;
+// }
 
-interface RoomHourCostTableProps {
-  data: IRecoveryRoomOperatingRoom[];
-  xs: boolean;
-  updateRecoveryConfig: (config: IRecoveryRoomOperatingRoom[]) => void;
-  isRecovery?: boolean;
-  formKey: string;
-}
+// interface RoomHourCostTableProps {
+//   data: IRecoveryRoomOperatingRoom[];
+//   xs: boolean;
+//   updateRecoveryConfig: (config: IRecoveryRoomOperatingRoom[]) => void;
+//   isRecovery?: boolean;
+//   formKey: string;
+// }
 
-const RoomHourCostTable = (props: RoomHourCostTableProps) => {
-  const { data } = props;
-  const [open, setOpen] = useState(false);
-  const [configList, setConfigList] = useState<IRecoveryRoomOperatingRoom[]>(sortByInicio(data));
+// const RoomHourCostTable = (props: RoomHourCostTableProps) => {
+//   const { data } = props;
+//   const [open, setOpen] = useState(false);
+//   const [configList, setConfigList] = useState<IRecoveryRoomOperatingRoom[]>(sortByInicio(data));
 
-  const {
-    register,
-    watch,
-    setValue,
-    reset,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<InputsRoomHourCost>({
-    defaultValues: {
-      inicio: '',
-      fin: '',
-      precio: '',
-      noneHour: false,
-    },
-    resolver: open ? zodResolver(recoveryRoomOperatingRoomSchema) : undefined,
-  });
+//   const {
+//     register,
+//     watch,
+//     setValue,
+//     reset,
+//     handleSubmit,
+//     formState: { errors },
+//   } = useForm<InputsRoomHourCost>({
+//     defaultValues: {
+//       inicio: '',
+//       fin: '',
+//       precio: '',
+//       noneHour: false,
+//     },
+//     resolver: open ? zodResolver(recoveryRoomOperatingRoomSchema) : undefined,
+//   });
 
-  const handleAdd = () => {
-    setOpen(true);
-  };
+//   const handleAdd = () => {
+//     setOpen(true);
+//   };
 
-  const handleSave: SubmitHandler<InputsRoomHourCost> = (data) => {
-    if (!open) return handleAdd();
-    const newData = {
-      horaInicio: data.inicio,
-      horaFin: data.fin ? data.fin : null,
-      precio: data.precio,
-    };
-    if (!validateConfig(configList, newData)) return;
-    const config = [...configList, newData];
-    setConfigList((prev) => [...prev, { ...newData, fin: newData.horaFin ? newData.horaFin : '' }]);
-    props.updateRecoveryConfig(config);
-    reset();
-    setOpen(false);
-  };
+//   const handleSave: SubmitHandler<InputsRoomHourCost> = (data) => {
+//     if (!open) return handleAdd();
+//     const newData = {
+//       horaInicio: data.inicio,
+//       horaFin: data.fin ? data.fin : null,
+//       precio: data.precio,
+//     };
+//     if (!validateConfig(configList, newData)) return;
+//     const config = [...configList, newData];
+//     setConfigList((prev) => [...prev, { ...newData, fin: newData.horaFin ? newData.horaFin : '' }]);
+//     props.updateRecoveryConfig(config);
+//     reset();
+//     setOpen(false);
+//   };
 
-  const handleCancel = () => {
-    setOpen(false);
-    reset();
-  };
+//   const handleCancel = () => {
+//     setOpen(false);
+//     reset();
+//   };
 
-  const handleDelete = (price: string) => {
-    const config = configList.filter((d) => d.precio !== price);
-    setConfigList((prev) => prev.filter((d) => d.precio !== price));
-    props.updateRecoveryConfig(config);
-  };
+//   const handleDelete = (price: string) => {
+//     const config = configList.filter((d) => d.precio !== price);
+//     setConfigList((prev) => prev.filter((d) => d.precio !== price));
+//     props.updateRecoveryConfig(config);
+//   };
 
-  useEffect(() => {
-    if (watch('noneHour')) {
-      setValue('fin', '');
-    }
-  }, [watch('noneHour')]);
+//   useEffect(() => {
+//     if (watch('noneHour')) {
+//       setValue('fin', '');
+//     }
+//   }, [watch('noneHour')]);
 
-  return (
-    <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography variant="h5">{props.isRecovery ? 'Precio hora recuperacion' : 'Precio hora quirófano'}</Typography>
-      <Card sx={{ flex: 1 }}>
-        <TableContainer>
-          <Table>
-            <TableHeaderComponent headers={HOUR_COST_TABLE_HEADERS} />
-            <TableBody>
-              {configList &&
-                configList.map((d, n) => (
-                  <TableRow key={n}>
-                    <TableCell>{`${d.horaInicio} - ${!d.horaFin ? 'En adelante' : d.horaFin}`}</TableCell>
-                    <TableCell>{d.precio}</TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Tooltip title="Eliminar">
-                          <IconButton onClick={() => handleDelete(d.precio)}>
-                            <Delete />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {/* {!configList ||
-          (configList.length === 0 && (
-            <NoDataInTableInfo infoTitle="No hay precios agregados" sizeIcon={30} variantText="h4" />
-          ))} */}
-      </Card>
-      <Box sx={{ mt: 1, display: 'flex' }}>
-        <Box sx={{ flex: { xs: 1, md: 2 } }}>
-          <Collapse in={open}>
-            <form id={props.formKey} onSubmit={handleSubmit(handleSave)}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: { xs: 'column', md: 'row' },
-                  rowGap: 2,
-                  columnGap: 2,
-                  alignItems: 'start',
-                }}
-              >
-                <TextField
-                  label="Inicio"
-                  fullWidth
-                  value={watch('inicio')}
-                  onChange={(e) => {
-                    if (!isValidIntegerIncludeZero(e.target.value)) return;
-                    setValue('inicio', e.target.value);
-                  }}
-                  error={!!errors.inicio?.message}
-                  helperText={errors.inicio?.message}
-                />
-                <TextField
-                  label="Fin"
-                  fullWidth
-                  value={watch('fin')}
-                  disabled={watch('noneHour')}
-                  onChange={(e) => {
-                    if (!isValidInteger(e.target.value)) return;
-                    setValue('fin', e.target.value);
-                  }}
-                  error={!!errors.fin?.message}
-                  helperText={errors.fin?.message}
-                />
-                <TextField
-                  label="Precio"
-                  fullWidth
-                  value={watch('precio')}
-                  onChange={(e) => {
-                    if (!isValidFloat(e.target.value)) return setValue('precio', '');
-                    setValue('precio', e.target.value);
-                  }}
-                  error={!!errors.precio?.message}
-                  helperText={errors.precio?.message}
-                />
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="caption">Sin hora de finalización</Typography>
-                <Checkbox checked={watch('noneHour')} {...register('noneHour')} />
-              </Box>
-            </form>
-          </Collapse>
-        </Box>
-        <Box sx={{ flex: 1, justifyContent: 'flex-end', display: 'flex' }}>
-          <Box>
-            <Button variant="contained" form={props.formKey} type="submit">
-              {!open ? 'Agregar' : 'Guardar'}
-            </Button>
-            <Collapse in={open} sx={{ mt: 1 }}>
-              <Button variant="outlined" color="error" onClick={handleCancel}>
-                Cancelar
-              </Button>
-            </Collapse>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
+//   return (
+//     <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+//       <Typography variant="h5">{props.isRecovery ? 'Precio hora recuperacion' : 'Precio hora quirófano'}</Typography>
+//       <Card sx={{ flex: 1 }}>
+//         <TableContainer>
+//           <Table>
+//             <TableHeaderComponent headers={HOUR_COST_TABLE_HEADERS} />
+//             <TableBody>
+//               {configList &&
+//                 configList.map((d, n) => (
+//                   <TableRow key={n}>
+//                     <TableCell>{`${d.horaInicio} - ${!d.horaFin ? 'En adelante' : d.horaFin}`}</TableCell>
+//                     <TableCell>{d.precio}</TableCell>
+//                     <TableCell>
+//                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+//                         <Tooltip title="Eliminar">
+//                           <IconButton onClick={() => handleDelete(d.precio)}>
+//                             <Delete />
+//                           </IconButton>
+//                         </Tooltip>
+//                       </Box>
+//                     </TableCell>
+//                   </TableRow>
+//                 ))}
+//             </TableBody>
+//           </Table>
+//         </TableContainer>
+//         {/* {!configList ||
+//           (configList.length === 0 && (
+//             <NoDataInTableInfo infoTitle="No hay precios agregados" sizeIcon={30} variantText="h4" />
+//           ))} */}
+//       </Card>
+//       <Box sx={{ mt: 1, display: 'flex' }}>
+//         <Box sx={{ flex: { xs: 1, md: 2 } }}>
+//           <Collapse in={open}>
+//             <form id={props.formKey} onSubmit={handleSubmit(handleSave)}>
+//               <Box
+//                 sx={{
+//                   display: 'flex',
+//                   flexDirection: { xs: 'column', md: 'row' },
+//                   rowGap: 2,
+//                   columnGap: 2,
+//                   alignItems: 'start',
+//                 }}
+//               >
+//                 <TextField
+//                   label="Inicio"
+//                   fullWidth
+//                   value={watch('inicio')}
+//                   onChange={(e) => {
+//                     if (!isValidIntegerIncludeZero(e.target.value)) return;
+//                     setValue('inicio', e.target.value);
+//                   }}
+//                   error={!!errors.inicio?.message}
+//                   helperText={errors.inicio?.message}
+//                 />
+//                 <TextField
+//                   label="Fin"
+//                   fullWidth
+//                   value={watch('fin')}
+//                   disabled={watch('noneHour')}
+//                   onChange={(e) => {
+//                     if (!isValidInteger(e.target.value)) return;
+//                     setValue('fin', e.target.value);
+//                   }}
+//                   error={!!errors.fin?.message}
+//                   helperText={errors.fin?.message}
+//                 />
+//                 <TextField
+//                   label="Precio"
+//                   fullWidth
+//                   value={watch('precio')}
+//                   onChange={(e) => {
+//                     if (!isValidFloat(e.target.value)) return setValue('precio', '');
+//                     setValue('precio', e.target.value);
+//                   }}
+//                   error={!!errors.precio?.message}
+//                   helperText={errors.precio?.message}
+//                 />
+//               </Box>
+//               <Box sx={{ display: 'flex', alignItems: 'center' }}>
+//                 <Typography variant="caption">Sin hora de finalización</Typography>
+//                 <Checkbox checked={watch('noneHour')} {...register('noneHour')} />
+//               </Box>
+//             </form>
+//           </Collapse>
+//         </Box>
+//         <Box sx={{ flex: 1, justifyContent: 'flex-end', display: 'flex' }}>
+//           <Box>
+//             <Button variant="contained" form={props.formKey} type="submit">
+//               {!open ? 'Agregar' : 'Guardar'}
+//             </Button>
+//             <Collapse in={open} sx={{ mt: 1 }}>
+//               <Button variant="outlined" color="error" onClick={handleCancel}>
+//                 Cancelar
+//               </Button>
+//             </Collapse>
+//           </Box>
+//         </Box>
+//       </Box>
+//     </Box>
+//   );
+// };
 
-const AddPriceHospitalizationRoom = (props: {
-  updatePriceRoom: (price: string) => void;
-  priceRoom: string;
-  error: FieldErrors<Inputs>;
-}) => {
-  return (
-    <Box>
-      <TextField
-        label="Precio"
-        value={props.priceRoom}
-        onChange={(e) => {
-          if (!isValidFloat(e.target.value)) return;
-          props.updatePriceRoom(e.target.value);
-        }}
-        error={!!props.error.priceRoom?.message}
-        helperText={props.error.priceRoom?.message}
-      />
-    </Box>
-  );
-};
+// const AddPriceHospitalizationRoom = (props: {
+//   updatePriceRoom: (price: string) => void;
+//   priceRoom: string;
+//   error: FieldErrors<Inputs>;
+// }) => {
+//   return (
+//     <Box>
+//       <TextField
+//         label="Precio"
+//         value={props.priceRoom}
+//         onChange={(e) => {
+//           if (!isValidFloat(e.target.value)) return;
+//           props.updatePriceRoom(e.target.value);
+//         }}
+//         error={!!props.error.priceRoom?.message}
+//         helperText={props.error.priceRoom?.message}
+//       />
+//     </Box>
+//   );
+// };
 
-function validateConfig(currentConfig: IRecoveryRoomOperatingRoom[], config: IRecoveryRoomOperatingRoom): boolean {
-  for (const existingConfig of currentConfig) {
-    if (existingConfig.horaFin === null) {
-      if (config.horaInicio >= existingConfig.horaInicio) {
-        toast.warning('No se puede crear una configuración que comienza después de una configuración abierta.');
-        return false;
-      }
-    } else {
-      if (
-        (config.horaInicio >= existingConfig.horaInicio && config.horaInicio < existingConfig.horaFin) ||
-        (config.horaFin !== null &&
-          config.horaFin > existingConfig.horaInicio &&
-          config.horaFin <= existingConfig.horaFin) ||
-        (config.horaInicio <= existingConfig.horaInicio &&
-          (config.horaFin === null || config.horaFin >= existingConfig.horaFin))
-      ) {
-        toast.warning('El rango de horas está interfiere con una configuración existente.');
-        return false;
-      }
-    }
-  }
+// function validateConfig(currentConfig: IRecoveryRoomOperatingRoom[], config: IRecoveryRoomOperatingRoom): boolean {
+//   for (const existingConfig of currentConfig) {
+//     if (existingConfig.horaFin === null) {
+//       if (config.horaInicio >= existingConfig.horaInicio) {
+//         toast.warning('No se puede crear una configuración que comienza después de una configuración abierta.');
+//         return false;
+//       }
+//     } else {
+//       if (
+//         (config.horaInicio >= existingConfig.horaInicio && config.horaInicio < existingConfig.horaFin) ||
+//         (config.horaFin !== null &&
+//           config.horaFin > existingConfig.horaInicio &&
+//           config.horaFin <= existingConfig.horaFin) ||
+//         (config.horaInicio <= existingConfig.horaInicio &&
+//           (config.horaFin === null || config.horaFin >= existingConfig.horaFin))
+//       ) {
+//         toast.warning('El rango de horas está interfiere con una configuración existente.');
+//         return false;
+//       }
+//     }
+//   }
 
-  if (currentConfig.some((d) => d.precio === config.precio)) {
-    toast.warning('Ya existe un precio con este valor.');
-    return false;
-  }
+//   if (currentConfig.some((d) => d.precio === config.precio)) {
+//     toast.warning('Ya existe un precio con este valor.');
+//     return false;
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
-function sortByInicio(array?: IRecoveryRoomOperatingRoom[]) {
-  if (!array) return [];
-  return array.sort((a, b) => {
-    if (a.horaInicio === null) return 1;
-    if (b.horaInicio === null) return -1;
-    return parseInt(a.horaInicio) - parseInt(b.horaInicio);
-  });
-}
+// function sortByInicio(array?: IRecoveryRoomOperatingRoom[]) {
+//   if (!array) return [];
+//   return array.sort((a, b) => {
+//     if (a.horaInicio === null) return 1;
+//     if (b.horaInicio === null) return -1;
+//     return parseInt(a.horaInicio) - parseInt(b.horaInicio);
+//   });
+// }
