@@ -62,6 +62,7 @@ import {
   MedicalConsultationView,
   PatientKardexView,
   CheckoutReportView,
+  RoomTypesView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -127,7 +128,8 @@ function App() {
                 // ---------------------------Programacion------------------------------------- //
                 <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
                 <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
-                <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} />
+                {/* <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} /> */}
+                <Route path="programacion/categorias-espacios-hospitalarios" element={<RoomTypesView />} />
                 <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
                 {/* <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} /> */}
                 <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />

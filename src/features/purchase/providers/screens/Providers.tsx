@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, IconButton, Tooltip } from '@mui/material';
+import { Button, Grid, IconButton, Tooltip } from '@mui/material';
 
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { useSubCategoryPagination } from '../stores/subCategoryPagination';
@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
 
-import { TableTop, TablePaginated } from '@/common/components';
+import { TableTop, TablePaginated, MainCard } from '@/common/components';
 
 import { useDisableSubCategory } from '../hooks/useDisableSubCategory';
 import { getProviders } from '../services/providers';
@@ -88,34 +88,38 @@ const Providers = () => {
 
   return (
     <>
-      <TableTop>
-        <SearchBar title="Busca al proveedor categoría..." searchState={setSearch} sx={{ width: '30%' }} />
-        <div style={{ width: '50%' }}></div>
-        <Button
-          sx={{
-            height: '40px',
+      <MainCard content={false}>
+        <TableTop>
+          <SearchBar title="Busca al proveedor categoría..." searchState={setSearch} sx={{ width: '30%' }} />
+          <div style={{ width: '50%' }}></div>
+          <Button
+            sx={{
+              height: '40px',
+            }}
+            onClick={() => {
+              setEnabled(!enabled);
+            }}
+            startIcon={<ClassOutlinedIcon />}
+          >
+            {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
+          </Button>
+          <Grid>
+            <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAdd()}>
+              Agregar
+            </Button>
+          </Grid>
+        </TableTop>
+        <TablePaginated
+          ref={tableRef}
+          columns={columns}
+          fetchData={getProviders}
+          params={{
+            nombre: search,
+            habilitado: enabled,
           }}
-          onClick={() => {
-            setEnabled(!enabled);
-          }}
-          startIcon={<ClassOutlinedIcon />}
-        >
-          {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
-        </Button>
-        <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAdd()}>
-          Agregar
-        </Button>
-      </TableTop>
-      <TablePaginated
-        ref={tableRef}
-        columns={columns}
-        fetchData={getProviders}
-        params={{
-          nombre: search,
-          habilitado: enabled,
-        }}
-      ></TablePaginated>
-      <ProvidersModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+        ></TablePaginated>
+        <ProvidersModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+      </MainCard>
     </>
   );
 };

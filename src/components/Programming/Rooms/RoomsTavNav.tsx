@@ -1,4 +1,4 @@
-import { Box, Card, Tab, Tabs } from '@mui/material';
+import { Box, Tab, Tabs } from '@mui/material';
 import { useCallback } from 'react';
 import { shallow } from 'zustand/shallow';
 import { Rooms } from './Rooms';
@@ -16,24 +16,17 @@ export const RoomsTabNav = () => {
     setTabValue(newValue);
   }, []);
 
-  const getTabView = () => {
-    switch (tabValue) {
-      case 0:
-        return <Rooms />;
-      case 1:
-        return <TypesRoom />;
-    }
-  };
+  const tabViews = [<Rooms />, <TypesRoom />];
 
   return (
-    <Card>
+    <>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleChange} variant="fullWidth">
           <Tab label="Gestión de espacios hospitalarios" />
           <Tab label="Categorías de espacios hospitalarios" />
         </Tabs>
       </Box>
-      {getTabView()}
-    </Card>
+      {tabViews[tabValue]}
+    </>
   );
 };

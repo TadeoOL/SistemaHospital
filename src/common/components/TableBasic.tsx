@@ -7,10 +7,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
 // project imports
-import { MainCard } from './MainCard';
 import React from 'react';
 import { SortComponent } from '../../components/Commons/SortComponent';
-import { Box, Card, CircularProgress, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, CircularProgress, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 export interface TableBasicColumn {
@@ -101,29 +100,8 @@ export const TableBasic = (props: TableBasicProps) => {
       </Box>
     );
 
-  if (rows.length === 0) {
-    return (
-      <Card
-        sx={{
-          display: 'flex',
-          flexGrow: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: 2,
-          columnGap: 1,
-          height: 150,
-        }}
-      >
-        <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
-        <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
-          No existen registros
-        </Typography>
-      </Card>
-    );
-  }
-
   return (
-    <MainCard content={false}>
+    <>
       {props.children && (
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
@@ -149,6 +127,25 @@ export const TableBasic = (props: TableBasicProps) => {
           </TableBody>
         </Table>
       </TableContainer>
-    </MainCard>
+
+      {rows.length === 0 && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexGrow: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            p: 2,
+            columnGap: 1,
+            height: 150,
+          }}
+        >
+          <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
+          <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
+            No existen registros
+          </Typography>
+        </Box>
+      )}
+    </>
   );
 };

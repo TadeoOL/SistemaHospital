@@ -36,8 +36,7 @@ import { NavItemType } from '@/types/menu';
 import SimpleBar from '../SimpleBar';
 import { useLayoutStore } from '../../stores/layoutStore';
 import { useAuthStore } from '@/store/auth';
-
-// ==============================|| NAVIGATION - LIST GROUP ||============================== //
+// import { useBreadcrumbs } from '@/common/components/Layout/stores/useBreadcrumbs';
 
 interface Props {
   item: NavItemType;
@@ -198,7 +197,7 @@ export default function NavGroup({
           itemsToShow.push(item);
         }
       }
-      if (item.type === 'collapse') {
+      if (item.type === 'collapse' || item.children) {
         const children = canShow(item.children);
         if (children.length > 0) {
           itemsToShow.push({ ...item, children });
@@ -209,7 +208,13 @@ export default function NavGroup({
     return itemsToShow;
   };
 
-  const filteredChildren: NavItemType[] = useMemo(() => canShow(currentItem.children), [currentItem.children, profile]);
+  // const { setBreadcrumbs } = useBreadcrumbs((s) => ({
+  // setBreadcrumbs: s.setBreadcrumbs,
+  // }));
+
+  const filteredChildren = useMemo(() => {
+    return canShow(currentItem.children);
+  }, [currentItem.children, profile]);
 
   const navCollapse = filteredChildren.map((menuItem, index) => {
     switch (menuItem.type) {

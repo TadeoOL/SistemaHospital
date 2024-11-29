@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, IconButton, Tooltip } from '@mui/material';
+import { Button, Grid, IconButton, Tooltip } from '@mui/material';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
@@ -7,7 +7,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
 
-import { TableTop, TablePaginated, SelectBasic } from '@/common/components';
+import { TableTop, TablePaginated, SelectBasic, MainCard } from '@/common/components';
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { useCategoryPagination } from '@/store/purchaseStore/categoryPagination';
 import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
@@ -92,60 +92,64 @@ const Category = () => {
 
   return (
     <>
-      <TableTop>
-        <SearchBar title="Busca la categoría..." searchState={setSearch} sx={{ width: '30%' }} />
-        <SelectBasic
-          sx={{ width: '25%', px: 1 }}
-          value={warehouseSelected}
-          label="Busqueda por almacén"
-          options={almacenes}
-          uniqueProperty="id_Almacen"
-          displayProperty="nombre"
-          onChange={(e: any) => {
-            setWarehouseSelected(e.target.value);
-          }}
-        />
-        <Button
-          sx={{
-            height: '40px',
-            mx: 1,
-          }}
-          onClick={() => {
-            setEnabled(!enabled);
-          }}
-          startIcon={<ClassOutlinedIcon />}
-        >
-          {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitados'}
-        </Button>
-        <Button
-          sx={{ height: '40px', mt: '8px', marginRight: '20px' }}
-          variant="contained"
-          startIcon={<AddCircleIcon />}
-          onClick={handleAdd}
-        >
-          Agregar
-        </Button>
-      </TableTop>
+      <MainCard content={false}>
+        <TableTop>
+          <SearchBar title="Busca la categoría..." searchState={setSearch} sx={{ width: '30%' }} />
+          <SelectBasic
+            sx={{ width: '25%', px: 1 }}
+            value={warehouseSelected}
+            label="Busqueda por almacén"
+            options={almacenes}
+            uniqueProperty="id_Almacen"
+            displayProperty="nombre"
+            onChange={(e: any) => {
+              setWarehouseSelected(e.target.value);
+            }}
+          />
+          <Button
+            sx={{
+              height: '40px',
+              mx: 1,
+            }}
+            onClick={() => {
+              setEnabled(!enabled);
+            }}
+            startIcon={<ClassOutlinedIcon />}
+          >
+            {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitados'}
+          </Button>
+          <Grid>
+            <Button
+              sx={{ height: '40px', mt: '8px', marginRight: '20px' }}
+              variant="contained"
+              startIcon={<AddCircleIcon />}
+              onClick={handleAdd}
+            >
+              Agregar
+            </Button>
+          </Grid>
+        </TableTop>
 
-      {!warehouseSelected && !isLoadingAlmacenes && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-          <h2>Selecciona un almacén para ver las categorias</h2>
-        </div>
-      )}
+        {!warehouseSelected && !isLoadingAlmacenes && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+            <h2>Selecciona un almacén para ver las categorias</h2>
+          </div>
+        )}
 
-      {warehouseSelected && !isLoadingAlmacenes && (
-        <TablePaginated
-          ref={tableRef}
-          columns={columns}
-          fetchData={getCategories}
-          params={{
-            search,
-            habilitado: true,
-            Id_Almacen: warehouseSelected || null,
-          }}
-        ></TablePaginated>
-      )}
-      <CategoryModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+        {warehouseSelected && !isLoadingAlmacenes && (
+          <TablePaginated
+            ref={tableRef}
+            columns={columns}
+            fetchData={getCategories}
+            params={{
+              search,
+              habilitado: true,
+              Id_Almacen: warehouseSelected || null,
+            }}
+          ></TablePaginated>
+        )}
+        <CategoryModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+      </MainCard>
     </>
   );
 };

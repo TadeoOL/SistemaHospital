@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, IconButton, Tooltip, CircularProgress } from '@mui/material';
+import { Button, IconButton, Tooltip, CircularProgress, Grid } from '@mui/material';
 
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { useSubCategoryPagination } from '../stores/subCategoryPagination';
@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
 
-import { TableTop, TablePaginated, SelectBasic } from '@/common/components';
+import { TableTop, TablePaginated, SelectBasic, MainCard } from '@/common/components';
 import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
 import { useGetCategories } from '@/hooks/useGetCategories';
 
@@ -96,70 +96,74 @@ const SubCategory = () => {
 
   return (
     <>
-      <TableTop>
-        <SearchBar title="Busca la sub categoría..." searchState={setSearch} sx={{ width: '30%' }} />
-        <SelectBasic
-          sx={{ width: '25%', px: 1 }}
-          value={warehouseSelected}
-          label="Busqueda por almacén"
-          options={almacenes}
-          uniqueProperty="id_Almacen"
-          displayProperty="nombre"
-          onChange={(e: any) => {
-            setSelectedCategory(null);
-            setWarehouseSelected(e.target.value);
-          }}
-        />
-        {isLoadingCategories ? (
-          <CircularProgress />
-        ) : (
+      <MainCard content={false}>
+        <TableTop>
+          <SearchBar title="Busca la sub categoría..." searchState={setSearch} sx={{ width: '30%' }} />
           <SelectBasic
             sx={{ width: '25%', px: 1 }}
-            value={selectedCategory}
-            label="Categoria"
-            options={categories.filter((cat) => cat.id_Almacen === warehouseSelected)}
-            uniqueProperty="id_Categoria"
+            value={warehouseSelected}
+            label="Busqueda por almacén"
+            options={almacenes}
+            uniqueProperty="id_Almacen"
             displayProperty="nombre"
             onChange={(e: any) => {
-              setSelectedCategory(e.target.value);
+              setSelectedCategory(null);
+              setWarehouseSelected(e.target.value);
             }}
           />
+          {isLoadingCategories ? (
+            <CircularProgress />
+          ) : (
+            <SelectBasic
+              sx={{ width: '25%', px: 1 }}
+              value={selectedCategory}
+              label="Categoria"
+              options={categories.filter((cat) => cat.id_Almacen === warehouseSelected)}
+              uniqueProperty="id_Categoria"
+              displayProperty="nombre"
+              onChange={(e: any) => {
+                setSelectedCategory(e.target.value);
+              }}
+            />
+          )}
+          <Button
+            sx={{
+              height: '40px',
+            }}
+            onClick={() => {
+              setEnabled(!enabled);
+            }}
+            startIcon={<ClassOutlinedIcon />}
+          >
+            {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
+          </Button>
+          <Grid>
+            <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAdd()}>
+              Agregar
+            </Button>
+          </Grid>
+        </TableTop>
+
+        {(!warehouseSelected || !selectedCategory) && !isLoadingAlmacenes && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+            <h2>Selecciona almacén y categoria para ver las subcategorias</h2>
+          </div>
         )}
-        <Button
-          sx={{
-            height: '40px',
-          }}
-          onClick={() => {
-            setEnabled(!enabled);
-          }}
-          startIcon={<ClassOutlinedIcon />}
-        >
-          {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
-        </Button>
-        <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAdd()}>
-          Agregar
-        </Button>
-      </TableTop>
 
-      {(!warehouseSelected || !selectedCategory) && !isLoadingAlmacenes && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-          <h2>Selecciona almacén y categoria para ver las subcategorias</h2>
-        </div>
-      )}
-
-      {warehouseSelected && selectedCategory && !isLoadingAlmacenes && (
-        <TablePaginated
-          ref={tableRef}
-          columns={columns}
-          fetchData={getSubCategories}
-          params={{
-            search,
-            habilitado: enabled,
-            Id_Categoria: selectedCategory || null,
-          }}
-        ></TablePaginated>
-      )}
-      <SubCategoryModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+        {warehouseSelected && selectedCategory && !isLoadingAlmacenes && (
+          <TablePaginated
+            ref={tableRef}
+            columns={columns}
+            fetchData={getSubCategories}
+            params={{
+              search,
+              habilitado: enabled,
+              Id_Categoria: selectedCategory || null,
+            }}
+          ></TablePaginated>
+        )}
+        <SubCategoryModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+      </MainCard>
     </>
     // <Box sx={{ pt: 2 }}>
     //   <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>

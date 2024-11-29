@@ -14,8 +14,7 @@ export const TableTop = (props: TableCardTopProps) => {
           flexGrow: 1,
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          pb: 2,
-          pt: 0,
+          p: 2,
         }}
       >
         <>{props.children}</>

@@ -118,7 +118,7 @@ export const TablePaginated = memo(
       };
     }, []);
 
-    const dynamicHeight = `${windowHeight - 360}px`;
+    const dynamicHeight = `${windowHeight - 410}px`;
 
     return (
       <>

@@ -1,158 +1,120 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
 import Typography from '@mui/material/Typography';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import HomeIcon from '@mui/icons-material/Home';
-import GrainIcon from '@mui/icons-material/Grain';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency';
-import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useLocation } from 'react-router-dom';
-import WarehouseIcon from '@mui/icons-material/Warehouse';
-import { useWarehouseTabsNavStore } from '../../store/warehouseStore/warehouseTabsNav';
-import { IWarehouseData } from '../../types/types';
 import { Box } from '@mui/material';
+import { NavItemType } from '@/types/menu';
+import { useAuthStore } from '@/store/auth';
+import sideBarRoutes from '@/routes/sidebar.routes';
 
-function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-  event.preventDefault();
-}
+const matchRoles = (profile: any, roles: string[] | undefined) => {
+  if (!roles || !profile?.roles) return false;
 
-const messagesByLink: Record<string, string> = {
-  '/compras/solicitud-compras': 'Solicitud de Compras',
-  '/compras/solicitud-compras/productos-solicitados-orden-compra': 'Solcitudes en Proceso',
-  '/compras/solicitud-compras/productos-stock-bajo': 'Alerta de Productos',
-  '/compras/categorias': 'Categorías',
-  '/compras/subcategorias': 'Sub Categorías',
-  '/compras/articulos': 'Catálogo de Artículos',
-  '/compras/articulos/articulo-existente': 'Artículos en Existencia',
-  '/compras/autorizacion-compras': 'Autorización de Ordenes de Compra',
-  '/compras/proveedores': 'Proveedores',
-  '/compras/configuracion-compras': 'Configuración de Compras',
-  '/compras/autorizacion-compras/autorizaciones': 'Autorizaciones',
-  '/compras/autorizacion-compras/historial-autorizaciones': 'Historial de Autorizaciones',
-  '/farmacia/configuracion-farmacia': 'Configuración de Farmacia',
-  '/farmacia/punto-venta': 'Punto de Venta',
-  '/hospitalizacion/solicitud-enfermero': 'Solicitud Enfermero',
-  '/farmacia/historial-ventas': 'Historial de Ventas',
-  '/farmacia/catalogo': 'Salidas y Existencias',
-  '/ventas/caja': 'Caja del dia',
-  '/ventas/emitir-recibo': 'Pase a caja',
-  '/ventas/historial-cortes': 'Cortes de caja',
-  '/ventas/corte-caja': 'Caja del Día',
-  '/ventas/cierre-de-cuenta': 'Cierre de cuenta',
-  '/admision/ingreso-pacientes': 'Ingreso de pacientes',
-  '/facturas': 'Facturacion',
-  '/quirofano/operaciones-del-dia': 'Operaciones del día',
-  '/quirofano/recuperacion': 'Recuperación',
-  '/quirofano/paquetes-quirurgicos': 'Paquetes Quirurgicos',
-  '/hospitalizacion/anestesiologos': 'Anestesiologos',
-  '/hospitalizacion/servicios-solicitud': 'Solicitud de Servicios',
-  '/hospitalizacion/solicitudes-administracion': 'Autorización de Servicios',
-  '/hospitalizacion/guardias-anestesiologos': 'Guardias Anestesiologos',
-  '/hospitalizacion/cuartos-hospitalarios': 'Cuartos Hospitalarios',
-  '/hospitalizacion/cuartos-hospitalarios-asignados': 'Cuartos Hospitalarios Asignados',
-  '/hospitalizacion/calendario-cuartos-asignados': 'Calendario de Cuartos Asignados',
-  '/hospitalizacion/configuracion-hospitalizacion': 'Configuración de Hospitalización',
-  '/admision/cuentas-pendientes-por-pagar': 'Cuentas Pendientes por Pagar',
-  '/programacion/registro': 'Registro de Pacientes',
-  '/programacion/gestion-espacios-hospitalarios': 'Gestión de Espacios Hospitalarios',
-  '/programacion/categorias-espacios-hospitalarios': 'Categorías de Espacios Hospitalarios',
-  '/programacion/procedimientos-cirugia': 'Procedimientos de Cirugía',
-  '/programacion/registro-eventos': 'Programación de Eventos',
-  '/hospitalizacion/equipo-biomedico': 'Equipo Biomédico',
-  '/hospitalizacion/solicitudes': 'Servicios',
-  '/hospitalizacion/configuracion-solicitudes': 'Configuración de Servicios',
-  '/hospitalizacion/medicos': 'Medicos',
-  '/hospitalizacion/guardias-medicos': 'Calendario de Guardias Medicos',
-  '/reportes/caja': 'Reporte de Caja',
+  return roles.some((role) => profile.roles.includes(role));
 };
 
-const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {
-  const isInsideSomeWarehouse = location.split('/').filter((ruta) => ruta !== '').length > 1;
-  return isInsideSomeWarehouse ? warehouseData.nombre : '';
-};
+const canShow = (profile: any, items: NavItemType[] | undefined, path: any[] = []) => {
+  if (!items) return { children: [], paths: {} };
 
-interface TsxByModuleProps {
-  module: string;
-}
-const TsxByModule: React.FC<TsxByModuleProps> = ({ module }) => {
-  switch (module) {
-    case 'compras':
-      return <ViewRender icon={ShoppingCartIcon} title="Compras" />;
-    case 'almacenes':
-      return <ViewRender icon={WarehouseIcon} title="Almacén" />;
-    case 'ventas':
-      return <ViewRender icon={PointOfSaleIcon} title="Ventas" />;
-    case 'hospitalizacion':
-      return <ViewRender icon={MonitorHeartIcon} title="Hospitalización" />;
-    case 'admision':
-      return <ViewRender icon={ContactEmergencyIcon} title="Admisión" />;
-    default:
-      return <ViewRender icon={HomeIcon} title="Inicio" />;
+  const itemsToShow: NavItemType[] = [];
+  let finalPaths: any = {};
+
+  for (const item of items) {
+    if (item.type === 'item') {
+      if (item.protectedRoles && !matchRoles(profile, item.protectedRoles)) {
+        continue;
+      }
+      itemsToShow.push(item);
+
+      if (item.url) {
+        const totalPath = [
+          ...path,
+          {
+            title: item.title,
+            icon: item.icon,
+          },
+        ];
+
+        const url = item.url;
+        finalPaths[url] = totalPath;
+      }
+    }
+
+    if (['collapse', 'group'].includes(item.type as string)) {
+      const { children, paths } = canShow(profile, item.children, [
+        ...path,
+        {
+          title: item.title,
+          icon: item.icon,
+        },
+      ]);
+
+      if (children.length > 0) {
+        itemsToShow.push({ ...item, children });
+      }
+
+      finalPaths = { ...finalPaths, ...paths };
+    }
   }
+
+  return { children: itemsToShow, paths: finalPaths };
 };
 
 const CustomBreadcrumb = () => {
   const location = useLocation();
-  const warehouseData = useWarehouseTabsNavStore((state) => state.warehouseData);
-  const [currentPageMessage, setCurrentPageMessage] = useState<string>('');
-  const [currentModule, setCurrentModule] = useState<string>('');
 
-  useEffect(() => {
-    const partesRuta = location.pathname.split('/');
-    const primeraParte = partesRuta[1];
-    const isInWarehouse = location.pathname.split('/')[1] === 'almacenes';
-    const currentMessage = isInWarehouse
-      ? warehouseMessages(warehouseData, location.pathname)
-      : messagesByLink[location.pathname] || '';
+  const { profile } = useAuthStore((state) => ({
+    profile: state.profile,
+  }));
 
-    setCurrentPageMessage(currentMessage);
-    setCurrentModule(primeraParte);
-  }, [location.pathname, warehouseData]);
+  const breadcrumbs = React.useMemo(() => {
+    const { paths } = canShow(profile, sideBarRoutes[0].children);
+    return paths;
+  }, [profile]);
+
+  const [firstBreadcrumb, ...restBreadcrumb] = breadcrumbs[location.pathname] || [];
+  const { title: firstTitle, icon } = firstBreadcrumb || {};
+
+  const restBreadcrumbs = restBreadcrumb.map((breadcrumb: any, index: number) => {
+    const { title, icon: Icon } = breadcrumb;
+    return (
+      <Typography
+        key={index}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          color: 'black',
+          fontWeight: 600,
+          fontSize: '1rem',
+        }}
+        color="text.primary"
+      >
+        <Icon sx={{ mr: 0.5, fontSize: '22px' }} fontSize="inherit" />
+        {title}
+      </Typography>
+    );
+  });
+
+  const Icon = icon || HomeIcon;
 
   return (
-    <div role="presentation" onClick={handleClick}>
-      <Breadcrumbs>
-        <TsxByModule module={currentModule} />
-        {currentPageMessage ? (
-          <Typography
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              color: 'black',
-              fontWeight: 600,
-              fontSize: '1rem',
-            }}
-            color="text.primary"
-          >
-            <GrainIcon sx={{ mr: 0.5, fontSize: '22px' }} fontSize="inherit" />
-            {currentPageMessage}
-          </Typography>
-        ) : null}
-      </Breadcrumbs>
-    </div>
+    <Breadcrumbs>
+      <Box sx={{ display: 'flex', flex: 1, alignContent: 'center' }}>
+        <Icon sx={{ mr: 0.5, fontSize: '22px', color: 'black' }} />
+        <Typography
+          sx={{
+            color: 'black',
+            fontWeight: 550,
+            fontSize: '1rem',
+          }}
+        >
+          {firstTitle}
+        </Typography>
+      </Box>
+      {restBreadcrumbs}
+    </Breadcrumbs>
   );
 };
 
 export default CustomBreadcrumb;
-interface ViewRenderProps {
-  title: string;
-  icon: any;
-}
-const ViewRender: React.FC<ViewRenderProps> = ({ title, icon: Icon }) => {
-  return (
-    <Box sx={{ display: 'flex', flex: 1, alignContent: 'center' }}>
-      <Icon sx={{ mr: 0.5, fontSize: '22px', color: 'black' }} />
-      <Typography
-        sx={{
-          color: 'black',
-          fontWeight: 550,
-          fontSize: '1rem',
-        }}
-      >
-        {title}
-      </Typography>
-    </Box>
-  );
-};

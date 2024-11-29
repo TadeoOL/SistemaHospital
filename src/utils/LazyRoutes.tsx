@@ -55,3 +55,4 @@ export const OutstandingBillsView = lazy(() => import('../views/Admission/Outsta
 export const MedicalConsultationView = lazy(() => import('../views/Admission/MedicalConsultationView'));
 export const PatientKardexView = lazy(() => import('../views/Nursing/PatientKardexView'));
 export const CheckoutReportView = lazy(() => import('@/features/reports/checkout/screens/CheckoutReport'));
+export const RoomTypesView = lazy(() => import('@/features/programming/room-categories/RoomCategories'));
