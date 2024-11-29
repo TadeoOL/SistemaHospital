@@ -2,28 +2,30 @@ import { MainCard, TablePaginated, TableTop } from '@/common/components';
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { Button, IconButton, Tooltip } from '@mui/material';
 import { useRef, useState } from 'react';
-import { useNormalRoomsPaginationStore } from '../../stores/useNormalRoomPagination';
-import { getRoomCategories } from '../../services/room-categories';
+import { useNormalRoomsPaginationStore } from '../stores/useNormalRoomPagination';
+import { getRoomCategories } from '../services/normal-room-categories';
 import EditIcon from '@mui/icons-material/Edit';
+import { NormalRoomCategoriesModal } from '../components/NormalRoomCategoriesModal';
 
 const NormalRoomTab = () => {
-  const [articleId, setArticleId] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const tableRef = useRef<any>();
+  const onSuccess = () => tableRef?.current?.fetchData();
 
   const handleAdd = () => {
-    setArticleId('');
+    setSelectedItem(null);
     setModalOpen(true);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
-    setArticleId('');
+    setSelectedItem(null);
   };
 
   const handleEdit = (row: any) => {
-    setArticleId('');
-    setArticleId(row.id);
+    setSelectedItem(null);
+    setSelectedItem(row);
     setModalOpen(true);
   };
 
@@ -41,7 +43,6 @@ const NormalRoomTab = () => {
       header: 'Precio',
       value: 'precio',
     },
-    // intervaloReservacion
     {
       header: 'Descripción',
       value: 'descripcion',
@@ -75,7 +76,7 @@ const NormalRoomTab = () => {
         <TableTop>
           <SearchBar title="Buscar espacio hospitalario..." searchState={setSearch} />
           <Button variant="contained" onClick={handleAdd}>
-            Agregar espacio hospitalario
+            Agregar categoría de cuartos
           </Button>
         </TableTop>
         <TablePaginated
@@ -83,11 +84,17 @@ const NormalRoomTab = () => {
           columns={columns}
           fetchData={getRoomCategories}
           params={{
-            enabled: true,
+            habilitado: true,
             search,
           }}
         />
       </MainCard>
+      <NormalRoomCategoriesModal
+        open={modalOpen}
+        defaultData={selectedItem}
+        onClose={handleModalClose}
+        onSuccess={onSuccess}
+      />
     </>
   );
 };

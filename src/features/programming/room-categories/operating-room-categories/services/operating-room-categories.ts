@@ -1,5 +1,5 @@
-import axios from '../../libs/axios';
-import { IPriceConfigRooms, IRecoveryRoomOperatingRoom } from '../../types/operatingRoom/operatingRoomTypes';
+import axios from '@/libs/axios';
+import { IPriceConfigRooms, IRecoveryRoomOperatingRoom } from '@/types/operatingRoom/operatingRoomTypes';
 
 const apiUrl = '/api/Programacion/Catalogo/TipoQuirofano';
 

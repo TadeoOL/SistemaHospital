@@ -9,10 +9,12 @@ export interface IOperatingRoomConfig {
 export interface IRecoveryRoomOperatingRoom {
   horaInicio: string;
   horaFin: string | null;
+  inicio?: string;
+  fin?: string;
   precio: string;
 }
 
-export interface IPriceConfigRooms{
+export interface IPriceConfigRooms {
   horaInicio: string;
   horaFin?: string;
   precio: string;
@@ -40,9 +42,9 @@ export interface IRoomInformationnew {
   quirofano: string;
   paciente?: string;
   cirugias?: { id_Cirugia: string; nombre: string }[];
-  id_Enfermero?: string; 
+  id_Enfermero?: string;
   enfermero?: string;
-  medico?: string
+  medico?: string;
   id_Medico?: string;
   id_Anestesiologo?: string;
   anestesiologo?: string;
@@ -90,7 +92,6 @@ export interface IRecoveryRoom {
   datosClinicos: HistorialClinico;
   procedimientos: { id: string; nombre: string }[];
 }
-
 
 ///////// - ADMISSION - /////////
 

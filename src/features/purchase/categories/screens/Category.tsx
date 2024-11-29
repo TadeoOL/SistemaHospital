@@ -17,7 +17,7 @@ import { getCategories } from '../services/categories';
 import { CategoryModal } from '../components/CategoryModal';
 
 const Category = () => {
-  const [categoryId, setCategoryId] = useState('');
+  const [selectedId, setSelectedId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const { search, enabled, setEnabled, setSearch } = useCategoryPagination((state) => ({
@@ -37,19 +37,19 @@ const Category = () => {
   const disableCategory = useDisableCategory(onSuccess);
 
   const handleAdd = () => {
-    setCategoryId('');
+    setSelectedId('');
     setModalOpen(true);
   };
 
   const handleEdit = (row: any) => {
-    setCategoryId('');
-    setCategoryId(row.id_Categoria);
+    setSelectedId('');
+    setSelectedId(row.id_Categoria);
     setModalOpen(true);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
-    setCategoryId('');
+    setSelectedId('');
   };
 
   const columns = [
@@ -148,7 +148,7 @@ const Category = () => {
             }}
           ></TablePaginated>
         )}
-        <CategoryModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+        <CategoryModal open={modalOpen} itemId={selectedId} onClose={handleModalClose} onSuccess={onSuccess} />
       </MainCard>
     </>
   );

@@ -13,6 +13,7 @@ import {
   //MenuItem,
   Radio,
   RadioGroup,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -24,48 +25,32 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { typeRoomSchema } from '../../../../schema/programming/programmingSchemas';
+import { typeRoomSchema } from '../../../../../schema/programming/programmingSchemas';
 import { useEffect, useState } from 'react';
-import { useTypesRoomPaginationStore } from '../../../../store/programming/typesRoomPagination';
-import { IRecoveryRoomOperatingRoom } from '../../../../types/operatingRoom/operatingRoomTypes';
-import { recoveryRoomOperatingRoomSchema } from '../../../../schema/operatingRoom/operatingRoomSchema';
-import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
+import { IRecoveryRoomOperatingRoom } from '../../../../../types/operatingRoom/operatingRoomTypes';
+import { recoveryRoomOperatingRoomSchema } from '../../../../../schema/operatingRoom/operatingRoomSchema';
 import { Delete } from '@mui/icons-material';
-import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
-import { isValidFloat, isValidInteger, isValidIntegerIncludeZero } from '../../../../utils/functions/dataUtils';
+import { isValidFloat, isValidInteger, isValidIntegerIncludeZero } from '../../../../../utils/functions/dataUtils';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { modifyTypeRoom, registerTypeRoom } from '../../../../services/programming/typesRoomService';
+import { modifyTypeRoom, registerTypeRoom } from '../../../../../services/programming/typesRoomService';
 import 'dayjs/locale/es-mx';
-import { modifySurgeryRoomType, registerSurgeryRoomType } from '../../../../services/programming/suergeryRoomTypes';
-import { ITypeRoom } from '../../../../types/admission/admissionTypes';
+import { ITypeRoom } from '../../../../../types/admission/admissionTypes';
+import { InputBasic, ModalBasic } from '@/common/components';
+import { TableHeaderComponent } from '@/components/Commons/TableHeaderComponent';
 //import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
 const HOUR_COST_TABLE_HEADERS = ['Tiempo', 'Precio', 'Acción'];
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: { md: 750 },
-  borderRadius: 2,
-  boxShadow: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: { xs: 900 },
-};
-
 type Inputs = {
   name: string;
   description: string;
-  reservedSpaceTime: Dayjs | null;
+  intervaloReservacion: Dayjs | null;
   priceByTimeRange: IRecoveryRoomOperatingRoom[];
   recoveryPriceByTimeRange: IRecoveryRoomOperatingRoom[];
   type: string;
@@ -76,17 +61,34 @@ type Inputs = {
   codigoUnidadMedidaRecuperacion?: number;
 };
 
-interface AddTypeRoomModalProps {
-  setOpen: Function;
-  editData?: ITypeRoom;
+interface NormalRoomCategoriesModalProps {
+  open: boolean;
+  onSuccess: Function;
+  onClose: Function;
+  defaultData?: ITypeRoom | null;
 }
-export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
-  const { editData } = props;
+
+export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps) => {
+  const { open, onClose, onSuccess, defaultData } = props;
+
   const [isLoading, setIsLoading] = useState(false);
-  const refetch = useTypesRoomPaginationStore((state) => state.fetchData);
   //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
+
+  const defaultValues = {
+    name: '',
+    description: '',
+    priceByTimeRange: [],
+    recoveryPriceByTimeRange: [],
+    intervaloReservacion: null,
+    type: '0',
+    priceRoom: '0',
+    //codigoSATRecuperacion: '',
+    //codigoSAT: '',
+    codigoUnidadMedida: 0,
+    codigoUnidadMedidaRecuperacion: 0,
+  };
 
   const {
     register,
@@ -94,119 +96,145 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
     setValue,
     watch,
     control,
+    reset,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(typeRoomSchema),
-    defaultValues: {
-      name: editData ? editData.nombre : '',
-      description: editData ? editData.descripcion : '',
-      priceByTimeRange: editData ? editData.configuracionPrecioHora : [],
-      recoveryPriceByTimeRange: editData ? editData.configuracionRecuperacion : [],
-      reservedSpaceTime: editData ? dayjs(editData.configuracionLimpieza, 'HH:mm:ss') : null,
-      type: editData ? (editData.id_TipoCuarto ? '0' : '1') : '0',
-      priceRoom: editData ? editData.precio?.toString() : '0',
-      //codigoSATRecuperacion: editData?.codigoSATRecuperacion,
-      //codigoSAT: editData?.codigoSAT,
-      codigoUnidadMedida: editData?.codigoUnidadMedida ? editData.codigoUnidadMedida : 0,
-      codigoUnidadMedidaRecuperacion: editData?.codigoUnidadMedidaRecuperacion
-        ? editData.codigoUnidadMedidaRecuperacion
-        : 0,
-    },
+    defaultValues: defaultValues,
   });
 
+  const getDateOrNull = (date: string | undefined | null | Dayjs) => {
+    if (!date) return null;
+
+    if (typeof date === 'string') {
+      const [hour, minute, second] = date.split(':');
+      return dayjs().hour(parseInt(hour)).minute(parseInt(minute)).second(parseInt(second));
+    }
+
+    return date;
+  };
+
+  const loadForm = () => {
+    if (!defaultData) {
+      reset(defaultValues);
+      return;
+    }
+
+    const newValues: any = {
+      name: defaultData.nombre,
+      description: defaultData.descripcion,
+      priceByTimeRange: defaultData.configuracionPrecioHora,
+      recoveryPriceByTimeRange: defaultData.configuracionRecuperacion,
+      intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
+      type: defaultData.id_TipoCuarto ? '0' : '1',
+      priceRoom: defaultData.precio?.toString(),
+      //codigoSATRecuperacion: defaultData.codigoSATRecuperacion,
+      //codigoSAT: defaultData.codigoSAT,
+      codigoUnidadMedida: defaultData.codigoUnidadMedida ? defaultData.codigoUnidadMedida : 0,
+      codigoUnidadMedidaRecuperacion: defaultData.codigoUnidadMedidaRecuperacion
+        ? defaultData.codigoUnidadMedidaRecuperacion
+        : 0,
+    };
+
+    reset(newValues);
+  };
+
+  useEffect(() => {
+    loadForm();
+  }, [defaultData?.id_TipoCuarto]);
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log('data:', data);
     setIsLoading(true);
+    const intervaloReservacion = getDateOrNull(data.intervaloReservacion)?.format('HH:mm:00');
+    console.log('intervaloReservacion:', intervaloReservacion);
     try {
-      if (!editData) {
-        if (data.type === '0') {
-          await registerTypeRoom({
-            nombre: data.name,
-            descripcion: data.description,
-            intervaloReservacion: data.reservedSpaceTime?.isValid()
-              ? data.reservedSpaceTime.format('HH:mm:00')
-              : undefined,
-            precio: parseFloat(data.priceRoom),
-            //codigoSATRecuperacion: data.codigoSATRecuperacion,
-            //codigoSAT: data.codigoSAT,
-            codigoUnidadMedida: data.codigoUnidadMedida,
-            codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
-              ? data.codigoUnidadMedidaRecuperacion
-              : undefined,
-          });
-        } else {
-          await registerSurgeryRoomType({
-            nombre: data.name,
-            descripcion: data.description,
-            intervaloReservacion: data.reservedSpaceTime?.isValid()
-              ? data.reservedSpaceTime.format('HH:mm:00')
-              : undefined,
-            configuracionPrecio: data.priceByTimeRange
-              ? data.priceByTimeRange.map((price) => ({
-                  horaInicio: price.inicio,
-                  horaFin: price.fin ? price.fin : undefined,
-                  precio: price.precio,
-                }))
-              : undefined,
-            configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
-              ? data.recoveryPriceByTimeRange.map((price) => ({
-                  horaInicio: price.inicio,
-                  horaFin: price.fin ? price.fin : undefined,
-                  precio: price.precio,
-                }))
-              : undefined,
-            precio: parseFloat(data.priceRoom),
-          });
-        }
+      if (!defaultData) {
+        await registerTypeRoom({
+          nombre: data.name,
+          descripcion: data.description,
+          intervaloReservacion,
+          precio: parseFloat(data.priceRoom),
+          //codigoSATRecuperacion: data.codigoSATRecuperacion,
+          //codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+            ? data.codigoUnidadMedidaRecuperacion
+            : undefined,
+        });
+        // if (data.type === '0') {
+        // } else {
+        //   await registerSurgeryRoomType({
+        //     nombre: data.name,
+        //     descripcion: data.description,
+        //     intervaloReservacion: data.intervaloReservacion?.isValid()
+        //       ? data.intervaloReservacion.format('HH:mm:00')
+        //       : undefined,
+        //     configuracionPrecio: data.priceByTimeRange
+        //       ? (data.priceByTimeRange.map((price) => ({
+        //           horaInicio: price.inicio,
+        //           horaFin: price.fin ? price.fin : undefined,
+        //           precio: price.precio,
+        //         })) as any)
+        //       : undefined,
+        //     configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
+        //       ? (data.recoveryPriceByTimeRange.map((price) => ({
+        //           horaInicio: price.inicio,
+        //           horaFin: price.fin ? price.fin : undefined,
+        //           precio: price.precio,
+        //         })) as any)
+        //       : undefined,
+        //     precio: parseFloat(data.priceRoom),
+        //   });
+        // }
         toast.success('Categoría de espacio hospitalario dado de alta correctamente');
       } else {
-        if (data.type === '0') {
-          await modifyTypeRoom({
-            nombre: data.name,
-            descripcion: data.description,
-            intervaloReservacion: data.reservedSpaceTime?.isValid()
-              ? data.reservedSpaceTime.format('HH:mm:00')
-              : undefined,
-            id: editData.id_TipoCuarto as string,
-            precio: parseFloat(data.priceRoom),
-            //codigoSATRecuperacion: data.codigoSATRecuperacion,
-            //codigoSAT: data.codigoSAT,
-            codigoUnidadMedida: data.codigoUnidadMedida,
-            codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
-              ? data.codigoUnidadMedidaRecuperacion
-              : undefined,
-          });
-        } else {
-          await modifySurgeryRoomType({
-            nombre: data.name,
-            descripcion: data.description,
-            id: editData.id_TipoQuirofano as string,
-            intervaloReservacion: data.reservedSpaceTime?.isValid()
-              ? data.reservedSpaceTime.format('HH:mm:00')
-              : undefined,
-            configuracionPrecio: data.priceByTimeRange
-              ? data.priceByTimeRange.map((price) => ({
-                  horaInicio: price.inicio,
-                  horaFin: price.fin ? price.fin : undefined,
-                  precio: price.precio,
-                }))
-              : undefined,
-            configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
-              ? data.recoveryPriceByTimeRange.map((price) => ({
-                  horaInicio: price.inicio,
-                  horaFin: price.fin ? price.fin : undefined,
-                  precio: price.precio,
-                }))
-              : undefined,
-            precio: parseFloat(data.priceRoom),
-          });
-        }
+        await modifyTypeRoom({
+          nombre: data.name,
+          descripcion: data.description,
+          intervaloReservacion,
+          id: defaultData.id_TipoCuarto as string,
+          precio: parseFloat(data.priceRoom),
+          //codigoSATRecuperacion: data.codigoSATRecuperacion,
+          //codigoSAT: data.codigoSAT,
+          codigoUnidadMedida: data.codigoUnidadMedida,
+          codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion
+            ? data.codigoUnidadMedidaRecuperacion
+            : undefined,
+        });
+        // if (data.type === '0') {
+        // } else {
+        //   await modifySurgeryRoomType({
+        //     nombre: data.name,
+        //     descripcion: data.description,
+        //     id: defaultData.id_TipoQuirofano as string,
+        //     intervaloReservacion: data.intervaloReservacion?.isValid()
+        //       ? data.intervaloReservacion.format('HH:mm:00')
+        //       : undefined,
+        //     configuracionPrecio: data.priceByTimeRange
+        //       ? data.priceByTimeRange.map((price) => ({
+        //           horaInicio: price.inicio,
+        //           horaFin: price.fin ? price.fin : undefined,
+        //           precio: price.precio,
+        //         }))
+        //       : undefined,
+        //     configuracionPrecioRecuperacion: data.recoveryPriceByTimeRange
+        //       ? data.recoveryPriceByTimeRange.map((price) => ({
+        //           horaInicio: price.inicio,
+        //           horaFin: price.fin ? price.fin : undefined,
+        //           precio: price.precio,
+        //         }))
+        //       : undefined,
+        //     precio: parseFloat(data.priceRoom),
+        //   });
+        // }
         toast.success('Categoría de espacio hospitalario modificado correctamente');
       }
-      refetch();
-      props.setOpen(false);
+      onSuccess();
+      onClose();
     } catch (error) {
       console.log(error);
-      editData
+      defaultData
         ? toast.error('Error al modificar la categoría de espacio hospitalario')
         : toast.error('Error al intentar dar de alta la categoría de espacio hospitalario');
     } finally {
@@ -226,33 +254,36 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
     setValue('priceRoom', price);
   };
 
-  useEffect(() => {
-    setValue('reservedSpaceTime', dayjs(editData?.configuracionLimpieza, 'HH:mm:ss'));
-  }, [editData]);
+  const actions = (
+    <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>
+      <Button color="error" variant="outlined" disabled={isLoading}>
+        Cancelar
+      </Button>
+      <Button variant="contained" type="submit" disabled={isLoading} form="form1">
+        {isLoading ? <CircularProgress size={15} /> : defaultData ? 'Modificar' : 'Agregar'}
+      </Button>
+    </Box>
+  );
 
   return (
-    <Box sx={style}>
-      <HeaderModal
+    <ModalBasic
+      isLoading={isLoading}
+      open={open}
+      header={defaultData ? 'Modificar categoria de cuarto hospitalario' : 'Agregar categoria de cuarto hospitalario'}
+      onClose={onClose}
+      actions={actions}
+    >
+      {/* <HeaderModal
         setOpen={props.setOpen}
         title={
-          editData ? 'Modificar la categoría de espacio hospitalario' : 'Agregar la categoría de espacio hospitalario'
+          defaultData ? 'Modificar la categoría de espacio hospitalario' : 'Agregar la categoría de espacio hospitalario'
         }
-      />
-      <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1" />
-      <Box
-        sx={{
-          display: 'flex',
-          flex: 1,
-          flexDirection: 'column',
-          bgcolor: 'background.paper',
-          p: 3,
-          overflowY: 'auto',
-        }}
-      >
+      /> */}
+      <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1">
         <Grid container spacing={1} sx={{ maxHeight: { xs: 500, xl: 700 } }}>
           <Grid item xs={12}>
-            <Typography>Nombre</Typography>
-            <TextField
+            <InputBasic
+              label="Nombre"
               placeholder="Escribe un nombre..."
               fullWidth
               error={!!errors.name?.message}
@@ -261,8 +292,8 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
             />
           </Grid>
           <Grid item xs={12}>
-            <Typography>Descripción</Typography>
-            <TextField
+            <InputBasic
+              label="Descripción"
               placeholder="Escribe una descripción..."
               fullWidth
               multiline
@@ -271,25 +302,30 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
               {...register('description')}
             />
           </Grid>
-          <Grid item xs={12} sm={6} sx={{ alignItems: 'flex-end', display: 'flex' }}>
-            <Box>
-              <Typography>Espacio entre reservaciones:</Typography>
+          <Grid item xs={12} md={6}>
+            <Stack>
+              <Typography
+                sx={{
+                  pb: 1,
+                }}
+              >
+                Espacio entre reservaciones:
+              </Typography>
               <Controller
                 control={control}
-                name="reservedSpaceTime"
+                name="intervaloReservacion"
                 render={({ field: { onChange, value } }) => (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <TimePicker
                       ampm={false}
                       view="minutes"
                       views={['hours', 'minutes']}
-                      label="Margen de reservación"
                       onChange={onChange}
                       value={value}
                       slotProps={{
                         textField: {
                           helperText: 'El tiempo esta representado en horas y minutos.',
-                          error: !!errors.reservedSpaceTime?.message,
+                          error: !!errors.intervaloReservacion?.message,
                           sx: {
                             '.MuiFormHelperText-root': {
                               color: 'error.main',
@@ -303,9 +339,9 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                   </LocalizationProvider>
                 )}
               />
-            </Box>
+            </Stack>
           </Grid>
-          <Grid item xs={12} md={6}>
+          {/* <Grid item xs={12} md={6}>
             <FormControl>
               <FormLabel>Categoría</FormLabel>
               <Controller
@@ -319,8 +355,19 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 )}
               />
             </FormControl>
+          </Grid> */}
+          <Grid item xs={12} md={6}>
+            <InputBasic
+              label="Precio del cuarto"
+              placeholder="Escribe un precio..."
+              fullWidth
+              error={!!errors.priceRoom?.message}
+              helperText={errors.priceRoom?.message}
+              {...register('priceRoom')}
+            />
           </Grid>
-          <Grid item xs={12}>
+
+          {/* <Grid item xs={12} md={6}>
             {watch('type') === '1' ? (
               <>
                 <RoomHourCostTable
@@ -347,65 +394,42 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                 />
               </>
             )}
-          </Grid>
+          </Grid> */}
           {/*watch('type') === '1' && (
+              <Grid item xs={6}>
+                <Typography>
+                  Codigo de SAT de <b>Recuperación</b>
+                </Typography>
+                <TextField
+                  placeholder="Escribe un codigo de SAT para Recuperación"
+                  fullWidth
+                  error={!!errors.codigoSATRecuperacion?.message}
+                  helperText={errors.codigoSATRecuperacion?.message}
+                  {...register('codigoSATRecuperacion')}
+                />
+              </Grid>
+            )
             <Grid item xs={6}>
-              <Typography>
-                Codigo de SAT de <b>Recuperación</b>
-              </Typography>
+              <Typography>Código de SAT</Typography>
               <TextField
-                placeholder="Escribe un codigo de SAT para Recuperación"
+                placeholder="Escribe un código de SAT"
                 fullWidth
-                error={!!errors.codigoSATRecuperacion?.message}
-                helperText={errors.codigoSATRecuperacion?.message}
-                {...register('codigoSATRecuperacion')}
+                error={!!errors.codigoSAT?.message}
+                helperText={errors.codigoSAT?.message}
+                {...register('codigoSAT')}
               />
             </Grid>
-          )
-          <Grid item xs={6}>
-            <Typography>Código de SAT</Typography>
-            <TextField
-              placeholder="Escribe un código de SAT"
-              fullWidth
-              error={!!errors.codigoSAT?.message}
-              helperText={errors.codigoSAT?.message}
-              {...register('codigoSAT')}
-            />
-          </Grid>
-          {<Grid item xs={12} md={6}>
-            <Typography>Unidad de Medida Contpaqi</Typography>
-            <TextField
-              fullWidth
-              size="small"
-              select
-              label="Seleccione una unidad de medida"
-              error={!!errors.codigoUnidadMedida}
-              helperText={errors?.codigoUnidadMedida?.message}
-              {...register('codigoUnidadMedida')}
-              value={watch('codigoUnidadMedida')}
-            >
-              {!isLoadingConcepts &&
-                sizeUnit.map((data) => (
-                  <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
-                    {data.nombre}
-                  </MenuItem>
-                ))}
-              {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
-            </TextField>
-          </Grid>*/}
-          {/*watch('type') === '1' && (
-            <Grid item xs={6}>
-              <Typography>
-                Código de Unidad de Medida de <b>Recuperación</b>
-              </Typography>
+            {<Grid item xs={12} md={6}>
+              <Typography>Unidad de Medida Contpaqi</Typography>
               <TextField
-                label="Escribe un codigo de Unidad de Medida de Recuperación"
                 fullWidth
-                error={!!errors.codigoUnidadMedidaRecuperacion?.message}
-                helperText={errors.codigoUnidadMedidaRecuperacion?.message}
-                {...register('codigoUnidadMedidaRecuperacion')}
-                value={watch('codigoUnidadMedidaRecuperacion')}
+                size="small"
                 select
+                label="Seleccione una unidad de medida"
+                error={!!errors.codigoUnidadMedida}
+                helperText={errors?.codigoUnidadMedida?.message}
+                {...register('codigoUnidadMedida')}
+                value={watch('codigoUnidadMedida')}
               >
                 {!isLoadingConcepts &&
                   sizeUnit.map((data) => (
@@ -415,19 +439,34 @@ export const AddTypeRoomModal = (props: AddTypeRoomModalProps) => {
                   ))}
                 {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
               </TextField>
-            </Grid>
-          )*/}
+            </Grid>*/}
+          {/*watch('type') === '1' && (
+              <Grid item xs={6}>
+                <Typography>
+                  Código de Unidad de Medida de <b>Recuperación</b>
+                </Typography>
+                <TextField
+                  label="Escribe un codigo de Unidad de Medida de Recuperación"
+                  fullWidth
+                  error={!!errors.codigoUnidadMedidaRecuperacion?.message}
+                  helperText={errors.codigoUnidadMedidaRecuperacion?.message}
+                  {...register('codigoUnidadMedidaRecuperacion')}
+                  value={watch('codigoUnidadMedidaRecuperacion')}
+                  select
+                >
+                  {!isLoadingConcepts &&
+                    sizeUnit.map((data) => (
+                      <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
+                        {data.nombre}
+                      </MenuItem>
+                    ))}
+                  {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
+                </TextField>
+              </Grid>
+            )*/}
         </Grid>
-      </Box>
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', bgcolor: 'background.paper', p: 1 }}>
-        <Button color="error" variant="outlined" disabled={isLoading}>
-          Cancelar
-        </Button>
-        <Button variant="contained" type="submit" disabled={isLoading} form="form1">
-          {isLoading ? <CircularProgress size={15} /> : editData ? 'Modificar' : 'Agregar'}
-        </Button>
-      </Box>
-    </Box>
+      </form>
+    </ModalBasic>
   );
 };
 
@@ -531,10 +570,10 @@ const RoomHourCostTable = (props: RoomHourCostTableProps) => {
             </TableBody>
           </Table>
         </TableContainer>
-        {!configList ||
+        {/* {!configList ||
           (configList.length === 0 && (
             <NoDataInTableInfo infoTitle="No hay precios agregados" sizeIcon={30} variantText="h4" />
-          ))}
+          ))} */}
       </Card>
       <Box sx={{ mt: 1, display: 'flex' }}>
         <Box sx={{ flex: { xs: 1, md: 2 } }}>

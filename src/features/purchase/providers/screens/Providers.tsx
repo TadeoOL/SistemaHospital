@@ -17,7 +17,7 @@ import { getProviders } from '../services/providers';
 import { ProvidersModal } from '../components/ProvidersModal';
 
 const Providers = () => {
-  const [categoryId, setCategoryId] = useState('');
+  const [selectedId, setSelectedId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const { search, enabled, setSearch, setEnabled } = useSubCategoryPagination((state) => ({
@@ -32,19 +32,19 @@ const Providers = () => {
   const disableSubCategory = useDisableSubCategory(onSuccess);
 
   const handleAdd = () => {
-    setCategoryId('');
+    setSelectedId('');
     setModalOpen(true);
   };
 
   const handleEdit = (row: any) => {
-    setCategoryId('');
-    setCategoryId(row.id);
+    setSelectedId('');
+    setSelectedId(row.id);
     setModalOpen(true);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
-    setCategoryId('');
+    setSelectedId('');
   };
 
   const columns: any[] = [
@@ -118,7 +118,7 @@ const Providers = () => {
             habilitado: enabled,
           }}
         ></TablePaginated>
-        <ProvidersModal open={modalOpen} itemId={categoryId} onClose={handleModalClose} onSuccess={onSuccess} />
+        <ProvidersModal open={modalOpen} itemId={selectedId} onClose={handleModalClose} onSuccess={onSuccess} />
       </MainCard>
     </>
   );

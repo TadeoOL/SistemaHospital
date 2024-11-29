@@ -64,13 +64,14 @@ export const CategoryModal = (props: CategoryModalProps) => {
       if (!itemId) {
         const res = await addNewCategory(data);
         console.log('res:', res);
+        toast.success('Articulo creado con éxito!');
       } else {
         const res = await modifyCategory(data);
         console.log('res:', res);
+        toast.success('Articulo modificado con éxito!');
       }
       onSuccess();
       onClose();
-      toast.success('Articulo creado con éxito!');
     } catch (error) {
       console.log('error:', error);
       toast.error('Error al crear el articulo!');

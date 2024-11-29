@@ -21,12 +21,12 @@ import { Typography } from '@mui/material';
 import { MainCard } from '@/common/components';
 
 const Article = () => {
-  const [articleId, setArticleId] = useState('');
+  const [selectedId, setSelectedId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleModalClose = () => {
     setModalOpen(false);
-    setArticleId('');
+    setSelectedId('');
   };
 
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
@@ -61,13 +61,13 @@ const Article = () => {
   const disableArticle = useDisableArticle(onSuccess);
 
   const handleAdd = () => {
-    setArticleId('');
+    setSelectedId('');
     setModalOpen(true);
   };
 
   const handleEdit = (row: any) => {
-    setArticleId('');
-    setArticleId(row.id);
+    setSelectedId('');
+    setSelectedId(row.id);
     setModalOpen(true);
   };
 
@@ -253,7 +253,7 @@ const Article = () => {
           />
         )}
       </MainCard>
-      <ArticleModal open={modalOpen} itemId={articleId} onClose={handleModalClose} onSuccess={onSuccess} />
+      <ArticleModal open={modalOpen} itemId={selectedId} onClose={handleModalClose} onSuccess={onSuccess} />
     </>
   );
 };

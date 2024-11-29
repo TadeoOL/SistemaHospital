@@ -86,13 +86,14 @@ export const ArticleModal = (props: ArticleModalProps) => {
       if (!itemId) {
         const res = await addNewArticle(data);
         console.log('res:', res);
+        toast.success('Articulo creado con éxito!');
       } else {
         const res = await modifyArticle(data);
         console.log('res:', res);
+        toast.success('Articulo modificado con éxito!');
       }
       onSuccess();
       onClose();
-      toast.success('Articulo creado con éxito!');
     } catch (error) {
       toast.error('Error al crear el articulo!');
     }
