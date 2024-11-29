@@ -1,4 +1,4 @@
-import { Box, Card, Modal, Stack, Typography } from '@mui/material';
+import { Card, Modal, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
 import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
@@ -35,9 +35,6 @@ export const ReceiptEmitterPharmacy = () => {
     <>
       <Card sx={{ p: 3 }}>
         <Stack spacing={4}>
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Departamento</Typography>
-          </Box>
           <CheckoutTableComponent
             data={data}
             admin={false}
