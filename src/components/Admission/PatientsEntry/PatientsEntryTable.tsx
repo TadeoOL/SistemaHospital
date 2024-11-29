@@ -66,10 +66,10 @@ const useGetData = () => {
   const isLoading = usePatientEntryPaginationStore((state) => state.loading);
   const startDate = usePatientEntryPaginationStore((state) => state.startDate);
   const endDate = usePatientEntryPaginationStore((state) => state.endDate);
-
+  const status = usePatientEntryPaginationStore((state) => state.status);
   useEffect(() => {
     fetchData();
-  }, [search, setPageIndex, setPageSize, startDate, endDate, pageIndex, pageSize]);
+  }, [search, setPageIndex, setPageSize, startDate, endDate, pageIndex, pageSize, status]);
   return {
     data,
     pageIndex,

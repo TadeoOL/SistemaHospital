@@ -18,6 +18,7 @@ interface State {
   endDate: string;
   operatingRoomFilter: string;
   sort: string;
+  status: number | null;
 }
 
 interface Action {
@@ -31,6 +32,7 @@ interface Action {
   setOperatingRoomFilter: (operatingRoomFilter: string) => void;
   setEnabled: (enabled: boolean) => void;
   setSort: (sort: string) => void;
+  setStatus: (status: number | null) => void;
   clearData: () => void;
   clearFilters: () => void;
 }
@@ -50,10 +52,12 @@ const initialValues = {
   endDate: '',
   operatingRoomFilter: '',
   sort: '',
+  status: null,
 };
 
 export const usePatientEntryPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setStatus: (status: number | null) => set({ status }),
   setSort: (sort: string) => set({ sort, pageIndex: 0 }),
   setOperatingRoomFilter: (operatingRoomFilter: string) => set({ operatingRoomFilter }),
   setStartDate: (startDate: string) => set({ startDate }),
@@ -64,7 +68,7 @@ export const usePatientEntryPaginationStore = create<State & Action>((set, get) 
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort } = get();
+    const { enabled, search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort, status } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -76,7 +80,7 @@ export const usePatientEntryPaginationStore = create<State & Action>((set, get) 
 
     try {
       const res = await getPatientAdmissionPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}&estatus=${status ?? ''}`
       );
       set({
         data: res.data,
@@ -100,6 +104,6 @@ export const usePatientEntryPaginationStore = create<State & Action>((set, get) 
     set({ ...initialValues });
   },
   clearFilters: () => {
-    set({ startDate: '', endDate: '', search: '', operatingRoomFilter: '' });
+    set({ startDate: '', endDate: '', search: '', operatingRoomFilter: '', status: null });
   },
 }));

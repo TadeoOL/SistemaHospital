@@ -1,4 +1,6 @@
+import { IBiomedicalEquipment } from '../hospitalizationTypes';
 import { IRecoveryRoomOperatingRoom } from '../operatingRoom/operatingRoomTypes';
+import { IRegisterPatientCommand } from '../programming/registerTypes';
 
 export interface IEventDetails {
   id: string;
@@ -275,3 +277,60 @@ export interface IPatientHospitalSpace
   estatus: number;
   id_TipoCuarto: string;
 }
+
+export interface IAdmissionDocInfo {
+  clavePaciente?: string;
+  nombrePaciente?: string;
+  genero?: string;
+  nombreMedico?: string;
+  especialidadMedico?: string;
+  diagnosticoIngreso?: string;
+  motivoIngreso?: string;
+  estadoCivil?: string;
+  nombreResponsable?: string;
+  direccion?: string;
+  colonia?: string;
+  codigoPostal?: string;
+  procedimientos?: string[];
+  domicilioResponsable?: string;
+  codigoPostalResponsable?: string;
+  coloniaResponsable?: string;
+  nombreAnestesiologo?: string;
+  parentesco?: string;
+  telefono?: string;
+  telefonoResponsable?: string;
+  fechaNacimiento?: string;
+  fechaIngreso?: string;
+  horaIngreso?: string;
+  edad?: number;
+  alergias?: string;
+  cuarto?: string[];
+  quirofano?: string[];
+  sangre?: string;
+  ciudad?: string;
+  estado?: string;
+}
+
+export interface IPatientReentryInfo {
+  paciente?: IPatientAdmissionDto & { id_Paciente: string };
+  ingresoPaciente?: IPatientAdmissionEntranceDto & { id_IngresoPaciente: string };
+  id_Medico?: string;
+  cirugias?: string[];
+  equipoHonorario?: Pick<IBiomedicalEquipment, 'nombre' | 'precio'>[];
+}
+
+export interface IRegisterPatientReentryCommand
+  extends Pick<
+    IRegisterPatientCommand,
+    | 'articulosExtra'
+    | 'equipoHonorario'
+    | 'id_Medico'
+    | 'id_Paquete'
+    | 'procedimientos'
+    | 'id_AlmacenPaquete'
+    | 'servicios'
+    | 'registroQuirofano'
+  > {
+  id_CuentaPaciente: string;
+}
+

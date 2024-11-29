@@ -6,6 +6,18 @@ export interface ISurgeryRoom {
   descripcion: string;
 }
 
+export interface ISurgeryRoomDetails {
+  id_Quirofano: string;
+  id_PaqueteQuirurgico: string;
+  id_Medico: string;
+  nombreQuirofano: string;
+  horaInicio: Date;
+  horaFin: Date;
+  nombreMedico: string;
+  nombrePaqueteQuirurgico: string;
+  estado: number;
+}
+
 export enum SurgeryStatus {
   SurgeryCanceled = 0,
   SurgeryScheduled = 1,

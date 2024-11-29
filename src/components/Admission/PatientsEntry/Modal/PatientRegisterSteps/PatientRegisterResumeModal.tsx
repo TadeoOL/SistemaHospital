@@ -18,7 +18,6 @@ import {
   styled,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
 import { registerPatient } from '../../../../../services/programming/admissionRegisterService';
@@ -37,8 +36,13 @@ import {
   IPatientAdmissionDto,
   IPatientAdmissionEntranceDto,
   IRegisterPatientAdmissionCommand,
+  IRegisterPatientReentryCommand,
 } from '../../../../../types/admission/admissionTypes';
 import { usePatientEntryPaginationStore } from '@/store/admission/usePatientEntryPagination';
+import { convertDate } from '@/utils/convertDate';
+import { useCreatePatientReentry } from '@/hooks/admission/useCreatePatientReentry';
+import { usePatientRegisterPaginationStore } from '@/store/programming/patientRegisterPagination';
+import { toast } from 'react-toastify';
 
 const style = {
   position: 'absolute',
@@ -69,15 +73,11 @@ const styleBar = {
   },
 };
 
-const convertDate = (date?: Date): any => {
-  if (!date) return;
-  const offset = new Date().getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offset).toISOString();
-};
-
 interface RegisterResumeProps {
   setOpen: Function;
   hospitalization?: boolean;
+  reentry?: boolean;
+  patientAccountId?: string;
 }
 const HEADERS = ['Nombre', 'Hora Inicio', 'Hora Fin'];
 const ARTICLE_HEADERS = ['Nombre', 'Cantidad'];
@@ -103,7 +103,12 @@ const TextTypography = styled(Typography)(({}) => ({
   fontSize: 12,
   fontWeight: 500,
 }));
-export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: RegisterResumeProps) => {
+export const PatientRegisterResumeModal = ({
+  setOpen,
+  hospitalization,
+  reentry,
+  patientAccountId,
+}: RegisterResumeProps) => {
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const warehouseSelected = usePatientEntryRegisterStepsStore((state) => state.warehouseSelected);
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
@@ -122,7 +127,10 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
   const proceduresList: { id: string; name: string; price: number }[] = JSON.parse(
     localStorage.getItem('proceduresList') as string
   );
-  const refetch = usePatientEntryPaginationStore((state) => state.fetchData);
+  const refetch = hospitalization
+    ? usePatientEntryPaginationStore((state) => state.fetchData)
+    : usePatientRegisterPaginationStore((state) => state.fetchData);
+  const { mutateAsync: createReentry } = useCreatePatientReentry();
   const [isLoading, setIsLoading] = useState(false);
 
   /*const handleCalcAnticipo = () => {
@@ -151,11 +159,8 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    console.log('roomValues:', roomValues);
     let startDate = roomValues[0].horaInicio;
-    console.log('startDate:', startDate);
     let endDate = roomValues[0].horaFin;
-    console.log('endDate:', endDate);
 
     for (let i = 1; i < roomValues.length; i++) {
       if (roomValues[i].horaInicio < startDate) {
@@ -172,18 +177,28 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
         horaInicio: convertDate(roomValues.find((r) => r.tipoCuarto == 1)?.horaInicio),
         horaFin: convertDate(roomValues.find((r) => r.tipoCuarto == 1)?.horaFin),
       };
-      console.log('operatingRoom:', operatingRoom);
-      const hospitalizationRoom = roomValues.find((r) => r.tipoCuarto == 0)
-        ? {
-            id_EspacioHospitalario: roomValues.find((r) => r.tipoCuarto == 0)!.id,
-            horaInicio: roomValues.find((r) => r.tipoCuarto == 0)!.horaInicio,
-            horaFin: roomValues.find((r) => r.tipoCuarto == 0)!.horaFin,
-          }
-        : undefined;
-      console.log({ hospitalizationRoom });
-      console.log({ operatingRoom });
 
-      if (!hospitalization) {
+      if (reentry) {
+        const reentryCommand: IRegisterPatientReentryCommand = {
+          registroQuirofano: operatingRoom,
+          id_Medico: medicId,
+          procedimientos: procedures,
+          id_Paquete: packageSelected?.id_PaqueteQuirurgico,
+          id_AlmacenPaquete: warehouseSelected,
+          servicios: cabinetStudiesSelected.map((c) => c.id),
+          articulosExtra: articlesSelected.map((a) => ({
+            id_Articulo: a.id,
+            cantidad: a.cantidad,
+          })),
+          equipoHonorario: medicPersonalBiomedicalEquipment.map((eh) => ({
+            nombre: eh.nombre,
+            precio: eh.precio,
+          })),
+          id_CuentaPaciente: patientAccountId as string,
+        };
+
+        await createReentry(reentryCommand);
+      } else if (!hospitalization) {
         const patientObj: IPatientRegister = {
           nombre: patient.name,
           apellidoPaterno: patient.lastName,
@@ -194,7 +209,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
         const registerObject: IRegisterPatientCommand = {
           paciente: patientObj,
           registroQuirofano: operatingRoom,
-          registroCuarto: hospitalizationRoom,
+          registroCuarto: undefined,
           id_AlmacenPaquete: warehouseSelected,
           servicios: cabinetStudiesSelected.flatMap((c) => c.id),
           procedimientos: procedures,
@@ -245,7 +260,7 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
 
         const admissionObj: IRegisterPatientAdmissionCommand = {
           paciente: patientAdmissionObj,
-          registroCuarto: hospitalizationRoom,
+          registroCuarto: undefined,
           procedimientos: procedures,
           id_Medico: medicId,
           ingresosPaciente: patientAdmission,
@@ -254,11 +269,15 @@ export const PatientRegisterResumeModal = ({ setOpen, hospitalization }: Registe
       }
 
       refetch();
-      toast.success('Paciente dado de alta correctamente');
       setOpen(false);
+      if (!reentry) {
+        toast.success('Paciente registrado correctamente');
+      }
     } catch (error) {
       console.log(error);
-      toast.error('Error al dar de alta al paciente');
+      if (!reentry) {
+        toast.error('Error al registrar el paciente');
+      }
     } finally {
       setIsLoading(false);
     }

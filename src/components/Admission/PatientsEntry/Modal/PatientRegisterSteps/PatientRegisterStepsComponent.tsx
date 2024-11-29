@@ -14,8 +14,6 @@ export const PatientRegisterStepsComponent = ({ setOpen }: PatientRegisterStepsC
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const clearStore = usePatientEntryRegisterStepsStore((state) => state.clearStore);
 
-  console.log({ step });
-
   useEffect(() => {
     return () => {
       clearStore();

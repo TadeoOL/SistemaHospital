@@ -38,6 +38,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { usePatientEntryPaginationStore } from '../../../../../store/admission/usePatientEntryPagination';
+import { ISurgeryRoom } from '@/types/programming/surgeryRoomTypes';
+import { PatientReentryModal } from '@/components/Admission/PatientsEntry/Modal/PatientReentry/PatientReentryModal';
+import { convertDate } from '@/utils/convertDate';
+import { EditSurgeryRoomModal } from './EditSurgeryRoomModal';
 
 const TABLE_HEADERS = ['Cuarto', 'Hora Ingreso', 'Hora Salida', 'Acciones'];
 
@@ -86,13 +90,24 @@ interface EditCalendarEventModalProps {
   setOpen: Function;
   patientAccountId: string;
   setValue: Function;
+  admission?: boolean;
 }
+
+const canEdit = (isAdmission: boolean | undefined, isSurgeryRoom: boolean, status: number) => {
+  if (status > 1) return false;
+  if (!isAdmission) return true;
+  return !isSurgeryRoom;
+};
 
 export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
   const { data, isLoading, refetch } = useGetPatientHospitalSpaces(props.patientAccountId);
   const [openCalendar, setOpenCalendar] = useState(false);
+  const [openReentry, setOpenReentry] = useState(false);
+  const [addingSurgeryRoom, setAddingSurgeryRoom] = useState(false);
   const [rooms, setRooms] = useState<IPatientHospitalSpace[]>([]);
   const refetchTable = usePatientEntryPaginationStore((state) => state.fetchData);
+
+  const { data: surgeryRooms } = useGetAllRooms();
 
   useEffect(() => {
     if (!data || JSON.stringify(rooms) === JSON.stringify(data)) return;
@@ -100,26 +115,40 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
   }, [data]);
 
   const saveChanges = useCallback(async () => {
-    if (JSON.stringify(rooms) === JSON.stringify(data)) return props.setOpen(false);
+    if (
+      JSON.stringify(rooms.filter((r) => r.tipoEspacioHospitalario !== HospitalSpaceType.OperatingRoom)) ===
+      JSON.stringify(data?.filter((r) => r.tipoEspacioHospitalario !== HospitalSpaceType.OperatingRoom))
+    )
+      return props.setOpen(false);
     try {
       const roomsObj = rooms
-        .filter((r) => r.tipoEspacioHospitalario !== HospitalSpaceType.OperatingRoom)
+        .filter(
+          (r) =>
+            canEdit(props.admission, r.tipoEspacioHospitalario === HospitalSpaceType.OperatingRoom, r.estatus) ||
+            r.tipoEspacioHospitalario !== HospitalSpaceType.OperatingRoom
+        )
         .map((r) => {
           return {
             id_EspacioHospitalario: r.id_EspacioHospitalario,
-            fechaInicio: dayjs(r.horaInicio).toDate(),
-            fechaFin: dayjs(r.horaFin).toDate(),
-            id_Cuarto: r.id_Cuarto,
+            fechaInicio: convertDate(dayjs(r.horaInicio).toDate()),
+            fechaFin: convertDate(dayjs(r.horaFin).toDate()),
+            id_Espacio: r.id_Cuarto,
+            TipoEspacioHospitalario: r.tipoEspacioHospitalario,
           };
         });
-      await modifyRoomsEvents({ listaRegistrosCuartos: roomsObj, id_CuentaPaciente: props.patientAccountId });
+
+      if (roomsObj.length === 0) {
+        return props.setOpen(false);
+      }
+
+      await modifyRoomsEvents({ listaRegistros: roomsObj, id_CuentaPaciente: props.patientAccountId });
       refetchTable();
       Swal.fire('Guardado!', 'Los cambios se han guardado correctamente', 'success');
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
       Swal.fire('Error', 'Hubo un error al guardar los cambios', 'error');
     }
-  }, [rooms, data]);
+  }, [rooms, data, props.admission, refetchTable, props.setOpen, props.patientAccountId]);
 
   const handleSubmit = () => {
     Swal.fire({
@@ -142,6 +171,7 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
         <CircularProgress />
       </Backdrop>
     );
+
   return (
     <>
       <Box sx={style}>
@@ -149,15 +179,43 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
         <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              Los quirófanos no son editables desde esta vista
+              {props.admission ? 'Los quirófanos no son editables desde esta vista' : 'Puede editar y agregar espacios'}
             </Typography>
-            <Button startIcon={<Add />} variant="contained" onClick={() => setOpenCalendar(true)}>
-              Agregar Cuarto
-            </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                startIcon={<Add />}
+                variant="contained"
+                onClick={() => {
+                  setOpenCalendar(true);
+                  setAddingSurgeryRoom(false);
+                }}
+              >
+                Agregar Cuarto
+              </Button>
+              {!props.admission && (
+                <Button
+                  startIcon={<Add />}
+                  variant="contained"
+                  onClick={() => {
+                    setOpenReentry(true);
+                    setAddingSurgeryRoom(true);
+                  }}
+                >
+                  Reingreso de paciente
+                </Button>
+              )}
+            </Box>
           </Box>
           <Box sx={{ overflow: 'auto' }}>
             <Box sx={{ minWidth: '600px', maxHeight: '600px' }}>
-              <EventTable data={rooms} refetch={refetch} setRooms={setRooms} />
+              <EventTable
+                data={rooms}
+                refetch={refetch}
+                setRooms={setRooms}
+                admission={props.admission}
+                surgeryRooms={surgeryRooms as ISurgeryRoom[]}
+                patientAccountId={props.patientAccountId}
+              />
             </Box>
           </Box>
         </Box>
@@ -179,7 +237,17 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
       </Box>
       <Modal open={openCalendar}>
         <>
-          <AddCalendarEvent setOpen={setOpenCalendar} patientAccountId={props.patientAccountId} />
+          <AddCalendarEvent
+            setOpen={setOpenCalendar}
+            patientAccountId={props.patientAccountId}
+            admission={props.admission}
+            isSurgeryRoom={addingSurgeryRoom}
+          />
+        </>
+      </Modal>
+      <Modal open={openReentry} onClose={() => setOpenReentry(false)}>
+        <>
+          <PatientReentryModal setOpen={setOpenReentry} patientAccountId={props.patientAccountId} />
         </>
       </Modal>
     </>
@@ -190,8 +258,11 @@ const EventTable = (props: {
   data: IPatientHospitalSpace[];
   refetch: Function;
   setRooms: (rooms: IPatientHospitalSpace[]) => void;
+  admission?: boolean;
+  surgeryRooms: ISurgeryRoom[];
+  patientAccountId: string;
 }) => {
-  const { data: rooms } = useGetAllRooms('0');
+  const { data: rooms } = useGetAllRooms(HospitalSpaceType.Room);
   return (
     <Card>
       <Table>
@@ -204,12 +275,14 @@ const EventTable = (props: {
               refetch={props.refetch}
               rooms={props.data}
               setRooms={props.setRooms}
+              admission={props.admission}
+              patientAccountId={props.patientAccountId}
               operatingRooms={
-                rooms
-                  ?.filter((x) => x.id_TipoCuarto === row.id_TipoCuarto)
-                  .map((x) => {
-                    return { id: x.id_Cuarto, nombre: x.nombre };
-                  }) ?? []
+                props.admission
+                  ? (rooms
+                      ?.filter((x) => x.id_TipoCuarto === row.id_TipoCuarto)
+                      .map((x) => ({ id: x.id_Cuarto, nombre: x.nombre })) ?? [])
+                  : props.surgeryRooms.map((x) => ({ id: x.id_Quirofano, nombre: x.nombre }))
               }
             />
           ))}
@@ -230,9 +303,13 @@ const EventTableRow = (props: {
   setRooms: (rooms: IPatientHospitalSpace[]) => void;
   rooms: IPatientHospitalSpace[];
   operatingRooms: { id: string; nombre: string }[];
+  admission?: boolean;
+  patientAccountId: string;
 }) => {
   const { data: roomData, operatingRooms } = props;
   const [edit, setEdit] = useState(false);
+  const [openSurgeryModal, setOpenSurgeryModal] = useState(false);
+  const isSurgeryRoom = roomData.tipoEspacioHospitalario === HospitalSpaceType.OperatingRoom;
 
   const { handleSubmit, watch, setValue } = useForm<Inputs>({
     defaultValues: {
@@ -259,24 +336,27 @@ const EventTableRow = (props: {
       .then(async (res) => {
         if (res.isConfirmed) {
           const isAvailable = await getHospitalRoomReservations({
-            initialDate: dayjs(data.startDate).format('YYYY/MM/DDTHH:mm:ss'),
-            endDate: dayjs(data.endDate).format('YYYY/MM/DDTHH:mm:ss'),
+            initialDate: convertDate(data.startDate),
+            endDate: convertDate(data.endDate),
             roomId: data.roomId,
             hospitalizationSpaceId: roomData.id_EspacioHospitalario,
           });
+
           if (isAvailable.length > 0) {
             const startTimeDayjs = dayjs(data.startDate).format('DD/MM/YYYY - HH:mm');
             const endTimeDayjs = dayjs(data.endDate).format('DD/MM/YYYY - HH:mm');
             return Swal.fire({
               title: 'Error',
-              text: `El espacio reservado no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`,
+              text: `El cuarto no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`,
               icon: 'error',
             });
           }
+
           await FindAndUpdateRoom(roomData.id_EspacioHospitalario, props.rooms, props.setRooms, data, operatingRooms);
+
           Swal.fire({
             title: 'Cambiado!',
-            text: 'La fecha de reserva se ha modificado con éxito.',
+            text: 'La reserva se ha modificado con éxito.',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -286,108 +366,144 @@ const EventTableRow = (props: {
       });
   };
 
-  const isSurgeryRoom = roomData.tipoEspacioHospitalario === HospitalSpaceType.OperatingRoom;
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (isSurgeryRoom) {
+      setOpenSurgeryModal(true);
+    } else {
+      setEdit(true);
+    }
+  };
+
+  const handleSurgeryUpdate = (dates: { startDate: Date; endDate: Date; roomId: string }) => {
+    FindAndUpdateRoom(roomData.id_EspacioHospitalario, props.rooms, props.setRooms, dates, props.operatingRooms);
+  };
 
   return (
-    <TableRow>
-      <TableCell sx={{ width: '25%' }}>
-        {!edit ? (
-          <>
-            {roomData.nombre}
-            {isSurgeryRoom && (
-              <Typography variant="caption" color="text.secondary" display="block">
-                (Quirófano - No editable)
-              </Typography>
-            )}
-          </>
-        ) : (
-          <TextField
-            select
-            label="Espacios reservados"
-            fullWidth
-            value={watch('roomId')}
-            onChange={(e) => setValue('roomId', e.target.value)}
-          >
-            {props.operatingRooms.map((or) => (
-              <MenuItem key={or.id} value={or.id}>
-                {or.nombre}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-      </TableCell>
-      <TableCell>
-        {!edit ? (
-          dayjs(roomData.horaInicio).format('DD/MM/YYYY - hh:mm a')
-        ) : (
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label="Hora inicio"
-              value={dayjs(watch('startDate'))}
-              onChange={(newValue) => setValue('startDate', newValue?.toDate() || new Date())}
-              format="DD/MM/YYYY HH:mm"
-              ampm={false}
-              sx={{ width: '100%' }}
-            />
-          </LocalizationProvider>
-        )}
-      </TableCell>
-      <TableCell>
-        {!edit ? (
-          dayjs(roomData.horaFin).format('DD/MM/YYYY - hh:mm a')
-        ) : (
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label="Hora fin"
-              value={dayjs(watch('endDate'))}
-              onChange={(newValue) => setValue('endDate', newValue?.toDate() || new Date())}
-              format="DD/MM/YYYY HH:mm"
-              ampm={false}
-              sx={{ width: '100%' }}
-              minDateTime={dayjs(watch('startDate'))}
-            />
-          </LocalizationProvider>
-        )}
-      </TableCell>
-      <TableCell>
-        {!isSurgeryRoom &&
-          (!edit ? (
-            <Tooltip title="Editar">
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setEdit(true);
-                }}
-              >
-                <Edit />
-              </IconButton>
-            </Tooltip>
-          ) : (
+    <>
+      <TableRow>
+        <TableCell sx={{ width: '25%' }}>
+          {!edit ? (
             <>
-              <Tooltip title="Guardar">
-                <IconButton onClick={handleSubmit(onSubmit)}>
-                  <Save />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Cancelar">
-                <IconButton onClick={() => setEdit(false)}>
-                  <Close color="error" />
-                </IconButton>
-              </Tooltip>
+              {roomData.nombre}
+              {isSurgeryRoom && (
+                <Typography variant="caption" color="text.secondary" display="block">
+                  {canEdit(props.admission, isSurgeryRoom, roomData.estatus)
+                    ? '(Quirófano)'
+                    : '(Quirófano - No editable)'}
+                </Typography>
+              )}
             </>
-          ))}
-      </TableCell>
-    </TableRow>
+          ) : (
+            <TextField
+              select
+              label="Espacios reservados"
+              fullWidth
+              value={watch('roomId')}
+              onChange={(e) => setValue('roomId', e.target.value)}
+            >
+              {props.operatingRooms.map((or) => (
+                <MenuItem key={or.id} value={or.id}>
+                  {or.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        </TableCell>
+        <TableCell>
+          {!edit ? (
+            dayjs(roomData.horaInicio).format('DD/MM/YYYY - hh:mm a')
+          ) : (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="Hora inicio"
+                value={dayjs(watch('startDate'))}
+                onChange={(newValue) => setValue('startDate', newValue?.toDate() || new Date())}
+                format="DD/MM/YYYY HH:mm"
+                ampm={false}
+                sx={{ width: '100%' }}
+              />
+            </LocalizationProvider>
+          )}
+        </TableCell>
+        <TableCell>
+          {!edit ? (
+            dayjs(roomData.horaFin).format('DD/MM/YYYY - hh:mm a')
+          ) : (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="Hora fin"
+                value={dayjs(watch('endDate'))}
+                onChange={(newValue) => setValue('endDate', newValue?.toDate() || new Date())}
+                format="DD/MM/YYYY HH:mm"
+                ampm={false}
+                sx={{ width: '100%' }}
+                minDateTime={dayjs(watch('startDate'))}
+              />
+            </LocalizationProvider>
+          )}
+        </TableCell>
+        <TableCell>
+          {canEdit(props.admission, isSurgeryRoom, roomData.estatus) &&
+            (!edit ? (
+              <Tooltip title="Editar">
+                <IconButton onClick={handleEdit}>
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <>
+                <Tooltip title="Guardar">
+                  <IconButton onClick={handleSubmit(onSubmit)}>
+                    <Save />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Cancelar">
+                  <IconButton onClick={() => setEdit(false)}>
+                    <Close color="error" />
+                  </IconButton>
+                </Tooltip>
+              </>
+            ))}
+        </TableCell>
+      </TableRow>
+
+      {/* Modal de edición de quirófano */}
+      <Modal open={openSurgeryModal} onClose={() => setOpenSurgeryModal(false)}>
+        <>
+          <EditSurgeryRoomModal
+            onClose={() => setOpenSurgeryModal(false)}
+            surgeryRoomData={roomData}
+            onUpdate={handleSurgeryUpdate}
+            operatingRooms={props.operatingRooms}
+            patientAccountId={props.patientAccountId}
+          />
+        </>
+      </Modal>
+    </>
   );
 };
 
-const AddCalendarEvent = (props: { setOpen: Function; patientAccountId: string }) => {
+const AddCalendarEvent = (props: {
+  setOpen: Function;
+  patientAccountId: string;
+  admission?: boolean;
+  isSurgeryRoom: boolean;
+}) => {
   const [date, setDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const theme = useTheme();
   const downXl = useMediaQuery(theme.breakpoints.down('xl'));
-  const { isLoading } = useGetHospitalizationAppointments(date, setEvents, events, 0, [], () => {});
+
+  const { isLoading } = useGetHospitalizationAppointments(
+    date,
+    setEvents,
+    events,
+    props.isSurgeryRoom ? 1 : 0,
+    [],
+    () => {}
+  );
 
   if (isLoading)
     return (
@@ -395,9 +511,13 @@ const AddCalendarEvent = (props: { setOpen: Function; patientAccountId: string }
         <CircularProgress />
       </Backdrop>
     );
+
   return (
     <Box sx={styleCalendar}>
-      <HeaderModal setOpen={props.setOpen} title="Selección de horario" />
+      <HeaderModal
+        setOpen={props.setOpen}
+        title={`Selección de horario - ${props.isSurgeryRoom ? 'Quirófano' : 'Cuarto'}`}
+      />
       <Box sx={style2}>
         <Box>
           <AddEditCalendar
@@ -407,55 +527,13 @@ const AddCalendarEvent = (props: { setOpen: Function; patientAccountId: string }
             setDate={setDate}
             calendarHeight={downXl ? 500 : undefined}
             patientAccountId={props.patientAccountId}
+            isSurgeryRoom={props.isSurgeryRoom}
           />
         </Box>
       </Box>
     </Box>
   );
 };
-
-// const EditCalendarEvent = (props: {
-//   setOpen: Function;
-//   registerRoomId: string;
-//   eventView: Date;
-//   refetch: Function;
-// }) => {
-//   const [date, setDate] = useState(new Date());
-//   const [events, setEvents] = useState([]);
-//   const theme = useTheme();
-//   const downXl = useMediaQuery(theme.breakpoints.down('xl'));
-//   const isLoading = useGetEvents(date, setEvents, events);
-
-//   if (isLoading && events.length < 1)
-//     return (
-//       <Backdrop open>
-//         <CircularProgress />
-//       </Backdrop>
-//     );
-//   return (
-//     <Box sx={styleCalendar}>
-//       <HeaderModal setOpen={props.setOpen} title="Selección de horario" />
-//       <Box sx={{ bgcolor: 'background.paper', p: 2 }}>
-//         <Box>
-//           <AddEditCalendar
-//             date={date}
-//             events={events}
-//             setEvents={setEvents}
-//             setDate={setDate}
-//             calendarHeight={downXl ? 500 : undefined}
-//             registerRoomId={props.registerRoomId}
-//             isEdit
-//             eventView={props.eventView}
-//             refetch={props.refetch}
-//           />
-//         </Box>
-//       </Box>
-//       <Box sx={{ bgcolor: 'background.paper', p: 1, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
-//         <Button>Aceptar</Button>
-//       </Box>
-//     </Box>
-//   );
-// };
 
 async function FindAndUpdateRoom(
   registerRoomId: string,

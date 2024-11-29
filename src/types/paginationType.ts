@@ -9,3 +9,24 @@ export interface IPagination<T> {
   fechaInicio: string | null;
   fechaFin: string | null;
 }
+
+export interface IParamsPagination {
+  search?: string;
+  pageIndex?: number;
+  pageSize?: number;
+  habilitado?: boolean;
+  fechaInicio?: string;
+  fechaFin?: string;
+  sort?: string;
+}
+
+export const getDefaultPaginationParams = (overrides?: Partial<IParamsPagination>): IParamsPagination => ({
+  search: '',
+  pageIndex: 1,
+  pageSize: 10,
+  habilitado: true,
+  fechaInicio: '',
+  fechaFin: '',
+  sort: '',
+  ...overrides,
+});

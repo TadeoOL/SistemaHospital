@@ -1,3 +1,6 @@
+import { ISurgicalProcedure } from '../admission/admissionTypes';
+import { IBiomedicalEquipment } from '../hospitalizationTypes';
+
 export interface IRegisterPatientCommand {
   paciente: IPatientRegister;
   registroQuirofano?: IHospitalSpaceRecord;
@@ -8,7 +11,7 @@ export interface IRegisterPatientCommand {
   id_AlmacenPaquete?: string;
   articulosExtra?: IAccountItem[];
   servicios?: string[];
-  equipoHonorario?: ITeamFee[];
+  equipoHonorario?: Pick<IBiomedicalEquipment, 'nombre' | 'precio'>[];
 }
 
 export interface IPatientRegister {
@@ -30,7 +33,17 @@ export interface IAccountItem {
   cantidad: number;
 }
 
-export interface ITeamFee {
-  nombre?: string;
-  precio: number;
+export interface IRegisterPagination {
+  id_IngresoPaciente: string;
+  id_Paciente: string;
+  id_Medico: string;
+  id_CuentaPaciente: string;
+  clavePaciente?: string;
+  cirugias?: ISurgicalProcedure[];
+  nombrePaciente?: string;
+  medico?: string;
+  nombreEspacioHospitalario?: string;
+  fechaProgramadaIngreso?: string;
+  estatus: number;
+  altaMedica: boolean;
 }

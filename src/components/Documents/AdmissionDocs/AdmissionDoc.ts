@@ -3,48 +3,46 @@ import PizZipUtils from 'pizzip/utils/index.js';
 import Docxtemplater from 'docxtemplater';
 import expressionParser from 'docxtemplater/expressions';
 import { saveAs } from 'file-saver';
-import { getDocumentData } from '../../../services/programming/admissionRegisterService';
-import { IDocumentsInfo } from '../../../types/admissionTypes';
 import { toast } from 'react-toastify';
 import { calculateAge } from '../../../utils/admission/admissionUtils';
 import dayjs from 'dayjs';
+import { getAdmissionDoc } from '@/services/admission/admisionService';
 
 const loadFile = (url: string, callback: (err: any, content: any) => void) => {
   PizZipUtils.getBinaryContent(url, callback);
 };
 
-export const generateHospitalizationDoc = async (registerId: string) => {
+const handleUpperCase = (input: string | string[] | null | undefined): string => {
+  if (!input) return '';
+  if (Array.isArray(input)) return input.join(', ').toUpperCase();
+  return input.toUpperCase();
+};
+
+export const generateHospitalizationDoc = async (id_IngresoPaciente: string) => {
   loadFile('/FORMATO_HOSPITALIZACION.docx', async (err: any, content: any) => {
     if (err) {
       console.error(err);
       return;
     }
     try {
-      const data: IDocumentsInfo = await getDocumentData(registerId);
-      const {
-        clavePaciente,
-        diagnosticoIngreso,
-        especialidad,
-        fechaIngreso,
-        horaIngreso,
-        motivoIngreso,
-        nombreMedico,
-        paciente,
-        procedimientos,
-        alergias,
-        nombreCuarto,
-        nombreQuirofano,
-        nombreAnestesiologo,
-        tipoSangre,
-      } = data;
+      const patientInfo = await getAdmissionDoc(id_IngresoPaciente);
 
       const zip = new PizZip(content);
       expressionParser.filters.upper = function (input) {
-        if (!input) {
-          return input;
-        }
-        return input.toUpperCase();
+        return handleUpperCase(input);
       };
+
+      const renderData = {
+        ...patientInfo,
+        procedimientos: Array.isArray(patientInfo.procedimientos)
+          ? patientInfo.procedimientos.join(', ')
+          : (patientInfo.procedimientos ?? ''),
+        cuarto: Array.isArray(patientInfo.cuarto) ? patientInfo.cuarto.join(', ') : (patientInfo.cuarto ?? ''),
+        quirofano: Array.isArray(patientInfo.quirofano)
+          ? patientInfo.quirofano.join(', ')
+          : (patientInfo.quirofano ?? ''),
+      };
+
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
@@ -52,36 +50,36 @@ export const generateHospitalizationDoc = async (registerId: string) => {
       });
 
       doc.render({
-        genero: paciente.genero ?? '',
-        nombre: paciente.nombre + ' ' + paciente.apellidoPaterno + ' ' + paciente.apellidoMaterno,
-        nombreMedico: nombreMedico ?? '',
-        especialidad: especialidad ?? '',
-        diagnosticoIngreso: diagnosticoIngreso ?? '',
-        motivoIngreso: motivoIngreso ?? '',
-        estadoCivil: paciente.estadoCivil ?? '',
-        nombreResponsable: paciente.nombreResponsable ?? '',
-        direccion: paciente.direccion ?? '',
-        colonia: paciente.colonia ?? '',
-        codigoPostal: paciente.codigoPostal ?? '',
-        procedimiento: procedimientos ?? '',
-        domicilioResponsable: paciente.domicilioResponsable ?? '',
-        coloniaResponsable: paciente.coloniaResponsable ?? '',
-        codigoPostalResponsable: paciente.codigoPostalResponsable ?? '',
-        parentesco: paciente.parentesco ?? '',
-        telefono: paciente.telefono ?? '',
-        telefonoResponsable: paciente.telefonoResponsable ?? '',
-        fechaNacimiento: paciente.fechaNacimiento ? dayjs(paciente.fechaNacimiento).format('DD/MM/YYYY') : '',
-        fechaIngreso: fechaIngreso ?? '',
-        horaIngreso: horaIngreso ?? '',
-        clavePaciente: clavePaciente ?? '',
-        edad: calculateAge(paciente.fechaNacimiento),
-        alergias: alergias ?? '',
-        cuarto: nombreCuarto ?? '',
-        quirofano: nombreQuirofano ?? '',
-        nombreAnestesiologo: nombreAnestesiologo ?? '',
-        sangre: tipoSangre ?? '',
-        ciudad: paciente.ciudad ?? '',
-        estado: paciente.estado ?? '',
+        genero: renderData.genero ?? '',
+        nombre: renderData.nombrePaciente ?? '',
+        nombreMedico: renderData.nombreMedico ?? '',
+        especialidad: renderData.especialidadMedico ?? '',
+        diagnosticoIngreso: renderData.diagnosticoIngreso ?? '',
+        motivoIngreso: renderData.motivoIngreso ?? '',
+        estadoCivil: renderData.estadoCivil ?? '',
+        nombreResponsable: renderData.nombreResponsable ?? '',
+        direccion: renderData.direccion ?? '',
+        colonia: renderData.colonia ?? '',
+        codigoPostal: renderData.codigoPostal ?? '',
+        procedimiento: renderData.procedimientos ?? '',
+        domicilioResponsable: renderData.domicilioResponsable ?? '',
+        coloniaResponsable: renderData.coloniaResponsable ?? '',
+        codigoPostalResponsable: renderData.codigoPostalResponsable ?? '',
+        parentesco: renderData.parentesco ?? '',
+        telefono: renderData.telefono ?? '',
+        telefonoResponsable: renderData.telefonoResponsable ?? '',
+        fechaNacimiento: renderData.fechaNacimiento ? dayjs(renderData.fechaNacimiento).format('DD/MM/YYYY') : '',
+        fechaIngreso: renderData.fechaIngreso ?? '',
+        horaIngreso: renderData.horaIngreso ?? '',
+        clavePaciente: renderData.clavePaciente ?? '',
+        edad: renderData.edad ?? '',
+        alergias: renderData.alergias ?? '',
+        cuarto: renderData.cuarto ?? '',
+        quirofano: renderData.quirofano ?? '',
+        nombreAnestesiologo: renderData.nombreAnestesiologo ?? '',
+        sangre: renderData.sangre ?? '',
+        ciudad: renderData.ciudad ?? '',
+        estado: renderData.estado ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -97,38 +95,31 @@ export const generateHospitalizationDoc = async (registerId: string) => {
   });
 };
 
-export const generateAdmissionDoc = async (registerId: string) => {
+export const generateAdmissionDoc = async (id_IngresoPaciente: string) => {
   loadFile('/FORMATO_ADMISION.docx', async (err: any, content: any) => {
     if (err) {
       console.error(err);
       return;
     }
     try {
-      const data: IDocumentsInfo = await getDocumentData(registerId);
-      const {
-        clavePaciente,
-        diagnosticoIngreso,
-        especialidad,
-        fechaIngreso,
-        horaIngreso,
-        motivoIngreso,
-        nombreMedico,
-        paciente,
-        procedimientos,
-        alergias,
-        nombreAnestesiologo,
-        nombreCuarto,
-        nombreQuirofano,
-        tipoSangre,
-      } = data;
+      const patientInfo = await getAdmissionDoc(id_IngresoPaciente);
 
       const zip = new PizZip(content);
       expressionParser.filters.upper = function (input) {
-        if (!input) {
-          return input;
-        }
-        return input.toUpperCase();
+        return handleUpperCase(input);
       };
+
+      const renderData = {
+        ...patientInfo,
+        procedimientos: Array.isArray(patientInfo.procedimientos)
+          ? patientInfo.procedimientos.join(', ')
+          : (patientInfo.procedimientos ?? ''),
+        cuarto: Array.isArray(patientInfo.cuarto) ? patientInfo.cuarto.join(', ') : (patientInfo.cuarto ?? ''),
+        quirofano: Array.isArray(patientInfo.quirofano)
+          ? patientInfo.quirofano.join(', ')
+          : (patientInfo.quirofano ?? ''),
+      };
+
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
@@ -136,36 +127,36 @@ export const generateAdmissionDoc = async (registerId: string) => {
       });
 
       doc.render({
-        genero: paciente.genero ?? '',
-        nombre: paciente.nombre + ' ' + paciente.apellidoPaterno + ' ' + paciente.apellidoMaterno,
-        nombreMedico: nombreMedico ?? '',
-        especialidad: especialidad ?? '',
-        diagnosticoIngreso: diagnosticoIngreso ?? '',
-        motivoIngreso: motivoIngreso ?? '',
-        estadoCivil: paciente.estadoCivil ?? '',
-        nombreResponsable: paciente.nombreResponsable ?? '',
-        direccion: paciente.direccion ?? '',
-        colonia: paciente.colonia ?? '',
-        codigoPostal: paciente.codigoPostal ?? '',
-        procedimiento: procedimientos ?? '',
-        domicilioResponsable: paciente.domicilioResponsable ?? '',
-        coloniaResponsable: paciente.coloniaResponsable ?? '',
-        codigoPostalResponsable: paciente.codigoPostalResponsable ?? '',
-        parentesco: paciente.parentesco ?? '',
-        telefono: paciente.telefono ?? '',
-        telefonoResponsable: paciente.telefonoResponsable ?? '',
-        fechaNacimiento: paciente.fechaNacimiento ? dayjs(paciente.fechaNacimiento).format('DD/MM/YYYY') : '',
-        fechaIngreso: fechaIngreso ?? '',
-        horaIngreso: horaIngreso ?? '',
-        clavePaciente: clavePaciente ?? '',
-        edad: calculateAge(paciente.fechaNacimiento),
-        alergias: alergias ?? '',
-        cuarto: nombreCuarto ?? '',
-        quirofano: nombreQuirofano ?? '',
-        nombreAnestesiologo: nombreAnestesiologo ?? '',
-        sangre: tipoSangre ?? '',
-        ciudad: paciente.ciudad ?? '',
-        estado: paciente.estado ?? '',
+        genero: renderData.genero ?? '',
+        nombre: renderData.nombrePaciente ?? '',
+        nombreMedico: renderData.nombreMedico ?? '',
+        especialidad: renderData.especialidadMedico ?? '',
+        diagnosticoIngreso: renderData.diagnosticoIngreso ?? '',
+        motivoIngreso: renderData.motivoIngreso ?? '',
+        estadoCivil: renderData.estadoCivil ?? '',
+        nombreResponsable: renderData.nombreResponsable ?? '',
+        direccion: renderData.direccion ?? '',
+        colonia: renderData.colonia ?? '',
+        codigoPostal: renderData.codigoPostal ?? '',
+        procedimiento: renderData.procedimientos ?? '',
+        domicilioResponsable: renderData.domicilioResponsable ?? '',
+        coloniaResponsable: renderData.coloniaResponsable ?? '',
+        codigoPostalResponsable: renderData.codigoPostalResponsable ?? '',
+        parentesco: renderData.parentesco ?? '',
+        telefono: renderData.telefono ?? '',
+        telefonoResponsable: renderData.telefonoResponsable ?? '',
+        fechaNacimiento: renderData.fechaNacimiento ? dayjs(renderData.fechaNacimiento).format('DD/MM/YYYY') : '',
+        fechaIngreso: renderData.fechaIngreso ?? '',
+        horaIngreso: renderData.horaIngreso ?? '',
+        clavePaciente: renderData.clavePaciente ?? '',
+        edad: renderData.edad ?? '',
+        alergias: renderData.alergias ?? '',
+        cuarto: renderData.cuarto ?? '',
+        quirofano: renderData.quirofano ?? '',
+        nombreAnestesiologo: renderData.nombreAnestesiologo ?? '',
+        sangre: renderData.sangre ?? '',
+        ciudad: renderData.ciudad ?? '',
+        estado: renderData.estado ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -181,37 +172,29 @@ export const generateAdmissionDoc = async (registerId: string) => {
   });
 };
 
-export const generateSurgeryDoc = async (registerId: string) => {
+export const generateSurgeryDoc = async (id_IngresoPaciente: string) => {
   loadFile('/FORMATO_QUIRURGICO.docx', async (err: any, content: any) => {
     if (err) {
       console.error(err);
       return;
     }
     try {
-      const data: IDocumentsInfo = await getDocumentData(registerId);
-      const {
-        clavePaciente,
-        diagnosticoIngreso,
-        especialidad,
-        fechaIngreso,
-        horaIngreso,
-        motivoIngreso,
-        nombreMedico,
-        paciente,
-        procedimientos,
-        alergias,
-        nombreAnestesiologo,
-        nombreCuarto,
-        nombreQuirofano,
-        tipoSangre,
-      } = data;
+      const patientInfo = await getAdmissionDoc(id_IngresoPaciente);
 
       const zip = new PizZip(content);
       expressionParser.filters.upper = function (input) {
-        if (!input) {
-          return input;
-        }
-        return input.toUpperCase();
+        return handleUpperCase(input);
+      };
+
+      const renderData = {
+        ...patientInfo,
+        procedimientos: Array.isArray(patientInfo.procedimientos)
+          ? patientInfo.procedimientos.join(', ')
+          : (patientInfo.procedimientos ?? ''),
+        cuarto: Array.isArray(patientInfo.cuarto) ? patientInfo.cuarto.join(', ') : (patientInfo.cuarto ?? ''),
+        quirofano: Array.isArray(patientInfo.quirofano)
+          ? patientInfo.quirofano.join(', ')
+          : (patientInfo.quirofano ?? ''),
       };
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
@@ -220,36 +203,36 @@ export const generateSurgeryDoc = async (registerId: string) => {
       });
 
       doc.render({
-        genero: paciente.genero ?? '',
-        nombre: paciente.nombre + ' ' + paciente.apellidoPaterno + ' ' + paciente.apellidoMaterno,
-        nombreMedico: nombreMedico ?? '',
-        especialidad: especialidad ?? '',
-        diagnosticoIngreso: diagnosticoIngreso ?? '',
-        motivoIngreso: motivoIngreso ?? '',
-        estadoCivil: paciente.estadoCivil ?? '',
-        nombreResponsable: paciente.nombreResponsable ?? '',
-        direccion: paciente.direccion ?? '',
-        colonia: paciente.colonia ?? '',
-        codigoPostal: paciente.codigoPostal ?? '',
-        procedimiento: procedimientos ?? '',
-        domicilioResponsable: paciente.domicilioResponsable ?? '',
-        coloniaResponsable: paciente.coloniaResponsable ?? '',
-        codigoPostalResponsable: paciente.codigoPostalResponsable ?? '',
-        parentesco: paciente.parentesco ?? '',
-        telefono: paciente.telefono ?? '',
-        telefonoResponsable: paciente.telefonoResponsable ?? '',
-        fechaNacimiento: paciente.fechaNacimiento ? dayjs(paciente.fechaNacimiento).format('DD/MM/YYYY') : '',
-        fechaIngreso: fechaIngreso ?? '',
-        horaIngreso: horaIngreso ?? '',
-        clavePaciente: clavePaciente ?? '',
-        edad: calculateAge(paciente.fechaNacimiento),
-        alergias: alergias ?? '',
-        cuarto: nombreCuarto ?? '',
-        quirofano: nombreQuirofano ?? '',
-        nombreAnestesiologo: nombreAnestesiologo ?? '',
-        sangre: tipoSangre ?? '',
-        ciudad: paciente.ciudad,
-        estado: paciente.estado,
+        genero: renderData.genero ?? '',
+        nombre: renderData.nombrePaciente ?? '',
+        nombreMedico: renderData.nombreMedico ?? '',
+        especialidad: renderData.especialidadMedico ?? '',
+        diagnosticoIngreso: renderData.diagnosticoIngreso ?? '',
+        motivoIngreso: renderData.motivoIngreso ?? '',
+        estadoCivil: renderData.estadoCivil ?? '',
+        nombreResponsable: renderData.nombreResponsable ?? '',
+        direccion: renderData.direccion ?? '',
+        colonia: renderData.colonia ?? '',
+        codigoPostal: renderData.codigoPostal ?? '',
+        procedimiento: renderData.procedimientos ?? '',
+        domicilioResponsable: renderData.domicilioResponsable ?? '',
+        coloniaResponsable: renderData.coloniaResponsable ?? '',
+        codigoPostalResponsable: renderData.codigoPostalResponsable ?? '',
+        parentesco: renderData.parentesco ?? '',
+        telefono: renderData.telefono ?? '',
+        telefonoResponsable: renderData.telefonoResponsable ?? '',
+        fechaNacimiento: renderData.fechaNacimiento ? dayjs(renderData.fechaNacimiento).format('DD/MM/YYYY') : '',
+        fechaIngreso: renderData.fechaIngreso ?? '',
+        horaIngreso: renderData.horaIngreso ?? '',
+        clavePaciente: renderData.clavePaciente ?? '',
+        edad: renderData.edad ?? '',
+        alergias: renderData.alergias ?? '',
+        cuarto: renderData.cuarto ?? '',
+        quirofano: renderData.quirofano ?? '',
+        nombreAnestesiologo: renderData.nombreAnestesiologo ?? '',
+        sangre: renderData.sangre ?? '',
+        ciudad: renderData.ciudad ?? '',
+        estado: renderData.estado ?? '',
       });
 
       const out = doc.getZip().generate({
@@ -306,10 +289,7 @@ export const generateSamiDoc = async (data: {
 
     const zip = new PizZip(content);
     expressionParser.filters.upper = function (input) {
-      if (!input) {
-        return input;
-      }
-      return input.toUpperCase();
+      return handleUpperCase(input);
     };
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,

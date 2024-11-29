@@ -1,7 +1,6 @@
 import { Box, Button, Checkbox, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { patientModifySchema } from '../../../../../schema/programming/programmingSchemas';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
@@ -14,9 +13,11 @@ import { admitPatient } from '../../../../../services/admission/admisionService'
 import { useGetPatientInfo } from '../../../../../hooks/admission/useGetPatientInfo';
 import { FullscreenLoader } from '../../../../../common/components/FullscreenLoader';
 import { usePatientEntryPaginationStore } from '../../../../../store/admission/usePatientEntryPagination';
+import { admissionPatientSchema, basePatientSchema } from '@/schema/programming/programmingSchemas';
+import { usePatientRegisterPaginationStore } from '@/store/programming/patientRegisterPagination';
 dayjs.locale('es-mx');
 
-const style = {
+const style = (isProgramming?: boolean) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
@@ -29,14 +30,15 @@ const style = {
   },
   maxWidth: '1000px',
   maxHeight: '90vh',
-  height: '90vh',
+  height: isProgramming ? 'auto' : '90vh',
+  minHeight: isProgramming ? 'auto' : '90vh',
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
   bgcolor: 'background.paper',
   overflow: 'hidden',
-};
+});
 
 const scrollBarStyle = {
   '&::-webkit-scrollbar': {
@@ -90,13 +92,16 @@ interface EditPersonalInfoModalProps {
   setOpen: Function;
   id_IngresoPaciente: string;
   admit?: boolean;
+  isProgramming?: boolean;
 }
 
 const BLOOD_TYPE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
   const { data: personalData, isLoading } = useGetPatientInfo(props.id_IngresoPaciente);
-  const refetch = usePatientEntryPaginationStore((state) => state.fetchData);
+  const refetch = props.isProgramming
+    ? usePatientRegisterPaginationStore((state) => state.fetchData)
+    : usePatientEntryPaginationStore((state) => state.fetchData);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     const obj: IAdmitPatientCommand = {
@@ -181,7 +186,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     setValue,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(patientModifySchema(true)),
+    resolver: zodResolver(props.isProgramming ? basePatientSchema : admissionPatientSchema),
     values: {
       name: personalData?.paciente?.nombre || '',
       lastName: personalData?.paciente?.apellidoPaterno || '',
@@ -272,9 +277,11 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
     watchPersonInChargeState,
   ]);
 
+  console.log(props.isProgramming);
+
   if (isLoading) return <FullscreenLoader />;
   return (
-    <Box sx={style}>
+    <Box sx={style(props.isProgramming)}>
       <HeaderModal setOpen={props.setOpen} title="Alta de Paciente" />
       <Box
         component="form"
@@ -348,271 +355,275 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Fecha Nacimiento</Typography>
-              <Controller
-                control={control}
-                name="birthDate"
-                render={({ field: { onChange, value } }) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'es-mx'}>
-                    <DatePicker
-                      value={dayjs(value)}
-                      onChange={onChange}
-                      views={['year', 'month', 'day']}
-                      disableFuture
-                      format={'DD/MM/YYYY'}
-                      label="Fecha de nacimiento"
-                    />
-                  </LocalizationProvider>
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Estado Civil</Typography>
-              <TextField
-                fullWidth
-                placeholder="Estado Civil..."
-                {...register('civilStatus')}
-                error={!!errors.civilStatus?.message}
-                helperText={errors.civilStatus?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Teléfono</Typography>
-              <TextField
-                fullWidth
-                placeholder="Teléfono..."
-                {...register('phoneNumber')}
-                error={!!errors.phoneNumber?.message}
-                helperText={errors.phoneNumber?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Ocupación/Empleo</Typography>
-              <TextField
-                fullWidth
-                placeholder="Escribe la ocupación..."
-                {...register('occupation')}
-                error={!!errors.occupation?.message}
-                helperText={errors.occupation?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>CURP</Typography>
-              <TextField
-                fullWidth
-                placeholder="CURP..."
-                {...register('curp')}
-                error={!!errors.curp?.message}
-                helperText={errors.curp?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
-              <TextField
-                fullWidth
-                placeholder="Código Postal..."
-                {...register('zipCode')}
-                error={!!errors.zipCode?.message}
-                helperText={errors.zipCode?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
-              <TextField
-                fullWidth
-                placeholder="Colonia..."
-                {...register('neighborhood')}
-                error={!!errors.neighborhood?.message}
-                helperText={errors.neighborhood?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
-              <TextField
-                fullWidth
-                placeholder="Dirección..."
-                {...register('address')}
-                error={!!errors.address?.message}
-                helperText={errors.address?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
-              <TextField
-                fullWidth
-                placeholder="Estado..."
-                {...register('state')}
-                error={!!errors.state?.message}
-                helperText={errors.state?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Ciudad..."
-                {...register('city')}
-                error={!!errors.city?.message}
-                helperText={errors.city?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos de contacto</Typography>
-              <Divider sx={{ my: 1 }} />
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Persona Responsable</Typography>
-              <TextField
-                fullWidth
-                placeholder="Nombre..."
-                {...register('personInCharge')}
-                error={!!errors.personInCharge?.message}
-                helperText={errors.personInCharge?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Parentesco</Typography>
-              <TextField
-                fullWidth
-                placeholder="Parentesco..."
-                {...register('relationship')}
-                error={!!errors.relationship?.message}
-                helperText={errors.relationship?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox {...register('sameAddress')} checked={watchSameAddress} />
-              <Typography sx={TYPOGRAPHY_STYLE}>Mismo Domicilio</Typography>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
-              <TextField
-                fullWidth
-                placeholder="Código postal..."
-                disabled={watchSameAddress}
-                error={!!errors.personInChargeZipCode?.message}
-                helperText={errors.personInChargeZipCode?.message}
-                {...register('personInChargeZipCode')}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
-              <TextField
-                fullWidth
-                placeholder="Colonia..."
-                disabled={watchSameAddress}
-                error={!!errors.personInChargeNeighborhood?.message}
-                helperText={errors.personInChargeNeighborhood?.message}
-                {...register('personInChargeNeighborhood')}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
-              <TextField
-                fullWidth
-                placeholder="Dirección..."
-                disabled={watchSameAddress}
-                error={!!errors.personInChargeAddress?.message}
-                helperText={errors.personInChargeAddress?.message}
-                {...register('personInChargeAddress')}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Teléfono</Typography>
-              <TextField
-                fullWidth
-                placeholder="Teléfono..."
-                error={!!errors.personInChargePhoneNumber?.message}
-                helperText={errors.personInChargePhoneNumber?.message}
-                {...register('personInChargePhoneNumber')}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
-              <TextField
-                fullWidth
-                placeholder="Ciudad..."
-                error={!!errors.personInChargeCity?.message}
-                helperText={errors.personInChargeCity?.message}
-                {...register('personInChargeCity')}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
-              <TextField
-                fullWidth
-                placeholder="Estado..."
-                error={!!errors.personInChargeState?.message}
-                helperText={errors.personInChargeState?.message}
-                {...register('personInChargeState')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos clínicos</Typography>
-              <Divider sx={{ my: 1 }} />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Motivo de ingreso</Typography>
-              <TextField
-                fullWidth
-                multiline
-                placeholder="Motivo de ingreso..."
-                {...register('reasonForAdmission')}
-                error={!!errors.reasonForAdmission?.message}
-                helperText={errors.reasonForAdmission?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Diagnostico de ingreso</Typography>
-              <TextField
-                fullWidth
-                multiline
-                placeholder="Diagnostico de ingreso..."
-                {...register('admissionDiagnosis')}
-                error={!!errors.admissionDiagnosis?.message}
-                helperText={errors.admissionDiagnosis?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Alergias</Typography>
-              <TextField
-                fullWidth
-                placeholder="Alergias..."
-                {...register('allergies')}
-                error={!!errors.allergies?.message}
-                helperText={errors.allergies?.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Tipo de sangre</Typography>
-              <TextField
-                fullWidth
-                select
-                value={watchBloodType}
-                placeholder="Tipo de sangre..."
-                {...register('bloodType')}
-                error={!!errors.bloodType?.message}
-                helperText={errors.bloodType?.message}
-              >
-                {BLOOD_TYPE.map((bt) => (
-                  <MenuItem key={bt} value={bt}>
-                    {bt}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography sx={TYPOGRAPHY_STYLE}>Comentarios</Typography>
-              <TextField
-                fullWidth
-                multiline
-                placeholder="Comentarios..."
-                {...register('comments')}
-                error={!!errors.comments?.message}
-                helperText={errors.comments?.message}
-              />
-            </Grid>
+            {!props.isProgramming && (
+              <>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Fecha Nacimiento</Typography>
+                  <Controller
+                    control={control}
+                    name="birthDate"
+                    render={({ field: { onChange, value } }) => (
+                      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'es-mx'}>
+                        <DatePicker
+                          value={dayjs(value)}
+                          onChange={onChange}
+                          views={['year', 'month', 'day']}
+                          disableFuture
+                          format={'DD/MM/YYYY'}
+                          label="Fecha de nacimiento"
+                        />
+                      </LocalizationProvider>
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Estado Civil</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Estado Civil..."
+                    {...register('civilStatus')}
+                    error={!!errors.civilStatus?.message}
+                    helperText={errors.civilStatus?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Teléfono</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Teléfono..."
+                    {...register('phoneNumber')}
+                    error={!!errors.phoneNumber?.message}
+                    helperText={errors.phoneNumber?.message}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Ocupación/Empleo</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Escribe la ocupación..."
+                    {...register('occupation')}
+                    error={!!errors.occupation?.message}
+                    helperText={errors.occupation?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>CURP</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="CURP..."
+                    {...register('curp')}
+                    error={!!errors.curp?.message}
+                    helperText={errors.curp?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Código Postal..."
+                    {...register('zipCode')}
+                    error={!!errors.zipCode?.message}
+                    helperText={errors.zipCode?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Colonia..."
+                    {...register('neighborhood')}
+                    error={!!errors.neighborhood?.message}
+                    helperText={errors.neighborhood?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Dirección..."
+                    {...register('address')}
+                    error={!!errors.address?.message}
+                    helperText={errors.address?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Estado..."
+                    {...register('state')}
+                    error={!!errors.state?.message}
+                    helperText={errors.state?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Ciudad..."
+                    {...register('city')}
+                    error={!!errors.city?.message}
+                    helperText={errors.city?.message}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos de contacto</Typography>
+                  <Divider sx={{ my: 1 }} />
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Persona Responsable</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Nombre..."
+                    {...register('personInCharge')}
+                    error={!!errors.personInCharge?.message}
+                    helperText={errors.personInCharge?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Parentesco</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Parentesco..."
+                    {...register('relationship')}
+                    error={!!errors.relationship?.message}
+                    helperText={errors.relationship?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox {...register('sameAddress')} checked={watchSameAddress} />
+                  <Typography sx={TYPOGRAPHY_STYLE}>Mismo Domicilio</Typography>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Código Postal</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Código postal..."
+                    disabled={watchSameAddress}
+                    error={!!errors.personInChargeZipCode?.message}
+                    helperText={errors.personInChargeZipCode?.message}
+                    {...register('personInChargeZipCode')}
+                  />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Colonia</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Colonia..."
+                    disabled={watchSameAddress}
+                    error={!!errors.personInChargeNeighborhood?.message}
+                    helperText={errors.personInChargeNeighborhood?.message}
+                    {...register('personInChargeNeighborhood')}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Dirección</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Dirección..."
+                    disabled={watchSameAddress}
+                    error={!!errors.personInChargeAddress?.message}
+                    helperText={errors.personInChargeAddress?.message}
+                    {...register('personInChargeAddress')}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Teléfono</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Teléfono..."
+                    error={!!errors.personInChargePhoneNumber?.message}
+                    helperText={errors.personInChargePhoneNumber?.message}
+                    {...register('personInChargePhoneNumber')}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Ciudad..."
+                    error={!!errors.personInChargeCity?.message}
+                    helperText={errors.personInChargeCity?.message}
+                    {...register('personInChargeCity')}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Estado..."
+                    error={!!errors.personInChargeState?.message}
+                    helperText={errors.personInChargeState?.message}
+                    {...register('personInChargeState')}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos clínicos</Typography>
+                  <Divider sx={{ my: 1 }} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Motivo de ingreso</Typography>
+                  <TextField
+                    fullWidth
+                    multiline
+                    placeholder="Motivo de ingreso..."
+                    {...register('reasonForAdmission')}
+                    error={!!errors.reasonForAdmission?.message}
+                    helperText={errors.reasonForAdmission?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Diagnostico de ingreso</Typography>
+                  <TextField
+                    fullWidth
+                    multiline
+                    placeholder="Diagnostico de ingreso..."
+                    {...register('admissionDiagnosis')}
+                    error={!!errors.admissionDiagnosis?.message}
+                    helperText={errors.admissionDiagnosis?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Alergias</Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Alergias..."
+                    {...register('allergies')}
+                    error={!!errors.allergies?.message}
+                    helperText={errors.allergies?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Tipo de sangre</Typography>
+                  <TextField
+                    fullWidth
+                    select
+                    value={watchBloodType}
+                    placeholder="Tipo de sangre..."
+                    {...register('bloodType')}
+                    error={!!errors.bloodType?.message}
+                    helperText={errors.bloodType?.message}
+                  >
+                    {BLOOD_TYPE.map((bt) => (
+                      <MenuItem key={bt} value={bt}>
+                        {bt}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography sx={TYPOGRAPHY_STYLE}>Comentarios</Typography>
+                  <TextField
+                    fullWidth
+                    multiline
+                    placeholder="Comentarios..."
+                    {...register('comments')}
+                    error={!!errors.comments?.message}
+                    helperText={errors.comments?.message}
+                  />
+                </Grid>
+              </>
+            )}
           </Grid>
         </Box>
         <Box

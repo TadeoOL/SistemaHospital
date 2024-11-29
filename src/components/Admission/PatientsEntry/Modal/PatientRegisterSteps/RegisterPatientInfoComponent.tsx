@@ -6,10 +6,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 import { usePatientEntryRegisterStepsStore } from '../../../../../store/admission/usePatientEntryRegisterSteps';
-import { patientModifySchema, patientRegistrationSchema } from '../../../../../schema/programming/programmingSchemas';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { IPatient } from '../../../../../types/types';
 import { useEffect } from 'react';
+import { admissionPatientSchema, basePatientSchema } from '@/schema/programming/programmingSchemas';
 dayjs.locale('es-MX');
 
 // const CIVIL_STATUS = ['Soltero(a)', 'Casado(a)', 'Divorciado(a)', 'Viudo(a)'];
@@ -46,9 +46,9 @@ const scrollBarStyle = {
 type Inputs = IPatient & { sameAddress?: boolean };
 interface PatientRegistrationFormProps {
   setOpen: Function;
-  hospitalization?: boolean;
+  admission?: boolean;
 }
-export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: PatientRegistrationFormProps) => {
+export const RegisterPatientInfoComponent = ({ setOpen, admission }: PatientRegistrationFormProps) => {
   const step = usePatientEntryRegisterStepsStore((state) => state.step);
   const setStep = usePatientEntryRegisterStepsStore((state) => state.setStep);
   const patient = usePatientEntryRegisterStepsStore((state) => state.patient);
@@ -86,7 +86,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
     watch,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(hospitalization ? patientModifySchema() : patientRegistrationSchema),
+    resolver: zodResolver(admission ? admissionPatientSchema : basePatientSchema),
     defaultValues: {
       name,
       lastName,
@@ -113,6 +113,9 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
       curp,
     },
   });
+
+  const result = basePatientSchema.safeParse({});
+  console.log({ result });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     setPatient(data);
@@ -260,7 +263,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, hospitalization }: Patie
                 ))}
               </TextField>
             </Grid>
-            {hospitalization && (
+            {admission && (
               <>
                 <Grid item xs={12} md={4}>
                   <Typography sx={TYPOGRAPHY_STYLE}>Estado Civil</Typography>

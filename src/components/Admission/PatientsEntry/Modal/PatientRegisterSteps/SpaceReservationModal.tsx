@@ -34,9 +34,14 @@ import { Delete } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
-import { getSurgeryRoomsReservations } from '../../../../../services/programming/hospitalSpace';
+import {
+  getHospitalRoomReservations,
+  getSurgeryRoomsReservations,
+} from '../../../../../services/programming/hospitalSpace';
 import { IHospitalRoom } from '../../../../../types/programming/hospitalRoomTypes';
 import { ISurgeryRoom } from '../../../../../types/programming/surgeryRoomTypes';
+import { convertDate } from '@/utils/convertDate';
+import { HospitalSpaceType } from '@/types/admission/admissionTypes';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -53,22 +58,20 @@ const style = {
   maxHeight: { xs: 550, xl: 900 },
 };
 
-type RoomType = '0' | '1';
-
 interface HospitalizationSpaceReservationModalProps {
   setOpen: Function;
-  roomType: RoomType;
+  roomType: HospitalSpaceType;
 }
 
 interface RoomsInput {
   room: string;
   startTime: Dayjs;
-  endDate: Dayjs;
+  stayDays?: number;
+  endDate?: Dayjs;
 }
 
 const HEADERS = ['Cuarto', 'Hora Inicio', 'Hora Fin', 'Acciones'];
 
-// Type guards
 const isSurgeryRoom = (room: IHospitalRoom | ISurgeryRoom): room is ISurgeryRoom => {
   return 'id_Quirofano' in room;
 };
@@ -78,7 +81,7 @@ const isHospitalRoom = (room: IHospitalRoom | ISurgeryRoom): room is IHospitalRo
 };
 
 export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpaceReservationModalProps) => {
-  const { data: roomsRes, isLoading } = useGetAllRooms<RoomType>(roomType);
+  const { data: roomsRes, isLoading } = useGetAllRooms<HospitalSpaceType>(roomType);
   const appointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.appointmentStartDate);
   const appointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.appointmentEndDate);
   const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
@@ -102,11 +105,21 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     resolver: zodResolver(addRoomReservation),
     defaultValues: {
       startTime: dayjs(appointmentStartDate),
-      endDate: dayjs(appointmentEndDate),
       room: '',
+      ...(roomType === HospitalSpaceType.Room
+        ? {
+            stayDays: 1,
+            endDate: dayjs(appointmentStartDate).add(1, 'day'),
+          }
+        : {
+            endDate: dayjs(appointmentEndDate),
+          }),
     },
   });
   const watchRoomId = watchRooms('room');
+  const watchStartTime = watchRooms('startTime');
+  const watchStayDays = watchRooms('stayDays');
+  const watchEndTime = watchRooms('endDate');
 
   const onSubmitRooms: SubmitHandler<RoomsInput> = async (data) => {
     const startTimeDayjs = dayjs(data.startTime).format('DD/MM/YYYY - HH:mm');
@@ -115,20 +128,27 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     const endDate = data.endDate as any as Date;
     const room = data.room;
 
-    const isAvailable = await getSurgeryRoomsReservations({
-      surgeryRoomId: room,
-      initialDate: dayjs(startTime).format('YYYY/MM/DDTHH:mm:ss'),
-      endDate: dayjs(endDate).format('YYYY/MM/DDTHH:mm:ss'),
-    });
+    const isAvailable =
+      roomType === HospitalSpaceType.Room
+        ? await getHospitalRoomReservations({
+            roomId: room,
+            initialDate: convertDate(startTime),
+            endDate: convertDate(endDate),
+          })
+        : await getSurgeryRoomsReservations({
+            surgeryRoomId: room,
+            initialDate: convertDate(startTime),
+            endDate: convertDate(endDate),
+          });
     if (isAvailable.length > 0)
       return toast.warning(
-        `El ${roomType == '0' ? 'cuarto' : 'quirófano'} no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
+        `El ${roomType === HospitalSpaceType.Room ? 'cuarto' : 'quirófano'} no esta disponible de ${startTimeDayjs} a ${endTimeDayjs}, te sugerimos verificar las fechas correctamente.`
       );
 
     const roomFound = roomsRes?.find((r) => {
-      if (roomType === '0' && isHospitalRoom(r)) {
+      if (roomType === HospitalSpaceType.Room && isHospitalRoom(r)) {
         return r.id_Cuarto === room;
-      } else if (roomType === '1' && isSurgeryRoom(r)) {
+      } else if (roomType === HospitalSpaceType.OperatingRoom && isSurgeryRoom(r)) {
         return r.id_Quirofano === room;
       }
       return false;
@@ -143,7 +163,7 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
         horaFin: endDate,
         horaInicio: startTime,
         provisionalId: uuidv4(),
-        tipoCuarto: roomType === '0' ? 0 : 1,
+        tipoCuarto: roomType === HospitalSpaceType.Room ? 0 : 1,
       };
       setRoomsRegistered([...roomsRegistered, roomObj]);
     }
@@ -152,12 +172,13 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     setValueRooms('room', '');
   };
 
-  const getRoomTypeLabel = (type: RoomType) => (type === '0' ? 'cuarto' : 'quirófano');
+  const getRoomTypeLabel = (type: HospitalSpaceType) => (type === HospitalSpaceType.Room ? 'cuarto' : 'quirófano');
 
   const onSubmit = async () => {
     if (
-      (roomType !== '0' && roomsRegistered.length < 1) ||
-      (!roomsRegistered.some((r) => r.tipoCuarto === (roomType === '0' ? 0 : 1)) && roomType !== '0')
+      (roomType !== HospitalSpaceType.Room && roomsRegistered.length < 1) ||
+      (!roomsRegistered.some((r) => r.tipoCuarto === (roomType === HospitalSpaceType.Room ? 0 : 1)) &&
+        roomType !== HospitalSpaceType.Room)
     ) {
       return toast.warning(`Es necesario agregar un ${getRoomTypeLabel(roomType)} para continuar`);
     }
@@ -205,6 +226,14 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
     };
     fetchUnavailableDays();
   }, [watchRoomId, currentDate]);
+
+  useEffect(() => {
+    if (watchStartTime && watchStayDays && roomType === HospitalSpaceType.Room) {
+      console.log('AAAA');
+      const newEndDate = dayjs(watchStartTime).add(watchStayDays, 'day');
+      setValueRooms('endDate', newEndDate);
+    }
+  }, [watchStartTime, watchStayDays]);
 
   const shouldDisableMinute = (time: Dayjs): boolean => {
     if (!unavailableTimes || unavailableTimes.length < 1) return false;
@@ -285,7 +314,7 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
   };
 
   const handleValidateRooms = () => {
-    return roomsRegistered.some((r) => r.tipoCuarto === (roomType === '0' ? 0 : 1));
+    return roomsRegistered.some((r) => r.tipoCuarto === (roomType === HospitalSpaceType.Room ? 0 : 1));
   };
 
   if (isLoading)
@@ -306,10 +335,10 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
         <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
-              <Typography>{roomType === '0' ? 'Habitaciones' : 'Quirófanos'} disponibles</Typography>
+              <Typography>{roomType === HospitalSpaceType.Room ? 'Habitaciones' : 'Quirófanos'} disponibles</Typography>
               <TextField
                 select
-                label={`${roomType == '0' ? 'Habitaciones' : 'Quirófanos'}`}
+                label={`${roomType === HospitalSpaceType.Room ? 'Habitaciones' : 'Quirófanos'}`}
                 fullWidth
                 {...registerRooms('room')}
                 value={watchRoomId}
@@ -390,49 +419,98 @@ export const SpaceReservationModal = ({ setOpen, roomType }: HospitalizationSpac
               />
             </Grid>
             <Grid item sm={12} md={4}>
-              <Typography>Hora de salida estimada</Typography>
+              <Typography>
+                {roomType === HospitalSpaceType.Room ? 'Días de estancia estimados' : 'Hora de salida'}
+              </Typography>
               <Controller
                 control={controlRooms}
-                name="endDate"
-                render={({ field: { onChange, value } }) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                      label="Hora salida"
-                      ampm={false}
-                      value={value}
-                      onChange={(date) => {
-                        const dayjsToDate = date?.toDate();
-                        setCurrentDate(dayjsToDate as Date);
-                        onChange(date);
-                      }}
-                      minDateTime={dayjs(new Date())}
-                      format="DD/MM/YYYY HH:mm"
-                      disabled={watchRoomId.trim() === ''}
-                      slotProps={{
-                        textField: {
-                          error: !!errorsRooms.endDate?.message,
-                          helperText: !!errorsRooms.endDate?.message ? errorsRooms.endDate.message : null,
+                name={roomType === HospitalSpaceType.Room ? 'stayDays' : 'endDate'}
+                render={({ field: { onChange, value } }) =>
+                  roomType === HospitalSpaceType.Room ? (
+                    <TextField
+                      type="number"
+                      label="Días de estancia"
+                      fullWidth
+                      InputProps={{
+                        inputProps: {
+                          min: 1,
+                          max: 365,
+                        },
+                        onKeyDown: (e) => {
+                          if (e.key === '-' || e.key === '+' || e.key === 'e') {
+                            e.preventDefault();
+                          }
                         },
                       }}
-                      shouldDisableTime={(time, view) => {
-                        if (view === 'minutes') {
-                          return shouldDisableMinute(dayjs(time));
+                      disabled={watchRoomId.trim() === ''}
+                      value={value || ''}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+
+                        if (inputValue === '') {
+                          onChange('');
+                          return;
                         }
-                        if (view === 'hours') {
-                          return shouldDisableHour(dayjs(time));
+
+                        const days = parseInt(inputValue);
+
+                        if (!isNaN(days) && days >= 1 && days <= 365 && Number.isInteger(days)) {
+                          onChange(days);
+                          setCurrentDate(
+                            new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + days)
+                          );
                         }
-                        return false;
                       }}
-                      shouldDisableDate={(date) => verifyDate(date)}
-                      onAccept={(e) => {
-                        if (shouldDisableMinute(e as Dayjs)) {
-                          toast.error('La fecha no es valida!');
-                          onChange(dayjs().add(1, 'hour'));
-                        }
-                      }}
+                      error={!!errorsRooms.stayDays?.message}
+                      helperText={
+                        errorsRooms.stayDays?.message ||
+                        `Fecha de salida estimada: ${watchEndTime?.format('DD/MM/YYYY - HH:mm')}`
+                      }
                     />
-                  </LocalizationProvider>
-                )}
+                  ) : (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                        label="Hora salida"
+                        ampm={false}
+                        value={value as Dayjs}
+                        onChange={(date) => {
+                          const dayjsToDate = date?.toDate();
+                          setCurrentDate(dayjsToDate as Date);
+                          onChange(date);
+                        }}
+                        minDateTime={dayjs(new Date())}
+                        format="DD/MM/YYYY HH:mm"
+                        disabled={watchRoomId.trim() === ''}
+                        slotProps={{
+                          textField: {
+                            error: !!errorsRooms.endDate?.message,
+                            helperText: !!errorsRooms.endDate?.message
+                              ? errorsRooms.endDate.message === 'Invalid date'
+                                ? 'Fecha invalida'
+                                : errorsRooms.endDate.message
+                              : null,
+                          },
+                        }}
+                        shouldDisableTime={(time, view) => {
+                          if (view === 'minutes') {
+                            return shouldDisableMinute(dayjs(time));
+                          }
+                          if (view === 'hours') {
+                            return shouldDisableHour(dayjs(time));
+                          }
+                          return false;
+                        }}
+                        shouldDisableDate={(date) => verifyDate(date)}
+                        onAccept={(e) => {
+                          if (shouldDisableMinute(e as Dayjs)) {
+                            toast.error('La fecha no es valida!');
+                            onChange(dayjs());
+                          }
+                        }}
+                      />
+                    </LocalizationProvider>
+                  )
+                }
               />
             </Grid>
             <Grid item xs={12}>

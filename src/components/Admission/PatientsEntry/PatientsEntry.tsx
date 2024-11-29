@@ -1,21 +1,25 @@
-import { Box, Button, Card, IconButton, Modal, Stack, Tooltip } from '@mui/material';
+import { Box, Button, Card, IconButton, Modal, Select, Stack, Tooltip } from '@mui/material';
 import { TablePatientsEntry } from './PatientsEntryTable';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
 import { DateFilterComponent } from '../../Commons/DateFilterComponent';
 import { FilterList } from '@mui/icons-material';
 import { useState } from 'react';
 import { HospitalizationEntryComponent } from './Modal/HospitalizationEntryComponent';
+import { usePatientEntryPaginationStore } from '@/store/admission/usePatientEntryPagination';
+import { MenuItem } from '@mui/material';
+import { PatientAccountStatus } from '@/types/checkout/patientAccountTypes';
 // import { RegisterSteps } from '../RegisterSteps/RegisterSteps';
 
 export const PatientsEntry = () => {
-  const setSearch = usePatientRegisterPaginationStore((state) => state.setSearch);
-  const search = usePatientRegisterPaginationStore((state) => state.search);
-  const setStartDate = usePatientRegisterPaginationStore((state) => state.setStartDate);
-  const setEndDate = usePatientRegisterPaginationStore((state) => state.setEndDate);
-  const clearFilters = usePatientRegisterPaginationStore((state) => state.clearFilters);
-  const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
-  const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
+  const setSearch = usePatientEntryPaginationStore((state) => state.setSearch);
+  const search = usePatientEntryPaginationStore((state) => state.search);
+  const setStartDate = usePatientEntryPaginationStore((state) => state.setStartDate);
+  const setEndDate = usePatientEntryPaginationStore((state) => state.setEndDate);
+  const clearFilters = usePatientEntryPaginationStore((state) => state.clearFilters);
+  const startDate = usePatientEntryPaginationStore((state) => state.startDate);
+  const endDate = usePatientEntryPaginationStore((state) => state.endDate);
+  const setStatus = usePatientEntryPaginationStore((state) => state.setStatus);
+  const status = usePatientEntryPaginationStore((state) => state.status);
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,7 +31,15 @@ export const PatientsEntry = () => {
               Ingresar Paciente
             </Button>
           </Box>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 2, sm: 0 },
+              alignItems: { xs: 'stretch', sm: 'center' },
+              justifyContent: 'space-between',
+            }}
+          >
             <SearchBar
               searchState={setSearch}
               search={search}
@@ -35,18 +47,41 @@ export const PatientsEntry = () => {
               sx={{ width: '100%' }}
               title="Buscar el registro..."
             />
-            <Box sx={{ display: 'flex' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+                mt: { xs: 2, sm: 0 },
+              }}
+            >
+              <Select
+                value={status ?? -1}
+                onChange={(e) => setStatus(e.target.value === -1 ? null : (e.target.value as number))}
+                label="Estado"
+                sx={{
+                  maxWidth: '100%',
+                  display: 'flex',
+                }}
+                size="small"
+              >
+                <MenuItem value={-1}>Todos</MenuItem>
+                <MenuItem value={PatientAccountStatus.Admitted}>Admitidos</MenuItem>
+                <MenuItem value={PatientAccountStatus.Scheduled}>Programados</MenuItem>
+              </Select>
               <DateFilterComponent
                 setEndDate={setEndDate}
                 setStartDate={setStartDate}
                 endDate={endDate}
                 startDate={startDate}
               />
-              <Tooltip title="Limpiar filtros">
-                <IconButton onClick={clearFilters}>
-                  <FilterList />
-                </IconButton>
-              </Tooltip>
+              <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-end', sm: 'flex-start' } }}>
+                <Tooltip title="Limpiar filtros">
+                  <IconButton onClick={clearFilters}>
+                    <FilterList />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Box>
           </Box>
           <TablePatientsEntry />

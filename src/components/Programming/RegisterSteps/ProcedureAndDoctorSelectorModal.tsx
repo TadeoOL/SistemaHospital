@@ -37,7 +37,7 @@ import { procedureAndDoctorSelectorSchema } from '../../../schema/programming/pr
 import { UploadFile } from '../../Commons/UploadFile';
 import { toast } from 'react-toastify';
 import { useGetAllXRay } from '../../../hooks/hospitalization/useGetAllXRay';
-import { useGetMedicalShiftsByDate } from '../../../hooks/hospitalization/useGetMedicalShiftsByDate';
+// import { useGetMedicalShiftsByDate } from '../../../hooks/hospitalization/useGetMedicalShiftsByDate';
 import { useGetAnesthesiologistShiftsByDate } from '../../../hooks/hospitalization/useGetAnesthesiologistShiftsByDate';
 
 interface Inputs {
@@ -311,8 +311,8 @@ const MedicSelectComponent = <T extends Inputs>({
 }: MedicSelectComponentProps<T>) => {
   const { doctorsData, isLoadingMedics } = useGetMedics();
   const startDateSurgery = useProgrammingRegisterStore((state) => state.startDateSurgery);
-  const { isLoadingMedicalShifts, medicalShiftsData } = useGetMedicalShiftsByDate(startDateSurgery);
-  const valueToFind = valueRadioButton === 'no' ? doctorsData : medicalShiftsData;
+  // const { isLoadingMedicalShifts, medicalShiftsData } = useGetMedicalShiftsByDate(startDateSurgery);
+  // const valueToFind = valueRadioButton === 'no' ? doctorsData : medicalShiftsData;
 
   return (
     <Box sx={{ display: 'flex', columnGap: 4 }}>
@@ -326,7 +326,7 @@ const MedicSelectComponent = <T extends Inputs>({
         </FormControl>
         <Box>
           <Typography>{`Seleccione el medico ${valueRadioButton === 'no' ? 'que recomendó al paciente' : 'en guardia'}:`}</Typography>
-          <Autocomplete
+          {/* <Autocomplete
             disablePortal
             fullWidth
             loading={valueRadioButton === 'no' ? isLoadingMedics : isLoadingMedicalShifts}
@@ -361,7 +361,7 @@ const MedicSelectComponent = <T extends Inputs>({
               />
             )}
             key={valueRadioButton}
-          />
+          /> */}
         </Box>
       </Box>
       {valueRadioButton === 'si' && <MedicRejectAppointment isLoading={isLoadingMedics} medicData={doctorsData} />}

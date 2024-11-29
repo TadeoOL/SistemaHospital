@@ -2,29 +2,36 @@ import { useEffect, useState } from 'react';
 import { IEventsCalendar } from '../../types/types';
 import { IHospitalRoomReservation, ISurgeryRoomReservation } from '../../types/programming/hospitalSpacesTypes';
 import { getHospitalRoomReservations, getSurgeryRoomsReservations } from '../../services/programming/hospitalSpace';
+import dayjs from 'dayjs';
 
 export const useGetHospitalizationAppointments = (
   date: Date,
   setEvents: Function,
   events: IEventsCalendar[],
-  roomType: number,
+  roomType: number | 'both',
   originalEvents: IEventsCalendar[],
   setOriginalEvents: Function
 ) => {
-  // const fetchEvents = useProgrammingRegisterStore((state) => state.fetchEvents);
   const [isLoading, setIsLoading] = useState(false);
-  // const eventsFetched = usePatientRegisterPaginationStore((state) => state.data);
+
   useEffect(() => {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
-        const formattedDate = date.toISOString();
-        let res: ISurgeryRoomReservation[] | IHospitalRoomReservation[];
-        if (roomType === 1) {
-          res = await getSurgeryRoomsReservations({ endDate: formattedDate });
-        } else {
-          res = await getHospitalRoomReservations({ endDate: formattedDate });
+        const initialDate = dayjs(date).subtract(1.5, 'month').toISOString();
+        const endDate = dayjs(date).add(1.5, 'month').toISOString();
+        let res: (ISurgeryRoomReservation | IHospitalRoomReservation)[] = [];
+
+        if (roomType === 1 || roomType === 'both') {
+          const surgeryRes = await getSurgeryRoomsReservations({ endDate, initialDate });
+          res = res.concat(surgeryRes);
         }
+
+        if (roomType === 0 || roomType === 'both') {
+          const roomRes = await getHospitalRoomReservations({ endDate, initialDate });
+          res = res.concat(roomRes);
+        }
+
         if (res.length > 0) {
           const formattedRes = res.map((event) => {
             const isSurgeryRoom = 'id_Quirofano' in event;
@@ -36,7 +43,6 @@ export const useGetHospitalizationAppointments = (
               end: new Date(event.horaFin),
             };
           });
-          // const eventsFiltered = events.filter((e) => !formattedRes.some((resEvent) => resEvent.id === e.id));
           setEvents([...formattedRes]);
           setOriginalEvents([...formattedRes]);
         } else {
@@ -50,7 +56,8 @@ export const useGetHospitalizationAppointments = (
       }
     };
     fetchEvents();
-  }, [date]);
+  }, [date, roomType]);
+
   return {
     isLoading,
   };

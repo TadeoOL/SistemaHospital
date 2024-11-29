@@ -1,5 +1,5 @@
 import { AddCircleOutline } from '@mui/icons-material';
-import { Box, Chip, IconButton, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, Tooltip, Typography } from '@mui/material';
 
 interface GenericChipProps {
   data: { id: string; nombre: string }[];

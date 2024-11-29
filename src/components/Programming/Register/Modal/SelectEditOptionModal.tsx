@@ -53,19 +53,27 @@ interface SelectEditOptionModalProps {
   id_IngresoPaciente: string;
   procedures?: ISurgicalProcedure[];
   medic: { id?: string; nombre?: string };
+  isProgramming?: boolean;
 }
 export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
   switch (props.value) {
     case 0:
-      return <MainMenuEditView setOpen={props.setOpen} setValue={props.setValue} />;
+      return <MainMenuEditView setOpen={props.setOpen} setValue={props.setValue} isProgramming={props.isProgramming} />;
     case 1:
-      return <EditPersonalInfoModal setOpen={props.setOpen} id_IngresoPaciente={props.id_IngresoPaciente} />;
+      return (
+        <EditPersonalInfoModal
+          setOpen={props.setOpen}
+          id_IngresoPaciente={props.id_IngresoPaciente}
+          isProgramming={props.isProgramming}
+        />
+      );
     case 3:
       return (
         <EditCalendarEventModal
           setOpen={props.setOpen}
           patientAccountId={props.patientAccountId}
           setValue={props.setValue}
+          admission={!props.isProgramming}
         />
       );
     case 4:
@@ -91,7 +99,7 @@ export const SelectEditOptionModal = (props: SelectEditOptionModalProps) => {
   }
 };
 
-export const MainMenuEditView = (props: { setOpen: Function; setValue: Function }) => {
+export const MainMenuEditView = (props: { setOpen: Function; setValue: Function; isProgramming?: boolean }) => {
   const options = [
     {
       icon: <PermIdentity />,
@@ -101,16 +109,18 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
     },
     {
       icon: <AirlineSeatFlatOutlined />,
-      label: 'Cuartos',
+      label: `${props.isProgramming ? 'Quirófanos y/o Cuartos' : 'Cuartos'}`,
       value: 3,
-      description: 'Gestionar asignación de habitaciones',
+      description: `${props.isProgramming ? 'Gestionar asignación de espacios hospitalarios' : 'Gestionar asignación de habitaciones'}`,
     },
-    {
-      icon: <Vaccines />,
-      label: 'Procedimientos',
-      value: 4,
-      description: 'Modificar procedimientos médicos',
-    },
+    !props.isProgramming
+      ? null
+      : {
+          icon: <Vaccines />,
+          label: 'Procedimientos',
+          value: 4,
+          description: 'Modificar procedimientos médicos',
+        },
     {
       icon: <MedicalServices />,
       label: 'Médico',
@@ -136,23 +146,26 @@ export const MainMenuEditView = (props: { setOpen: Function; setValue: Function 
       </Box>
 
       <Box>
-        {options.map((option, index) => (
-          <Box
-            key={option.value}
-            sx={optionStyle(index === options.length - 1)}
-            onClick={() => props.setValue(option.value)}
-          >
-            <Box sx={{ color: 'text.secondary' }}>{React.cloneElement(option.icon, { sx: iconStyle })}</Box>
-            <Box>
-              <Typography variant="subtitle1" color="text.primary">
-                {option.label}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {option.description}
-              </Typography>
-            </Box>
-          </Box>
-        ))}
+        {options.map(
+          (option, index) =>
+            option && (
+              <Box
+                key={option.value}
+                sx={optionStyle(index === options.length - 1)}
+                onClick={() => props.setValue(option.value)}
+              >
+                <Box sx={{ color: 'text.secondary' }}>{React.cloneElement(option.icon, { sx: iconStyle })}</Box>
+                <Box>
+                  <Typography variant="subtitle1" color="text.primary">
+                    {option.label}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {option.description}
+                  </Typography>
+                </Box>
+              </Box>
+            )
+        )}
       </Box>
     </Box>
   );

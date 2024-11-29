@@ -71,6 +71,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
   const { isLoading, validate } = useGetValidation();
   const { doctorsData, isLoadingMedics } = useGetMedics();
   //const [date, _] = useState(new Date());
+  const currentDoctor = doctorsData.find((doctor) => doctor.id_Medico === props.surgeon.id);
 
   const {
     setValue,
@@ -78,7 +79,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
     formState: { errors },
     handleSubmit,
   } = useForm<Input>({
-    defaultValues: { medical: props.surgeon.id ? props.surgeon : null },
+    defaultValues: { medical: props.surgeon.id ? currentDoctor : null },
     resolver: zodResolver(surgeonOperatingRoomSchema),
   });
 
@@ -124,13 +125,14 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
       </Backdrop>
     );
 
+  console.log({ doctorsData });
   return (
     <Box sx={style}>
       <HeaderModal setOpen={props.setOpen} title="Agregar/Editar Medico" />
       <Box sx={topContainerStyle}>
         <Box sx={{ mb: 2 }}>
           <Typography>
-            Medico Actual: <b>{props.surgeon.id ? props.surgeon.nombre : 'Sin Medico'}</b>{' '}
+            Medico actual de ingreso: <b>{props.surgeon.id ? currentDoctor?.nombre : 'Sin Medico'}</b>{' '}
           </Typography>
         </Box>
         <form onSubmit={handleSubmit(onSubmit)} id="form1">
@@ -141,8 +143,11 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
               setValue('medical', val);
             }}
             loading={isLoadingMedics}
-            getOptionLabel={(option) => `${option.nombre} ${option.apellidoPaterno} ${option.apellidoMaterno}`}
-            isOptionEqualToValue={(option, value) => option.id_Medico === value.id_Medico}
+            getOptionLabel={(option) => `${option.nombre}`}
+            isOptionEqualToValue={(option, value) => {
+              console.log({ option, value });
+              return option.id_Medico === value.id_Medico;
+            }}
             options={doctorsData}
             value={watch('medical') ?? null}
             onInputChange={(_, __, reason) => {

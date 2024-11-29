@@ -13,77 +13,45 @@ const priceSchema = z
     message: 'El precio tiene que ser mayor a 0',
   });
 
-export const patientRegistrationSchema = z.object({
-  name: z.string().optional(),
-  lastName: z.string().optional(),
-  secondLastName: z.string().optional(),
-  genere: z.string().optional(),
-  birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-});
+const createPatientSchema = (required: boolean) => {
+  const stringField = (message: string) => (required ? z.string().min(1, message) : z.string().optional());
 
-export const patientModifySchema = (required?: boolean) =>
-  z
-    .object({
-      name: z.string().min(1, 'El nombre es requerido'),
-      lastName: z.string().min(1, 'El apellido paterno es requerido'),
-      secondLastName: z.string().min(1, 'El apellido materno es requerido'),
-      genere: z.string().min(1, 'El genero es requerido'),
-      civilStatus: z.string().min(1, 'El estado civil es requerido'),
-      phoneNumber: z.string().min(1, 'El telefono es requerido'),
-      occupation: z.string().min(1, 'La ocupación es requerida'),
-      zipCode: z.string().min(1, 'El codigo postal es requerido'),
-      neighborhood: z.string().min(1, 'La colonia es requerida'),
-      address: z.string().min(1, 'La direccion es requerida'),
-      personInCharge: z.string().min(1, 'El nombre del responsable es requerido'),
-      relationship: z.string().min(1, 'La relacion es requerida'),
-      sameAddress: z.boolean(),
-      personInChargeZipCode: z.string().min(1, 'El codigo postal del responsable es requerido'),
-      personInChargeNeighborhood: z.string().min(1, 'La colonia del responsable es requerida'),
-      personInChargeAddress: z.string().min(1, 'La direccion del responsable es requerida'),
-      personInChargePhoneNumber: z.string().min(1, 'El telefono del responsable es requerido'),
-      personInChargeCity: z.string().min(1, 'La ciudad del responsable es requerida'),
-      personInChargeState: z.string().min(1, 'El estado del responsable es requerido'),
-      state: z.string().min(1, 'El estado es requerido'),
-      city: z.string().min(1, 'La ciudad es requerida'),
-      curp: z.string().min(1, 'La CURP es requerida'),
-      birthDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
-      allergies: z.string().optional(),
-      bloodType: z.string().optional(),
-      comments: z.string().optional(),
-      reasonForAdmission: z.string().optional(),
-      admissionDiagnosis: z.string().optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (!required) return;
-      if (!data.reasonForAdmission) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'La razón de admisión es requerida',
-          path: ['reasonForAdmission'],
-        });
-      }
-      if (!data.admissionDiagnosis) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'El diagnóstico de admisión es requerido',
-          path: ['admissionDiagnosis'],
-        });
-        if (!data.allergies) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Las alergias son requeridas',
-            path: ['allergies'],
-          });
-        }
-        if (!data.bloodType) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'El tipo de sangre es requerido',
-            path: ['bloodType'],
-          });
-        }
-      }
-    });
+  return z.object({
+    name: stringField('El nombre es requerido'),
+    lastName: stringField('El apellido paterno es requerido'),
+    secondLastName: stringField('El apellido materno es requerido'),
+    genere: stringField('El genero es requerido'),
+    civilStatus: stringField('El estado civil es requerido'),
+    phoneNumber: stringField('El telefono es requerido'),
+    occupation: stringField('La ocupación es requerida'),
+    zipCode: stringField('El codigo postal es requerido'),
+    neighborhood: stringField('La colonia es requerida'),
+    address: stringField('La direccion es requerida'),
+    personInCharge: stringField('El nombre del responsable es requerido'),
+    relationship: stringField('La relacion es requerida'),
+    sameAddress: required ? z.boolean() : z.boolean().optional(),
+    personInChargeZipCode: stringField('El codigo postal del responsable es requerido'),
+    personInChargeNeighborhood: stringField('La colonia del responsable es requerida'),
+    personInChargeAddress: stringField('La direccion del responsable es requerida'),
+    personInChargePhoneNumber: stringField('El telefono del responsable es requerido'),
+    personInChargeCity: stringField('La ciudad del responsable es requerida'),
+    personInChargeState: stringField('El estado del responsable es requerido'),
+    state: stringField('El estado es requerido'),
+    city: stringField('La ciudad es requerida'),
+    curp: stringField('La CURP es requerida'),
+    birthDate: required
+      ? z.preprocess((val) => toDate(val as Dayjs), z.date())
+      : z.preprocess((val) => toDate(val as Dayjs), z.date()).optional(),
+    allergies: stringField('Las alergias son requeridas'),
+    bloodType: stringField('El tipo de sangre es requerido'),
+    comments: z.string().optional(),
+    reasonForAdmission: stringField('La razón de admisión es requerida'),
+    admissionDiagnosis: stringField('El diagnóstico de admisión es requerido'),
+  });
+};
+
+export const basePatientSchema = createPatientSchema(false);
+export const admissionPatientSchema = createPatientSchema(true);
 
 export const patientSAMISchema = z.object({
   name: z.string().min(1, 'Es necesario el nombre'),
@@ -176,9 +144,35 @@ export const addRoomReservation = z
       (val) => toDate(val as Dayjs),
       z.date().min(new Date(), 'La fecha de inicio debe ser posterior a la fecha actual')
     ),
-    endDate: z.preprocess((val) => toDate(val as Dayjs), z.date()),
+    stayDays: z
+      .number({ invalid_type_error: 'Debe ser un número entero' })
+      .min(1, 'Debe ser al menos 1 día')
+      .max(365, 'No puede exceder los 365 días')
+      .int('Debe ser un número entero')
+      .optional(),
+    endDate: z
+      .preprocess(
+        (val) => toDate(val as Dayjs),
+        z.date({
+          invalid_type_error: 'La fecha de salida no es válida',
+          required_error: 'La fecha de salida es requerida',
+        })
+      )
+      .refine((date) => date > new Date(), {
+        message: 'La fecha de salida debe ser posterior a la fecha actual',
+      })
+      .optional(),
   })
-  .refine((data) => data.endDate >= data.startTime, {
+  .transform((data) => {
+    if (data.stayDays) {
+      return {
+        ...data,
+        endDate: dayjs(data.startTime).add(data.stayDays, 'day').toDate(),
+      };
+    }
+    return data;
+  })
+  .refine((data) => data.endDate && data.endDate >= data.startTime, {
     message: 'La fecha de finalización debe ser posterior a la fecha de inicio',
     path: ['endDate'],
   });

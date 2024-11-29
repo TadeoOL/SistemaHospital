@@ -18,9 +18,9 @@ export const ProgrammingCalendar = () => {
   const [roomId, setRoomId] = useState('');
   const events = useProgrammingRegisterStore((state) => state.events);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
-  useGetDate(date, setEvents, roomTypeId, roomId);
+  useGetDate(date, date, setEvents, roomTypeId, roomId);
   const { data, isLoadingTypeRoom } = useGetAllTypesRoom();
-  const { data: roomsData, isLoadingRooms } = useGetAllRooms(roomTypeId);
+  const { data: roomsData, isLoading: isLoadingRooms } = useGetAllRooms(roomTypeId);
 
   const handleClearFilters = () => {
     setRoomTypeId('');
@@ -79,7 +79,7 @@ export const ProgrammingCalendar = () => {
               Todos
             </MenuItem>
             {data.map((x) => (
-              <MenuItem key={x.id} value={x.id}>
+              <MenuItem key={x.id_TipoCuarto} value={x.id_TipoCuarto}>
                 {x.nombre}
               </MenuItem>
             ))}
@@ -98,11 +98,11 @@ export const ProgrammingCalendar = () => {
             <MenuItem key={''} value="">
               Todos
             </MenuItem>
-            {roomsData.map((x) => (
-              <MenuItem key={x.id} value={x.id}>
+            {/* {roomsData?.map((x) => (
+              <MenuItem key={x.id_TipoCuarto || x.id_Quirofano} value={x.id_TipoCuarto || x.id_Quirofano}>
                 {x.nombre}
               </MenuItem>
-            ))}
+            ))} */}
           </TextField>
         </Box>
         <Box sx={{ flex: 0.1 }}>

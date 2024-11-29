@@ -37,7 +37,7 @@ export const HospitalizationEntryComponent = ({ setOpen }: HospitalizationEntryC
 
   const RENDER_VIEW: Record<number, JSX.Element> = {
     0: <RegisterCalendarHospitalization setOpen={setOpen} hospitalization />,
-    1: <RegisterPatientInfoComponent setOpen={setOpen} hospitalization />,
+    1: <RegisterPatientInfoComponent setOpen={setOpen} admission />,
     2: <MedicalAndProcedureSelectorModal setOpen={setOpen} />,
     3: (
       <Box sx={modalStyle}>

@@ -15,32 +15,32 @@ import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableCom
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { useEffect, useState } from 'react';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
-import { IPatientRegisterPagination, Procedimiento } from '../../../types/admissionTypes';
-import dayjs from 'dayjs';
 import { Close, Edit, Visibility } from '@mui/icons-material';
 import { PatientInfoModal } from './Modal/PatientInfoModal';
 import { SelectEditOptionModal } from './Modal/SelectEditOptionModal';
 import Swal from 'sweetalert2';
 import { deleteRegister } from '../../../services/programming/admissionRegisterService';
 import { BetterSortComponent } from '../../Commons/BetterSortComponent';
+import { GenericChip } from '@/components/Commons/GenericChip';
+import { IRegisterPagination } from '@/types/programming/registerTypes';
 
 const columns = {
   clavePaciente: { label: 'Clave Paciente', sortKey: 'clavePaciente' },
   nombrePaciente: { label: 'Nombre Paciente', sortKey: 'nombrePaciente' },
   nombreDoctor: { label: 'Nombre Doctor', sortKey: 'nombreDoctor' },
+  nombreEspacioHospitalario: { label: 'Espacio hospitalario' },
   procedimientos: { label: 'Procedimientos' },
-  fechaIngreso: { label: 'Fecha Ingreso', sortKey: 'fechaIngreso' },
+  fechaProgramadaIngreso: { label: 'Fecha Ingreso', sortKey: 'fechaProgramadaIngreso' },
   datosPaciente: { label: 'Datos Paciente', isAction: true },
-  datosClinicos: { label: 'Datos Clinicos', isAction: true },
   acciones: { label: 'Acciones', isAction: true },
 };
 
 interface TableBodyHospitalizationProps {
-  data: IPatientRegisterPagination[];
+  data: IRegisterPagination[];
 }
 
 interface TableRowHospitalizationProps {
-  data: IPatientRegisterPagination;
+  data: IRegisterPagination;
 }
 
 const useGetData = () => {
@@ -54,13 +54,14 @@ const useGetData = () => {
   const count = usePatientRegisterPaginationStore((state) => state.count);
   const startDate = usePatientRegisterPaginationStore((state) => state.startDate);
   const endDate = usePatientRegisterPaginationStore((state) => state.endDate);
-  const operatingRoomFilter = usePatientRegisterPaginationStore((state) => state.operatingRoomFilter);
+  const spaceId = usePatientRegisterPaginationStore((state) => state.spaceId);
   const sort = usePatientRegisterPaginationStore((state) => state.sort);
   const isLoading = usePatientRegisterPaginationStore((state) => state.loading);
+  const hospitalSpaceType = usePatientRegisterPaginationStore((state) => state.hospitalSpaceType);
 
   useEffect(() => {
     fetchData();
-  }, [search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort]);
+  }, [search, pageIndex, pageSize, startDate, endDate, spaceId, sort, hospitalSpaceType]);
   return {
     data,
     pageIndex,
@@ -117,8 +118,6 @@ const TableBodyHospitalization = (props: TableBodyHospitalizationProps) => {
 const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
-  const [patientId, setPatientId] = useState<string>();
-  const [clinicalHistoryId, setClinicalHistoryId] = useState<string>();
   const [openEdit, setOpenEdit] = useState(false);
   const [valueView, setValueView] = useState(0);
   const [registerRoomId, setRegisterRoomId] = useState('');
@@ -138,7 +137,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await deleteRegister(data.id);
+          await deleteRegister(data.id_IngresoPaciente);
           Swal.fire({
             title: 'Eliminado!',
             text: 'El paciente ha sido eliminado con éxito',
@@ -171,37 +170,25 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
     <>
       <TableRow>
         <TableCell>{data.clavePaciente}</TableCell>
-        <TableCell>{data.nombrePaciente}</TableCell>
-        <TableCell>{data.medico}</TableCell>
+        <TableCell>{data.nombrePaciente || 'Sin definir'}</TableCell>
+        <TableCell>{data.medico || 'Sin definir'}</TableCell>
+        <TableCell>{data.nombreEspacioHospitalario || 'Sin definir'}</TableCell>
         <TableCell>
-          {data.procedimientos?.map((procedimiento: Procedimiento, index: number) => (
-            <span key={index}>
-              {procedimiento.nombre}
-              {index < (data.procedimientos?.length || 0) - 1 && ', '}
-            </span>
-          ))}
+          <GenericChip
+            data={
+              data.cirugias?.map((cirugia) => ({
+                id: cirugia.id_Cirugia,
+                nombre: cirugia.nombre,
+              })) || []
+            }
+          />
         </TableCell>
-        <TableCell>{dayjs(data.fechaIngreso).format('DD/MM/YYYY - HH:mm')}</TableCell>
+        <TableCell>{data.fechaProgramadaIngreso}</TableCell>
         <TableCell align="center">
           <Tooltip title="Ver datos generales">
             <IconButton
               onClick={() => {
                 setOpen(true);
-                setPatientId(data.id_Paciente);
-                setClinicalHistoryId(undefined);
-              }}
-            >
-              <Visibility />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-        <TableCell align="center">
-          <Tooltip title="Ver datos clínicos">
-            <IconButton
-              onClick={() => {
-                setOpen(true);
-                setPatientId(undefined);
-                setClinicalHistoryId(data.id_HistorialClinico);
               }}
             >
               <Visibility />
@@ -219,7 +206,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
             )} */}
             <Tooltip title="Editar">
               <IconButton onClick={() => setOpenEdit(true)}>
-                <Edit color={data.faltanDatos ? 'warning' : undefined} />
+                <Edit />
               </IconButton>
             </Tooltip>
             <Tooltip title="Rechazar">
@@ -232,7 +219,7 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <PatientInfoModal setOpen={setOpen} clinicalHistoryId={clinicalHistoryId} patientId={patientId} />
+          <PatientInfoModal setOpen={setOpen} id_IngresoPaciente={data.id_IngresoPaciente} />
         </>
       </Modal>
       <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
@@ -240,14 +227,16 @@ const TableRowHospitalization = (props: TableRowHospitalizationProps) => {
           <SelectEditOptionModal
             setOpen={setOpenEdit}
             patientId={data.id_Paciente}
-            clinicalHistoryId={data.id_HistorialClinico}
+            clinicalHistoryId={data.id_IngresoPaciente}
             setValue={setValueView}
             value={valueView}
-            registerId={data.id}
+            patientAccountId={data.id_CuentaPaciente || ''}
             setRegisterRoomId={setRegisterRoomId}
             registerRoomId={registerRoomId}
-            procedures={data.procedimientos}
+            id_IngresoPaciente={data.id_IngresoPaciente}
+            procedures={data.cirugias}
             medic={{ id: data.id_Medico, nombre: data.medico }}
+            isProgramming={true}
           />
         </>
       </Modal>

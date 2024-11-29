@@ -38,6 +38,7 @@ interface AddEditCalendarProps {
   registerRoomId?: string;
   eventView?: Date;
   refetch?: Function;
+  isSurgeryRoom?: boolean;
 }
 const dayPropGetter = (date: Date) => {
   const now = dayjs();
@@ -287,6 +288,7 @@ export const AddEditCalendar = (props: AddEditCalendarProps) => {
             isEdit
             patientAccountId={props.patientAccountId}
             setEvents={setMyEvents}
+            isOperatingRoomReservation={props.isSurgeryRoom}
           />
         </Box>
       </Modal>

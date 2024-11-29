@@ -1,7 +1,8 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { getPatientRegisterPagination } from '../../services/programming/admissionRegisterService';
-import { IPatientRegisterPagination } from '../../types/admission/admissionTypes';
+import { IRegisterPagination } from '@/types/programming/registerTypes';
+import { HospitalSpaceType } from '@/types/admission/admissionTypes';
 
 interface State {
   count: number;
@@ -9,15 +10,16 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: IPatientRegisterPagination[];
+  data: IRegisterPagination[];
   loading: boolean;
   search: string;
   enabled: boolean;
   cancelToken: CancelTokenSource | null;
   startDate: string;
   endDate: string;
-  operatingRoomFilter: string;
+  spaceId: string;
   sort: string;
+  hospitalSpaceType: HospitalSpaceType;
 }
 
 interface Action {
@@ -28,11 +30,12 @@ interface Action {
   fetchData: () => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
-  setOperatingRoomFilter: (operatingRoomFilter: string) => void;
+  setSpaceId: (spaceId: string) => void;
   setEnabled: (enabled: boolean) => void;
   setSort: (sort: string) => void;
   clearData: () => void;
   clearFilters: () => void;
+  setHospitalSpaceType: (hospitalSpaceType: HospitalSpaceType) => void;
 }
 
 const initialValues = {
@@ -48,14 +51,16 @@ const initialValues = {
   cancelToken: null as CancelTokenSource | null,
   startDate: '',
   endDate: '',
-  operatingRoomFilter: '',
+  spaceId: '',
   sort: '',
+  hospitalSpaceType: HospitalSpaceType.OperatingRoom,
 };
 
 export const usePatientRegisterPaginationStore = create<State & Action>((set, get) => ({
   ...initialValues,
+  setHospitalSpaceType: (hospitalSpaceType: HospitalSpaceType) => set({ hospitalSpaceType }),
   setSort: (sort: string) => set({ sort, pageIndex: 0 }),
-  setOperatingRoomFilter: (operatingRoomFilter: string) => set({ operatingRoomFilter }),
+  setSpaceId: (spaceId: string) => set({ spaceId }),
   setStartDate: (startDate: string) => set({ startDate }),
   setEndDate: (endDate: string) => set({ endDate }),
   setPageSize: (pageSize: number) => set({ pageSize }),
@@ -64,7 +69,7 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
   setPageIndex: (pageIndex: number) => set({ pageIndex }),
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   fetchData: async () => {
-    const { enabled, search, pageIndex, pageSize, startDate, endDate, operatingRoomFilter, sort } = get();
+    const { enabled, search, pageIndex, pageSize, startDate, endDate, spaceId, sort, hospitalSpaceType } = get();
     const index = pageIndex + 1;
     set({ loading: true });
 
@@ -76,7 +81,7 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
 
     try {
       const res = await getPatientRegisterPagination(
-        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&quirofano=${operatingRoomFilter}&sort=${sort}`
+        `&pageIndex=${index}&${pageSize === 0 ? '' : 'pageSize=' + pageSize}&search=${search}&habilitado=${enabled}&fechaInicio=${startDate}&fechaFin=${endDate}&id_Espacio=${spaceId}&sort=${sort}&tipoEspacioHospitalario=${hospitalSpaceType}`
       );
       set({
         data: res.data,
@@ -100,6 +105,6 @@ export const usePatientRegisterPaginationStore = create<State & Action>((set, ge
     set({ ...initialValues });
   },
   clearFilters: () => {
-    set({ startDate: '', endDate: '', search: '', operatingRoomFilter: '' });
+    set({ startDate: '', endDate: '', search: '', spaceId: '', hospitalSpaceType: HospitalSpaceType.OperatingRoom });
   },
 }));

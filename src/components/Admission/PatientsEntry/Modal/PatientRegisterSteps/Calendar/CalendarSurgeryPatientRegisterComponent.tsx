@@ -10,6 +10,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/es-mx';
 import classNames from 'classnames';
 import { IEventsCalendar } from '../../../../../../types/types';
+import { HospitalSpaceType } from '@/types/admission/admissionTypes';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -25,7 +26,7 @@ export const CalendarSurgeryPatientRegisterComponent = ({
   const [view, setView] = useState<View>('month');
   const setAppointmentEndDate = usePatientEntryRegisterStepsStore((state) => state.setAppointmentEndDate);
   const setAppointmentStartDate = usePatientEntryRegisterStepsStore((state) => state.setAppointmentStartDate);
-  const events = usePatientEntryRegisterStepsStore((state) => state.hospitalizationEvents);
+  const events = usePatientEntryRegisterStepsStore((state) => state.surgeryEvents);
   // const setEvents = usePatientEntryRegisterStepsStore((state) => state.setSurgeryEvents);
   // const [hashCleanRoomEvents, setHashCleanRoomEvents] = useState<{ [key: string]: IEventsCalendar }>({});
   const [myEvents, setMyEvents] = useState<IEventsCalendar[]>([]);
@@ -105,10 +106,6 @@ export const CalendarSurgeryPatientRegisterComponent = ({
     [day]
   );
 
-  // useEffect(() => {
-  //   setMyEvents(events);
-  // }, [events]);
-
   useEffect(() => {
     setFilteringEvents(true);
     const newHashCleanRoomEvents: { [key: string]: IEventsCalendar } = {};
@@ -172,7 +169,7 @@ export const CalendarSurgeryPatientRegisterComponent = ({
       </Box>
       <Modal open={open}>
         <>
-          <SpaceReservationModal setOpen={setOpen} roomType="1" />
+          <SpaceReservationModal setOpen={setOpen} roomType={HospitalSpaceType.OperatingRoom} />
         </>
       </Modal>
     </>

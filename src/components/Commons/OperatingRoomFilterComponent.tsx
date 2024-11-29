@@ -1,32 +1,45 @@
 import { Box, MenuItem, SxProps, TextField, Theme } from '@mui/material';
-import { useGetAllOperatingRooms } from '../../hooks/operatingRoom/useGetAllOperatingRoom';
+import { HospitalSpaceType } from '@/types/admission/admissionTypes';
+import { useGetAllRooms } from '@/hooks/programming/useGetAllRooms';
+import { IHospitalRoom } from '@/types/programming/hospitalRoomTypes';
+import { ISurgeryRoom } from '@/types/programming/surgeryRoomTypes';
 
 interface OperatingRoomFilterComponentProps {
-  setOperatingRoomId: Function;
-  operatingRoomId: string;
+  setSpaceId: (id: string) => void;
+  spaceId: string;
   sx?: SxProps<Theme>;
+  hospitalSpaceType: HospitalSpaceType;
 }
+
 export const OperatingRoomFilterComponent = ({
-  operatingRoomId,
-  setOperatingRoomId,
+  spaceId,
+  setSpaceId,
   sx,
+  hospitalSpaceType,
 }: OperatingRoomFilterComponentProps) => {
-  const { data, isLoading } = useGetAllOperatingRooms();
+  const { data, isLoading } = useGetAllRooms(hospitalSpaceType);
+
+  const getSpaceId = (space: IHospitalRoom | ISurgeryRoom) => {
+    return hospitalSpaceType === HospitalSpaceType.Room
+      ? (space as IHospitalRoom).id_Cuarto
+      : (space as ISurgeryRoom).id_Quirofano;
+  };
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ...sx }}>
       <TextField
         select
-        label="Quirófanos"
-        value={operatingRoomId}
-        onChange={(e) => setOperatingRoomId(e.target.value)}
+        label={hospitalSpaceType === HospitalSpaceType.Room ? 'Habitaciones' : 'Quirófanos'}
+        value={spaceId}
+        onChange={(e) => setSpaceId(e.target.value)}
         fullWidth
       >
-        {data.map((d) => (
-          <MenuItem key={d.id} value={d.id}>
-            {d.nombre}
+        {data?.map((space) => (
+          <MenuItem key={getSpaceId(space)} value={getSpaceId(space)}>
+            {space.nombre}
           </MenuItem>
         ))}
-        {isLoading && <tr>Cargando...</tr>}
+        {isLoading && <MenuItem disabled>Cargando...</MenuItem>}
       </TextField>
     </Box>
   );

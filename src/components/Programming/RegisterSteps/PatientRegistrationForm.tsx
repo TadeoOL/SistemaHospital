@@ -3,11 +3,11 @@ import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { patientRegistrationSchema } from '../../../schema/programming/programmingSchemas';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
+import { basePatientSchema } from '@/schema/programming/programmingSchemas';
 dayjs.locale('es-MX');
 
 // const CIVIL_STATUS = ['Soltero(a)', 'Casado(a)', 'Divorciado(a)', 'Viudo(a)'];
@@ -52,7 +52,7 @@ export const PatientRegistrationForm = (props: PatientRegistrationFormProps) => 
     watch,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(patientRegistrationSchema),
+    resolver: zodResolver(basePatientSchema),
     defaultValues: {
       name,
       lastName,

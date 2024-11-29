@@ -7,16 +7,19 @@ export const getSurgeryRoomsReservations = async ({
   endDate,
   initialDate,
   surgeryRoomId,
+  hospitalizationSpaceId,
 }: {
   endDate?: string;
   initialDate?: string;
   surgeryRoomId?: string;
+  hospitalizationSpaceId?: string;
 }): Promise<ISurgeryRoomReservation[]> => {
   const res = await axios.get(`${apiHospitalSpace}/obtener-reservacion-quirofanos`, {
     params: {
       fechaInicial: initialDate,
       fechaFinal: endDate,
       id_Quirofano: surgeryRoomId,
+      id_CuentaEspacioHospitalario: hospitalizationSpaceId,
     },
   });
   return res.data;

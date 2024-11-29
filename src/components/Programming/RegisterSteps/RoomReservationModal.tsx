@@ -22,6 +22,8 @@ import { ISurgeryRoom } from '../../../types/programming/surgeryRoomTypes';
 import { IHospitalRoom } from '../../../types/programming/hospitalRoomTypes';
 import { getHospitalRoomReservations, getSurgeryRoomsReservations } from '../../../services/programming/hospitalSpace';
 import { addHospitalizationSpace } from '../../../services/admission/admisionService';
+import { HospitalSpaceType } from '@/types/admission/admissionTypes';
+import { convertDate } from '@/utils/convertDate';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -40,7 +42,9 @@ interface RoomReservationModalProps {
 }
 
 export const RoomReservationModal = (props: RoomReservationModalProps) => {
-  const { data: roomsRes, isLoading } = useGetAllRooms<'0' | '1'>(props.isOperatingRoomReservation ? '1' : '0');
+  const { data: roomsRes, isLoading } = useGetAllRooms<HospitalSpaceType>(
+    props.isOperatingRoomReservation ? HospitalSpaceType.OperatingRoom : HospitalSpaceType.Room
+  );
   const roomValues = useProgrammingRegisterStore((state) => state.roomValues);
   const setRoomValues = useProgrammingRegisterStore((state) => state.setRoomValues);
   const setEvents = useProgrammingRegisterStore((state) => state.setEvents);
@@ -107,7 +111,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       const roomObj: IRegisterRoom = {
         id: props.isOperatingRoomReservation
           ? (roomFound as ISurgeryRoom).id_Quirofano
-          : (roomFound as IHospitalRoom).id_Cuarto,
+          : (roomFound as unknown as IHospitalRoom).id_Cuarto,
         nombre: roomFound.nombre,
         id_TipoCuarto: props.isOperatingRoomReservation
           ? (roomFound as ISurgeryRoom).id_TipoQuirofano
@@ -124,7 +128,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     setValueRooms('room', '');
   };
 
-  console.log({ roomValues });
   const onSubmitProcedures = async () => {
     if (roomValues.length < 1) return toast.warning('Es necesario agregar un cuarto para continuar');
 
@@ -164,10 +167,13 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
         if (res.isConfirmed) {
           try {
             await addHospitalizationSpace({
-              registroEspacioHospitalario: {
+              espacioHospitalario: {
                 id_EspacioHospitalario: roomValues[0].id,
-                horaFin: roomValues[0].horaFin,
-                horaInicio: roomValues[0].horaInicio,
+                horaFin: convertDate(roomValues[0].horaFin),
+                horaInicio: convertDate(roomValues[0].horaInicio),
+                tipoEspacioHospitalario: props.isOperatingRoomReservation
+                  ? HospitalSpaceType.OperatingRoom
+                  : HospitalSpaceType.Room,
               },
               id_CuentaPaciente: props.patientAccountId,
             });
