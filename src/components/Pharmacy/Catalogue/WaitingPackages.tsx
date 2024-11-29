@@ -38,6 +38,7 @@ import { LuPackagePlus } from 'react-icons/lu';
 //import { CreatePackageModal } from './Modal/CreatePackageModal';
 import { IArticleHistory, IarticlesPrebuildedRequest } from '../../../types/types';
 import { RequestBuildingModalMutation } from './Modal/CreatePackageModalMutation';
+import { toast } from 'react-toastify';
 
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
@@ -194,28 +195,33 @@ export const WaitingPackages = () => {
         cancelButtonText: 'Cancelar',
         reverseButtons: true,
         showLoaderOnConfirm: true,
-        preConfirm: () => {
-          return buildPackage({
-            estatus: 3,
-            id_SolicitudAlmacen: id_SolicitudAlmacen,
-            id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
-          });
+        preConfirm: async () => {
+          try {
+            await buildPackage({
+              estatus: 3,
+              id_SolicitudAlmacen,
+              id_CuentaEspacioHospitalario,
+            });
+          } catch (error: any) {
+            const errorMessage = error.response?.data?.message?.[0] || 'Error desconocido del servidor.';
+            toast.error(`La salida no fue aceptada`);
+            withReactContent(Swal).fire({
+              title: 'Operación Cancelada',
+              text: `Error: ${errorMessage}`,
+              icon: 'info',
+            });
+            throw new Error(errorMessage); 
+          }
         },
         allowOutsideClick: () => !Swal.isLoading(),
       })
-      .then(async (result) => {
+      .then((result) => {
         if (result.isConfirmed) {
           fetchWareHouseMovements(warehouseIdSeted);
           withReactContent(Swal).fire({
             title: 'Éxito!',
             text: 'Salida Aceptada',
             icon: 'success',
-          });
-        } else {
-          withReactContent(Swal).fire({
-            title: 'Operación Cancelada',
-            text: 'La salida no fue aceptada.',
-            icon: 'info',
           });
         }
       });

@@ -36,8 +36,8 @@ import {
 import { ArticlesFetched } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/ArticlesOutput';
 import { LoteSelectionRemake2 } from '../../../Warehouse/WarehouseSelected/TabsView/Modal/LoteSelectionRemake2';
 import { useExistingArticleLotesPagination } from '../../../../store/warehouseStore/existingArticleLotePagination';
-import { getPatientsWithAccount } from '../../../../services/programming/patientService';
 import { getArticlesFromAcountId } from '../../../../store/programming/AcountArticlesService';
+import { getPatientsWithAccount } from '../../../../services/admission/admisionService';
 
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearchWithBarCode>({

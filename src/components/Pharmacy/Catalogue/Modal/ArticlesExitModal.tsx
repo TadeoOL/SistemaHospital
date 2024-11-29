@@ -262,7 +262,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Salida de artículos" />
+      <HeaderModal setOpen={props.setOpen} title="Salida de artículossss" />
       {isLoadingWarehouse ? (
         <Box
           sx={{

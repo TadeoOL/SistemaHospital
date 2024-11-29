@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { ExpandLess, ExpandMore, FilterListOff, Info } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, FilterListOff, Info, KeyboardReturn } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import { useNurseRequestPaginationStore } from '../../../store/pharmacy/nurseRequest/nurseRequestPagination';
 import { SearchBar } from '../../Inputs/SearchBar';
@@ -32,6 +32,7 @@ import { InurseRequest, IArticleInRequest } from '../../../types/types';
 import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
+import { NurseRequestReturnModal } from './Modal/NurseRequestReturnModal ';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -87,6 +88,7 @@ export const useGetNursesRequest = () => {
     }),
     shallow
   );
+  const { data: warehousePharmacyData, isLoading: isLoadingWarehouse } = useGetPharmacyConfig();
 
   /*useEffect(() => {
     //clearAllData();
@@ -95,8 +97,10 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    fetchData();
-  }, [search, startDate, endDate, clearFilters, /* sort,*/ pageSize, pageIndex]);
+    if(warehousePharmacyData.id_Almacen){
+      fetchData(warehousePharmacyData.id_Almacen);
+    }
+  }, [search, startDate, endDate, clearFilters, isLoadingWarehouse,/* sort,*/ pageSize, pageIndex]);
   return {
     data,
     setSearch,
@@ -135,6 +139,7 @@ export const NurseRequestTable = () => {
     fetchData,
   } = useGetNursesRequest();
   const [openModal, setOpenModal] = useState(false);
+  const [openModalReturn, setOpenModalReturn] = useState(false);
   const { data: warehousePharmacyData } = useGetPharmacyConfig();
   return (
     <>
@@ -178,6 +183,14 @@ export const NurseRequestTable = () => {
                 onClick={() => setOpenModal(!openModal)}
               >
                 Solicitud de Articulos
+              </Button>
+              <Button
+                sx={{ minWidth: 220 }}
+                variant="contained"
+                startIcon={<KeyboardReturn />}
+                onClick={() => setOpenModalReturn(!openModalReturn)}
+              >
+                Devolución de Articulos
               </Button>
             </Box>
           </Box>
@@ -231,7 +244,6 @@ export const NurseRequestTable = () => {
                       <TableCell>Paciente</TableCell>
                       <TableCell>Cuarto</TableCell>
                       <TableCell>Enfermero que solicitó</TableCell>
-                      <TableCell>Solicitado</TableCell>
                       <TableCell>Almacén Solicitado</TableCell>
                       <TableCell>Entregado Por</TableCell>
                       <TableCell>Estatus</TableCell>
@@ -241,7 +253,7 @@ export const NurseRequestTable = () => {
                   <TableBody>
                     {data &&
                       data.map((request) => (
-                        <TableRowComponent nurseRequest={request} key={request.id_SolicitudEnfermero} />
+                        <TableRowComponent nurseRequest={request} key={request.id_CuentaEspacioHospitalario} />
                       ))}
                   </TableBody>
                 </Table>
@@ -292,6 +304,15 @@ export const NurseRequestTable = () => {
           />
         </>
       </Modal>
+      <Modal open={openModalReturn} onClose={() => setOpenModalReturn(!openModalReturn)}>
+        <>
+          <NurseRequestReturnModal
+            setOpen={setOpenModalReturn}
+            refetch={fetchData}
+            warehouseId={warehousePharmacyData.id_Almacen}
+          />
+        </>
+      </Modal>
     </>
   );
 };
@@ -312,12 +333,11 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
             {nurseRequest.folio}
           </Box>
         </TableCell>
-        <TableCell>{nurseRequest.pacienteNombre}</TableCell>
-        <TableCell>{nurseRequest.cuarto}</TableCell>
-        <TableCell>{nurseRequest.usuarioEmisorNombre}</TableCell>
-        <TableCell>{nurseRequest.solicitadoEn}</TableCell>
-        <TableCell>{nurseRequest.almacenNombre}</TableCell>
-        <TableCell>{nurseRequest.usuarioEntregoNombre ? nurseRequest.usuarioEntregoNombre : ''}</TableCell>
+        <TableCell>{nurseRequest.paciente}</TableCell>
+        <TableCell>{nurseRequest.espacioHospitalario}</TableCell>
+        <TableCell>{nurseRequest.usuarioSolicitante}</TableCell>
+        <TableCell>{nurseRequest.almacen}</TableCell>
+        <TableCell>{nurseRequest.usuarioAutorizo ? nurseRequest.usuarioAutorizo : ''}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
         <TableCell>
           {/*<Tooltip title={'Editar stock mínimo'}>

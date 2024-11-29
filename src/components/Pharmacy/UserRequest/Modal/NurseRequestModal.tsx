@@ -31,11 +31,12 @@ import { useRequestOrderStore } from '../../../../store/pharmacy/nurseRequest/nu
 import { IWarehouseData, IPatientFromSearch } from '../../../../types/types';
 import { Cancel, Save, Edit, Delete, Info } from '@mui/icons-material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { getPatientInfoByAdmissionId, getPatientsWithAccount } from '../../../../services/programming/patientService';
+import { getPatientInfoByAdmissionId } from '../../../../services/programming/patientService';
 import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
 import { HospitalSpaceType, IHospitalSpace } from '../../../../types/admission/admissionTypes';
 import { createArticleRequest } from '../../../../services/hospitalization/articleRequestService';
 import { IArticleDto, IRegisterArticleRequest } from '../../../../types/hospitalization/articleRequestTypes';
+import { getPatientsWithAccount } from '../../../../services/admission/admisionService';
 
 type Article = {
   id: string;
@@ -192,6 +193,9 @@ export const NurseRequestModal = (props: Props) => {
         stock: item.stockActual,
       }));
 
+      console.log("no c we");
+      console.log(res.data);
+
       const existingArticleIds = new Set([
         ...articles.map((a) => a.id),
         ...(props.articles?.map((a) => a.id_Articulo) || []),
@@ -231,6 +235,7 @@ export const NurseRequestModal = (props: Props) => {
           }))
           .concat({ nombre: warehouse.nombre, id: warehouse.id_Almacen });
         setWarehousesFetched(subWH);
+        handleFetchArticlesFromWareHouse(warehouse.id_Almacen)
       } catch (error) {
         console.log('error');
       } finally {

@@ -30,6 +30,6 @@ export const changeOperatingRoomStatus = async (data: {
 };
 
 export const getOperatingRoomInformation = async (id: string): Promise<IOperatingRoomInformation> => {
-  const res = await axios.get(`${OperatingRoomCon}/quirofano-paciente/${id}`);
+  const res = await axios.get(`${OperatingRoomCon}/obtener-quirofano-paciente/${id}`);
   return res.data;
 };
