@@ -1,13 +1,10 @@
 import { MainCard, TablePaginated, TableTop } from '@/common/components';
 import { SearchBar } from '@/components/Inputs/SearchBar';
-import { Button, IconButton, Tooltip } from '@mui/material';
 import { useRef, useState } from 'react';
-import { useNormalRoomCategoriesPaginationStore } from '../stores/useNormalRoomCategoriesPagination';
-import { getNormalRoomCategories } from '../services/normal-room-categories';
+import { Button, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { NormalRoomCategoriesModal } from '../components/NormalRoomCategoriesModal';
 
-const NormalRoomCategoriesTab = () => {
+const OperatingRoomsTab = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const tableRef = useRef<any>();
@@ -29,7 +26,7 @@ const NormalRoomCategoriesTab = () => {
     setModalOpen(true);
   };
 
-  const { search, setSearch } = useNormalRoomCategoriesPaginationStore((state) => ({
+  const { search, setSearch } = useNormalRoomsPaginationStore((state) => ({
     setSearch: state.setSearch,
     search: state.search,
   }));
@@ -61,10 +58,10 @@ const NormalRoomCategoriesTab = () => {
             </IconButton>
           </Tooltip>
           {/* <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
-            <IconButton size="small" onClick={() => disableArticle(row.id)}>
-              {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
-            </IconButton>
-          </Tooltip> */}
+              <IconButton size="small" onClick={() => disableArticle(row.id)}>
+                {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
+              </IconButton>
+            </Tooltip> */}
         </>
       ),
     },
@@ -99,4 +96,4 @@ const NormalRoomCategoriesTab = () => {
   );
 };
 
-export default NormalRoomCategoriesTab;
+export default OperatingRoomsTab;

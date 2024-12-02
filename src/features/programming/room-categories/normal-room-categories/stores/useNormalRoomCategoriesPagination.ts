@@ -10,7 +10,7 @@ interface Action {
   setEnabled: (enabled: boolean) => void;
 }
 
-export const useOperatingRoomsPaginationStore = createWithEqualityFn<State & Action>((set) => ({
+export const useNormalRoomCategoriesPaginationStore = createWithEqualityFn<State & Action>((set) => ({
   enabled: true,
   search: '',
   setEnabled: (enabled: boolean) => set({ enabled }),

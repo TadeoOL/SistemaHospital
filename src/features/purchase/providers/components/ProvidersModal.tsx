@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Grid, Button, Stepper, useMediaQuery, Typography, Stack } from '@mui/material';
 import { ModalBasic } from '@/common/components/ModalBasic';
-import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { FieldErrors, SubmitHandler, useForm, UseFormRegister } from 'react-hook-form';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useFetchProvider } from '../hooks/useFetchSubCategory';
+import { useFetchProvider } from '../hooks/useFetchProvider';
 import { addNewProvider, modifyProvider } from '../services/providers';
-import { useGetCategories } from '@/hooks/useGetCategories';
 import { IProvider } from '../interfaces/providers.interface';
 import { addNewProviderSchema } from '../schemas/providers.schema';
 import { Step } from '@mui/material';

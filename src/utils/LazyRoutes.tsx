@@ -25,7 +25,7 @@ export const ConfigEmitterUsersView = lazy(() => import('../views/Checkout/Confi
 export const CloseCheckoutHistoryView = lazy(() => import('../views/Checkout/CloseCheckoutHistoryView'));
 export const CloseCheckoutView = lazy(() => import('../views/Checkout/CloseCheckoutView'));
 export const ProgrammingRegisterView = lazy(() => import('../views/Programming/ProgrammingRegisterView'));
-export const RoomsView = lazy(() => import('../views/Programming/RoomsView'));
+// export const RoomsView = lazy(() => import('../views/Programming/RoomsView'));
 export const SurgeryProcedureView = lazy(() => import('../views/Programming/SurgeryProcedureView'));
 export const ProgrammingCalendarView = lazy(() => import('../views/Programming/ProgrammingCalendarView'));
 export const ConfigurationProgrammingView = lazy(() => import('../views/Programming/ConfigurationProgrammingView'));
@@ -56,3 +56,4 @@ export const MedicalConsultationView = lazy(() => import('../views/Admission/Med
 export const PatientKardexView = lazy(() => import('../views/Nursing/PatientKardexView'));
 export const CheckoutReportView = lazy(() => import('@/features/reports/checkout/screens/CheckoutReport'));
 export const RoomTypesView = lazy(() => import('@/features/programming/room-categories/RoomCategories'));
+export const RoomsView = lazy(() => import('@/features/programming/rooms/Rooms'));

@@ -83,7 +83,7 @@ const SubCategory = () => {
               </IconButton>
             </Tooltip>
             <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
-              <IconButton size="small" onClick={() => disableSubCategory(row.id_Categoria)}>
+              <IconButton size="small" onClick={() => disableSubCategory(row.id)}>
                 {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
               </IconButton>
             </Tooltip>

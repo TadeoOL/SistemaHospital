@@ -4,15 +4,16 @@ import { Button, Grid, IconButton, Tooltip } from '@mui/material';
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { useSubCategoryPagination } from '../stores/subCategoryPagination';
 
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CheckIcon from '@mui/icons-material/Check';
+import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
+import { Typography } from '@mui/material';
 
 import { TableTop, TablePaginated, MainCard } from '@/common/components';
 
-import { useDisableSubCategory } from '../hooks/useDisableSubCategory';
+import { useDisableProvider } from '../hooks/useDisableProvider';
 import { getProviders } from '../services/providers';
 import { ProvidersModal } from '../components/ProvidersModal';
 
@@ -29,7 +30,7 @@ const Providers = () => {
 
   const tableRef = useRef<any>();
   const onSuccess = () => tableRef?.current?.fetchData();
-  const disableSubCategory = useDisableSubCategory(onSuccess);
+  const disableSubCategory = useDisableProvider(onSuccess);
 
   const handleAdd = () => {
     setSelectedId('');
@@ -75,7 +76,7 @@ const Providers = () => {
               </IconButton>
             </Tooltip>
             <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
-              <IconButton size="small" onClick={() => disableSubCategory(row.id_Categoria)}>
+              <IconButton size="small" onClick={() => disableSubCategory(row.id)}>
                 {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
               </IconButton>
             </Tooltip>
@@ -91,21 +92,25 @@ const Providers = () => {
       <MainCard content={false}>
         <TableTop>
           <SearchBar title="Busca al proveedor categoría..." searchState={setSearch} sx={{ width: '30%' }} />
-          <div style={{ width: '50%' }}></div>
-          <Button
-            sx={{
-              height: '40px',
-            }}
-            onClick={() => {
-              setEnabled(!enabled);
-            }}
-            startIcon={<ClassOutlinedIcon />}
-          >
-            {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
-          </Button>
           <Grid>
-            <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => handleAdd()}>
-              Agregar
+            <Button
+              sx={{
+                height: '40px',
+              }}
+              onClick={() => {
+                setEnabled(!enabled);
+              }}
+              startIcon={<ClassOutlinedIcon />}
+            >
+              {enabled ? 'Mostrar deshabilitadas' : 'Mostrar habilitadas'}
+            </Button>
+            <Button
+              sx={{ height: '40px', ml: 2 }}
+              variant="contained"
+              startIcon={<AddCircleOutlinedIcon />}
+              onClick={handleAdd}
+            >
+              <Typography variant="button">Agregar</Typography>
             </Button>
           </Grid>
         </TableTop>

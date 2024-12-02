@@ -12,6 +12,7 @@ export const getSubCategoryById = async (subCategoryId: string) => {
 };
 
 export const disableSubCategory = async (id: string) => {
+  console.log('id:', id);
   const res = await axios.put(`/api/Compras/Catalogo/SubCategoria/estatus-subcategoria`, { id });
   return res.data;
 };

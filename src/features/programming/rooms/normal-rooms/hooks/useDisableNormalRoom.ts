@@ -1,11 +1,11 @@
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import { useSubCategoryPagination } from '../stores/subCategoryPagination';
-import { disableSubCategory } from '../services/subcategories';
+import { useNormalRoomPaginationStore } from '../stores/useNormalRoomPagination';
+import { deleteRoom } from '../services/normal-rooms';
 
-export const useDisableSubCategory = (callback?: () => void) => {
-  const { enabled } = useSubCategoryPagination(
+export const useDisableNormalRoom = (callback?: () => void) => {
+  const { enabled } = useNormalRoomPaginationStore(
     (state) => ({
       enabled: state.enabled,
     }),
@@ -16,7 +16,7 @@ export const useDisableSubCategory = (callback?: () => void) => {
     withReactContent(Swal)
       .fire({
         title: 'Advertencia',
-        text: `Estas a punto de ${enabled ? 'deshabilitar' : 'habilitar'} una subcategoria`,
+        text: `Estas a punto de ${enabled ? 'deshabilitar' : 'habilitar'} un articulo`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: `${enabled ? 'Deshabilitar' : 'Habilitar'}`,
@@ -27,18 +27,18 @@ export const useDisableSubCategory = (callback?: () => void) => {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await disableSubCategory(id);
+            await deleteRoom(id);
             callback && callback();
             withReactContent(Swal).fire({
               title: `${enabled ? 'Deshabilitado!' : 'Habilitado!'}`,
-              text: `La subcategoria se ha ${enabled ? 'deshabilitado' : 'habilitado'}`,
+              text: `El articulo se ha ${enabled ? 'deshabilitado' : 'habilitado'}`,
               icon: 'success',
             });
           } catch (error) {
             console.log(error);
             withReactContent(Swal).fire({
               title: 'Error!',
-              text: `No se pudo ${enabled ? 'deshabilitar' : 'habilitar'} la subcategoria`,
+              text: `No se pudo ${enabled ? 'deshabilitar' : 'habilitar'} el articulo`,
               icon: 'error',
             });
           }

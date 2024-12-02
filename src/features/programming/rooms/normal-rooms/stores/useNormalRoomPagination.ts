@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 
 interface State {
   search: string;
@@ -10,7 +10,7 @@ interface Action {
   setEnabled: (enabled: boolean) => void;
 }
 
-export const useNormalRoomsPaginationStore = create<State & Action>((set) => ({
+export const useNormalRoomPaginationStore = createWithEqualityFn<State & Action>((set) => ({
   enabled: true,
   search: '',
   setEnabled: (enabled: boolean) => set({ enabled }),

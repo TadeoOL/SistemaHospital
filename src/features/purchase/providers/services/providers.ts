@@ -88,6 +88,7 @@ export const addNewProvider = async (provider: IProvider) => {
 };
 
 export const disableProvider = async (id: string) => {
+  console.log('id:', id);
   const res = await axios.put(`/api/Compras/Catalogo/Proveedor/estatus-proveedor`, { id });
   return res.data;
 };

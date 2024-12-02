@@ -8,8 +8,8 @@ export const getAllOperatingRoomCategories = async () => {
   return res.data;
 };
 
-export const getOperatingRoomCategories = async () => {
-  const res = await axios.get(`${apiUrl}/paginacion-tipo-quirofano`);
+export const getOperatingRoomCategories = async (params: any) => {
+  const res = await axios.get(`${apiUrl}/paginacion-tipo-quirofano`, { params });
   return res.data;
 };
 

@@ -2,13 +2,15 @@ import { MainCard } from '@/common/components';
 import { Tab, Tabs } from '@mui/material';
 import { Box } from '@mui/material';
 import { useState } from 'react';
-import OperatingRoomType from './operating-room-categories/screens/OperatingRoomTab';
-import NormalRoomCategoriesTab from './normal-room-categories/screens/NormalRoomCategoriesTab';
+import NormalRoomsTab from './normal-rooms/screens/NormalRoomsTab';
 
-const RoomCategories = () => {
+const Rooms = () => {
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const tabs = [<NormalRoomCategoriesTab />, <OperatingRoomType />];
+  const tabs = [
+    <NormalRoomsTab />,
+    // <OperatingRoomType />
+  ];
 
   const onChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     event.stopPropagation();
@@ -19,8 +21,8 @@ const RoomCategories = () => {
     <MainCard content={false}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={selectedTab} onChange={onChangeTab} variant="fullWidth">
-          <Tab label="Categorías de Cuartos" />
-          <Tab label="Categoria de Quirofanos" />
+          <Tab label="Cuartos" />
+          <Tab label="Quirofanos" />
         </Tabs>
       </Box>
       {tabs[selectedTab]}
@@ -28,4 +30,4 @@ const RoomCategories = () => {
   );
 };
 
-export default RoomCategories;
+export default Rooms;
