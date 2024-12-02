@@ -1,7 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPurchaseOrder } from '../../api/api.routes';
-import { IPurchaseOrderPagination } from '../../types/types';
 import { getFirstDayOfTheMonth, wasAuth } from '../../utils/functions/dataUtils';
+import { getPurchaseOrder } from '@/services/purchase/purchaseService';
+import { IPurchaseOrderPagination } from '@/types/purchase/purchaseTypes';
 
 interface State {
   count: number;
@@ -68,15 +68,18 @@ export const usePurchaseOrderPagination = createWithEqualityFn<State & Action>()
   fetch: async () => {
     set(() => ({ isLoading: true }));
     const { pageIndex, pageSize, search, enabled, status, startDate, endDate, sort, requiredAuth } = get();
-    const page = pageIndex + 1;
     try {
-      const res = await getPurchaseOrder(
-        `${page === 0 ? '' : 'pageIndex=' + page}&${
-          pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&estatus=${
-          parseInt(status) > -1 ? status : ''
-        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&fueAutorizada=${wasAuth(requiredAuth)}`
-      );
+      const res = await getPurchaseOrder({
+        estatus: status === '-1' ? undefined : parseInt(status),
+        fueAutorizada: wasAuth(requiredAuth),
+        pageIndex: pageIndex + 1,
+        pageSize,
+        search,
+        habilitado: enabled,
+        fechaInicio: startDate,
+        fechaFin: endDate,
+        sort,
+      });
       set(() => ({
         data: res.data,
         count: res.count,

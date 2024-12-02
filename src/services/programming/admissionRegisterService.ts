@@ -1,4 +1,4 @@
-import { IPagination } from '@/types/paginationType';
+import { IPaginationResponse } from '@/types/paginationType';
 import axios from '../../libs/axios';
 import { IEventDetails } from '../../types/admission/admissionTypes';
 import { IRegisterPagination, IRegisterPatientCommand } from '../../types/programming/registerTypes';
@@ -18,7 +18,9 @@ export const getEventDetails = async (eventId: string) => {
   return res.data as IEventDetails;
 };
 
-export const getPatientRegisterPagination = async (params: string): Promise<IPagination<IRegisterPagination>> => {
+export const getPatientRegisterPagination = async (
+  params: string
+): Promise<IPaginationResponse<IRegisterPagination>> => {
   const res = await axios.get(`${apiRegister}/paginacion-registros?${params}`);
   return res.data;
 };

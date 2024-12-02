@@ -1,9 +1,9 @@
 import axios from '../../libs/axios';
-import { IPagination } from '../../types/paginationType';
+import { IPaginationResponse } from '../../types/paginationType';
 import { IWarehouseArticle } from '../../types/warehouse/article/warehouseArticle';
 const API = '/api/AlmacenArticulo';
 
-export const getExistingArticles = async (paramUrl: string): Promise<IPagination<IWarehouseArticle>> => {
+export const getExistingArticles = async (paramUrl: string): Promise<IPaginationResponse<IWarehouseArticle>> => {
   const res = await axios.get(`${API}/paginacion-almacen-articulo?${paramUrl}`);
   return res.data;
 };

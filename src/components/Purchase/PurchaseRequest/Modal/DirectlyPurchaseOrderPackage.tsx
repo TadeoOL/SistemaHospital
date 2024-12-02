@@ -74,6 +74,7 @@ export const UpdateDirectlyPurchaseOrder = (props: {
   }[];
   purcharseOrderWarehouseId: string;
   purcharseOrderId: string;
+  handleRefresh: Function;
   clearData: Function;
 }) => {
   const { almacenes, isLoadingAlmacenes } = useGetAlmacenes();
@@ -81,9 +82,9 @@ export const UpdateDirectlyPurchaseOrder = (props: {
     setProvider: state.setProvider,
   }));
   const setArticles = useDirectlyPurchaseRequestOrderStore((state) => state.setArticles);
-  const articles = useDirectlyPurchaseRequestOrderStore((state) => state.articles);
+  const articles = useDirectlyPurchaseRequestOrderStore((state) => state.articles || []);
   const setArticlesFetched = useDirectlyPurchaseRequestOrderStore((state) => state.setArticlesFetched);
-  const articlesFetched = useDirectlyPurchaseRequestOrderStore((state) => state.articlesFetched);
+  const articlesFetched = useDirectlyPurchaseRequestOrderStore((state) => state.articlesFetched || []);
   const setSearch = useDirectlyPurchaseRequestOrderStore((state) => state.setSearch);
   const [articleSelected, setArticleSelected] = useState<Article | null>(null);
   const [amountText, setAmountText] = useState('');
@@ -93,6 +94,7 @@ export const UpdateDirectlyPurchaseOrder = (props: {
   const { articlesRes, isLoadingArticles } = useGetArticlesBySearch(props.purcharseOrderWarehouseId);
 
   useEffect(() => {
+    console.log({ articles: props.initialArticles });
     setArticles(props.initialArticles);
   }, []);
 
@@ -234,7 +236,9 @@ export const UpdateDirectlyPurchaseOrder = (props: {
             clearData={props.clearData}
             setOpen={props.setOpen}
             purcharseOrderId={props.purcharseOrderId}
+            purcharseOrderWarehouseId={props.purcharseOrderWarehouseId}
             initialProvidersFromOrder={props.initialProvidersFromOrder}
+            handleRefresh={props.handleRefresh}
           />
         </Stack>
       </Stack>
@@ -247,6 +251,8 @@ const ArticlesTable = (props: {
   setOpen: Function;
   initialProvidersFromOrder: string[];
   purcharseOrderId: string;
+  purcharseOrderWarehouseId: string;
+  handleRefresh: Function;
 }) => {
   const {
     articles,
@@ -263,7 +269,7 @@ const ArticlesTable = (props: {
     setNote,
   } = useDirectlyPurchaseRequestOrderStore(
     (state) => ({
-      articles: state.articles,
+      articles: state.articles || [],
       articlesFetched: state.articlesFetched,
       setArticlesFetched: state.setArticlesFetched,
       setArticles: state.setArticles,
@@ -285,7 +291,7 @@ const ArticlesTable = (props: {
   const [quantity, setQuantity] = useState<any>({});
   const [prices, setPrices] = useState<{ [key: string]: string }>({});
   const [priceErrors, setPriceErrors] = useState<string[]>([]);
-  const [isChargingPrices, setIsChargingPrices] = useState(true);
+  const [isChargingPrices, setIsChargingPrices] = useState(false);
   const [providerError, setProviderError] = useState(false);
 
   console.log({ provider });
@@ -293,7 +299,7 @@ const ArticlesTable = (props: {
   const updateArticlesData = () => {
     const newPrices: any = {};
     const newQuantity: any = {};
-    articles.forEach((article) => {
+    articles?.forEach((article) => {
       newPrices[article.id] = (article.price as number).toString();
       newQuantity[article.id] = article.amount.toString();
     });
@@ -307,7 +313,7 @@ const ArticlesTable = (props: {
   }, [step, articles]);
 
   useEffect(() => {
-    articles.forEach((article) => {
+    articles?.forEach((article) => {
       const articleHasPrice = Object.keys(prices).some((p) => p === article.id);
 
       if (articleHasPrice) {
@@ -413,17 +419,20 @@ const ArticlesTable = (props: {
         Id_Proveedor: (provider as IProvider[]).at(0)?.id as string,
         conceptoPago: paymentMethod,
         notas: note,
+        id_Almacen: props.purcharseOrderWarehouseId,
         PrecioTotalOrden: totalPrice,
         OrdenCompraArticulo: articles.map((a) => {
           return {
             id_Articulo: a.id,
             cantidad: a.amount,
             precioProveedor: a.price as number,
+            id_OrdenCompraArticulo: props.purcharseOrderId,
           };
         }),
       };
       await modifyOrderPurcharse(object);
       toast.success('Orden de compra exitosa!');
+      props.handleRefresh();
       props.clearData();
       props.setOpen(false);
     } catch (error) {
@@ -453,7 +462,7 @@ const ArticlesTable = (props: {
             </TableHead>
             <TableBody>
               {articles
-                .slice()
+                ?.slice()
                 .reverse()
                 .map((a) => (
                   <TableRow key={a.id}>
@@ -520,7 +529,7 @@ const ArticlesTable = (props: {
             </TableBody>
           </Table>
         </TableContainer>
-        {articles.length === 0 && (
+        {articles?.length === 0 && (
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
             <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
             <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>

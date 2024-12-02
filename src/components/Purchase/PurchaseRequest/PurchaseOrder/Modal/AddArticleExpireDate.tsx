@@ -1,9 +1,9 @@
 import { Box, Button, Checkbox, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useEffect, useRef, useState } from 'react';
-import { IPurchaseOrderArticle } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { isValidInteger } from '../../../../../utils/functions/dataUtils';
+import { IPurchaseOrderArticle } from '@/types/purchase/purchaseTypes';
 
 const style = {
   width: { xs: 380 },
@@ -33,7 +33,7 @@ type ArticleData = {
   id: string;
   nombre: string;
   codigoBarras?: string;
-  fechaCaducidad: string | null;
+  fechaCaducidad?: string;
 };
 interface AddArticleExpireDateProps {
   setOpen: Function;

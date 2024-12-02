@@ -1,27 +1,11 @@
 import { Box, Button, Modal } from '@mui/material';
-import { PurchaseTabNav } from '../../components/Purchase/PurchaseRequest/SubComponents/PurchaseTabNav';
 import { useEffect, useState } from 'react';
 import { useDirectlyPurchaseRequestOrderStore } from '../../store/purchaseStore/directlyPurchaseRequestOrder';
-import { PurchaseOrder } from '../../components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder';
-import { PurchaseRequestCard } from '../../components/Purchase/PurchaseRequest/PurchaseRequestCard';
-import { usePurchaseRequestNav } from '../../store/purchaseStore/purchaseRequestNav';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import { shallow } from 'zustand/shallow';
 import { DirectlyPurchaseOrder } from '../../components/Purchase/PurchaseRequest/Modal/DirectlyPurchaseOrder';
 import { PurchaseWithoutProvider } from '../../components/Purchase/PurchaseRequest/Modal/PurchaseWithoutProvider';
-
-const getTabView = (value: number) => {
-  switch (value) {
-    case 0:
-      return <PurchaseOrder />;
-    // case 1:
-    //   return <PurchaseOrderRequest />;
-    case 2:
-      return <PurchaseRequestCard />;
-    default:
-      break;
-  }
-};
+import { PurchaseOrder } from '@/components/Purchase/PurchaseRequest/PurchaseOrder/PurchaseOrder';
 
 const PurchaseRequestView = () => {
   const { clearStates, openPurchaseRequestOrder, setOpenPurchaseRequestOrder } = useDirectlyPurchaseRequestOrderStore(
@@ -32,7 +16,6 @@ const PurchaseRequestView = () => {
     }),
     shallow
   );
-  const tabValue = usePurchaseRequestNav((state) => state.tabValue);
   const [openPurchaseWithoutProvider, setOpenPurchaseWithoutProvider] = useState(false);
   // const isAdminPurchase = useAuthStore(useShallow((state) => state.isAdminPurchase));
 
@@ -52,14 +35,6 @@ const PurchaseRequestView = () => {
             columnGap: 1,
           }}
         >
-          {/* <Button
-            size="large"
-            variant="contained"
-            onClick={() => setOpenPurchaseWithoutProvider(true)}
-            startIcon={<RequestPageIcon />}
-          >
-            Solicitud sin proveedor
-          </Button> */}
           <Button
             size="large"
             variant="contained"
@@ -69,18 +44,7 @@ const PurchaseRequestView = () => {
             Orden de compra
           </Button>
         </Box>
-        <PurchaseTabNav />
-        <Box
-          sx={{
-            boxShadow: 10,
-            borderBottomLeftRadius: 12,
-            borderBottomRightRadius: 12,
-            overflowX: 'auto',
-            bgcolor: 'white',
-          }}
-        >
-          {getTabView(tabValue)}
-        </Box>
+        <PurchaseOrder />
       </Box>
       <Modal
         open={openPurchaseRequestOrder}

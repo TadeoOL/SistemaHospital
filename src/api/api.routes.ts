@@ -427,7 +427,9 @@ export const getAllArticles = async () => {
 };
 
 export const getArticlesFromWarehouseSearch = async (search: string, idWarehouse: string) => {
-  const res = await axios.get(`/api/AlmacenArticulo/obtener-almacen-articulos?search=${search}&id_Almacen=${idWarehouse}`);
+  const res = await axios.get(
+    `/api/AlmacenArticulo/obtener-almacen-articulos?search=${search}&id_Almacen=${idWarehouse}`
+  );
   return res.data;
 };
 
@@ -627,11 +629,6 @@ export const addBillQuote = async (Id_OrdenCompra: string, PDF: string, tipoPDF:
   return res.data;
 };
 
-export const deleteBillQuote = async (idQuote: string) => {
-  const res = await axios.delete(`/api/Compras/eliminar-factura-proveedor-pdf/${idQuote}`);
-  return res.data;
-};
-
 export const getBillPdf = async (idQuote: string) => {
   const res = await axios.get(`/api/Compras/obtener-factura-orden-compra/${idQuote}`);
   return res.data;
@@ -722,11 +719,6 @@ export const editarMensaje = async ({
 
 export const addPurchaseOrder = async (data: IRegisterPurchaseOrder) => {
   const res = await axios.post('/api/Compras/registrar-orden-compra', data);
-  return res.data;
-};
-
-export const getPurchaseOrder = async (paramUrl: string) => {
-  const res = await axios.get(`/api/Compras/paginacion-orden-compra?${paramUrl}`);
   return res.data;
 };
 
@@ -953,6 +945,7 @@ export const articlesPackageOutputToWarehouse = async (data: { Estatus: number; 
 export const modifyOrderPurcharse = async (data: {
   Id_OrdenCompra: string;
   Id_Proveedor: string;
+  id_Almacen: string;
   conceptoPago?: number;
   notas: string;
   OrdenCompraArticulo: OrdenCompraArticulo[];
@@ -962,7 +955,7 @@ export const modifyOrderPurcharse = async (data: {
 };
 
 export const getNursesUsers = async (search?: string) => {
-  const res = await axios.get(`/api/Usuario/busqueda-usuario-enfermeros?search=${search ? search : '' }`);
+  const res = await axios.get(`/api/Usuario/busqueda-usuario-enfermeros?search=${search ? search : ''}`);
   return res.data;
 };
 

@@ -2,7 +2,7 @@ import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { IPurchaseOrderArticle } from '../../../../../types/types';
+import { IPurchaseOrderArticle } from '@/types/purchase/purchaseTypes';
 
 const style = {
   width: { xs: 380 },
@@ -20,8 +20,8 @@ type ArticleData = {
   id: string;
   nombre: string;
   codigoBarras?: string;
-  fechaCaducidad: string | null;
-  cantidad?: string;
+  fechaCaducidad?: string;
+  cantidad?: string | number;
   unidadesPorCaja?: number;
   unidadesTotal: number;
 };
@@ -83,12 +83,16 @@ export const ReturnArticle = (props: ReturnArticleProps) => {
     const foundIndex = returnArticlesArray.findIndex((a) => a.Id_OrdenCompraArticulo === article.id);
     const foundIndexArticles = articles.findIndex((a) => a.id_OrdenCompraArticulo === article.id);
 
+    console.log({ foundIndexArticles });
+    console.log({ articles });
+    console.log({ foundIndex });
+
     if (foundIndexArticles !== -1) {
       const updatedReturnArticlesArray = [...articles];
       const restAmount = boxArticle
         ? currentAmount - parseInt(amountRef.current.value)
         : parseInt(article.cantidad as string) - parseInt(amountRef.current.value);
-      updatedReturnArticlesArray[foundIndexArticles].unidadesTotal = restAmount < 0 ? 0 : restAmount;
+      updatedReturnArticlesArray[foundIndexArticles].cantidad = restAmount < 0 ? 0 : restAmount;
 
       setArticles(updatedReturnArticlesArray);
     }

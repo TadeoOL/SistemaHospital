@@ -3,7 +3,7 @@ import axios from '../../libs/axios';
 import { ICashierSale } from '../../types/checkout/cashierSaleTypes';
 import { DiscountType, IDiscount } from '../../types/checkout/discountTypes';
 import { IPatientAccount, IPatientAccountPagination } from '../../types/checkout/patientAccountTypes';
-import { IPagination } from '../../types/paginationType';
+import { IPaginationResponse } from '../../types/paginationType';
 
 export const getPatientAccount = async (id: string): Promise<IPatientAccount> => {
   const res = await axios.get(`${apiUrl}/obtener-cuenta-paciente/${id}`);
@@ -11,7 +11,9 @@ export const getPatientAccount = async (id: string): Promise<IPatientAccount> =>
   return res.data;
 };
 
-export const getPatientAccountPagination = async (param: string): Promise<IPagination<IPatientAccountPagination>> => {
+export const getPatientAccountPagination = async (
+  param: string
+): Promise<IPaginationResponse<IPatientAccountPagination>> => {
   const res = await axios.get(`${apiUrl}/paginacion-cuenta-paciente?${param}`);
   return res.data;
 };

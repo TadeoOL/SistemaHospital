@@ -1,5 +1,5 @@
 import axios from '../../libs/axios';
-import { IPagination } from '../../types/paginationType';
+import { IPaginationResponse } from '../../types/paginationType';
 import { IAssignedRoomsPagination, ICreateKardexCommand, IPatientKardex } from '../../types/nursing/nursingTypes';
 import { IPatientVitalSigns } from '../../types/nursing/patientVitalSignsTypes';
 import { IPatientDiet } from '../../types/nursing/patientDietTypes';
@@ -7,7 +7,9 @@ import { VitalSignsFormData } from '../../schema/nursing/vitalSignsSchema';
 
 const apiUrl = '/api/Enfermeria';
 
-export const getAssignedRoomsPagination = async (params: string): Promise<IPagination<IAssignedRoomsPagination>> => {
+export const getAssignedRoomsPagination = async (
+  params: string
+): Promise<IPaginationResponse<IAssignedRoomsPagination>> => {
   const res = await axios.get(`${apiUrl}/paginacion-cuartos-asignados-enfermeria?${params}`);
   return res.data;
 };
