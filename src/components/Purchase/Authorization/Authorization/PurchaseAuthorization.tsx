@@ -1,89 +1,66 @@
-import { Box, Divider, IconButton, MenuItem, TextField } from '@mui/material';
-import { SearchBar } from '../../../Inputs/SearchBar';
-import { PurchaseAuthorizationTable } from './PurchaseAuthorizationTable';
-import { FilterListOff } from '@mui/icons-material';
-import { usePurchaseOrderRequestPagination } from '../../../../store/purchaseStore/purchaseOrderRequestPagination';
-import { StatusPurchaseRequest } from '../../../../types/types';
-import { usePurchaseAuthorizationPagination } from '../../../../store/purchaseStore/purchaseAuthorizationPagination';
-import { useMemo } from 'react';
+import { Box, Divider } from '@mui/material';
+import { useRef } from 'react';
+import { IPurchaseOrderPagination } from '@/types/purchase/purchaseTypes';
+import FiltersPurchaseAuthorization from './components/Filters';
+import { TablePaginated } from '@/common/components';
+import { getPurchaseAuthorizationPagination } from '@/services/purchase/purchaseAuthorizationService';
+import { NestedTable, TablePaginatedColumn } from '@/types/tableComponentTypes';
+import usePurchaseAuthorization from './hooks/usePurchaseAuthorization';
+import { AuthorizationActions } from './components/ActionButtons';
+import ModalsContainer from './components/Modals/ModalsContainer';
 
 const PurchaseAuthorization = () => {
-  const { setSearch, startDate, setStartDate, endDate, setEndDate, setStatus, status } =
-    usePurchaseAuthorizationPagination((state) => ({
-      setSearch: state.setSearch,
-      startDate: state.startDate,
-      endDate: state.endDate,
-      setStartDate: state.setStartDate,
-      setEndDate: state.setEndDate,
-      status: state.status,
-      setStatus: state.setStatus,
-    }));
+  const { state, handlers } = usePurchaseAuthorization();
+  const tableRef = useRef<IPurchaseOrderPagination>();
+  const nestedTable: NestedTable<IPurchaseOrderPagination> = {
+    articulos: {
+      title: 'Artículos',
+      columns: [
+        { header: 'Artículo', value: 'nombre' },
+        { header: 'Cantidad', value: 'cantidad' },
+      ],
+    },
+  };
 
-  const values = useMemo(() => {
-    const statusPurchaseOrderValues: string[] = [];
-
-    for (const value in StatusPurchaseRequest) {
-      if (!isNaN(Number(StatusPurchaseRequest[value]))) {
-        statusPurchaseOrderValues.push(StatusPurchaseRequest[value]);
-      }
-    }
-    return statusPurchaseOrderValues;
-  }, []);
+  const columns: TablePaginatedColumn<IPurchaseOrderPagination>[] = [
+    { header: 'Folio', value: 'folio_Extension' },
+    { header: 'Creado por', value: 'usuarioSolicitado' },
+    { header: 'Estatus', value: 'estatus' },
+    { header: 'Cotización', value: 'cotizacion' },
+    { header: 'Proveedor', value: 'proveedor' },
+    { header: 'Total', value: 'total' },
+    {
+      header: 'Acciones',
+      value: (row) => <AuthorizationActions purchaseOrderId={row.id_OrdenCompra} handlers={handlers} />,
+    },
+  ];
 
   return (
     <Box sx={{ pt: 2 }}>
-      <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-        <SearchBar title="Buscar solicitud de compra..." searchState={setSearch} sx={{ display: 'flex', flex: 2 }} />
-        <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-          <TextField
-            label="Fecha inicio"
-            size="small"
-            type="date"
-            value={startDate}
-            InputLabelProps={{ shrink: true }}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-            }}
-          />
-          <TextField
-            label=" Fecha final"
-            size="small"
-            type="date"
-            value={endDate}
-            InputLabelProps={{ shrink: true }}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-            }}
-          />
-        </Box>
-        <Box sx={{ display: 'flex', flex: 1 }}>
-          <TextField
-            select
-            label="Estatus"
-            size="small"
-            defaultValue={-1}
-            fullWidth
-            value={status}
-            onChange={(e) => {
-              const { value } = e.target;
-              setStatus(value);
-            }}
-          >
-            {values.map((v: any) => (
-              <MenuItem key={v} value={v}>
-                {StatusPurchaseRequest[v]}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
-        <Box>
-          <IconButton onClick={() => usePurchaseOrderRequestPagination.getState().clearFilters()}>
-            <FilterListOff />
-          </IconButton>
-        </Box>
-      </Box>
+      <FiltersPurchaseAuthorization
+        dates={state.dates}
+        onClearFilters={handlers.handleClearFilters}
+        onDateChange={handlers.handleDateChange}
+        onSearchChange={handlers.handleSearchChange}
+        search={state.search}
+      />
       <Divider sx={{ my: 1 }} />
-      <PurchaseAuthorizationTable />
+      <TablePaginated
+        ref={tableRef}
+        columns={columns}
+        fetchData={getPurchaseAuthorizationPagination}
+        params={{
+          search: state.search,
+          sort: state.sort,
+          pageIndex: state.pageIndex,
+          pageSize: state.pageSize,
+          startDate: state.dates.startDate,
+          endDate: state.dates.endDate,
+          refresh: state.refresh,
+        }}
+        nestedTable={nestedTable}
+      />
+      <ModalsContainer state={state} handlers={handlers} />
     </Box>
   );
 };

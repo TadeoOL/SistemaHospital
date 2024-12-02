@@ -20,12 +20,13 @@ import {
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Add, CheckCircle, DeleteSweep, Edit, RestorePage } from '@mui/icons-material';
-import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/api.routes';
+import { addArticlesToWarehouse } from '../../../../../api/api.routes';
 import { Almacen2 } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
 import { ReturnArticle } from './ReturnArticle';
 import { IPurchaseOrder, IPurchaseOrderArticle } from '@/types/purchase/purchaseTypes';
+import { getOrderRequestById } from '@/services/purchase/purchaseService';
 
 const style = {
   width: { xs: 380, sm: 750, md: 1000, lg: 1200 },

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
-import { changeOrderStatus, getOrderRequestById } from '@/api/api.routes';
 import { purchaseAlerts } from '../../../../../utils/alerts/purchaseAlerts';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { StatusPurchaseOrder } from '@/types/types';
+import { changeOrderStatus, getOrderRequestById } from '@/services/purchase/purchaseService';
 
 interface PurchaseOrderState {
   search: string;
@@ -190,7 +190,6 @@ export const usePurchaseOrder = () => {
       if (result.isConfirmed) {
         try {
           await changeOrderStatus(orderId, 0, 'Cancelada');
-          usePurchaseOrderPagination.getState().fetch();
           await purchaseAlerts.orderCancelled();
         } catch (error) {
           console.error(error);

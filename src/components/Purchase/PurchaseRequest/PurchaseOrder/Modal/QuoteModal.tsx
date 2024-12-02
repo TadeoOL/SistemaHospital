@@ -13,14 +13,14 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { addBillQuote, changeOrderStatus, getBillPdf } from '../../../../../api/api.routes';
+import { addBillQuote, getBillPdf } from '../../../../../api/api.routes';
 import { CloudUpload, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { convertBase64 } from '../../../../../utils/functions/dataUtils';
 import { Provider, StatusPurchaseOrder } from '../../../../../types/types';
 import { useDropzone } from 'react-dropzone';
 import { ViewPdf } from '../../../../Inputs/ViewPdf';
-import { deleteBillQuote } from '@/services/purchase/purchaseService';
+import { changeOrderStatus, deleteBillQuote } from '@/services/purchase/purchaseService';
 
 const style = {
   position: 'absolute',

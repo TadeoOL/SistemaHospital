@@ -546,11 +546,6 @@ export const addPurchaseRequest = async (data: {
   return res.data;
 };
 
-export const getPurchaseAuthorization = async (paramUrl: string) => {
-  const res = await axios.get(`/api/AutorizacionCompras/paginacion-autorizacion-orden-compra?${paramUrl}`);
-  return res.data;
-};
-
 export const getPurchaseAuthorizationHistory = async (paramUrl: string) => {
   const res = await axios.get(`/api/AutorizacionCompras/paginacion-historial-autorizacion?${paramUrl}`);
   return res.data;
@@ -606,20 +601,6 @@ export const selectManyProvidersForTender = async (id_SolicitudCompra: string, i
   return res.data;
 };
 
-export const changeOrderStatus = async (Id_OrdenCompra: string, Estatus: number, Mensaje?: string) => {
-  try {
-    const res = await axios.put(`/api/Compras/estatus-orden-compra`, {
-      Id_OrdenCompra,
-      Estatus,
-      Mensaje,
-    });
-    return res.data;
-  } catch (error) {
-    console.error('Error al cambiar estado de la orden:', error);
-    throw error;
-  }
-};
-
 export const addBillQuote = async (Id_OrdenCompra: string, PDF: string, tipoPDF: number) => {
   const res = await axios.put(`/api/Compras/guardar-pdf-orden-compra`, {
     Id_OrdenCompra,
@@ -631,16 +612,6 @@ export const addBillQuote = async (Id_OrdenCompra: string, PDF: string, tipoPDF:
 
 export const getBillPdf = async (idQuote: string) => {
   const res = await axios.get(`/api/Compras/obtener-factura-orden-compra/${idQuote}`);
-  return res.data;
-};
-
-export const getOrderRequestById = async (idQuote: string) => {
-  const res = await axios.get(`/api/Compras/obtener-orden-compra/${idQuote}`);
-  return res.data;
-};
-
-export const getOrdenCotizacionbyId = async (idQuote: string) => {
-  const res = await axios.get(`/api/Compras/obtener-cotizacion-orden-compra/${idQuote}`);
   return res.data;
 };
 
