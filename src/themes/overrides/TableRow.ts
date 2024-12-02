@@ -7,19 +7,27 @@ export default function TableRow() {
         root: {
           '&:last-of-type': {
             '& .MuiTableCell-root': {
-              borderBottom: 'none'
-            }
+              borderBottom: 'none',
+            },
           },
           '& .MuiTableCell-root': {
             '&:last-of-type': {
-              paddingRight: 24
+              paddingRight: 24,
             },
             '&:first-of-type': {
-              paddingLeft: 24
-            }
-          }
-        }
-      }
-    }
+              paddingLeft: 24,
+            },
+          },
+          '&.noHover': {
+            '&:hover': {
+              backgroundColor: 'transparent !important',
+            },
+            '& td': {
+              backgroundColor: 'transparent !important',
+            },
+          },
+        },
+      },
+    },
   };
 }

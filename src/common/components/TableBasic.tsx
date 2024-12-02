@@ -5,152 +5,180 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
-import React from 'react';
+import React, { useState } from 'react';
 import { SortComponent } from '../../components/Commons/SortComponent';
-import { Box, CircularProgress, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Box, Card, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
+import { TableBasicColumn, TableBasicProps } from '@/types/tableComponentTypes';
+import { NoDataInTableInfo } from '@/components/Commons/NoDataInTableInfo';
 import SimpleBarScroll from './Drawer/DrawerContent/SimpleBar';
 
-export interface TableBasicColumn {
-  header: string | React.ReactNode;
-  value: string | Function | React.ReactNode;
-  align?: 'left' | 'right' | 'center';
-  sort?: Function;
-  width?: string;
-}
+export const TableBasic = <T extends object>({
+  rows,
+  columns,
+  isLoading,
+  maxHeight,
+  children,
+  nestedTable,
+}: TableBasicProps<T>) => {
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
-const getHeader = (column: TableBasicColumn, key: number) => {
-  if (!column?.header) return null;
+  const toggleRow = (index: number) => {
+    const newExpandedRows = new Set(expandedRows);
+    if (newExpandedRows.has(index)) {
+      newExpandedRows.delete(index);
+    } else {
+      newExpandedRows.add(index);
+    }
+    setExpandedRows(newExpandedRows);
+  };
 
-  const { header, value, sort } = column as any;
-  const width = column.width || 'auto';
-  if (column.sort && typeof column.value === 'string') {
-    return (
-      <TableCell
-        width={width}
-        key={key}
-        sx={{ zIndex: 100, position: 'sticky !important' }}
-        align={column.align || 'left'}
-      >
-        <SortComponent tableCellLabel={header} headerName={value} setSortFunction={sort} />
-      </TableCell>
-    );
-  }
-
-  return (
-    <TableCell
-      width={width}
-      key={key}
-      sx={{ zIndex: 100, position: 'sticky !important' }}
-      align={column.align || 'left'}
-    >
-      {column.header}
-    </TableCell>
-  );
-};
-
-const getCell = (column: TableBasicColumn, row: any, key: string) => {
-  if (!column?.value) return null;
-
-  const width = column.width || 'auto';
-
-  if (typeof column.value === 'string') {
-    return (
-      <TableCell width={width} key={key} align={column.align || 'left'}>
-        {row[column.value]}
-      </TableCell>
-    );
-  }
-
-  if (typeof column.value === 'function') {
-    return (
-      <TableCell width={width} key={key} align={column.align || 'left'}>
-        {column.value(row)}
-      </TableCell>
-    );
-  }
-
-  return (
-    <TableCell width={width} key={key} align={column.align || 'left'}>
-      {column.value}
-    </TableCell>
-  );
-};
-
-export interface TableBasicProps {
-  rows: any[];
-
-  columns: TableBasicColumn[];
-  isLoading?: boolean;
-  maxHeight?: string;
-  children?: React.ReactNode;
-}
-
-export const TableBasic = (props: TableBasicProps) => {
-  const { rows = [], columns, isLoading, maxHeight } = props;
-
-  const theme = useTheme();
-  const downSM = useMediaQuery(theme.breakpoints.down('sm'));
-
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
+  const hasNestedData = (row: T): boolean => {
+    if (!nestedTable) return false;
+    return Object.keys(nestedTable).some((key) => {
+      const nestedData = row[key as keyof T];
+      return Array.isArray(nestedData) && nestedData.length > 0;
+    });
+  };
 
   return (
     <>
-      {props.children && (
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ padding: 2, ...(downSM && { '& .MuiOutlinedInput-root, & .MuiFormControl-root': { width: '100%' } }) }}
-        >
-          <>{props.children}</>
+      {children && (
+        <Stack direction="row" spacing={2} sx={{ p: 2 }}>
+          {children}
         </Stack>
       )}
-      <SimpleBarScroll
-        sx={{
-          maxHeight: maxHeight || 'calc(100vh - 370px)',
-          '& .SimpleBarScroll-content': { display: 'flex', flexDirection: 'column' },
-        }}
-      >
-        <Table stickyHeader sx={{ minWidth: 350 }}>
-          <TableHead>
-            <TableRow>{columns.map((column, i) => getHeader(column, i))}</TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, i) => (
-              <TableRow key={i} hover>
-                {columns.map((column, j) => getCell(column, row, `${i}-${j}`))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </SimpleBarScroll>
 
-      {rows.length === 0 && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexGrow: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            p: 2,
-            columnGap: 1,
-            height: 150,
-          }}
-        >
-          <ErrorOutlineIcon sx={{ color: 'neutral.400', width: '40px', height: '40px' }} />
-          <Typography sx={{ color: 'neutral.400' }} fontSize={24} fontWeight={500}>
-            No existen registros
-          </Typography>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress />
         </Box>
+      ) : (
+        <SimpleBarScroll>
+          <TableContainer sx={{ maxHeight }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  {nestedTable && (
+                    <TableCell
+                      style={{
+                        width: 50,
+                        backgroundColor: 'background.paper',
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 3,
+                      }}
+                    />
+                  )}
+                  {columns.map((column: TableBasicColumn<T>, index: number) => (
+                    <TableCell
+                      key={index}
+                      align={column.align}
+                      width={column.width}
+                      sx={{ zIndex: 100, position: 'sticky !important' }}
+                    >
+                      {column.sort ? (
+                        <SortComponent
+                          tableCellLabel={column.header?.toString() || ''}
+                          headerName={typeof column.value === 'string' ? column.value : ''}
+                          setSortFunction={typeof column.sort === 'function' ? column.sort : () => {}}
+                        />
+                      ) : (
+                        column.header
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {rows.map((row, rowIndex) => (
+                  <React.Fragment key={rowIndex}>
+                    <TableRow hover>
+                      {nestedTable && hasNestedData(row) && (
+                        <TableCell>
+                          <IconButton size="small" onClick={() => toggleRow(rowIndex)}>
+                            {expandedRows.has(rowIndex) ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                          </IconButton>
+                        </TableCell>
+                      )}
+                      {columns.map((column, colIndex) => (
+                        <TableCell key={colIndex} align={column.align}>
+                          {typeof column.value === 'function' ? column.value(row) : String(row[column.value] ?? '')}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+
+                    {nestedTable && (
+                      <TableRow className="noHover">
+                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={columns.length + 1}>
+                          <Collapse in={expandedRows.has(rowIndex)} timeout="auto" unmountOnExit>
+                            <Box sx={{ margin: 1 }}>
+                              {(
+                                Object.entries(nestedTable) as [
+                                  string,
+                                  { columns: TableBasicColumn<T>[]; title?: string },
+                                ][]
+                              ).map(([key, config]) => {
+                                const nestedData = row[key as keyof T];
+                                if (Array.isArray(nestedData) && nestedData.length > 0) {
+                                  return (
+                                    <Box key={key} sx={{ my: 2 }}>
+                                      {config.title && (
+                                        <Typography variant="h5" gutterBottom>
+                                          {config.title}
+                                        </Typography>
+                                      )}
+                                      <Card>
+                                        <Table size="small">
+                                          <TableHead>
+                                            <TableRow className="noHover">
+                                              {config.columns.map((col: TableBasicColumn<T>, index: number) => (
+                                                <TableCell key={index} align={col.align}>
+                                                  {col.header}
+                                                </TableCell>
+                                              ))}
+                                            </TableRow>
+                                          </TableHead>
+                                          <TableBody>
+                                            {nestedData.map((nestedRow, nestedIndex) => (
+                                              <TableRow key={nestedIndex} className="noHover">
+                                                {config.columns.map((col: TableBasicColumn<T>, colIndex: number) => (
+                                                  <TableCell key={colIndex} align={col.align}>
+                                                    {typeof col.value === 'function'
+                                                      ? col.value(nestedRow)
+                                                      : nestedRow[col.value]}
+                                                  </TableCell>
+                                                ))}
+                                              </TableRow>
+                                            ))}
+                                          </TableBody>
+                                        </Table>
+                                      </Card>
+                                    </Box>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {rows.length === 0 && <NoDataInTableInfo infoTitle="No hay existen registros" />}
+        </SimpleBarScroll>
       )}
     </>
   );

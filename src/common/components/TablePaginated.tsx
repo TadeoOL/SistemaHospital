@@ -1,6 +1,7 @@
 import { FormControl, MenuItem, Pagination, Select, Stack, TextField, Typography } from '@mui/material';
 import { TableBasic } from './TableBasic';
-import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { NestedTable } from '@/types/tableComponentTypes';
 
 interface PaginatedResponse {
   count: number;
@@ -12,25 +13,26 @@ interface PaginatedResponse {
   resultByPage: number;
 }
 
-interface TablePaginatedColumn {
+interface TablePaginatedColumn<T> {
   header: string | React.ReactNode;
-  value: string | Function | React.ReactNode;
+  value: keyof T | ((row: T) => React.ReactNode);
   align?: 'left' | 'right' | 'center';
   width?: string;
   sort?: boolean;
 }
 
-interface TablePaginatedProps {
-  columns: TablePaginatedColumn[];
+export interface TablePaginatedProps<T> {
+  columns: TablePaginatedColumn<T>[];
   fetchData: (params: any) => Promise<PaginatedResponse>;
   params: any;
-  isLoading?: any;
+  isLoading?: boolean;
   children?: React.ReactNode;
+  nestedTable?: NestedTable<T>;
 }
 
 export const TablePaginated = memo(
-  forwardRef((props: TablePaginatedProps, ref) => {
-    const { columns, fetchData, params } = props;
+  forwardRef(<T extends Record<string, any>>(props: TablePaginatedProps<T>, ref: ForwardedRef<any>) => {
+    const { columns, fetchData, params, nestedTable } = props;
 
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -135,7 +137,13 @@ export const TablePaginated = memo(
 
     return (
       <>
-        <TableBasic maxHeight={dynamicHeight} rows={data} columns={newColumns as any} isLoading={isLoading}>
+        <TableBasic
+          maxHeight={dynamicHeight}
+          rows={data}
+          columns={newColumns as any}
+          isLoading={isLoading}
+          nestedTable={nestedTable}
+        >
           {props.children}
         </TableBasic>
 
@@ -181,4 +189,4 @@ export const TablePaginated = memo(
       </>
     );
   })
-);
+) as <T extends Record<string, any>>(props: TablePaginatedProps<T> & { ref?: ForwardedRef<any> }) => JSX.Element;

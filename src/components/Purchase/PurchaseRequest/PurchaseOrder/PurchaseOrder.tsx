@@ -8,12 +8,32 @@ import { IPurchaseOrderPagination } from '@/types/purchase/purchaseTypes';
 import { ModalsContainer } from './components/Modals/ModalsContainer';
 import { getPurchaseOrder } from '@/services/purchase/purchaseService';
 import { StatusPurchaseOrder } from '@/types/types';
+import { NestedTable, TablePaginatedColumn } from '@/types/tableComponentTypes';
 
 export const PurchaseOrder = () => {
   const { state, handlers } = usePurchaseOrder();
-  const tableRef = useRef<any>();
+  const tableRef = useRef<IPurchaseOrderPagination>();
+  const nestedTable: NestedTable<IPurchaseOrderPagination> = {
+    articulos: {
+      title: 'Artículos de la Orden',
+      columns: [
+        {
+          header: 'Nombre',
+          value: 'nombre',
+        },
+        {
+          header: 'Cantidad',
+          value: 'cantidad',
+        },
+        {
+          header: 'Precio',
+          value: 'precioProveedor',
+        },
+      ],
+    },
+  };
 
-  const columns = [
+  const columns: TablePaginatedColumn<IPurchaseOrderPagination>[] = [
     {
       header: 'Orden de Compra',
       value: 'folio_Extension',
@@ -21,7 +41,7 @@ export const PurchaseOrder = () => {
     },
     {
       header: 'Creado por',
-      value: 'usuarioSolicitado',
+      value: (row: IPurchaseOrderPagination) => row.usuarioSolicitado ?? 'N/A',
       sort: true,
     },
     {
@@ -86,6 +106,7 @@ export const PurchaseOrder = () => {
           sort: state.sort,
           refresh: state.refresh,
         }}
+        nestedTable={nestedTable}
       />
 
       <ModalsContainer
