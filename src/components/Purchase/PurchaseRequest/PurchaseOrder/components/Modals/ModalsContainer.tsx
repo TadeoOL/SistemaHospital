@@ -59,7 +59,11 @@ export const ModalsContainer = ({
 
       <Modal open={modals.articlesEntry} onClose={() => onModalClose('articlesEntry')}>
         <>
-          <ArticlesEntry orderId={orderSelectedId} setOpen={() => onModalClose('articlesEntry')} />
+          <ArticlesEntry
+            orderId={orderSelectedId}
+            setOpen={() => onModalClose('articlesEntry')}
+            handleRefresh={handleRefresh}
+          />
         </>
       </Modal>
 

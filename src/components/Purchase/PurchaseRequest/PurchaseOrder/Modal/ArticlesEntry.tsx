@@ -24,7 +24,6 @@ import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/
 import { Almacen2 } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
-import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
 import { ReturnArticle } from './ReturnArticle';
 import { IPurchaseOrder, IPurchaseOrderArticle } from '@/types/purchase/purchaseTypes';
 
@@ -74,6 +73,7 @@ type ArticlesToBox = {
 interface ArticlesEntryProps {
   orderId: string;
   setOpen: Function;
+  handleRefresh: () => void;
 }
 
 type ReturnArticle = {
@@ -148,9 +148,6 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     [articles]
   );
 
-  console.log({ articles });
-  console.log({ returnArticlesArray });
-
   const handleSubmit = async () => {
     if (!articleEntryData || !articles) return;
 
@@ -173,8 +170,8 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     try {
       await addArticlesToWarehouse(articlesEntryObject);
       toast.success('Artículos agregados correctamente!');
-      usePurchaseOrderPagination.getState().fetch();
       props.setOpen(false);
+      props.handleRefresh();
     } catch (error) {
       console.log(error);
       toast.error('Error al agregar los artículos!');
