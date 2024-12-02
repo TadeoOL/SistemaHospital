@@ -158,7 +158,7 @@ export const TablePaginated = memo(
                 onChange={(e: any) => {
                   setPageSize(e.target.value);
                   setPageIndex(0);
-                  getData();
+                  // getData();
                 }}
                 size="small"
                 sx={{ '& .MuiSelect-select': { py: 0.75, px: 1.25 } }}
