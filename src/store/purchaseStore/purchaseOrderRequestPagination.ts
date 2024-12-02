@@ -1,14 +1,15 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPurchaseOrder } from '../../api/api.routes';
-import { IPurchaseAuthorization, PurchaseOrderEstatusTypes } from '../../types/types';
+import { IPurchaseOrderPagination } from '@/types/purchase/purchaseTypes';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { getPurchaseOrder } from '@/services/purchase/purchaseService';
+import { StatusPurchaseOrder } from '@/types/types';
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IPurchaseAuthorization[];
+  data: IPurchaseOrderPagination[];
   isLoading: boolean;
   search: string;
   enabled: boolean;
@@ -63,16 +64,18 @@ export const usePurchaseOrderRequestPagination = createWithEqualityFn<State & Ac
   setSort: (sort: string) => set({ sort }),
   fetch: async () => {
     set(() => ({ isLoading: true }));
-    const { pageIndex, pageSize, search, enabled, endDate, startDate, status, sort } = get();
-    const page = pageIndex + 1;
+    const { pageIndex, pageSize, search, enabled, endDate, startDate, sort } = get();
     try {
-      const res = await getPurchaseOrder(
-        `${page === 0 ? '' : 'pageIndex=' + page}&${
-          pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&estatus=${
-          parseInt(status) > -1 ? status : ''
-        }&fechaInicio=${startDate}&fechaFin=${endDate}&sort=${sort}&estatus=${PurchaseOrderEstatusTypes['Necesita autorización']}`
-      );
+      const res = await getPurchaseOrder({
+        estatus: StatusPurchaseOrder.RequiereAutorizacion,
+        pageIndex,
+        pageSize,
+        search,
+        habilitado: enabled,
+        fechaInicio: startDate,
+        fechaFin: endDate,
+        sort,
+      });
       set(() => ({
         data: res.data,
         count: res.count,

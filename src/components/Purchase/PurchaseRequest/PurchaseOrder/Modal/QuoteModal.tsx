@@ -13,14 +13,14 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModal';
-import { addBillQuote, changeOrderStatus, deleteBillQuote, getBillPdf } from '../../../../../api/api.routes';
+import { addBillQuote, changeOrderStatus, getBillPdf } from '../../../../../api/api.routes';
 import { CloudUpload, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { convertBase64 } from '../../../../../utils/functions/dataUtils';
-import { Provider } from '../../../../../types/types';
+import { Provider, StatusPurchaseOrder } from '../../../../../types/types';
 import { useDropzone } from 'react-dropzone';
-import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
 import { ViewPdf } from '../../../../Inputs/ViewPdf';
+import { deleteBillQuote } from '@/services/purchase/purchaseService';
 
 const style = {
   position: 'absolute',
@@ -51,10 +51,26 @@ type QuoteModalProps = {
   idFolio: { folio: string; OrderId: string };
   open: Function;
   providers: string;
+  handleRefresh: Function;
+  status: StatusPurchaseOrder;
 };
 
-const renderStepForm = (providers: string, id: string, open: Function) => {
-  return <QuotePdf providers={providers} purchaseRequestId={id} setOpen={open} />;
+const renderStepForm = (
+  providers: string,
+  id: string,
+  open: Function,
+  handleRefresh: Function,
+  status: StatusPurchaseOrder
+) => {
+  return (
+    <QuotePdf
+      providers={providers}
+      purchaseRequestId={id}
+      setOpen={open}
+      handleRefresh={handleRefresh}
+      status={status}
+    />
+  );
 };
 
 const useFetchPdfProviders = (provider: string, id: string) => {
@@ -94,7 +110,7 @@ const useFetchPdfProviders = (provider: string, id: string) => {
 };
 
 export const QuoteModal = (props: QuoteModalProps) => {
-  const { idFolio, open, providers } = props;
+  const { idFolio, open, providers, handleRefresh, status } = props;
   if (!providers)
     return (
       <Backdrop open>
@@ -115,7 +131,7 @@ export const QuoteModal = (props: QuoteModalProps) => {
               borderBottomRightRadius: 12,
             }}
           >
-            {renderStepForm(providers, idFolio.OrderId, open)}
+            {renderStepForm(providers, idFolio.OrderId, open, handleRefresh, status)}
           </Stack>
         </Box>
       </Box>
@@ -123,7 +139,13 @@ export const QuoteModal = (props: QuoteModalProps) => {
   );
 };
 
-export const QuotePdf = (props: { providers: string; purchaseRequestId: string; setOpen: Function }) => {
+export const QuotePdf = (props: {
+  providers: string;
+  purchaseRequestId: string;
+  setOpen: Function;
+  handleRefresh: Function;
+  status: StatusPurchaseOrder;
+}) => {
   const { providers, purchaseRequestId } = props;
   const { providersData, isLoading } = useFetchPdfProviders(providers, purchaseRequestId);
   // const setProviderSelected = usePurchaseOrderRequestModals(useShallow((state) => state.setProviderSelected));
@@ -145,8 +167,10 @@ export const QuotePdf = (props: { providers: string; purchaseRequestId: string; 
       const base64 = (await convertBase64(acceptedFiles[0])).replace(/^data:application\/pdf;base64,/, '');
       try {
         await addBillQuote(purchaseRequestId, base64, 2);
-        await changeOrderStatus(purchaseRequestId, 2);
-        usePurchaseOrderPagination.getState().fetch();
+        if (props.status !== StatusPurchaseOrder.RequiereAutorizacion) {
+          await changeOrderStatus(purchaseRequestId, 3);
+        }
+        props.handleRefresh();
         setProvidersClone((prev) =>
           prev?.map((file) => (file.id === purchaseRequestId ? { ...file, pdf: base64 } : file))
         );
@@ -172,8 +196,10 @@ export const QuotePdf = (props: { providers: string; purchaseRequestId: string; 
       if (!providersClone) return;
       try {
         await deleteBillQuote(idQuote);
-        await changeOrderStatus(purchaseRequestId, 1);
-        usePurchaseOrderPagination.getState().fetch();
+        if (props.status !== StatusPurchaseOrder.RequiereAutorizacion) {
+          await changeOrderStatus(purchaseRequestId, 2);
+        }
+        props.handleRefresh();
         setProvidersClone((prev) => prev?.map((file) => (file.id === idQuote ? { ...file, pdf: null } : file)));
         toast.success('Factura eliminada con éxito!');
       } catch (error) {

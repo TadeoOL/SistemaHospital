@@ -1,4 +1,4 @@
-import { getDefaultPaginationParams, IPagination, IParamsPagination } from '@/types/paginationType';
+import { getDefaultPaginationParams, IPaginationResponse, IPaginationParams } from '@/types/paginationType';
 import axios from '../../libs/axios';
 import { ISurgicalPackage } from '../../types/operatingRoom/surgicalPackageTypes';
 const apiUrl = '/api/Quirofano/Catalogo/PaqueteQuirurgico';
@@ -14,8 +14,8 @@ export const getSurgicalPackageById = async (id: string): Promise<ISurgicalPacka
 };
 
 export const getSurgicalPackagesPagination = async (
-  params?: IParamsPagination
-): Promise<IPagination<ISurgicalPackage>> => {
+  params?: IPaginationParams
+): Promise<IPaginationResponse<ISurgicalPackage>> => {
   const defaultParams = getDefaultPaginationParams(params);
   const res = await axios.get(`${apiUrl}/paginacion-paquete-quirurgico`, { params: defaultParams });
   return res.data;

@@ -1,14 +1,14 @@
 import axios from '../../libs/axios';
 import { IHospitalRoomInformationPagination } from '../../types/hospitalization/hospitalRoomTypes';
-import { IPagination } from '../../types/paginationType';
+import { IPaginationResponse } from '../../types/paginationType';
 const apiHospitalizationRooms = '/api/CuartoHospitalario';
 
-export const getHospitalRoomsPagination = async (params: string): Promise<IPagination<IHospitalRoomInformationPagination>> => {
+export const getHospitalRoomsPagination = async (
+  params: string
+): Promise<IPaginationResponse<IHospitalRoomInformationPagination>> => {
   const res = await axios.get(`${apiHospitalizationRooms}/paginacion-cuartos-hospitalarios?${params}`);
   return res.data;
 };
-
-
 
 export const getHospitalRoomsCalendar = async (date: Date) => {
   const res = await axios.get(`${apiHospitalizationRooms}/cuartos-hospitalizacion-calendario`, {

@@ -21,11 +21,12 @@ import { HeaderModal } from '../../../../Account/Modals/SubComponents/HeaderModa
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Add, CheckCircle, DeleteSweep, Edit, RestorePage } from '@mui/icons-material';
 import { addArticlesToWarehouse, getOrderRequestById } from '../../../../../api/api.routes';
-import { IPurchaseOrder, IPurchaseOrderArticle, ISubWarehouse } from '../../../../../types/types';
+import { Almacen2 } from '../../../../../types/types';
 import { toast } from 'react-toastify';
 import { AddArticleExpireDate } from './AddArticleExpireDate';
 import { usePurchaseOrderPagination } from '../../../../../store/purchaseStore/purchaseOrderPagination';
 import { ReturnArticle } from './ReturnArticle';
+import { IPurchaseOrder, IPurchaseOrderArticle } from '@/types/purchase/purchaseTypes';
 
 const style = {
   width: { xs: 380, sm: 750, md: 1000, lg: 1200 },
@@ -56,14 +57,14 @@ interface ArticleSelected {
   id: string;
   nombre: string;
   codigoBarras?: string;
-  fechaCaducidad: string | null;
-  cantidad?: string;
+  fechaCaducidad?: string;
+  cantidad: number;
   unidadesTotal: number;
 }
 interface PurchaseOrder extends IPurchaseOrder {
   notas: string;
   instruccionEntrega: string;
-  almacen: ISubWarehouse;
+  almacen: Almacen2;
 }
 type ArticlesToBox = {
   id: string;
@@ -117,9 +118,11 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const [returnArticlesArray, setReturnArticlesArray] = useState<ReturnArticle[]>([]);
   const [articlesToBox, setArticlesToBox] = useState<ArticlesToBox[]>([]);
 
+  console.log({ returnArticlesArray });
+
   useEffect(() => {
     if (!articleEntryData) return;
-    setArticles(structuredClone(articleEntryData.ordenCompraArticulo));
+    setArticles(structuredClone(articleEntryData.ordenCompraArticulo || []));
   }, [articleEntryData]);
 
   const missingSomeEntryData = useMemo(() => {
@@ -145,6 +148,9 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     [articles]
   );
 
+  console.log({ articles });
+  console.log({ returnArticlesArray });
+
   const handleSubmit = async () => {
     if (!articleEntryData || !articles) return;
 
@@ -152,7 +158,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
       .map((article) => {
         return {
           id_articulo: article.id_Articulo,
-          cantidad: article?.unidadesTotal || article.cantidad,
+          cantidad: article.cantidad,
           codigoBarras: article.codigoBarras as string,
           fechaCaducidad: article.fechaCaducidad as string,
         };
@@ -187,19 +193,19 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   //   return articlesToBox.some((a) => a.id === articleId);
   // }
 
-  function findArticleInArticleToBox(articleId: string) {
-    return articlesToBox.find((a) => a.id === articleId);
-  }
+  // function findArticleInArticleToBox(articleId: string) {
+  //   return articlesToBox.find((a) => a.id === articleId);
+  // }
 
-  function findOriginalArticle(articleId: string) {
-    if (!articleEntryData) return;
-    const article = articleEntryData.ordenCompraArticulo.find((a) => a.id_Articulo === articleId);
-    return article as IPurchaseOrderArticle;
-  }
+  // function findOriginalArticle(articleId: string) {
+  //   if (!articleEntryData) return;
+  //   const article = articleEntryData.ordenCompraArticulo?.find((a) => a.id_Articulo === articleId);
+  //   return article as IPurchaseOrderArticle;
+  // }
 
   function handleDeleteArticleFromReturnArray(orderArticleId: string, articleId: string) {
     const articleInBox = articlesToBox.find((a) => a.id === articleId);
-    const originalArticle = articleEntryData?.ordenCompraArticulo.find(
+    const originalArticle = articleEntryData?.ordenCompraArticulo?.find(
       (a) => a.id_OrdenCompraArticulo === orderArticleId
     );
     const findIndex = articles.findIndex((a) => a.id_OrdenCompraArticulo === orderArticleId);
@@ -217,8 +223,6 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
     if (article.codigoBarras && article.fechaCaducidad) return true;
     return false;
   }
-
-  console.log({ articleEntryData });
 
   if (isLoadingArticleEntryData)
     return (
@@ -264,12 +268,9 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Articulo</TableCell>
-                      <TableCell>Presentación/Unidad</TableCell>
                       <TableCell>Cantidad</TableCell>
                       <TableCell>Cantidad Total</TableCell>
                       <TableCell>Precio de Compra</TableCell>
-                      <TableCell>Precio de Venta</TableCell>
-                      <TableCell>Factor Aplicado</TableCell>
                       <TableCell>Fecha Caducidad</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
@@ -279,25 +280,18 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                       return (
                         <TableRow key={a.id_Articulo}>
                           <TableCell>{a.nombre}</TableCell>
-                          <TableCell align={'center'}>{a.unidadesPorCaja}</TableCell>
                           <TableCell>{a.cantidad}</TableCell>
                           <TableCell>
                             {findReturnArticlesArray(a.id_OrdenCompraArticulo) ? (
                               <Box sx={{ display: 'flex', flex: 1, columnGap: 1 }}>
-                                <Typography className="textoTachado">
-                                  {!findArticleInArticleToBox(a.id_Articulo)
-                                    ? (a?.unidadesTotal || a.cantidad) -
-                                      (findOriginalArticle(a.id_Articulo)?.unidadesTotal as number)
-                                    : findOriginalArticle(a.id_Articulo)?.unidadesTotal}
-                                </Typography>
-                                <Typography>{a.unidadesTotal}</Typography>
+                                <Typography className="textoTachado">{(a.unidadesTotal || 0) - a.cantidad}</Typography>
+                                <Typography>{a.cantidad}</Typography>
                               </Box>
                             ) : (
                               a.unidadesTotal
                             )}
                           </TableCell>
                           <TableCell>{a.precioProveedor}</TableCell>
-                          <TableCell>{a.precioVenta}</TableCell>
                           <TableCell>{a.fechaCaducidad ? hasExpireDate(a.fechaCaducidad) : 'No tiene aun'}</TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', flex: 1 }}>
@@ -306,10 +300,11 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                                   onClick={() => {
                                     setArticleSelected({
                                       id: a.id_Articulo,
-                                      nombre: a.nombre,
-                                      codigoBarras: a.codigoBarras,
-                                      fechaCaducidad: a.fechaCaducidad ? a.fechaCaducidad : null,
+                                      nombre: a.nombre || '',
+                                      codigoBarras: a.codigoBarras || '',
+                                      fechaCaducidad: a.fechaCaducidad || '',
                                       unidadesTotal: a.unidadesTotal || a.cantidad,
+                                      cantidad: a.cantidad,
                                     });
                                     setOpenModal(true);
                                   }}
@@ -320,18 +315,17 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
                               <Tooltip title="Devolución">
                                 <IconButton
                                   onClick={() => {
-                                    const originalArticle = articleEntryData?.ordenCompraArticulo.find(
+                                    const originalArticle = articleEntryData?.ordenCompraArticulo?.find(
                                       (art) => art.id_Articulo === a.id_Articulo
                                     );
                                     setArticleSelected({
-                                      id: originalArticle?.id_OrdenCompraArticulo,
-                                      nombre: originalArticle?.nombre,
+                                      id: originalArticle?.id_OrdenCompraArticulo || '',
+                                      nombre: originalArticle?.nombre || '',
                                       codigoBarras: originalArticle?.codigoBarras,
-                                      fechaCaducidad: originalArticle?.fechaCaducidad,
-                                      cantidad: (
-                                        (originalArticle?.cantidad || 1) * (originalArticle?.unidadesPorCaja || 1)
-                                      ).toString(),
-                                    } as ArticleSelected);
+                                      cantidad: Number(originalArticle?.cantidad || 1),
+                                      unidadesTotal: Number(originalArticle?.cantidad || 0),
+                                      fechaCaducidad: undefined,
+                                    });
                                     setOpenReturnArticle(true);
                                   }}
                                 >

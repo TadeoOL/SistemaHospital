@@ -1,4 +1,4 @@
-export interface IPagination<T> {
+export interface IPaginationResponse<T> {
   count: number;
   pageIndex: number;
   pageSize: number;
@@ -10,7 +10,7 @@ export interface IPagination<T> {
   fechaFin: string | null;
 }
 
-export interface IParamsPagination {
+export interface IPaginationParams {
   search?: string;
   pageIndex?: number;
   pageSize?: number;
@@ -20,7 +20,7 @@ export interface IParamsPagination {
   sort?: string;
 }
 
-export const getDefaultPaginationParams = (overrides?: Partial<IParamsPagination>): IParamsPagination => ({
+export const getDefaultPaginationParams = (overrides?: Partial<IPaginationParams>): IPaginationParams => ({
   search: '',
   pageIndex: 1,
   pageSize: 10,

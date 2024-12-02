@@ -366,6 +366,7 @@ export interface OrdenCompra {
 }
 
 export interface OrdenCompraArticulo {
+  id_OrdenCompraArticulo?: string;
   id_Articulo: string;
   cantidad: number;
   precioProveedor?: number;
@@ -378,45 +379,6 @@ export interface IarticlesPrebuildedRequest {
   cantidadSolicitada: number;
   stock: number;
   nombre: string;
-}
-
-// enum ConceptPayment {
-//   'Contado' = 0,
-//   'Credito' = 1,
-// }
-
-export interface IPurchaseOrderPagination {
-  id_OrdenCompra: string;
-  folio_Extension: string;
-  usuarioSolicitado: string;
-  proveedor: string;
-  total: string;
-  fechaSolicitud: string;
-  estatusConcepto: string;
-  estatus: number;
-  fueAutorizada: boolean | null;
-  cotizacion: boolean;
-  articulos: IPurchaseOrderArticle[] | null;
-}
-
-export interface IPurchaseOrder {
-  id_OrdenCompra: string;
-  id_Proveedor: any;
-  folio_Extension: string;
-  usuarioSolicitado: string;
-  estatus: number;
-  precioTotalOrden: number;
-  conceptoPago: number;
-  instruccionEntrega: any;
-  notas: string;
-  pdfCadena: string;
-  id_Almacen: string;
-  almacen: Almacen2;
-  proveedor: Proveedor2;
-  ordenCompraArticulo: OrdenCompraArticulo2[];
-  fechaSolicitud: string;
-  fueAutorizada: boolean;
-  cotizacion: any;
 }
 
 export interface Almacen2 {
@@ -444,26 +406,46 @@ export interface OrdenCompraArticulo2 {
   fechaCaducidad?: string;
 }
 
-export interface IPurchaseOrderArticle {
-  cantidad: number;
-  precioProveedor: number;
-  id_OrdenCompraArticulo: string;
-  id_Articulo: string;
-  nombre: string;
-  precioVenta?: number;
-  codigoBarras?: string;
-  fechaCaducidad?: string;
-  unidadesPorCaja?: number;
-  unidadesTotal?: number;
+// export interface IPurchaseOrderArticle {
+//   cantidad: number;
+//   precioProveedor: number;
+//   id_OrdenCompraArticulo: string;
+//   id_Articulo: string;
+//   nombre: string;
+//   precioVenta?: number;
+//   codigoBarras?: string;
+//   fechaCaducidad?: string;
+//   unidadesPorCaja?: number;
+//   unidadesTotal?: number;
+// }
+
+export enum StatusPurchaseOrderFilter {
+  'Todas las ordenes' = -1,
+  'Cancelada' = 0,
+  'Requiere autorización' = 1,
+  'Requiere factura' = 2,
+  'Requiere ingreso' = 3,
+  'Ingresado a inventario' = 4,
+  'Orden autorizada' = 5,
 }
 
 export enum StatusPurchaseOrder {
-  'Todas las ordenes' = -1,
-  'Cancelada' = 0,
-  'En espera de Factura' = 1,
-  'Se necesita entrada de artículos' = 2,
-  'Ingresado a inventario' = 3,
+  OrdenCancelada = 0,
+  RequiereAutorizacion = 1,
+  RequiereFactura = 2,
+  RequiereIngreso = 3,
+  EntradaCompletada = 4,
+  OrdenAutorizada = 5,
 }
+
+export const StatusPurchaseOrderLabels = {
+  [StatusPurchaseOrder.OrdenCancelada]: 'Orden Cancelada',
+  [StatusPurchaseOrder.RequiereAutorizacion]: 'Requiere autorización',
+  [StatusPurchaseOrder.RequiereFactura]: 'Requiere factura',
+  [StatusPurchaseOrder.RequiereIngreso]: 'Requiere ingreso',
+  [StatusPurchaseOrder.EntradaCompletada]: 'Entrada completada',
+  [StatusPurchaseOrder.OrdenAutorizada]: 'Orden autorizada',
+};
 
 export interface IWarehouseData {
   nombre: string;
