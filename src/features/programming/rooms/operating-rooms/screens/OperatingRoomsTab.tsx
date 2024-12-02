@@ -1,14 +1,23 @@
 import { MainCard, TablePaginated, TableTop } from '@/common/components';
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { useRef, useState } from 'react';
-import { Button, IconButton, Tooltip } from '@mui/material';
+import { Button, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { useOperatingRoomsPaginationStore } from '../stores/useOperatingRoomsPagination';
+import OperatingRoomsModal from '../components/OperatingRoomsModal';
+import { getOperatingRooms } from '../services/operating-rooms';
+import CheckIcon from '@mui/icons-material/Check';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
+import { useDisableOperatingRoom } from '../hooks/useDisableOperatingRoom';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 
 const OperatingRoomsTab = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const tableRef = useRef<any>();
   const onSuccess = () => tableRef?.current?.fetchData();
+  const disableOperatingRoom = useDisableOperatingRoom(onSuccess);
 
   const handleAdd = () => {
     setSelectedItem(null);
@@ -26,9 +35,11 @@ const OperatingRoomsTab = () => {
     setModalOpen(true);
   };
 
-  const { search, setSearch } = useNormalRoomsPaginationStore((state) => ({
+  const { search, setSearch, enabled, setEnabled } = useOperatingRoomsPaginationStore((state) => ({
     setSearch: state.setSearch,
     search: state.search,
+    enabled: state.enabled,
+    setEnabled: state.setEnabled,
   }));
 
   const columns: any[] = [
@@ -37,16 +48,12 @@ const OperatingRoomsTab = () => {
       value: 'nombre',
     },
     {
-      header: 'Precio',
-      value: 'precio',
+      header: 'Tipo de quirofano',
+      value: 'tipoQuirofano',
     },
     {
       header: 'Descripción',
       value: 'descripcion',
-    },
-    {
-      header: 'Intervalo de reservación',
-      value: 'intervaloReservacion',
     },
     {
       header: 'Acciones',
@@ -57,11 +64,11 @@ const OperatingRoomsTab = () => {
               <EditIcon />
             </IconButton>
           </Tooltip>
-          {/* <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
-              <IconButton size="small" onClick={() => disableArticle(row.id)}>
-                {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
-              </IconButton>
-            </Tooltip> */}
+          <Tooltip title={enabled ? 'Deshabilitar' : 'Habilitar'}>
+            <IconButton size="small" onClick={() => disableOperatingRoom(row.id_Quirofano)}>
+              {enabled ? <RemoveCircleIcon sx={{ color: 'red' }} /> : <CheckIcon sx={{ color: 'green' }} />}
+            </IconButton>
+          </Tooltip>
         </>
       ),
     },
@@ -71,22 +78,41 @@ const OperatingRoomsTab = () => {
     <>
       <MainCard content={false}>
         <TableTop>
-          <SearchBar title="Buscar espacio hospitalario..." searchState={setSearch} />
-          <Button variant="contained" onClick={handleAdd}>
-            Agregar categoría de cuartos
-          </Button>
+          <SearchBar title="Buscar quirofano..." searchState={setSearch} />
+          <Grid>
+            <Button
+              sx={{
+                height: '40px',
+              }}
+              onClick={() => {
+                setEnabled(!enabled);
+              }}
+              variant="outlined"
+              startIcon={<ArticleOutlinedIcon />}
+            >
+              {enabled ? 'Mostrar deshabilitados' : 'Mostrar habilitados'}
+            </Button>
+            <Button
+              sx={{ height: '40px', ml: 2 }}
+              variant="contained"
+              startIcon={<AddCircleOutlinedIcon />}
+              onClick={handleAdd}
+            >
+              <Typography variant="button">Agregar quirofano</Typography>
+            </Button>
+          </Grid>
         </TableTop>
         <TablePaginated
           ref={tableRef}
           columns={columns}
-          fetchData={getNormalRoomCategories}
+          fetchData={getOperatingRooms}
           params={{
-            habilitado: true,
+            habilitado: enabled,
             search,
           }}
         />
       </MainCard>
-      <NormalRoomCategoriesModal
+      <OperatingRoomsModal
         open={modalOpen}
         defaultData={selectedItem}
         onClose={handleModalClose}

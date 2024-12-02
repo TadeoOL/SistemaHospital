@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { useOperatingRoomsPaginationStore } from '../stores/useOperatingRoomPagination';
+import { useOperatingRoomCategoriesPaginationStore } from '../stores/useOperatingRoomCategoriesPaginationStore';
 import { Button, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { MainCard, TablePaginated, TableTop } from '@/common/components';
@@ -29,7 +29,7 @@ const OperatingRoomType = () => {
     setModalOpen(true);
   };
 
-  const { search, setSearch } = useOperatingRoomsPaginationStore((state) => ({
+  const { search, setSearch } = useOperatingRoomCategoriesPaginationStore((state) => ({
     setSearch: state.setSearch,
     search: state.search,
   }));

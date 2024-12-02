@@ -79,24 +79,22 @@ const NormalRoomsTab = () => {
       <MainCard content={false}>
         <TableTop>
           <SearchBar title="Buscar cuarto..." searchState={setSearch} />
-          <div className="col"></div>
-          <Button
-            sx={{
-              height: '40px',
-              mx: 1,
-            }}
-            onClick={() => {
-              setEnabled(!enabled);
-            }}
-            variant="outlined"
-            startIcon={<ArticleOutlinedIcon />}
-          >
-            {enabled ? 'Mostrar deshabilitados' : 'Mostrar habilitados'}
-          </Button>
 
           <Grid>
             <Button
-              sx={{ height: '40px', mt: '8px' }}
+              sx={{
+                height: '40px',
+              }}
+              onClick={() => {
+                setEnabled(!enabled);
+              }}
+              variant="outlined"
+              startIcon={<ArticleOutlinedIcon />}
+            >
+              {enabled ? 'Mostrar deshabilitados' : 'Mostrar habilitados'}
+            </Button>
+            <Button
+              sx={{ height: '40px', ml: 2 }}
               variant="contained"
               startIcon={<AddCircleOutlinedIcon />}
               onClick={handleAdd}

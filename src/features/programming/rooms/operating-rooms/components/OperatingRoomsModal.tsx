@@ -1,8 +1,8 @@
 import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { ModalBasic } from '@/common/components';
-import { useGetAllTypesRoom } from '@/hooks/programming/useGetAllTypesRoom';
+import { useGetAllSurgeryRoomTypes } from '@/hooks/programming/useGetAllSurgeryRoomTypes';
 import { roomSchema } from '@/schema/programming/programmingSchemas';
-import { modifyRoom, registerRoom } from '@/services/programming/roomsService';
+import { modifySurgeryRoom, registerSurgeryRoom } from '@/services/programming/surgeryRoom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -21,9 +21,9 @@ type Inputs = {
   description: string;
 };
 
-const NormalRoomsModal = (props: NormalRoomModalProps) => {
+const OperatingRoomsModal = (props: NormalRoomModalProps) => {
   const { open, onClose, onSuccess, defaultData } = props;
-  const { isLoadingTypeRoom, data: typeRoomTypes } = useGetAllTypesRoom();
+  const { isLoadingSurgeryRoomType, data: surgeryRoomTypes } = useGetAllSurgeryRoomTypes();
   const [isLoading, setIsLoading] = useState(false);
 
   const defaultValues = {
@@ -50,37 +50,37 @@ const NormalRoomsModal = (props: NormalRoomModalProps) => {
     setValue('description', defaultData.descripcion);
   }, [defaultData]);
 
-  const dataTypes = [...typeRoomTypes];
+  const dataTypes = [...surgeryRoomTypes];
   const watchRoomType = watch('roomType');
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log('defaultData:', defaultData);
+    console.log('data:', data);
     setIsLoading(true);
     try {
-      // Encontrar el tipo de cuarto seleccionado
-
       if (!defaultData) {
-        await registerRoom({
+        await registerSurgeryRoom({
           nombre: data.name,
-          id_TipoCuarto: data.roomType,
+          id_TipoQuirofano: data.roomType,
           descripcion: data.description,
         });
-        toast.success('Cuarto dado de alta correctamente');
+        toast.success('Quirofano dado de alta correctamente');
       } else {
-        await modifyRoom({
+        await modifySurgeryRoom({
           nombre: data.name,
-          id_TipoCuarto: data.roomType,
+          id_TipoQuirofano: data.roomType,
           descripcion: data.description,
-          id: defaultData.id,
+          id: defaultData.id_Quirofano,
         });
-        toast.success('Cuarto modificado correctamente');
+        toast.success('Quirofano modificado correctamente');
       }
       onSuccess();
       onClose();
     } catch (error) {
       console.log(error);
       defaultData
-        ? toast.error('Error al modificar el cuarto')
-        : toast.error('Error al intentar dar de alta el cuarto');
+        ? toast.error('Error al modificar el quirofano')
+        : toast.error('Error al intentar dar de alta el quirofano');
     } finally {
       setIsLoading(false);
     }
@@ -88,8 +88,9 @@ const NormalRoomsModal = (props: NormalRoomModalProps) => {
 
   useEffect(() => {
     if (!defaultData) return;
-    const roomType = dataTypes.find((d) => d.nombre === defaultData.tipoCuarto);
-    setValue('roomType', roomType ? roomType.id_TipoCuarto : '');
+    const roomType = dataTypes.find((d) => d.nombre === defaultData.tipoQuirofano);
+    console.log('roomType:', roomType);
+    setValue('roomType', roomType ? roomType.id_TipoQuirofano : '');
   }, [defaultData]);
 
   const actions = (
@@ -105,7 +106,7 @@ const NormalRoomsModal = (props: NormalRoomModalProps) => {
 
   return (
     <ModalBasic
-      isLoading={isLoading || isLoadingTypeRoom}
+      isLoading={isLoading || isLoadingSurgeryRoomType}
       header={defaultData ? 'Modificar cuarto' : 'Agregar cuarto'}
       open={open}
       onClose={onClose}
@@ -136,7 +137,7 @@ const NormalRoomsModal = (props: NormalRoomModalProps) => {
             >
               {dataTypes.map((roomType) => {
                 return (
-                  <MenuItem value={roomType.id_TipoCuarto} key={roomType.id_TipoCuarto}>
+                  <MenuItem value={roomType.id_TipoQuirofano} key={roomType.id_TipoQuirofano}>
                     {roomType.nombre}
                   </MenuItem>
                 );
@@ -161,4 +162,4 @@ const NormalRoomsModal = (props: NormalRoomModalProps) => {
   );
 };
 
-export default NormalRoomsModal;
+export default OperatingRoomsModal;
