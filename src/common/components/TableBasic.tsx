@@ -11,6 +11,7 @@ import React from 'react';
 import { SortComponent } from '../../components/Commons/SortComponent';
 import { Box, CircularProgress, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import SimpleBarScroll from './Drawer/DrawerContent/SimpleBar';
 
 export interface TableBasicColumn {
   header: string | React.ReactNode;
@@ -113,7 +114,12 @@ export const TableBasic = (props: TableBasicProps) => {
           <>{props.children}</>
         </Stack>
       )}
-      <TableContainer sx={{ maxHeight: maxHeight || undefined }}>
+      <SimpleBarScroll
+        sx={{
+          maxHeight: maxHeight || 'calc(100vh - 370px)',
+          '& .SimpleBarScroll-content': { display: 'flex', flexDirection: 'column' },
+        }}
+      >
         <Table stickyHeader sx={{ minWidth: 350 }}>
           <TableHead>
             <TableRow>{columns.map((column, i) => getHeader(column, i))}</TableRow>
@@ -126,7 +132,7 @@ export const TableBasic = (props: TableBasicProps) => {
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
+      </SimpleBarScroll>
 
       {rows.length === 0 && (
         <Box
