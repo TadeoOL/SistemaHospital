@@ -1,5 +1,5 @@
 import { Modal } from '@mui/material';
-import usePurchaseAuthorizationHistory from '../hooks/usePurchaseAuthorizationHistory';
+import usePurchaseAuthorizationHistory from '../../hooks/usePurchaseAuthorizationHistory';
 import { ViewPdf } from '@/components/Inputs/ViewPdf';
 
 interface ModalsContainerProps {

@@ -1,7 +1,7 @@
 import { SearchBar } from '@/components/Inputs/SearchBar';
 import { FilterListOff } from '@mui/icons-material';
 import { Box, MenuItem, TextField } from '@mui/material';
-import usePurchaseAuthorizationHistory from '../hooks/usePurchaseAuthorizationHistory';
+import usePurchaseAuthorizationHistory from '../../hooks/usePurchaseAuthorizationHistory';
 import { StatusPurchaseOrderFilter } from '@/types/types';
 import { IconButton } from '@mui/material';
 

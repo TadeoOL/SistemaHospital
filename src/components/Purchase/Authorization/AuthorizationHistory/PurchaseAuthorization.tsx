@@ -1,5 +1,5 @@
 import { Box, Divider, Tooltip } from '@mui/material';
-import PurchaseHistoryFilters from './Filters';
+import PurchaseHistoryFilters from './components/Filters';
 import usePurchaseAuthorizationHistory from './hooks/usePurchaseAuthorizationHistory';
 import { TablePaginated } from '@/common/components';
 import { useRef } from 'react';
@@ -8,7 +8,7 @@ import { IPurchaseAuthorizationHistory } from '@/types/purchase/purchaseTypes';
 import { getPurchaseAuthorizationHistory } from '@/services/purchase/purchaseAuthorizationHistoryService';
 import { Visibility } from '@mui/icons-material';
 import IconButton from '@/components/@extended/IconButton';
-import ModalsContainer from './Modals';
+import ModalsContainer from './components/Modals';
 
 export const PurchaseHistoryAuthorization = () => {
   const tableRef = useRef<any>();
