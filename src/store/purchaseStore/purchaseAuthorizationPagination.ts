@@ -1,5 +1,4 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPurchaseAuthorization } from '../../api/api.routes';
 import { IPurchaseAuthorization } from '../../types/types';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
 

@@ -1,14 +1,14 @@
 import { createWithEqualityFn } from 'zustand/traditional';
-import { getPurchaseAuthorizationHistory } from '../../api/api.routes';
-import { IPurchaseAuthorization } from '../../types/types';
+import { getPurchaseAuthorizationHistory } from '../../services/purchase/purchaseAuthorizationHistoryService';
 import { getFirstDayOfTheMonth } from '../../utils/functions/dataUtils';
+import { IPurchaseOrderPagination } from '@/types/purchase/purchaseTypes';
 
 interface State {
   count: number;
   pageCount: number;
   pageIndex: number;
   pageSize: number;
-  data: IPurchaseAuthorization[];
+  data: IPurchaseOrderPagination[];
   isLoading: boolean;
   search: string;
   enabled: boolean;
@@ -63,17 +63,19 @@ export const usePurchaseAuthorizationHistoryPagination = createWithEqualityFn<St
   setSearch: (search: string) => set({ search, pageIndex: 0 }),
   setEnabled: (enabled: boolean) => set({ enabled }),
   fetchPurchaseAuthorization: async () => {
-    const { pageIndex, enabled, pageSize, search, startDate, endDate, status, sort } = get();
+    const { pageIndex, enabled, pageSize, search, startDate, endDate, sort } = get();
     set(() => ({ isLoading: true }));
     const page = pageIndex + 1;
     try {
-      const res = await getPurchaseAuthorizationHistory(
-        `${page === 0 ? '' : 'pageIndex=' + page}&${
-          pageSize === 0 ? '' : 'pageSize=' + pageSize
-        }&search=${search}&habilitado=${enabled}&estatus=${
-          parseInt(status) > -1 ? status : ''
-        }&fechaInicio=${startDate}&fechaFin=${endDate}&Sort=${sort}`
-      );
+      const res = await getPurchaseAuthorizationHistory({
+        pageIndex: page,
+        pageSize: pageSize,
+        search,
+        habilitado: enabled,
+        fechaInicio: startDate,
+        fechaFin: endDate,
+        sort,
+      });
       set(() => ({
         data: res.data,
         count: res.count,

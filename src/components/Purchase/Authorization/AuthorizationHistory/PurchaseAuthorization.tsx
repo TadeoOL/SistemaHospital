@@ -1,93 +1,64 @@
-import { Box, Divider, IconButton, MenuItem, TextField } from '@mui/material';
-import { SearchBar } from '../../../Inputs/SearchBar';
-import { PurchaseAuthorizationTable } from './PurchaseAuthorizationTable';
-import { usePurchaseAuthorizationHistoryPagination } from '../../../../store/purchaseStore/purchaseAuthorizationHistoryPagination';
-import { StatusPurchaseRequest } from '../../../../types/types';
-import { useMemo } from 'react';
-import { FilterListOff } from '@mui/icons-material';
-import { shallow } from 'zustand/shallow';
+import { Box, Divider, Tooltip } from '@mui/material';
+import PurchaseHistoryFilters from './Filters';
+import usePurchaseAuthorizationHistory from './hooks/usePurchaseAuthorizationHistory';
+import { TablePaginated } from '@/common/components';
+import { useRef } from 'react';
+import { NestedTable, TablePaginatedColumn } from '@/types/tableComponentTypes';
+import { IPurchaseAuthorizationHistory } from '@/types/purchase/purchaseTypes';
+import { getPurchaseAuthorizationHistory } from '@/services/purchase/purchaseAuthorizationHistoryService';
+import { Visibility } from '@mui/icons-material';
+import IconButton from '@/components/@extended/IconButton';
+import ModalsContainer from './Modals';
 
 export const PurchaseHistoryAuthorization = () => {
-  const { setSearch, status, endDate, startDate, setStartDate, setEndDate, setStatus, clearFilters } =
-    usePurchaseAuthorizationHistoryPagination(
-      (state) => ({
-        setSearch: state.setSearch,
-        status: state.status,
-        endDate: state.endDate,
-        startDate: state.startDate,
-        setStartDate: state.setStartDate,
-        setEndDate: state.setEndDate,
-        setStatus: state.setStatus,
-        clearFilters: state.clearFilters,
-      }),
-      shallow
-    );
+  const tableRef = useRef<any>();
+  const { state, handlers } = usePurchaseAuthorizationHistory();
+  const columns: TablePaginatedColumn<IPurchaseAuthorizationHistory>[] = [
+    { header: 'Orden de Compra', value: 'folio', sort: true },
+    { header: 'Creado por', value: (row) => `${row.usuarioSolicito}` || 'N/A', sort: true },
+    { header: 'Proveedor', value: 'nombreProveedor' },
+    { header: 'Estatus', value: 'estatusConcepto' },
+    {
+      header: 'Cotización',
+      value: (row) => (
+        <Tooltip title="Ver Cotización">
+          <IconButton onClick={() => handlers.handleViewQuotation(row.id_OrdenCompra)}>
+            <Visibility />
+          </IconButton>
+        </Tooltip>
+      ),
+    },
+    { header: 'Total', value: 'precioTotalOrden' },
+  ];
+  const params = {
+    search: state.search,
+    fechaInicio: state.dates.startDate,
+    fechaFin: state.dates.endDate,
+    estatus: state.statusPurchaseOrder === '-1' ? '' : state.statusPurchaseOrder,
+  };
 
-  const values = useMemo(() => {
-    const statusPurchaseOrderValues: string[] = [];
-
-    for (const value in StatusPurchaseRequest) {
-      if (!isNaN(Number(StatusPurchaseRequest[value]))) {
-        statusPurchaseOrderValues.push(StatusPurchaseRequest[value]);
-      }
-    }
-    return statusPurchaseOrderValues;
-  }, []);
+  const nestedTable: NestedTable<IPurchaseAuthorizationHistory> = {
+    ordenCompraArticulo: {
+      title: 'Artículos',
+      columns: [
+        { header: 'Artículo', value: 'nombre' },
+        { header: 'Cantidad', value: 'cantidad' },
+      ],
+    },
+  };
 
   return (
     <Box sx={{ pt: 2 }}>
-      <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-        <SearchBar title="Buscar solicitud de compra..." searchState={setSearch} sx={{ display: 'flex', flex: 2 }} />
-        <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
-          <TextField
-            label="Fecha inicio"
-            size="small"
-            type="date"
-            value={startDate}
-            InputLabelProps={{ shrink: true }}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-            }}
-          />
-          <TextField
-            label=" Fecha final"
-            size="small"
-            type="date"
-            value={endDate}
-            InputLabelProps={{ shrink: true }}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-            }}
-          />
-        </Box>
-        <Box sx={{ display: 'flex', flex: 1 }}>
-          <TextField
-            select
-            label="Estatus"
-            size="small"
-            defaultValue={-1}
-            fullWidth
-            value={status}
-            onChange={(e) => {
-              const { value } = e.target;
-              setStatus(value);
-            }}
-          >
-            {values.map((v: any) => (
-              <MenuItem key={v} value={v}>
-                {StatusPurchaseRequest[v]}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
-        <Box>
-          <IconButton onClick={() => clearFilters()}>
-            <FilterListOff />
-          </IconButton>
-        </Box>
-      </Box>
+      <PurchaseHistoryFilters state={state} handlers={handlers} />
       <Divider sx={{ my: 1 }} />
-      <PurchaseAuthorizationTable />
+      <TablePaginated
+        ref={tableRef}
+        columns={columns}
+        fetchData={getPurchaseAuthorizationHistory}
+        params={params}
+        nestedTable={nestedTable}
+      />
+      <ModalsContainer state={state} handlers={handlers} />
     </Box>
   );
 };

@@ -546,11 +546,6 @@ export const addPurchaseRequest = async (data: {
   return res.data;
 };
 
-export const getPurchaseAuthorizationHistory = async (paramUrl: string) => {
-  const res = await axios.get(`/api/AutorizacionCompras/paginacion-historial-autorizacion?${paramUrl}`);
-  return res.data;
-};
-
 export const changePurchaseStatus = async (Id_SolicitudCompra: string, Estatus: number, Mensaje?: string) => {
   try {
     const res = await axios.put(`/api/Compras/estatus-solicitud-compras`, {
