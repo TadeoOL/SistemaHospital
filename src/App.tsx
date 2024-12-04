@@ -9,6 +9,7 @@ import { NotFoundPage } from './views/404Page';
 import { LoginRoute } from './utils/LoginRoute';
 import { ToastContainer } from 'react-toastify';
 import { PharmacyRoute } from './utils/PharmacyRoute';
+import ThemeCustomization from './themes';
 import {
   Dashboard,
   PurchaseRequest,
@@ -73,128 +74,141 @@ import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
 import DashboardLayout from './common/components/Layout/DashboardLayout';
-import { Layout } from './components/Layout/Layout';
+import Treasury from './features/treasury/Treasury';
+import CashFlow from './features/treasury/CashFlow';
+import TreasuryBox from './features/treasury/TreasuryBox';
+import Banks from './features/treasury/Banks';
+import AccountState from './features/treasury/AccountState';
+import Administration from './features/treasury/TreasuryAdministration';
 
 function App() {
   // const theme = useTheme();
   // console.log('theme:', theme);
   // const font: any = theme.typography.fontFamily;
   return (
-    <Locales>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardLayout />}>
-              <Route path="/inicio" element={<Dashboard />} />
-              <Route path="/compras">
-                <Route element={<ProtectedPurchaseRequest />}>
-                  <Route path="solicitud-compras" element={<PurchaseRequest />} />
+    <ThemeCustomization>
+      <Locales>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                <Route path="/inicio" element={<Dashboard />} />
+                <Route path="/compras">
+                  <Route element={<ProtectedPurchaseRequest />}>
+                    <Route path="solicitud-compras" element={<PurchaseRequest />} />
+                  </Route>
+                  <Route element={<ProtectedRouteSupply />}>
+                    <Route path="articulos" element={<Article />} />
+                    <Route path="articulo-existente" element={<ExistingArticle />} />
+                    <Route path="categorias" element={<Category />} />
+                    <Route path="subcategorias" element={<SubCategory />} />
+                    <Route path="proveedores" element={<ProvidersView />} />
+                  </Route>
                 </Route>
-                <Route element={<ProtectedRouteSupply />}>
-                  <Route path="articulos" element={<Article />} />
-                  <Route path="articulo-existente" element={<ExistingArticle />} />
-                  <Route path="categorias" element={<Category />} />
-                  <Route path="subcategorias" element={<SubCategory />} />
-                  <Route path="proveedores" element={<ProvidersView />} />
+                <Route element={<ProtectedRoutePurchasingDirector />}>
+                  <Route path="/almacenes" element={<WarehouseView />} />
+                  <Route path="/compras/autorizacion-compras" element={<PurchaseAuthorizationView />} />
+                  <Route path="compras/configuracion-compras" element={<PurchaseConfigView />} />
                 </Route>
-              </Route>
-              <Route element={<ProtectedRoutePurchasingDirector />}>
-                <Route path="/almacenes" element={<WarehouseView />} />
-                <Route path="/compras/autorizacion-compras" element={<PurchaseAuthorizationView />} />
-                <Route path="compras/configuracion-compras" element={<PurchaseConfigView />} />
-              </Route>
-              <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
-              <Route element={<PharmacyRoute />}>
-                <Route element={<ProtectedRoutePharmacyDirector />}>
-                  <Route path="/farmacia/historial-ventas" element={<SellsHistoryView />} />
-                  <Route path="/farmacia/configuracion-farmacia" element={<PharmacyConfigView />} />
-                </Route>
-                <Route element={<ProtectedRoutePharmacyManager />}>
-                  <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
-                  <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
-                </Route>
-                {/*<Route element={<ProtectedRoutePharmacyManager />}>
+                <Route path="/programacion/agenda-quirofano" element={<ScheduleView />} />
+                <Route element={<PharmacyRoute />}>
+                  <Route element={<ProtectedRoutePharmacyDirector />}>
+                    <Route path="/farmacia/historial-ventas" element={<SellsHistoryView />} />
+                    <Route path="/farmacia/configuracion-farmacia" element={<PharmacyConfigView />} />
+                  </Route>
+                  <Route element={<ProtectedRoutePharmacyManager />}>
+                    <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
+                    <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
+                  </Route>
+                  {/*<Route element={<ProtectedRoutePharmacyManager />}>
                 <Route path="/farmacia/punto-venta" element={<PointOfSaleView />} />
                 <Route path="/farmacia/catalogo" element={<PackageCatalogueView />} />
               </Route>*/}
-              </Route>
-              <Route element={<CheckoutRoute />}>
-                <Route path="ventas/caja" element={<PointOfSaleCheckoutView />} />
-                <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
-                <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
-                <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
-                <Route path="ventas/cierre-de-cuenta" element={<PatientAcountsView />} />
-                <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
-                // ---------------------------Programacion------------------------------------- //
-                <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
-                <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
-                {/* <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} /> */}
-                <Route path="programacion/categorias-espacios-hospitalarios" element={<RoomTypesView />} />
-                <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
-                {/* <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} /> */}
-                <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
-                <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
-                <Route path="/configuracion" element={<AccountView />} />
-                // ---------------------------Admision------------------------------------- //
-                <Route path="admision/ingreso-pacientes" element={<PatientsEntryView />} />
-                <Route path="admision/consultas-medicas" element={<MedicalConsultationView />} />
-                <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
-              </Route>
-              // ------------------------------ Hospitalization-------------------------------- //
-              <Route path="hospitalizacion/servicios-solicitud" element={<XRayRequestView />} />
-              {/* <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} /> */}
-              {/* <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} /> */}
-              <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
-              <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
-              <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
-              <Route element={<ProtectedRoutePharmacyNurse />}>
-                <Route path="/hospitalizacion/solicitud-enfermero" element={<NurseRequestView />} />
-              </Route>
-              // --------------------------------- Budget ------------------------------- // //
-              <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
-              // --------------------------------- Nursing ------------------------------- // //
-              <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
-              <Route path="enfermeria/kardex-paciente/:id" element={<PatientKardexView />} />
-              // --------------------------------- Biomedical ------------------------------- // //
-              <Route path="servicios/solicitudes-administracion" element={<XRayRequestManagementView />} />
-              <Route path="servicios/configuracion-solicitudes" element={<RequestsConfigView />} />
-              <Route path="servicios/solicitudes" element={<XRayView />} />
-              --------------------------------- OperatingRoom ------------------------------- //
-              <Route path="quirofano/medicos" element={<MedicView />} />
-              <Route path="quirofano/anestesiologos" element={<AnesthesiologistView />} />
-              <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
-              <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
-              <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
-              <Route path="quirofano/procedimientos-cirugia" element={<SurgeryProcedureView />} />
-              <Route element={<PharmacyRoute />}>
-                <Route path="/quirofano/paquetes-quirurgicos" element={<OperatingPackagesView />} />
-              </Route>
-              // ---------------------------------------- Invoice ------------------------------//
-              <Route path="/facturas" element={<InvoiceView />} />
-              <Route path="/reportes">
-                <Route path="caja" element={<CheckoutReportView />}></Route>
+                </Route>
+                <Route element={<CheckoutRoute />}>
+                  <Route path="ventas/caja" element={<PointOfSaleCheckoutView />} />
+                  <Route path="ventas/emitir-recibo" element={<ReceiptEmitterView />} />
+                  <Route path="ventas/configuracion-usuarios" element={<ConfigEmitterUsersView />} />
+                  <Route path="ventas/historial-cortes" element={<CloseCheckoutHistoryView />} />
+                  <Route path="ventas/cierre-de-cuenta" element={<PatientAcountsView />} />
+                  <Route path="ventas/corte-caja" element={<CloseCheckoutView />} />
+                  // ---------------------------Programacion------------------------------------- //
+                  <Route path="programacion/registro" element={<ProgrammingRegisterView />} />
+                  <Route path="programacion/gestion-espacios-hospitalarios" element={<RoomsView />} />
+                  {/* <Route path="programacion/categorias-espacios-hospitalarios" element={<TypesRoomView />} /> */}
+                  <Route path="programacion/categorias-espacios-hospitalarios" element={<RoomTypesView />} />
+                  <Route path="programacion/registro-eventos" element={<ProgrammingCalendarView />} />
+                  {/* <Route path="programacion/configuracion" element={<ConfigurationProgrammingView />} /> */}
+                  <Route path="programacion/solicitud-programacion" element={<ProgrammingRequestView />} />
+                  <Route path="/almacenes/:warehouseId" element={<WarehouseSelected />} />
+                  <Route path="/configuracion" element={<AccountView />} />
+                  // ---------------------------Admision------------------------------------- //
+                  <Route path="admision/ingreso-pacientes" element={<PatientsEntryView />} />
+                  <Route path="admision/consultas-medicas" element={<MedicalConsultationView />} />
+                  <Route path="admision/cuentas-pendientes-por-pagar" element={<OutstandingBillsView />} />
+                </Route>
+                // ------------------------------ Hospitalization-------------------------------- //
+                <Route path="hospitalizacion/servicios-solicitud" element={<XRayRequestView />} />
+                {/* <Route path="hospitalizacion/guardias-anestesiologos" element={<AnesthesiologistShiftView />} /> */}
+                {/* <Route path="hospitalizacion/configuracion-hospitalizacion" element={<HospitalizationConfigView />} /> */}
+                <Route path="hospitalizacion/cuartos-hospitalarios" element={<HospitalRoomsView />} />
+                <Route path="hospitalizacion/calendario-cuartos-asignados" element={<HospitalRoomsCalendarView />} />
+                <Route path="hospitalizacion/configuracion-solicitudes" element={<RequestsConfigView />} />
+                <Route element={<ProtectedRoutePharmacyNurse />}>
+                  <Route path="/hospitalizacion/solicitud-enfermero" element={<NurseRequestView />} />
+                </Route>
+                // --------------------------------- Budget ------------------------------- // //
+                <Route path="presupuestos/guardias-medicos" element={<MedicalShiftView />} />
+                // --------------------------------- Nursing ------------------------------- // //
+                <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
+                <Route path="enfermeria/kardex-paciente/:id" element={<PatientKardexView />} />
+                // --------------------------------- Biomedical ------------------------------- // //
+                <Route path="servicios/solicitudes-administracion" element={<XRayRequestManagementView />} />
+                <Route path="servicios/configuracion-solicitudes" element={<RequestsConfigView />} />
+                <Route path="servicios/solicitudes" element={<XRayView />} />
+                --------------------------------- OperatingRoom ------------------------------- //
+                <Route path="quirofano/medicos" element={<MedicView />} />
+                <Route path="quirofano/anestesiologos" element={<AnesthesiologistView />} />
+                <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
+                <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
+                <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
+                <Route path="quirofano/procedimientos-cirugia" element={<SurgeryProcedureView />} />
+                <Route element={<PharmacyRoute />}>
+                  <Route path="/quirofano/paquetes-quirurgicos" element={<OperatingPackagesView />} />
+                </Route>
+                // ---------------------------------------- Invoice ------------------------------//
+                <Route path="/facturas" element={<InvoiceView />} />
+                <Route path="/reportes">
+                  <Route path="caja" element={<CheckoutReportView />}></Route>
+                </Route>
+                <Route path="/tesoreria/menu" element={<Treasury />}></Route>
+                <Route path="/tesoreria/revolvente" element={<CashFlow />}></Route>
+                <Route path="/tesoreria/cajas" element={<TreasuryBox />}></Route>
+                <Route path="/tesoreria/bancos" element={<Banks />}></Route>
+                <Route path="/tesoreria/estado-cuenta" element={<AccountState />}></Route>
+                <Route path="/tesoreria/direccion" element={<Administration />}></Route>
               </Route>
             </Route>
-          </Route>
-          <Route element={<LoginRoute />}>
-            <Route path="/login" element={<LoginView />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-        <ToastContainer
-          position="bottom-right"
-          autoClose={4000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss={false}
-          draggable
-          pauseOnHover={false}
-          theme="colored"
-        />
-      </BrowserRouter>
-    </Locales>
+            <Route element={<LoginRoute />}>
+              <Route path="/login" element={<LoginView />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={4000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss={false}
+            draggable
+            pauseOnHover={false}
+            theme="colored"
+          />
+        </BrowserRouter>
+      </Locales>
+    </ThemeCustomization>
   );
 }
 

@@ -21,24 +21,22 @@ const canShow = (profile: any, items: NavItemType[] | undefined, path: any[] = [
   let finalPaths: any = {};
 
   for (const item of items) {
-    if (item.type === 'item') {
-      if (item.protectedRoles && !matchRoles(profile, item.protectedRoles)) {
-        continue;
-      }
-      itemsToShow.push(item);
+    if (item.protectedRoles && !matchRoles(profile, item.protectedRoles)) {
+      continue;
+    }
+    itemsToShow.push(item);
 
-      if (item.url) {
-        const totalPath = [
-          ...path,
-          {
-            title: item.title,
-            icon: item.icon,
-          },
-        ];
+    if (item.url) {
+      const totalPath = [
+        ...path,
+        {
+          title: item.title,
+          icon: item.icon,
+        },
+      ];
 
-        const url = item.url;
-        finalPaths[url] = totalPath;
-      }
+      const url = item.url;
+      finalPaths[url] = totalPath;
     }
 
     if (['collapse', 'group'].includes(item.type as string)) {

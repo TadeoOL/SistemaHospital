@@ -4,6 +4,7 @@ import { purchaseAlerts } from '../../../../../utils/alerts/purchaseAlerts';
 import { useDirectlyPurchaseRequestOrderStore } from '../../../../../store/purchaseStore/directlyPurchaseRequestOrder';
 import { StatusPurchaseOrder } from '@/types/types';
 import { changeOrderStatus, getOrderRequestById } from '@/services/purchase/purchaseService';
+import { generatePurchaseOrderPdf } from '../pdfs/generatePurchaseOrderPdf';
 
 interface PurchaseOrderState {
   search: string;
@@ -182,7 +183,8 @@ export const usePurchaseOrder = () => {
     },
 
     handlePdfFetch: async (orderId: string) => {
-      console.log({ orderId });
+      const orderDetails = await getOrderRequestById(orderId);
+      generatePurchaseOrderPdf(orderDetails);
     },
 
     handleRemoveOrder: async (orderId: string) => {

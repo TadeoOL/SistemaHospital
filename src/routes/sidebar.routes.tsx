@@ -556,6 +556,53 @@ const sideBarRoutes: NavItemType[] = [
           },
         ],
       },
+      {
+        id: 'tesoreria',
+        title: 'Tesoreria',
+        type: 'collapse',
+        icon: icons.Assignment,
+        children: [
+          {
+            id: 'revolvente',
+            title: 'Revolvente',
+            url: '/tesoreria/revolvente',
+            icon: icons.PointOfSale,
+            type: 'collapse',
+            children: [
+              {
+                id: 'cajas',
+                title: 'Cajas',
+                url: '/tesoreria/cajas',
+                icon: icons.PointOfSale,
+                type: 'item',
+              },
+            ],
+          },
+          {
+            id: 'bancos',
+            title: 'Bancos',
+            url: '/tesoreria/bancos',
+            icon: icons.PointOfSale,
+            type: 'collapse',
+            children: [
+              {
+                id: 'estado-de-cuenta',
+                title: 'Estado de cuenta',
+                url: '/tesoreria/estado-cuenta',
+                icon: icons.PointOfSale,
+                type: 'item',
+              },
+            ],
+          },
+          {
+            id: 'direccion',
+            title: 'Direccion',
+            url: '/tesoreria/direccion',
+            icon: icons.PointOfSale,
+            type: 'item',
+          },
+        ],
+      },
     ],
   },
 ];
