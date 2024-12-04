@@ -19,18 +19,18 @@ import {
   Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useGetPurchaseConfig } from '../../../../../hooks/useGetPurchaseConfig';
+import { useGetPurchaseConfig } from '@/hooks/useGetPurchaseConfig';
 import { useEffect, useState } from 'react';
-import { IFactor, IPurchaseConfig } from '../../../../../types/types';
+import { IFactor, IPurchaseConfig } from '@/types/types';
 import { toast } from 'react-toastify';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addNewFactorSchema } from '../../../../../schema/schemas';
-import { isValidInteger } from '../../../../../utils/functions/dataUtils';
+import { addNewFactorSchema } from '@/schema/schemas';
+import { isValidInteger } from '@/utils/functions/dataUtils';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { modifyModuleConfig } from '../../../../../api/api.routes';
+import { modifyModuleConfig } from '@/api/api.routes';
 
 const styleInput = {
   paddingTop: '0.4rem',

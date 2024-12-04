@@ -14,6 +14,13 @@ import { useGetSubCategories } from '@/hooks/useGetSubCategories';
 import { useFetchArticle } from '../hooks/useFetchArticle';
 import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
 import { addArticle } from '../schemas/articles.schemas';
+import { useApiConfigStore } from '@/store/apiConfig';
+import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
+import { addProductToInvoice } from '@/services/invoice/invoice.product.service';
+import {
+  addProductToInvoiceService,
+  modifyProductToInvoiceService,
+} from '@/services/contpaqi/contpaqi.product.service';
 
 interface ArticleModalProps {
   itemId?: string;
@@ -24,6 +31,8 @@ interface ArticleModalProps {
 
 export const ArticleModal = (props: ArticleModalProps) => {
   const { open, onClose, onSuccess, itemId } = props;
+  const apiUrl = useApiConfigStore((state) => state.apiUrl);
+  const hasApiUrl = !!apiUrl;
 
   const { subCategories, isLoading } = useGetSubCategories();
   const config = useGetPurchaseConfig();
@@ -46,7 +55,10 @@ export const ArticleModal = (props: ArticleModalProps) => {
     precioVentaInterno: '',
     codigoBarras: '',
     codigoSAT: '',
-    codigoUnidadMedida: 0,
+    codigoUnidadMedida: '',
+    codigoProducto: '',
+    tipoProducto: 0,
+    id_ProductoFactura: '',
   };
 
   const {
@@ -65,8 +77,9 @@ export const ArticleModal = (props: ArticleModalProps) => {
             ...article,
             precioCompra: article.precioCompra.toString(),
             id_subcategoria: (article.subCategoria as any)?.id_SubCategoria,
+            codigoUnidadMedida: article.codigoUnidadMedida?.toString() || '',
           },
-    resolver: zodResolver(addArticle),
+    resolver: zodResolver(addArticle(hasApiUrl)),
   });
 
   useEffect(() => {
@@ -82,19 +95,56 @@ export const ArticleModal = (props: ArticleModalProps) => {
       data.id = itemId || undefined;
       data.esCaja = isBox;
       data.factor = factor;
-      console.log('data:', data);
+      let id_Relacion: string = data.id || '';
       if (!itemId) {
         const res = await addNewArticle(data);
-        console.log('res:', res);
+        id_Relacion = res.id;
+        if (hasApiUrl) {
+          const resInvoice = await addProductToInvoice({
+            id: data.id_ProductoFactura || undefined,
+            codigoSAT: data.codigoSAT || '',
+            codigoUnidadMedida: data.codigoUnidadMedida || '',
+            codigoProducto: data.codigoProducto || '',
+            id_Relacion,
+            tipoProducto: data.tipoProducto || 0,
+          });
+          await addProductToInvoiceService({
+            nombre: data.nombre,
+            codigoContpaq: resInvoice.codigoProducto ?? '',
+            precioVenta: data.precioVentaInterno,
+            iva: article?.iva ?? false,
+            codigoSAT: data.codigoSAT ?? '',
+            id_UnidadMedida: data.codigoUnidadMedida ?? '',
+          });
+        }
         toast.success('Articulo creado con éxito!');
       } else {
         const res = await modifyArticle(data);
-        console.log('res:', res);
+        id_Relacion = res.id;
+        if (hasApiUrl) {
+          const resInvoice = await addProductToInvoice({
+            id: data.id_ProductoFactura || undefined,
+            codigoSAT: data.codigoSAT || '',
+            codigoUnidadMedida: data.codigoUnidadMedida || '',
+            codigoProducto: data.codigoProducto || '',
+            id_Relacion,
+            tipoProducto: data.tipoProducto || 0,
+          });
+          await modifyProductToInvoiceService({
+            nombre: data.nombre,
+            codigoContpaq: resInvoice.codigoProducto ?? '',
+            precioVenta: data.precioVentaInterno,
+            iva: article?.iva ?? false,
+            codigoSAT: data.codigoSAT ?? '',
+            id_UnidadMedida: data.codigoUnidadMedida ?? '',
+          });
+        }
         toast.success('Articulo modificado con éxito!');
       }
       onSuccess();
       onClose();
     } catch (error) {
+      console.log('error:', error);
       toast.error('Error al crear el articulo!');
     }
   };
@@ -317,6 +367,57 @@ export const ArticleModal = (props: ArticleModalProps) => {
               helperText={errors?.codigoBarras?.message}
             />
           </Grid>
+          {hasApiUrl && (
+            <>
+              <Grid item xs={12} md={6}>
+                <InputBasic
+                  label="Código SAT"
+                  placeholder="Escriba un Código SAT"
+                  {...register('codigoSAT')}
+                  error={!!errors.codigoSAT}
+                  helperText={errors?.codigoSAT?.message}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <InputBasic
+                  label="Código Unidad de Medida"
+                  placeholder="Escriba un Código de Unidad de Medida"
+                  {...register('codigoUnidadMedida')}
+                  error={!!errors.codigoUnidadMedida}
+                  type="number"
+                  helperText={errors?.codigoUnidadMedida?.message}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <SelectBasic
+                  label="Tipo de Producto"
+                  placeholder="Seleccione un Tipo de Producto"
+                  value={watch('tipoProducto')}
+                  error={!!errors.tipoProducto}
+                  helperText={errors?.tipoProducto?.message}
+                  options={Object.entries(ProductType)
+                    .filter(([key]) => isNaN(Number(key)))
+                    .map(([_key, value]) => ({
+                      id: value,
+                      tipo: productTypeLabel[value as keyof typeof productTypeLabel],
+                    }))}
+                  uniqueProperty="id"
+                  displayProperty="tipo"
+                  {...register('tipoProducto')}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <InputBasic
+                  label="Código Producto"
+                  placeholder="Escriba un Código Producto"
+                  {...register('codigoProducto')}
+                  error={!!errors.codigoProducto}
+                  helperText={errors?.codigoProducto?.message}
+                  disabled
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
       </form>
     </ModalBasic>

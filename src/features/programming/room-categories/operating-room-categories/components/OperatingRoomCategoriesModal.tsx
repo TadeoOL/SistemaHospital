@@ -290,23 +290,24 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
           </Grid>
           <Grid item xs={12} md={12}>
             <>
+              {' '}
               <PriceRangeTable
                 xs={xs}
-                title={'Precio hora quirofano'}
+                title={'Precio por Hora Ambulatoria'}
+                updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeOutpatient')}
+                data={watch('priceByTimeRangeOutpatient')}
+              />
+              <PriceRangeTable
+                xs={xs}
+                title={'Precio por Hora Hospitalización'}
                 updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeHospitalization')}
                 data={watch('priceByTimeRangeHospitalization')}
               />
               <PriceRangeTable
                 xs={xs}
-                title={'Precio hora recuperacion'}
+                title={'Precio por Hora Recuperación'}
                 updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeRecovery')}
                 data={watch('priceByTimeRangeRecovery')}
-              />
-              <PriceRangeTable
-                xs={xs}
-                title={'Precio hora ambulatoria'}
-                updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeOutpatient')}
-                data={watch('priceByTimeRangeOutpatient')}
               />
             </>
           </Grid>

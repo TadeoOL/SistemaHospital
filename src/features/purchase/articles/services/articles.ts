@@ -2,6 +2,8 @@ import axios from '../../../../libs/axios';
 import { GetParams } from '../../../../api/interface/params.interface';
 import { IArticle } from '../../../../types/types';
 
+const baseUrl = '/api/Compras/Catalogo/Articulo';
+
 interface GetArticlesParams extends GetParams {
   id_AlmacenPrincipal?: string;
   id_Almacen?: string;
@@ -9,7 +11,7 @@ interface GetArticlesParams extends GetParams {
 }
 
 export const getArticles = async (params: GetArticlesParams) => {
-  const res = await axios.get(`/api/Compras/Catalogo/Articulo/paginacion-articulo`, {
+  const res = await axios.get(`${baseUrl}/paginacion-articulo`, {
     params,
   });
   return res.data;
@@ -35,7 +37,7 @@ export const modifyArticle = async (article: IArticle) => {
     factor,
   } = article;
 
-  const res = await axios.put(`/api/Compras/Catalogo/Articulo/actualizar-articulo`, {
+  const res = await axios.put(`${baseUrl}/actualizar-articulo`, {
     id,
     nombre,
     descripcion,
@@ -76,7 +78,7 @@ export const addNewArticle = async (article: IArticle) => {
     factor,
   } = article;
 
-  const res = await axios.post(`/api/Compras/Catalogo/Articulo/registrar-articulo`, {
+  const res = await axios.post(`${baseUrl}/registrar-articulo`, {
     nombre,
     descripcion,
     // stockAlerta,
@@ -98,11 +100,11 @@ export const addNewArticle = async (article: IArticle) => {
 };
 
 export const disableArticle = async (id: string) => {
-  const res = await axios.put(`/api/Compras/Catalogo/Articulo/estatus-articulo`, { id });
+  const res = await axios.put(`${baseUrl}/estatus-articulo`, { id });
   return res.data;
 };
 
 export const getArticleById = async (articleId: string) => {
-  const res = await axios.get(`/api/Compras/Catalogo/Articulo/${articleId}`);
+  const res = await axios.get(`${baseUrl}/${articleId}`);
   return res.data;
 };

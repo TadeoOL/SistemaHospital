@@ -1,5 +1,5 @@
 // import { HospitalizationConfig } from '../../components/Hospitalization/Configuration/HospitalizationConfig';
-import { PurchaseConfig } from '../../components/Purchase/Authorization/Authorization/Modal/PurchaseConfig';
+import { PurchaseConfig } from '@/components/Purchase/Authorization/Authorization/components/Modal/PurchaseConfig';
 const PurchaseConfigView = () => {
   return (
     <>
