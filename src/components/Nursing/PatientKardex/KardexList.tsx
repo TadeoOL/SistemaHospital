@@ -16,7 +16,6 @@ interface KardexListProps<T extends BaseItem> {
   data: T[] | undefined;
   expanded: { [key: string]: boolean };
   onExpandClick: (kardexId: string) => void;
-  onCreateClick: () => void;
   CardComponent: ComponentType<BaseKardexCardProps<T>>;
   emptyStateProps?: Partial<EmptyKardexStateProps>;
 }
@@ -25,12 +24,11 @@ export function KardexList<T extends BaseItem>({
   data,
   expanded,
   onExpandClick,
-  onCreateClick,
   CardComponent,
   emptyStateProps,
 }: KardexListProps<T>) {
   if (!data?.length) {
-    return <EmptyKardexState onCreateClick={onCreateClick} {...emptyStateProps} />;
+    return <EmptyKardexState {...emptyStateProps} />;
   }
 
   return (

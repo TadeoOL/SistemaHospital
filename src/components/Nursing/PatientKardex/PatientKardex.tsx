@@ -1,9 +1,8 @@
 import { Box, Modal, Paper } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useGetPatientKardex } from '../../../hooks/nursing/useGetPatientKardex';
 import { useLocation, useParams } from 'react-router-dom';
 import LoadingView from '../../../views/LoadingView/LoadingView';
-import { CreateKardexModal } from './MedicalInstructions/CreateKardexModal';
 import { useCreateKardex } from '../../../hooks/nursing/useCreateKardex';
 import { KardexFormData } from '../../../schema/nursing/karedexSchema';
 import { toast } from 'react-toastify';
@@ -12,15 +11,14 @@ import { PatientHeader } from './PatientHeader';
 import { KardexTabs } from './KardexTabs';
 import { useGetPatientDiets } from '../../../hooks/nursing/useGetPatientDiets';
 import { useGetPatientVitalSigns } from '../../../hooks/nursing/useGetPatientVitalSigns';
-import { AddVitalSignsModal } from './PatientVitalSigns/AddVitalSignsModal';
 import { VitalSignsFormData } from '../../../schema/nursing/vitalSignsSchema';
 import { useCreatePatientVitalSigns } from '../../../hooks/nursing/useCreatePatientVitalSigns';
-import { AddPatientDietModal, DietFormData } from './PatientDiet/AddPatientDietModal';
 import Swal from 'sweetalert2';
 import { IArticleDto } from '../../../types/hospitalization/articleRequestTypes';
 import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
 import { NurseRequestModal } from '../../Pharmacy/UserRequest/Modal/NurseRequestModal';
 import { AddXRayRequestModal } from '../../Hospitalization/XRayRequest/Modal/AddXRayRequest';
+import { DietFormData } from './PatientDiet/DietForm';
 
 export const PatientKardex = () => {
   const { id } = useParams();
@@ -36,8 +34,7 @@ export const PatientKardex = () => {
     alergias,
     comentarios,
     diagnosticoIngreso,
-    id_CuentaEspacioHospitalario,
-    id_CuentaPaciente,
+    id_CuentaEspacioHospitalario: _id_CuentaEspacioHospitalario,
     id_Cuarto,
     id_Paciente,
   } = location.state || {};
@@ -45,9 +42,6 @@ export const PatientKardex = () => {
   const { data, isLoading } = useGetPatientKardex(id || '');
   const { data: diets, isLoading: isLoadingDiets } = useGetPatientDiets(id || '');
   const { data: vitalSigns, isLoading: isLoadingVitalSigns } = useGetPatientVitalSigns(id || '');
-  const [openCreateModal, setOpenCreateModal] = useState(false);
-  const [openAddVitalSignsModal, setOpenAddVitalSignsModal] = useState(false);
-  const [openAddPatientDietModal, setOpenAddPatientDietModal] = useState(false);
   const { mutate: createKardex } = useCreateKardex();
   const { mutate: createVitalSigns } = useCreatePatientVitalSigns();
   const { data: pharmacyConfig } = useGetPharmacyConfig();
@@ -76,8 +70,11 @@ export const PatientKardex = () => {
     }
   };
 
-  const handleCreateServicesRequest = async (data: { Id_CuentaPaciente: string; Id_Servicios: string[] }) => {
-    if (!data.Id_Servicios.length) return true;
+  const handleCreateServicesRequest = useCallback(async () => {
+    if (!selectedServices.length) {
+      toast.info('No hay servicios seleccionados');
+      return true;
+    }
 
     const result = await Swal.fire({
       title: '¿Deseas realizar una solicitud de los servicios seleccionados?',
@@ -89,10 +86,10 @@ export const PatientKardex = () => {
     });
 
     if (result.isConfirmed) {
-      setSelectedServices(data.Id_Servicios);
       return new Promise((resolve) => {
         const handleModalClose = () => {
           setOpenXRayRequestModal(false);
+          setSelectedServices([]);
           resolve(true);
         };
         setModalCloseCallback(() => handleModalClose);
@@ -101,13 +98,11 @@ export const PatientKardex = () => {
     }
 
     return false;
-  };
+  }, [selectedServices]);
 
-  const handleCreateArticlesRequest = async (data: {
-    Id_CuentaEspacioHospitalario: string;
-    articulos: (IArticleDto & { nombreArticulo: string })[];
-  }) => {
-    if (!data.articulos.length) {
+  const handleCreateArticlesRequest = useCallback(async () => {
+    if (!selectedArticles.length) {
+      toast.info('No hay artículos seleccionados');
       return true;
     }
 
@@ -121,12 +116,12 @@ export const PatientKardex = () => {
     });
 
     if (result.isConfirmed) {
-      setSelectedArticles(data.articulos);
       setOpenArticlesRequestModal(true);
 
       return new Promise((resolve) => {
         const handleModalClose = () => {
           setOpenArticlesRequestModal(false);
+          setSelectedArticles([]);
           resolve(true);
         };
         setModalCloseCallback(() => handleModalClose);
@@ -134,65 +129,65 @@ export const PatientKardex = () => {
     }
 
     return false;
-  };
+  }, [selectedArticles]);
 
   const handleCreateKardex = async (data: KardexFormData) => {
-    createKardex(data, {
-      onSuccess: async () => {
-        const servicios = data.servicios?.map((service) => service.id_Servicio) || [];
-        const articulos =
-          data.medicamentos?.map((medicament) => ({
-            id_Articulo: medicament.id_Articulo || '',
-            cantidad: 1,
-            nombreArticulo: medicament.nombreArticulo || '',
-          })) || [];
-
-        const servicesResult = await handleCreateServicesRequest({
-          Id_CuentaPaciente: id_CuentaPaciente,
-          Id_Servicios: servicios,
-        });
-
-        if (servicesResult) {
-          const articlesResult = await handleCreateArticlesRequest({
-            Id_CuentaEspacioHospitalario: id_CuentaEspacioHospitalario,
-            articulos: articulos,
-          });
-
-          if (articlesResult) {
-            setOpenCreateModal(false);
-            toast.success('Kardex creado correctamente');
-          }
-        }
-      },
-      onError: () => {
-        toast.error('Error al crear el kardex');
-      },
-    });
+    createKardex(
+      { ...data, id_IngresoPaciente: id || '' },
+      {
+        onSuccess: () => {
+          toast.success('Kardex creado correctamente');
+        },
+        onError: () => {
+          toast.error('Error al crear el kardex');
+        },
+      }
+    );
   };
 
   const handleCreateVitalSigns = (data: VitalSignsFormData) => {
-    createVitalSigns(data, {
-      onSuccess: () => {
-        toast.success('Signos vitales creados correctamente');
-        setOpenAddVitalSignsModal(false);
-      },
-      onError: () => {
-        toast.error('Error al crear los signos vitales');
-      },
-    });
+    createVitalSigns(
+      { ...data, id_IngresoPaciente: id || '' },
+      {
+        onSuccess: () => {
+          toast.success('Signos vitales creados correctamente');
+        },
+        onError: () => {
+          toast.error('Error al crear los signos vitales');
+        },
+      }
+    );
   };
 
   const handleCreatePatientDiet = (data: DietFormData) => {
-    createKardex(data, {
-      onSuccess: () => {
-        toast.success('Dieta creada correctamente');
-        queryClient.invalidateQueries({ queryKey: ['patient-diets', id] });
-        setOpenAddPatientDietModal(false);
-      },
-      onError: () => {
-        toast.error('Error al crear la dieta');
-      },
-    });
+    createKardex(
+      { ...data, id_IngresoPaciente: id || '' },
+      {
+        onSuccess: () => {
+          toast.success('Dieta creada correctamente');
+          queryClient.invalidateQueries({ queryKey: ['patient-diets', id] });
+        },
+        onError: () => {
+          toast.error('Error al crear la dieta');
+        },
+      }
+    );
+  };
+
+  const handleCheckMedication = (id: string, nombreArticulo: string) => {
+    if (selectedArticles.some((article) => article.id_Articulo === id)) {
+      setSelectedArticles((prev) => prev.filter((article) => article.id_Articulo !== id));
+    } else {
+      setSelectedArticles((prev) => [...prev, { id_Articulo: id, nombreArticulo, cantidad: 1 }]);
+    }
+  };
+
+  const handleCheckService = (id: string) => {
+    if (selectedServices.includes(id)) {
+      setSelectedServices((prev) => prev.filter((service) => service !== id));
+    } else {
+      setSelectedServices((prev) => [...prev, id]);
+    }
   };
 
   if (isLoading || isLoadingDiets || isLoadingVitalSigns) return <LoadingView />;
@@ -223,41 +218,23 @@ export const PatientKardex = () => {
         }}
       >
         <KardexTabs
-          onAddIndication={() => setOpenCreateModal(true)}
-          onAddVitalSigns={() => setOpenAddVitalSignsModal(true)}
-          onAddDiet={() => setOpenAddPatientDietModal(true)}
+          handleAddIndication={handleCreateKardex}
+          handleAddVitalSigns={handleCreateVitalSigns}
+          handleAddDiet={handleCreatePatientDiet}
           diets={diets || []}
           medicalInstructions={data || []}
           vitalSigns={vitalSigns || []}
           expanded={expanded}
           handleExpandClick={handleExpandClick}
+          handleCreateArticlesRequest={handleCreateArticlesRequest}
+          handleCreateServicesRequest={handleCreateServicesRequest}
+          handleCheckMedication={handleCheckMedication}
+          handleCheckService={handleCheckService}
+          medicationChecked={selectedArticles.map((article) => article.id_Articulo || '')}
+          serviceChecked={selectedServices}
         />
       </Paper>
 
-      <Modal open={openCreateModal} onClose={() => setOpenCreateModal(false)} hideBackdrop>
-        <>
-          <CreateKardexModal
-            open={openCreateModal}
-            onClose={() => setOpenCreateModal(false)}
-            onSubmit={handleCreateKardex}
-            id_IngresoPaciente={id || ''}
-            pharmacyConfig={pharmacyConfig}
-          />
-        </>
-      </Modal>
-
-      <AddVitalSignsModal
-        open={openAddVitalSignsModal}
-        onClose={() => setOpenAddVitalSignsModal(false)}
-        onSubmit={handleCreateVitalSigns}
-        id_IngresoPaciente={id || ''}
-      />
-      <AddPatientDietModal
-        open={openAddPatientDietModal}
-        onClose={() => setOpenAddPatientDietModal(false)}
-        onSubmit={handleCreatePatientDiet}
-        id_IngresoPaciente={id || ''}
-      />
       <Modal
         open={openArticlesRequestModal}
         onClose={() => {

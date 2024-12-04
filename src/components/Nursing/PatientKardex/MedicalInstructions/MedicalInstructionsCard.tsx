@@ -11,9 +11,11 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Card,
 } from '@mui/material';
 import MedicationIcon from '@mui/icons-material/Medication';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import { Grid } from '@mui/material';
 
 export const MedicalInstructionsCard = ({
   data,
@@ -77,44 +79,56 @@ export const MedicalInstructionsCard = ({
       )}
       renderContent={(data) => (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {data.indicacionesMedicas && (
-            <Box>
-              <Typography variant="h6" color="primary" gutterBottom>
-                Indicaciones Médicas
-              </Typography>
-              <Typography>{data.indicacionesMedicas}</Typography>
-            </Box>
-          )}
+          <Grid container spacing={2}>
+            {data.indicacionesMedicas && (
+              <Grid item xs={12} md={6}>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Indicaciones Médicas
+                </Typography>
+                <Typography>{data.indicacionesMedicas}</Typography>
+              </Grid>
+            )}
+            {data.observaciones && (
+              <Grid item xs={12} md={6}>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Observaciones
+                </Typography>
+                <Typography>{data.observaciones}</Typography>
+              </Grid>
+            )}
+          </Grid>
 
           {data.medicamentos.length > 0 && (
             <Box>
               <Typography variant="h6" color="primary" gutterBottom>
                 Medicamentos
               </Typography>
-              <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Medicamento</TableCell>
-                      <TableCell>Dosis</TableCell>
-                      <TableCell>Vía</TableCell>
-                      <TableCell>Frecuencia</TableCell>
-                      <TableCell>Horario</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data.medicamentos.map((med) => (
-                      <TableRow key={med.id_Articulo}>
-                        <TableCell>{med.nombreMedicamento}</TableCell>
-                        <TableCell>{med.dosis}</TableCell>
-                        <TableCell>{med.via}</TableCell>
-                        <TableCell>{med.frecuencia}</TableCell>
-                        <TableCell>{med.horario}</TableCell>
+              <Card>
+                <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Medicamento</TableCell>
+                        <TableCell>Dosis</TableCell>
+                        <TableCell>Vía</TableCell>
+                        <TableCell>Frecuencia</TableCell>
+                        <TableCell>Horario</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {data.medicamentos.map((med) => (
+                        <TableRow key={med.id_Articulo} className="noHover">
+                          <TableCell>{med.nombreMedicamento}</TableCell>
+                          <TableCell>{med.dosis}</TableCell>
+                          <TableCell>{med.via}</TableCell>
+                          <TableCell>{med.frecuencia}</TableCell>
+                          <TableCell>{med.horario}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
             </Box>
           )}
 
@@ -123,24 +137,26 @@ export const MedicalInstructionsCard = ({
               <Typography variant="h6" color="primary" gutterBottom>
                 Servicios
               </Typography>
-              <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Servicio</TableCell>
-                      <TableCell>Indicaciones</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data.servicios.map((serv) => (
-                      <TableRow key={serv.id_Servicio}>
-                        <TableCell>{serv.nombreServicio}</TableCell>
-                        <TableCell>{serv.indicaciones}</TableCell>
+              <Card>
+                <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Servicio</TableCell>
+                        <TableCell>Indicaciones</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {data.servicios.map((serv) => (
+                        <TableRow key={serv.id_Servicio} className="noHover">
+                          <TableCell>{serv.nombreServicio}</TableCell>
+                          <TableCell>{serv.indicaciones}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
             </Box>
           )}
 
