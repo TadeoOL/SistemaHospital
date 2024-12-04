@@ -2,6 +2,7 @@ import { useState } from 'react';
 import purchaseAuthorizationAlerts from '../utils/alerts';
 import { changeOrderStatus, getPurchaseOrderQuotationById } from '@/services/purchase/purchaseService';
 import { toast } from 'react-toastify';
+import { StatusPurchaseOrder } from '@/types/types';
 interface IPurchaseAuthorizationState {
   search: string;
   dates: { startDate: string; endDate: string };
@@ -67,7 +68,7 @@ const usePurchaseAuthorization = (): {
       try {
         const result = await purchaseAuthorizationAlerts.acceptAuthorization();
         if (result.isConfirmed) {
-          await changeOrderStatus(purchaseOrderId, 3, 'Autorizada');
+          await changeOrderStatus(purchaseOrderId, StatusPurchaseOrder.OrdenAutorizada, 'Autorizada');
           await purchaseAuthorizationAlerts.acceptedAuthorization();
           handlers.handleRefresh();
         }

@@ -9,7 +9,7 @@ import getColors from '../../utils/getColors';
 import getShadow from '../../utils/getShadow';
 
 // types
-import { ButtonVariantProps, ExtendedStyleProps, IconButtonShapeProps } from 'types/extended';
+import { ButtonVariantProps, ExtendedStyleProps, IconButtonShapeProps } from '@/types/extended';
 
 // ==============================|| ICON BUTTON - COLOR STYLE ||============================== //
 

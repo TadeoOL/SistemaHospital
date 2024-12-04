@@ -103,7 +103,6 @@ export const PurchaseOrder = () => {
           fechaFin: state.dates.endDate,
           estatus: state.status === '-1' ? '' : state.status,
           fueAutorizada: state.authorization,
-          sort: state.sort,
           refresh: state.refresh,
         }}
         nestedTable={nestedTable}

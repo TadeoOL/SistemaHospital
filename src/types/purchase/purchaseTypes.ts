@@ -37,3 +37,20 @@ export interface IPurchaseOrder {
   ordenCompraArticulo?: IPurchaseOrderArticle[];
   fechaCreacion: string;
 }
+
+export interface IPurchaseAuthorizationHistory {
+  id_OrdenCompra: string;
+  usuarioSolicito?: string;
+  usuarioAutorizo?: string;
+  nombreProveedor?: string;
+  nombreAlmacen?: string;
+  estatus: number;
+  estatusConcepto?: string;
+  folio?: string;
+  conceptoPago: number;
+  notas?: string;
+  precioTotalOrden: number;
+  fechaSolicitud?: Date | string;
+  fechaAutorizacion?: Date | string;
+  ordenCompraArticulo?: IPurchaseOrderArticle[];
+}

@@ -14,7 +14,6 @@ interface PurchaseOrderState {
   };
   status: string;
   authorization: number | null;
-  sort: string;
   pageIndex: number;
   pageSize: number;
   selectedOrder: any | null;
@@ -47,7 +46,6 @@ export const usePurchaseOrder = () => {
     },
     status: '',
     authorization: null,
-    sort: '',
     pageIndex: 0,
     pageSize: 10,
     selectedOrder: null,
@@ -93,10 +91,6 @@ export const usePurchaseOrder = () => {
 
     handleAuthorizationChange: (value: number) => {
       setState((prev) => ({ ...prev, authorization: value }));
-    },
-
-    handleSortChange: (value: string) => {
-      setState((prev) => ({ ...prev, sort: value }));
     },
 
     handleModalOpen: async (modalType: 'quote' | 'articlesEntry' | 'updateOrder', order: any) => {

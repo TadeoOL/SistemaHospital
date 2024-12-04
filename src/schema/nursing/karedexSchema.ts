@@ -14,26 +14,27 @@ export const kardexServicesSchema = z.object({
   indicaciones: z.string().optional(),
 });
 
-export const kardexSchema = z.object({
-  id_IngresoPaciente: z.string(),
-  indicacionesMedicas: z.string().optional(),
-  observaciones: z.string().optional(),
-  medicamentos: z.array(kardexMedicationsSchema).optional(),
-  servicios: z.array(kardexServicesSchema).optional(),
-}).refine(
-  (data) => {
-    return !!(
-      data.indicacionesMedicas ||
-      data.observaciones ||
-      (data.medicamentos && data.medicamentos.length > 0) ||
-      (data.servicios && data.servicios.length > 0)
-    );
-  },
-  {
-    message: 'Debe llenar al menos un campo para poder crear el kardex.',
-    path: ['id_IngresoPaciente'],
-  }
-);
-
+export const kardexSchema = z
+  .object({
+    id_IngresoPaciente: z.string().optional(),
+    indicacionesMedicas: z.string().optional(),
+    observaciones: z.string().optional(),
+    medicamentos: z.array(kardexMedicationsSchema).optional(),
+    servicios: z.array(kardexServicesSchema).optional(),
+  })
+  .refine(
+    (data) => {
+      return !!(
+        data.indicacionesMedicas ||
+        data.observaciones ||
+        (data.medicamentos && data.medicamentos.length > 0) ||
+        (data.servicios && data.servicios.length > 0)
+      );
+    },
+    {
+      message: 'Debe llenar al menos un campo para poder crear el kardex.',
+      path: ['id_IngresoPaciente'],
+    }
+  );
 
 export type KardexFormData = z.infer<typeof kardexSchema>;
