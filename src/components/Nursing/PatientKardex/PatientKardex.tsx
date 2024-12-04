@@ -1,5 +1,5 @@
 import { Box, Modal, Paper } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useGetPatientKardex } from '../../../hooks/nursing/useGetPatientKardex';
 import { useLocation, useParams } from 'react-router-dom';
 import LoadingView from '../../../views/LoadingView/LoadingView';
@@ -19,6 +19,7 @@ import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
 import { NurseRequestModal } from '../../Pharmacy/UserRequest/Modal/NurseRequestModal';
 import { AddXRayRequestModal } from '../../Hospitalization/XRayRequest/Modal/AddXRayRequest';
 import { DietFormData } from './PatientDiet/DietForm';
+import { convertDate } from '@/utils/convertDate';
 
 export const PatientKardex = () => {
   const { id } = useParams();
@@ -51,16 +52,6 @@ export const PatientKardex = () => {
   const [selectedArticles, setSelectedArticles] = useState<(IArticleDto & { nombreArticulo: string })[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [modalCloseCallback, setModalCloseCallback] = useState<() => void>(() => {});
-
-  useEffect(() => {
-    if (data) {
-      setExpanded({
-        ...data.reduce((acc, kardex) => ({ ...acc, [kardex.id]: true }), {}),
-        ...(diets?.reduce((acc, diet) => ({ ...acc, [diet.id]: true }), {}) || {}),
-        ...(vitalSigns?.reduce((acc, vitalSign) => ({ ...acc, [vitalSign.id]: true }), {}) || {}),
-      });
-    }
-  }, [data, diets, vitalSigns]);
 
   const handleExpandClick = (kardexId: string) => {
     if (expanded[kardexId]) {
@@ -147,7 +138,7 @@ export const PatientKardex = () => {
 
   const handleCreateVitalSigns = (data: VitalSignsFormData) => {
     createVitalSigns(
-      { ...data, id_IngresoPaciente: id || '' },
+      { ...data, id_IngresoPaciente: id || '', fechaSignosPaciente: convertDate(new Date(data.fechaSignosPaciente)) },
       {
         onSuccess: () => {
           toast.success('Signos vitales creados correctamente');
