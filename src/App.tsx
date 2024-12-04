@@ -46,7 +46,6 @@ import {
   MedicalShiftView,
   // AnesthesiologistShiftView,
   OperatingRoomView,
-  TypesRoomView,
   DailyOperatingView,
   XRayRequestView,
   XRayRequestManagementView,
@@ -63,6 +62,7 @@ import {
   PatientKardexView,
   CheckoutReportView,
   RoomTypesView,
+  InvoiceSettingsView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -73,12 +73,10 @@ import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
 import DashboardLayout from './common/components/Layout/DashboardLayout';
-import { Layout } from './components/Layout/Layout';
+import { useGetApiKey } from './features/invoicing/settings/hooks/useGetApiKey';
 
 function App() {
-  // const theme = useTheme();
-  // console.log('theme:', theme);
-  // const font: any = theme.typography.fontFamily;
+  useGetApiKey();
   return (
     <Locales>
       <BrowserRouter>
@@ -171,6 +169,7 @@ function App() {
               </Route>
               // ---------------------------------------- Invoice ------------------------------//
               <Route path="/facturas" element={<InvoiceView />} />
+              <Route path="/facturacion/configuracion" element={<InvoiceSettingsView />} />
               <Route path="/reportes">
                 <Route path="caja" element={<CheckoutReportView />}></Route>
               </Route>
