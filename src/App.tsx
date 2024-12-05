@@ -86,12 +86,6 @@ import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
 import { useGetApiKey } from './features/invoicing/settings/hooks/useGetApiKey';
-import Treasury from './features/treasury/Treasury';
-import CashFlow from './features/treasury/CashFlow';
-import TreasuryBox from './features/treasury/TreasuryBox';
-import Banks from './features/treasury/Banks';
-import AccountState from './features/treasury/AccountState';
-import Administration from './features/treasury/TreasuryAdministration';
 
 function App() {
   useGetApiKey();
