@@ -29,7 +29,7 @@ export const WarehouseTabs = () => {
         <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
           <Tab label="Artículos" />
           {!warehouseData.esSubAlmacen && <Tab label="Sub Almacenes" />}
-          <Tab label="Solicitud de Productos" value={2} />
+          <Tab label="Solicitud de Almacenes" value={2} />
           {/*<Tab label="Autorización de Salidas" value={3} />*/}
           <Tab label="Historial de Movimiento" value={4} />
           {/*<Tab label="Paquete de Artículos" value={5} />*/}

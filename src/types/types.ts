@@ -131,8 +131,12 @@ export interface IArticle {
   esCaja?: boolean;
   factor?: boolean;
   unidadesPorCaja?: string;
-  codigoUnidadMedida?: number;
+  codigoUnidadMedida?: string;
   presentacion: string;
+  codigoProducto?: string;
+  tipoProducto?: number;
+  id_ProductoFactura?: string;
+  iva?: boolean;
 }
 
 export interface IArticlePOS {

@@ -1,8 +1,9 @@
 import { Box } from '@mui/material';
+import { TextFieldProps } from '@mui/material';
 import { InputLabel, Stack, TextField } from '@mui/material';
 import { ChangeEvent, forwardRef, useState } from 'react';
 
-interface InputBasicProps {
+type InputBasicProps = TextFieldProps & {
   hide?: boolean;
   label?: string;
   placeholder?: string;
@@ -15,10 +16,22 @@ interface InputBasicProps {
   value?: string;
   multiline?: boolean;
   [x: string]: any;
-}
+};
 
 export const InputBasic = forwardRef((props: InputBasicProps, ref) => {
-  const { hide, label, placeholder, fullWidth, helperText, maxLength, onChange, error, inputProps, disabled, ...other } = props;
+  const {
+    hide,
+    label,
+    placeholder,
+    fullWidth,
+    helperText,
+    maxLength,
+    onChange,
+    error,
+    inputProps,
+    disabled,
+    ...other
+  } = props;
 
   const [charLength, setCharLength] = useState(`0/${maxLength}`);
 

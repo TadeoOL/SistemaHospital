@@ -1,16 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth';
-
-export const API_CONTPAQI_ENV =
-  import.meta.env.MODE === 'production'
-    ? import.meta.env.VITE_DEVELOP_CONTPAQI_API
-    : import.meta.env.MODE === 'development'
-      ? import.meta.env.VITE_DEVELOP_CONTPAQI_API
-      : '';
+import { useApiConfigStore } from '../store/apiConfig';
 
 const authApi = axios.create({
   withCredentials: true,
-  baseURL: API_CONTPAQI_ENV,
+  baseURL: useApiConfigStore.getState().apiUrl || '',
 });
 
 authApi.interceptors.request.use((config) => {

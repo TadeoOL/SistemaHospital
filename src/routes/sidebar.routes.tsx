@@ -536,10 +536,27 @@ const sideBarRoutes: NavItemType[] = [
       {
         id: 'facturacion',
         title: 'Facturación',
-        url: '/facturas',
         icon: icons.ReceiptLong,
-        type: 'item',
+        type: 'collapse',
         protectedRoles: invoiceAdmin,
+        children: [
+          {
+            id: 'facturas',
+            title: 'Facturas',
+            url: '/facturas',
+            icon: icons.ReceiptLong,
+            type: 'item',
+            protectedRoles: invoiceAdmin,
+          },
+          {
+            id: 'configuracion-facturacion',
+            title: 'Configuración',
+            url: '/facturacion/configuracion',
+            icon: icons.Settings,
+            type: 'item',
+            protectedRoles: invoiceAdmin,
+          },
+        ],
       },
       {
         id: 'reportes',

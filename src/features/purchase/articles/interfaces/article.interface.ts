@@ -21,4 +21,8 @@ export interface IArticle {
   unidadesPorCaja?: string;
   codigoUnidadMedida?: number;
   presentacion: string;
+  iva?: boolean;
+  codigoProducto?: string;
+  tipoProducto?: number;
+  id_ProductoFactura?: string;
 }

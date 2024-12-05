@@ -63,6 +63,7 @@ import {
   PatientKardexView,
   CheckoutReportView,
   RoomTypesView,
+  InvoiceSettingsView,
   BanksAccountStateView,
   BanksPurchasesView,
   BanksView,
@@ -84,11 +85,16 @@ import DashboardLayout from './common/components/Layout/DashboardLayout';
 import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
+import { useGetApiKey } from './features/invoicing/settings/hooks/useGetApiKey';
+import Treasury from './features/treasury/Treasury';
+import CashFlow from './features/treasury/CashFlow';
+import TreasuryBox from './features/treasury/TreasuryBox';
+import Banks from './features/treasury/Banks';
+import AccountState from './features/treasury/AccountState';
+import Administration from './features/treasury/TreasuryAdministration';
 
 function App() {
-  // const theme = useTheme();
-  // console.log('theme:', theme);
-  // const font: any = theme.typography.fontFamily;
+  useGetApiKey();
   return (
     <ThemeCustomization>
       <Locales>
@@ -182,6 +188,7 @@ function App() {
                 </Route>
                 // ---------------------------------------- Invoice ------------------------------//
                 <Route path="/facturas" element={<InvoiceView />} />
+                <Route path="/facturacion/configuracion" element={<InvoiceSettingsView />} />
                 // ------------------------------- Reportes --------------------------------//
                 <Route path="/reportes/caja" element={<CheckoutReportView />}></Route>
                 // ------------------------------- Tesoreria ------------------------------//
