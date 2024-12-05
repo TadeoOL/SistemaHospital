@@ -17,10 +17,7 @@ import { addArticle } from '../schemas/articles.schemas';
 import { useApiConfigStore } from '@/store/apiConfig';
 import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
 import { addProductToInvoice } from '@/services/invoice/invoice.product.service';
-import {
-  addProductToInvoiceService,
-  modifyProductToInvoiceService,
-} from '@/services/contpaqi/contpaqi.product.service';
+import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
 
 interface ArticleModalProps {
   itemId?: string;
@@ -108,13 +105,13 @@ export const ArticleModal = (props: ArticleModalProps) => {
             id_Relacion,
             tipoProducto: data.tipoProducto || 0,
           });
-          await addProductToInvoiceService({
+          await ContpaqiProductService.addProductToInvoiceService({
             nombre: data.nombre,
             codigoContpaq: resInvoice.codigoProducto ?? '',
             precioVenta: data.precioVentaInterno,
             iva: article?.iva ?? false,
             codigoSAT: data.codigoSAT ?? '',
-            id_UnidadMedida: data.codigoUnidadMedida ?? '',
+            id_UnidadMedida: Number(data.codigoUnidadMedida) || 0,
           });
         }
         toast.success('Articulo creado con éxito!');
@@ -130,13 +127,13 @@ export const ArticleModal = (props: ArticleModalProps) => {
             id_Relacion,
             tipoProducto: data.tipoProducto || 0,
           });
-          await modifyProductToInvoiceService({
+          await ContpaqiProductService.modifyProductToInvoiceService({
             nombre: data.nombre,
             codigoContpaq: resInvoice.codigoProducto ?? '',
             precioVenta: data.precioVentaInterno,
             iva: article?.iva ?? false,
             codigoSAT: data.codigoSAT ?? '',
-            id_UnidadMedida: data.codigoUnidadMedida ?? '',
+            id_UnidadMedida: Number(data.codigoUnidadMedida) || 0,
           });
         }
         toast.success('Articulo modificado con éxito!');
