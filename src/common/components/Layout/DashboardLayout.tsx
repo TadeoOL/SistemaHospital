@@ -94,6 +94,15 @@ export default function DashboardLayout() {
     '/hospitalizacion/medicos': 'Medicos',
     '/hospitalizacion/guardias-medicos': 'Calendario de Guardias Medicos',
     '/reportes/caja': 'Reporte de Caja',
+    '/tesoreria/revolvente/menu': 'Revolvente',
+    '/tesoreria/revolvente/estado-de-cuenta': 'Revolvente',
+    '/tesoreria/revolvente/cajas': 'Revolvente',
+    '/tesoreria/bancos/menu': 'Bancos',
+    '/tesoreria/bancos/estado-de-cuenta': 'Bancos',
+    '/tesoreria/bancos/compras': 'Bancos',
+    '/tesoreria/direccion/menu': 'Direccion',
+    '/tesoreria/direccion/depositos': 'Direccion',
+    '/tesoreria/direccion/movimientos': 'Direccion',
   };
 
   const warehouseMessages = (warehouseData: IWarehouseData, location: string) => {

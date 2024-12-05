@@ -177,7 +177,7 @@ export const TableBasic = <T extends object>({
               </TableBody>
             </Table>
           </TableContainer>
-          {rows.length === 0 && <NoDataInTableInfo infoTitle="No hay existen registros" />}
+          {rows.length === 0 && <NoDataInTableInfo infoTitle="No existen registros" />}
         </SimpleBarScroll>
       )}
     </>

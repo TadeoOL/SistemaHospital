@@ -49,12 +49,10 @@ type Inputs = {
   priceByTimeRangeHospitalization: IRoomPriceRange[];
   priceByTimeRangeRecovery: IRoomPriceRange[];
   priceByTimeRangeOutpatient: IRoomPriceRange[];
-  type: string;
-  priceRoom: string;
   //codigoSATRecuperacion?: string;
   //codigoSAT?: string;
-  codigoUnidadMedida?: number;
-  codigoUnidadMedidaRecuperacion?: number;
+  // codigoUnidadMedida?: number;
+  // codigoUnidadMedidaRecuperacion?: number;
 };
 
 interface OperatingRoomCategoriesModalProps {
@@ -80,7 +78,6 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
     priceByTimeRangeRecovery: [],
     priceByTimeRangeOutpatient: [],
     intervaloReservacion: null,
-    type: '0',
     priceRoom: '0',
     //codigoSATRecuperacion: '',
     //codigoSAT: '',
@@ -102,6 +99,24 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
     defaultValues: defaultValues,
   });
 
+  useEffect(() => {
+    if (!defaultData) {
+      reset(defaultValues);
+      return;
+    }
+
+    reset({
+      name: defaultData.nombre,
+      description: defaultData.descripcion,
+      priceByTimeRangeHospitalization: defaultData.configuracionPrecio.hospitalizacion,
+      priceByTimeRangeRecovery: defaultData.configuracionPrecioRecuperacion,
+      priceByTimeRangeOutpatient: defaultData.configuracionPrecio.ambulatoria,
+      intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
+      // codigoUnidadMedida: 0,
+      // codigoUnidadMedidaRecuperacion: 0,
+    });
+  }, [defaultData]);
+
   const getDateOrNull = (date: string | undefined | null | Dayjs) => {
     if (!date) return null;
 
@@ -112,35 +127,6 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
 
     return date;
   };
-
-  const loadForm = () => {
-    if (!defaultData) {
-      reset(defaultValues);
-      return;
-    }
-
-    const newValues: any = {
-      name: defaultData.nombre,
-      description: defaultData.descripcion,
-      // priceByTimeRange: defaultData.configuracionPrecioHora,
-      // recoveryPriceByTimeRange: defaultData.configuracionRecuperacion,
-      intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
-      type: defaultData.id_TipoCuarto ? '0' : '1',
-      priceRoom: defaultData.precio?.toString(),
-      //codigoSATRecuperacion: defaultData.codigoSATRecuperacion,
-      //codigoSAT: defaultData.codigoSAT,
-      codigoUnidadMedida: defaultData.codigoUnidadMedida ? defaultData.codigoUnidadMedida : 0,
-      codigoUnidadMedidaRecuperacion: defaultData.codigoUnidadMedidaRecuperacion
-        ? defaultData.codigoUnidadMedidaRecuperacion
-        : 0,
-    };
-
-    reset(newValues);
-  };
-
-  useEffect(() => {
-    loadForm();
-  }, [defaultData?.id_TipoCuarto]);
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log('data:', data);
@@ -167,7 +153,6 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
           nombre: data.name,
           descripcion: data.description,
           intervaloReservacion,
-          precio: parseFloat(data.priceRoom),
           configuracionPrecio: {
             hospitalizacion,
             ambulatoria,
@@ -182,7 +167,6 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
           descripcion: data.description,
           intervaloReservacion,
           id: defaultData.id_TipoCuarto as string,
-          precio: parseFloat(data.priceRoom),
           configuracionPrecio: {
             hospitalizacion,
             ambulatoria,
@@ -444,8 +428,14 @@ const PriceRangeTable = (props: RoomHourCostTableProps) => {
     const config = [...configList, newData];
     setConfigList((prev) => sortByInicio([...prev, { ...newData, fin: newData.horaFin ? newData.horaFin : '' }]));
     props.updateRecoveryConfig(config);
+
     reset();
-    setOpen(false);
+
+    if (data.horaFin) {
+      setValue('horaInicio', data.horaFin);
+    } else {
+      setOpen(false);
+    }
   };
 
   const handleDelete = (price: string) => {

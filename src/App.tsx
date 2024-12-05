@@ -64,23 +64,28 @@ import {
   CheckoutReportView,
   RoomTypesView,
   InvoiceSettingsView,
+  BanksAccountStateView,
+  BanksPurchasesView,
+  BanksView,
+  CashFlowAccountStateView,
+  CashFlowBoxByIdView,
+  CashFlowBoxView,
+  CashFlowView,
+  TreasuryAdministrationDepositsView,
+  TreasuryAdministrationMovementsView,
+  TreasuryAdministrationView,
+  TreasuryView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
   ProtectedRoutePharmacyManager,
   ProtectedRoutePharmacyNurse,
 } from './utils/functions/ProtectedRoutesForRole/ProtectedRoutePharmacy';
+import DashboardLayout from './common/components/Layout/DashboardLayout';
 import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
-import DashboardLayout from './common/components/Layout/DashboardLayout';
 import { useGetApiKey } from './features/invoicing/settings/hooks/useGetApiKey';
-import Treasury from './features/treasury/Treasury';
-import CashFlow from './features/treasury/CashFlow';
-import TreasuryBox from './features/treasury/TreasuryBox';
-import Banks from './features/treasury/Banks';
-import AccountState from './features/treasury/AccountState';
-import Administration from './features/treasury/TreasuryAdministration';
 
 function App() {
   useGetApiKey();
@@ -178,15 +183,23 @@ function App() {
                 // ---------------------------------------- Invoice ------------------------------//
                 <Route path="/facturas" element={<InvoiceView />} />
                 <Route path="/facturacion/configuracion" element={<InvoiceSettingsView />} />
-                <Route path="/reportes">
-                  <Route path="caja" element={<CheckoutReportView />}></Route>
-                </Route>
-                <Route path="/tesoreria/menu" element={<Treasury />}></Route>
-                <Route path="/tesoreria/revolvente" element={<CashFlow />}></Route>
-                <Route path="/tesoreria/cajas" element={<TreasuryBox />}></Route>
-                <Route path="/tesoreria/bancos" element={<Banks />}></Route>
-                <Route path="/tesoreria/estado-cuenta" element={<AccountState />}></Route>
-                <Route path="/tesoreria/direccion" element={<Administration />}></Route>
+                // ------------------------------- Reportes --------------------------------//
+                <Route path="/reportes/caja" element={<CheckoutReportView />}></Route>
+                // ------------------------------- Tesoreria ------------------------------//
+                <Route path="/tesoreria/menu" element={<TreasuryView />}></Route>
+                <Route path="/tesoreria/revolvente/menu" element={<CashFlowView />}></Route>
+                <Route path="/tesoreria/revolvente/estado-de-cuenta" element={<CashFlowAccountStateView />}></Route>
+                <Route path="/tesoreria/revolvente/cajas" element={<CashFlowBoxView />}></Route>
+                <Route path="/tesoreria/revolvente/cajas/:id" element={<CashFlowBoxByIdView />}></Route>
+                <Route path="/tesoreria/bancos/menu" element={<BanksView />}></Route>
+                <Route path="/tesoreria/bancos/estado-de-cuenta" element={<BanksAccountStateView />}></Route>
+                <Route path="/tesoreria/bancos/compras" element={<BanksPurchasesView />}></Route>
+                <Route path="/tesoreria/direccion/menu" element={<TreasuryAdministrationView />}></Route>
+                <Route
+                  path="/tesoreria/direccion/movimientos"
+                  element={<TreasuryAdministrationMovementsView />}
+                ></Route>
+                <Route path="/tesoreria/direccion/depositos" element={<TreasuryAdministrationDepositsView />}></Route>
               </Route>
             </Route>
             <Route element={<LoginRoute />}>

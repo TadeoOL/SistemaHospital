@@ -1,4 +1,4 @@
-import { CashGraph } from './CashGraph';
+import { CashGraph } from './components/CashGraph';
 
 const Treasury = () => {
   return (

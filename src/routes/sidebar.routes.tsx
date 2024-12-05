@@ -582,14 +582,21 @@ const sideBarRoutes: NavItemType[] = [
           {
             id: 'revolvente',
             title: 'Revolvente',
-            url: '/tesoreria/revolvente',
+            url: '/tesoreria/revolvente/menu',
             icon: icons.PointOfSale,
             type: 'collapse',
             children: [
               {
+                id: 'revolvente-estado-de-cuenta',
+                title: 'Estado de Cuenta',
+                url: '/tesoreria/revolvente/estado-de-cuenta',
+                icon: icons.PointOfSale,
+                type: 'item',
+              },
+              {
                 id: 'cajas',
                 title: 'Cajas',
-                url: '/tesoreria/cajas',
+                url: '/tesoreria/revolvente/cajas',
                 icon: icons.PointOfSale,
                 type: 'item',
               },
@@ -598,14 +605,21 @@ const sideBarRoutes: NavItemType[] = [
           {
             id: 'bancos',
             title: 'Bancos',
-            url: '/tesoreria/bancos',
+            url: '/tesoreria/bancos/menu',
             icon: icons.PointOfSale,
             type: 'collapse',
             children: [
               {
-                id: 'estado-de-cuenta',
+                id: 'bancos-estado-de-cuenta',
                 title: 'Estado de cuenta',
-                url: '/tesoreria/estado-cuenta',
+                url: '/tesoreria/bancos/estado-de-cuenta',
+                icon: icons.PointOfSale,
+                type: 'item',
+              },
+              {
+                id: 'bancos-compras',
+                title: 'Compras',
+                url: '/tesoreria/bancos/compras',
                 icon: icons.PointOfSale,
                 type: 'item',
               },
@@ -614,9 +628,25 @@ const sideBarRoutes: NavItemType[] = [
           {
             id: 'direccion',
             title: 'Direccion',
-            url: '/tesoreria/direccion',
+            url: '/tesoreria/direccion/menu',
             icon: icons.PointOfSale,
-            type: 'item',
+            type: 'collapse',
+            children: [
+              {
+                id: 'direccion-depositos',
+                title: 'Depositos',
+                url: '/tesoreria/direccion/depositos',
+                icon: icons.PointOfSale,
+                type: 'item',
+              },
+              {
+                id: 'direccion-movimientos',
+                title: 'Movimientos',
+                url: '/tesoreria/direccion/movimientos',
+                icon: icons.PointOfSale,
+                type: 'item',
+              },
+            ],
           },
         ],
       },

@@ -20,7 +20,7 @@ export const operatingRoomPriceRangeSchema = z
     },
     {
       message: 'La hora inicial debe ser menor a la final',
-      path: ['inicio'],
+      path: ['horaInicio'],
     }
   );
 
@@ -30,11 +30,11 @@ export const operatingRoomCategory = z.object({
   intervaloReservacion: zodDay,
   // priceByTimeRange: z.array(priceByTimeRange).optional(),
   // recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
-  type: z.string(),
+  // type: z.string(),
   //codigoSATRecuperacion: z.string().nullable(),
   //codigoSAT: z.string().min(1, 'El código es necesario'),
-  codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
-  codigoUnidadMedidaRecuperacion: z.number({ invalid_type_error: 'El código es necesario' }).optional(),
+  // codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
+  // codigoUnidadMedidaRecuperacion: z.number({ invalid_type_error: 'El código es necesario' }).optional(),
 
   priceByTimeRangeHospitalization: z.array(operatingRoomPriceRangeSchema).optional(),
   priceByTimeRangeRecovery: z.array(operatingRoomPriceRangeSchema).optional(),
