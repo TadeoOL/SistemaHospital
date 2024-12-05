@@ -3,12 +3,12 @@ import { lazy } from 'react';
 export const Dashboard = lazy(() => import('../views/Layout/DashboardView'));
 export const PurchaseRequest = lazy(() => import('../views/Purchase/PurchaseRequestView'));
 export const ArticleView = lazy(() => import('../views/Purchase/ArticleView'));
-export const Article = lazy(() => import('../features/purchase/articles/screens/Article'));
+export const Article = lazy(() => import('@/features/purchase/articles/screens/Article'));
 export const ExistingArticle = lazy(() => import('../components/Purchase/Articles/ExistingArticle/ExistingArticle'));
 export const CategoryView = lazy(() => import('../views/Purchase/CategoryView'));
-export const Category = lazy(() => import('../features/purchase/categories/screens/Category'));
-export const SubCategory = lazy(() => import('../features/purchase/subcategories/screens/SubCategory'));
-export const ProvidersView = lazy(() => import('../features/purchase/providers/screens/Providers'));
+export const Category = lazy(() => import('@/features/purchase/categories/screens/Category'));
+export const SubCategory = lazy(() => import('@/features/purchase/subcategories/screens/SubCategory'));
+export const ProvidersView = lazy(() => import('@/features/purchase/providers/screens/Providers'));
 export const WarehouseView = lazy(() => import('../views/Purchase/WarehouseView'));
 export const PurchaseAuthorizationView = lazy(() => import('../views/Purchase/PurchaseAuthorizationView'));
 export const PurchaseConfigView = lazy(() => import('../views/Purchase/PurchaseConfigView'));
@@ -57,3 +57,24 @@ export const PatientKardexView = lazy(() => import('../views/Nursing/PatientKard
 export const CheckoutReportView = lazy(() => import('@/features/reports/checkout/screens/CheckoutReport'));
 export const RoomTypesView = lazy(() => import('@/features/programming/room-categories/RoomCategories'));
 export const RoomsView = lazy(() => import('@/features/programming/rooms/Rooms'));
+
+// tesoreria
+export const TreasuryView = lazy(() => import('@/features/treasury/Treasury'));
+export const CashFlowView = lazy(() => import('@/features/treasury/cash-flow/screens/CashFlow'));
+export const BanksView = lazy(() => import('@/features/treasury/banks/screens/Banks'));
+export const TreasuryAdministrationView = lazy(
+  () => import('@/features/treasury/administration/screens/TreasuryAdministration')
+);
+export const CashFlowAccountStateView = lazy(
+  () => import('@/features/treasury/cash-flow/screens/CashFlowAccountState')
+);
+export const CashFlowBoxView = lazy(() => import('@/features/treasury/cash-flow/screens/CashFlowBox'));
+export const CashFlowBoxByIdView = lazy(() => import('@/features/treasury/cash-flow/screens/CashFlowBoxById'));
+export const BanksAccountStateView = lazy(() => import('@/features/treasury/banks/screens/BanksAccountState'));
+export const TreasuryAdministrationDepositsView = lazy(
+  () => import('@/features/treasury/administration/screens/TreasuryAdministrationDeposits')
+);
+export const TreasuryAdministrationMovementsView = lazy(
+  () => import('@/features/treasury/administration/screens/TreasuryAdministrationMovements')
+);
+export const BanksPurchasesView = lazy(() => import('@/features/treasury/banks/screens/BanksPurchases'));

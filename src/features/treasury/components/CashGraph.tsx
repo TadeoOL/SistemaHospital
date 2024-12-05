@@ -82,23 +82,23 @@ const useChartOptions = () => {
   };
 };
 interface IOverviewSales {
-  header?: string;
+  header?: any;
+  innerHeader?: any;
   chartSeries: any;
   sx: any;
 }
 export const CashGraph = (props: IOverviewSales) => {
-  const { chartSeries, header } = props;
+  const { chartSeries, header, innerHeader } = props;
   const chartOptions = useChartOptions();
 
   return (
     <>
-      <Grid container alignItems="center" justifyContent="space-between">
-        <Grid item>
-          <Typography variant="h5">{header}</Typography>
-        </Grid>
+      <Grid container direction={'row'} alignItems="center" justifyContent="space-between">
+        {typeof header === 'string' ? <Typography variant="h5">{header}</Typography> : header}
       </Grid>
       <MainCard content={false} sx={{ mt: 1.5 }}>
         <CardContent>
+          {typeof innerHeader === 'string' ? <Typography variant="h5">{innerHeader}</Typography> : innerHeader}
           <ApexChart height={350} options={chartOptions} series={chartSeries} type="bar" width="100%" />
         </CardContent>
         <Divider />
