@@ -57,6 +57,7 @@ interface RequestBuildingModalProps {
   preLoadedArticles: IarticlesPrebuildedRequest[];
   id_SolicitudAlmacen: string;
   id_CuentaEspacioHospitalario: string;
+  devolutionFlag: boolean;
 }
 
 export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
@@ -83,22 +84,27 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
       //Id_CuentaPaciente: props.request.id_CuentaPaciente,
     };*/
 
-    const object = {
-      id_SolicitudAlmacen: props.id_SolicitudAlmacen,
-      id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
-      articulos: articles
-      .map((art) =>({
-          Id_Articulo: art.id_Articulo,
-          Cantidad: art.cantidadSeleccionada,
-          Nombre: art.nombre
-        })
-      ),
-      estatus: 2
-    };
-
     try {
-      //await articlesOutputToWarehouse(object);
+
+        const object = {
+          id_SolicitudAlmacen: props.id_SolicitudAlmacen,
+          id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
+          articulos: props.devolutionFlag ? 
+          articles.map((art) =>({
+              Id_Articulo: art.id_Articulo,
+              Cantidad: art.cantidadSeleccionada*-1,
+              Nombre: art.nombre
+            })) :
+            articles.map((art) =>({
+              Id_Articulo: art.id_Articulo,
+              Cantidad: art.cantidadSeleccionada,
+              Nombre: art.nombre
+            })
+          ),
+          estatus: props.devolutionFlag ? 4 : 2
+        };
       await buildPackage(object);
+      //await articlesOutputToWarehouse(object);
       //await updateStatusNurseRequest(object);
       props.refetch();
       toast.success('Solicitud aceptada');
@@ -203,6 +209,7 @@ export const RequestBuildingModal = (props: RequestBuildingModalProps) => {
                 setArticles={setArticles}
                 isResume={false}
                 handleAddArticle={handleAddArticle}
+                devolutionFlag={props.devolutionFlag}
               />
             </React.Fragment>
           </Stack>
@@ -256,8 +263,9 @@ interface ArticlesTableProps {
   setArticles?: Function;
   isResume: boolean;
   handleAddArticle: Function;
+  devolutionFlag: boolean;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, handleAddArticle }) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, handleAddArticle, devolutionFlag }) => {
   return (
     <Card>
       <TableContainer>
@@ -279,6 +287,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, is
                 articles={articles}
                 isResume={isResume}
                 handleAddArticle={handleAddArticle}
+                devolutionFlag={devolutionFlag}
               />
             ))}
           </TableBody>
@@ -294,6 +303,7 @@ interface ArticlesTableRowProps {
   setArticles: Function;
   isResume: boolean;
   handleAddArticle: Function;
+  devolutionFlag: boolean;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
@@ -301,6 +311,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   articles,
   isResume,
   handleAddArticle,
+  devolutionFlag
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [amountText, setAmountText] = useState(article.cantidadSolicitada.toString());
@@ -316,13 +327,13 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           <TableCell>
             <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
               <IconButton
-                disabled={article.stock == 0}
+                disabled={article.stock == 0 && !devolutionFlag}
                 onClick={() => {
                   setIsEditing(!isEditing);
                   if (isEditing) {
                     //handleSaveValue();
                     const quant = Number(amountText);
-                    if (quant > article.stock) {
+                    if (quant > article.stock && !devolutionFlag) {
                       return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
                     }
 
@@ -358,7 +369,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
                   setAmountText(e.target.value);
                 }}
               />
-              <Typography> Stock actual: {article.stock} </Typography>
+              {!devolutionFlag && <Typography> Stock actual: {article.stock} </Typography>}
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>

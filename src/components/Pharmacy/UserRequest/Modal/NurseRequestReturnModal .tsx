@@ -219,16 +219,17 @@ export const NurseRequestReturnModal = (props: Props) => {
     const object = {
       id_CuentaEspacioHospitalario: roomSelected?.id_EspacioHospitalario ?? '',
       id_Almacen: warehouseSelected?.id ?? '',
+      tipoDevolucion: roomSelected?.tipoEspacioHospitalario == 1? 6 : 8,
       articulos: resumeArticles.filter((ra) => ra.amountReturn > 0).map((ra) => ({
+        id_CuentaArticulo: ra.id,
         id_Articulo: ra.id_Articulo,
         cantidad: ra.amountReturn * -1,
-        fechaCreacion: ra.fechaCargoUTC
       }))
     }
     try {
       await createReturnArticlesRequest(object);
       toast.success('Solicitud creada');
-      props.refetch(true);
+      props.refetch(props.warehouseId);
       props.setOpen(false);
       setArticles([]);
       setUserSelected(null);
@@ -391,10 +392,10 @@ export const NurseRequestReturnModal = (props: Props) => {
                               const newMap = new Map();
                               const newMapEdited = new Map();
                               res.forEach((article: ArticlesFromRoom) => {
-                                newMap.set(article.nombreYFecha, { ...article });
+                                newMap.set(article.id, { ...article });
                               });
                               res.forEach((article: ArticlesFromRoom) => {
-                                newMapEdited.set(article.nombreYFecha, { ...article, cantidad: 0 });
+                                newMapEdited.set(article.id, { ...article, cantidad: 0 });
                               });
                               setOriginalMap(newMap)
                               setArticlesMap(newMapEdited)
@@ -564,7 +565,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
           value={numberText}
           onChange={(e) => {
             if (!isValidInteger(e.target.value)) return;
-            setAmountText(articleRow.nombreYFecha, Number(e.target.value));
+            setAmountText(articleRow.id, Number(e.target.value));
             if (e.target.value === '') {
               setNumberText('0');
             }
@@ -621,9 +622,9 @@ const ReturnResume: React.FC<ReturnResumeProps> = ({
               <TableBody>
                 {returningArticles
                   .map((articleRow) => (
-                    <TableRow key={articleRow.nombreYFecha} >
+                    <TableRow key={articleRow.id} >
                       <TableCell>
-                        {isQuirurgicalRoom ? articleRow.nombre : articleRow.nombreYFecha}
+                        {isQuirurgicalRoom ? articleRow.nombre : articleRow.nombre+" "+articleRow.fechaCargo}
                       </TableCell>
                       <TableCell>
                         {articleRow.cantidad}

@@ -37,9 +37,19 @@ import {
   articlesOutputToWarehouseToWarehouse,
   getExistingArticles,
 } from '../../../../services/warehouse/articleWarehouseService';
+import { IHospitalSpace } from '@/types/admission/admissionTypes';
+import { getPatientInfoByAdmissionId, getPatientsWithAccount } from '@/services/programming/patientService';
+import { useGetAllNursesUsers } from '@/hooks/hospitalization/useGetAllNurse';
+import { chargeArticlesToPatientDirectly } from '@/services/pharmacy/inventoryOutflowsService';
 ///cambiar esta fokin she
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearchWithQuantity>({
+  limit: OPTIONS_LIMIT,
+});
+const filterPatientOptions = createFilterOptions<IPatientFromSearch>({
+  limit: OPTIONS_LIMIT,
+});
+const filterPatientRoomsOptions = createFilterOptions<IHospitalSpace>({
   limit: OPTIONS_LIMIT,
 });
 
@@ -118,6 +128,17 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   const [articlesToSelect, setArticlesToSelect] = useState<IArticleFromSearchWithQuantity[] | []>([]);
   const [amountText, setAmountText] = useState('');
   const [amountError, setAmountError] = useState(false);
+  const [patientSearch, setPatientSearch] = useState('');
+  const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
+  const [userError, setUserError] = useState(false);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
+  const [rooms, setRooms] = useState<IHospitalSpace[]>([]);
+  const [roomSelected, setRoomSelected] = useState<null | IHospitalSpace>(null);
+  const [roomError, setRoomError] = useState(false);
+  const [nurseSelected, setNurseSelected] = useState<{ id: string; nombre: string; } | null>(null)
+  const [nurseError, setNurseError] = useState(false);
+  const { nursesUsersData, isLoadingNursesUsers } = useGetAllNursesUsers();
+
 
   useEffect(() => {
     setArticleSelected(null);
@@ -167,10 +188,11 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         `${'pageIndex=1&pageSize=20'}&search=${search}&habilitado=${true}&Id_Almacen=${props.warehouseId}&Id_AlmacenPrincipal=${props.warehouseId}&fechaInicio=&fechaFin=&sort=`
       );
       const transformedData = res.data.map((item: any) => ({
-        id_Articulo: item.id_Articulo,
-        nombre: item.nombre,
-        stock: item.stockActual,
-        id_ArticuloAlmacen: item.id_ArticuloAlmacen,
+        id_Articulo: item.id_Articulo as string,
+        nombre: item.nombre as string,
+        stock: item.stockActual as number ,
+        id_ArticuloAlmacen: item.id_ArticuloAlmacen as string,
+        cantidad: null
       }));
       console.log(transformedData);
       setDataWerehouseArticlesSelected(transformedData);
@@ -215,6 +237,55 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
       toast.error('Selecciona un motivo de salida');
       return;
     }
+    if(reasonMessage === 'Cuenta Paciente' ){
+      const flagError = userError && roomError && nurseError && articles.length < 1
+      if(flagError){
+        if(userError){
+          toast.error('Selecciona un paciente');
+        }
+        if(roomError){
+          toast.error('Selecciona un cuarto o quirofano');
+        }
+        if(nurseError){
+          toast.error('Selecciona un enfermero');
+        }
+        if(articles.length < 1){
+          toast.error('Agrega un articulo');
+        }
+        return;
+      }
+      else{
+        try {
+          if (!validateAmount) return;
+          setLoadingSubmit(true);
+          const arttest = articles.map((article) => { return {
+            Id_Articulo: article.id_Articulo,
+            Cantidad: Number(article.cantidad)
+          }})
+          const obj2 = {
+            Id_CuentaEspacioHospitalario: roomSelected?.id_EspacioHospitalario ?? '',
+            Id_Almacen: props.warehouseId,
+            Id_Enfermero: nurseSelected?.id ?? '',
+            Articulos: arttest
+          }
+    
+          await chargeArticlesToPatientDirectly(obj2)
+  
+          props.refetch();
+          toast.success('Salida a artículos con éxito!');
+          setLoadingSubmit(false);
+          props.setOpen(false);
+          setDataWerehouseArticlesSelected([]);
+          setArticleSelected(null);
+        } catch (error) {
+          console.log(error);
+          setLoadingSubmit(false);
+          toast.error('Algo salio mal');
+        } finally{
+          return
+        }
+      }
+    }
     /*if (!nurseSelected) {
       toast.error('Selecciona enfermero');
       return;
@@ -222,7 +293,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     try {
       if (!validateAmount) return;
       setLoadingSubmit(true);
-
+      
       const existingArticles = articles.map((article) => {
         return {
           Id_Articulo: article.id_Articulo,
@@ -240,7 +311,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         motivo:
           reasonMessage === 'Otro'
             ? textFieldRef.current?.value
-            : `${reasonMessage} ${userSelected?.nombreCompleto || ''}`,
+            : `${reasonMessage} ${userSelected?.nombrePaciente || ''}`,
         //SolicitadoPor: nurseSelected.nombre,
         //Id_Enfermero: nurseSelected.id_Enfermero,
       };
@@ -258,11 +329,31 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
     }
   };
 
-  const radioOptions = ['Uso interno', 'Otro'];
+  useEffect(() => {
+    patientsCall();
+  }, [patientSearch]);
+
+  const patientsCall = async () => {
+    const url = `Search=${patientSearch}`;
+    const res = await getPatientsWithAccount(url);
+    if (res) {
+      setUsersData(res);
+    }
+  };
+
+  const fetchPatientRooms = async (admissionId: string) => {
+    setIsLoadingRooms(true);
+    const resCuartos = await getPatientInfoByAdmissionId(admissionId);
+    const roomsFiltered = resCuartos.espaciosHospitalarios;
+    setRooms(roomsFiltered);
+    setIsLoadingRooms(false);
+  };
+
+  const radioOptions = ['Uso interno', 'Cuenta Paciente', 'Otro'];
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Salida de artículossss" />
+      <HeaderModal setOpen={props.setOpen} title="Salida de artículos" />
       {isLoadingWarehouse ? (
         <Box
           sx={{
@@ -280,6 +371,147 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
         <Box sx={style2}>
           <form noValidate onSubmit={handleSubmit(onSubmit)}>
             <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
+            <Box
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography textAlign={'center'}>Motivos de salida:</Typography>
+
+                <RadioGroup
+                  sx={{
+                    mx: 'auto',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'row',
+                  }}
+                  value={reasonMessage}
+                  onChange={(e) => {
+                    setReasonMessage(e.target.value);
+                    setUserSelected(null);
+                  }}
+                >
+                  {radioOptions.map((option) => (
+                    <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
+                  ))}
+                  <TextField
+                    inputRef={textFieldRef}
+                    label={'Razón de salida'}
+                    error={true}
+                    sx={{
+                      visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
+                    }}
+                  />
+                </RadioGroup>
+              </Box>
+              {reasonMessage === 'Cuenta Paciente' && (
+                <>
+                <Stack sx={{ display: 'flex', flexDirection:'row' }} >
+                <Stack sx={{ display: 'flex',flex:1, maxWidth:400, minWidth:200 }}>
+                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterPatientOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setUserSelected(val);
+                    if (val?.id_IngresoPaciente !== undefined) {
+                      fetchPatientRooms(val.id_IngresoPaciente);
+                    }
+                    setUserError(false);
+                  }}
+                  loading={isLoadingArticlesWareH && usersData.length === 0}
+                  getOptionLabel={(option) => option.nombrePaciente}
+                  isOptionEqualToValue={(option, value) => option.id_Paciente === value.id_Paciente}
+                  options={usersData}
+                  value={userSelected}
+                  noOptionsText="No se encontraron pacientes"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={userError}
+                      helperText={userError && 'Selecciona un paciente'}
+                      placeholder="Pacientes"
+                      sx={{ width: '100%' }}
+                      onChange={(e) => {
+                        if (e.target.value === null) {
+                          setPatientSearch('');
+                        }
+                        setPatientSearch(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+                </Stack>
+                <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300, ml: 'auto' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
+
+                <Autocomplete
+                  disablePortal
+                  fullWidth
+                  filterOptions={filterPatientRoomsOptions}
+                  onChange={(e, val) => {
+                    e.stopPropagation();
+                    setRoomSelected(val);
+                    setRoomError(false);
+                  }}
+                  loading={isLoadingRooms && rooms.length === 0}
+                  getOptionLabel={(option) => option.nombreEspacioHospitalario}
+                  options={rooms}
+                  value={roomSelected}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id_EspacioHospitalario === value.id_EspacioHospitalario
+                  }
+                  disabled={!userSelected}
+                  noOptionsText="No se encontraron cuartos"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={roomError}
+                      helperText={roomError && 'Selecciona un cuarto'}
+                      placeholder="Cuarto"
+                      sx={{ width: '95%' }}
+                    />
+                  )}
+                />
+              </Stack>
+                </Stack>
+                
+              <Stack sx={{ display: 'flex', flex: 1 }}>
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
+                <Autocomplete
+            onChange={(_, val) => {
+              if (!val) return;
+              setNurseSelected(val)
+              setNurseError(false)
+            }}
+            loading={isLoadingNursesUsers}
+            getOptionLabel={(option) => option.nombre}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            options={nursesUsersData}
+            value={nurseSelected}
+            onInputChange={(_, __, reason) => {
+              if (reason === 'clear') {
+                setNurseSelected(null)
+              }
+            }}
+            noOptionsText="No se encontraron enfermeros"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Enfermero"
+                error={nurseError}
+                helperText={'Es necesario seleccionar un enfermero'}
+              />
+            )}
+          />
+              </Stack>
+              </>
+              )}
               <Box
                 sx={{
                   display: 'flex',
@@ -290,6 +522,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   rowGap: { xs: 2, sm: 0 },
                 }}
               >
+                
                 <Box
                   sx={{
                     display: 'flex',
@@ -300,6 +533,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                     rowGap: { xs: 2, sm: 0 },
                   }}
                 >
+                  
                   <Stack sx={{ display: 'flex', flex: 1 }}>
                     <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de articulo</Typography>
                     <Autocomplete
@@ -396,104 +630,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                 setArticleId={setArticleId}
                 handleEditArticle={handleEditArticle}
               />
-              <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
-                <Typography textAlign={'center'}>Motivos de salida:</Typography>
 
-                <RadioGroup
-                  sx={{
-                    mx: 'auto',
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'row',
-                  }}
-                  value={reasonMessage}
-                  onChange={(e) => {
-                    setReasonMessage(e.target.value);
-                    setUserSelected(null);
-                  }}
-                >
-                  {radioOptions.map((option) => (
-                    <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
-                  ))}
-                  <TextField
-                    inputRef={textFieldRef}
-                    label={'Razón de salida'}
-                    error={true}
-                    sx={{
-                      visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
-                    }}
-                  />
-                </RadioGroup>
-              </Box>
-              {/*reasonMessage === 'Cuenta Paciente' && (
-                <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-                  <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar paciente</Typography>
-                  <Autocomplete
-                    disablePortal
-                    fullWidth
-                    filterOptions={filterPatientOptions}
-                    onChange={(e, val) => {
-                      e.stopPropagation();
-                      setUserSelected(val);
-                    }}
-                    //cambiar loading
-                    loading={isLoadingArticlesWareH && usersData.length === 0}
-                    getOptionLabel={(option) => option.nombreCompleto}
-                    options={usersData}
-                    value={userSelected}
-                    noOptionsText="No se encontraron pacientes"
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={userError}
-                        helperText={userError && 'Selecciona un paciente'}
-                        placeholder="Pacientes"
-                        sx={{ width: '100%' }}
-                        onChange={(e) => {
-                          if (e.target.value === null) {
-                            setPatientSearch('');
-                          }
-                          setPatientSearch(e.target.value);
-                        }}
-                      />
-                    )}
-                  />
-                </Stack>
-              )*/}
-              {/*<Stack sx={{ display: 'flex', flex: 1, p: 2 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Busqueda de enfermeros</Typography>
-                <Autocomplete
-                  disablePortal
-                  fullWidth
-                  //filterOptions={filterArticleOptions}
-                  onChange={(e, val) => {
-                    e.stopPropagation();
-                    setNurseSelected(val);
-                    setArticleError(false); //cambiar
-                  }}
-                  loading={isLoadingArticlesWareH}
-                  getOptionLabel={(option) => option.nombre}
-                  options={nursesData}
-                  value={nurseSelected}
-                  noOptionsText="No se encontraron enfermeros"
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={articleError}
-                      helperText={articleError && 'Selecciona un enfermero'}
-                      placeholder="Enfermeros"
-                      sx={{ width: '50%' }}
-                    />
-                  )}
-                />
-              </Stack>*/}
               <Box
                 sx={{
                   display: 'flex',

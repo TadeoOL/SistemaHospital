@@ -9,7 +9,6 @@ import UserOutlined from '@ant-design/icons/UserOutlined';
 import AppstoreAddOutlined from '@ant-design/icons/AppstoreAddOutlined';
 import PlusOutlined from '@ant-design/icons/PlusOutlined';
 import LinkOutlined from '@ant-design/icons/LinkOutlined';
-import { LiaXRaySolid } from 'react-icons/lia';
 import {
   AirlineSeatFlat,
   Receipt,
@@ -44,6 +43,21 @@ import {
   MenuBookOutlined,
   ReceiptLong,
   Assignment,
+  Balance,
+  FindInPage,
+  Category,
+  ShoppingCart,
+  SwapVerticalCircle,
+  InsertInvitation,
+  Sell,
+  AccountBalance,
+  PersonAdd,
+  Bed,
+  HotTub,
+  AirlineSeatReclineExtra,
+  Healing,
+  Masks,
+  Inventory,
 } from '@mui/icons-material';
 
 // type
@@ -62,13 +76,20 @@ const icons = {
   PlusOutlined,
   LinkOutlined,
   AirlineSeatFlat,
+  AirlineSeatReclineExtra,
+  Healing,
   Receipt,
+  Sell,
+  AccountBalance,
   MeetingRoom,
   SensorDoor,
   CalendarMonth,
   GroupAdd,
+  Masks,
   History,
   Hotel,
+  Bed,
+  HotTub,
   HowToReg,
   LocalHospital,
   LocalPharmacy,
@@ -91,10 +112,17 @@ const icons = {
   Settings,
   ManageHistory,
   FactCheck,
+  Inventory,
   MenuBookOutlined,
   ReceiptLong,
-  LiaXRaySolid,
   Assignment,
+  Balance,
+  FindInPage,
+  Category,
+  ShoppingCart,
+  SwapVerticalCircle,
+  InsertInvitation,
+  PersonAdd,
 };
 
 import {
@@ -163,15 +191,7 @@ const sideBarRoutes: NavItemType[] = [
                 id: 'articulos',
                 title: 'Artículos',
                 url: '/compras/articulos',
-                icon: icons.Article,
-                type: 'item',
-                protectedRoles: supplyRoles,
-              },
-              {
-                id: 'categorias',
-                title: 'Categorías',
-                url: '/compras/categorias',
-                icon: icons.FormatListBulleted,
+                icon: icons.Vaccines,
                 type: 'item',
                 protectedRoles: supplyRoles,
               },
@@ -183,6 +203,15 @@ const sideBarRoutes: NavItemType[] = [
                 type: 'item',
                 protectedRoles: supplyRoles,
               },
+              {
+                id: 'categorias',
+                title: 'Categorías',
+                url: '/compras/categorias',
+                icon: icons.Category,
+                type: 'item',
+                protectedRoles: supplyRoles,
+              },
+
               {
                 id: 'proveedores',
                 title: 'Proveedores',
@@ -221,15 +250,15 @@ const sideBarRoutes: NavItemType[] = [
             id: 'punto-venta',
             title: 'Punto de venta',
             url: '/farmacia/punto-venta',
-            icon: icons.PointOfSale,
+            icon: icons.ShoppingCart,
             type: 'item',
             protectedRoles: pharmacyManager,
           },
           {
             id: 'salidas-existencias',
-            title: 'Salidas y existencias',
+            title: 'Salidas y Existencias',
             url: '/farmacia/catalogo',
-            icon: icons.Article,
+            icon: icons.SwapVerticalCircle,
             type: 'item',
             protectedRoles: pharmacyManager,
           },
@@ -248,13 +277,13 @@ const sideBarRoutes: NavItemType[] = [
         id: 'programacion',
         title: 'Programación',
         type: 'collapse',
-        icon: icons.LocalHospital,
+        icon: icons.InsertInvitation,
         children: [
           {
             id: 'registro-pacientes',
             title: 'Registro de pacientes',
             url: '/programacion/registro',
-            icon: icons.HowToReg,
+            icon: icons.PersonAdd,
             type: 'item',
             protectedRoles: programation,
           },
@@ -262,7 +291,7 @@ const sideBarRoutes: NavItemType[] = [
             id: 'registro-eventos',
             title: 'Programación de eventos',
             url: '/programacion/registro-eventos',
-            icon: icons.HowToReg,
+            icon: icons.CalendarMonth,
             type: 'item',
             protectedRoles: programation,
           },
@@ -274,17 +303,17 @@ const sideBarRoutes: NavItemType[] = [
             children: [
               {
                 id: 'gestion-espacios-hospitalarios',
-                title: 'Gestión de espacios hospitalarios',
+                title: 'Gestión de Espacios',
                 url: '/programacion/gestion-espacios-hospitalarios',
-                icon: icons.Hotel,
+                icon: icons.Bed,
                 type: 'item',
                 protectedRoles: programation,
               },
               {
                 id: 'categorias-espacios-hospitalarios',
-                title: 'Categorías de espacios hospitalarios',
+                title: 'Categorías de Espacios',
                 url: '/programacion/categorias-espacios-hospitalarios',
-                icon: icons.Hotel,
+                icon: icons.HotTub,
                 type: 'item',
                 protectedRoles: programation,
               },
@@ -320,7 +349,7 @@ const sideBarRoutes: NavItemType[] = [
         id: 'hospitalizacion',
         title: 'Hospitalización',
         type: 'collapse',
-        icon: icons.MonitorHeart,
+        icon: icons.AirlineSeatFlat,
         children: [
           {
             id: 'solicitud-servicios',
@@ -366,7 +395,7 @@ const sideBarRoutes: NavItemType[] = [
             id: 'operaciones-dia',
             title: 'Operaciones del dia',
             url: '/quirofano/operaciones-del-dia',
-            icon: icons.AirlineSeatFlat,
+            icon: icons.AirlineSeatReclineExtra,
             type: 'item',
             protectedRoles: operatingRoomANDnurse,
           },
@@ -374,7 +403,7 @@ const sideBarRoutes: NavItemType[] = [
             id: 'recuperacion',
             title: 'Recuperación',
             url: '/quirofano/recuperacion',
-            icon: icons.AirlineSeatFlat,
+            icon: icons.Healing,
             type: 'item',
             protectedRoles: operatingRoomANDnurse,
           },
@@ -388,7 +417,7 @@ const sideBarRoutes: NavItemType[] = [
                 id: 'paquetes-quirurgicos',
                 title: 'Paquetes Quirúrgicos',
                 url: '/quirofano/paquetes-quirurgicos',
-                icon: icons.Work,
+                icon: icons.Inventory,
                 type: 'item',
                 protectedRoles: programation,
               },
@@ -396,7 +425,7 @@ const sideBarRoutes: NavItemType[] = [
                 id: 'medicos',
                 title: 'Médicos',
                 url: '/quirofano/medicos',
-                icon: icons.GroupAdd,
+                icon: icons.Masks,
                 type: 'item',
                 protectedRoles: programation,
               },
@@ -410,7 +439,7 @@ const sideBarRoutes: NavItemType[] = [
               },
               {
                 id: 'procedimientos-cirugia',
-                title: 'Procedimientos de cirugía',
+                title: 'Cirugías',
                 url: '/quirofano/procedimientos-cirugia',
                 icon: icons.Vaccines,
                 type: 'item',
@@ -444,7 +473,7 @@ const sideBarRoutes: NavItemType[] = [
         children: [
           {
             id: 'solicitudes-administracion',
-            title: 'Administrar Solicitudes de Servicios',
+            title: 'Administrar Solicitudes',
             url: '/servicios/solicitudes-administracion',
             icon: icons.FactCheck,
             type: 'item',
@@ -458,9 +487,9 @@ const sideBarRoutes: NavItemType[] = [
             children: [
               {
                 id: 'estudios-gabinete',
-                title: 'Estudios de Gabinete',
+                title: 'Servicios',
                 url: '/servicios/solicitudes',
-                icon: icons.LiaXRaySolid,
+                icon: icons.FindInPage,
                 type: 'item',
                 protectedRoles: hospitalization,
               },
@@ -480,7 +509,7 @@ const sideBarRoutes: NavItemType[] = [
         id: 'caja',
         title: 'Caja',
         type: 'collapse',
-        icon: icons.PointOfSale,
+        icon: icons.AccountBalance,
         children: [
           {
             id: 'caja-dia',
@@ -502,7 +531,7 @@ const sideBarRoutes: NavItemType[] = [
             id: 'emitir-recibo',
             title: 'Emitir Pase a Caja',
             url: '/ventas/emitir-recibo',
-            icon: icons.ReceiptLong,
+            icon: icons.Sell,
             type: 'item',
             protectedRoles: checkoutSell,
           },
@@ -542,8 +571,8 @@ const sideBarRoutes: NavItemType[] = [
         children: [
           {
             id: 'facturas',
-            title: 'Facturas',
-            url: '/facturas',
+            title: 'Cuentas Facturables',
+            url: '/facturacion/cuentas-facturables',
             icon: icons.ReceiptLong,
             type: 'item',
             protectedRoles: invoiceAdmin,
@@ -577,7 +606,7 @@ const sideBarRoutes: NavItemType[] = [
         id: 'tesoreria',
         title: 'Tesoreria',
         type: 'collapse',
-        icon: icons.Assignment,
+        icon: icons.Balance,
         children: [
           {
             id: 'revolvente',

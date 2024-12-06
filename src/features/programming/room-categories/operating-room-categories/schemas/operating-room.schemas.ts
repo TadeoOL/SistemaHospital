@@ -1,3 +1,4 @@
+import { ProductType } from '@/types/contpaqiTypes';
 import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
@@ -6,7 +7,7 @@ const zodDay = z.custom<Dayjs>((val) => val instanceof dayjs, 'Fecha invalida').
 export const operatingRoomPriceRangeSchema = z
   .object({
     horaInicio: z.string().min(1, 'La hora inicio es necesaria'),
-    horaFin: z.string(),
+    horaFin: z.string().nullable(),
     precio: z
       .string()
       .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -24,27 +25,25 @@ export const operatingRoomPriceRangeSchema = z
     }
   );
 
-export const operatingRoomCategory = z.object({
-  name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
-  description: z.string().optional(),
-  intervaloReservacion: zodDay,
-  // priceByTimeRange: z.array(priceByTimeRange).optional(),
-  // recoveryPriceByTimeRange: z.array(priceByTimeRange).optional(),
-  // type: z.string(),
-  //codigoSATRecuperacion: z.string().nullable(),
-  //codigoSAT: z.string().min(1, 'El código es necesario'),
-  // codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
-  // codigoUnidadMedidaRecuperacion: z.number({ invalid_type_error: 'El código es necesario' }).optional(),
+export const operatingRoomCategorySchema = (hasInvoiceService?: boolean) =>
+  z.object({
+    name: z.string().min(1, 'El nombre del tipo de cuarto es requerido'),
+    description: z.string().optional(),
+    intervaloReservacion: zodDay,
+    codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }),
+    codigoUnidadMedidaRecuperacion: z.number({ invalid_type_error: 'El código es necesario' }).optional(),
 
-  priceByTimeRangeHospitalization: z.array(operatingRoomPriceRangeSchema).optional(),
-  priceByTimeRangeRecovery: z.array(operatingRoomPriceRangeSchema).optional(),
-  priceByTimeRangeOutpatient: z.array(operatingRoomPriceRangeSchema).optional(),
-  // priceRoom: z
-  //   .string()
-  //   .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
-  //   .optional(),
-});
-// .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
-//   message: 'El precio del cuarto es necesario',
-//   path: ['priceRoom'],
-// });
+    priceByTimeRangeHospitalization: z.array(operatingRoomPriceRangeSchema).optional(),
+    priceByTimeRangeRecovery: z.array(operatingRoomPriceRangeSchema).optional(),
+    priceByTimeRangeOutpatient: z.array(operatingRoomPriceRangeSchema).optional(),
+    ...(hasInvoiceService && {
+      codigoSATRecuperacion: z.string().min(1, 'El código SAT de recuperación es necesario'),
+      codigoSAT: z.string().min(1, 'El código SAT es necesario'),
+      tipoProducto: z.nativeEnum(ProductType),
+      codigoProducto: z.string().optional().nullable(),
+      codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }).min(1, 'El código es necesario'),
+      codigoUnidadMedidaRecuperacion: z
+        .number({ invalid_type_error: 'El código es necesario' })
+        .min(1, 'El código es necesario'),
+    }),
+  });

@@ -97,7 +97,7 @@ const PatientInvoiceTableRow = ({ data }: PatientInvoiceTableRowProps) => {
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center', columnGap: 0.5 }}>
-            {data.yaFacturo ? (
+            {data.facturada ? (
               <Tooltip title="Facturación realizada">
                 <CheckCircle color="success" />
               </Tooltip>
@@ -109,11 +109,11 @@ const PatientInvoiceTableRow = ({ data }: PatientInvoiceTableRowProps) => {
             {data.clavePaciente}
           </Box>
         </TableCell>
-        <TableCell>{data.nombrePaciente}</TableCell>
-        <TableCell>{data.nombreMedico}</TableCell>
+        <TableCell>{data.paciente}</TableCell>
+        <TableCell>{data.medico}</TableCell>
         <TableCell>
           <GenericChip
-            data={data.procedimientos.map((p, i) => {
+            data={data.cirugias.map((p, i) => {
               return { id: i.toString(), nombre: p };
             })}
           />
@@ -129,11 +129,11 @@ const PatientInvoiceTableRow = ({ data }: PatientInvoiceTableRowProps) => {
       <Modal open={open}>
         <>
           <GeneratePatientAccountInvoice
-            patientName={data.nombrePaciente}
+            patientName={data.paciente}
             setOpen={setOpen}
             patientKey={data.clavePaciente}
             patientAccountId={data.id_CuentaPaciente}
-            patientId={data.id_Paciente}
+            //patientId={data.id_CuentaPaciente}
           />
         </>
       </Modal>

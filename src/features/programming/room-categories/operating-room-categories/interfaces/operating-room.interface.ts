@@ -4,7 +4,6 @@ interface ConfiguracionPrecio {
 }
 
 export interface ICategoryOperatingRoom {
-  id_TipoCuarto?: string;
   id_TipoQuirofano?: string;
   nombre: string;
   descripcion?: string;
@@ -15,10 +14,17 @@ export interface ICategoryOperatingRoom {
   // configuracionRecuperacion?: IRecoveryRoomOperatingRoom[];
   tipo: number;
   precio?: number;
-  codigoSATRecuperacion?: string;
+  //Facturacion
+  codigoProducto?: string;
   codigoSAT?: string;
   codigoUnidadMedida?: number;
+  id_ProductoFactura?: string;
+  iva?: boolean;
+  //Facturacion Recuperacion
+  codigoSATRecuperacion?: string;
+  codigoProductoRecuperacion?: string;
   codigoUnidadMedidaRecuperacion?: number;
+  ivaRecuperacion?: boolean;
 }
 
 export interface IRoomPriceRange {

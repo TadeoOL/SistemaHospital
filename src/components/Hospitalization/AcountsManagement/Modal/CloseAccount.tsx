@@ -13,32 +13,25 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
-import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { toast } from 'react-toastify';
 import React, { useState } from 'react';
 import { useConnectionSocket } from '../../../../store/checkout/connectionSocket';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import dayjs from 'dayjs';
 import { Settings } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { getAllOperatingRoomsTypes } from '../../../../services/operatingRoom/operatingRoomRegisterService';
 import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
 import { usePatientAccountPaginationStore } from '../../../../store/checkout/patientAcountsPagination';
-import { pdf } from '@react-pdf/renderer';
-import { BillCloseReport } from '../../../Export/Account/BillCloseReport';
 import { PriceCell } from '../../../Commons/PriceCell';
-import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
 import { useGetPatientAccount } from '../../../../hooks/checkout/useGetPatientAccount';
 import { DepositType, IPatientInfo, PatientAccountStatus } from '../../../../types/checkout/patientAccountTypes';
 import { changeStatusPatientAccount, createPatientAccountDeposit } from '../../../../services/checkout/patientAccount';
 import { ModalBasic } from '@/common/components';
-import { Modal } from '@mui/material';
 import { DiscountModal } from './DiscountModal';
+import { getAllSurgeryRoomTypes } from '@/services/programming/suergeryRoomTypes';
 
 interface CloseAccountModalProps {
   setOpen: Function;
@@ -52,14 +45,14 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   const refetch = usePatientAccountPaginationStore((state) => state.fetchData);
   // const inputRefSurgeryDiscount = useRef<HTMLInputElement>(null);
   // const profile = useAuthStore(useShallow((state) => state.profile));
-  const [notes, setNotes] = useState('');
+  //const [notes, setNotes] = useState('');
   const { data, isLoading, error, refetch: refetchAccount } = useGetPatientAccount(props.id_Cuenta);
   const viewOnly = data?.estatusCuenta !== PatientAccountStatus.Admitted;
 
   // const [discount, setDiscount] = useState('');
   // const [discountPercent, setDiscountPercent] = useState('');
 
-  const [surgeryPrice] = useState('');
+  //const [surgeryPrice] = useState('');
   const [modified, setModified] = useState(false);
   const [openDiscount, setOpenDiscount] = useState(false);
 
@@ -359,9 +352,10 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               data && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                   <PatientInformation
+                    date={data.fechaIngreso}
                     patient={data.paciente ?? ({} as IPatientInfo)}
                     medic={data.paciente?.nombreMedico ?? ''}
-                    isHospitalization={false}
+                    isHospitalization={data.cuentaConCuarto}
                     ventaConcepto={totalServices}
                     ventaArticuloIVA={totalArticles}
                     ventaArticuloSinIVA={totalEquipment}
@@ -663,6 +657,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
 interface PatientInformationProps {
   patient: IPatientInfo;
   medic: string;
+  date: string;
   isHospitalization: boolean;
   ventaConcepto: number;
   ventaArticuloIVA: number;
@@ -673,9 +668,7 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({
   patient,
   medic,
   isHospitalization,
-  ventaConcepto,
-  ventaArticuloIVA,
-  ventaArticuloSinIVA,
+  date
 }) => (
   <Grid container sx={{ p: 1 }} spacing={1}>
     <Grid item xs={12}>
@@ -690,7 +683,7 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({
     </Grid>
     <Grid item xs={6}>
       <Typography>
-        <b>Fecha:</b> {dayjs().format('DD/MM/YYYY - HH:mm')}
+        <b>Fecha ingreso:</b> {date}
       </Typography>
     </Grid>
     <Grid item xs={12}>
@@ -700,22 +693,7 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({
     </Grid>
     <Grid item xs={12}>
       <Typography>
-        <b>Tipo:</b> {isHospitalization ? 'Hospitalización' : 'Ambulatoria o Endopro'}
-      </Typography>
-    </Grid>
-    <Grid item xs={12}>
-      <Typography>
-        <b>Total de Servicios y Estudios: </b>$ {ventaConcepto}
-      </Typography>
-    </Grid>
-    <Grid item xs={12}>
-      <Typography>
-        <b>Total de Material: </b>$ {ventaArticuloIVA}
-      </Typography>
-    </Grid>
-    <Grid item xs={12}>
-      <Typography>
-        <b>Total de Medicamento: </b>$ {ventaArticuloSinIVA}
+        <b>Tipo:</b> {isHospitalization ? 'Hospitalización' : 'Ambulatoria'}
       </Typography>
     </Grid>
   </Grid>
@@ -751,7 +729,7 @@ export const DataTable = <T,>({
 
   const { data: operatingRoomsList = [] } = useQuery<{ id: string; nombre: string }[]>({
     queryKey: ['allOperatingRoomsTypes'],
-    queryFn: getAllOperatingRoomsTypes,
+    queryFn: getAllSurgeryRoomTypes,
     enabled: !!anchorEl,
   });
 
@@ -851,6 +829,7 @@ export const DataTable = <T,>({
 
         <Menu
           anchorEl={anchorEl}
+
           open={Boolean(anchorEl)}
           onClose={handleClose}
           slotProps={{ paper: { sx: { p: 2, width: '250px' } } }}

@@ -115,6 +115,13 @@ interface DailyOperatingTableRowProps {
   data: IRoomInformationnew;
 }
 const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
+  const getHour = (date: string): string => {
+    if (!date) return 'Invalid date';
+    const normalizedDate = date.replace(/\s-\s/g, '-');
+    const parsed = dayjs(normalizedDate, 'DD/MM/YYYY-HH:mm');
+    return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm') : 'Invalid date';
+  };
+
   const { data } = props;
   const refetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
   const [open, setOpen] = useState(false);
@@ -123,7 +130,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   const patientName = data.paciente;
   const medicName = data.medico;
   const anesthesiologistName = data.anestesiologo;
-  const [hours, minutes] = data.horaFinRecuperacion?.split(':').map(Number) ?? [0, 0];
+  //const [hours, minutes] = data.horaFinRecuperacion?.split(':').map(Number) ?? [0, 0];
 
   const validateData = (): boolean => {
     return !!data.medico && !!data.anestesiologo && !!data.cirugias;
@@ -150,9 +157,9 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   const handleClickEnd = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElEnd(event.currentTarget);
   };
-
   const [startOperatingRoom, setStartOperatingRoom] = useState<string>( //ni idea
-    dayjs(data.horaInicioRecuperacion).format('YYYY-MM-DDTHH:mm')
+    getHour(data.horaInicio)
+    //dayjs(data.horaInicioRecuperacion).format('YYYY-MM-DDTHH:mm')
   );
   /*
   const [startOperatingRoom, setStartOperatingRoom] = useState<string>(//ni idea
@@ -162,7 +169,8 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
   );
   */
   const [endOperatingRoom, setEndOperatingRoom] = useState<string>(
-    dayjs(data.horaInicio, 'DD/MM/YYYY - HH:mm').format('YYYY-MM-DDTHH:mm')
+    getHour(data.horaFin)
+    //dayjs(data.horaInicio, 'DD/MM/YYYY - HH:mm').format('YYYY-MM-DDTHH:mm')
   );
 
   const handleAddStartOperatingRoom = async () => {
@@ -313,7 +321,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
             )}
             {data.quirofano && data.estatus == SurgeryStatus.SurgeryFinished && (
               <Tooltip title="Comenzar recuperación">
-                <IconButton onClick={() => setOpenRecoveryPhase(true)}>
+                <IconButton onClick={() => {setOpenRecoveryPhase(true)}}>
                   <FaHandHoldingMedical style={{ color: '#686D76' }} />
                 </IconButton>
               </Tooltip>
@@ -447,7 +455,7 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
         <>
           <StartRecoveryPhase
             setOpen={setOpenRecoveryPhase}
-            surgeryEndTime={new Date(hours, minutes, 0, 0)}
+            surgeryEndTime={new Date(getHour(data.horaFin))}
             id_CuentaEspacioHospitalario={data.id_CuentaEspacioHospitalario}
           />
         </>

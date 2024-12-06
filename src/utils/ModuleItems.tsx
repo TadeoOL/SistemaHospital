@@ -51,7 +51,6 @@ import {
   MedicalServices,
   AttachMoney,
   Work,
-  Report,
 } from '@mui/icons-material';
 import { LiaXRaySolid } from 'react-icons/lia';
 import { FaUserDoctor } from 'react-icons/fa6';
@@ -60,7 +59,6 @@ import { GiMedicalDrip } from 'react-icons/gi';
 import { FaHouseChimneyMedical } from 'react-icons/fa6';
 import { FaHospitalSymbol } from 'react-icons/fa';
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia';
-
 export const ModuleList: IModuleItemsList[] = [
   {
     categoryTitle: 'Inicio',
@@ -221,7 +219,7 @@ export const ModuleList: IModuleItemsList[] = [
       },
       {
         title: 'Facturación',
-        path: '/facturas',
+        path: '/facturacion/cuentas-facturables',
         icon: <LiaFileInvoiceDollarSolid />,
         protectedRoles: invoiceAdmin,
       },
@@ -308,7 +306,7 @@ export const ModuleList: IModuleItemsList[] = [
   },
   {
     categoryTitle: 'Hospitalización',
-    icon: <MonitorHeart />,
+    icon: <AirlineSeatFlat />,
     moduleItems: [
       {
         title: 'Solicitud de Servicios',

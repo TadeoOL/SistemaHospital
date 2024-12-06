@@ -2,16 +2,16 @@
 
 export interface ICategoryNormalRoom {
   id_TipoCuarto?: string;
-  id_TipoQuirofano?: string;
   nombre: string;
   descripcion?: string;
   intervaloReservacion?: string;
-  // configuracionPrecioHora?: IRecoveryRoomOperatingRoom[];
-  // configuracionRecuperacion?: IRecoveryRoomOperatingRoom[];
   tipo: number;
   precio?: number;
-  codigoSATRecuperacion?: string;
+  // Contpaqi
   codigoSAT?: string;
   codigoUnidadMedida?: number;
-  codigoUnidadMedidaRecuperacion?: number;
+  codigoProducto?: string;
+  tipoProducto?: number;
+  id_ProductoFactura?: string;
+  iva?: boolean;
 }

@@ -16,11 +16,8 @@ import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
 import { addArticle } from '../schemas/articles.schemas';
 import { useApiConfigStore } from '@/store/apiConfig';
 import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
-import { addProductToInvoice } from '@/services/invoice/invoice.product.service';
-import {
-  addProductToInvoiceService,
-  modifyProductToInvoiceService,
-} from '@/services/contpaqi/contpaqi.product.service';
+import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
+import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
 
 interface ArticleModalProps {
   itemId?: string;
@@ -96,11 +93,10 @@ export const ArticleModal = (props: ArticleModalProps) => {
       data.esCaja = isBox;
       data.factor = factor;
       let id_Relacion: string = data.id || '';
-      if (!itemId) {
-        const res = await addNewArticle(data);
-        id_Relacion = res.id;
+
+      const handleInvoiceServices = async (id_Relacion: string, isModifying: boolean) => {
         if (hasApiUrl) {
-          const resInvoice = await addProductToInvoice({
+          const resInvoice = await InvoiceProductService.addProductToInvoice({
             id: data.id_ProductoFactura || undefined,
             codigoSAT: data.codigoSAT || '',
             codigoUnidadMedida: data.codigoUnidadMedida || '',
@@ -108,39 +104,36 @@ export const ArticleModal = (props: ArticleModalProps) => {
             id_Relacion,
             tipoProducto: data.tipoProducto || 0,
           });
-          await addProductToInvoiceService({
+
+          const contpaqiData = {
             nombre: data.nombre,
-            codigoContpaq: resInvoice.codigoProducto ?? '',
-            precioVenta: data.precioVentaInterno,
+            codigoContpaq: resInvoice.producto.codigoProducto ?? '',
+            precioVenta: Number(data.precioVentaInterno) || 0,
             iva: article?.iva ?? false,
             codigoSAT: data.codigoSAT ?? '',
-            id_UnidadMedida: data.codigoUnidadMedida ?? '',
-          });
+            id_UnidadMedida: Number(data.codigoUnidadMedida) || 0,
+          };
+
+          if (isModifying) {
+            await ContpaqiProductService.modifyProductToInvoiceService(contpaqiData);
+          } else {
+            await ContpaqiProductService.addProductToInvoiceService(contpaqiData);
+          }
         }
+      };
+
+      if (!itemId) {
+        const res = await addNewArticle(data);
+        id_Relacion = res.id;
+        await handleInvoiceServices(id_Relacion, false);
         toast.success('Articulo creado con éxito!');
       } else {
         const res = await modifyArticle(data);
         id_Relacion = res.id;
-        if (hasApiUrl) {
-          const resInvoice = await addProductToInvoice({
-            id: data.id_ProductoFactura || undefined,
-            codigoSAT: data.codigoSAT || '',
-            codigoUnidadMedida: data.codigoUnidadMedida || '',
-            codigoProducto: data.codigoProducto || '',
-            id_Relacion,
-            tipoProducto: data.tipoProducto || 0,
-          });
-          await modifyProductToInvoiceService({
-            nombre: data.nombre,
-            codigoContpaq: resInvoice.codigoProducto ?? '',
-            precioVenta: data.precioVentaInterno,
-            iva: article?.iva ?? false,
-            codigoSAT: data.codigoSAT ?? '',
-            id_UnidadMedida: data.codigoUnidadMedida ?? '',
-          });
-        }
+        await handleInvoiceServices(id_Relacion, true);
         toast.success('Articulo modificado con éxito!');
       }
+
       onSuccess();
       onClose();
     } catch (error) {
