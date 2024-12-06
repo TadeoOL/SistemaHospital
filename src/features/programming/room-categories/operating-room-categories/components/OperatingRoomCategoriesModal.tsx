@@ -21,8 +21,8 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import 'dayjs/locale/es-mx';
-import { InputBasic, ModalBasic } from '@/common/components';
-import { operatingRoomCategory, operatingRoomPriceRangeSchema } from '../schemas/operating-room.schemas';
+import { InputBasic, ModalBasic, SelectBasic } from '@/common/components';
+import { operatingRoomCategorySchema, operatingRoomPriceRangeSchema } from '../schemas/operating-room.schemas';
 import { ICategoryOperatingRoom, IRoomPriceRange } from '../interfaces/operating-room.interface';
 import { modifyOperatingRoomCategory, registerOperatingRoomCategory } from '../services/operating-room-categories';
 import { isValidFloat, isValidInteger, isValidIntegerIncludeZero } from '@/utils/functions/dataUtils';
@@ -34,6 +34,10 @@ import { TableRow } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { useTheme } from '@mui/material';
+import { useApiConfigStore } from '@/store/apiConfig';
+import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
+import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
+import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
 
 // import { modifyTypeRoom, registerTypeRoom } from '../../../../../services/programming/typesRoomService';
 
@@ -49,10 +53,16 @@ type Inputs = {
   priceByTimeRangeHospitalization: IRoomPriceRange[];
   priceByTimeRangeRecovery: IRoomPriceRange[];
   priceByTimeRangeOutpatient: IRoomPriceRange[];
-  //codigoSATRecuperacion?: string;
-  //codigoSAT?: string;
-  // codigoUnidadMedida?: number;
-  // codigoUnidadMedidaRecuperacion?: number;
+  type: string;
+  priceRoom: string;
+  //Facturacion
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
+  codigoProducto?: string;
+  tipoProducto?: number;
+  codigoSATRecuperacion?: string;
+  codigoProductoRecuperacion?: string;
+  codigoUnidadMedidaRecuperacion?: number;
 };
 
 interface OperatingRoomCategoriesModalProps {
@@ -66,23 +76,24 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
   const { open, onClose, onSuccess, defaultData } = props;
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
+  const hasInvoiceService = useApiConfigStore((state) => state.hasInvoiceService);
 
   const [isLoading, setIsLoading] = useState(false);
   //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const defaultValues = {
     name: '',
     description: '',
-    // priceByTimeRange: [],
-    // recoveryPriceByTimeRange: [],
     priceByTimeRangeHospitalization: [],
     priceByTimeRangeRecovery: [],
     priceByTimeRangeOutpatient: [],
     intervaloReservacion: null,
     priceRoom: '0',
-    //codigoSATRecuperacion: '',
-    //codigoSAT: '',
+    codigoSATRecuperacion: '',
+    codigoSAT: '',
     codigoUnidadMedida: 0,
     codigoUnidadMedidaRecuperacion: 0,
+    tipoProducto: ProductType.TIPO_QUIROFANO,
+    codigoProducto: '',
   };
 
   const {
@@ -95,7 +106,7 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
     setValue,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(operatingRoomCategory),
+    resolver: zodResolver(operatingRoomCategorySchema(hasInvoiceService)),
     defaultValues: defaultValues,
   });
 
@@ -112,8 +123,14 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
       priceByTimeRangeRecovery: defaultData.configuracionPrecioRecuperacion,
       priceByTimeRangeOutpatient: defaultData.configuracionPrecio.ambulatoria,
       intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
-      // codigoUnidadMedida: 0,
-      // codigoUnidadMedidaRecuperacion: 0,
+      codigoSATRecuperacion: defaultData.codigoSATRecuperacion,
+      codigoSAT: defaultData.codigoSAT,
+      codigoUnidadMedida: defaultData.codigoUnidadMedida ? defaultData.codigoUnidadMedida : 0,
+      codigoUnidadMedidaRecuperacion: defaultData.codigoUnidadMedidaRecuperacion
+        ? defaultData.codigoUnidadMedidaRecuperacion
+        : 0,
+      tipoProducto: defaultValues.tipoProducto,
+      codigoProducto: defaultData.codigoProducto,
     });
   }, [defaultData]);
 
@@ -128,60 +145,122 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
     return date;
   };
 
+  const loadForm = () => {
+    if (!defaultData) {
+      reset(defaultValues);
+      return;
+    }
+
+    const newValues: any = {
+      name: defaultData.nombre,
+      description: defaultData.descripcion,
+      intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
+      priceRoom: defaultData.precio?.toString(),
+      codigoSATRecuperacion: defaultData.codigoSATRecuperacion,
+      codigoSAT: defaultData.codigoSAT,
+      codigoUnidadMedida: defaultData.codigoUnidadMedida ? defaultData.codigoUnidadMedida : 0,
+      codigoUnidadMedidaRecuperacion: defaultData.codigoUnidadMedidaRecuperacion
+        ? defaultData.codigoUnidadMedidaRecuperacion
+        : 0,
+      tipoProducto: defaultValues.tipoProducto,
+      codigoProducto: defaultData.codigoProducto,
+    };
+
+    reset(newValues);
+  };
+
+  useEffect(() => {
+    loadForm();
+  }, [defaultData?.id_TipoQuirofano]);
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log('data:', data);
     setIsLoading(true);
-    const intervaloReservacion = getDateOrNull(data.intervaloReservacion)?.format('HH:mm:00');
     const getRange = (range: IRoomPriceRange[]) => {
       if (!range) return [];
       return range.map((price) => ({
         horaInicio: price.horaInicio,
-        horaFin: price.horaFin ? price.horaFin : undefined,
+        horaFin: price.horaFin ?? null,
         precio: price.precio,
       }));
     };
-
-    const hospitalizacion: any[] = getRange(data.priceByTimeRangeHospitalization);
-    console.log('hospitalizacion:', hospitalizacion);
-    const recuperacion: any[] = getRange(data.priceByTimeRangeRecovery);
-    console.log('recuperacion:', recuperacion);
-    const ambulatoria: any[] = getRange(data.priceByTimeRangeOutpatient);
-    console.log('ambulatoria:', ambulatoria);
     try {
+      const roomCategoryData = {
+        nombre: data.name,
+        descripcion: data.description,
+        intervaloReservacion: getDateOrNull(data.intervaloReservacion)?.format('HH:mm:00'),
+        precio: parseFloat(data.priceRoom),
+        configuracionPrecio: {
+          hospitalizacion: getRange(data.priceByTimeRangeHospitalization),
+          ambulatoria: getRange(data.priceByTimeRangeOutpatient),
+        },
+        configuracionPrecioRecuperacion: getRange(data.priceByTimeRangeRecovery),
+      };
+
+      const handleInvoiceServices = async (id_Relacion: string, isModifying: boolean) => {
+        if (hasInvoiceService) {
+          const resInvoice = await InvoiceProductService.addProductToInvoice({
+            id: defaultData?.id_ProductoFactura || undefined,
+            codigoSAT: data.codigoSAT || '',
+            codigoUnidadMedida: data.codigoUnidadMedida?.toString() || '',
+            codigoProducto: data.codigoProducto || '',
+            codigoSATRecuperacion: data.codigoSATRecuperacion || '',
+            codigoUnidadMedidaRecuperacion: data.codigoUnidadMedidaRecuperacion?.toString() || '',
+            id_Relacion,
+            tipoProducto: ProductType.TIPO_QUIROFANO,
+          });
+
+          // Datos para quirófano
+          const contpaqiData = {
+            nombre: data.name,
+            codigoContpaq: resInvoice.producto.codigoProducto ?? '',
+            precioVenta: Number.isNaN(roomCategoryData.precio) ? 0 : roomCategoryData.precio,
+            iva: defaultData?.iva ?? false,
+            codigoSAT: data.codigoSAT ?? '',
+            id_UnidadMedida: Number(data.codigoUnidadMedida) || 0,
+          };
+
+          // Datos para recuperación
+          const contpaqiRecoveryData = {
+            nombre: `${data.name} - Recuperación`,
+            codigoContpaq: resInvoice.productoRecuperacion?.codigoProducto ?? '',
+            precioVenta: Number.isNaN(roomCategoryData.precio) ? 0 : roomCategoryData.precio,
+            iva: defaultData?.ivaRecuperacion ?? false,
+            codigoSAT: data.codigoSATRecuperacion ?? '',
+            id_UnidadMedida: Number(data.codigoUnidadMedidaRecuperacion) || 0,
+          };
+
+          if (isModifying) {
+            await ContpaqiProductService.modifyProductToInvoiceService(contpaqiData);
+            await ContpaqiProductService.modifyProductToInvoiceService(contpaqiRecoveryData);
+          } else {
+            await ContpaqiProductService.addProductToInvoiceService(contpaqiData);
+            await ContpaqiProductService.addProductToInvoiceService(contpaqiRecoveryData);
+          }
+        }
+      };
+
       if (!defaultData) {
-        const res = await registerOperatingRoomCategory({
-          nombre: data.name,
-          descripcion: data.description,
-          intervaloReservacion,
-          configuracionPrecio: {
-            hospitalizacion,
-            ambulatoria,
-          },
-          configuracionPrecioRecuperacion: recuperacion,
-        });
-        console.log('res:', res);
-        toast.success('Categoría de quirofano dada de alta correctamente');
+        const res = await registerOperatingRoomCategory(roomCategoryData);
+        await handleInvoiceServices(res.id, false);
+        toast.success('Categoría de quirófano dada de alta correctamente');
       } else {
-        await modifyOperatingRoomCategory({
-          nombre: data.name,
-          descripcion: data.description,
-          intervaloReservacion,
-          id: defaultData.id_TipoCuarto as string,
-          configuracionPrecio: {
-            hospitalizacion,
-            ambulatoria,
-          },
-          configuracionPrecioRecuperacion: recuperacion,
+        const res = await modifyOperatingRoomCategory({
+          ...roomCategoryData,
+          id: defaultData.id_TipoQuirofano as string,
         });
-        toast.success('Categoría de quirofanos modificada correctamente');
+        await handleInvoiceServices(res.id, true);
+        toast.success('Categoría de quirófanos modificada correctamente');
       }
+
       onSuccess();
       onClose();
     } catch (error) {
       console.log(error);
-      defaultData
-        ? toast.error('Error al modificar la categoría de quirofanos')
-        : toast.error('Error al intentar dar de alta la categoría de quirofanos');
+      toast.error(
+        defaultData
+          ? 'Error al modificar la categoría de quirófanos'
+          : 'Error al intentar dar de alta la categoría de quirófanos'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -196,7 +275,7 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
       <Button color="error" variant="outlined" disabled={isLoading}>
         Cancelar
       </Button>
-      <Button variant="contained" disabled={isLoading} onClick={handleSubmit(onSubmit, (e) => console.log(e))}>
+      <Button variant="contained" disabled={isLoading} form="form1" type="submit">
         {isLoading ? <CircularProgress size={15} /> : defaultData ? 'Modificar' : 'Agregar'}
       </Button>
     </Box>
@@ -210,162 +289,156 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
       onClose={onClose}
       actions={actions}
     >
-      <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1">
-        <Grid container spacing={1} sx={{ maxHeight: { xs: 500, xl: 700 } }}>
-          <Grid item xs={12}>
-            <InputBasic
-              label="Nombre"
-              placeholder="Escribe un nombre..."
-              fullWidth
-              error={!!errors.name?.message}
-              helperText={errors.name?.message}
-              {...register('name')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <InputBasic
-              label="Descripción"
-              placeholder="Escribe una descripción..."
-              fullWidth
-              multiline
-              error={!!errors.description?.message}
-              helperText={errors.description?.message}
-              {...register('description')}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Stack>
-              <Typography
-                sx={{
-                  pb: 1,
-                }}
-              >
-                Espacio entre reservaciones:
-              </Typography>
-              <Controller
-                control={control}
-                name="intervaloReservacion"
-                render={({ field: { onChange, value } }) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker
-                      ampm={false}
-                      view="minutes"
-                      views={['hours', 'minutes']}
-                      onChange={onChange}
-                      value={value}
-                      slotProps={{
-                        textField: {
-                          helperText: 'El tiempo esta representado en horas y minutos.',
-                          error: !!errors.intervaloReservacion?.message,
-                          sx: {
-                            '.MuiFormHelperText-root': {
-                              color: 'error.main',
-                              fontSize: 11,
-                              fontWeight: 700,
-                            },
+      <form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))} id="form1" />
+      <Grid container spacing={1} sx={{ maxHeight: { xs: 500, xl: 700 } }}>
+        <Grid item xs={12}>
+          <InputBasic
+            label="Nombre"
+            placeholder="Escribe un nombre..."
+            fullWidth
+            error={!!errors.name?.message}
+            helperText={errors.name?.message}
+            {...register('name')}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <InputBasic
+            label="Descripción"
+            placeholder="Escribe una descripción..."
+            fullWidth
+            multiline
+            error={!!errors.description?.message}
+            helperText={errors.description?.message}
+            {...register('description')}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Stack>
+            <Typography
+              sx={{
+                pb: 1,
+              }}
+            >
+              Espacio entre reservaciones:
+            </Typography>
+            <Controller
+              control={control}
+              name="intervaloReservacion"
+              render={({ field: { onChange, value } }) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    ampm={false}
+                    view="minutes"
+                    views={['hours', 'minutes']}
+                    onChange={onChange}
+                    value={value}
+                    slotProps={{
+                      textField: {
+                        helperText: 'El tiempo esta representado en horas y minutos.',
+                        error: !!errors.intervaloReservacion?.message,
+                        sx: {
+                          '.MuiFormHelperText-root': {
+                            color: 'error.main',
+                            fontSize: 11,
+                            fontWeight: 700,
                           },
                         },
-                      }}
-                    />
-                  </LocalizationProvider>
-                )}
-              />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={12}>
-            <>
-              {' '}
-              <PriceRangeTable
-                xs={xs}
-                title={'Precio por Hora Ambulatoria'}
-                updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeOutpatient')}
-                data={watch('priceByTimeRangeOutpatient')}
-              />
-              <PriceRangeTable
-                xs={xs}
-                title={'Precio por Hora Hospitalización'}
-                updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeHospitalization')}
-                data={watch('priceByTimeRangeHospitalization')}
-              />
-              <PriceRangeTable
-                xs={xs}
-                title={'Precio por Hora Recuperación'}
-                updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeRecovery')}
-                data={watch('priceByTimeRangeRecovery')}
-              />
-            </>
-          </Grid>
-          {/*watch('type') === '1' && (
-              <Grid item xs={6}>
-                <Typography>
-                  Codigo de SAT de <b>Recuperación</b>
-                </Typography>
-                <TextField
-                  placeholder="Escribe un codigo de SAT para Recuperación"
-                  fullWidth
-                  error={!!errors.codigoSATRecuperacion?.message}
-                  helperText={errors.codigoSATRecuperacion?.message}
-                  {...register('codigoSATRecuperacion')}
-                />
-              </Grid>
-            )
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              )}
+            />
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={12}>
+          <>
+            <PriceRangeTable
+              xs={xs}
+              title={'Precio por Hora Ambulatoria'}
+              updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeOutpatient')}
+              data={watch('priceByTimeRangeOutpatient')}
+            />
+            <PriceRangeTable
+              xs={xs}
+              title={'Precio por Hora Hospitalización'}
+              updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeHospitalization')}
+              data={watch('priceByTimeRangeHospitalization')}
+            />
+            <PriceRangeTable
+              xs={xs}
+              title={'Precio por Hora Recuperación'}
+              updateRecoveryConfig={handleAddNewPriceByTimeRange('priceByTimeRangeRecovery')}
+              data={watch('priceByTimeRangeRecovery')}
+            />
+          </>
+        </Grid>
+        {hasInvoiceService && (
+          <>
             <Grid item xs={6}>
-              <Typography>Código de SAT</Typography>
-              <TextField
-                placeholder="Escribe un código de SAT"
-                fullWidth
+              <InputBasic
+                label="Codigo SAT "
+                placeholder="Escribe un codigo de SAT"
+                {...register('codigoSAT')}
                 error={!!errors.codigoSAT?.message}
                 helperText={errors.codigoSAT?.message}
-                {...register('codigoSAT')}
               />
             </Grid>
-            {<Grid item xs={12} md={6}>
-              <Typography>Unidad de Medida Contpaqi</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                label="Seleccione una unidad de medida"
-                error={!!errors.codigoUnidadMedida}
-                helperText={errors?.codigoUnidadMedida?.message}
-                {...register('codigoUnidadMedida')}
-                value={watch('codigoUnidadMedida')}
-              >
-                {!isLoadingConcepts &&
-                  sizeUnit.map((data) => (
-                    <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
-                      {data.nombre}
-                    </MenuItem>
-                  ))}
-                {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
-              </TextField>
-            </Grid>*/}
-          {/*watch('type') === '1' && (
-              <Grid item xs={6}>
-                <Typography>
-                  Código de Unidad de Medida de <b>Recuperación</b>
-                </Typography>
-                <TextField
-                  label="Escribe un codigo de Unidad de Medida de Recuperación"
-                  fullWidth
-                  error={!!errors.codigoUnidadMedidaRecuperacion?.message}
-                  helperText={errors.codigoUnidadMedidaRecuperacion?.message}
-                  {...register('codigoUnidadMedidaRecuperacion')}
-                  value={watch('codigoUnidadMedidaRecuperacion')}
-                  select
-                >
-                  {!isLoadingConcepts &&
-                    sizeUnit.map((data) => (
-                      <MenuItem value={data.id_UnidadMedida} key={data.id_UnidadMedida}>
-                        {data.nombre}
-                      </MenuItem>
-                    ))}
-                  {isLoadingConcepts && <MenuItem>Cargando...</MenuItem>}
-                </TextField>
-              </Grid>
-            )*/}
-        </Grid>
-      </form>
+            <Grid item xs={6}>
+              <InputBasic
+                label="Codigo SAT Recuperación"
+                placeholder="Escribe un codigo de SAT para Recuperación"
+                {...register('codigoSATRecuperacion')}
+                error={!!errors.codigoSATRecuperacion?.message}
+                helperText={errors.codigoSATRecuperacion?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputBasic
+                label="Codigo Unidad Medida"
+                placeholder="Escribe un codigo de Unidad de Medida"
+                type="number"
+                {...register('codigoUnidadMedida', {
+                  valueAsNumber: true,
+                })}
+                error={!!errors.codigoUnidadMedida?.message}
+                helperText={errors.codigoUnidadMedida?.message}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <InputBasic
+                label="Codigo Unidad Medida Recuperación"
+                placeholder="Escribe un codigo de Unidad de Medida de Recuperación"
+                type="number"
+                {...register('codigoUnidadMedidaRecuperacion', {
+                  valueAsNumber: true,
+                })}
+                error={!!errors.codigoUnidadMedidaRecuperacion?.message}
+                helperText={errors.codigoUnidadMedidaRecuperacion?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <SelectBasic
+                label="Tipo de Producto"
+                placeholder="Seleccione un Tipo de Producto"
+                value={watch('tipoProducto')}
+                error={!!errors.tipoProducto}
+                helperText={errors?.tipoProducto?.message}
+                disabled
+                options={Object.entries(ProductType)
+                  .filter(([key]) => isNaN(Number(key)))
+                  .map(([_key, value]) => ({
+                    id: value,
+                    tipo: productTypeLabel[value as keyof typeof productTypeLabel],
+                  }))}
+                uniqueProperty="id"
+                displayProperty="tipo"
+                {...register('tipoProducto')}
+              />
+            </Grid>
+          </>
+        )}
+      </Grid>
     </ModalBasic>
   );
 };

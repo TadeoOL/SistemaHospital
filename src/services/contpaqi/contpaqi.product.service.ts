@@ -5,7 +5,7 @@ export namespace ContpaqiProductService {
   export const addProductToInvoiceService = async (data: {
     nombre: string;
     codigoContpaq: string;
-    precioVenta: string;
+    precioVenta: number;
     iva: boolean;
     codigoSAT: string;
     id_UnidadMedida: number;
@@ -17,7 +17,7 @@ export namespace ContpaqiProductService {
   export const modifyProductToInvoiceService = async (data: {
     nombre: string;
     codigoContpaq: string;
-    precioVenta: string;
+    precioVenta: number;
     iva: boolean;
     codigoSAT: string;
     id_UnidadMedida: number;

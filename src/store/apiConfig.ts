@@ -3,14 +3,20 @@ import { persist } from 'zustand/middleware';
 
 interface ApiConfigStore {
   apiUrl: string;
+  hasInvoiceService: boolean;
   setApiUrl: (url: string) => void;
 }
 
 export const useApiConfigStore = create<ApiConfigStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       apiUrl: '',
-      setApiUrl: (url) => set({ apiUrl: url }),
+      hasInvoiceService: get()?.apiUrl !== '',
+      setApiUrl: (url) =>
+        set({
+          apiUrl: url,
+          hasInvoiceService: url !== '',
+        }),
     }),
     {
       name: 'api-config-facturacion',
