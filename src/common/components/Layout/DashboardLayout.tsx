@@ -41,7 +41,7 @@ const returnTitleForDashboard = (rol: string[]) => {
 
 export default function DashboardLayout() {
   const location = useLocation();
-  const [currentPage, setCurrentPage] = useState<string>(location.pathname);
+  const [_currentPage, setCurrentPage] = useState<string>(location.pathname);
   const profile = useAuthStore(useShallow((state) => state.profile));
 
   const messagesByLink: Record<string, string> = {

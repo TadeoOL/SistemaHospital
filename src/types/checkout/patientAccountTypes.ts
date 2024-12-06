@@ -28,6 +28,9 @@ export interface IPatientAccount {
   totalPagos: number;
   totalRestante: number;
   subTotalDescuento: number;
+  paseCaja: boolean;
+  fechaIngreso: string;
+  cuentaConCuarto: boolean;
 }
 
 export interface IPatientInfo {

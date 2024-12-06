@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-toastify';
+import { useGetApiKey } from '@/features/invoicing/settings/hooks/useGetApiKey';
 
 interface IProtectedRoute {
   redirectTo?: string;
@@ -24,6 +25,8 @@ export const ProtectedRoute: React.FC<IProtectedRoute> = ({ redirectTo = '/login
   const logout = useAuthStore((state) => state.logout);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useGetApiKey();
 
   useEffect(() => {
     if (token) {

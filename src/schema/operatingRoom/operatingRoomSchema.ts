@@ -46,5 +46,5 @@ export const anesthesiologistOperatingRoomSchema = z.object({
 
 export const startRecoveryPhaseSchema = z.object({
   nurse: z.object({ id: z.string(), nombre: z.string() }, { invalid_type_error: 'Selecciona un enfermero' }),
-  startTime: z.string().min(1, 'Es necesario agregar la hora de inicio'),
+  startTime: z.date(),
 });

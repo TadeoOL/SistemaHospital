@@ -9,7 +9,7 @@ interface Props {
   open: boolean;
 }
 
-const DrawerHeaderStyled = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }: Props) => ({
+const DrawerHeaderStyled = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme }: Props) => ({
   ...theme.mixins.toolbar,
   display: 'flex',
   alignItems: 'center',

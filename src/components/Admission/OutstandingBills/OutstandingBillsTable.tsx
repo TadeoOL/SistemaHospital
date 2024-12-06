@@ -15,7 +15,6 @@ import {
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { Print } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
-import { IPatientAccount } from '../../../types/admissionTypes';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { IAcountAllInformation } from '../../../types/hospitalizationTypes';
@@ -24,6 +23,7 @@ import { BillCloseReport } from '../../Export/Account/BillCloseReport';
 import { getAccountFullInformation } from '../../../services/programming/admissionRegisterService';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { useOutstandingBillsPaginationStore } from '../../../store/admission/useOutstandingBillsPagination';
+import { IPatientAccount } from '@/types/admission/admissionTypes';
 
 const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 

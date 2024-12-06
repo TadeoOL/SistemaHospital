@@ -1,16 +1,15 @@
 import { MainCard } from '@/common/components';
-import { Avatar, Card, CardContent, SvgIcon, Typography } from '@mui/material';
+import { Avatar, SvgIcon, Typography } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 
 interface IModuleCards {
-  sx?: any;
   value: string;
   title: string;
   icon: any;
 }
 
 export const ModuleCards = (props: IModuleCards) => {
-  const { sx, value, title, icon } = props;
+  const { value, title, icon } = props;
 
   return (
     <>

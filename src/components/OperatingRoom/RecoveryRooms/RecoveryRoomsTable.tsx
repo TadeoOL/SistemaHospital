@@ -19,7 +19,6 @@ import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { IRoomInformationnew } from '../../../types/operatingRoom/operatingRoomTypes';
 import dayjs from 'dayjs';
 import { GenericChip } from '../../Commons/GenericChip';
-import { useRecoveryRoomsPaginationStore } from '../../../store/operatingRoom/recoveryRoomsPagination';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';

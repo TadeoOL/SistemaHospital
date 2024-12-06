@@ -13,27 +13,27 @@ import {
   Tooltip,
 } from '@mui/material';
 import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
-import { Discount, Edit, Print, ReceiptLong, Visibility } from '@mui/icons-material';
+import { Edit, Print, Visibility } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { usePatientAccountPaginationStore } from '../../../store/checkout/patientAcountsPagination';
 import { CloseAccountModal } from './Modal/CloseAccount';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-import { DiscountModal } from './Modal/DiscountModal';
+// import { DiscountModal } from './Modal/DiscountModal';
 import { useGetDiscountConfig } from '../../../hooks/admission/useGetDiscountConfig';
 import { useAuthStore } from '../../../store/auth';
 import {
-  DepositType,
+  // DepositType,
   IPatientAccount,
   IPatientAccountPagination,
   PatientAccountStatus,
   PatientAccountStatusLabels,
 } from '../../../types/checkout/patientAccountTypes';
-import { createPatientAccountDeposit, getPatientAccount } from '../../../services/checkout/patientAccount';
-import Swal from 'sweetalert2';
-import { toast } from 'react-toastify';
-import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
+import { getPatientAccount } from '../../../services/checkout/patientAccount';
+// import Swal from 'sweetalert2';
+// import { toast } from 'react-toastify';
+// import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { generateAccountPDF } from './generateAccountPDF';
 const HEADERS = ['Nombre Completo', 'Espacios Hospitalarios', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
@@ -134,8 +134,8 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
   const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
   const userId = useAuthStore((state) => state.profile?.id);
   const [viewOnly, setViewOnly] = useState(false);
-  const conn = useConnectionSocket((state) => state.conn);
-  const fetchData = usePatientAccountPaginationStore((state) => state.fetchData);
+  // const conn = useConnectionSocket((state) => state.conn);
+  // const fetchData = usePatientAccountPaginationStore((state) => state.fetchData);
 
   const handleEdit = () => {
     setOpen(true);
@@ -169,46 +169,46 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     }
   };
 
-  const handleGenerateCheckout = () => {
-    Swal.fire({
-      title: '¿Estás seguro de querer generar el pase de caja?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      reverseButtons: true,
-      preConfirm: async () => {
-        if (conn === null) {
-          toast.error('Error, sin conexión al websocket');
-          return;
-        }
-        try {
-          const object = {
-            id_CuentaPaciente: data.id_CuentaPaciente,
-            cantidad: data.totalVenta,
-            tipoDeposito: DepositType.Settlement,
-          };
-          const res = await createPatientAccountDeposit(object);
-          const resObj = {
-            estatus: res.estadoVenta,
-            folio: res.folio,
-            id_VentaPrincipal: res.id,
-            moduloProveniente: 'Cierre cuenta',
-            paciente: data.nombreCompleto,
-            totalVenta: res.totalVenta,
-            tipoPago: res.tipoPago,
-            id_UsuarioPase: res.id_UsuarioVenta,
-            nombreUsuario: res.usuarioVenta?.nombre,
-          };
-          conn.invoke('SendSell', resObj);
-          Swal.fire('Success', 'Pase de caja generado correctamente', 'success');
-          fetchData();
-        } catch (error) {
-          Swal.fire('Error', 'Error al generar el pase de caja', 'error');
-        }
-      },
-    });
-  };
+  // const handleGenerateCheckout = () => {
+  //   Swal.fire({
+  //     title: '¿Estás seguro de querer generar el pase de caja?',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonColor: '#3085d6',
+  //     cancelButtonColor: '#d33',
+  //     reverseButtons: true,
+  //     preConfirm: async () => {
+  //       if (conn === null) {
+  //         toast.error('Error, sin conexión al websocket');
+  //         return;
+  //       }
+  //       try {
+  //         const object = {
+  //           id_CuentaPaciente: data.id_CuentaPaciente,
+  //           cantidad: data.totalVenta,
+  //           tipoDeposito: DepositType.Settlement,
+  //         };
+  //         const res = await createPatientAccountDeposit(object);
+  //         const resObj = {
+  //           estatus: res.estadoVenta,
+  //           folio: res.folio,
+  //           id_VentaPrincipal: res.id,
+  //           moduloProveniente: 'Cierre cuenta',
+  //           paciente: data.nombreCompleto,
+  //           totalVenta: res.totalVenta,
+  //           tipoPago: res.tipoPago,
+  //           id_UsuarioPase: res.id_UsuarioVenta,
+  //           nombreUsuario: res.usuarioVenta?.nombre,
+  //         };
+  //         conn.invoke('SendSell', resObj);
+  //         Swal.fire('Success', 'Pase de caja generado correctamente', 'success');
+  //         fetchData();
+  //       } catch (error) {
+  //         Swal.fire('Error', 'Error al generar el pase de caja', 'error');
+  //       }
+  //     },
+  //   });
+  // };
 
   return (
     <>

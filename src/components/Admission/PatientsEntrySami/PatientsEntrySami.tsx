@@ -25,7 +25,7 @@ export const PatientsEntrySami = () => {
       </Card>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <AddPatientsEntrySami setOpen={setOpen} />
+          <AddPatientsEntrySami setOpen={setOpen} medicId={''} />
         </>
       </Modal>
     </>

@@ -98,6 +98,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
     });
   };
 
+  console.log({ data });
+
   // const handleKeyDownDiscount = (event: React.KeyboardEvent<HTMLInputElement>) => {
   //   const { key } = event;
   //   const regex = /^[0-9.]$/;
@@ -197,17 +199,17 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   //     setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
   //   }
   // };
-  const calcularTotalConDescuento = () => {
-    if (!data?.totalRestante || !data?.descuento) {
-      return data?.totalRestante ?? 0;
-    }
+  // const calcularTotalConDescuento = () => {
+  //   if (!data?.totalRestante || !data?.descuento) {
+  //     return data?.totalRestante ?? 0;
+  //   }
 
-    const porcentajeDescuento = data.descuento / 100;
-    const montoDescuento = data.totalRestante * porcentajeDescuento;
-    return (data.totalRestante - montoDescuento).toFixed(2);
-  };
+  //   const porcentajeDescuento = data.descuento / 100;
+  //   const montoDescuento = data.totalRestante * porcentajeDescuento;
+  //   return (data.totalRestante - montoDescuento).toFixed(2);
+  // };
 
-  const result = calcularTotalConDescuento();
+  // const result = calcularTotalConDescuento();
   const totalServices = data?.servicios?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
   const totalArticles = data?.articulos?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
   const totalEquipment = data?.equipoHonorario?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
@@ -664,12 +666,7 @@ interface PatientInformationProps {
   ventaArticuloSinIVA: number;
 }
 
-export const PatientInformation: React.FC<PatientInformationProps> = ({
-  patient,
-  medic,
-  isHospitalization,
-  date
-}) => (
+export const PatientInformation: React.FC<PatientInformationProps> = ({ patient, medic, isHospitalization, date }) => (
   <Grid container sx={{ p: 1 }} spacing={1}>
     <Grid item xs={12}>
       <Typography variant="h6">
@@ -829,7 +826,6 @@ export const DataTable = <T,>({
 
         <Menu
           anchorEl={anchorEl}
-
           open={Boolean(anchorEl)}
           onClose={handleClose}
           slotProps={{ paper: { sx: { p: 2, width: '250px' } } }}

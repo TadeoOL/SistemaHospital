@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 
 // material-ui
 import List from '@mui/material/List';
@@ -8,11 +8,11 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
 // assets
-import EditOutlined from '@ant-design/icons/EditOutlined';
-import ProfileOutlined from '@ant-design/icons/ProfileOutlined';
+// import EditOutlined from '@ant-design/icons/EditOutlined';
+// import ProfileOutlined from '@ant-design/icons/ProfileOutlined';
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
-import UserOutlined from '@ant-design/icons/UserOutlined';
-import WalletOutlined from '@ant-design/icons/WalletOutlined';
+// import UserOutlined from '@ant-design/icons/UserOutlined';
+// import WalletOutlined from '@ant-design/icons/WalletOutlined';
 
 interface Props {
   handleLogout: () => void;
@@ -21,17 +21,17 @@ interface Props {
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
 export default function ProfileTab({ handleLogout }: Props) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const handleListItemClick = (event: React.MouseEvent<HTMLDivElement>, index: number, route: string = '') => {
-    setSelectedIndex(index);
+  // const handleListItemClick = (event: React.MouseEvent<HTMLDivElement>, index: number, route: string = '') => {
+  //   setSelectedIndex(index);
 
-    if (route && route !== '') {
-      navigate(route);
-    }
-  };
+  //   if (route && route !== '') {
+  //     navigate(route);
+  //   }
+  // };
 
   useEffect(() => {
     const pathToIndex: { [key: string]: number } = {
