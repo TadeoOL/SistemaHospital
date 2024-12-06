@@ -23,7 +23,7 @@ import { useInvoicePatientBillPaginationStore } from '../../../../store/invoice/
 import { ReportLoader } from '../../../Commons/Report/ReportLoader';
 import { useGetAccountFullInformation } from '../../../../hooks/programming/useGetAccountFullInformation';
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
-import { IAcountAllInformation } from '../../../../types/hospitalizationTypes';
+import { IAcountFullInformation } from '../../../../types/hospitalizationTypes';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 import { useGetAllDocumentConcepts } from '../../../../hooks/contpaqi/useGetDocumentConcepts';
 import { PriceCell } from '../../../Commons/PriceCell';
@@ -63,7 +63,6 @@ interface GeneratePatientAccountInvoiceProps {
   patientName: string;
   patientKey: string;
   patientAccountId: string;
-  patientId: string;
 }
 
 const INVOICE_OPTIONS = [
@@ -86,10 +85,9 @@ export const GeneratePatientAccountInvoice = ({
   setOpen,
   patientName,
   patientKey,
-  patientAccountId,
-  patientId,
+  patientAccountId
 }: GeneratePatientAccountInvoiceProps) => {
-  const { data, isLoading } = useGetAccountFullInformation(patientId, patientAccountId);
+  const { data, isLoading } = useGetAccountFullInformation(patientAccountId);
   const { isLoadingConcepts, documentConcepts } = useGetAllDocumentConcepts();
   const [invoiceMethodSelected, setInvoiceMethodSelected] = useState(0);
   const [typeOfInvoiceSelected, setTypeOfInvoiceSelected] = useState(0);
@@ -112,7 +110,7 @@ export const GeneratePatientAccountInvoice = ({
         id_CuentaPaciente: patientAccountId,
         tipoFacturacion: invoiceMethodSelected,
         tipoPedido: typeOfInvoiceSelected,
-        porcentajeDescuento: data.porcentajeDescuento,
+        porcentajeDescuento: data.descuento ?? 0,
       });
       toast.success('Factura generada correctamente');
       setOpen(false);
@@ -193,11 +191,11 @@ export const GeneratePatientAccountInvoice = ({
                     <MenuItem key={0} value={0}>
                       Seleccionar
                     </MenuItem>
-                    {documentConcepts.map((i) => (
+                    { documentConcepts.length > 0 ? documentConcepts.map((i) => (
                       <MenuItem key={i.cidconceptodocumento} value={i.cidconceptodocumento}>
                         {i.cnombreconcepto.trim()}
                       </MenuItem>
-                    ))}
+                    )) : <></>}
                   </TextField>
                 </Stack>
               </Stack>
@@ -238,7 +236,7 @@ export const GeneratePatientAccountInvoice = ({
 };
 
 const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
-  data: IAcountAllInformation;
+  data: IAcountFullInformation;
   invoiceMethodSelected: number;
   setIva: Function;
   setSubTotal: Function;
@@ -262,10 +260,10 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
     return data.articulos.map((article) => ({
       id: article.id,
       nombre: article.nombre,
-      precioUnitario: article.precioVenta,
-      precioNeto: article.precioNeto,
-      iva: article.precioIVA,
-      precioTotal: article.precioTotal,
+      precioUnitario: article.precioUnitario,
+      precioNeto: article.neto,
+      iva: article.iva,
+      precioTotal: article.total,
       cantidad: article.cantidad,
     }));
   };
@@ -282,7 +280,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       cantidad: number;
     }[] = [];
 
-    if (data.totalPagoSami > 0) {
+    /*if (data.totalPagoSami > 0) {
       rooms.push({
         id: 'b1337f24-19e4-4ee1-bee5-dde5785b05e8',
         nombre: 'CONSULTA SAMI',
@@ -292,27 +290,28 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         precioTotal: data.totalPagoSami,
         cantidad: 1,
       });
-    }
+    }*/
 
     data.quirofanos.forEach((room) => {
       rooms.push({
-        id: room.id_RegistroCuarto + room.nombre,
+        id: room.id + room.nombre,
         nombre: room.nombre,
-        precioUnitario: room.precioHora,
-        precioNeto: room.precioNeto,
-        iva: room.precioIVA,
-        precioTotal: room.precioTotal,
+        //precioUnitario: room.precioHora,
+        precioUnitario: room.neto,
+        precioNeto: room.neto,
+        iva: room.iva,
+        precioTotal: room.total,
         cantidad: 1,
       });
     });
     data.cuartos.forEach((room) => {
       rooms.push({
-        id: room.id_RegistroCuarto,
+        id: room.id,
         nombre: room.nombre,
         precioUnitario: room.precioDia,
-        precioNeto: room.precioNeto,
-        iva: room.precioIVA,
-        precioTotal: room.precioTotal,
+        precioNeto: room.neto,
+        iva: room.iva,
+        precioTotal: room.total,
         cantidad: room.cantidadDias,
       });
     });
@@ -320,20 +319,20 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
   };
 
   const formatCabinetStudies = () => {
-    if (!data.registrosRadiografias) return [];
-    return data.registrosRadiografias.map((cabinetStudy) => ({
-      id: cabinetStudy.id_RegistroRadiografia,
+    if (!data.servicios) return [];
+    return data.servicios.map((cabinetStudy) => ({
+      id: cabinetStudy.id,
       nombre: cabinetStudy.nombre,
-      precioUnitario: cabinetStudy.precio,
-      precioNeto: cabinetStudy.precioNeto ?? 0,
-      iva: cabinetStudy.precioIVA ?? 0,
-      precioTotal: (cabinetStudy.precioNeto ?? 0) + (cabinetStudy.precioIVA ?? 0),
+      precioUnitario: cabinetStudy.neto,
+      precioNeto: cabinetStudy.neto ?? 0,
+      iva: cabinetStudy.iva ?? 0,
+      precioTotal: (cabinetStudy.neto ?? 0) + (cabinetStudy.iva ?? 0),
       cantidad: 1,
     }));
   };
 
   const formatBiomedicalEquipment = () => {
-    if (!data.registrosEquiposBiomedicos && !data.registrosEquiposBiomedicosHonorario) return [];
+    if (!data.equipoHonorario && !data.equipoHonorario) return [];
     const biomedicalEquipment: {
       id: string;
       nombre: string;
@@ -344,26 +343,28 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       cantidad: number;
     }[] = [];
 
-    data.registrosEquiposBiomedicos.forEach((be) => {
+    data.equipoHonorario.forEach((be) => {
       biomedicalEquipment.push({
-        id: be.id_RegistroEquipoBiomedico,
+        id: be.id,
         nombre: be.nombre,
-        precioUnitario: be.precio,
-        precioNeto: be.precioNeto ?? 0,
-        iva: be.precioIVA ?? 0,
-        precioTotal: (be.precioNeto ?? 0) + (be.precioIVA ?? 0),
+        precioUnitario: be.neto,
+        //precioNeto: be.precioNeto ?? 0,
+        precioNeto: be.neto ?? 0,
+        iva: be.iva ?? 0,
+        precioTotal: (be.neto ?? 0) + (be.iva ?? 0),
         cantidad: 1,
       });
     });
 
-    data.registrosEquiposBiomedicosHonorario.forEach((be) => {
+    data.equipoHonorario.forEach((be) => {
       biomedicalEquipment.push({
-        id: be.id_Medico,
+        id: be.id,
         nombre: be.nombre,
-        precioUnitario: be.precio,
-        precioNeto: be.precioNeto ?? 0,
-        iva: be.precioIVA ?? 0,
-        precioTotal: (be.precioNeto ?? 0) + (be.precioIVA ?? 0),
+        precioUnitario: be.neto,
+        //precioNeto: be.precioNeto ?? 0,
+        precioNeto: be.neto ?? 0,
+        iva: be.iva ?? 0,
+        precioTotal: (be.total ?? 0) + (be.total ?? 0),
         cantidad: 1,
       });
     });
@@ -378,44 +379,48 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
   useEffect(() => {
     switch (invoiceMethodSelected) {
       case 1:
-        setItems([...formatArticles()]);
+        setItems(formatArticles());
         setIva(
           formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
           formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         setTotal(
           formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         break;
       case 2:
-        setItems([...formatRooms(), ...formatCabinetStudies()]);
+        const newItems = [
+         ... formatRooms(),
+          ...formatCabinetStudies(),
+      ];
+        setItems(newItems);
         setIva(
           formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento))
-            .concat(formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento)))
+            .flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0))
+            .concat(formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0)))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
           formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
             .concat(
-              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
+              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
             )
             .reduce((prev, val) => prev + val, 0)
         );
         setTotal(
           formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
             .concat(
-              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
+              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
             )
             .reduce((prev, val) => prev + val, 0)
         );
@@ -424,17 +429,17 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         setItems([...formatAll()]);
         setIva(
           formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.iva, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
           formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         setTotal(
           formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.porcentajeDescuento))
+            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         break;
@@ -450,11 +455,12 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
   return (
     <Card sx={{ mt: 2 }}>
       <>
+        {items.length ?? 'papu'}
         <TableContainer>
           <Table>
             <TableHeaderComponent headers={INVOICE_TABLE_HEADERS} />
             <TableBody>
-              {items?.map((d) => <TableRowItemsToBeInvoiced data={d} key={d.id} discount={data.porcentajeDescuento} />)}
+              {items?.map((d, i) => <TableRowItemsToBeInvoiced data={d} key={d.id+i} discount={data.descuento ?? 0} />)}
             </TableBody>
           </Table>
         </TableContainer>

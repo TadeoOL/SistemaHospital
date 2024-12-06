@@ -89,7 +89,7 @@ export const WarehouseHistory = () => {
             <Stack sx={{ display: 'flex', flex: 1 }}>
               <Box sx={{ display: 'flex', flex: 1, columnGap: 2 }}>
                 <SearchBar
-                  title="Buscar orden de compra..."
+                  title="Buscar movimiento de articulos..."
                   searchState={setSearch}
                   sx={{ display: 'flex', flex: 1 }}
                   size="small"
@@ -214,7 +214,7 @@ export const WarehouseHistory = () => {
                           <TableCell>
                             {movimiento.estatus === 0
                               ? 'Cancelada'
-                              : movimiento.estatus === 2
+                              : movimiento.estatus === 2 || movimiento.estatus === 3
                                 ? 'Aceptada'
                                 : 'en espera'}
                           </TableCell>

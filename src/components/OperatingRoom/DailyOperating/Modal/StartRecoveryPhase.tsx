@@ -41,7 +41,6 @@ export const StartRecoveryPhase = (props: { setOpen: Function; id_CuentaEspacioH
     resolver: zodResolver(startRecoveryPhaseSchema),
   });
   const watchDay = watch('startTime');
-
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     if (dayjs(data.startTime).isBefore(props.surgeryEndTime)) {
       return Swal.fire({

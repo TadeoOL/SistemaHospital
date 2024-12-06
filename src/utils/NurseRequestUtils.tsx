@@ -8,6 +8,8 @@ export const getStatus = (value: number) => {
       return 'Armada';
     case 3:
       return 'Entregada';
+    case 4:
+      return 'Devuelta';
     default:
       break;
   }

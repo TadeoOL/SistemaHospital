@@ -67,7 +67,6 @@ export const useNurseRequestPaginationStore = create<State & Action>((set, get) 
     const { enabled, search, pageIndex, pageSize, status, sort } = get();
     const index = pageIndex + 1;
     set({ loading: true });
-
     const cancelToken = axios.CancelToken.source();
     if (get().cancelToken) {
       get().cancelToken?.cancel();

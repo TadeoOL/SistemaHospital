@@ -26,7 +26,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
-import { ExpandLess, ExpandMore, FilterListOff, Info, Cancel, LocalPrintshopOutlined, Undo } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, FilterListOff, Info, /*Cancel,*/ LocalPrintshopOutlined, Undo } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -36,6 +36,7 @@ import {
   IarticlesPrebuildedRequest,
   InurseRequest,
   IWarehouseData,
+  NurseRequestType,
 } from '../../../types/types';
 import { SearchBar } from '../../Inputs/SearchBar';
 import { RequestBuildingModal } from '../UserRequest/Modal/RequestBuildingModal';
@@ -159,6 +160,7 @@ export const NurseRequestManagementTable = () => {
     status,
   } = useGetNursesRequest();
   const [openModalBuild, setOpenModalBuild] = useState(false);
+  const [openModalBuildDevolution, setOpenModalBuildDevolution] = useState(false);
   const [openPrint, setOpenPrint] = useState(false);
   const [nurseRequest, setNurseRequest] = useState<InurseRequest | null>(null);
   const [prebuildedArticles, setPrebuildedArticles] = useState<IarticlesPrebuildedRequest[] | null>(null);
@@ -249,7 +251,7 @@ export const NurseRequestManagementTable = () => {
     withReactContent(Swal)
       .fire({
         title: 'Confirmación',
-        text: `¿Seguro que deseas aceptar la solicitud de articulos?`,
+        text: `¿Seguro que deseas aceptar la devolución de articulos?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Si',
@@ -369,6 +371,9 @@ export const NurseRequestManagementTable = () => {
                         />
                       </TableCell>
                       <TableCell>
+                        Tipo Solicitud
+                      </TableCell>
+                      <TableCell>
                         <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
                       </TableCell>
                       <TableCell>Acciones</TableCell>
@@ -380,10 +385,11 @@ export const NurseRequestManagementTable = () => {
                         <TableRowComponent
                           nurseRequest={request}
                           setOpenModalBuild={setOpenModalBuild}
+                          setOpenModalBuildDevolution={setOpenModalBuildDevolution}
                           setOpenPrint={setOpenPrint}
                           setNurseRequest={setNurseRequest}
                           setPrebuildedArticles={setPrebuildedArticles}
-                          markAsDelivered={request.tipoSolicitud == 2 ? markAsDelivered : acceptReturn}
+                          markAsDelivered={request.tipoSolicitud == NurseRequestType[2] ? markAsDelivered : acceptReturn}
                           key={request.id_SolicitudAlmacen}
                           rejectRequest={rejectRequest}
                         />
@@ -440,7 +446,23 @@ export const NurseRequestManagementTable = () => {
             request={nurseRequest as InurseRequest}
             preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])} 
             id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''} 
+            id_CuentaEspacioHospitalario={nurseRequest?.id_CuentaEspacioHospitalario ?? ''}
+            devolutionFlag={false} 
+          />
+        </>
+      </Modal>
+      <Modal open={openModalBuildDevolution} onClose={() => setOpenModalBuildDevolution(!openModalBuildDevolution)}>
+        <>
+          <RequestBuildingModal
+            setOpen={setOpenModalBuildDevolution}
+            refetch={() => {
+              fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
+            } }
+            request={nurseRequest as InurseRequest}
+            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])} 
+            id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''} 
             id_CuentaEspacioHospitalario={nurseRequest?.id_CuentaEspacioHospitalario ?? ''} 
+            devolutionFlag
           />
         </>
       </Modal>
@@ -489,6 +511,7 @@ export const NurseRequestManagementTable = () => {
 interface TableRowComponentProps {
   nurseRequest: InurseRequest;
   setOpenModalBuild: Function;
+  setOpenModalBuildDevolution: Function;
   setOpenPrint: Function;
   setNurseRequest: Function;
   setPrebuildedArticles: Function;
@@ -498,20 +521,31 @@ interface TableRowComponentProps {
 const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
   setOpenModalBuild,
+  setOpenModalBuildDevolution,
   setOpenPrint,
   setNurseRequest,
   setPrebuildedArticles,
-  rejectRequest,
+  //rejectRequest,
   markAsDelivered,
 }) => {
   const [open, setOpen] = useState(false);
 
-  //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
   const createPackage = (request: IarticlesPrebuildedRequest[]) => {
     setPrebuildedArticles(request);
     setNurseRequest(nurseRequest);
     setOpenModalBuild(true);
   };
+
+  const createPackageDevolution = (request: IarticlesPrebuildedRequest[]) => {
+    const dataFormated: IarticlesPrebuildedRequest[] = request.map((art) => (
+      {...art, cantidadSeleccionada: art.cantidadSolicitada*-1, cantidadSolicitada: art.cantidadSolicitada*-1 }
+    ))
+    setPrebuildedArticles(dataFormated);
+    setNurseRequest(nurseRequest);
+    setOpenModalBuildDevolution(true);
+  };
+
+  //setOpenModalBuildDevolution
 
   return (
     <React.Fragment>
@@ -526,9 +560,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
         <TableCell>{nurseRequest.espacioHospitalario}</TableCell>
         <TableCell>{nurseRequest.usuarioSolicitante}</TableCell>
         <TableCell>{nurseRequest.usuarioAutorizo}</TableCell>
+        <TableCell>{nurseRequest.tipoSolicitud}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
         <TableCell>
-          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == 2 && (
+          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == NurseRequestType[2] && (
             <Tooltip title={'Armar solicitud'}>
               <IconButton
                 onClick={async () => {
@@ -547,7 +582,26 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == 6 && (
+          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == NurseRequestType[6] && (
+            <Tooltip title="Aceptar devolución">
+           <IconButton
+                onClick={async () => {
+                  try {
+                    //Agregar Loader
+                    const packRes = await getPackagePreBuilded(
+                      nurseRequest.id_SolicitudAlmacen
+                    );
+                    createPackageDevolution(packRes);
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+              >
+                <Undo sx={{ color: 'green' }} />
+              </IconButton>
+          </Tooltip>
+          )}
+          {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == NurseRequestType[8] && (
             <Tooltip title="Aceptar devolución">
             <IconButton
               onClick={() => {
@@ -575,7 +629,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 3 && (
+          {/*nurseRequest.estatus !== 0 && nurseRequest.estatus !== 3 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
                 onClick={() => {
@@ -588,7 +642,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
                 <Cancel sx={{ color: 'red' }} />
               </IconButton>
             </Tooltip>
-          )}
+          )*/}
           {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 1 && (
             <Tooltip title="Imprimir solicitud">
               <IconButton
