@@ -8,6 +8,8 @@ import ExpenseModal from '../components/ExpenseModal';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import IncomeAreaChart from '@/common/components/IncomeAreaChart';
+import MonthlyBarChart from '@/common/components/MonthlyBarChart';
 
 const CashFlowBoxById = () => {
   const location = useLocation();
@@ -91,18 +93,23 @@ const CashFlowBoxById = () => {
 
   return (
     <>
-      <Typography variant="h3" sx={{ pt: 3, pb: 2 }}></Typography>
-      <CashGraph
-        innerHeader={innerHeader}
-        header={`Caja (${fakeData.nombre})`}
-        chartSeries={[
-          {
-            name: 'This year',
-            data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-          },
-        ]}
-        sx={{ height: '100%' }}
-      />
+      <MainCard content={false} sx={{ mt: 1.5 }}>
+        {innerHeader}
+        <Grid
+          container
+          sx={{
+            pb: 2,
+          }}
+          spacing={2}
+        >
+          <Grid item xs={12} md={8}>
+            <IncomeAreaChart view="monthly" />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <MonthlyBarChart />
+          </Grid>
+        </Grid>
+      </MainCard>
       <MainCard sx={{ mt: 2 }}>
         <Typography
           sx={{
