@@ -72,7 +72,7 @@ export default function DashboardLayout() {
     '/hospitalizacion/servicios-solicitud': 'Solicitud de Servicios',
     '/hospitalizacion/solicitudes-administracion': 'Autorización de Estudio de Gabinete',
     '/admision/ingreso-pacientes': 'Ingreso de pacientes',
-    '/facturas': 'Facturacion',
+    '/facturacion/cuentas-facturables': 'Cuentas Facturables',
     '/quirofano/operaciones-del-dia': 'Operaciones del día',
     '/quirofano/recuperacion': 'Recuperación',
     '/quirofano/paquetes-quirurgicos': 'Paquetes Quirurgicos',

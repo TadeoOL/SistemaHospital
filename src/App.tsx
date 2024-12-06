@@ -181,7 +181,7 @@ function App() {
                   <Route path="/quirofano/paquetes-quirurgicos" element={<OperatingPackagesView />} />
                 </Route>
                 // ---------------------------------------- Invoice ------------------------------//
-                <Route path="/facturas" element={<InvoiceView />} />
+                <Route path="/facturacion/cuentas-facturables" element={<InvoiceView />} />
                 <Route path="/facturacion/configuracion" element={<InvoiceSettingsView />} />
                 // ------------------------------- Reportes --------------------------------//
                 <Route path="/reportes/caja" element={<CheckoutReportView />}></Route>

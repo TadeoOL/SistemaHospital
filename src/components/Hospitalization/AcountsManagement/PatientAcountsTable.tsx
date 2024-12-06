@@ -35,7 +35,7 @@ import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { generateAccountPDF } from './generateAccountPDF';
-const HEADERS = ['Nombre Completo', 'Cuartos', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
+const HEADERS = ['Nombre Completo', 'Espacios Hospitalarios', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
 
 interface PatientAccountTableBodyProps {
   data: IPatientAccountPagination[];
