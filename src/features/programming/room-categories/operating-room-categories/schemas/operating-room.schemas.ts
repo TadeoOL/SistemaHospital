@@ -1,4 +1,4 @@
-import { ProductType } from '@/types/contpaqiTypes';
+import { invoiceServiceSchema } from '@/schema/contpaqi/contpaqi.schema';
 import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
@@ -37,11 +37,8 @@ export const operatingRoomCategorySchema = (hasInvoiceService?: boolean) =>
     priceByTimeRangeRecovery: z.array(operatingRoomPriceRangeSchema).optional(),
     priceByTimeRangeOutpatient: z.array(operatingRoomPriceRangeSchema).optional(),
     ...(hasInvoiceService && {
+      ...invoiceServiceSchema.shape,
       codigoSATRecuperacion: z.string().min(1, 'El código SAT de recuperación es necesario'),
-      codigoSAT: z.string().min(1, 'El código SAT es necesario'),
-      tipoProducto: z.nativeEnum(ProductType),
-      codigoProducto: z.string().optional().nullable(),
-      codigoUnidadMedida: z.number({ invalid_type_error: 'El código es necesario' }).min(1, 'El código es necesario'),
       codigoUnidadMedidaRecuperacion: z
         .number({ invalid_type_error: 'El código es necesario' })
         .min(1, 'El código es necesario'),

@@ -26,8 +26,12 @@ export interface IService {
   precio: number;
   tipoServicio: number;
   requiereAutorizacion: boolean;
-  //codigoSAT?: string;
-  //codigoUnidadMedida?: number;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
+  tipoProducto?: number;
+  codigoProducto?: string;
+  id_ProductoFactura?: string;
+  iva?: boolean;
 }
 
 export interface IServiceRequest {
@@ -41,7 +45,7 @@ export interface IServiceRequest {
   //precio: number;
   fechaSolicitud: string;
   estatus: number;
-  tipo: number
+  tipo: number;
   //tipo: number;
 }
 
@@ -274,7 +278,7 @@ export interface IAcountSurgeries {
   total: number;
   productoFacturacion: string | null;
 }
-  export interface IAcountArticles {
+export interface IAcountArticles {
   id: string;
   nombre: string;
   solicitadoEn: string;
