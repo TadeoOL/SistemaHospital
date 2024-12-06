@@ -217,3 +217,97 @@ export interface IRequestConfig {
   nombre: string;
   tipoServicio: number[];
 }
+/////////////
+export interface IAcountFullInformation {
+  id: string;
+  paciente: IAcountPatient;
+  cuartos: IAcountRooms[];
+  quirofanos: IAcountQuirurgicalRooms[];
+  cirugias: IAcountSurgeries[];
+  servicios: IAcountServices[];
+  equipoHonorario: IAcountEquipment[];
+  articulos: IAcountArticles[];
+  pagosCuenta: IAcountPayments[];
+  subTotal: number;
+  descuento: number | null;
+  iva: number;
+  total: number;
+  totalPagos: number;
+  facturable: boolean;
+}
+
+export interface IAcountPatient {
+  nombrePaciente: string;
+  nombreMedico: string;
+  fechaIngreso: string;
+  fechaCierraCuenta: string;
+}
+export interface IAcountRooms {
+  id: string;
+  nombre: string;
+  cantidadDias: number;
+  precioDia: number;
+  neto: number;
+  netoDescuento: number | null;
+  iva: number;
+  total: number;
+  productoFacturacion: string | null;
+}
+
+export interface IAcountQuirurgicalRooms {
+  id: string;
+  nombre: string;
+  tiempo: string;
+  neto: number;
+  netoDescuento: number | null;
+  iva: number;
+  total: number;
+  productoFacturacion: string | null;
+}
+
+export interface IAcountSurgeries {
+  id: string;
+  nombre: string;
+  neto: number;
+  netoDescuento: number | null;
+  iva: number;
+  total: number;
+  productoFacturacion: string | null;
+}
+  export interface IAcountArticles {
+  id: string;
+  nombre: string;
+  solicitadoEn: string;
+  fechaSolicitado: string;
+  precioUnitario: number;
+  neto: number;
+  cantidad: number;
+  netoDescuento: number | null;
+  iva: number;
+  total: number;
+  productoFacturacion: string | null;
+}
+export interface IAcountServices {
+  id: string;
+  nombre: string;
+  neto: number;
+  netoDescuento: number | null;
+  iva: number;
+  total: number;
+  productoFacturacion: string | null;
+}
+export interface IAcountEquipment {
+  id: string;
+  nombre: string;
+  neto: number;
+  netoDescuento: number | null;
+  iva: number;
+  total: number;
+  productoFacturacion: string | null;
+}
+export interface IAcountPayments {
+  id: string;
+  Folio: string;
+  FechaPAgo: string;
+  Monto: number;
+}

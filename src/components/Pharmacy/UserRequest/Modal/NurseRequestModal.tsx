@@ -17,8 +17,6 @@ import {
   Tooltip,
   Typography,
   createFilterOptions,
-  CircularProgress,
-  Backdrop,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getWarehouseById } from '../../../../api/api.routes';
@@ -193,9 +191,6 @@ export const NurseRequestModal = (props: Props) => {
         stock: item.stockActual,
       }));
 
-      console.log("no c we");
-      console.log(res.data);
-
       const existingArticleIds = new Set([
         ...articles.map((a) => a.id),
         ...(props.articles?.map((a) => a.id_Articulo) || []),
@@ -215,6 +210,10 @@ export const NurseRequestModal = (props: Props) => {
   useEffect(() => {
     patientsCall();
   }, [patientSearch]);
+
+  useEffect(() => {
+    handleFetchArticlesFromWareHouse(warehouseSelected);
+  }, [search]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -318,7 +317,7 @@ export const NurseRequestModal = (props: Props) => {
     try {
       await createArticleRequest(object);
       toast.success('Solicitud creada');
-      props.refetch(true);
+      props.refetch(props.warehouseId);
       props.setOpen(false);
       setDataWerehouseArticlesSelected([]);
       setArticles([]);
@@ -354,12 +353,12 @@ export const NurseRequestModal = (props: Props) => {
     }
   }, [rooms, props.id_PatientRoom]);
 
-  if (isLoadingArticlesWareH)
+  /*if (isLoadingArticlesWareH)
     return (
       <Backdrop open>
         <CircularProgress size={24} />
       </Backdrop>
-    );
+    );*/
 
   return (
     <Box sx={style}>

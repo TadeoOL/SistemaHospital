@@ -433,6 +433,17 @@ export enum StatusPurchaseOrderFilter {
   'Orden autorizada' = 5,
 }
 
+export enum NurseRequestType {
+  'Solicitud entre Almacenes' = 1,
+  'Solicitud de Enfermero' = 2,
+  'Paquete de Quirófano' = 3,
+  'Ingreso por Compras' = 4,
+  'Ajuste de Inventario' = 5,
+  'Devolución de Enfermero para Quirófano' = 6,
+  'Solicitud de Salida Directa' = 7,
+  'Devolución de Enfermero para Cuarto' = 8,
+}
+
 export enum StatusPurchaseOrder {
   OrdenCancelada = 0,
   RequiereAutorizacion = 1,
@@ -650,7 +661,7 @@ export interface InurseRequest {
   usuarioAutorizo: string;
   fechaSoliocitud: string; //en que piso se solicito
   estatus: number;
-  tipoSolicitud: number;
+  tipoSolicitud: string;
   id_AlmacenSolicitado: string;
   id_CuentaEspacioHospitalario: string;
   //almacenNombre: string;

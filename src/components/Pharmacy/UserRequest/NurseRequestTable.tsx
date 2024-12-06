@@ -244,6 +244,7 @@ export const NurseRequestTable = () => {
                       <TableCell>Paciente</TableCell>
                       <TableCell>Cuarto</TableCell>
                       <TableCell>Enfermero que solicitó</TableCell>
+                      <TableCell>Tipo de Solicitud</TableCell>
                       <TableCell>Almacén Solicitado</TableCell>
                       <TableCell>Entregado Por</TableCell>
                       <TableCell>Estatus</TableCell>
@@ -336,6 +337,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
         <TableCell>{nurseRequest.paciente}</TableCell>
         <TableCell>{nurseRequest.espacioHospitalario}</TableCell>
         <TableCell>{nurseRequest.usuarioSolicitante}</TableCell>
+        <TableCell>{nurseRequest.tipoSolicitud}</TableCell>
         <TableCell>{nurseRequest.almacen}</TableCell>
         <TableCell>{nurseRequest.usuarioAutorizo ? nurseRequest.usuarioAutorizo : ''}</TableCell>
         <TableCell>{getStatus(nurseRequest.estatus)}</TableCell>
