@@ -126,23 +126,21 @@ const icons = {
 };
 
 import {
-  admission,
-  checkout,
-  checkoutAdmin,
-  checkoutSell,
-  closeAccount,
-  hospitalization,
-  hospitalizationANDnurse,
-  invoiceAdmin,
-  nurseRole,
-  operatingRoomANDnurse,
-  pharmacyDirectorRole,
+  purchaseGlobalRoles,
+  supplyRoles,
+  purchasingDirector,
+  warehouse,
   pharmacyManager,
   programation,
-  purchaseGlobalRoles,
-  purchasingDirector,
-  supplyRoles,
+  admission,
+  hospitalization,
+  operatingRoom,
+  nurseRole,
   xrayAdmin,
+  checkout,
+  checkoutDirector,
+  invoiceAdmin,
+  reports,
 } from '@/utils/dataRoles';
 
 const sideBarRoutes: NavItemType[] = [
@@ -228,7 +226,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/compras/configuracion-compras',
             icon: icons.Settings,
             type: 'item',
-            protectedRoles: purchasingDirector,
+            protectedRoles: purchaseGlobalRoles,
           },
         ],
       },
@@ -238,7 +236,7 @@ const sideBarRoutes: NavItemType[] = [
         type: 'item',
         url: '/almacenes',
         icon: icons.Warehouse,
-        protectedRoles: [...purchaseGlobalRoles, ...purchasingDirector, ...supplyRoles],
+        protectedRoles: warehouse,
       },
       {
         id: 'farmacia',
@@ -268,7 +266,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/farmacia/configuracion-farmacia',
             icon: icons.Settings,
             type: 'item',
-            protectedRoles: pharmacyDirectorRole,
+            protectedRoles: purchaseGlobalRoles,
           },
         ],
       },
@@ -307,7 +305,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/programacion/gestion-espacios-hospitalarios',
                 icon: icons.Bed,
                 type: 'item',
-                protectedRoles: programation,
+                protectedRoles: purchaseGlobalRoles,
               },
               {
                 id: 'categorias-espacios-hospitalarios',
@@ -315,7 +313,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/programacion/categorias-espacios-hospitalarios',
                 icon: icons.HotTub,
                 type: 'item',
-                protectedRoles: programation,
+                protectedRoles: purchaseGlobalRoles,
               },
             ],
           },
@@ -357,7 +355,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/hospitalizacion/servicios-solicitud',
             icon: icons.FactCheck,
             type: 'item',
-            protectedRoles: hospitalizationANDnurse,
+            protectedRoles: nurseRole,
           },
           {
             id: 'solicitud-articulos',
@@ -373,7 +371,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/hospitalizacion/cuartos-hospitalarios',
             icon: icons.Hotel,
             type: 'item',
-            protectedRoles: hospitalization,
+            protectedRoles: [...nurseRole, ...hospitalization],
           },
           {
             id: 'calendario-cuartos',
@@ -381,7 +379,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/hospitalizacion/calendario-cuartos-asignados',
             icon: icons.CalendarMonth,
             type: 'item',
-            protectedRoles: hospitalizationANDnurse,
+            protectedRoles: hospitalization,
           },
         ],
       },
@@ -397,7 +395,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/quirofano/operaciones-del-dia',
             icon: icons.AirlineSeatReclineExtra,
             type: 'item',
-            protectedRoles: operatingRoomANDnurse,
+            protectedRoles: operatingRoom,
           },
           {
             id: 'recuperacion',
@@ -405,7 +403,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/quirofano/recuperacion',
             icon: icons.Healing,
             type: 'item',
-            protectedRoles: operatingRoomANDnurse,
+            protectedRoles: [...nurseRole, ...operatingRoom],
           },
           {
             id: 'catalogos',
@@ -419,7 +417,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/quirofano/paquetes-quirurgicos',
                 icon: icons.Inventory,
                 type: 'item',
-                protectedRoles: programation,
+                protectedRoles: purchaseGlobalRoles,
               },
               {
                 id: 'medicos',
@@ -427,7 +425,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/quirofano/medicos',
                 icon: icons.Masks,
                 type: 'item',
-                protectedRoles: programation,
+                protectedRoles: operatingRoom,
               },
               {
                 id: 'anestesiologos',
@@ -435,7 +433,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/quirofano/anestesiologos',
                 icon: icons.GroupAdd,
                 type: 'item',
-                protectedRoles: programation,
+                protectedRoles: operatingRoom,
               },
               {
                 id: 'procedimientos-cirugia',
@@ -443,7 +441,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/quirofano/procedimientos-cirugia',
                 icon: icons.Vaccines,
                 type: 'item',
-                protectedRoles: programation,
+                protectedRoles: operatingRoom,
               },
             ],
           },
@@ -491,7 +489,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/servicios/solicitudes',
                 icon: icons.FindInPage,
                 type: 'item',
-                protectedRoles: hospitalization,
+                protectedRoles: purchaseGlobalRoles,
               },
             ],
           },
@@ -501,7 +499,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/servicios/configuracion-solicitudes',
             icon: icons.Settings,
             type: 'item',
-            protectedRoles: supplyRoles,
+            protectedRoles: purchaseGlobalRoles,
           },
         ],
       },
@@ -517,7 +515,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/ventas/caja',
             icon: icons.PointOfSale,
             type: 'item',
-            protectedRoles: checkout,
+            protectedRoles: [...checkout, ...checkoutDirector],
           },
           {
             id: 'cierre-cuenta',
@@ -525,7 +523,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/ventas/cierre-de-cuenta',
             icon: icons.Receipt,
             type: 'item',
-            protectedRoles: closeAccount,
+            protectedRoles: [...checkout, ...checkoutDirector],
           },
           {
             id: 'emitir-recibo',
@@ -533,7 +531,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/ventas/emitir-recibo',
             icon: icons.Sell,
             type: 'item',
-            protectedRoles: checkoutSell,
+            protectedRoles: checkoutDirector,
           },
           {
             id: 'configuracion-usuarios',
@@ -541,7 +539,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/ventas/configuracion-usuarios',
             icon: icons.Settings,
             type: 'item',
-            protectedRoles: checkoutAdmin,
+            protectedRoles: purchaseGlobalRoles,
           },
         ],
       },
@@ -599,6 +597,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/reportes/caja',
             icon: icons.PointOfSale,
             type: 'item',
+            protectedRoles: reports,
           },
         ],
       },
@@ -607,6 +606,7 @@ const sideBarRoutes: NavItemType[] = [
         title: 'Tesoreria',
         type: 'collapse',
         icon: icons.Balance,
+        protectedRoles: purchaseGlobalRoles,
         children: [
           {
             id: 'revolvente',
@@ -614,6 +614,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/tesoreria/revolvente/menu',
             icon: icons.PointOfSale,
             type: 'collapse',
+            protectedRoles: purchaseGlobalRoles,
             children: [
               {
                 id: 'revolvente-estado-de-cuenta',
@@ -621,6 +622,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/revolvente/estado-de-cuenta',
                 icon: icons.PointOfSale,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
               {
                 id: 'cajas',
@@ -628,6 +630,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/revolvente/cajas',
                 icon: icons.PointOfSale,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
             ],
           },
@@ -637,6 +640,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/tesoreria/bancos/menu',
             icon: icons.PointOfSale,
             type: 'collapse',
+            protectedRoles: purchaseGlobalRoles,
             children: [
               {
                 id: 'bancos-estado-de-cuenta',
@@ -644,6 +648,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/bancos/estado-de-cuenta',
                 icon: icons.PointOfSale,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
               {
                 id: 'bancos-compras',
@@ -651,6 +656,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/bancos/compras',
                 icon: icons.PointOfSale,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
             ],
           },
@@ -660,6 +666,7 @@ const sideBarRoutes: NavItemType[] = [
             url: '/tesoreria/direccion/menu',
             icon: icons.PointOfSale,
             type: 'collapse',
+            protectedRoles: purchaseGlobalRoles,
             children: [
               {
                 id: 'direccion-depositos',
@@ -667,6 +674,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/direccion/depositos',
                 icon: icons.PointOfSale,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
               {
                 id: 'direccion-movimientos',
@@ -674,6 +682,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/direccion/movimientos',
                 icon: icons.PointOfSale,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
             ],
           },
