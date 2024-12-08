@@ -19,7 +19,7 @@ export interface IArticle {
   esCaja?: boolean;
   factor?: boolean;
   unidadesPorCaja?: string;
-  codigoUnidadMedida?: number;
+  codigoUnidadMedida?: string;
   presentacion: string;
   iva?: boolean;
   codigoProducto?: string;

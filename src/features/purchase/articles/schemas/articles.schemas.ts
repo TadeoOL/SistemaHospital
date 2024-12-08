@@ -51,12 +51,12 @@ export const addArticle = (hasApiUrl?: boolean) =>
         .string({ invalid_type_error: 'Escribe un código SAT valido' })
         .min(1, 'Escribe un código SAT valido'),
       codigoUnidadMedida: z
-        .string({ invalid_type_error: 'Escribe un código de unidad de medida valido' })
+        .number()
         .min(1, 'Escribe un código de unidad de medida valido'),
-      codigoProducto: z.string({ invalid_type_error: 'Escribe un código de producto valido' }).optional(),
-      tipoProducto: z
+      //codigoProducto: z.string({ invalid_type_error: 'Escribe un código de producto valido' }).optional(),
+      /*tipoProducto: z
         .number({ invalid_type_error: 'Selecciona un tipo de producto' })
-        .min(1, 'Selecciona un tipo de producto'),
+        .min(1, 'Selecciona un tipo de producto'),*/
       id_ProductoFactura: z.string().optional().nullable(),
       id_Relacion: z.string().optional().nullable(),
     }),

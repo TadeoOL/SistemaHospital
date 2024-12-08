@@ -25,7 +25,7 @@ import { SamiPatientDetailsModal } from './Modal/SamiPatientDetailsModal';
 import { AddPatientsEntrySami } from './Modal/AddPatientsEntrySami';
 import Swal from 'sweetalert2';
 import { admitSamiPatientToHospital } from '../../../services/sami/samiEntryService';
-import { ISAMI } from '../../../types/admission/admissionTypes';
+import { ISAMInuevo } from '../../../types/admission/admissionTypes';
 
 const TABLE_HEADER = ['Nombre Paciente', 'Fecha Ingreso', 'Datos Paciente', 'Acciones'];
 
@@ -73,7 +73,7 @@ export const PatientsEntrySamiTable = () => {
             <>
               <TableBody>
                 {data.map((d) => (
-                  <PatientsEntrySamiTableRow data={d} key={d.id} />
+                  <PatientsEntrySamiTableRow data={d} key={d.id_IngresoPaciente} />
                 ))}
               </TableBody>
               <TableFooterComponent
@@ -92,7 +92,7 @@ export const PatientsEntrySamiTable = () => {
   );
 };
 
-const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
+const PatientsEntrySamiTableRow = (props: { data: ISAMInuevo }) => {
   const { data } = props;
   const [open, setOpen] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -100,7 +100,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
 
   const handlePrint = () => {
     generateSamiDoc({
-      name: data.paciente.nombre,
+      name: data.nombrePaciente,
       lastName: data.paciente.apellidoPaterno,
       secondLastName: data.paciente.apellidoMaterno,
       birthDate: data.paciente.fechaNacimiento,
@@ -126,7 +126,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await admitSamiPatientToHospital(data.paciente.id);
+          await admitSamiPatientToHospital(data.id_Paciente);
           refetch();
           Swal.fire('Paciente admitido correctamente', '', 'success');
         } catch (error) {
@@ -136,8 +136,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
     });
   };
 
-  const nombrePaciente =
-    data.paciente.nombre + ' ' + data.paciente.apellidoPaterno + ' ' + data.paciente.apellidoMaterno;
+  const nombrePaciente = data.nombrePaciente;
 
   return (
     <>
@@ -171,13 +170,13 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
                 <Print />
               </IconButton>
             </Tooltip>
-            {!data.admitido && (
+            {/*!data.admitido && (
               <Tooltip title="Pasar a admisión">
                 <IconButton onClick={handleAdmitSamiPatient}>
                   <CheckCircle color="success" />
                 </IconButton>
               </Tooltip>
-            )}
+            )*/}
           </Box>
         </TableCell>
       </TableRow>
@@ -198,7 +197,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMI }) => {
             setOpen={setOpen}
           />
         </>
-      </Modal>
+      </Modal>*
       <Modal open={openEdit}>
         <>
           <AddPatientsEntrySami setOpen={setOpenEdit} isEdit patientData={data.paciente} medicId="" />

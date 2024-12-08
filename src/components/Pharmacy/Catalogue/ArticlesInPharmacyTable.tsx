@@ -157,7 +157,7 @@ export const ArticlesPharmacyTable = () => {
               >
                 Salida de artículos
               </Button>
-              <Button
+              {/*<Button
                 sx={{ minWidth: 200 }}
                 variant="contained"
                 startIcon={<AddCircleIcon />}
@@ -180,7 +180,7 @@ export const ArticlesPharmacyTable = () => {
                 }}
               >
                 Movimientos de Quirofano
-              </Button>
+              </Button>*/}
             </Box>
           </Box>
           <Card>

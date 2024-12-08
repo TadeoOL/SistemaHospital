@@ -20,33 +20,33 @@ import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
 import { usePatientAccountPaginationStore } from '../../../store/checkout/patientAcountsPagination';
 import { CloseAccountModal } from './Modal/CloseAccount';
 import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
-// import { DiscountModal } from './Modal/DiscountModal';
 import { useGetDiscountConfig } from '../../../hooks/admission/useGetDiscountConfig';
 import { useAuthStore } from '../../../store/auth';
 import {
-  // DepositType,
   IPatientAccount,
   IPatientAccountPagination,
   PatientAccountStatus,
   PatientAccountStatusLabels,
 } from '../../../types/checkout/patientAccountTypes';
-import { getPatientAccount } from '../../../services/checkout/patientAccount';
-// import Swal from 'sweetalert2';
-// import { toast } from 'react-toastify';
-// import { useConnectionSocket } from '../../../store/checkout/connectionSocket';
 import { generateAccountPDF } from './generateAccountPDF';
+import { getPatientAccount } from '@/services/checkout/patientAccount';
 const HEADERS = ['Nombre Completo', 'Espacios Hospitalarios', 'Medico', 'Fecha Apertura', 'Estatus', 'Acciones'];
-
 interface PatientAccountTableBodyProps {
   data: IPatientAccountPagination[];
   discountConfig: { id: string; name: string }[];
   status: number;
+  setViewOnly: Function;
+  setOpen: Function;
+  setBillSelected: Function;
 }
 
 interface PatientAccountTableRowProps {
   data: IPatientAccountPagination;
   discountConfig: { id: string; name: string }[];
   status: number;
+  setViewOnly: Function;
+  setOpen: Function;
+  setBillSelected: Function;
 }
 
 const useGetPatientAccountData = () => {
@@ -79,6 +79,9 @@ const useGetPatientAccountData = () => {
 export const PatientAccountTable = ({ status }: { status: number }) => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetPatientAccountData();
   const { data: discountConfig, isLoading: isLoadingDiscountConfig } = useGetDiscountConfig();
+  const [open, setOpen] = useState(false);
+  const [viewOnly, setViewOnly] = useState(false); 
+  const [billSelected, setBillSelected] = useState< IPatientAccountPagination| null>(null);
 
   if ((isLoading && data.length === 0) || isLoadingDiscountConfig)
     return (
@@ -88,11 +91,12 @@ export const PatientAccountTable = ({ status }: { status: number }) => {
     );
 
   return (
+    <>
     <Card>
       <TableContainer>
         <Table>
           <TableHeaderComponent headers={HEADERS} />
-          <PatientAccountTableBody data={data} discountConfig={discountConfig} status={status} />
+          <PatientAccountTableBody data={data} discountConfig={discountConfig} status={status} setOpen={setOpen} setViewOnly={setViewOnly} setBillSelected={setBillSelected}/>
           {data.length > 0 && (
             <TableFooterComponent
               count={count}
@@ -107,6 +111,10 @@ export const PatientAccountTable = ({ status }: { status: number }) => {
       </TableContainer>
       {data.length === 0 && <NoDataInTableInfo infoTitle="No hay registros" />}
     </Card>
+      <CloseAccountModal id_Cuenta={billSelected?.id_CuentaPaciente ?? ''} setOpen={setOpen} viewOnly={viewOnly} open={open} />
+    </>
+    
+
   );
 };
 
@@ -119,6 +127,9 @@ const PatientAccountTableBody = (props: PatientAccountTableBodyProps) => {
           data={a}
           discountConfig={props.discountConfig}
           status={props.status}
+          setOpen={props.setOpen}
+          setViewOnly={props.setViewOnly}
+          setBillSelected={props.setBillSelected}
         />
       ))}
     </TableBody>
@@ -126,19 +137,16 @@ const PatientAccountTableBody = (props: PatientAccountTableBodyProps) => {
 };
 
 const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
-  const [open, setOpen] = useState(false);
   const [openPrint, setOpenPrint] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { data } = props;
   const [accountInfo, setAccountInfo] = useState<IPatientAccount | null>(null);
   const isAdmin = useAuthStore((state) => state.profile?.roles.includes('ADMIN'));
   const userId = useAuthStore((state) => state.profile?.id);
-  const [viewOnly, setViewOnly] = useState(false);
-  // const conn = useConnectionSocket((state) => state.conn);
-  // const fetchData = usePatientAccountPaginationStore((state) => state.fetchData);
 
   const handleEdit = () => {
-    setOpen(true);
+    props.setOpen(true);
+    props.setBillSelected(data)
   };
 
   const handleOpenPDF = async () => {
@@ -169,46 +177,6 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
     }
   };
 
-  // const handleGenerateCheckout = () => {
-  //   Swal.fire({
-  //     title: '¿Estás seguro de querer generar el pase de caja?',
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonColor: '#3085d6',
-  //     cancelButtonColor: '#d33',
-  //     reverseButtons: true,
-  //     preConfirm: async () => {
-  //       if (conn === null) {
-  //         toast.error('Error, sin conexión al websocket');
-  //         return;
-  //       }
-  //       try {
-  //         const object = {
-  //           id_CuentaPaciente: data.id_CuentaPaciente,
-  //           cantidad: data.totalVenta,
-  //           tipoDeposito: DepositType.Settlement,
-  //         };
-  //         const res = await createPatientAccountDeposit(object);
-  //         const resObj = {
-  //           estatus: res.estadoVenta,
-  //           folio: res.folio,
-  //           id_VentaPrincipal: res.id,
-  //           moduloProveniente: 'Cierre cuenta',
-  //           paciente: data.nombreCompleto,
-  //           totalVenta: res.totalVenta,
-  //           tipoPago: res.tipoPago,
-  //           id_UsuarioPase: res.id_UsuarioVenta,
-  //           nombreUsuario: res.usuarioVenta?.nombre,
-  //         };
-  //         conn.invoke('SendSell', resObj);
-  //         Swal.fire('Success', 'Pase de caja generado correctamente', 'success');
-  //         fetchData();
-  //       } catch (error) {
-  //         Swal.fire('Error', 'Error al generar el pase de caja', 'error');
-  //       }
-  //     },
-  //   });
-  // };
 
   return (
     <>
@@ -258,8 +226,9 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
               <Tooltip title="Ver cuenta">
                 <IconButton
                   onClick={() => {
-                    setViewOnly(true);
-                    setOpen(true);
+                    props.setViewOnly(true);
+                    props.setOpen(true);
+                    props.setBillSelected(data);
                   }}
                 >
                   <Visibility color="primary" />
@@ -269,7 +238,6 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
           </Box>
         </TableCell>
       </TableRow>
-      <CloseAccountModal id_Cuenta={data.id_CuentaPaciente} setOpen={setOpen} viewOnly={viewOnly} open={open} />
       <Modal
         open={openPrint}
         onClose={() => {
