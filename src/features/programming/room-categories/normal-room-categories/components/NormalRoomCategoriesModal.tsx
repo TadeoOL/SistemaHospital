@@ -12,9 +12,10 @@ import { ICategoryNormalRoom } from '../interfaces/room-category.interface';
 import { normalRoomCategorySchema } from '../schemas/normal-room-category.schemas';
 import { modifyNormalRoomCategory, registerNormalRoomCategory } from '../services/normal-room-categories';
 import { useApiConfigStore } from '@/store/apiConfig';
-import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
+import { ProductType } from '@/types/contpaqiTypes';
 import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
 import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
+import { useGetSizeUnit } from '@/hooks/contpaqi/useGetSizeUnit';
 dayjs.locale('es-mx');
 
 type Inputs = {
@@ -40,6 +41,7 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
   const { open, onClose, onSuccess, defaultData } = props;
   const apiUrl = useApiConfigStore((state) => state.apiUrl);
   const hasInvoiceService = !!apiUrl;
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
 
   const [isLoading, setIsLoading] = useState(false);
   const defaultValues = {
@@ -122,7 +124,8 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
             codigoUnidadMedida: data.codigoUnidadMedida?.toString() || '',
             codigoProducto: data.codigoProducto || '',
             id_Relacion,
-            tipoProducto: data.tipoProducto || ProductType.TIPO_CUARTO,
+            tipoProducto: 3,
+            //tipoProducto: data.tipoProducto || ProductType.TIPO_CUARTO,
           });
 
           const contpaqiData = {
@@ -182,7 +185,7 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
 
   return (
     <ModalBasic
-      isLoading={isLoading}
+      isLoading={isLoading || isLoadingConcepts}
       open={open}
       header={defaultData ? 'Modificar categoria de cuarto hospitalario' : 'Agregar categoria de cuarto hospitalario'}
       onClose={onClose}
@@ -274,37 +277,18 @@ export const NormalRoomCategoriesModal = (props: NormalRoomCategoriesModalProps)
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputBasic
-                fullWidth
-                label="Unidad de Medida"
-                type="number"
-                placeholder="Escribe una unidad de medida"
-                error={!!errors.codigoUnidadMedida}
-                helperText={errors?.codigoUnidadMedida?.message}
-                {...register('codigoUnidadMedida', {
-                  valueAsNumber: true,
-                })}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <SelectBasic
-                label="Tipo de Producto"
-                placeholder="Seleccione un Tipo de Producto"
-                value={watch('tipoProducto')}
-                error={!!errors.tipoProducto}
-                helperText={errors?.tipoProducto?.message}
-                disabled
-                options={Object.entries(ProductType)
-                  .filter(([key]) => isNaN(Number(key)))
-                  .map(([_key, value]) => ({
-                    id: value,
-                    tipo: productTypeLabel[value as keyof typeof productTypeLabel],
-                  }))}
-                uniqueProperty="id"
-                displayProperty="tipo"
-                {...register('tipoProducto')}
-              />
-            </Grid>
+            <SelectBasic
+              value={watch('codigoUnidadMedida')}
+              label="Código Unidad de Medida"
+              options={sizeUnit}
+              uniqueProperty="id_UnidadMedida"
+              displayProperty="nombre"
+              placeholder="Seleccione una Unidad de Medida"
+              helperText={errors?.codigoUnidadMedida?.message}
+              error={!!errors.codigoUnidadMedida}
+              {...register('codigoUnidadMedida')}
+            />
+          </Grid>
             <Grid item xs={12} md={6}>
               <InputBasic
                 label="Código de Producto"

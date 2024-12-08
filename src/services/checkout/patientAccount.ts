@@ -50,3 +50,12 @@ export const createPatientAccountDeposit = async (data: {
   const res = await axios.post(`${apiUrl}/registrar-deposito-cuenta-paciente`, data);
   return res.data;
 };
+
+export const updateOperatingRoomType = async (data: {
+  id_CuentaEspacioHospitalario: string;
+  id_TipoQuirofano: string;
+  CuentaConCuarto: boolean;
+}) => {
+  const res = await axios.post(`${apiUrl}/cambiar-precio-quirofano`, data);
+  return res.data;
+};

@@ -195,6 +195,18 @@ export interface IDocumentsInfo {
   tipoSangre: string;
 }
 
+export interface ISAMInuevo {
+  id_IngresoPaciente: string;
+  id_Paciente: string;
+  id_Medico: string;
+  clavePaciente: string;
+  nombrePaciente: string;
+  medico: string;
+  fechaIngreso: string;
+  ingresoModulo: string;
+  paciente:ISAMIPatient;
+}
+
 export interface ISAMI {
   id: string;
   paciente: ISAMIPatient;

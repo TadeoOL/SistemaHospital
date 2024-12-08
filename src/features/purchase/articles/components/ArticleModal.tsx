@@ -15,9 +15,9 @@ import { useFetchArticle } from '../hooks/useFetchArticle';
 import { useGetPurchaseConfig } from '../hooks/usePurchaseConfig';
 import { addArticle } from '../schemas/articles.schemas';
 import { useApiConfigStore } from '@/store/apiConfig';
-import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
 import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
 import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
+import { useGetSizeUnit } from '@/hooks/contpaqi/useGetSizeUnit';
 
 interface ArticleModalProps {
   itemId?: string;
@@ -32,6 +32,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   const hasApiUrl = !!apiUrl;
 
   const { subCategories, isLoading } = useGetSubCategories();
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const config = useGetPurchaseConfig();
 
   const [isBox, setIsBox] = useState(false);
@@ -54,7 +55,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
     codigoSAT: '',
     codigoUnidadMedida: '',
     codigoProducto: '',
-    tipoProducto: 0,
+    tipoProducto: 1,
     id_ProductoFactura: '',
   };
 
@@ -71,11 +72,11 @@ export const ArticleModal = (props: ArticleModalProps) => {
       isLoadingArticle || !article
         ? defaultValues
         : {
-            ...article,
-            precioCompra: article.precioCompra.toString(),
-            id_subcategoria: (article.subCategoria as any)?.id_SubCategoria,
-            codigoUnidadMedida: article.codigoUnidadMedida?.toString() || '',
-          },
+          ...article,
+          precioCompra: article.precioCompra.toString(),
+          id_subcategoria: (article.subCategoria as any)?.id_SubCategoria,
+          codigoUnidadMedida: article.codigoUnidadMedida || '',
+        },
     resolver: zodResolver(addArticle(hasApiUrl)),
   });
 
@@ -102,7 +103,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
             codigoUnidadMedida: data.codigoUnidadMedida || '',
             codigoProducto: data.codigoProducto || '',
             id_Relacion,
-            tipoProducto: data.tipoProducto || 0,
+            tipoProducto: 1,
           });
 
           const contpaqiData = {
@@ -193,7 +194,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   useEffect(() => {
     getPrices();
-  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox, factor]);
+  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox, factor]);//codigoUnidadMedida
 
   const actions = (
     <>
@@ -209,7 +210,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   return (
     <ModalBasic
-      isLoading={isLoading || (!!itemId && isLoadingArticle)}
+      isLoading={isLoading || (!!itemId && (isLoadingArticle || isLoadingConcepts))}
       open={open}
       header={itemId ? 'Modificar articulo' : 'Agregar articulo'}
       onClose={onClose}
@@ -371,17 +372,33 @@ export const ArticleModal = (props: ArticleModalProps) => {
                   helperText={errors?.codigoSAT?.message}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <InputBasic
+              {/* <Grid item xs={12} md={6}>
+                <SelectBasic
+                  value={watch('codigoUnidadMedida')}
                   label="Código Unidad de Medida"
-                  placeholder="Escriba un Código de Unidad de Medida"
+                  options={sizeUnit}
+                  uniqueProperty={"id_UnidadMedida"}
+                  displayProperty={"nombre"}
+                  placeholder="Seleccione una Unidad de Medida"
                   {...register('codigoUnidadMedida')}
                   error={!!errors.codigoUnidadMedida}
-                  type="number"
                   helperText={errors?.codigoUnidadMedida?.message}
                 />
-              </Grid>
+              </Grid>*/}
               <Grid item xs={12} md={6}>
+                <SelectBasic
+                  value={watch('codigoUnidadMedida')}
+                  label="Código Unidad de Medida"
+                  options={sizeUnit}
+                  uniqueProperty="id_UnidadMedida"
+                  displayProperty="nombre"
+                  placeholder="Seleccione una Unidad de Medida"
+                  helperText={errors?.codigoUnidadMedida?.message}
+                  error={!!errors.codigoUnidadMedida}
+                  {...register('codigoUnidadMedida')}
+                />
+              </Grid>
+              {/*<Grid item xs={12} md={6}>
                 <SelectBasic
                   label="Tipo de Producto"
                   placeholder="Seleccione un Tipo de Producto"
@@ -398,7 +415,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
                   displayProperty="tipo"
                   {...register('tipoProducto')}
                 />
-              </Grid>
+              </Grid>*/}
               <Grid item xs={12} md={6}>
                 <InputBasic
                   label="Código Producto"

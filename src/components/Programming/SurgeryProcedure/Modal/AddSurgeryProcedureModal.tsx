@@ -116,7 +116,7 @@ export const AddSurgeryProcedureModal = (props: AddSurgeryProcedureModalProps) =
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     placeholder="Precio Cirugía"
-                    value={value === 0 ? '' : value}
+                    value={value}
                     type="number"
                     onChange={(e) => {
                       const val = e.target.value === '' ? 0 : Number(e.target.value);
