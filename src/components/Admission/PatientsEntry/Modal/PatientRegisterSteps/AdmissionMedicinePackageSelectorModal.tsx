@@ -281,7 +281,6 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
           <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
             <Typography>Selección de almacen:</Typography>
             <Autocomplete
-              disabled={!!packageSelected}
               disablePortal
               fullWidth
               // filterOptions={filterPackageOptions}

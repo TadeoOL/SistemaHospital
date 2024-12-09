@@ -180,7 +180,7 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
       >
         <DischargeDateSelector
           operatingRoomId={data?.id_CuentaEspacioHospitalario as string}
-          recoveryStartTime={dayjs(data?.horaInicio).format('YYYY-MM-DDTHH:mm')}
+          recoveryStartTime={dayjs(data?.horaInicioRecuperacion, 'DD/MM/YYYY - hh:mm').format('YYYY-MM-DDTHH:mm')}
         />
       </Menu>
       {/*<Modal open={openClinicalData} onClose={() => setOpenClinicalData(false)}>
@@ -219,6 +219,7 @@ const RecoveryRoomsTableRow = (props: { data?: IRoomInformationnew }) => {
 };
 
 const DischargeDateSelector = (props: { operatingRoomId: string; recoveryStartTime: string }) => {
+  console.log('props:', props);
   const [date, setDate] = useState<string>(props.recoveryStartTime);
   const [error, setError] = useState('');
   const refetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);

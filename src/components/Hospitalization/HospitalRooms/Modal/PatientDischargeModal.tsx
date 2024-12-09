@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useHospitalRoomsPaginationStore } from '../../../../store/hospitalization/hospitalRoomsPagination';
 import { useCreatePatientDischarge } from '../../../../hooks/hospitalization/useCreatePatientDischarge';
+import { useDailyOperatingRoomsPaginationStore } from '@/store/operatingRoom/dailyOperatingRoomsPagination';
 
 const style = {
   position: 'absolute',
@@ -57,6 +58,7 @@ export const PatientDischargeModal = ({
   id_IngresoPaciente,
 }: Props) => {
   const fetch = useHospitalRoomsPaginationStore((state) => state.fetchData);
+  const fetchRecoveries = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
   const { mutate: createPatientDischarge } = useCreatePatientDischarge();
 
   const {
@@ -83,6 +85,7 @@ export const PatientDischargeModal = ({
         onSuccess: () => {
           setOpen(false);
           fetch();
+          fetchRecoveries();
         },
       }
     );
