@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useState } from 'react';
 import FixedFundModal from '../components/FixedFundModal';
+import ProductSales from '@/common/components/ProductSales';
 
 const TreasuryAdministration = () => {
   const navigation = useNavigate();
@@ -58,6 +59,11 @@ const TreasuryAdministration = () => {
             top="Consulta de movimientos"
             bottom2={<RemoveRedEyeIcon />}
           />
+        </Grid>
+      </Grid>
+      <Grid container direction={'row'}>
+        <Grid item xs={12} md={4}>
+          <ProductSales />
         </Grid>
       </Grid>
       <CashGraph

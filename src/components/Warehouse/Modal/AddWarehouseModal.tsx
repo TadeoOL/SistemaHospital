@@ -57,16 +57,16 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
   const [isLoading, setIsLoading] = useState(false);
   const [errorUserNotSelected, setErrorUserNotSelected] = useState(false);
 
-  const { setSearchUser, } = useSubWarehousePaginationStore(
+  const { setSearchUser } = useSubWarehousePaginationStore(
     useShallow((state) => ({
       setSearchUser: state.setSearchUser,
     }))
   );
 
   const { handleChangeWarehouse, setHandleChangeWarehouse } = useWarehousePagination((state) => ({
-     setHandleChangeWarehouse: state.setHandleChangeWarehouse,
-     handleChangeWarehouse: state.handleChangeWarehouse,
-   }));
+    setHandleChangeWarehouse: state.setHandleChangeWarehouse,
+    handleChangeWarehouse: state.handleChangeWarehouse,
+  }));
 
   const {
     register,
@@ -85,10 +85,10 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
   };
 
   const onSubmit: SubmitHandler<ISubWarehouse> = async (data) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      if(usuarioEncargado === null){
-        setErrorUserNotSelected(true)
+      if (usuarioEncargado === null) {
+        setErrorUserNotSelected(true);
         return;
       }
       (data as any).id_UsuarioEncargado = usuarioEncargado ?? '';
@@ -98,8 +98,8 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
       open(false);
     } catch (error) {
       toast.error('Error al crear el almacén!');
-    } finally{
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,8 +154,8 @@ export const AddPurchaseWarehouseModal = (props: IAddPurchaseWarehouseModal) => 
                 onChange={(e, val) => {
                   e.stopPropagation();
                   setUsuarioEncargado(val);
-                  if(val !== null){
-                    setErrorUserNotSelected(false)
+                  if (val !== null) {
+                    setErrorUserNotSelected(false);
                   }
                 }}
                 loading={isLoadingUsers && usersRes.length === 0}

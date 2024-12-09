@@ -3,7 +3,6 @@ import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 import { Button, Grid, Typography } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { CashGraph } from '../../components/CashGraph';
 import ExpenseModal from '../components/ExpenseModal';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -23,10 +22,6 @@ const CashFlowBoxById = () => {
     loadDataById();
   }, []);
   const [openNewExpenseModal, setOpenNewExpenseModal] = useState(false);
-
-  const fakeData = {
-    nombre: '1',
-  };
 
   const handles = {
     openNewExpenseModal: () => {

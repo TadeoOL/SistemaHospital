@@ -50,9 +50,9 @@ type Inputs = {
   name: string;
   description: string;
   intervaloReservacion: Dayjs | null;
-  priceByTimeRangeHospitalization: IRoomPriceRange[];
-  priceByTimeRangeRecovery: IRoomPriceRange[];
-  priceByTimeRangeOutpatient: IRoomPriceRange[];
+  priceByTimeRangeHospitalization: any[];
+  priceByTimeRangeRecovery: any[];
+  priceByTimeRangeOutpatient: any[];
   type: string;
   priceRoom: string;
   //Facturacion
@@ -80,6 +80,18 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
 
   const [isLoading, setIsLoading] = useState(false);
   //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
+
+  const getDateOrNull = (date: string | undefined | null | Dayjs) => {
+    if (!date) return null;
+
+    if (typeof date === 'string') {
+      const [hour, minute, second] = date.split(':');
+      return dayjs().hour(parseInt(hour)).minute(parseInt(minute)).second(parseInt(second));
+    }
+
+    return date;
+  };
+
   const defaultValues = {
     name: '',
     description: '',
@@ -107,43 +119,8 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(operatingRoomCategorySchema(hasInvoiceService)),
-    defaultValues: defaultValues,
+    defaultValues,
   });
-
-  useEffect(() => {
-    if (!defaultData) {
-      reset(defaultValues);
-      return;
-    }
-
-    reset({
-      name: defaultData.nombre,
-      description: defaultData.descripcion,
-      priceByTimeRangeHospitalization: defaultData.configuracionPrecio.hospitalizacion,
-      priceByTimeRangeRecovery: defaultData.configuracionPrecioRecuperacion,
-      priceByTimeRangeOutpatient: defaultData.configuracionPrecio.ambulatoria,
-      intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
-      codigoSATRecuperacion: defaultData.codigoSATRecuperacion,
-      codigoSAT: defaultData.codigoSAT,
-      codigoUnidadMedida: defaultData.codigoUnidadMedida ? defaultData.codigoUnidadMedida : 0,
-      codigoUnidadMedidaRecuperacion: defaultData.codigoUnidadMedidaRecuperacion
-        ? defaultData.codigoUnidadMedidaRecuperacion
-        : 0,
-      tipoProducto: defaultValues.tipoProducto,
-      codigoProducto: defaultData.codigoProducto,
-    });
-  }, [defaultData]);
-
-  const getDateOrNull = (date: string | undefined | null | Dayjs) => {
-    if (!date) return null;
-
-    if (typeof date === 'string') {
-      const [hour, minute, second] = date.split(':');
-      return dayjs().hour(parseInt(hour)).minute(parseInt(minute)).second(parseInt(second));
-    }
-
-    return date;
-  };
 
   const loadForm = () => {
     if (!defaultData) {
@@ -151,10 +128,17 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
       return;
     }
 
+    const priceByTimeRangeHospitalization = defaultData.configuracionPrecio.hospitalizacion;
+    const priceByTimeRangeRecovery = defaultData.configuracionPrecioRecuperacion;
+    const priceByTimeRangeOutpatient = defaultData.configuracionPrecio.ambulatoria;
+
     const newValues: any = {
       name: defaultData.nombre,
       description: defaultData.descripcion,
       intervaloReservacion: getDateOrNull(defaultData.intervaloReservacion),
+      priceByTimeRangeHospitalization,
+      priceByTimeRangeRecovery,
+      priceByTimeRangeOutpatient,
       priceRoom: defaultData.precio?.toString(),
       codigoSATRecuperacion: defaultData.codigoSATRecuperacion,
       codigoSAT: defaultData.codigoSAT,
@@ -458,6 +442,7 @@ interface RoomHourCostTableProps {
 }
 
 const PriceRangeTable = (props: RoomHourCostTableProps) => {
+  console.log('props:', props);
   const { data } = props;
   const [open, setOpen] = useState(false);
   const [configList, setConfigList] = useState<IRoomPriceRange[]>(sortByInicio(data));

@@ -1,5 +1,4 @@
 import { Grid, Typography } from '@mui/material';
-import { CashGraph } from '../../components/CashGraph';
 import { useState } from 'react';
 import { MainCard, TablePaginated } from '@/common/components';
 import { getEmptyResponse } from '../../helpers/getEmptyResponse';
