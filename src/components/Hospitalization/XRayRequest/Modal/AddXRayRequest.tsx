@@ -58,6 +58,7 @@ interface Props {
 export const AddXRayRequestModal = (props: Props) => {
   const [usersData, setUsersData] = useState<IPatientFromSearch[]>([]);
   const [patientSearch, setPatientSearch] = useState('');
+  const [usersLoading, setUsersLoading] = useState(false);
   const [userSelected, setUserSelected] = useState<null | IPatientFromSearch>(null);
   const [servicesSelected, setServicesSelected] = useState<IService[]>([]);
   const [userError, setUserError] = useState(false);
@@ -88,10 +89,15 @@ export const AddXRayRequestModal = (props: Props) => {
   }, [patientSearch]);
 
   const patientsCall = async () => {
-    const url = `Search=${patientSearch}`;
-    const res = await getPatientsWithAccount(url);
-    if (res) {
-      setUsersData(res);
+    setUsersLoading(true);
+    try {
+      const url = `Search=${patientSearch}`;
+      const res = await getPatientsWithAccount(url);
+      if (res) setUsersData(res);
+    } catch (error) {
+      console.log('error:', error);
+    } finally {
+      setUsersLoading(false);
     }
   };
 
@@ -153,8 +159,7 @@ export const AddXRayRequestModal = (props: Props) => {
                   setUserSelected(val);
                   setUserError(false);
                 }}
-                //cambiar loading
-                loading={usersData.length === 0}
+                loading={usersLoading}
                 getOptionLabel={(option) => option.nombrePaciente}
                 options={usersData}
                 disabled={props.isPreselected}
@@ -172,6 +177,7 @@ export const AddXRayRequestModal = (props: Props) => {
                       if (e.target.value === null) {
                         setPatientSearch('');
                       }
+
                       setPatientSearch(e.target.value);
                     }}
                   />
@@ -180,46 +186,45 @@ export const AddXRayRequestModal = (props: Props) => {
             </Stack>
           </Box>
           <Divider />
-          {!isLoading && (
-            <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-              <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
-                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de Estudio de Gabinete</Typography>
-                <Autocomplete
-                  multiple
-                  disablePortal
-                  fullWidth
-                  disabled={props.isPreselected}
-                  filterOptions={filterServicesOptions}
-                  onChange={(e, val) => {
-                    e.stopPropagation();
-                    setServicesSelected(val);
-                    setRequestError(false);
-                  }}
-                  loading={isLoading}
-                  getOptionLabel={(option) => option.nombre}
-                  options={data}
-                  value={servicesSelected}
-                  noOptionsText="No se encontraron servicios"
-                  isOptionEqualToValue={(op, val) => op.id_Servicio === val.id_Servicio}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={requestError}
-                      helperText={requestError && 'Selecciona al menos un servicio'}
-                      placeholder="Servicios"
-                      sx={{ width: '100%' }}
-                      onChange={(e) => {
-                        if (e.target.value === null) {
-                          setSearchXray('');
-                        }
-                        setSearchXray(e.target.value);
-                      }}
-                    />
-                  )}
-                />
-              </Stack>
-            </Box>
-          )}
+          <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+            <Stack sx={{ display: 'flex', flex: 1, ml: 5 }}>
+              <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Tipo de Estudio de Gabinete</Typography>
+              <Autocomplete
+                multiple
+                disablePortal
+                fullWidth
+                disabled={props.isPreselected}
+                filterOptions={filterServicesOptions}
+                loading={isLoading}
+                onChange={(e, val) => {
+                  e.stopPropagation();
+                  setServicesSelected(val);
+                  setRequestError(false);
+                }}
+                getOptionLabel={(option) => option.nombre}
+                options={data}
+                value={servicesSelected}
+                noOptionsText="No se encontraron servicios"
+                isOptionEqualToValue={(op, val) => op.id_Servicio === val.id_Servicio}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={requestError}
+                    helperText={requestError && 'Selecciona al menos un servicio'}
+                    placeholder="Servicios"
+                    sx={{ width: '100%' }}
+                    onChange={(e) => {
+                      console.log('e:', e.target.value);
+                      if (e.target.value === null) {
+                        setSearchXray('');
+                      }
+                      setSearchXray(e.target.value);
+                    }}
+                  />
+                )}
+              />
+            </Stack>
+          </Box>
         </Box>
 
         <Box
