@@ -29,6 +29,7 @@ import { TableHeaderComponent } from '../../../../Commons/TableHeaderComponent';
 import { NoDataInTableInfo } from '../../../../Commons/NoDataInTableInfo';
 import { getPharmacyConfig } from '../../../../../services/pharmacy/configService';
 import { getWarehouseById } from '../../../../../api/api.routes';
+import { getAllQurirgicalPackageBySearch } from '@/services/operatingRoom/dailyOperatingPackageService';
 
 const TABLE_HEADER = ['Nombre', 'Cantidad', 'Acciones'];
 interface AdmissionMedicinePackageSelectorModalProps {
@@ -118,26 +119,30 @@ const useGetArticles = (warehouseId: string) => {
 };
 
 const useGetPackagesData = () => {
-  const { isLoadingPackages, dataPack, searchPack, setSearchPack, fetchWarehousePackages } =
-    usePackageNamesPaginationStore(
-      (state) => ({
-        searchPack: state.search,
-        setSearchPack: state.setSearch,
-        dataPack: state.data,
-        isLoadingPackages: state.isLoading,
-        fetchWarehousePackages: state.fetchWarehousePackages,
-      }),
-      shallow
-    );
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<any[] | null>(null);
+  const [search, setSearch] = useState('');
+
+  const fetch = async () => {
+    try {
+      setIsLoading(true);
+      const res = await getAllQurirgicalPackageBySearch(search);
+      console.log('res:', res);
+      setData(res);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchWarehousePackages();
-  }, [searchPack]);
+    fetch();
+  }, [search]);
 
   return {
-    isLoadingPackages,
-    dataPack,
-    setSearchPack,
+    isLoadingPackages: isLoading,
+    dataPack: data,
+    setSearchPack: setSearch,
   };
 };
 
@@ -175,12 +180,12 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
   const [isLoadingWarehouse, setIsLoadingWarehouse] = useState(true);
 
   useEffect(() => {
-    if(principalWarehouseId){
+    if (principalWarehouseId) {
       const fetchWarehouse = async () => {
         const warehouseInfo = await getWarehouseById(principalWarehouseId);
         const allWarehouses = [warehouseInfo, ...warehouseInfo.subAlmacenes];
         setWarehouseSelected(allWarehouses[0]);
-        setWarehouseSelectedSS(allWarehouses[0].id_Almacen)
+        setWarehouseSelectedSS(allWarehouses[0].id_Almacen);
         setIsLoadingWarehouse(false);
         setWarehouses(allWarehouses);
       };
@@ -222,7 +227,7 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
   }, [isLoadingArticles, articlesRes]);
 
   const handleSubmit = () => {
-    if (!warehouseSelected){
+    if (!warehouseSelected) {
       return toast.warning('Selecciona un almacen!');
     }
     if (articlesSelected.length === 0 && !packageSelected)
@@ -236,81 +241,80 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
       <HeaderModal setOpen={props.setOpen} title="Paquete de medicinas" />
 
       <Box sx={{ backgroundColor: 'background.paper', p: 1 }}>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
-      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography>Almacen:</Typography>
-        <Autocomplete
-          disablePortal
-          fullWidth
-          filterOptions={filterWarehouseOptions}
-          loading={isLoadingPackages}
-          getOptionLabel={(option) => option.nombre ?? ''}
-          options={warehouses ?? []}
-          sx={{ width: { xs: 350, sm: 400 } }}
-          noOptionsText="No se encontraron almacenes"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder="Almacen a solicitar"
-              sx={{ width: '100%' }}
-              onChange={(e) => {
-                setSearchPack(e.target.value);
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+          <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+            <Typography>Almacen:</Typography>
+            <Autocomplete
+              disablePortal
+              fullWidth
+              filterOptions={filterWarehouseOptions}
+              loading={isLoadingPackages}
+              getOptionLabel={(option) => option.nombre ?? ''}
+              options={warehouses ?? []}
+              sx={{ width: { xs: 350, sm: 400 } }}
+              noOptionsText="No se encontraron almacenes"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Almacen a solicitar"
+                  sx={{ width: '100%' }}
+                  onChange={(e) => {
+                    setSearchPack(e.target.value);
+                  }}
+                />
+              )}
+              onChange={async (_, val) => {
+                if (!val) return;
+                setWarehouseSelected(val);
+                setWarehouseSelectedSS(val.id_Almacen);
               }}
-            />
-          )}
-          onChange={async (_, val) => {
-            if (!val) return;
-            setWarehouseSelected(val);
-            setWarehouseSelectedSS(val.id_Almacen)
-          }}
-          onInputChange={(_, __, reason) => {
-            if (reason === 'clear') {
-              setWarehouseSelected(null);
-              setWarehouseSelectedSS('')
-            }
-          }}
-          value={warehouseSelected}
-          isOptionEqualToValue={(op, val) => op.id_Almacen === val.id_Almacen}
-        />
-      </Box>
-      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-      <Typography>Selección de almacen:</Typography>
-        <Autocomplete
-          disabled={!!packageSelected}
-          disablePortal
-          fullWidth
-          // filterOptions={filterPackageOptions}
-          loading={isLoadingWarehouse}
-          getOptionLabel={(option) => option.nombre ?? ''}
-          options={dataPack ?? []}
-          sx={{ width: { xs: 350, sm: 400 } }}
-          noOptionsText="No se encontraron paquetes"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder="Paquetes de artículos"
-              sx={{ width: '100%' }}
-              onChange={(e) => {
-                setSearchPack(e.target.value);
+              onInputChange={(_, __, reason) => {
+                if (reason === 'clear') {
+                  setWarehouseSelected(null);
+                  setWarehouseSelectedSS('');
+                }
               }}
+              value={warehouseSelected}
+              isOptionEqualToValue={(op, val) => op.id_Almacen === val.id_Almacen}
             />
-          )}
-          onChange={async (_, val) => {
-            if (!val) return;
-            setPackageSelected(val);
-          }}
-          onInputChange={(_, __, reason) => {
-            if (reason === 'clear') {
-              setPackageSelected(null);
-            }
-          }}
-          value={packageSelected}
-          isOptionEqualToValue={(op, val) => op.id_PaqueteQuirurgico === val.id_PaqueteQuirurgico}
-        />
-      </Box>
-      </Box>
-      
-        
+          </Box>
+          <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+            <Typography>Selección de almacen:</Typography>
+            <Autocomplete
+              disabled={!!packageSelected}
+              disablePortal
+              fullWidth
+              // filterOptions={filterPackageOptions}
+              loading={isLoadingWarehouse}
+              getOptionLabel={(option) => option.nombre ?? ''}
+              options={dataPack ?? []}
+              sx={{ width: { xs: 350, sm: 400 } }}
+              noOptionsText="No se encontraron paquetes"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Paquetes de artículos"
+                  sx={{ width: '100%' }}
+                  onChange={(e) => {
+                    setSearchPack(e.target.value);
+                  }}
+                />
+              )}
+              onChange={async (_, val) => {
+                if (!val) return;
+                setPackageSelected(val);
+              }}
+              onInputChange={(_, __, reason) => {
+                if (reason === 'clear') {
+                  setPackageSelected(null);
+                }
+              }}
+              value={packageSelected}
+              isOptionEqualToValue={(op, val) => op.id_PaqueteQuirurgico === val.id_PaqueteQuirurgico}
+            />
+          </Box>
+        </Box>
+
         <Divider sx={{ my: 1 }} />
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
           <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
