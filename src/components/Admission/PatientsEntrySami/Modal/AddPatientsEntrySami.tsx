@@ -69,7 +69,7 @@ export const AddPatientsEntrySami = (props: {
 }) => {
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title="Agregar paciente SAMI" />
+      <HeaderModal setOpen={props.setOpen} title="Agregar Paciente" />
       <BodyModal
         setOpen={props.setOpen}
         isEdit={props.isEdit}

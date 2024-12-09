@@ -197,7 +197,7 @@ const PatientsEntrySamiTableRow = (props: { data: ISAMInuevo }) => {
             setOpen={setOpen}
           />
         </>
-      </Modal>*
+      </Modal>
       <Modal open={openEdit}>
         <>
           <AddPatientsEntrySami setOpen={setOpenEdit} isEdit patientData={data.paciente} medicId="" />
