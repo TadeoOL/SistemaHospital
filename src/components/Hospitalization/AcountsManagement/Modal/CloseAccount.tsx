@@ -72,6 +72,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         estatus: PatientAccountStatus.Closed,
       });
       refetch();
+      refetchAccount();
       toast.success('Cierre de cuenta y Pase a caja generado correctamente');
       props.setOpen(false);
     } catch (error) {
@@ -208,9 +209,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   };
 
   const result = calcularTotalConDescuento();
-  const totalServices = data?.servicios?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
-  const totalArticles = data?.articulos?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
-  const totalEquipment = data?.equipoHonorario?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalServices = data?.servicios?.reduce((acc: any, curr: any) => acc + curr.total, 0) ?? 0;
+  const totalArticles = data?.articulos?.reduce((acc: any, curr: any) => acc + curr.total, 0) ?? 0;
+  const totalEquipment = data?.equipoHonorario?.reduce((acc: any, curr: any) => acc + curr.total, 0) ?? 0;
 
   const conn = useConnectionSocket((state) => state.conn);
 
@@ -664,12 +665,7 @@ interface PatientInformationProps {
   ventaArticuloSinIVA: number;
 }
 
-export const PatientInformation: React.FC<PatientInformationProps> = ({
-  patient,
-  medic,
-  isHospitalization,
-  date
-}) => (
+export const PatientInformation: React.FC<PatientInformationProps> = ({ patient, medic, isHospitalization, date }) => (
   <Grid container sx={{ p: 1 }} spacing={1}>
     <Grid item xs={12}>
       <Typography variant="h6">
@@ -829,7 +825,6 @@ export const DataTable = <T,>({
 
         <Menu
           anchorEl={anchorEl}
-
           open={Boolean(anchorEl)}
           onClose={handleClose}
           slotProps={{ paper: { sx: { p: 2, width: '250px' } } }}

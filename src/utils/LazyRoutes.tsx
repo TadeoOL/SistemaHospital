@@ -9,8 +9,8 @@ export const CategoryView = lazy(() => import('../views/Purchase/CategoryView'))
 export const Category = lazy(() => import('@/features/purchase/categories/screens/Category'));
 export const SubCategory = lazy(() => import('@/features/purchase/subcategories/screens/SubCategory'));
 export const ProvidersView = lazy(() => import('@/features/purchase/providers/screens/Providers'));
-export const WarehouseView = lazy(() => import('../features/warehouse/views/Warehouse'));
-// export const WarehouseView = lazy(() => import('../views/Purchase/WarehouseView'));
+// export const WarehouseView = lazy(() => import('../features/warehouse/views/Warehouse')); // Comentada por estar pendiente
+export const WarehouseView = lazy(() => import('../views/Purchase/WarehouseView'));
 export const PurchaseAuthorizationView = lazy(() => import('../views/Purchase/PurchaseAuthorizationView'));
 export const PurchaseConfigView = lazy(() => import('../views/Purchase/PurchaseConfigView'));
 export const AccountView = lazy(() => import('../views/AccountView'));
