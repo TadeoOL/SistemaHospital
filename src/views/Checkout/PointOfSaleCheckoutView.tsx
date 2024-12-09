@@ -26,7 +26,7 @@ const alert = (navigate: NavigateFunction, setIsLoading: Function, setData: Func
       },
     })
     .then(async (res) => {
-      if (res.isDenied || res.dismiss) return navigate('/');
+      if (res.isDenied || res.dismiss) return navigate('/ventas/cierre-de-cuenta');
       if (res.isConfirmed) {
         try {
           const resData = await openCheckout(res.value.initialAmount);
