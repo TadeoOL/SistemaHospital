@@ -13,7 +13,7 @@ import { HistorialClinico } from '../../../../../types/admissionTypes';
 import Swal from 'sweetalert2';
 import { usePatientRegisterPaginationStore } from '../../../../../store/programming/patientRegisterPagination';
 const TYPOGRAPHY_STYLE = { fontSize: 11, fontWeight: 500 };
-const BLOOD_TYPE = ['PENDIENTE', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const BLOOD_TYPE = ['PE', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const scrollBarStyle = {
   '&::-webkit-scrollbar': {
     width: '0.4em',
