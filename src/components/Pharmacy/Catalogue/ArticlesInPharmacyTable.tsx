@@ -255,7 +255,20 @@ export const ArticlesPharmacyTable = () => {
   const { isLoading: isLoadingHospitalRoomArticles, data: hospitalRoomArticles } =
     useHospitalRoomArticles(selectedHospitalRoom);
 
-  const columns: any[] = [];
+  const columns: any[] = [
+    {
+      header: 'Nombre',
+      value: 'nombre',
+    },
+    {
+      header: 'Fecha cargo',
+      value: 'fechaCargo',
+    },
+    {
+      header: 'Cantidad',
+      value: 'cantidad',
+    },
+  ];
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
