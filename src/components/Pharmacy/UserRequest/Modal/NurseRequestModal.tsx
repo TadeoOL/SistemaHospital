@@ -234,7 +234,7 @@ export const NurseRequestModal = (props: Props) => {
           }))
           .concat({ nombre: warehouse.nombre, id: warehouse.id_Almacen });
         setWarehousesFetched(subWH);
-        handleFetchArticlesFromWareHouse(warehouse.id_Almacen)
+        handleFetchArticlesFromWareHouse(warehouse.id_Almacen);
       } catch (error) {
         console.log('error');
       } finally {
@@ -276,10 +276,6 @@ export const NurseRequestModal = (props: Props) => {
     if (amountText.trim() === '') {
       setAmountError(true);
       return toast.warning('Agrega una cantidad!');
-    }
-    if (Number(amountText) > articleSelected.stock) {
-      setAmountError(true);
-      return toast.warning('La cantidad excede el stock!');
     }
     const objectArticle = {
       id: articleSelected.id,
@@ -533,11 +529,6 @@ export const NurseRequestModal = (props: Props) => {
                     setAmountError(false);
                   }}
                 />
-                {articleSelected?.id && (
-                  <Typography sx={{ fontWeight: 500, fontSize: 14, width: '60%', ml: 'auto' }}>
-                    Stock Disponible : {articleSelected?.stock}{' '}
-                  </Typography>
-                )}
                 <Box
                   sx={{
                     display: 'flex',
@@ -673,10 +664,6 @@ const ArticlesTable = (props: { setEditingRow: Function }) => {
 
     if (articleToUpdate) {
       const newAmount = parseFloat(newQuantity);
-      if (newAmount > (articleToUpdate.stock as number)) {
-        toast.warning('La cantidad excede el stock disponible');
-        return;
-      }
       const updatedArticles = articles.map((article) => {
         if (article.id === id) {
           return {
@@ -731,7 +718,6 @@ const ArticlesTable = (props: { setEditingRow: Function }) => {
                               });
                             }}
                           />
-                          <Typography>stack max: {a.stock} </Typography>
                         </>
                       ) : (
                         a.amount
