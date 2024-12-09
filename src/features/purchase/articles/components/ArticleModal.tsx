@@ -72,11 +72,11 @@ export const ArticleModal = (props: ArticleModalProps) => {
       isLoadingArticle || !article
         ? defaultValues
         : {
-          ...article,
-          precioCompra: article.precioCompra.toString(),
-          id_subcategoria: (article.subCategoria as any)?.id_SubCategoria,
-          codigoUnidadMedida: article.codigoUnidadMedida || '',
-        },
+            ...article,
+            precioCompra: article.precioCompra.toString(),
+            id_subcategoria: (article.subCategoria as any)?.id_SubCategoria,
+            codigoUnidadMedida: article.codigoUnidadMedida || '',
+          },
     resolver: zodResolver(addArticle(hasApiUrl)),
   });
 
@@ -194,7 +194,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   useEffect(() => {
     getPrices();
-  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox, factor]);//codigoUnidadMedida
+  }, [watch('precioCompra'), watch('unidadesPorCaja'), isBox, factor]); //codigoUnidadMedida
 
   const actions = (
     <>
