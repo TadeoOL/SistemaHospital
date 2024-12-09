@@ -397,14 +397,14 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                   {radioOptions.map((option) => (
                     <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
                   ))}
-                  <TextField
+                 {reasonMessage === 'Otro' && ( <TextField
                     inputRef={textFieldRef}
                     label={'Razón de salida'}
                     error={true}
                     sx={{
                       visibility: reasonMessage === 'Otro' ? 'visible' : 'hidden',
                     }}
-                  />
+                  />)}
                 </RadioGroup>
               </Box>
               {reasonMessage === 'Cuenta Paciente' && (

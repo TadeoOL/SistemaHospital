@@ -9,7 +9,7 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { IAnesthesiologistShift } from '../../../types/hospitalizationTypes';
 import { toast } from 'react-toastify';
-import { AnesthesiologistShiftRegisterModal } from './Modal/AnesthesiologistShiftRegisterModal';
+// import { AnesthesiologistShiftRegisterModal } from './Modal/AnesthesiologistShiftRegisterModal';
 import {
   getRegisteredAnesthesiologistShifts,
   modifyAnesthesiologistShifts,
@@ -75,8 +75,8 @@ export const AnesthesiologistShiftCalendar = () => {
   const [view, setView] = useState<View>('month');
   const [open, setOpen] = useState(false);
   const [openShiftInfo, setOpenShiftInfo] = useState(false);
-  const [start, setStart] = useState(new Date());
-  const [end, setEnd] = useState(new Date());
+  const [_start, setStart] = useState(new Date());
+  const [_end, setEnd] = useState(new Date());
   const [date, setDate] = useState<Date>(new Date());
   const [newEventAdded, setNewEventAdded] = useState(false);
   const { events, loading } = useGetAnesthesiologistShiftEvents(date, newEventAdded);
@@ -227,13 +227,13 @@ export const AnesthesiologistShiftCalendar = () => {
       </Box>
       <Modal open={open} onClose={() => setOpen(!open)}>
         <>
-          <AnesthesiologistShiftRegisterModal
+          {/* <AnesthesiologistShiftRegisterModal
             setOpen={setOpen}
             start={start}
             end={end}
             newEventAdded={newEventAdded}
             setNewEventAdded={setNewEventAdded}
-          />
+          /> */}
         </>
       </Modal>
       <Modal open={openShiftInfo} onClose={() => setOpenShiftInfo(false)}>

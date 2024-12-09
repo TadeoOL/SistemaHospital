@@ -46,7 +46,6 @@ import {
   NurseRequestView,
   MedicalShiftView,
   // AnesthesiologistShiftView,
-  OperatingRoomView,
   DailyOperatingView,
   XRayRequestView,
   XRayRequestManagementView,
@@ -85,10 +84,8 @@ import DashboardLayout from './common/components/Layout/DashboardLayout';
 import { CheckoutRoute } from './utils/CheckoutRoute';
 import PatientAcountsView from './views/Hospitalization/PatientAcountsView';
 import Locales from './common/components/Locales';
-import { useGetApiKey } from './features/invoicing/settings/hooks/useGetApiKey';
 
 function App() {
-  useGetApiKey();
   return (
     <ThemeCustomization>
       <Locales>
@@ -173,7 +170,6 @@ function App() {
                 --------------------------------- OperatingRoom ------------------------------- //
                 <Route path="quirofano/medicos" element={<MedicView />} />
                 <Route path="quirofano/anestesiologos" element={<AnesthesiologistView />} />
-                <Route path="/quirofano/configuracion" element={<OperatingRoomView />} />
                 <Route path="/quirofano/operaciones-del-dia" element={<DailyOperatingView />} />
                 <Route path="/quirofano/recuperacion" element={<RecoveryRoomsView />} />
                 <Route path="quirofano/procedimientos-cirugia" element={<SurgeryProcedureView />} />

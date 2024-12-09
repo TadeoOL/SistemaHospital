@@ -95,6 +95,7 @@ export const KardexTabs = ({
     setPreloadedData(getLastRecord(newValue));
   };
 
+  console.log({ preloadedData });
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -119,7 +120,6 @@ export const KardexTabs = ({
           <Tab label="Dietas" sx={{ flex: 1 }} />
         </Tabs>
       </Box>
-
       <Box sx={{ mt: 2 }}>
         {value === 0 && (
           <MedicalInstructionsForm
@@ -137,7 +137,6 @@ export const KardexTabs = ({
         {value === 1 && <VitalSignsForm initialData={preloadedData} onSubmit={handleAddVitalSigns} />}
         {value === 2 && <DietForm initialData={preloadedData} onSubmit={handleAddDiet} />}
       </Box>
-
       <TabPanel value={value} index={0}>
         <KardexList<IPatientKardex>
           data={medicalInstructions}
@@ -149,7 +148,6 @@ export const KardexTabs = ({
           }}
         />
       </TabPanel>
-
       <TabPanel value={value} index={1}>
         <KardexList<IPatientVitalSigns>
           data={vitalSigns}
@@ -161,7 +159,6 @@ export const KardexTabs = ({
           }}
         />
       </TabPanel>
-
       <TabPanel value={value} index={2}>
         <KardexList<IPatientDiet>
           data={diets}

@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { changeOperatingRoomStatus } from '../../../../services/operatingRoom/operatingRoomService';
+import { convertDate } from '@/utils/convertDate';
 
 const style = {
   position: 'absolute',
@@ -28,7 +29,11 @@ interface Inputs {
   nurse: { id: string; nombre: string } | null;
   startTime: string | Date;
 }
-export const StartRecoveryPhase = (props: { setOpen: Function; id_CuentaEspacioHospitalario: string; surgeryEndTime: Date }) => {
+export const StartRecoveryPhase = (props: {
+  setOpen: Function;
+  id_CuentaEspacioHospitalario: string;
+  surgeryEndTime: Date;
+}) => {
   const { isLoadingNursesUsers, nursesUsersData } = useGetAllNursesUsers();
   const refetch = useDailyOperatingRoomsPaginationStore((state) => state.fetchData);
   const {
@@ -70,8 +75,8 @@ export const StartRecoveryPhase = (props: { setOpen: Function; id_CuentaEspacioH
             await changeOperatingRoomStatus({
               id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
               estatus: 4,
-              horaAsignada: data.startTime as string,
-              id_UsuarioRecuperacion: data.nurse?.id
+              horaAsignada: convertDate(data.startTime as Date),
+              id_UsuarioRecuperacion: data.nurse?.id,
             });
             Swal.fire({
               title: 'Recuperación comenzada',
@@ -109,7 +114,7 @@ export const StartRecoveryPhase = (props: { setOpen: Function; id_CuentaEspacioH
           Para poder iniciar la recuperación del paciente es necesario asignarle un enfermero a cargo, y la hora que
           inicio la recuperación.
         </Typography>
-        <form id="form" onSubmit={handleSubmit(onSubmit)}>
+        <form id="form" onSubmit={handleSubmit(onSubmit, (e) => console.log(e))}>
           <Box sx={{ display: 'flex', flexDirection: 'column', rowGap: 2, mt: 2 }}>
             <Box>
               <Typography>Enfermero a cargo:</Typography>

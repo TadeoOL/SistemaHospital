@@ -1,29 +1,29 @@
 // Roles para compras
 export const purchaseGlobalRoles = ['ADMIN'];
-export const supplyRoles = [...purchaseGlobalRoles, 'ABASTECIMIENTO'];
+//COMPRAS
+export const supplyRoles = [...purchaseGlobalRoles, 'COMPRAS'];
 export const purchasingDirector = [...purchaseGlobalRoles, 'DIRECTORCOMPRAS'];
+//almacen
+export const warehouse = [...purchaseGlobalRoles, 'ALMACEN'];
 //Roles para farmacia
-export const pharmacyDirectorRole = [...purchaseGlobalRoles, 'DIRECTORCFARMACIA'];
-export const nurseRole = [...pharmacyDirectorRole, 'ENFERMERO'];
-export const pharmacyManager = [...pharmacyDirectorRole, 'ENCARGADOFARMACIA'];
-//Roles para Venta
-export const checkoutAdmin = [...purchaseGlobalRoles, 'ADMINISTRADORCAJA'];
-export const checkoutSell = [...purchaseGlobalRoles, 'PASECAJA'];
-export const checkout = [...purchaseGlobalRoles, 'CAJA'];
-//Roles Hospitalizacion
-export const hospitalization = [...purchaseGlobalRoles, 'HOSPITALIZACION'];
-export const hospitalizationANDnurse = [...nurseRole, 'HOSPITALIZACION'];
-
-//Roles Admision
-export const admission = [...purchaseGlobalRoles, 'ADMISION'];
-export const closeAccount = [...purchaseGlobalRoles, 'CERRARCUENTA'];
+export const pharmacyManager = [...purchaseGlobalRoles, 'FARMACIA'];
 //Roles programacion
 export const programation = [...purchaseGlobalRoles, 'PROGRAMACION'];
-
+//Roles Admision
+export const admission = [...purchaseGlobalRoles, 'ADMISION'];
+//Roles Hospitalizacion
+export const hospitalization = [...purchaseGlobalRoles, 'HOSPITALIZACION'];
 //Roles Quirofano
 export const operatingRoom = [...purchaseGlobalRoles, 'QUIROFANO'];
-export const operatingRoomANDnurse = [...nurseRole, 'QUIROFANO'];
+//enfermeria
+export const nurseRole = [...purchaseGlobalRoles, 'ENFERMERIA'];
 
-//Roles radiografia??? wea para ultrasonido, analisis radiografia etc
-export const xrayAdmin = [...purchaseGlobalRoles, 'RAYOSXADMIN'];
+//SERVICIOS
+export const xrayAdmin = [...purchaseGlobalRoles, 'SERVICIOS'];
+
+//Roles CAJA
+export const checkout = [...purchaseGlobalRoles, 'CAJA'];
+export const checkoutDirector = [...purchaseGlobalRoles, 'DIRECTORCAJA'];
+
 export const invoiceAdmin = [...purchaseGlobalRoles, 'FACTURACION'];
+export const reports = [...purchaseGlobalRoles, 'REPORTES'];

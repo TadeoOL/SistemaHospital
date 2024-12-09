@@ -15,7 +15,7 @@ import { TableHeaderComponent } from '../../Commons/TableHeaderComponent';
 import { Delete, Edit } from '@mui/icons-material';
 import { AddAndEditXRay } from './Modal/AddAndEditService';
 import { useEffect, useState } from 'react';
-import { IXRay, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
+import { IService, REQUEST_TYPES } from '../../../types/hospitalizationTypes';
 import Swal from 'sweetalert2';
 import { TableFooterComponent } from '../../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { NoDataInTableInfo } from '../../Commons/NoDataInTableInfo';
@@ -23,10 +23,10 @@ import { useXRayPaginationStore } from '../../../store/hospitalization/xrayPagin
 import { disableXRay } from '../../../services/hospitalization/xrayService';
 const HEADERS = ['Nombre', 'Descripción', 'Precio', 'Tipo', 'Acciones'];
 interface XRayTableBodyProps {
-  data: IXRay[];
+  data: IService[];
 }
 interface XRayTableRowProps {
-  data: IXRay;
+  data: IService;
 }
 const useGetServicesData = () => {
   const fetchData = useXRayPaginationStore((state) => state.fetchData);
@@ -137,7 +137,7 @@ const XRayTableRow = (props: XRayTableRowProps) => {
         <TableCell>{data.nombre}</TableCell>
         <TableCell>{data.descripcion}</TableCell>
         <TableCell>${data.precio}</TableCell>
-        <TableCell>{REQUEST_TYPES[data.tipo]}</TableCell>
+        <TableCell>{REQUEST_TYPES[data.tipoServicio]}</TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Modificar">
@@ -155,7 +155,7 @@ const XRayTableRow = (props: XRayTableRowProps) => {
       </TableRow>
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
-          <AddAndEditXRay setOpen={setOpen} xray={data} />
+          <AddAndEditXRay setOpen={setOpen} service={data} />
         </>
       </Modal>
     </>

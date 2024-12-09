@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios';
 import { create } from 'zustand';
 import { getSamiRegistersPagination } from '../../services/admission/samiRegisterService';
-import { ISAMI } from '../../types/admission/admissionTypes';
+import { ISAMInuevo } from '../../types/admission/admissionTypes';
 
 interface State {
   count: number;
@@ -9,7 +9,7 @@ interface State {
   resultByPage: number;
   pageIndex: number;
   pageSize: number;
-  data: ISAMI[];
+  data: ISAMInuevo[];
   loading: boolean;
   search: string;
   enabled: boolean;

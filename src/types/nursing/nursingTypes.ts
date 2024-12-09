@@ -20,11 +20,13 @@ export interface IPatientKardex {
   id: string;
   fechaKardex: string;
   indicacionesMedicas?: string;
+  indicacionSoluciones?: string;
   dieta?: string;
   dietaObservaciones?: string;
   observaciones?: string;
   medicamentos: IKardexMedicine[];
   servicios: IKardexService[];
+  soluciones?: Pick<IKardexMedicine, 'id_Articulo' | 'nombreMedicamento'>[];
 }
 
 export interface IKardexMedicine {
@@ -43,28 +45,30 @@ export interface IKardexService {
 }
 
 export interface ICreateKardexCommand {
-    id_IngresoPaciente: string;
-    indicacionesMedicas?: string;
-    dieta?: string;
-    dietaObservaciones?: string;
-    observaciones?: string;
-    medicamentos?: IKardexMedicineRequest[];
-    servicios?: IKardexServiceRequest[];
+  id_IngresoPaciente: string;
+  indicacionesMedicas?: string;
+  indicacionSoluciones?: string;
+  dieta?: string;
+  dietaObservaciones?: string;
+  observaciones?: string;
+  medicamentos?: IKardexMedicineRequest[];
+  servicios?: IKardexServiceRequest[];
+  soluciones?: Pick<IKardexMedicineRequest, 'id_Articulo'>[];
 }
 
 export interface IKardexMedicineRequest {
-    id_Articulo?: string ;
-    frecuencia?: string;
-    dosis?: string;
-    via?: string;
-    horario?: string;
-    nombreMedicamento?: string;
+  id_Articulo?: string;
+  frecuencia?: string;
+  dosis?: string;
+  via?: string;
+  horario?: string;
+  nombreMedicamento?: string;
 }
 
 export interface IKardexServiceRequest {
-    id_Servicio?: string;
-    indicaciones?: string;
-    nombreServicio?: string;
+  id_Servicio?: string;
+  indicaciones?: string;
+  nombreServicio?: string;
 }
 
 export interface IPatientInfo {

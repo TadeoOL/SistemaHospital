@@ -1,18 +1,22 @@
 import { Box, Button, CircularProgress, Grid, MenuItem, Switch, TextField, Typography } from '@mui/material';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
-import { IXRay } from '../../../../types/hospitalizationTypes';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { useXRayPaginationStore } from '../../../../store/hospitalization/xrayPagination';
-import { xraySchema } from '../../../../schema/hospitalization/hospitalizationSchema';
+import { serviceSchema } from '../../../../schema/hospitalization/hospitalizationSchema';
 import {
   createHospitalService,
   modifyHospitalService,
 } from '../../../../services/hospitalServices/hospitalServicesService';
 import { ServiceType } from '../../../../types/hospitalServices/hospitalServiceTypes';
-//import { useGetSizeUnit } from '../../../../hooks/contpaqi/useGetSizeUnit';
+import { IService } from '@/types/hospitalizationTypes';
+import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
+import { useApiConfigStore } from '@/store/apiConfig';
+import { InputBasic, SelectBasic } from '@/common/components';
+import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
+import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
 
 const REQUEST_TYPES = [
   {
@@ -49,9 +53,9 @@ const style = {
   flexDirection: 'column',
   maxHeight: { xs: 900 },
 };
-interface AddAndEditXRayProps {
+interface AddAndEditServiceProps {
   setOpen: Function;
-  xray?: IXRay;
+  service?: IService;
 }
 
 interface Inputs {
@@ -61,13 +65,15 @@ interface Inputs {
   type: number;
   description: string;
   autorization: boolean;
-  //codigoSAT?: string;
-  //codigoUnidadMedida?: number;
+  codigoSAT?: string;
+  codigoUnidadMedida?: number;
+  tipoProducto?: number;
+  codigoProducto?: string;
 }
-export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
-  const { xray } = props;
+export const AddAndEditXRay = (props: AddAndEditServiceProps) => {
+  const { service } = props;
   const [isLoading, setIsLoading] = useState(false);
-  //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
+  const hasInvoiceService = useApiConfigStore((state) => state.hasInvoiceService);
   const refetch = useXRayPaginationStore((state) => state.fetchData);
   const {
     register,
@@ -76,48 +82,74 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
     setValue,
     formState: { errors },
   } = useForm<Inputs>({
-    defaultValues: {
-      id: xray?.id_Servicio ?? '',
-      description: xray?.descripcion ?? '',
-      name: xray?.nombre ?? '',
-      price: xray?.precio ?? 0,
-      type: xray?.tipo ?? 0,
-      autorization: xray?.requiereAutorizacion ?? false,
-      //codigoSAT: xray?.codigoSAT ?? '',
-      //codigoUnidadMedida: xray?.codigoUnidadMedida ?? 0,
+    values: {
+      id: service?.id_Servicio ?? '',
+      description: service?.descripcion ?? '',
+      name: service?.nombre ?? '',
+      price: service?.precio ?? 0,
+      type: service?.tipoServicio ?? 0,
+      autorization: service?.requiereAutorizacion ?? false,
+      codigoSAT: service?.codigoSAT ?? '',
+      codigoUnidadMedida: service?.codigoUnidadMedida ?? 0,
+      tipoProducto: ProductType.SERVICIO,
+      codigoProducto: service?.codigoProducto ?? '',
     },
-    resolver: zodResolver(xraySchema),
+    resolver: zodResolver(serviceSchema(hasInvoiceService)),
   });
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true);
     try {
-      xray
-        ? await modifyHospitalService({
-            id: data.id as string,
-            descripcion: data.description,
-            nombre: data.name,
-            precio: data.price,
-            tipoServicio: data.type,
-            requiereAutorizacion: data.autorization,
-            //codigoSAT: data.codigoSAT,
-            //codigoUnidadMedida: data.codigoUnidadMedida,
-          })
-        : await createHospitalService({
-            descripcion: data.description,
-            nombre: data.name,
-            precio: data.price,
-            tipoServicio: data.type,
-            requiereAutorizacion: data.autorization,
-            //codigoSAT: data.codigoSAT,
-            //codigoUnidadMedida: data.codigoUnidadMedida,
+      const serviceData = {
+        descripcion: data.description,
+        nombre: data.name,
+        precio: data.price,
+        tipoServicio: data.type,
+        requiereAutorizacion: data.autorization,
+      };
+
+      const handleInvoiceServices = async (id_Relacion: string, isModifying: boolean) => {
+        if (hasInvoiceService) {
+          const resInvoice = await InvoiceProductService.addProductToInvoice({
+            id: service?.id_ProductoFactura || undefined,
+            codigoSAT: data.codigoSAT || '',
+            codigoUnidadMedida: data.codigoUnidadMedida?.toString() || '',
+            codigoProducto: data.codigoProducto || '',
+            id_Relacion,
+            tipoProducto: data.tipoProducto || ProductType.SERVICIO,
           });
-      toast.success(`Solicitud ${xray ? 'modificado' : 'agregado'} correctamente`);
+
+          const contpaqiData = {
+            nombre: data.name,
+            codigoContpaq: resInvoice.producto.codigoProducto ?? '',
+            precioVenta: Number.isNaN(serviceData.precio) ? 0 : serviceData.precio,
+            iva: service?.iva ?? false,
+            codigoSAT: data.codigoSAT ?? '',
+            id_UnidadMedida: Number(data.codigoUnidadMedida) || 0,
+          };
+
+          if (isModifying) {
+            await ContpaqiProductService.modifyProductToInvoiceService(contpaqiData);
+          } else {
+            await ContpaqiProductService.addProductToInvoiceService(contpaqiData);
+          }
+        }
+      };
+
+      if (service) {
+        const res = await modifyHospitalService({ ...serviceData, id: data.id as string });
+        await handleInvoiceServices(res.id, true);
+      } else {
+        const res = await createHospitalService(serviceData);
+        await handleInvoiceServices(res.id, false);
+      }
+
+      toast.success(`Solicitud ${service ? 'modificado' : 'agregado'} correctamente`);
       refetch();
       props.setOpen(false);
     } catch (error) {
       console.log(error);
-      toast.error(`Error al ${xray ? 'modificar' : 'agregar'} la solicitud.`);
+      toast.error(`Error al ${service ? 'modificar' : 'agregar'} la solicitud.`);
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +157,7 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title={props.xray ? 'Modificar la solicitud' : 'Agregar la solicitud'} />
+      <HeaderModal setOpen={props.setOpen} title={props.service ? 'Modificar la solicitud' : 'Agregar la solicitud'} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ bgcolor: 'background.paper', p: 2, display: 'flex' }}>
           <Grid container spacing={2}>
@@ -183,15 +215,39 @@ export const AddAndEditXRay = (props: AddAndEditXRayProps) => {
               <Typography>Descripción</Typography>
               <TextField label="Descripción..." multiline fullWidth {...register('description')} />
             </Grid>
-            {/*isLoadingConcepts ? (
-                  <MenuItem>Cargando...</MenuItem>
-                ) : (
-                  sizeUnit?.map((item) => (
-                    <MenuItem key={item.id_UnidadMedida} value={item.id_UnidadMedida}>
-                      {item.nombre}
-                    </MenuItem>
-                  ))
-                )*/}
+            <Grid item xs={12} md={6}>
+              <InputBasic label="Codigo SAT" placeholder="Escribe un código SAT" fullWidth {...register('codigoSAT')} />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputBasic
+                type="number"
+                placeholder="Escribe un código de unidad de medida"
+                label="Codigo Unidad de Medida"
+                fullWidth
+                {...register('codigoUnidadMedida', {
+                  valueAsNumber: true,
+                })}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <SelectBasic
+                label="Tipo de Producto"
+                placeholder="Seleccione un Tipo de Producto"
+                value={watch('tipoProducto')}
+                error={!!errors.tipoProducto}
+                helperText={errors?.tipoProducto?.message}
+                disabled
+                options={Object.entries(ProductType)
+                  .filter(([key]) => isNaN(Number(key)))
+                  .map(([_key, value]) => ({
+                    id: value,
+                    tipo: productTypeLabel[value as keyof typeof productTypeLabel],
+                  }))}
+                uniqueProperty="id"
+                displayProperty="tipo"
+                {...register('tipoProducto')}
+              />
+            </Grid>
           </Grid>
         </Box>
         <Box

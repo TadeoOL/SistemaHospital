@@ -55,8 +55,6 @@ export const LoginComponent: React.FC<{}> = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const sleep = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
-
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
     console.log('data:', data);
     try {

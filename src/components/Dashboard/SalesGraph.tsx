@@ -1,19 +1,6 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Divider,
-  Grid,
-  Stack,
-  SvgIcon,
-  Typography,
-} from '@mui/material';
+import { Button, CardActions, CardContent, Divider, Grid, SvgIcon, Typography } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import SyncIcon from '@mui/icons-material/Sync';
 import ApexChart from 'react-apexcharts';
 import { MainCard } from '@/common/components';
 
@@ -96,10 +83,9 @@ const useChartOptions = () => {
 };
 interface IOverviewSales {
   chartSeries: any;
-  sx: any;
 }
 export const SalesGraph = (props: IOverviewSales) => {
-  const { chartSeries, sx } = props;
+  const { chartSeries } = props;
   const chartOptions = useChartOptions();
 
   return (

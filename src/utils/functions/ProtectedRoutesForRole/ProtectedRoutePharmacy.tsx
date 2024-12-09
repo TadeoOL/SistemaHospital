@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../../../store/auth';
 import { shallow } from 'zustand/shallow';
-import { nurseRole, pharmacyDirectorRole, pharmacyManager } from '../../dataRoles';
+import { nurseRole, pharmacyManager } from '../../dataRoles';
 
 interface ProtectedRoutesSupplyProps {
   redirectTo?: string;
@@ -10,7 +10,7 @@ interface ProtectedRoutesSupplyProps {
 
 export const ProtectedRoutePharmacyDirector = (props: ProtectedRoutesSupplyProps) => {
   const { profile } = useAuthStore((state) => ({ profile: state.profile }), shallow);
-  if (profile?.roles.some((role) => pharmacyDirectorRole.includes(role))) {
+  if (profile?.roles.some((role) => pharmacyManager.includes(role))) {
     return props.children ? <>{props.children}</> : <Outlet />;
   } else {
     return <Navigate to={'/'} />;

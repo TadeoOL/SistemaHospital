@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material';
 import { EventPatientDetails } from '../../../Programming/RegisterSteps/EventsModal/EventPatientDetails';
-import { Paciente } from '../../../../types/admissionTypes';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { Paciente } from '@/types/admission/admissionTypes';
 
 const style = {
   position: 'absolute',
@@ -25,12 +25,7 @@ export const SamiPatientDetailsModal = (props: { patient: Paciente; setOpen: Fun
         <EventPatientDetails
           patientData={{
             ...patient,
-            telefonoResponsable: '',
-            codigoPostalResponsable: '',
-            coloniaResponsable: '',
-            domicilioResponsable: '',
-            parentesco: '',
-            ocupacion: '',
+            id_IngresoPaciente: '',
           }}
         />
       </Box>

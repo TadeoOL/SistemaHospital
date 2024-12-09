@@ -1,10 +1,10 @@
-import MenuIcon from '@mui/icons-material/Menu';
+// import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { Avatar, Badge, Stack, SvgIcon, Tooltip, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import HelpIcon from '@mui/icons-material/Help';
-import { alpha, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import { useCallback, useRef, useState } from 'react';
 import { useAppNavStore } from '../../store/appNav';
 import { AccountPopover } from './AccountPopover';

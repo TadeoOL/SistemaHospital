@@ -1,3 +1,4 @@
+import { invoiceServiceSchema } from '@/schema/contpaqi/contpaqi.schema';
 import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
@@ -14,12 +15,7 @@ export const normalRoomCategorySchema = (hasInvoiceService?: boolean) =>
         .string()
         .transform((val) => (val ? parseFloat(val).toFixed(2) : ''))
         .optional(),
-      ...(hasInvoiceService && {
-        codigoSAT: z.string().min(1, 'El código SAT es necesario'),
-        codigoUnidadMedida: z.number({ invalid_type_error: 'El código de Unidad de Medida es necesario' }),
-        codigoProducto: z.string().optional().nullable(),
-        tipoProducto: z.number({ invalid_type_error: 'El tipo de Producto es necesario' }),
-      }),
+      ...(hasInvoiceService && invoiceServiceSchema.shape),
     })
     .refine((values) => values.priceRoom && !(values.type === '0' && parseFloat(values.priceRoom) === 0), {
       message: 'El precio del cuarto es necesario',

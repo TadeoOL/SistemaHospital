@@ -47,60 +47,69 @@ export const MedicalInstructionsForm = ({
   medicationChecked,
   serviceChecked,
 }: Props) => {
-  const [filteredArticles, setFilteredArticles] = useState<{ [key: number]: IWarehouseArticle[] }>({});
+  const [filteredArticles, setFilteredArticles] = useState<{ [key: string]: IWarehouseArticle[] }>({});
   const { data: hospitalServices } = useGetHospitalServices({ serviceType: 2 });
 
   useEffect(() => {
     const preloadMedicationData = async () => {
-      if (initialData?.medicamentos && pharmacyConfig?.id_Almacen) {
-        const medicationsPromises = (
-          initialData.medicamentos as (NonNullable<KardexFormData['medicamentos']>[number] & {
-            nombreMedicamento?: string;
-          })[]
-        ).map(async (med, index) => {
-          const searchTerm = med.nombreArticulo || med.nombreMedicamento;
-
-          if (searchTerm) {
-            const response = await getExistingArticles(
-              `search=${searchTerm}&id_Almacen=${pharmacyConfig.id_Almacen}&id_AlmacenPrincipal=${pharmacyConfig.id_Almacen}`
-            );
-            return { index, data: response?.data };
-          }
-          return null;
-        });
-
-        const results = await Promise.all(medicationsPromises);
-
-        const newFilteredArticles = results.reduce(
-          (acc, result) => {
-            if (result) {
-              acc[result.index] = result.data;
+      if (pharmacyConfig?.id_Almacen) {
+        // Precargar medicamentos
+        if (initialData?.medicamentos) {
+          const medicationsPromises = initialData.medicamentos.map(async (med, index) => {
+            const searchTerm = med.nombreArticulo;
+            if (searchTerm) {
+              const response = await getExistingArticles(
+                `search=${searchTerm}&id_Almacen=${pharmacyConfig.id_Almacen}&id_AlmacenPrincipal=${pharmacyConfig.id_Almacen}`
+              );
+              return { type: 'medicamento', index, data: response?.data };
             }
-            return acc;
-          },
-          {} as typeof filteredArticles
-        );
+            return null;
+          });
 
-        setFilteredArticles((prev) => ({
-          ...prev,
-          ...newFilteredArticles,
-        }));
+          // Precargar soluciones
+          const solucionesPromises = (initialData.soluciones || []).map(async (sol, index) => {
+            if (sol.nombreArticulo) {
+              const response = await getExistingArticles(
+                `search=${sol.nombreArticulo}&id_Almacen=${pharmacyConfig.id_Almacen}&id_AlmacenPrincipal=${pharmacyConfig.id_Almacen}`
+              );
+              return { type: 'solucion', index, data: response?.data };
+            }
+            return null;
+          });
+
+          const results = await Promise.all([...medicationsPromises, ...solucionesPromises]);
+
+          const newFilteredArticles = results.reduce(
+            (acc, result) => {
+              if (result) {
+                acc[`${result.type}_${result.index}`] = result.data;
+              }
+              return acc;
+            },
+            {} as typeof filteredArticles
+          );
+
+          setFilteredArticles((prev) => ({
+            ...prev,
+            ...newFilteredArticles,
+          }));
+        }
       }
     };
 
     preloadMedicationData();
-  }, [pharmacyConfig?.id_Almacen, initialData?.medicamentos]);
+  }, [pharmacyConfig?.id_Almacen, initialData]);
 
   const debouncedFetchArticles = useMemo(
     () =>
-      debounce(async (searchTerm: string, index: number) => {
+      debounce(async (searchTerm: string, type: string, index: number) => {
         if (searchTerm && pharmacyConfig?.id_Almacen) {
           const response = await getExistingArticles(
             `search=${searchTerm}&id_Almacen=${pharmacyConfig.id_Almacen}&id_AlmacenPrincipal=${pharmacyConfig.id_Almacen}`
           );
           setFilteredArticles((prev) => ({
             ...prev,
-            [index]: response?.data,
+            [`${type}_${index}`]: response?.data,
           }));
         }
       }, 300),
@@ -121,9 +130,11 @@ export const MedicalInstructionsForm = ({
   } = useForm<KardexFormData>({
     values: initialData || {
       indicacionesMedicas: '',
+      indicacionSoluciones: '',
       observaciones: '',
       medicamentos: [],
       servicios: [],
+      soluciones: [],
     },
     resolver: zodResolver(kardexSchema),
   });
@@ -146,11 +157,139 @@ export const MedicalInstructionsForm = ({
     name: 'servicios',
   });
 
+  const {
+    fields: solucionesFields,
+    append: appendSolucion,
+    remove: removeSolucion,
+  } = useFieldArray({
+    control,
+    name: 'soluciones',
+  });
+
   return (
     <Card sx={{ mx: 2 }}>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit, (data) => console.log(data))} id="create-kardex-form">
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Divider textAlign="left">Soluciones</Divider>
+            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {solucionesFields.map((field, index) => {
+                  const articles = filteredArticles[`solucion_${index}`] || [];
+                  const isChecked = medicationChecked.includes(field.id_Articulo);
+
+                  return (
+                    <Box
+                      key={field.id}
+                      sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                          xs: '25px 1fr',
+                          sm: '25px 1fr auto',
+                        },
+                        gridTemplateAreas: {
+                          xs: `
+                            "checkbox input"
+                            ". delete"
+                          `,
+                          sm: '"checkbox input delete"',
+                        },
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Box sx={{ gridArea: 'checkbox' }}>
+                        <Checkbox
+                          checked={isChecked}
+                          onChange={() =>
+                            handleCheckMedication(field.id_Articulo as string, field.nombreArticulo as string)
+                          }
+                        />
+                      </Box>
+                      <Box sx={{ gridArea: 'input' }}>
+                        <Controller
+                          name={`soluciones.${index}.id_Articulo`}
+                          control={control}
+                          rules={{ required: 'Seleccione una solución' }}
+                          render={({ field: { onChange, value } }) => (
+                            <Autocomplete
+                              options={articles}
+                              getOptionLabel={(option: IWarehouseArticle) => option.nombre}
+                              loading={false}
+                              noOptionsText="No se encontraron resultados"
+                              onInputChange={(_, newValue) => {
+                                debouncedFetchArticles(newValue, 'solucion', index);
+                              }}
+                              onChange={(_, newValue) => {
+                                onChange(newValue ? newValue.id_Articulo : '');
+                                if (newValue) {
+                                  setValue(`soluciones.${index}.nombreArticulo`, newValue.nombre);
+                                }
+                              }}
+                              value={
+                                value
+                                  ? {
+                                      id_Articulo: value,
+                                      nombre: field.nombreArticulo || '',
+                                      stockActual: 0,
+                                      stockMinimo: 0,
+                                      informacionLotes: [],
+                                    }
+                                  : null
+                              }
+                              isOptionEqualToValue={(option, value) =>
+                                typeof value === 'string'
+                                  ? option.id_Articulo === value
+                                  : option.id_Articulo === value?.id_Articulo
+                              }
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Solución"
+                                  error={!!errors.soluciones?.[index]?.id_Articulo}
+                                  helperText={errors.soluciones?.[index]?.id_Articulo?.message}
+                                />
+                              )}
+                            />
+                          )}
+                        />
+                      </Box>
+                      <IconButton
+                        onClick={() => removeSolucion(index)}
+                        color="error"
+                        sx={{
+                          gridArea: 'delete',
+                          justifySelf: 'start',
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  );
+                })}
+                <Button
+                  startIcon={<AddIcon />}
+                  onClick={() =>
+                    appendSolucion({
+                      id_Articulo: '',
+                      nombreArticulo: '',
+                    })
+                  }
+                >
+                  Agregar Solución
+                </Button>
+              </Box>
+              <Box>
+                <Controller
+                  name="indicacionSoluciones"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} multiline rows={2} fullWidth label="Indicaciones de Soluciones" />
+                  )}
+                />
+              </Box>
+            </Box>
+
             <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
               <Box>
                 <Typography variant="subtitle2" gutterBottom>
@@ -195,8 +334,8 @@ export const MedicalInstructionsForm = ({
               </Button>
             </Box>
             {medicamentosFields.map((field, index) => {
-              const articles = filteredArticles[index] || [];
-              const isChecked = medicationChecked.includes(field.id_Articulo || '');
+              const articles = filteredArticles[`medicamento_${index}`] || [];
+              const isChecked = medicationChecked.includes(field.id_Articulo as string);
 
               return (
                 <Box
@@ -204,16 +343,34 @@ export const MedicalInstructionsForm = ({
                   sx={{
                     display: 'grid',
                     gap: 2,
-                    gridTemplateColumns: { xs: '1fr', sm: '0.1fr 2fr 1fr 1fr 1fr 1fr auto' },
+                    gridTemplateAreas: {
+                      xs: `
+                        "checkbox medicamento"
+                        "dosis dosis"
+                        "frecuencia frecuencia"
+                        "via via"
+                        "horario horario"
+                        "delete delete"
+                      `,
+                      sm: '"checkbox medicamento dosis frecuencia via horario delete"',
+                    },
+                    gridTemplateColumns: {
+                      xs: '40px 1fr',
+                      sm: '40px 2fr 1fr 1fr 1fr 1fr auto',
+                    },
+                    alignItems: 'center',
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'end' }}>
+                  <Box sx={{ gridArea: 'checkbox' }}>
                     <Checkbox
                       checked={isChecked}
-                      onChange={() => handleCheckMedication(field.id_Articulo || '', field.nombreArticulo || '')}
+                      onChange={() =>
+                        handleCheckMedication(field.id_Articulo as string, field.nombreArticulo as string)
+                      }
                     />
                   </Box>
-                  <Box>
+
+                  <Box sx={{ gridArea: 'medicamento' }}>
                     <Typography variant="subtitle2" gutterBottom>
                       Medicamento
                     </Typography>
@@ -228,7 +385,7 @@ export const MedicalInstructionsForm = ({
                           loading={false}
                           noOptionsText="No se encontraron resultados"
                           onInputChange={(_, newValue) => {
-                            debouncedFetchArticles(newValue, index);
+                            debouncedFetchArticles(newValue, 'medicamento', index);
                           }}
                           onChange={(_, newValue) => {
                             onChange(newValue ? newValue.id_Articulo : '');
@@ -236,7 +393,17 @@ export const MedicalInstructionsForm = ({
                               setValue(`medicamentos.${index}.nombreArticulo`, newValue.nombre);
                             }
                           }}
-                          value={articles.find((art) => art.id_Articulo === value) || null}
+                          value={
+                            value
+                              ? {
+                                  id_Articulo: value,
+                                  nombre: field.nombreArticulo || '',
+                                  stockActual: 0,
+                                  stockMinimo: 0,
+                                  informacionLotes: [],
+                                }
+                              : null
+                          }
                           isOptionEqualToValue={(option, value) =>
                             typeof value === 'string'
                               ? option.id_Articulo === value
@@ -255,7 +422,7 @@ export const MedicalInstructionsForm = ({
                     />
                   </Box>
 
-                  <Box>
+                  <Box sx={{ gridArea: 'dosis' }}>
                     <Typography variant="subtitle2" gutterBottom>
                       Dosis
                     </Typography>
@@ -274,7 +441,7 @@ export const MedicalInstructionsForm = ({
                     />
                   </Box>
 
-                  <Box>
+                  <Box sx={{ gridArea: 'frecuencia' }}>
                     <Typography variant="subtitle2" gutterBottom>
                       Frecuencia
                     </Typography>
@@ -293,7 +460,7 @@ export const MedicalInstructionsForm = ({
                     />
                   </Box>
 
-                  <Box>
+                  <Box sx={{ gridArea: 'via' }}>
                     <Typography variant="subtitle2" gutterBottom>
                       Vía
                     </Typography>
@@ -312,7 +479,7 @@ export const MedicalInstructionsForm = ({
                     />
                   </Box>
 
-                  <Box>
+                  <Box sx={{ gridArea: 'horario' }}>
                     <Typography variant="subtitle2" gutterBottom>
                       Horario
                     </Typography>
@@ -331,7 +498,14 @@ export const MedicalInstructionsForm = ({
                     />
                   </Box>
 
-                  <IconButton onClick={() => removeMedicamento(index)} color="error" sx={{ alignSelf: 'center' }}>
+                  <IconButton
+                    onClick={() => removeMedicamento(index)}
+                    color="error"
+                    sx={{
+                      gridArea: 'delete',
+                      justifySelf: { xs: 'start', sm: 'center' },
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </Box>

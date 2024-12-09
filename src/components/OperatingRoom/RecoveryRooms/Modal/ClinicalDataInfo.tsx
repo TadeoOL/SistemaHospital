@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material';
-import { HistorialClinico } from '../../../../types/admissionTypes';
 import { EventClinicalHistoryDetails } from '../../../Programming/RegisterSteps/EventsModal/EventClinicalHistoryDetails';
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
+import { HistorialClinico } from '@/types/admission/admissionTypes';
 
 const style = {
   position: 'absolute',

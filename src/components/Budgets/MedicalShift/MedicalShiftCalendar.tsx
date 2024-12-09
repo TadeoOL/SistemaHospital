@@ -8,7 +8,7 @@ import { Calendar, NavigateAction, SlotInfo, View, Views, dayjsLocalizer, string
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
-import { MedicalShiftRegisterModal } from './Modal/MedicalShiftRegisterModal';
+// import { MedicalShiftRegisterModal } from './Modal/MedicalShiftRegisterModal';
 import { IMedicalShift } from '../../../types/hospitalizationTypes';
 import { getRegisteredMedicalShifts, modifyMedicalShifts } from '../../../services/hospitalization/medicalShift';
 import { toast } from 'react-toastify';
@@ -87,8 +87,8 @@ export const MedicalShiftCalendar = () => {
   const localizer = dayjsLocalizer(dayjs);
   const [view, setView] = useState<View>('month');
   const [open, setOpen] = useState(false);
-  const [start, setStart] = useState(new Date());
-  const [end, setEnd] = useState(new Date());
+  const [_start, setStart] = useState(new Date());
+  const [_end, setEnd] = useState(new Date());
   const [date, setDate] = useState<Date>(new Date());
   const [newEventAdded, setNewEventAdded] = useState(false);
   const { events, loading } = useGetMedicalShiftEvents(date, newEventAdded);
@@ -231,13 +231,13 @@ export const MedicalShiftCalendar = () => {
       </Box>
       <Modal open={open} onClose={() => setOpen(!open)}>
         <>
-          <MedicalShiftRegisterModal
+          {/* <MedicalShiftRegisterModal
             setOpen={setOpen}
             start={start}
             end={end}
             newEventAdded={newEventAdded}
             setNewEventAdded={setNewEventAdded}
-          />
+          /> */}
         </>
       </Modal>
     </>

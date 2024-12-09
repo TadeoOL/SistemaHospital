@@ -95,7 +95,7 @@ interface EditPersonalInfoModalProps {
   isProgramming?: boolean;
 }
 
-const BLOOD_TYPE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const BLOOD_TYPE = ['PE', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
   const { data: personalData, isLoading } = useGetPatientInfo(props.id_IngresoPaciente);

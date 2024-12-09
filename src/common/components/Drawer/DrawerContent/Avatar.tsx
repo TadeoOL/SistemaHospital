@@ -6,9 +6,9 @@ import MuiAvatar, { AvatarProps } from '@mui/material/Avatar';
 
 // project import
 import getColors from '@/utils/getColors';
+import { AvatarTypeProps, ColorProps, ExtendedStyleProps, SizeProps } from '@/types/extended';
 
 // types
-import { AvatarTypeProps, ColorProps, ExtendedStyleProps, SizeProps } from 'types/extended';
 
 // ==============================|| AVATAR - COLOR STYLE ||============================== //
 

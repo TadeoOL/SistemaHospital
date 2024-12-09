@@ -23,12 +23,15 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { Settings } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { updateOperatingRoomType } from '../../../../services/hospitalization/patientBillService';
 import { usePatientAccountPaginationStore } from '../../../../store/checkout/patientAcountsPagination';
 import { PriceCell } from '../../../Commons/PriceCell';
 import { useGetPatientAccount } from '../../../../hooks/checkout/useGetPatientAccount';
 import { DepositType, IPatientInfo, PatientAccountStatus } from '../../../../types/checkout/patientAccountTypes';
-import { changeStatusPatientAccount, createPatientAccountDeposit } from '../../../../services/checkout/patientAccount';
+import {
+  changeStatusPatientAccount,
+  createPatientAccountDeposit,
+  updateOperatingRoomType,
+} from '../../../../services/checkout/patientAccount';
 import { ModalBasic } from '@/common/components';
 import { DiscountModal } from './DiscountModal';
 import { getAllSurgeryRoomTypes } from '@/services/programming/suergeryRoomTypes';
@@ -60,7 +63,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   // const [discountValue, setDiscountValue] = useState('');
   // const [discountedTotal, setDiscountedTotal] = useState(accountInfo?.totalPagoCuentaRestante || 0);
   // const [discountReason, setDiscountReason] = useState('');
-
+  console.log('los destos', data?.quirofanos);
   const handleSubmit = async () => {
     if (!data) {
       toast.error('No se encontró la cuenta');
@@ -98,6 +101,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
       allowOutsideClick: () => !Swal.isLoading(),
     });
   };
+
+  console.log({ data });
 
   // const handleKeyDownDiscount = (event: React.KeyboardEvent<HTMLInputElement>) => {
   //   const { key } = event;
@@ -198,20 +203,20 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
   //     setSurgeryPrice(inputRefSurgeryDiscount.current.value + event.key);
   //   }
   // };
-  const calcularTotalConDescuento = () => {
-    if (!data?.totalRestante || !data?.descuento) {
-      return data?.totalRestante ?? 0;
-    }
+  // const calcularTotalConDescuento = () => {
+  //   if (!data?.totalRestante || !data?.descuento) {
+  //     return data?.totalRestante ?? 0;
+  //   }
 
-    const porcentajeDescuento = data.descuento / 100;
-    const montoDescuento = data.totalRestante * porcentajeDescuento;
-    return (data.totalRestante - montoDescuento).toFixed(2);
-  };
+  //   const porcentajeDescuento = data.descuento / 100;
+  //   const montoDescuento = data.totalRestante * porcentajeDescuento;
+  //   return (data.totalRestante - montoDescuento).toFixed(2);
+  // };
 
-  const result = calcularTotalConDescuento();
-  const totalServices = data?.servicios?.reduce((acc: any, curr: any) => acc + curr.total, 0) ?? 0;
-  const totalArticles = data?.articulos?.reduce((acc: any, curr: any) => acc + curr.total, 0) ?? 0;
-  const totalEquipment = data?.equipoHonorario?.reduce((acc: any, curr: any) => acc + curr.total, 0) ?? 0;
+  // const result = calcularTotalConDescuento();
+  const totalServices = data?.servicios?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalArticles = data?.articulos?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const totalEquipment = data?.equipoHonorario?.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
 
   const conn = useConnectionSocket((state) => state.conn);
 
@@ -363,6 +368,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   />
                   <DataTable
                     title="Cuartos"
+                    refreshAccount={refetchAccount}
+                    hasRoom={data.cuentaConCuarto}
                     data={data.cuartos ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
@@ -375,6 +382,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   />
                   <DataTable
                     title="Quirofanos / Recuperacion"
+                    refreshAccount={refetchAccount}
+                    hasRoom={data.cuentaConCuarto}
                     data={data.quirofanos ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
@@ -419,6 +428,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               </Box> */}
                   <DataTable
                     title="Procedimientos"
+                    refreshAccount={refetchAccount}
+                    hasRoom={data.cuentaConCuarto}
                     data={data.cirugias ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
@@ -431,6 +442,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
 
                   <DataTable
                     title="Servicios"
+                    refreshAccount={refetchAccount}
+                    hasRoom={data.cuentaConCuarto}
                     data={data.servicios ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
@@ -452,6 +465,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               /> */}
                   <DataTable
                     title="Equipos Biomédicos Externos"
+                    hasRoom={data.cuentaConCuarto}
+                    refreshAccount={refetchAccount}
                     data={data.equipoHonorario ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
@@ -462,6 +477,8 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   />
                   <DataTable
                     title="Artículos"
+                    refreshAccount={refetchAccount}
+                    hasRoom={data.cuentaConCuarto}
                     data={data.articulos ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
@@ -474,7 +491,9 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                   />
                   <DataTable
                     title="Pagos de la Cuenta"
+                    refreshAccount={refetchAccount}
                     data={data.pagosCuenta ?? []}
+                    hasRoom={data.cuentaConCuarto}
                     columns={[
                       { key: 'folio', header: 'Folio' },
                       { key: 'fechaPago', header: 'Fecha de Pago' },
@@ -703,6 +722,8 @@ interface DataTableProps<T> {
   modified?: boolean;
   setModified?: Function;
   id_PatientBill?: string;
+  hasRoom: boolean;
+  refreshAccount: Function;
 }
 interface Column<T> {
   key: keyof T;
@@ -717,13 +738,14 @@ export const DataTable = <T,>({
   isOperatingRoom,
   modified,
   setModified,
-  id_PatientBill,
+  hasRoom,
+  refreshAccount,
 }: DataTableProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [tipoQuirofano, setTipoQuirofano] = useState<string>('');
 
-  const { data: operatingRoomsList = [] } = useQuery<{ id: string; nombre: string }[]>({
+  const { data: operatingRoomsList = [] } = useQuery<{ id_TipoQuirofano: string; nombre: string }[]>({
     queryKey: ['allOperatingRoomsTypes'],
     queryFn: getAllSurgeryRoomTypes,
     enabled: !!anchorEl,
@@ -747,11 +769,12 @@ export const DataTable = <T,>({
     if (!tipoQuirofano) return handleClose();
     try {
       await updateOperatingRoomType({
-        id_RegistroCuarto: selectedRow.id_RegistroCuarto,
-        id_TipoCuarto: tipoQuirofano,
-        id_CuentaPaciente: id_PatientBill as string,
+        id_CuentaEspacioHospitalario: selectedRow.id ?? '',
+        id_TipoQuirofano: tipoQuirofano,
+        CuentaConCuarto: hasRoom,
       });
       if (setModified) setModified(!modified);
+      refreshAccount();
       toast.success('Tipo de cuarto modificado correctamente');
       handleClose();
     } catch (error) {
@@ -801,7 +824,7 @@ export const DataTable = <T,>({
                     })}
                     {isOperatingRoom && (
                       <TableCell sx={{ fontSize: '0.875rem' }}>
-                        {row['nombre'] !== 'Recuperacion' && (
+                        {row['esRecuperacion'] === false && (
                           <Tooltip title="Cambiar configuración">
                             <IconButton size="small" onClick={(event) => handleClick(event, row)}>
                               <Settings fontSize="small" />
@@ -836,7 +859,9 @@ export const DataTable = <T,>({
             <Select
               key="select"
               value={tipoQuirofano}
-              onChange={(e) => handleChangeTipoQuirofano(e)}
+              onChange={(e) => {
+                handleChangeTipoQuirofano(e);
+              }}
               displayEmpty
               fullWidth
               sx={{ mb: 2 }}
@@ -845,7 +870,7 @@ export const DataTable = <T,>({
                 <em>Seleccionar tipo de quirófano</em>
               </MenuItem>
               {operatingRoomsList.map((opRoom) => (
-                <MenuItem key={opRoom.id} value={opRoom.id}>
+                <MenuItem key={opRoom.id_TipoQuirofano} value={opRoom.id_TipoQuirofano}>
                   {opRoom.nombre}
                 </MenuItem>
               ))}

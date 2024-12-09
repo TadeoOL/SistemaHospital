@@ -38,6 +38,7 @@ import { useApiConfigStore } from '@/store/apiConfig';
 import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
 import { ProductType, productTypeLabel } from '@/types/contpaqiTypes';
 import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
+import { useGetSizeUnit } from '@/hooks/contpaqi/useGetSizeUnit';
 
 // import { modifyTypeRoom, registerTypeRoom } from '../../../../../services/programming/typesRoomService';
 
@@ -77,6 +78,7 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
   const theme = useTheme();
   const xs = useMediaQuery(theme.breakpoints.down('md'));
   const hasInvoiceService = useApiConfigStore((state) => state.hasInvoiceService);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
 
   const [isLoading, setIsLoading] = useState(false);
   //const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
@@ -267,7 +269,7 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
 
   return (
     <ModalBasic
-      isLoading={isLoading}
+      isLoading={isLoading || isLoadingConcepts}
       open={open}
       header={defaultData ? 'Modificar categoria de quirofanos' : 'Agregar categoria de quirofanos'}
       onClose={onClose}
@@ -378,27 +380,29 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputBasic
-                label="Codigo Unidad Medida"
-                placeholder="Escribe un codigo de Unidad de Medida"
-                type="number"
-                {...register('codigoUnidadMedida', {
-                  valueAsNumber: true,
-                })}
-                error={!!errors.codigoUnidadMedida?.message}
-                helperText={errors.codigoUnidadMedida?.message}
+              <SelectBasic
+                value={watch('codigoUnidadMedida')}
+                label="Código Unidad de Medida"
+                options={sizeUnit}
+                uniqueProperty="id_UnidadMedida"
+                displayProperty="nombre"
+                placeholder="Seleccione una Unidad de Medida"
+                helperText={errors?.codigoUnidadMedida?.message}
+                error={!!errors.codigoUnidadMedida}
+                {...register('codigoUnidadMedida')}
               />
             </Grid>
             <Grid item xs={6}>
-              <InputBasic
+              <SelectBasic
+                value={watch('codigoUnidadMedidaRecuperacion')}
                 label="Codigo Unidad Medida Recuperación"
+                options={sizeUnit}
+                uniqueProperty="id_UnidadMedida"
+                displayProperty="nombre"
                 placeholder="Escribe un codigo de Unidad de Medida de Recuperación"
-                type="number"
-                {...register('codigoUnidadMedidaRecuperacion', {
-                  valueAsNumber: true,
-                })}
-                error={!!errors.codigoUnidadMedidaRecuperacion?.message}
-                helperText={errors.codigoUnidadMedidaRecuperacion?.message}
+                helperText={errors?.codigoUnidadMedidaRecuperacion?.message}
+                error={!!errors.codigoUnidadMedidaRecuperacion}
+                {...register('codigoUnidadMedidaRecuperacion')}
               />
             </Grid>
             <Grid item xs={12} md={6}>

@@ -56,7 +56,7 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const [paymentSelectedError2, setPaymentSelectedError2] = useState(false);
   const conn = useConnectionSocket((state) => state.conn);
   const [hasAnotherPaymentMethod, setHasAnotherPaymentMethod] = useState(false);
-  const numberInvoiceRef = useRef<HTMLTextAreaElement | null>(null);
+  // const numberInvoiceRef = useRef<HTMLTextAreaElement | null>(null);
   const noteRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async () => {
