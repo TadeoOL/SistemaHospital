@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const kardexMedicationsSchema = z.object({
-  id: z.string().optional(),
+  id_Articulo: z.string().optional(),
   nombreArticulo: z.string().optional(),
   dosis: z.string().optional(),
   frecuencia: z.string().optional(),
