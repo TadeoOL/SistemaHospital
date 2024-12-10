@@ -20,13 +20,11 @@ interface ActionButtonsProps {
 }
 
 export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }: ActionButtonsProps) => {
-  return (
-    <Tooltip title="PDF de Orden de Compra">
-      <IconButton onClick={() => onPdfFetch(order.id_OrdenCompra)}>
-        <DownloadIcon />
-      </IconButton>
-    </Tooltip>
-  );
+  <Tooltip title="PDF de Orden de Compra">
+    <IconButton onClick={() => onPdfFetch(order.id_OrdenCompra)}>
+      <DownloadIcon />
+    </IconButton>
+  </Tooltip>;
 
   if (order.estatus === StatusPurchaseOrder.OrdenCancelada) {
     return (
