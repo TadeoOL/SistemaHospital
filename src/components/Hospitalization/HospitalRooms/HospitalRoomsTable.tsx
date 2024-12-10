@@ -132,6 +132,7 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
   };
 
   const handleDateAccept = (newDate: Date) => {
+    console.log('newDate:', newDate);
     Swal.fire({
       title: 'Fecha de salida',
       text: `Fecha de salida sera ${newDate.toLocaleDateString()} ${newDate.toLocaleTimeString()}`,

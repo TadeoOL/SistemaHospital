@@ -23,7 +23,11 @@ export const DateExitPopover = ({ open, anchorEl, onClose, onAccept, title, valu
 
   const handleAccept = () => {
     if (selectedDate) {
-      onAccept(selectedDate.toDate());
+      console.log('selectedDate:', selectedDate);
+
+      const finalDate = selectedDate.toDate();
+      console.log('finalDate:', finalDate);
+      onAccept(finalDate);
     }
     onClose();
   };
