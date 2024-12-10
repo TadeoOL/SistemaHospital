@@ -189,38 +189,53 @@ const TableRowPatientsEntry = (props: TableRowPatientsEntryProps) => {
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {data.estatus > PatientAccountStatus.Scheduled ? (
-              <>
-                <Tooltip title="Editar">
-                  <IconButton onClick={() => setOpenEdit(true)}>
-                    <Edit color={data.admitido ? 'warning' : undefined} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Imprimir Documentos">
+            {(() => {
+              if (data.estatus === PatientAccountStatus.Admitted) {
+                return (
                   <>
-                    <IconButton onClick={handleClick} disabled={data.admitido}>
-                      <Print />
-                    </IconButton>
+                    <Tooltip title="Editar">
+                      <IconButton onClick={() => setOpenEdit(true)}>
+                        <Edit color={data.admitido ? 'warning' : undefined} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Imprimir Documentos">
+                      <IconButton onClick={handleClick} disabled={data.admitido}>
+                        <Print />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Agregar Abono">
+                      <IconButton
+                        onClick={() => {
+                          setIsAdvanceFlag(false);
+                          setOpenAdvance(true);
+                        }}
+                      >
+                        <Paid />
+                      </IconButton>
+                    </Tooltip>
                   </>
-                </Tooltip>
-                <Tooltip title="Agregar Abono">
-                  <IconButton
-                    onClick={() => {
-                      setIsAdvanceFlag(false);
-                      setOpenAdvance(true);
-                    }}
-                  >
-                    <Paid />
+                );
+              }
+
+              if (data.estatus === PatientAccountStatus.Scheduled) {
+                return (
+                  <Tooltip title="Admitir">
+                    <IconButton onClick={() => setOpenAdmit(true)}>
+                      <CheckCircleOutline color="success" />
+                    </IconButton>
+                  </Tooltip>
+                );
+              }
+
+              // Default case for other statuses
+              return (
+                <Tooltip title="Imprimir Documentos">
+                  <IconButton onClick={handleClick} disabled={data.admitido}>
+                    <Print />
                   </IconButton>
                 </Tooltip>
-              </>
-            ) : (
-              <Tooltip title="Admitir">
-                <IconButton onClick={() => setOpenAdmit(true)}>
-                  <CheckCircleOutline color="success" />
-                </IconButton>
-              </Tooltip>
-            )}
+              );
+            })()}
           </Box>
         </TableCell>
       </TableRow>

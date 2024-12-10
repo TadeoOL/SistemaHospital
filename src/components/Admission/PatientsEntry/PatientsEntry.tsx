@@ -68,6 +68,7 @@ export const PatientsEntry = () => {
                 <MenuItem value={-1}>Todos</MenuItem>
                 <MenuItem value={PatientAccountStatus.Admitted}>Admitidos</MenuItem>
                 <MenuItem value={PatientAccountStatus.Scheduled}>Programados</MenuItem>
+                <MenuItem value={PatientAccountStatus.Closed}>Cuenta Cerradas</MenuItem>
               </Select>
               <DateFilterComponent
                 setEndDate={setEndDate}
