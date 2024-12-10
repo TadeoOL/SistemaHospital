@@ -16,7 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { KardexFormData, kardexSchema } from '../../../../schema/nursing/karedexSchema';
 import { useState, useEffect, useMemo } from 'react';
-import { IWarehouseArticle } from '../../../../types/warehouse/article/warehouseArticle';
+//import { IWarehouseArticle } from '../../../../types/warehouse/article/warehouseArticle';
 import { getExistingArticles } from '../../../../services/warehouse/articleWarehouseService';
 import debounce from 'lodash/debounce';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,7 +47,14 @@ export const MedicalInstructionsForm = ({
   medicationChecked,
   serviceChecked,
 }: Props) => {
-  const [filteredArticles, setFilteredArticles] = useState<{ [key: string]: IWarehouseArticle[] }>({});
+  const [filteredArticles, setFilteredArticles] = useState<{
+    [key: string]: {
+      id: string;
+      nombre: string;
+      precio: number;
+      precioVenta: number;
+    }[];
+  }>({});
   const { data: hospitalServices } = useGetHospitalServices({ serviceType: 2 });
 
   useEffect(() => {
@@ -70,7 +77,7 @@ export const MedicalInstructionsForm = ({
           const solucionesPromises = (initialData.soluciones || []).map(async (sol, index) => {
             if (sol.nombreArticulo) {
               const response = await getExistingArticles(
-                `search=${sol.nombreArticulo}&id_Almacen=${pharmacyConfig.id_Almacen}&id_AlmacenPrincipal=${pharmacyConfig.id_Almacen}`
+                `search=${sol.nombreArticulo}&id_Almacen=${pharmacyConfig.id_Almacen}`
               );
               return { type: 'solucion', index, data: response?.data };
             }
@@ -109,7 +116,7 @@ export const MedicalInstructionsForm = ({
           );
           setFilteredArticles((prev) => ({
             ...prev,
-            [`${type}_${index}`]: response?.data,
+            [`${type}_${index}`]: response as any,
           }));
         }
       }, 300),
@@ -176,7 +183,7 @@ export const MedicalInstructionsForm = ({
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {solucionesFields.map((field, index) => {
                   const articles = filteredArticles[`solucion_${index}`] || [];
-                  const isChecked = medicationChecked.includes(field.id_Articulo);
+                  const isChecked = medicationChecked.includes(field.id);
 
                   return (
                     <Box
@@ -201,9 +208,7 @@ export const MedicalInstructionsForm = ({
                       <Box sx={{ gridArea: 'checkbox' }}>
                         <Checkbox
                           checked={isChecked}
-                          onChange={() =>
-                            handleCheckMedication(field.id_Articulo as string, field.nombreArticulo as string)
-                          }
+                          onChange={() => handleCheckMedication(field.id as string, field.nombreArticulo as string)}
                         />
                       </Box>
                       <Box sx={{ gridArea: 'input' }}>
@@ -214,14 +219,19 @@ export const MedicalInstructionsForm = ({
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               options={articles}
-                              getOptionLabel={(option: IWarehouseArticle) => option.nombre}
+                              getOptionLabel={(option: {
+                                id: string;
+                                nombre: string;
+                                precio: number;
+                                precioVenta: number;
+                              }) => option.nombre}
                               loading={false}
                               noOptionsText="No se encontraron resultados"
                               onInputChange={(_, newValue) => {
                                 debouncedFetchArticles(newValue, 'solucion', index);
                               }}
                               onChange={(_, newValue) => {
-                                onChange(newValue ? newValue.id_Articulo : '');
+                                onChange(newValue ? newValue.id : '');
                                 if (newValue) {
                                   setValue(`soluciones.${index}.nombreArticulo`, newValue.nombre);
                                 }
@@ -229,18 +239,16 @@ export const MedicalInstructionsForm = ({
                               value={
                                 value
                                   ? {
-                                      id_Articulo: value,
-                                      nombre: field.nombreArticulo || '',
-                                      stockActual: 0,
-                                      stockMinimo: 0,
-                                      informacionLotes: [],
+                                      id: value ?? '',
+                                      nombre:
+                                        (field.nombreArticulo || articles.find((ar) => ar.id === value)?.nombre) ?? '',
+                                      precio: 0,
+                                      precioVenta: 0,
                                     }
                                   : null
                               }
                               isOptionEqualToValue={(option, value) =>
-                                typeof value === 'string'
-                                  ? option.id_Articulo === value
-                                  : option.id_Articulo === value?.id_Articulo
+                                typeof value === 'string' ? option.id === value : option.id === value?.id
                               }
                               renderInput={(params) => (
                                 <TextField
@@ -335,7 +343,7 @@ export const MedicalInstructionsForm = ({
             </Box>
             {medicamentosFields.map((field, index) => {
               const articles = filteredArticles[`medicamento_${index}`] || [];
-              const isChecked = medicationChecked.includes(field.id_Articulo as string);
+              const isChecked = medicationChecked.includes(field.id as string);
 
               return (
                 <Box
@@ -364,9 +372,7 @@ export const MedicalInstructionsForm = ({
                   <Box sx={{ gridArea: 'checkbox' }}>
                     <Checkbox
                       checked={isChecked}
-                      onChange={() =>
-                        handleCheckMedication(field.id_Articulo as string, field.nombreArticulo as string)
-                      }
+                      onChange={() => handleCheckMedication(field.id as string, field.nombreArticulo as string)}
                     />
                   </Box>
 
@@ -375,46 +381,39 @@ export const MedicalInstructionsForm = ({
                       Medicamento
                     </Typography>
                     <Controller
-                      name={`medicamentos.${index}.id_Articulo`}
+                      name={`medicamentos.${index}.id`}
                       control={control}
                       rules={{ required: 'Seleccione un medicamento' }}
                       render={({ field: { onChange, value } }) => (
                         <Autocomplete
                           options={articles}
-                          getOptionLabel={(option: IWarehouseArticle) => option.nombre}
+                          getOptionLabel={(option: {
+                            id: string;
+                            nombre: string;
+                            precio: number;
+                            precioVenta: number;
+                          }) => option.nombre || ''}
                           loading={false}
                           noOptionsText="No se encontraron resultados"
                           onInputChange={(_, newValue) => {
                             debouncedFetchArticles(newValue, 'medicamento', index);
                           }}
                           onChange={(_, newValue) => {
-                            onChange(newValue ? newValue.id_Articulo : '');
+                            onChange(newValue ? newValue.id : '');
                             if (newValue) {
                               setValue(`medicamentos.${index}.nombreArticulo`, newValue.nombre);
                             }
                           }}
-                          value={
-                            value
-                              ? {
-                                  id_Articulo: value,
-                                  nombre: field.nombreArticulo || '',
-                                  stockActual: 0,
-                                  stockMinimo: 0,
-                                  informacionLotes: [],
-                                }
-                              : null
-                          }
+                          value={articles.find((article) => article.id === value) || null}
                           isOptionEqualToValue={(option, value) =>
-                            typeof value === 'string'
-                              ? option.id_Articulo === value
-                              : option.id_Articulo === value?.id_Articulo
+                            typeof value === 'string' ? option.id === value : option.id === value?.id
                           }
                           renderInput={(params) => (
                             <TextField
                               {...params}
                               label="Medicamento"
-                              error={!!errors.medicamentos?.[index]?.id_Articulo}
-                              helperText={errors.medicamentos?.[index]?.id_Articulo?.message}
+                              error={!!errors.medicamentos?.[index]?.id}
+                              helperText={errors.medicamentos?.[index]?.id?.message}
                             />
                           )}
                         />
@@ -515,7 +514,7 @@ export const MedicalInstructionsForm = ({
               startIcon={<AddIcon />}
               onClick={() =>
                 appendMedicamento({
-                  id_Articulo: '',
+                  id: '',
                   dosis: '',
                   via: '',
                   frecuencia: '',

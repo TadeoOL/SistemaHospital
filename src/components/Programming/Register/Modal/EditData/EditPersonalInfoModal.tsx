@@ -93,6 +93,7 @@ interface EditPersonalInfoModalProps {
   id_IngresoPaciente: string;
   admit?: boolean;
   isProgramming?: boolean;
+  optionalRefetch?: Function;
 }
 
 const BLOOD_TYPE = ['PE', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -156,6 +157,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
         try {
           await admitPatient(obj);
           refetch();
+          props.optionalRefetch != undefined ?  props.optionalRefetch() :refetch();
           Swal.fire({
             title: 'Actualizado!',
             text: `${props.admit ? 'Paciente admitido' : 'Datos actualizados'} correctamente`,
@@ -542,6 +544,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                   <TextField
                     fullWidth
                     placeholder="Ciudad..."
+                    disabled={watchSameAddress}
                     error={!!errors.personInChargeCity?.message}
                     helperText={errors.personInChargeCity?.message}
                     {...register('personInChargeCity')}
@@ -552,6 +555,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                   <TextField
                     fullWidth
                     placeholder="Estado..."
+                    disabled={watchSameAddress}
                     error={!!errors.personInChargeState?.message}
                     helperText={errors.personInChargeState?.message}
                     {...register('personInChargeState')}
