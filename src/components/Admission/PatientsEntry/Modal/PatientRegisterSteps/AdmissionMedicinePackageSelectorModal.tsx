@@ -279,7 +279,7 @@ export const AdmissionMedicinePackageSelectorModal = (props: AdmissionMedicinePa
             />
           </Box>
           <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-            <Typography>Selección de almacen:</Typography>
+            <Typography>Selección de Paquete:</Typography>
             <Autocomplete
               disablePortal
               fullWidth

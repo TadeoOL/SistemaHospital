@@ -18,6 +18,7 @@ import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/c
 import { Note } from '../../Purchase/PurchaseRequest/Modal/Note';
 import { toast } from 'react-toastify';
 import { registerCashVoucher } from '../../../services/checkout/chashVoucherService';
+import { REQUEST_TYPES } from '@/types/hospitalizationTypes';
 
 const style = {
   position: 'absolute',
@@ -150,9 +151,9 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               select
               value={conceptSelected}
             >
-              {concepts.map((concept) => (
-                <MenuItem key={concept} value={concept}>
-                  {concept}
+              {Object.keys(REQUEST_TYPES).map((lc) => (
+                <MenuItem key={lc} value={lc}>
+                  {REQUEST_TYPES[lc as any as number]}
                 </MenuItem>
               ))}
             </TextField>

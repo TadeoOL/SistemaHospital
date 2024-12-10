@@ -74,6 +74,8 @@ export const WarehouseHistory = () => {
     fetchWareHouseMovements();
   }, [pageCount, pageSize, pageIndex, startDate, endDate, search, sort]);
 
+  console.log({ viewArticles });
+
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -171,15 +173,16 @@ export const WarehouseHistory = () => {
                 </TableHead>
                 <TableBody>
                   {data && data.length > 0 ? (
-                    data.map((movimiento) => (
-                      <React.Fragment key={movimiento.id}>
+                    data.map((movimiento: any) => (
+                      <React.Fragment key={movimiento.id_HistorialMovimiento}>
                         <TableRow>
                           <TableCell sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {!viewArticles[movimiento.id] ? (
+                            {!viewArticles[movimiento.id_HistorialMovimiento] ? (
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [movimiento.id]: !viewArticles[movimiento.id],
+                                    [movimiento.id_HistorialMovimiento]:
+                                      !viewArticles[movimiento.id_HistorialMovimiento],
                                   })
                                 }
                               >
@@ -189,7 +192,8 @@ export const WarehouseHistory = () => {
                               <IconButton
                                 onClick={() =>
                                   setViewArticles({
-                                    [movimiento.id]: !viewArticles[movimiento.id],
+                                    [movimiento.id_HistorialMovimiento]:
+                                      !viewArticles[movimiento.id_HistorialMovimiento],
                                   })
                                 }
                               >
@@ -199,9 +203,7 @@ export const WarehouseHistory = () => {
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
                           <TableCell>
-                            {movimiento.almacenOrigen == null
-                              ? movimiento.conceptoSolicitud
-                              : movimiento.almacenOrigen}
+                            {movimiento.almacenOrigen == null ? movimiento.conceptoSolicitud : movimiento.almacenOrigen}
                           </TableCell>
                           <TableCell> {movimiento.solicitadoPor} </TableCell>
                           <TableCell> {movimiento.autorizadoPor} </TableCell>
@@ -221,7 +223,7 @@ export const WarehouseHistory = () => {
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={7} sx={{ p: 0 }}>
-                            <Collapse in={viewArticles[movimiento.id]}>
+                            <Collapse in={viewArticles[movimiento.id_HistorialMovimiento]}>
                               <Table>
                                 <TableHead>
                                   <TableRow>
@@ -233,7 +235,7 @@ export const WarehouseHistory = () => {
                                 <TableBody>
                                   {movimiento?.historialArticulos &&
                                     movimiento?.historialArticulos?.length > 0 &&
-                                    movimiento.historialArticulos.map((movimientoArticuclo) => (
+                                    movimiento.historialArticulos.map((movimientoArticuclo: any) => (
                                       <TableRow key={movimientoArticuclo.nombre}>
                                         <TableCell align="center">{movimientoArticuclo.nombre}</TableCell>
                                         <TableCell align="center">{movimientoArticuclo.cantidad}</TableCell>

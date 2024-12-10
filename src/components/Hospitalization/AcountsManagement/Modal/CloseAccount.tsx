@@ -482,11 +482,12 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                     data={data.articulos ?? []}
                     columns={[
                       { key: 'nombre', header: 'Nombre' },
+                      { key: 'cantidad', header: 'Cantidad' },
                       { key: 'solicitadoEn', header: 'Solicitado en' },
                       { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
-                      { key: 'neto', header: 'Precio Neto' },
-                      { key: 'iva', header: 'IVA' },
-                      { key: 'total', header: 'Precio Total' },
+                      { key: 'neto', header: 'Precio Neto', isPrice: true },
+                      { key: 'iva', header: 'IVA', isPrice: true },
+                      { key: 'total', header: 'Precio Total', isPrice: true },
                     ]}
                   />
                   <DataTable
@@ -729,6 +730,7 @@ interface Column<T> {
   key: keyof T;
   header: string;
   render?: (row: T) => React.ReactNode;
+  isPrice?: boolean;
 }
 
 export const DataTable = <T,>({
@@ -815,7 +817,7 @@ export const DataTable = <T,>({
                         );
                       }
                       const formattedValue =
-                        typeof cellValue === 'number' ? `$${cellValue.toFixed(2)}` : String(cellValue);
+                        typeof cellValue === 'number' && col.isPrice ? `$${cellValue.toFixed(2)}` : String(cellValue);
                       return (
                         <TableCell key={String(col.key)} sx={{ fontSize: '0.875rem' }}>
                           {formattedValue}

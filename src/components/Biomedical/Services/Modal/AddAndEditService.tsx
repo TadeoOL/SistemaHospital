@@ -39,6 +39,14 @@ const REQUEST_TYPES = [
     value: ServiceType.Cuidado_Neonatal,
     label: 'Cuidado Neonatal',
   },
+  {
+    value: ServiceType.Consulta_Medica,
+    label: 'Consulta Medica',
+  },
+  {
+    value: ServiceType.Otros,
+    label: 'Otros',
+  },
 ];
 
 const style = {
