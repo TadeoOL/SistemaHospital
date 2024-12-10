@@ -164,18 +164,15 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   }, [hasAnotherPaymentMethod]);
 
   useEffect(() => {
-    if (hasAnotherPaymentMethod) {
-      if (paymentSelected === 'Efectivo') {
-        const changeForPayment = sellData.totalVenta - parseFloat(paymentAmount);
-        if (!Number(changeForPayment) || parseFloat(paymentAmount) > sellData.totalVenta) return setPaymentAmount2('0');
-        setPaymentAmount2(changeForPayment.toString());
-      } else if (paymentSelected2 === 'Efectivo') {
-        const changeForPayment = sellData.totalVenta - parseFloat(paymentAmount2);
-        if (!Number(changeForPayment) || parseFloat(paymentAmount2) > sellData.totalVenta) return setPaymentAmount('0');
-        setPaymentAmount(changeForPayment.toString());
-      }
+    if (!hasAnotherPaymentMethod) {
+      setPaymentAmount2('0');
     }
-  }, [paymentSelected2, paymentAmount2, paymentSelected, paymentAmount]);
+
+    if (hasAnotherPaymentMethod) {
+      const remaining = sellData.totalVenta - parseFloat(paymentAmount);
+      setPaymentAmount2(remaining >= 0 ? remaining.toString() : '0');
+    }
+  }, [paymentSelected, paymentAmount, paymentSelected2, paymentAmount2]);
 
   return (
     <Box sx={style}>
