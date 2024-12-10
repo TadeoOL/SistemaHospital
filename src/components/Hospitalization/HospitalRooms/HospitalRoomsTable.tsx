@@ -219,6 +219,7 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
                   onClose={handleClose}
                   onAccept={handleDateAccept}
                   title="Fecha de salida"
+                  value={dayjs(data.fechaSalida, 'DD/MM/YYYY HH:mm')}
                 />
               </>
             ) : (
@@ -266,7 +267,11 @@ const HospitalRoomsTableRow = (props: { data: IHospitalRoomInformationPagination
         }}
       >
         <>
-          <HospitalRoomInformationModal hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario} setOpen={setOpen} fromHospitalRoom />
+          <HospitalRoomInformationModal
+            hospitalSpaceAccountId={data.id_CuentaEspacioHospitalario}
+            setOpen={setOpen}
+            fromHospitalRoom
+          />
         </>
       </Modal>
       <Modal open={openNurseRequest} onClose={() => setOpenNurseRequest(false)}>

@@ -51,6 +51,7 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
     header: 'CORTE DE CAJA',
     columns: [
       {
+        width: 'auto',
         subheader: 'Folio',
         value: 'folio',
       },
@@ -63,6 +64,7 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
         value: 'paciente',
       },
       {
+        width: 'auto',
         subheader: 'Costo total',
         value: 'totalVenta',
       },
@@ -71,10 +73,12 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
         value: 'generadoPor',
       },
       {
+        width: 'auto',
         subheader: 'Monto de pago',
         value: 'montoPago',
       },
       {
+        width: 'auto',
         subheader: 'Tipo de pago',
         value: 'tipoPago',
       },
