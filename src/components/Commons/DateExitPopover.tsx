@@ -15,10 +15,11 @@ interface DateExitPopoverProps {
   onClose: () => void;
   onAccept: (date: Date) => void;
   title: string;
+  value?: dayjs.Dayjs;
 }
 
-export const DateExitPopover = ({ open, anchorEl, onClose, onAccept, title }: DateExitPopoverProps) => {
-  const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null);
+export const DateExitPopover = ({ open, anchorEl, onClose, onAccept, title, value }: DateExitPopoverProps) => {
+  const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(value || null);
 
   const handleAccept = () => {
     if (selectedDate) {
