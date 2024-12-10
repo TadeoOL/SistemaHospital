@@ -57,16 +57,20 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
       value: accountInfo.paciente?.nombrePaciente,
     },
     {
-      title: 'Fecha: ',
-      value: accountInfo.paciente?.fechaCierreCuenta ? accountInfo.paciente?.fechaIngreso : null,
+      title: 'Fecha de Ingreso: ',
+      value: accountInfo.paciente?.fechaIngreso,
+    },
+    {
+      title: 'Fecha de Cierre: ',
+      value: accountInfo.paciente?.fechaCierreCuenta,
     },
     {
       title: 'Nombre Doctor: ',
       value: accountInfo.paciente?.nombreMedico,
     },
     {
-      title: 'Tipo: ',
-      value: 'Hospitalización',
+      title: 'Tipo de Ingreso: ',
+      value: accountInfo.cuentaConCuarto ? 'Hospitalización' : 'Ambulatoria',
     },
     // {
     //   title: 'Total de Servicios y Estudios: ',
@@ -516,6 +520,40 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
         columns: [
           [
             {
+              alignment: 'left',
+              margin: [0, 0, 0, 4],
+              text: [
+                {
+                  text: 'Depositos Efectuados: ',
+                  italics: true,
+                  bold: true,
+                },
+                {
+                  text: formatCurrency(accountInfo.totalPagos),
+                  italics: true,
+                },
+              ],
+            },
+            {
+              alignment: 'left',
+              margin: [0, 0, 0, 4],
+              text: [
+                {
+                  text: 'Restante de la Cuenta: ',
+                  italics: true,
+                  bold: true,
+                },
+                {
+                  text: formatCurrency(accountInfo.totalRestante),
+                  italics: true,
+                },
+              ],
+            },
+          ],
+          [
+            {
+              alignment: 'right',
+
               margin: [0, 0, 0, 4],
               text: [
                 {
@@ -530,6 +568,7 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
               ],
             },
             {
+              alignment: 'right',
               margin: [0, 0, 0, 4],
               text: [
                 {
@@ -544,47 +583,16 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
               ],
             },
             {
+              alignment: 'right',
               margin: [0, 0, 0, 4],
               text: [
                 {
-                  text: 'Total: ',
+                  text: 'Total de Cuenta: ',
                   italics: true,
                   bold: true,
                 },
                 {
                   text: formatCurrency(accountInfo.total),
-                  italics: true,
-                },
-              ],
-            },
-          ],
-          [
-            {
-              alignment: 'right',
-              margin: [0, 0, 0, 4],
-              text: [
-                {
-                  text: 'Total Abonos: ',
-                  italics: true,
-                  bold: true,
-                },
-                {
-                  text: formatCurrency(accountInfo.totalPagos),
-                  italics: true,
-                },
-              ],
-            },
-            {
-              alignment: 'right',
-              margin: [0, 0, 0, 4],
-              text: [
-                {
-                  text: 'Total Restante: ',
-                  italics: true,
-                  bold: true,
-                },
-                {
-                  text: formatCurrency(accountInfo.totalRestante),
                   italics: true,
                 },
               ],

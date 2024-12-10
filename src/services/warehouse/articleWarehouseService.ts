@@ -1,10 +1,20 @@
 import axios from '../../libs/axios';
 import { IPaginationResponse } from '../../types/paginationType';
-import { IWarehouseArticle } from '../../types/warehouse/article/warehouseArticle';
+//import { IWarehouseArticle } from '../../types/warehouse/article/warehouseArticle';
 const API = '/api/AlmacenArticulo';
+const API2 = '/api/Compras/Catalogo/Articulo';
 
-export const getExistingArticles = async (paramUrl: string): Promise<IPaginationResponse<IWarehouseArticle>> => {
-  const res = await axios.get(`${API}/paginacion-almacen-articulo?${paramUrl}`);
+export const getExistingArticles = async (
+  paramUrl: string
+): Promise<
+  IPaginationResponse<{
+    id: string;
+    nombre: string;
+    precio: number;
+    precioVenta: number;
+  }>
+> => {
+  const res = await axios.get(`${API2}/obtener-articulos?${paramUrl}`);
   return res.data;
 };
 

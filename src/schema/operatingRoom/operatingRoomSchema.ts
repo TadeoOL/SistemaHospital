@@ -30,8 +30,8 @@ export const surgeonOperatingRoomSchema = z.object({
     {
       id_Medico: z.string(),
       nombre: z.string(),
-      apellidoPaterno: z.string().optional(),
-      apellidoMaterno: z.string().optional(),
+      //apellidoPaterno: z.string().optional(),
+      //apellidoMaterno: z.string().optional(),
     },
     { invalid_type_error: 'Selecciona un cirujano' }
   ),
