@@ -215,7 +215,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         preConfirm: async () => {
           const objSell = {
             id_VentaCaja: data.id_VentaPrincipal,
-            estadoVenta: 0,
+            estatus: 0,
           };
           await changeCashVoucherStatus(objSell);
           conn?.invoke('UpdateSell', objSell);

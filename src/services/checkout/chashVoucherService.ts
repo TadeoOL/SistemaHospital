@@ -24,7 +24,8 @@ export const registerCashVoucher = async (data: {
 
 export const changeCashVoucherStatus = async (data: {
   id_VentaCaja: string;
-  estadoVenta: number;
+  estatus: number;
+  //id_CajaUsuario: string;
 }) => {
   const res = await axios.put(`${apiUrl}/estatus-pase-caja`, data);
   return res.data;
