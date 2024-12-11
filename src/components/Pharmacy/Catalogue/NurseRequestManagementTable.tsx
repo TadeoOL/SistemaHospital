@@ -26,7 +26,14 @@ import {
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
-import { ExpandLess, ExpandMore, FilterListOff, Info, /*Cancel,*/ LocalPrintshopOutlined, Undo } from '@mui/icons-material';
+import {
+  ExpandLess,
+  ExpandMore,
+  FilterListOff,
+  Info,
+  /*Cancel,*/ LocalPrintshopOutlined,
+  Undo,
+} from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -47,6 +54,7 @@ import { HeaderModal } from '../../Account/Modals/SubComponents/HeaderModal';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { NurseRequestReport } from '../../Export/Pharmacy/NurseRequestReport';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
+import { generateNurseRequestPDF } from './pdfs/generateNurseRequestPDF';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -365,14 +373,12 @@ export const NurseRequestManagementTable = () => {
                       </TableCell>
                       <TableCell>
                         <SortComponent
-                          tableCellLabel={status == 1? "Armado Por" : "Entregado/Cancelado Por"}
+                          tableCellLabel={status == 1 ? 'Armado Por' : 'Entregado/Cancelado Por'}
                           headerName="entregadoPor"
                           setSortFunction={setSort}
                         />
                       </TableCell>
-                      <TableCell>
-                        Tipo Solicitud
-                      </TableCell>
+                      <TableCell>Tipo Solicitud</TableCell>
                       <TableCell>
                         <SortComponent tableCellLabel="Estatus" headerName="estatus" setSortFunction={setSort} />
                       </TableCell>
@@ -389,7 +395,9 @@ export const NurseRequestManagementTable = () => {
                           setOpenPrint={setOpenPrint}
                           setNurseRequest={setNurseRequest}
                           setPrebuildedArticles={setPrebuildedArticles}
-                          markAsDelivered={request.tipoSolicitud == NurseRequestType[2] ? markAsDelivered : acceptReturn}
+                          markAsDelivered={
+                            request.tipoSolicitud == NurseRequestType[2] ? markAsDelivered : acceptReturn
+                          }
                           key={request.id_SolicitudAlmacen}
                           rejectRequest={rejectRequest}
                         />
@@ -442,12 +450,12 @@ export const NurseRequestManagementTable = () => {
             setOpen={setOpenModalBuild}
             refetch={() => {
               fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
-            } }
+            }}
             request={nurseRequest as InurseRequest}
-            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])} 
-            id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''} 
+            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])}
+            id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''}
             id_CuentaEspacioHospitalario={nurseRequest?.id_CuentaEspacioHospitalario ?? ''}
-            devolutionFlag={false} 
+            devolutionFlag={false}
           />
         </>
       </Modal>
@@ -457,11 +465,11 @@ export const NurseRequestManagementTable = () => {
             setOpen={setOpenModalBuildDevolution}
             refetch={() => {
               fetchData(warehouseSL?.id_Almacen ?? warehouseIdSeted);
-            } }
+            }}
             request={nurseRequest as InurseRequest}
-            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])} 
-            id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''} 
-            id_CuentaEspacioHospitalario={nurseRequest?.id_CuentaEspacioHospitalario ?? ''} 
+            preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])}
+            id_SolicitudAlmacen={nurseRequest?.id_SolicitudAlmacen ?? ''}
+            id_CuentaEspacioHospitalario={nurseRequest?.id_CuentaEspacioHospitalario ?? ''}
             devolutionFlag
           />
         </>
@@ -522,7 +530,6 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   nurseRequest,
   setOpenModalBuild,
   setOpenModalBuildDevolution,
-  setOpenPrint,
   setNurseRequest,
   setPrebuildedArticles,
   //rejectRequest,
@@ -537,15 +544,21 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   };
 
   const createPackageDevolution = (request: IarticlesPrebuildedRequest[]) => {
-    const dataFormated: IarticlesPrebuildedRequest[] = request.map((art) => (
-      {...art, cantidadSeleccionada: art.cantidadSolicitada*-1, cantidadSolicitada: art.cantidadSolicitada*-1 }
-    ))
+    const dataFormated: IarticlesPrebuildedRequest[] = request.map((art) => ({
+      ...art,
+      cantidadSeleccionada: art.cantidadSolicitada * -1,
+      cantidadSolicitada: art.cantidadSolicitada * -1,
+    }));
     setPrebuildedArticles(dataFormated);
     setNurseRequest(nurseRequest);
     setOpenModalBuildDevolution(true);
   };
 
   //setOpenModalBuildDevolution
+
+  const handlePrintNurseRequest = (row: any) => {
+    return () => generateNurseRequestPDF(row);
+  };
 
   return (
     <React.Fragment>
@@ -569,9 +582,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
                 onClick={async () => {
                   try {
                     //Agregar Loader
-                    const packRes = await getPackagePreBuilded(
-                      nurseRequest.id_SolicitudAlmacen
-                    );
+                    const packRes = await getPackagePreBuilded(nurseRequest.id_SolicitudAlmacen);
                     createPackage(packRes);
                   } catch (error) {
                     console.log(error);
@@ -584,13 +595,11 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
           )}
           {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == NurseRequestType[6] && (
             <Tooltip title="Aceptar devolución">
-           <IconButton
+              <IconButton
                 onClick={async () => {
                   try {
                     //Agregar Loader
-                    const packRes = await getPackagePreBuilded(
-                      nurseRequest.id_SolicitudAlmacen
-                    );
+                    const packRes = await getPackagePreBuilded(nurseRequest.id_SolicitudAlmacen);
                     createPackageDevolution(packRes);
                   } catch (error) {
                     console.log(error);
@@ -599,30 +608,24 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               >
                 <Undo sx={{ color: 'green' }} />
               </IconButton>
-          </Tooltip>
+            </Tooltip>
           )}
           {nurseRequest.estatus === 1 && nurseRequest.tipoSolicitud == NurseRequestType[8] && (
             <Tooltip title="Aceptar devolución">
-            <IconButton
-              onClick={() => {
-                markAsDelivered(
-                  nurseRequest.id_SolicitudAlmacen,
-                  nurseRequest.id_CuentaEspacioHospitalario
-                );
-              }}
-            >
-              <Undo sx={{ color: 'green' }} />
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                onClick={() => {
+                  markAsDelivered(nurseRequest.id_SolicitudAlmacen, nurseRequest.id_CuentaEspacioHospitalario);
+                }}
+              >
+                <Undo sx={{ color: 'green' }} />
+              </IconButton>
+            </Tooltip>
           )}
-          {nurseRequest.estatus === 2 &&  (
+          {nurseRequest.estatus === 2 && (
             <Tooltip title="Marcar como Entregado">
               <IconButton
                 onClick={() => {
-                  markAsDelivered(
-                    nurseRequest.id_SolicitudAlmacen,
-                    nurseRequest.id_CuentaEspacioHospitalario
-                  );
+                  markAsDelivered(nurseRequest.id_SolicitudAlmacen, nurseRequest.id_CuentaEspacioHospitalario);
                 }}
               >
                 <MarkunreadMailboxIcon sx={{ color: 'green' }} />
@@ -645,12 +648,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
           )*/}
           {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 1 && (
             <Tooltip title="Imprimir solicitud">
-              <IconButton
-                onClick={() => {
-                  setNurseRequest(nurseRequest);
-                  setOpenPrint(true);
-                }}
-              >
+              <IconButton onClick={handlePrintNurseRequest(nurseRequest)}>
                 <LocalPrintshopOutlined />
               </IconButton>
             </Tooltip>

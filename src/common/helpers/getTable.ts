@@ -6,6 +6,7 @@ interface TableColumn {
 
 interface TableOptions {
   header: any;
+  headerFontSize?: any;
   columns: TableColumn[];
   rows: any[];
 }
@@ -40,7 +41,7 @@ export const getTable = (data: TableOptions) => {
   const finalBody = [
     [
       {
-        fontSize: 12,
+        fontSize: data.headerFontSize || 12,
         bold: true,
         fillColor: '#e1e2e1',
         margin: [0, 2, 0, 2],
