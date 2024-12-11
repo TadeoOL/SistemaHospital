@@ -1,3 +1,4 @@
+import { convertDate } from '@/utils/convertDate';
 import axios from '../../libs/axios';
 import { IHospitalRoomInformationPagination } from '../../types/hospitalization/hospitalRoomTypes';
 import { IPaginationResponse } from '../../types/paginationType';
@@ -22,7 +23,7 @@ export const getHospitalRoomsCalendar = async (date: Date) => {
 export const updateHospitalRoomExitDate = async (id: string, date: Date) => {
   const res = await axios.put(`${apiHospitalizationRooms}/actualizar-fecha-salida-cuarto-hospitalario`, {
     id_CuentaEspacioHospitalario: id,
-    fechaSalida: date,
+    fechaSalida: convertDate(date),
   });
   return res.data;
 };

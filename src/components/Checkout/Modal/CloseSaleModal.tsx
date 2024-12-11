@@ -60,36 +60,12 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   const noteRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async () => {
-    if (
-      (hasAnotherPaymentMethod &&
-        parseFloat(paymentAmount) + parseFloat(paymentAmount2) !== sellData.totalVenta &&
-        parseFloat(paymentAmount) === 0) ||
-      parseFloat(paymentAmount2) === 0
-    ) {
-      setPaymentAmountRefError(true);
-      setPaymentAmountRefError2(true);
-      toast.error('El monto de pago tiene que ser igual a la venta');
-      return;
-    }
-    if (!hasAnotherPaymentMethod && parseFloat(paymentAmount) < sellData.totalVenta) {
-      toast.error('El monto de pago no puede ser menor al total de la venta');
-      setPaymentAmountRefError(true);
-      return;
-    }
-
-    if (hasAnotherPaymentMethod && parseFloat(paymentAmount) + parseFloat(paymentAmount2) < sellData.totalVenta) {
-      toast.error('El monto de pago no puede ser menor al total de la venta');
-      setPaymentAmountRefError(true);
-      setPaymentAmountRefError2(true);
-      return;
+    if (paymentSelected === '') {
+      return setPaymentSelectedError(true);
     }
 
     if ((paymentSelected === 'Efectivo' && paymentAmount === '') || !isValidFloat(paymentAmount)) {
       return setPaymentAmountRefError(true);
-    }
-
-    if (paymentSelected === '') {
-      return setPaymentSelectedError(true);
     }
 
     if ((hasAnotherPaymentMethod && paymentAmount2 === '') || !isValidFloat(paymentAmount2)) {
@@ -98,6 +74,15 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
 
     if (hasAnotherPaymentMethod && paymentSelected2 === '') {
       return setPaymentSelectedError2(true);
+    }
+
+    const totalPayment = parseFloat(paymentAmount) + parseFloat(paymentAmount2);
+
+    if (totalPayment !== sellData.totalVenta) {
+      setPaymentAmountRefError(true);
+      if (hasAnotherPaymentMethod) setPaymentAmountRefError2(true);
+      toast.error('El monto de pago tiene que ser igual a la venta');
+      return;
     }
 
     try {
@@ -164,18 +149,17 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   }, [hasAnotherPaymentMethod]);
 
   useEffect(() => {
-    if (hasAnotherPaymentMethod) {
-      if (paymentSelected === 'Efectivo') {
-        const changeForPayment = sellData.totalVenta - parseFloat(paymentAmount);
-        if (!Number(changeForPayment) || parseFloat(paymentAmount) > sellData.totalVenta) return setPaymentAmount2('0');
-        setPaymentAmount2(changeForPayment.toString());
-      } else if (paymentSelected2 === 'Efectivo') {
-        const changeForPayment = sellData.totalVenta - parseFloat(paymentAmount2);
-        if (!Number(changeForPayment) || parseFloat(paymentAmount2) > sellData.totalVenta) return setPaymentAmount('0');
-        setPaymentAmount(changeForPayment.toString());
-      }
+    if (!hasAnotherPaymentMethod) {
+      console.log('sellData.totalVenta:', sellData.totalVenta);
+      setPaymentAmount(Number(sellData.totalVenta).toString());
+      setPaymentAmount2('0');
     }
-  }, [paymentSelected2, paymentAmount2, paymentSelected, paymentAmount]);
+
+    if (hasAnotherPaymentMethod) {
+      const remaining = sellData.totalVenta - parseFloat(paymentAmount);
+      setPaymentAmount2(remaining >= 0 ? remaining.toString() : '0');
+    }
+  }, [paymentSelected, paymentAmount, paymentSelected2, paymentAmount2]);
 
   return (
     <Box sx={style}>

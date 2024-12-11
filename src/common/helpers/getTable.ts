@@ -1,4 +1,5 @@
 interface TableColumn {
+  width?: string;
   subheader: string;
   value: string;
   align?: 'left' | 'center' | 'right';
@@ -17,6 +18,9 @@ export const getTable = (data: TableOptions) => {
   }
 
   const columnsLength = data.columns.length;
+
+  const widths = data.columns.map((column) => column.width || '*');
+
   const columns = data.columns.map((column) => {
     return {
       text: column.subheader,
@@ -81,8 +85,8 @@ export const getTable = (data: TableOptions) => {
       },
       margin: [0, 20, 0, 15],
       table: {
+        widths,
         headerRows: 2,
-        widths: Array(columnsLength).fill('*'),
         body: finalBody,
       },
     },
