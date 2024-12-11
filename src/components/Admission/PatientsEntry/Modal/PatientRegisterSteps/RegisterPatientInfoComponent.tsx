@@ -130,6 +130,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, admission }: PatientRegi
   const watchPersonInChargeNeighborhood = watch('personInChargeNeighborhood');
   const watchPersonInChargeCity = watch('personInChargeCity');
   const watchPersonInChargeState = watch('personInChargeState');
+  const watchInsurance = watch('hasInsurance');
 
   const watchSameAddress = watch('sameAddress');
   const watchZipCode = watch('zipCode');
@@ -335,7 +336,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, admission }: PatientRegi
                     helperText={errors.address?.message}
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <Typography sx={TYPOGRAPHY_STYLE}>Estado</Typography>
                   <TextField
                     fullWidth
@@ -345,7 +346,7 @@ export const RegisterPatientInfoComponent = ({ setOpen, admission }: PatientRegi
                     helperText={errors.state?.message}
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <Typography sx={TYPOGRAPHY_STYLE}>Ciudad</Typography>
                   <TextField
                     fullWidth
@@ -355,6 +356,22 @@ export const RegisterPatientInfoComponent = ({ setOpen, admission }: PatientRegi
                     helperText={errors.city?.message}
                   />
                 </Grid>
+                <Grid item xs={12} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox {...register('hasInsurance')} checked={watchInsurance} />
+                  <Typography sx={TYPOGRAPHY_STYLE}>Tiene aseguradora</Typography>
+                </Grid>
+                { watchInsurance &&
+                  (<Grid item xs={3}>
+                    <Typography sx={TYPOGRAPHY_STYLE}>Nombre Aseguradora</Typography>
+                    <TextField
+                      fullWidth
+                      placeholder="Aseguradora..."
+                      error={!!errors.personInChargeAddress?.message}
+                      helperText={errors.personInChargeAddress?.message}
+                      {...register('insurance')}
+                    />
+                  </Grid>)
+                }
                 <Grid item xs={12}>
                   <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos de contacto</Typography>
                   <Divider sx={{ my: 1 }} />

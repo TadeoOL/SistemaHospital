@@ -255,6 +255,8 @@ export const PatientRegisterResumeModal = ({
           curp: patient.curp,
           estado: patient.state,
           ciudad: patient.city,
+          aseguradora: patient.hasInsurance,
+          nombreAseguradora: patient.insurance,
         };
         const patientAdmission: IPatientAdmissionEntranceDto = {
           nombreResponsable: patient.personInCharge,
@@ -417,6 +419,14 @@ export const PatientRegisterResumeModal = ({
                   </TextTypography>
                 </Stack>
               </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                  <Stack spacing={1}>
+                    <SubtitleTypography variant="subtitle1">Aseguradora:</SubtitleTypography>
+                    <TextTypography>
+                      {patient.insurance ?? 'Sin Aeguradora'}
+                    </TextTypography>
+                  </Stack>
+                </Grid>
             </>
           )}
         </Grid>

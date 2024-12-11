@@ -254,6 +254,8 @@ export interface IPatientAdmissionDto {
   curp?: string;
   estado?: string;
   ciudad?: string;
+  nombreAseguradora?: string;
+  aseguradora?: boolean;
 }
 
 export interface IPatientAdmissionEntranceDto {

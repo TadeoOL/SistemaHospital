@@ -792,6 +792,8 @@ export interface IPatient {
   state?: string;
   city?: string;
   curp?: string;
+  hasInsurance?: boolean;
+  insurance?: string;
 }
 
 export interface IClinicalData {

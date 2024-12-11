@@ -32,6 +32,8 @@ const createPatientSchema = (required: boolean, isEditing?: boolean) => {
     personInCharge: stringField('El nombre del responsable es requerido'),
     relationship: stringField('La relacion es requerida'),
     sameAddress: required ? z.boolean() : z.boolean().optional(),
+    hasInsurance: z.boolean().optional(),
+    insurance:  z.string().optional(),
     personInChargeZipCode: stringField('El codigo postal del responsable es requerido'),
     personInChargeNeighborhood: stringField('La colonia del responsable es requerida'),
     personInChargeAddress: stringField('La direccion del responsable es requerida'),

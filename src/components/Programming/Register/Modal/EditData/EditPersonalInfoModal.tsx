@@ -72,6 +72,8 @@ type Inputs = {
   personInCharge: string;
   relationship: string;
   sameAddress: boolean;
+  hasInsurance: boolean;
+  insurance: string;
   personInChargeZipCode: string;
   personInChargeNeighborhood: string;
   personInChargeAddress: string;
@@ -129,6 +131,8 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
         curp: data.curp,
         ciudad: data.city,
         estado: data.state,
+        aseguradora: data.hasInsurance,
+        nombreAseguradora: data.insurance
       },
       responsablePaciente: {
         nombreResponsable: data.personInCharge,
@@ -141,7 +145,6 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
         codigoPostalResponsable: data.personInChargeZipCode,
       },
     };
-
     Swal.fire({
       title: '¿Estas seguro?',
       text: `Estas a punto de ${props.admit ? 'admitir al paciente' : 'modificar los datos'}`,
@@ -204,6 +207,8 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
       curp: personalData?.paciente?.curp || '',
       city: personalData?.paciente?.ciudad || '',
       state: personalData?.paciente?.estado || '',
+      hasInsurance: personalData?.paciente?.aseguradora || false ,
+      insurance: personalData?.paciente?.nombreAseguradora || '' ,
 
       personInCharge: personalData?.responsablePaciente?.nombreResponsable || '',
       relationship: personalData?.responsablePaciente?.parentesco || '',
@@ -232,6 +237,7 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
   const watchPersonInChargeState = watch('personInChargeState');
 
   const watchSameAddress = watch('sameAddress');
+  const watchInsurance = watch('hasInsurance');
   const watchZipCode = watch('zipCode');
   const watchNeighborhood = watch('neighborhood');
   const watchAddress = watch('address');
@@ -468,6 +474,22 @@ export const EditPersonalInfoModal = (props: EditPersonalInfoModalProps) => {
                     helperText={errors.city?.message}
                   />
                 </Grid>
+                <Grid item xs={12} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox {...register('hasInsurance')} checked={watchInsurance} />
+                  <Typography sx={TYPOGRAPHY_STYLE}>Tiene aseguradora</Typography>
+                </Grid>
+                { watchInsurance &&
+                  (<Grid item xs={3}>
+                    <Typography sx={TYPOGRAPHY_STYLE}>Nombre Aseguradora</Typography>
+                    <TextField
+                      fullWidth
+                      placeholder="Aseguradora..."
+                      error={!!errors.personInChargeAddress?.message}
+                      helperText={errors.personInChargeAddress?.message}
+                      {...register('insurance')}
+                    />
+                  </Grid>)
+                }
                 <Grid item xs={12}>
                   <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 500 }}>Datos de contacto</Typography>
                   <Divider sx={{ my: 1 }} />
