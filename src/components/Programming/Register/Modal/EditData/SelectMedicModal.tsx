@@ -136,7 +136,7 @@ export const SelectMedicModal = (props: SelectMedicModalProps) => {
           </Typography>
         </Box>
         <form onSubmit={handleSubmit(onSubmit)} id="form1">
-          <Typography>Agregar medico</Typography>
+          <Typography>Agregar o editar medico</Typography>
           <Autocomplete
             onChange={(_, val) => {
               if (!val) return;
