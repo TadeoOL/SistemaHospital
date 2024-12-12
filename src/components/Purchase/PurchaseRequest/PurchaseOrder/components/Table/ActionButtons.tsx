@@ -32,21 +32,8 @@ export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }:
 
   return (
     <>
-      {!order.fueAutorizada && order.estatus === StatusPurchaseOrder.RequiereAutorizacion && (
-        <Tooltip title="Editar">
-          <IconButton onClick={() => onModalOpen('updateOrder', order)}>
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-
       {order.estatus === StatusPurchaseOrder.RequiereAutorizacion && (
         <>
-          <Tooltip title="Subir Factura">
-            <IconButton onClick={() => onModalOpen('quote', order)}>
-              <UploadFileIcon />
-            </IconButton>
-          </Tooltip>
           <Tooltip title="Cancelar">
             <IconButton onClick={() => onRemoveOrder(order.id_OrdenCompra)}>
               <CloseIcon sx={{ color: 'red' }} />
@@ -63,6 +50,7 @@ export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }:
           </Tooltip>
         </>
       )}
+
       {order.estatus === StatusPurchaseOrder.RequiereIngreso && (
         <>
           <Tooltip title="Entrada de artículos">
@@ -85,6 +73,21 @@ export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }:
             </IconButton>
           </Tooltip>
         )}
+
+      {!order.fueAutorizada && order.estatus === StatusPurchaseOrder.RequiereFactura && (
+        <>
+          <Tooltip title="Editar">
+            <IconButton onClick={() => onModalOpen('updateOrder', order)}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Cancelar">
+            <IconButton onClick={() => onRemoveOrder(order.id_OrdenCompra)}>
+              <CloseIcon sx={{ color: 'red' }} />
+            </IconButton>
+          </Tooltip>{' '}
+        </>
+      )}
       {order.estatus === StatusPurchaseOrder.EntradaCompletada && (
         <>
           <Tooltip title="Artículos dados de alta en almacen">
