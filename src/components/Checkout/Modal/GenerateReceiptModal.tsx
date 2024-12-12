@@ -5,7 +5,7 @@ import {
   CircularProgress,
   Grid,
   InputAdornment,
-  MenuItem,
+  //MenuItem,
   TextField,
   Typography,
 } from '@mui/material';
@@ -17,8 +17,8 @@ import { useAuthStore } from '../../../store/auth';
 import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
 import { Note } from '../../Purchase/PurchaseRequest/Modal/Note';
 import { toast } from 'react-toastify';
-import { registerCashVoucher } from '../../../services/checkout/chashVoucherService';
-import { REQUEST_TYPES } from '@/types/hospitalizationTypes';
+import { registerCashVoucher } from '@/services/checkout/checkoutService';
+//import { REQUEST_TYPES } from '@/types/hospitalizationTypes';
 
 const style = {
   position: 'absolute',
@@ -53,12 +53,12 @@ interface GenerateReceiptModalProps {
 export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
   const profile = useAuthStore((state) => state.profile);
   const { config, loadingConfig } = useGetCheckoutConfig();
-  const [conceptSelected, setConceptSelected] = useState('');
-  const personNameRef = useRef<HTMLTextAreaElement | null>();
+  //const [conceptSelected, setConceptSelected] = useState('');
+  //const personNameRef = useRef<HTMLTextAreaElement | null>();
   const totalAmountRef = useRef<HTMLTextAreaElement | null>();
-  const [personNameError, setPersonNameError] = useState(false);
+ // const [personNameError, setPersonNameError] = useState(false);
   const [totalAmountError, setTotalAmountError] = useState(false);
-  const [conceptError, setConceptError] = useState(false);
+  //const [conceptError, setConceptError] = useState(false);
   const conn = useConnectionSocket((state) => state.conn);
   const concepts = getConcepts(config, profile?.id as string);
   const refetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
@@ -78,16 +78,16 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
 
   const handleSubmit = async () => {
     if (!conn) return;
-    if (!personNameRef.current || !totalAmountRef.current) return;
-    if (personNameRef.current.value.trim() === '') return setPersonNameError(true);
+    if (!totalAmountRef.current) return;
+    //if (personNameRef.current.value.trim() === '') return setPersonNameError(true);
     if (totalAmountRef.current.value.trim() === '') return setTotalAmountError(true);
-    if (conceptSelected === '') return setConceptError(true);
+    //if (conceptSelected === '') return setConceptError(true);
 
     try {
       const object = {
-        paciente: personNameRef.current.value,
+        //paciente: personNameRef.current.value,
         totalVenta: parseFloat(totalAmountRef.current.value),
-        moduloProveniente: conceptSelected,
+        //moduloProveniente: conceptSelected,
         notas: note.trim() === '' ? undefined : note,
       };
       const res = await registerCashVoucher(object);
@@ -107,7 +107,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
       toast.success('Pase de Caja generado correctamente.');
       props.setOpen(false);
       setTotalAmountError(false);
-      personNameRef.current.value = '';
+      //personNameRef.current.value = '';
       totalAmountRef.current.value = '';
     } catch (error: any) {
       console.log(error);
@@ -134,7 +134,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
         }}
       >
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-          <Grid item xs={4}>
+          {/*<Grid item xs={4}>
             <Typography>Concepto de salida:</Typography>
           </Grid>
           <Grid item xs={8}>
@@ -171,7 +171,7 @@ export const GenerateReceiptModal = (props: GenerateReceiptModalProps) => {
               }}
               helperText={personNameError && 'Escribe un nombre...'}
             />
-          </Grid>
+          </Grid>*/}
           <Grid item xs={4}>
             <Typography>Total:</Typography>
           </Grid>

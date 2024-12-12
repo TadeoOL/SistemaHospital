@@ -15,8 +15,10 @@ const useGetData = () => {
   const endDate = useCheckoutPaginationStore((state) => state.endDate);
   const startDate = useCheckoutPaginationStore((state) => state.startDate);
   const status = useCheckoutPaginationStore((state) => state.status);
+  const setConceptoVenta = useCheckoutPaginationStore((state) => state.setConcept);
 
   useEffect(() => {
+    setConceptoVenta(null);
     fetch();
   }, [pageIndex, pageSize, search, sort, endDate, startDate, status]);
 };

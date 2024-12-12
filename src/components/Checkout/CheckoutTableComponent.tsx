@@ -1,15 +1,19 @@
-import { Cancel, CheckCircle, Info, Print, Visibility } from '@mui/icons-material';
+import { Cancel, CheckCircle, ExpandLess, ExpandMore, Info, Print, Visibility } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  alpha,
   Backdrop,
   Box,
   Card,
   CircularProgress,
+  Collapse,
   IconButton,
   Modal,
+  styled,
   Table,
   TableBody,
   TableCell,
+  tableCellClasses,
   TableContainer,
   TableHead,
   TableRow,
@@ -17,7 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import { success } from '../../theme/colors';
-import { ICheckoutSell } from '../../types/types';
+import { IArticleDetailSell, ICheckoutSell } from '../../types/types';
 import { TableFooterComponent } from '../Pharmacy/ArticlesSoldHistoryTableComponent';
 import { useCheckoutPaginationStore } from '../../store/checkout/checkoutPagination';
 import { hashPaymentsToString } from '../../utils/checkoutUtils';
@@ -34,6 +38,20 @@ import { getArticlesSold } from '../../services/pharmacy/pointOfSaleService';
 import { ArticlesSoldReport } from '../Export/Checkout/ArticlesSoldReport';
 import { pdf } from '@react-pdf/renderer';
 import { changeCashVoucherStatus } from '../../services/checkout/chashVoucherService';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: alpha(`${theme.palette.grey[50]}`, 1),
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    border: 'hidden',
+  },
+  [`&.${tableCellClasses.root}`]: {
+    width: '20%',
+  },
+}));
 
 const headTitlesCaja = [
   'Folio',
@@ -199,6 +217,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
   const conn = useConnectionSocket((state) => state.conn);
   const [openDetails, setOpenDetails] = useState(false);
   const [loadingPrint, setLoadingPrint] = useState(false);
+  const [openRows, setOpenRows] = useState(false);
 
   const rejectRequest = () => {
     withReactContent(Swal)
@@ -279,11 +298,12 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+           { data.detalleVenta  && data.detalleVenta.length > 0  && <IconButton onClick={() => setOpenRows(!openRows)}>{!openRows ? <ExpandMore /> : <ExpandLess />}</IconButton>}
             <Tooltip title={returnIcon(data.estatus).title}>{returnIcon(data.estatus).icon}</Tooltip>
             <Typography sx={{ fontWeight: 400, fontSize: 12 }}>{data.folio}</Typography>
           </Box>
         </TableCell>
-        <TableCell>{data.moduloProveniente}</TableCell>
+        <TableCell>{data.conceptoVenta}</TableCell>
         <TableCell>{data.paciente}</TableCell>
         <TableCell>$ {data.totalVenta}</TableCell>
         {(admin || props.fromPointOfSale) && <TableCell>{data.nombreUsuario}</TableCell>}
@@ -344,6 +364,13 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
           )}
         </TableCell>
       </TableRow>
+      { data.detalleVenta  && data.detalleVenta.length > 0 && (<TableRow>
+              <TableCell colSpan={8} sx={{ padding: 0 }}>
+                <Collapse in={openRows} unmountOnExit>
+                  <SubItemsTable articles={data.detalleVenta} />
+                </Collapse>
+              </TableCell>
+            </TableRow>)}
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
           <CloseSaleModal setOpen={setOpen} sellData={data} />
@@ -360,5 +387,41 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
         </>
       </Modal>
     </>
+  );
+};
+
+interface SubItemsTableProps {
+  articles: IArticleDetailSell[];
+}
+const SubItemsTable: React.FC<SubItemsTableProps> = ({ articles }) => {
+  return (
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <StyledTableCell align="center">Nombre Articulo</StyledTableCell>
+            <StyledTableCell align="center">Cantidad</StyledTableCell>
+            <StyledTableCell align="center">Total</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {articles.map((a, i) => (
+            <SubItemsTableRow articleR={a} key={`${a.id_Articulo}|${i}`} />
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+interface SubItemsTableRowProps {
+  articleR: IArticleDetailSell;
+}
+const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({ articleR }) => {
+  return (
+    <TableRow key={articleR.id_Articulo}>
+      <TableCell align="center">{articleR.nombre}</TableCell>
+      <TableCell align="center">{articleR.cantidad}</TableCell>
+      <TableCell align="center">{articleR.total}</TableCell>
+    </TableRow>
   );
 };

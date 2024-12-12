@@ -87,3 +87,11 @@ export const changeSellNote = async (data: { id_VentaPrincipal: string; Notas: s
   const res = await axios.put(`${apiCheckout}/editar-venta-principal`, data);
   return res.data;
 };
+
+export const registerCashVoucher = async (data: {
+  totalVenta: number;
+  notas?: string;
+}) => {
+  const res = await axios.post(`${apiCheckout}/registrar-pase-caja`, data);
+  return res.data;
+};

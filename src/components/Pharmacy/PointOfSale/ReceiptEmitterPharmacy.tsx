@@ -1,19 +1,22 @@
 import { Card, Modal, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useCheckoutDataStore } from '../../../store/checkout/checkoutData';
-import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
+//import { useCheckoutUserEmitterPaginationStore } from '../../../store/checkout/checkoutUserEmitterPagination';
 import { GenerateReceiptModal } from '../../Checkout/Modal/GenerateReceiptModal';
 import { CheckoutTableComponent } from '../../Checkout/CheckoutTableComponent';
+import { useCheckoutPaginationStore } from '@/store/checkout/checkoutPagination';
 
 const useGetData = () => {
-  const fetch = useCheckoutUserEmitterPaginationStore((state) => state.fetchData);
-  const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
-  const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
-  const search = useCheckoutUserEmitterPaginationStore((state) => state.search);
-  const sort = useCheckoutUserEmitterPaginationStore((state) => state.sort);
-  const setConceptoVenta = useCheckoutUserEmitterPaginationStore((state) => state.setConceptoVenta);
+  const fetch = useCheckoutPaginationStore((state) => state.fetchData);
+  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
+  const search = useCheckoutPaginationStore((state) => state.search);
+  const sort = useCheckoutPaginationStore((state) => state.sort);
+  const setConceptoVenta = useCheckoutPaginationStore((state) => state.setConcept);
+  const setStatus = useCheckoutPaginationStore((state) => state.setStatus);
 
   useEffect(() => {
+    setStatus(null)
     setConceptoVenta(1);
     fetch();
   }, [pageIndex, pageSize, search, sort, setConceptoVenta]);
@@ -25,12 +28,12 @@ export const ReceiptEmitterPharmacy = () => {
     setIdCaja('');
   }, []);
   useGetData();
-  const data = useCheckoutUserEmitterPaginationStore((state) => state.data);
-  const count = useCheckoutUserEmitterPaginationStore((state) => state.count);
-  const pageIndex = useCheckoutUserEmitterPaginationStore((state) => state.pageIndex);
-  const pageSize = useCheckoutUserEmitterPaginationStore((state) => state.pageSize);
-  const setPageIndex = useCheckoutUserEmitterPaginationStore((state) => state.setPageIndex);
-  const setPageSize = useCheckoutUserEmitterPaginationStore((state) => state.setPageSize);
+  const data = useCheckoutPaginationStore((state) => state.data);
+  const count = useCheckoutPaginationStore((state) => state.count);
+  const pageIndex = useCheckoutPaginationStore((state) => state.pageIndex);
+  const pageSize = useCheckoutPaginationStore((state) => state.pageSize);
+  const setPageIndex = useCheckoutPaginationStore((state) => state.setPageIndex);
+  const setPageSize = useCheckoutPaginationStore((state) => state.setPageSize);
   const [open, setOpen] = useState(false);
 
   return (

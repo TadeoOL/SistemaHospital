@@ -709,7 +709,7 @@ export interface ICheckoutCloseHistory {
 export interface ICheckoutSell {
   id_VentaPrincipal: string;
   folio: string;
-  moduloProveniente: string;
+  conceptoVenta: string;
   paciente: string;
   totalVenta: number;
   tipoPago: number;
@@ -720,6 +720,17 @@ export interface ICheckoutSell {
   montoPago?: number;
   nombreUsuario?: string;
   pdfCadena?: string;
+  detalleVenta?: IArticleDetailSell[];
+}
+
+export interface IArticleDetailSell {
+  id_Articulo: string;
+  nombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  precioNeto: number;
+  iva: number;
+  total: number;
 }
 
 export interface IRoom {
