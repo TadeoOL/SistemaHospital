@@ -1,7 +1,7 @@
 import { Box, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
-import { IProvider } from '../../../../../types/types';
 import { useState } from 'react';
+import { IProvider } from '../interfaces/providers.interface';
 
 interface IFiscalForm {
   errors: FieldErrors<IProvider>;
@@ -30,16 +30,6 @@ export const FiscalForm = (props: IFiscalForm) => {
             helperText={errors?.rfc?.message}
             {...register('rfc')}
             placeholder="RFC"
-          />
-        </Grid>
-        <Grid item xs={12} lg={6}>
-          <Typography variant="subtitle2">NIF</Typography>
-          <TextField
-            fullWidth
-            error={!!errors.nif}
-            helperText={errors?.nif?.message}
-            {...register('nif')}
-            placeholder="NIF"
           />
         </Grid>
         <Grid item xs={12} lg={6}>

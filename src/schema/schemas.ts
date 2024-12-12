@@ -57,7 +57,7 @@ export const addNewUserSchema = z
   });
 
 export const addNewProviderSchema = z.object({
-  nombreCompania: z.string().min(3, 'Agrega una compañía'),
+  /*nombreCompania: z.string().min(3, 'Agrega una compañía'),
   nombreContacto: z.string().min(3, 'Agrega una contacto'),
   puesto: z.string().min(3, 'Agrega una puesto'),
   direccion: z.string().min(3, 'Agrega una dirección'),
@@ -72,9 +72,9 @@ export const addNewProviderSchema = z.object({
   nif: z.string().min(4, 'Escribe una identificación fiscal'),
   tipoContribuyente: z.number().min(1, 'Selecciona un tipo de contribuyente'),
   direccionFiscal: z.string().min(4, 'Ingresa una dirección fiscal'),
-  urlCertificadoBP: z.string().optional(),
-  urlCeritificadoCR: z.string().optional(),
-  urlCertificadoISO9001: z.string().optional(),
+  //urlCertificadoBP: z.string().optional().nullable(),*/
+  //urlCeritificadoCR: z.string().optional().nullable(),
+  //urlCertificadoISO9001: z.string().optional().nullable(),
 });
 
 export const addSubCategorySchema = z.object({

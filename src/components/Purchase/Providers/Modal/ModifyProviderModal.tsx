@@ -128,7 +128,6 @@ export const ModifyProviderModal = (props: IModifyProviderModal) => {
       correoElectronico: providerData?.correoElectronico,
       giroEmpresa: providerData?.giroEmpresa,
       rfc: providerData?.rfc,
-      nif: providerData?.nif,
       tipoContribuyente: providerData?.tipoContribuyente,
       direccionFiscal: providerData?.direccionFiscal,
       urlCertificadoBP: providerData?.urlCertificadoBP ?? '',

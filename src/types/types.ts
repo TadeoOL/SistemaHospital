@@ -74,13 +74,12 @@ export interface IProvider {
   telefono: string;
   correoElectronico: string;
   rfc: string;
-  nif: string;
   giroEmpresa: string;
   direccionFiscal: string;
   tipoContribuyente: number;
-  urlCertificadoBP: string | null;
-  urlCertificadoCR: string | null;
-  urlCertificadoISO9001: string | null;
+  urlCertificadoBP: string | null | any;
+  urlCertificadoCR: string | null | any;
+  urlCertificadoISO9001: string | null | any;
 }
 
 export interface IRequestPurchaseDrug {

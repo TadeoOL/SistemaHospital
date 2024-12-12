@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Grid, Button, Stepper, useMediaQuery, Typography, Stack } from '@mui/material';
 import { ModalBasic } from '@/common/components/ModalBasic';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { FieldErrors, SubmitHandler, useForm, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, SubmitHandler, useForm, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
@@ -18,6 +18,7 @@ import { FiscalForm } from './FiscalForm';
 import { CertificateForm } from './CertificateForm';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SaveIcon from '@mui/icons-material/Save';
+import { useGetProvider } from '@/hooks/useGetProvider';
 
 interface ProvidersModalProps {
   itemId?: string;
@@ -26,14 +27,14 @@ interface ProvidersModalProps {
   onClose: Function;
 }
 
-const renderStepForm = (step: number, errors: FieldErrors<IProvider>, register: UseFormRegister<IProvider>) => {
+const renderStepForm = (step: number, errors: FieldErrors<IProvider>, register: UseFormRegister<IProvider>, setValue: UseFormSetValue<IProvider>, providerType?: number) => {
   switch (step) {
     case 0:
       return <BasicInfoForm errors={errors} register={register} />;
     case 1:
-      return <FiscalForm errors={errors} register={register} />;
+      return <FiscalForm errors={errors} register={register} tipoContribuyente={providerType} />;
     case 2:
-      return <CertificateForm errors={errors} register={register} />;
+      return <CertificateForm errors={errors} register={register} setValue={setValue}/>;
     default:
       break;
   }
@@ -41,19 +42,37 @@ const renderStepForm = (step: number, errors: FieldErrors<IProvider>, register: 
 
 export const ProvidersModal = (props: ProvidersModalProps) => {
   const { open, onClose, onSuccess, itemId } = props;
-
+  const { isLoading, providerData } = useGetProvider(props.itemId ?? '');
+console.log("providerData",providerData);
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up('lg'));
   const [step, setStep] = useState(0);
 
   const { subCategory, isLoadingSubCategory } = useFetchProvider(itemId);
 
-  const defaultValues: any = {
+  const defaultValues: any = providerData? 
+  {
+    nombreCompania: providerData?.nombreCompania,
+    nombreContacto: providerData?.nombreContacto,
+    puesto: providerData?.puesto,
+    direccion: providerData?.direccion,
+    telefono: providerData?.telefono,
+    correoElectronico: providerData?.correoElectronico,
+    giroEmpresa: providerData?.giroEmpresa,
+    rfc: providerData?.rfc,
+    tipoContribuyente: providerData?.tipoContribuyente,
+    direccionFiscal: providerData?.direccionFiscal,
+    urlCertificadoBP: providerData?.urlCertificadoBP ?? '',
+    urlCertificadoCR: providerData?.urlCertificadoCR ?? '',
+    urlCertificadoISO9001: providerData?.urlCertificadoISO9001 ?? '',
+  }
+  : {
     id: '',
   };
 
   const {
     register,
+    setValue,
     handleSubmit,
     trigger,
     clearErrors,
@@ -141,7 +160,7 @@ export const ProvidersModal = (props: ProvidersModalProps) => {
 
   return (
     <ModalBasic
-      isLoading={!!itemId && isLoadingSubCategory}
+      isLoading={!!itemId && isLoadingSubCategory || isLoading}
       open={open}
       header={itemId ? 'Modificar proveedor' : 'Agregar proveedor'}
       onClose={onClose}
@@ -171,7 +190,7 @@ export const ProvidersModal = (props: ProvidersModalProps) => {
             </Stepper>
           </Grid>
 
-          {renderStepForm(step, errors, register)}
+          {renderStepForm(step, errors, register, setValue, providerData?.tipoContribuyente)}
 
           {/* <Grid item xs={12} md={6}>
             <InputBasic

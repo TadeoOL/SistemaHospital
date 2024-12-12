@@ -106,7 +106,6 @@ export const AddProviderModal = (props: IAddProviderModal) => {
       correoElectronico: '',
       giroEmpresa: '',
       rfc: '',
-      nif: '',
       tipoContribuyente: 0,
       direccionFiscal: '',
       urlCertificadoBP: '',
@@ -139,7 +138,6 @@ export const AddProviderModal = (props: IAddProviderModal) => {
     const outputs = await trigger(fields as ProviderFields[], {
       shouldFocus: true,
     });
-
     if (!outputs) return;
     if (step === stepsForm.length - 1) {
       handleSubmit(onSubmit)();

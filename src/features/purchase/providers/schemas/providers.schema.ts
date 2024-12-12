@@ -14,10 +14,9 @@ export const addNewProviderSchema = z.object({
   correoElectronico: z.string().email('Escribe una dirección de correo valida'),
   giroEmpresa: z.string().min(4, 'Agrega un giro de la empresa'),
   rfc: z.string().min(10, 'Agrega un rfc'),
-  nif: z.string().min(4, 'Escribe una identificación fiscal'),
   tipoContribuyente: z.number().min(1, 'Selecciona un tipo de contribuyente'),
   direccionFiscal: z.string().min(4, 'Ingresa una dirección fiscal'),
-  urlCertificadoBP: z.string().optional(),
-  urlCeritificadoCR: z.string().optional(),
-  urlCertificadoISO9001: z.string().optional(),
+  urlCertificadoBP: z.string().optional().nullable(),
+  urlCertificadoCR: z.string().optional().nullable(),
+  urlCertificadoISO9001: z.string().optional().nullable(),
 });

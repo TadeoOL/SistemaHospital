@@ -1,16 +1,18 @@
 import { Box, Grid, Collapse, Stack, Tooltip, IconButton, Typography } from '@mui/material';
-import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 // import { convertBase64 } from "../../../../../utils/functions/dataUtils";
 import { useDropzone } from 'react-dropzone';
 import { CloudUpload, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { useState } from 'react';
 import { IProvider } from '../interfaces/providers.interface';
+import { convertBase64 } from '@/utils/functions/dataUtils';
 // import { useCertificateProviderStore } from "../../../../../store/provider/certificateProvider";
 // import { shallow } from "zustand/shallow";
 
 interface ICertificateForm {
   errors: FieldErrors<IProvider>;
   register: UseFormRegister<IProvider>;
+  setValue: UseFormSetValue<IProvider>;
 }
 
 export const CertificateForm = (props: ICertificateForm) => {
@@ -22,7 +24,7 @@ export const CertificateForm = (props: ICertificateForm) => {
   //   setUrlCertificadoBP,
   //   setUrlCertificadoISO9001,
   // } = useCertificateProviderStore();
-  const { errors, register } = props;
+  const { errors, setValue } = props;
   // const { urlCR } = useCertificateProviderStore(
   //   (state) => ({ urlCR: state.urlCertificadoCR }),
   //   shallow
@@ -43,9 +45,34 @@ export const CertificateForm = (props: ICertificateForm) => {
     setIsCollapseOpenISO(!isCollapseOpenISO);
   };
 
-  const onDrop = async (acceptedFiles: File[]) => {
+
+  const createOnDropHandler =
+    (field: 'urlCertificadoBP' | 'urlCertificadoCR' | 'urlCertificadoISO9001') =>
+    async (acceptedFiles: File[]) => {
+      if (acceptedFiles.length === 0) return;
+      const base64 = (await convertBase64(acceptedFiles[0])).replace(
+        /^data:application\/pdf;base64,/,
+        ''
+      );
+      setValue(field, base64);
+    };
+
+  const getDropzoneProps = (field: 'urlCertificadoBP' | 'urlCertificadoCR' | 'urlCertificadoISO9001') =>
+    useDropzone({
+      onDrop: createOnDropHandler(field),
+      accept: {
+        'application/pdf': ['.pdf'],
+      },
+      maxFiles: 1,
+    });
+
+
+  /*const onDrop = async (acceptedFiles: File[],field: "urlCertificadoBP" | "urlCertificadoCR" | "urlCertificadoISO9001" ) => {
+    console.log("q chingadoz pasa",acceptedFiles);
     if (acceptedFiles.length === 0) return;
     // const base64 = await convertBase64(acceptedFiles[0]);
+     const base64 = (await convertBase64(acceptedFiles[0])).replace(/^data:application\/pdf;base64,/, '');
+     setValue(field, base64);
   };
 
   const handleDrop = (input: number) => {
@@ -53,12 +80,12 @@ export const CertificateForm = (props: ICertificateForm) => {
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
+    onDrop: onDrop("urlCertificadoISO9001"),
     accept: {
       'application/pdf': ['.pdf'],
     },
     maxFiles: 1,
-  });
+  });*/
 
   return (
     <>
@@ -96,10 +123,10 @@ export const CertificateForm = (props: ICertificateForm) => {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            {...getRootProps({ className: 'dropzone' })}
+            {...getDropzoneProps('urlCertificadoBP').getRootProps()}
           >
             <Box>
-              <input {...getInputProps({ onClick: () => handleDrop(1) })} />
+              <input {...getDropzoneProps('urlCertificadoBP').getInputProps()}  />
               <Tooltip title="Subir Certificado BP">
                 <IconButton>
                   <CloudUpload
@@ -162,10 +189,10 @@ export const CertificateForm = (props: ICertificateForm) => {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            {...getRootProps({ className: 'dropzone' })}
+            {...getDropzoneProps('urlCertificadoCR').getRootProps()}
           >
             <Box>
-              <input {...getInputProps()} {...register('urlCertificadoCR')} />
+              <input {...getDropzoneProps('urlCertificadoCR').getInputProps()} />
               <Tooltip title="Certificado de cumplimiento regulatorio">
                 <IconButton>
                   <CloudUpload
@@ -227,10 +254,10 @@ export const CertificateForm = (props: ICertificateForm) => {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            {...getRootProps({ className: 'dropzone' })}
+            {...getDropzoneProps('urlCertificadoISO9001').getRootProps()}
           >
             <Box>
-              <input {...getInputProps()} {...register('urlCertificadoISO9001')} />
+              <input {...getDropzoneProps('urlCertificadoISO9001').getInputProps()} />
               <Tooltip title="Certificado ISO 9001">
                 <IconButton>
                   <CloudUpload
