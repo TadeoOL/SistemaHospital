@@ -40,8 +40,8 @@ const getInfoCell = (label: string, value: string, width?: any) => {
   };
 };
 
-export const generateNurseRequestPDF = (nurseRequest: any) => {
-  console.log('nurseRequest:', nurseRequest);
+export const generateArticlePackagePDF = (articlePackage: any) => {
+  console.log('articlePackage:', articlePackage);
   const header = function (currentPage: number, pageCount: number) {
     // you can apply any logic and return any valid pdfmake element
     const pageText = `PÁG ${currentPage} DE ${pageCount}`;
@@ -73,13 +73,15 @@ export const generateNurseRequestPDF = (nurseRequest: any) => {
     ];
   };
 
-  const paciente = nurseRequest.paciente;
-  const solicitadoPor = nurseRequest.usuarioSolicitante;
-  const espacioHospitalario = nurseRequest.espacioHospitalario;
-  const armadoPor = nurseRequest.usuarioAutorizo;
+  const paciente = articlePackage.paciente;
+  const edadPaciente = articlePackage.edadPaciente;
+  const solicitadoPor = articlePackage.usuarioSolicito;
+  const medico = articlePackage.medico;
+  const quirofano = articlePackage.quirofano;
 
-  const folio = nurseRequest.folio;
-  const fecha = nurseRequest.fechaSolicitud;
+  const folio = articlePackage.folio;
+  const fecha = articlePackage.fechaSolicitud;
+  const horaCirugia = articlePackage.horaCirugia;
 
   const articleTable = getTable({
     header: 'ARTICULOS',
@@ -94,7 +96,7 @@ export const generateNurseRequestPDF = (nurseRequest: any) => {
         value: 'cantidad',
       },
     ],
-    rows: nurseRequest.articulos,
+    rows: articlePackage.articulos,
   });
 
   const docDefinition: any = {
@@ -115,29 +117,35 @@ export const generateNurseRequestPDF = (nurseRequest: any) => {
       {
         layout: 'noBorders',
         table: {
-          widths: ['*', 'auto'],
-          body: [[getInfoCell('Paciente', paciente, '*'), getInfoCell('Fecha', fecha, '*')]],
+          widths: ['*', '*', 'auto'],
+          body: [
+            [
+              getInfoCell('Paciente', paciente, '*'),
+              getInfoCell('Edad', edadPaciente, '*'),
+              getInfoCell('Fecha solicitud', fecha, '*'),
+            ],
+          ],
         },
       },
       {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Espacio Hospitalario', espacioHospitalario, 'auto'), getInfoCell('Folio', folio, '*')]],
+          body: [[getInfoCell('Quirofano', quirofano, 'auto'), getInfoCell('Folio solicitud', folio, '*')]],
         },
       },
       {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Solicitado por', solicitadoPor, 'auto'), '']],
+          body: [[getInfoCell('Medico', medico, 'auto'), getInfoCell('Hora Cirugia', horaCirugia, '*')]],
         },
       },
       {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Armado por', armadoPor, 'auto'), '']],
+          body: [[getInfoCell('Solicitado por', solicitadoPor, '*'), '']],
         },
       },
       articleTable,

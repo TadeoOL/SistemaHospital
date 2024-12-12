@@ -25,6 +25,7 @@ import { buildPackage } from '../../../../api/api.routes';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PackageReport } from '../../../Export/Pharmacy/PackageReport';
 import { isValidIntegerOrZero } from '../../../../utils/functions/dataUtils';
+import { generateArticlePackagePDF } from './pdfs/generateArticlePackagePDF';
 
 const style = {
   position: 'absolute',
@@ -58,12 +59,11 @@ interface RequestBuildingModalProps {
   preLoadedArticles: IarticlesPrebuildedRequest[];
   id_SolicitudAlmacen: string;
   id_CuentaEspacioHospitalario: string;
+  packageSelected: any;
 }
 
 export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) => {
-  const [articles, setArticles] = useState<IarticlesPrebuildedRequest[]>(
-    props.preLoadedArticles
-  );
+  const [articles, setArticles] = useState<IarticlesPrebuildedRequest[]>(props.preLoadedArticles);
   const [value, setValue] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -72,14 +72,12 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     const object = {
       id_SolicitudAlmacen: props.id_SolicitudAlmacen,
       id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
-      articulos: articles
-      .map((art) =>({
-          Id_Articulo: art.id_Articulo,
-          Cantidad: art.cantidadSeleccionada,
-          Nombre: art.nombre
-        })
-      ),
-      estatus: 2
+      articulos: articles.map((art) => ({
+        Id_Articulo: art.id_Articulo,
+        Cantidad: art.cantidadSeleccionada,
+        Nombre: art.nombre,
+      })),
+      estatus: 2,
     };
     try {
       await buildPackage(object);
@@ -98,9 +96,9 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     console.log(articles);
     const direction = articles.findIndex((art) => art.id_Articulo === articleEdited.id_Articulo);
     if (direction > -1) {
-    articles.splice(direction, 1);
-    setArticles([...articles, articleEdited]);
-  } 
+      articles.splice(direction, 1);
+      setArticles([...articles, articleEdited]);
+    }
   };
 
   const continueRequest = () => {
@@ -125,7 +123,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     let diferentNumbers = false;
     articles.forEach((article) => {
       let totalToSendByArticle = 0;
-        totalToSendByArticle += article.cantidadSeleccionada;
+      totalToSendByArticle += article.cantidadSeleccionada;
       if (totalToSendByArticle < Number(article.cantidadSolicitada)) diferentNumbers = true;
     });
     if (diferentNumbers || articles.length !== props.requestedItems.length) {
@@ -148,29 +146,35 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        MySwal.fire({
-          title: 'Imprimir',
-          html: (
-            <PDFDownloadLink
-              onClick={() => {
-                props.setOpen(false);
-                props.refetch();
-              }}
-              document={<PackageReport articulos={articles.map((artr)=>({
-                id_Articulo: artr.id_Articulo,
-                nombre: artr.nombre,
-                cantidadSeleccionar: artr.cantidadSolicitada,
-                cantidad: artr.cantidadSeleccionada
-              }))} />}
-              fileName={`${Date.now()}.pdf`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
-            </PDFDownloadLink>
-          ),
-          showConfirmButton: false,
-          showCancelButton: false,
-        });
+        generateArticlePackagePDF(props.packageSelected);
+
+        // MySwal.fire({
+        //   title: 'Imprimir',
+        //   html: (
+        //     <PDFDownloadLink
+        //       onClick={() => {
+        //         props.setOpen(false);
+        //         props.refetch();
+        //       }}
+        //       document={
+        //         <PackageReport
+        //           articulos={articles.map((artr) => ({
+        //             id_Articulo: artr.id_Articulo,
+        //             nombre: artr.nombre,
+        //             cantidadSeleccionar: artr.cantidadSolicitada,
+        //             cantidad: artr.cantidadSeleccionada,
+        //           }))}
+        //         />
+        //       }
+        //       fileName={`${Date.now()}.pdf`}
+        //       style={{ textDecoration: 'none', color: 'inherit' }}
+        //     >
+        //       {({ loading }) => <Button variant="contained">{loading ? 'Generando PDF...' : 'Descargar PDF'}</Button>}
+        //     </PDFDownloadLink>
+        //   ),
+        //   showConfirmButton: false,
+        //   showCancelButton: false,
+        // });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         props.setOpen(false);
         props.refetch();
@@ -180,7 +184,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
 
   const checkPreloadedQuantyties = () => {
     const quantityMap: {
-      [key: string]: { cantidad: number; };
+      [key: string]: { cantidad: number };
     } = {};
     let flag = true;
     props.preLoadedArticles.forEach((article) => {
@@ -189,7 +193,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
           cantidad: 0,
         };
       }
-          quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidadSeleccionada;
+      quantityMap[article.id_Articulo ?? ''].cantidad += article.cantidadSeleccionada;
     });
 
     // Verificar que todos los artículos en articlesIDs están presentes en quantityMap con la cantidad correcta
@@ -268,7 +272,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
           }}
           startIcon={<Check />}
         >
-          {loading? 'Cargando...' : 'Aceptar'}
+          {loading ? 'Cargando...' : 'Aceptar'}
         </Button>
       </Box>
     </Box>
@@ -280,12 +284,7 @@ interface ArticlesTableProps {
   isResume: boolean;
   handleAddArticle: Function;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({
-  articles,
-  setArticles,
-  isResume,
-  handleAddArticle,
-}) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, handleAddArticle }) => {
   return (
     <Card>
       <TableContainer>
@@ -328,7 +327,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   setArticles,
   articles,
   isResume,
-  handleAddArticle
+  handleAddArticle,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [amountText, setAmountText] = useState(article.cantidadSolicitada.toString());
@@ -337,30 +336,28 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
     <React.Fragment>
       <TableRow>
         <TableCell>
-          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.nombre}
-          </Box>
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>{article.nombre}</Box>
         </TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{article.cantidadSolicitada}</TableCell>
         {!isResume && (
           <TableCell>
             <Tooltip title={isEditing ? 'Guardar' : 'Editar'}>
               <IconButton
-              disabled ={article.stock == 0}
+                disabled={article.stock == 0}
                 onClick={() => {
-                  setIsEditing(!isEditing)
+                  setIsEditing(!isEditing);
                   if (isEditing) {
                     //handleSaveValue();
                     const quant = Number(amountText);
-                    if(quant > article.stock){
-                      return toast.error('La cantidad excede el stock del articulo '+article.nombre);
+                    if (quant > article.stock) {
+                      return toast.error('La cantidad excede el stock del articulo ' + article.nombre);
                     }
 
-                    handleAddArticle({...article, cantidadSeleccionada: quant})
+                    handleAddArticle({ ...article, cantidadSeleccionada: quant });
                   }
                 }}
               >
-               {isEditing ? <Save /> : <Edit />}
+                {isEditing ? <Save /> : <Edit />}
               </IconButton>
             </Tooltip>
             <Tooltip title="Eliminar">
@@ -375,32 +372,31 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
           </TableCell>
         )}
         <TableCell sx={{ textAlign: 'center' }}>
-          {isEditing ? 
-          (
+          {isEditing ? (
             <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <TextField
-                      sx={{ width: '60%', ml: 'auto' }}
-                      size="small"
-                      fullWidth
-                      placeholder="Cantidad"
-                      value={amountText}
-                      onChange={(e) => {
-                        if (!isValidIntegerOrZero(e.target.value)) return;
-                        setAmountText(e.target.value);
-                      }}
-                    />
-                    <Typography> Stock actual: {article.stock} </Typography>
+              <TextField
+                sx={{ width: '60%', ml: 'auto' }}
+                size="small"
+                fullWidth
+                placeholder="Cantidad"
+                value={amountText}
+                onChange={(e) => {
+                  if (!isValidIntegerOrZero(e.target.value)) return;
+                  setAmountText(e.target.value);
+                }}
+              />
+              <Typography> Stock actual: {article.stock} </Typography>
             </Box>
-            
-            ) 
-          :
-          (<Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            {article.cantidadSeleccionada === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
-            {article.cantidadSeleccionada !== 0 && article.cantidadSeleccionada < Number(article.cantidadSolicitada) && (
-              <Warning sx={{ color: '#FFA500', mr: 2 }} />
-            )}
-            {article.cantidadSeleccionada}
-          </Box>)}
+          ) : (
+            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+              {article.cantidadSeleccionada === 0 && <Warning sx={{ color: 'red', mr: 2 }} />}
+              {article.cantidadSeleccionada !== 0 &&
+                article.cantidadSeleccionada < Number(article.cantidadSolicitada) && (
+                  <Warning sx={{ color: '#FFA500', mr: 2 }} />
+                )}
+              {article.cantidadSeleccionada}
+            </Box>
+          )}
         </TableCell>
       </TableRow>
     </React.Fragment>

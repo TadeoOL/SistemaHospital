@@ -142,7 +142,10 @@ export const WaitingPackages = () => {
   const warehouseIdSeted = usePosTabNavStore((state) => state.warehouseId);
   const [openCreatePackageModal, setOpenCreatePackageModal] = useState(false);
   const [loadingPackage, setLoadingPackage] = useState(false);
-  const [packageSelected, setPackageSelected] = useState<{ id_SolicitudAlmacen: string; id_CuentaEspacioHospitalario: string; } | null>(null);
+  const [packageSelected, setPackageSelected] = useState<{
+    id_SolicitudAlmacen: string;
+    id_CuentaEspacioHospitalario: string;
+  } | null>(null);
   const [provisionalArticles, setProvisionalArticles] = useState<IArticleHistory[]>([]);
   const [prebuildedArticles, setPrebuildedArticles] = useState<IarticlesPrebuildedRequest[] | null>(null);
   const rejectRequest = (id_SolicitudAlmacen: string, id_CuentaEspacioHospitalario: string) => {
@@ -210,7 +213,7 @@ export const WaitingPackages = () => {
               text: `Error: ${errorMessage}`,
               icon: 'info',
             });
-            throw new Error(errorMessage); 
+            throw new Error(errorMessage);
           }
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -232,14 +235,18 @@ export const WaitingPackages = () => {
     setOpenCreatePackageModal(true);
     setPackageSelected({
       id_SolicitudAlmacen: id_request,
-      id_CuentaEspacioHospitalario: id_account
+      id_CuentaEspacioHospitalario: id_account,
     });
     setLoadingPackage(false);
   };
 
   useEffect(() => {
-    setProvisionalArticles(data?.find((d) => d.id_SolicitudAlmacen === packageSelected?.id_SolicitudAlmacen)?.articulos ?? []);
+    setProvisionalArticles(
+      data?.find((d) => d.id_SolicitudAlmacen === packageSelected?.id_SolicitudAlmacen)?.articulos ?? []
+    );
   }, [packageSelected]);
+
+  const [movementSelected, setMovementSelected] = useState<any>(null);
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -359,18 +366,10 @@ export const WaitingPackages = () => {
                             )}
                             <Typography> {movimiento.folio} </Typography>
                           </TableCell>
-                          <TableCell>
-                            {movimiento.medico}
-                          </TableCell>
-                          <TableCell>
-                            {movimiento.quirofano}
-                          </TableCell>
-                          <TableCell>
-                            {movimiento.horaCirugia}
-                          </TableCell>
-                          <TableCell>
-                            {movimiento.paciente}
-                          </TableCell>
+                          <TableCell>{movimiento.medico}</TableCell>
+                          <TableCell>{movimiento.quirofano}</TableCell>
+                          <TableCell>{movimiento.horaCirugia}</TableCell>
+                          <TableCell>{movimiento.paciente}</TableCell>
 
                           <TableCell> {movimiento.usuarioSolicito} </TableCell>
                           <TableCell>{movimiento.fechaSolicitud}</TableCell>
@@ -397,7 +396,6 @@ export const WaitingPackages = () => {
                                       <DoneIcon />
                                     </IconButton>
                                   </Tooltip>
-
                                 </>
                               ) : (movimiento.estatus as number) === STATUS_ENUM.ArmarPaquete ? (
                                 <>
@@ -408,7 +406,12 @@ export const WaitingPackages = () => {
                                           //Agregar Loader
                                           setLoadingPackage(true);
                                           const packRes = await getPackagePreBuilded(movimiento.id_SolicitudAlmacen);
-                                          createPackage(movimiento.id_SolicitudAlmacen, movimiento.id_CuentaEspacioHospitalario, packRes);
+                                          createPackage(
+                                            movimiento.id_SolicitudAlmacen,
+                                            movimiento.id_CuentaEspacioHospitalario,
+                                            packRes
+                                          );
+                                          setMovementSelected(movimiento);
                                         } catch (error) {
                                           console.log(error);
                                         }
@@ -421,21 +424,25 @@ export const WaitingPackages = () => {
                                       />
                                     </IconButton>
                                   </Tooltip>
-
                                 </>
-                              ) : (<></>)
-
-                              }
-                              {movimiento.estatus !== 0 && movimiento.estatus !== 3 && (<Tooltip title="Cancelar paquete">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => {
-                                    rejectRequest(movimiento.id_SolicitudAlmacen, movimiento.id_CuentaEspacioHospitalario);
-                                  }}
-                                >
-                                  <CloseIcon sx={{ color: 'red' }} />
-                                </IconButton>
-                              </Tooltip>)}
+                              ) : (
+                                <></>
+                              )}
+                              {movimiento.estatus !== 0 && movimiento.estatus !== 3 && (
+                                <Tooltip title="Cancelar paquete">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      rejectRequest(
+                                        movimiento.id_SolicitudAlmacen,
+                                        movimiento.id_CuentaEspacioHospitalario
+                                      );
+                                    }}
+                                  >
+                                    <CloseIcon sx={{ color: 'red' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                             </Box>
                           </TableCell>
                         </TableRow>
@@ -527,9 +534,10 @@ export const WaitingPackages = () => {
             refetch={() => {
               fetchWareHouseMovements(warehouseIdSeted);
             }}
+            packageSelected={movementSelected}
             preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])}
-            id_SolicitudAlmacen={packageSelected?.id_SolicitudAlmacen ?? ""}
-            id_CuentaEspacioHospitalario={packageSelected?.id_CuentaEspacioHospitalario ?? ""}
+            id_SolicitudAlmacen={packageSelected?.id_SolicitudAlmacen ?? ''}
+            id_CuentaEspacioHospitalario={packageSelected?.id_CuentaEspacioHospitalario ?? ''}
           />
         </>
       </Modal>
