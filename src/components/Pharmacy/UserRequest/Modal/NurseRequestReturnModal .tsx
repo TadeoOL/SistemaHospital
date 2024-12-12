@@ -194,7 +194,7 @@ export const NurseRequestReturnModal = (props: Props) => {
 
         if (editedArticle) {
 
-          const amountReturn =
+          /*const amountReturn =
             roomSelected.tipoEspacioHospitalario === 2
               ? editedArticle.cantidad
               : Math.max(0, originalArticle.cantidad - editedArticle.cantidad);
@@ -208,10 +208,19 @@ export const NurseRequestReturnModal = (props: Props) => {
             cantidad: originalArticle.cantidad,
             amountReturn,
             amountPatient,
+          });*/
+          const amountReturn =  editedArticle.cantidad
+
+          const amountPatient = Math.max(0, originalArticle.cantidad - editedArticle.cantidad)
+          result.push({
+            ...editedArticle,
+            cantidad: originalArticle.cantidad,
+            amountReturn,
+            amountPatient,
           });
         }
       }
-      setResumeArticles(result)
+      setResumeArticles(result.filter((art) => art.amountReturn > 0))
     }
   }
 
@@ -501,7 +510,7 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
                 <TableCell>Articulo</TableCell>
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Hora Cargo</TableCell>
-                <TableCell>{props.quirurgicalRoomFlag ? 'Cargo' : 'Devolución'}</TableCell>
+                <TableCell>Devolución</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
