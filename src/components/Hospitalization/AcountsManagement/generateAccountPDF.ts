@@ -385,34 +385,42 @@ export const generateAccountPDF = (accountInfo: IPatientAccount) => {
           {
             subheader: 'Nombre',
             value: 'nombre',
+            width: 'auto',
           },
           {
             subheader: 'Cantidad',
             value: 'cantidad',
+            width: 'auto',
           },
           {
             subheader: 'Solicitud',
             value: 'solicitud',
-          },
-          {
-            subheader: 'IVA',
-            value: 'iva',
+            width: 'auto',
           },
           {
             subheader: 'Fecha Solicitado',
             value: 'fechaSolicitado',
+            width: 'auto',
           },
           {
             subheader: 'Precio Unitario',
             value: 'precioUnitario',
+            width: 'auto',
           },
           {
             subheader: 'Precio Neto',
             value: 'precioNeto',
+            width: 'auto',
+          },
+          {
+            subheader: 'IVA',
+            value: 'iva',
+            width: 'auto',
           },
           {
             subheader: 'Precio Total',
             value: 'total',
+            width: 'auto',
           },
         ],
         rows: [

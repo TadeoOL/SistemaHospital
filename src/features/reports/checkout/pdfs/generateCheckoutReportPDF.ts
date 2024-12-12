@@ -13,6 +13,13 @@ pdfmake.fonts = {
 
 const formatCurrency = (v: number) => `$${v.toFixed(2)}`;
 
+const tipoPagoLabels: { [key: number]: string } = {
+  1: 'Efectivo',
+  2: 'Débito',
+  3: 'Crédito',
+  4: 'Transferencia',
+};
+
 export const generateCheckoutReportPDF = async (checkout: any) => {
   console.log('checkout:', checkout);
 
@@ -25,7 +32,7 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
     const date = `${month} ${year}`;
 
     const style = {
-      fontSize: 7,
+      fontSize: 8,
       alignment: 'right',
       italics: true,
       bold: true,
@@ -93,8 +100,10 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
     ],
     rows: checkout.resumenVenta.map((item: any) => ({
       ...item,
+
       totalVenta: formatCurrency(item.totalVenta),
       montoPago: formatCurrency(item.montoPago),
+      tipoPago: tipoPagoLabels[item.tipoPago] || 'Desconocido', // Maneja casos inesperados
     })),
   });
 
@@ -118,7 +127,7 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
           [
             {
               text: label.toUpperCase(),
-              fontSize: 12,
+              fontSize: 10,
               bold: true,
               alignment: 'left',
               fillColor: '#e1e2e1',
@@ -128,7 +137,7 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
             },
             {
               text: value,
-              fontSize: 12,
+              fontSize: 10,
               alignment: 'left',
               border: [false, false, false, false],
               margin: [0, 2, 0, 2],
@@ -146,22 +155,24 @@ export const generateCheckoutReportPDF = async (checkout: any) => {
     header,
     content: [
       {
-        width: 100,
+        width: 50,
         margin: [0, 0, 0, 20],
         columns: [
           {
             image: logoWithText,
-            width: 200,
+            width: 150,
           },
         ],
       },
       {
         text: [
           {
+            fontSize: 10,
             text: 'FECHA: ',
             bold: true,
           },
           {
+            fontSize: 10,
             text: fecha.toLocaleString(),
           },
         ],

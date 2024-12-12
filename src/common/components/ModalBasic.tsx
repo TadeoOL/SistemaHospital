@@ -13,6 +13,7 @@ interface ModalFormProps {
   onClose?: Function;
   isLoading?: boolean;
   actions?: React.ReactNode;
+  maxWidth?: any;
 }
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -46,53 +47,55 @@ function BootstrapDialogTitle({ children, onClose, ...other }: any) {
   );
 }
 
-export const ModalBasic = forwardRef(({ open, isLoading, header, children, actions, onClose }: ModalFormProps, ref) => {
-  const [innerOpen, setOpen] = useState(open || false);
+export const ModalBasic = forwardRef(
+  ({ open, isLoading, header, children, actions, onClose, maxWidth }: ModalFormProps, ref) => {
+    const [innerOpen, setOpen] = useState(open || false);
 
-  useEffect(() => {
-    setOpen(open || false);
-  }, [open]);
+    useEffect(() => {
+      setOpen(open || false);
+    }, [open]);
 
-  useImperativeHandle(ref, () => ({
-    setOpen,
-  }));
+    useImperativeHandle(ref, () => ({
+      setOpen,
+    }));
 
-  const handleClose = () => {
-    setOpen(false);
-    onClose && onClose();
-  };
+    const handleClose = () => {
+      setOpen(false);
+      onClose && onClose();
+    };
 
-  const [showLoader, setShowLoader] = useState(false);
+    const [showLoader, setShowLoader] = useState(false);
 
-  useEffect(() => {
-    if (!innerOpen) {
-      setShowLoader(false);
-      return;
+    useEffect(() => {
+      if (!innerOpen) {
+        setShowLoader(false);
+        return;
+      }
+      if (isLoading) {
+        setShowLoader(true);
+        return;
+      }
+      setTimeout(() => {
+        setShowLoader(false);
+      }, 200);
+    }, [innerOpen, isLoading]);
+
+    if (showLoader) {
+      return <FullscreenLoader />;
     }
-    if (isLoading) {
-      setShowLoader(true);
-      return;
-    }
-    setTimeout(() => {
-      setShowLoader(false);
-    }, 200);
-  }, [innerOpen, isLoading]);
 
-  if (showLoader) {
-    return <FullscreenLoader />;
+    return (
+      <>
+        <BootstrapDialog maxWidth={maxWidth} open={innerOpen || false} onClose={() => handleClose()}>
+          <BootstrapDialogTitle onClose={handleClose}>{header}</BootstrapDialogTitle>
+          <DialogContent dividers sx={{ p: 3 }}>
+            <>{children}</>
+          </DialogContent>
+          <Box sx={{ pl: 2, pr: 1 }}>
+            <DialogActions>{actions}</DialogActions>
+          </Box>
+        </BootstrapDialog>
+      </>
+    );
   }
-
-  return (
-    <>
-      <BootstrapDialog open={innerOpen || false} onClose={() => handleClose()}>
-        <BootstrapDialogTitle onClose={handleClose}>{header}</BootstrapDialogTitle>
-        <DialogContent dividers sx={{ p: 3 }}>
-          <>{children}</>
-        </DialogContent>
-        <Box sx={{ pl: 2, pr: 1 }}>
-          <DialogActions>{actions}</DialogActions>
-        </Box>
-      </BootstrapDialog>
-    </>
-  );
-});
+);

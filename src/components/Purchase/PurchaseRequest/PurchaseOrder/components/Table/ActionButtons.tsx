@@ -20,12 +20,6 @@ interface ActionButtonsProps {
 }
 
 export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }: ActionButtonsProps) => {
-  <Tooltip title="PDF de Orden de Compra">
-    <IconButton onClick={() => onPdfFetch(order.id_OrdenCompra)}>
-      <DownloadIcon />
-    </IconButton>
-  </Tooltip>;
-
   if (order.estatus === StatusPurchaseOrder.OrdenCancelada) {
     return (
       <Tooltip title="Orden Cancelada">
@@ -60,7 +54,6 @@ export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }:
           </Tooltip>
         </>
       )}
-
       {order.estatus === StatusPurchaseOrder.RequiereFactura && (
         <>
           <Tooltip title="Subir Factura">
@@ -70,7 +63,6 @@ export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }:
           </Tooltip>
         </>
       )}
-
       {order.estatus === StatusPurchaseOrder.RequiereIngreso && (
         <>
           <Tooltip title="Entrada de artículos">
@@ -85,7 +77,14 @@ export const ActionButtons = ({ order, onModalOpen, onPdfFetch, onRemoveOrder }:
           </Tooltip>
         </>
       )}
-
+      {order.estatus != StatusPurchaseOrder.EntradaCompletada &&
+        order.estatus != StatusPurchaseOrder.RequiereIngreso && (
+          <Tooltip title="PDF de Orden de Compra">
+            <IconButton onClick={() => onPdfFetch(order.id_OrdenCompra)}>
+              <DownloadIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       {order.estatus === StatusPurchaseOrder.EntradaCompletada && (
         <>
           <Tooltip title="Artículos dados de alta en almacen">

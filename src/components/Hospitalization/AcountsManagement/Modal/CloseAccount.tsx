@@ -341,6 +341,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
         open={props.open}
         onClose={() => props.setOpen(false)}
         actions={actions}
+        maxWidth={'xl'}
       >
         <DiscountModal
           setOpen={setOpenDiscount}
@@ -485,6 +486,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                       { key: 'cantidad', header: 'Cantidad' },
                       { key: 'solicitadoEn', header: 'Solicitado en' },
                       { key: 'fechaSolicitado', header: 'Fecha Solicitado' },
+                      { key: 'precioUnitario', header: 'Precio Unitario', isPrice: true },
                       { key: 'neto', header: 'Precio Neto', isPrice: true },
                       { key: 'iva', header: 'IVA', isPrice: true },
                       { key: 'total', header: 'Precio Total', isPrice: true },

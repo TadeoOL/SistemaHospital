@@ -155,7 +155,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   const [multVentaInterno, setMultVentaInterno] = useState(1);
 
   const getPrices = () => {
-    const precioCompra = Number(watch('precioCompra'));
+    let precioCompra = Number(watch('precioCompra'));
     const unidadesPorCaja = Number(watch('unidadesPorCaja'));
 
     if (!factor) return;
@@ -164,6 +164,8 @@ export const ArticleModal = (props: ArticleModalProps) => {
     if (isBox && !unidadesPorCaja) return;
 
     const unidades = isBox ? unidadesPorCaja : 1;
+
+    precioCompra = precioCompra / unidades;
 
     const isFactorInRange = (factor: any) => {
       const isGreaterThanMin = Number(factor.cantidadMinima) <= precioCompra;
@@ -182,8 +184,8 @@ export const ArticleModal = (props: ArticleModalProps) => {
     const rangoVentaInterno = config?.factorInterno?.find(isFactorInRange);
     const multiplicadorVentaInterno = Number(rangoVentaInterno?.factorMultiplicador) || 1;
 
-    const precioVentaExterno = (precioCompra * multiplicadorVentaExterno) / unidades;
-    const precioVentaInterno = (precioCompra * multiplicadorVentaInterno) / unidades;
+    const precioVentaExterno = precioCompra * multiplicadorVentaExterno;
+    const precioVentaInterno = precioCompra * multiplicadorVentaInterno;
 
     setMultVentaExterno(multiplicadorVentaExterno);
     setMultVentaInterno(multiplicadorVentaInterno);
