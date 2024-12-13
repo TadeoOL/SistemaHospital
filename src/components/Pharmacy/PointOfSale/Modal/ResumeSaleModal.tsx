@@ -136,13 +136,14 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
 
     try {
       const response = await registerSale(saleObject);
+      console.log('response:', response);
       const objWS = {
         Folio: response.folio,
         SubTotal: subTotal,
         IVA: iva,
         TotalVenta: total,
         UsuarioVenta: response.usuarioVenta,
-        Articulos: response.articulos.map((artF: any) => ({
+        Articulos: response.articulos?.map((artF: any) => ({
           Nombre: articlesOnBasket.find((aob) => aob.id_Articulo === artF.id_Articulo)?.nombre,
           Precio: artF.precioUnitario,
           Cantidad: artF.cantidad,
@@ -155,14 +156,14 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
       } /* else {
         toast.error('Error al conectar con el WebSocket!');
       }*/
-      refetch();
       props.setOpen(false);
       toast.success('Compra realizada con éxito!');
-      clearData();
     } catch (error) {
       console.log(error);
       toast.error('Error al realizar la compra!');
     } finally {
+      refetch();
+      clearData();
       setLoadingSubmit(false);
     }
   };

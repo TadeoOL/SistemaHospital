@@ -124,19 +124,18 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
     }
   };
 
+  const round = (num: number) => Math.round((num + Number.EPSILON) * 100) / 100;
+
   const change = useMemo(() => {
-    let totalPayment = 0;
-    if (hasAnotherPaymentMethod) {
-      totalPayment = parseFloat(paymentAmount) + parseFloat(paymentAmount2);
-    } else {
-      if (paymentSelected === 'Efectivo') {
-        totalPayment = parseFloat(paymentAmount);
-      } else {
-        totalPayment = sellData.totalVenta;
-      }
-    }
-    if (!Number(totalPayment)) return 0;
-    return totalPayment - sellData.totalVenta <= 0 ? 0 : totalPayment - sellData.totalVenta;
+    const amount1 = paymentAmount ? parseFloat(paymentAmount) : 0;
+    const amount2 = paymentAmount2 ? parseFloat(paymentAmount2) : 0;
+    const total = amount1 + amount2;
+
+    const change = round(total) - round(sellData.totalVenta);
+
+    if (change < 0) return 0;
+
+    return round(change);
   }, [paymentAmount, paymentAmount2, paymentSelected, hasAnotherPaymentMethod, sellData.totalVenta]);
 
   useEffect(() => {
