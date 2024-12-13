@@ -240,7 +240,25 @@ export interface IAcountFullInformation {
   totalPagos: number;
   facturable: boolean;
 }
+//nuevo IInvoiceItem
 
+export interface IAcountInvoiceFullInformation {
+  id: string;
+  paciente: IAcountPatient;
+  cuartos: IInvoiceItem[];
+  quirofanos: IInvoiceItem[];
+  quirofanosRecuperacion: IInvoiceItem[];
+  cirugias: IInvoiceItem[];
+  servicios: IInvoiceItem[];
+  articulos: IInvoiceItem[];
+  pagosCuenta: IAcountPayments[];
+  subTotal: number;
+  descuento: number | null;
+  iva: number;
+  total: number;
+  totalPagos: number;
+  facturable: boolean;
+}
 export interface IAcountPatient {
   nombrePaciente: string;
   nombreMedico: string;
@@ -291,6 +309,17 @@ export interface IAcountArticles {
   iva: number;
   total: number;
   productoFacturacion: string | null;
+}
+export interface IInvoiceItem {
+  id: string;
+  nombre: string;
+  tipoProducto: number;
+  codigoProducto: string;
+  cantidad: number;
+  precioUnitario: number;
+  precioNeto: number;
+  precioIVA: number;
+  precioTotal: number;
 }
 export interface IAcountServices {
   id: string;

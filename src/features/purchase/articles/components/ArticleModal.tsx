@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
-import { Button, Checkbox, FormControlLabel, Grid } from '@mui/material';
+import { Button, Checkbox, CircularProgress, FormControlLabel, Grid } from '@mui/material';
 import { IArticle } from '@/types/types';
 import { toast } from 'react-toastify';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -36,6 +36,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   const config = useGetPurchaseConfig();
 
   const [isBox, setIsBox] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [factor, setFactor] = useState(true);
 
   const { article, isLoadingArticle } = useFetchArticle(itemId);
@@ -89,6 +90,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   };
 
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
+    setLoadingSubmit(true)
     try {
       data.id = itemId || undefined;
       data.esCaja = isBox;
@@ -137,9 +139,11 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
       onSuccess();
       onClose();
+      setLoadingSubmit(false)
     } catch (error) {
       console.log('error:', error);
       toast.error('Error al crear el articulo!');
+      setLoadingSubmit(false)
     }
   };
 
@@ -200,12 +204,12 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   const actions = (
     <>
-      <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => onClose()}>
+      <Button variant="outlined" disabled={loadingSubmit} color="error" startIcon={<CancelIcon />} onClick={() => onClose()}>
         Cancelar
       </Button>
       <div className="col"></div>
-      <Button variant="contained" onClick={handleSubmit(onSubmit, handleError)} startIcon={<SaveOutlinedIcon />}>
-        Guardar
+      <Button variant="contained" disabled={loadingSubmit} onClick={handleSubmit(onSubmit, handleError)} startIcon={<SaveOutlinedIcon />}>
+        {loadingSubmit ? <CircularProgress size={15} /> : 'Guardar'}
       </Button>
     </>
   );

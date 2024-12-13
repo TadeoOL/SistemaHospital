@@ -6,18 +6,18 @@ const zodDay = z.custom<Dayjs>((val) => val instanceof dayjs, 'Fecha invalida').
 
 export const operatingRoomPriceRangeSchema = z
   .object({
-    horaInicio: z.string().min(1, 'La hora inicio es necesaria'),
-    horaFin: z.string().nullable(),
+    horaInicio: z.number().min(0, 'La hora inicio es necesaria'),
+    horaFin: z.number().nullable(),
     precio: z
-      .string()
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-        message: 'El precio debe ser un número decimal positivo',
-      })
-      .transform((val) => parseFloat(val)),
+      .number()
+      //.refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      //  message: 'El precio debe ser un número decimal positivo',
+      //})
+      //.transform((val) => parseFloat(val)),
   })
   .refine(
     (val) => {
-      return Number(val.horaInicio) <= Number(val.horaFin);
+      return Number(val.horaInicio) <= Number(val.horaFin) || val.horaFin === null;
     },
     {
       message: 'La hora inicial debe ser menor a la final',

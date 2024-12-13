@@ -16,17 +16,25 @@ export const generatePatientBillInvoice = (data: {
   return axios.post(`${apiInvoicePatientBill}/crear-facturacion-cuenta-paciente`, data);
 };
 
-export const getAccountBillInformation = async (data: {
-  id_CuentaPaciente: string;
-  opcionFacturacion: {
-    articulos: boolean;
-    servicios: boolean;
-    cuartos: boolean;
-    quirofanos: boolean;
-    equipoHonorario: boolean;
-    cirugias: boolean;
-  }
+export const registerBillInvoice = (data: {
+  id_CuentaPaciente: string | null;
+  id_VentaCaja: string | null;
+  pedidoRelacionado: string;
 }) => {
-  const res = await axios.post(`${apiInvoicePatientBill}/obtener-cuenta-paciente-facturacion`, data);
+  return axios.post(`${apiInvoicePatientBill}/registra-factura`, data);
+};
+
+export const getAccountBillInformation = async (params: string) => {
+  const res = await axios.get(`${apiInvoicePatientBill}/obtener-cuenta-paciente-facturacion?${params}`);
+  return res.data;
+};
+
+export const getPharmacySellInvoicesPagination = async (params: string) => {
+  const res = await axios.get(`${apiInvoicePatientBill}/paginacion-facturacion-farmacia?${params}`);
+  return res.data;
+};
+
+export const getPharmacySellInvoiceInformation = async (id: string) => {
+  const res = await axios.get(`${apiInvoicePatientBill}/obtener-venta-farmacia/${id}`);
   return res.data;
 };

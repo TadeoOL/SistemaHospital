@@ -42,7 +42,7 @@ export const PriceCell: React.FC<PriceCellProps> = ({ originalPrice, discountedP
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ...styles.container }}>
-      <Typography
+      { discountedPrice !== originalPrice && <Typography
         component="span"
         sx={{
           textDecoration: 'line-through',
@@ -51,7 +51,7 @@ export const PriceCell: React.FC<PriceCellProps> = ({ originalPrice, discountedP
         }}
       >
         ${originalPrice.toFixed(2)}
-      </Typography>
+      </Typography>}
       <Typography component="span" sx={{ fontWeight: 'bold', ...styles.discounted }}>
         ${discountedPrice.toFixed(2)}
       </Typography>

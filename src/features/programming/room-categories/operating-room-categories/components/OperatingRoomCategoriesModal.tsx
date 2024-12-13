@@ -151,7 +151,6 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
       tipoProducto: defaultValues.tipoProducto,
       codigoProducto: defaultData.codigoProducto,
     };
-
     reset(newValues);
   };
 
@@ -399,7 +398,7 @@ const OperatingRoomCategoriesModal = (props: OperatingRoomCategoriesModalProps) 
                 options={sizeUnit}
                 uniqueProperty="id_UnidadMedida"
                 displayProperty="nombre"
-                placeholder="Escribe un codigo de Unidad de Medida de Recuperación"
+                placeholder="Seleccione una Unidad de Medida de Recuperación"
                 helperText={errors?.codigoUnidadMedidaRecuperacion?.message}
                 error={!!errors.codigoUnidadMedidaRecuperacion}
                 {...register('codigoUnidadMedidaRecuperacion')}
@@ -446,7 +445,6 @@ interface RoomHourCostTableProps {
 }
 
 const PriceRangeTable = (props: RoomHourCostTableProps) => {
-  console.log('props:', props);
   const { data } = props;
   const [open, setOpen] = useState(false);
   const [configList, setConfigList] = useState<IRoomPriceRange[]>(sortByInicio(data));

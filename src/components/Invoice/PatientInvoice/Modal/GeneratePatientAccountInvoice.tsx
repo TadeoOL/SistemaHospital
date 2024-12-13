@@ -18,16 +18,18 @@ import {
 import { HeaderModal } from '../../../Account/Modals/SubComponents/HeaderModal';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { generatePatientBillInvoice } from '../../../../services/invoice/invoicePatientBill';
+///import { generatePatientBillInvoice } from '../../../../services/invoice/invoicePatientBill';
+import { registerBillInvoice } from '../../../../services/invoice/invoicePatientBill';
 import { useInvoicePatientBillPaginationStore } from '../../../../store/invoice/invoicePatientBillPagination';
 import { ReportLoader } from '../../../Commons/Report/ReportLoader';
 import { useGetAccountFullInformation } from '../../../../hooks/programming/useGetAccountFullInformation';
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
-import { IAcountFullInformation } from '../../../../types/hospitalizationTypes';
+import { IAcountInvoiceFullInformation, IInvoiceItem } from '../../../../types/hospitalizationTypes';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 import { useGetAllDocumentConcepts } from '../../../../hooks/contpaqi/useGetDocumentConcepts';
 import { PriceCell } from '../../../Commons/PriceCell';
 import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
+import { ContpaqiOrderService, objOrderRequest } from '@/services/contpaqi/contpaqi.order.service';
 
 const INVOICE_TABLE_HEADERS = ['Nombre', 'Precio Unitario', 'Cantidad', 'Precio Neto', 'IVA', 'Precio Total'];
 
@@ -104,14 +106,41 @@ export const GeneratePatientAccountInvoice = ({
   const handleGenerateInvoice = async () => {
     if (!invoiceMethodSelected) return toast.warning('Es necesario seleccionar un tipo de facturación');
     if (!typeOfInvoiceSelected) return toast.warning('Es necesario seleccionar un tipo de concepto para facturar');
+    
+    const productsSelected = (): IInvoiceItem[] =>{
+      switch(invoiceMethodSelected){
+        case 0:
+          return data.articulos
+        case 1:
+          return [...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
+        default:
+         return [...data.articulos,...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
+      }
+    }
+    
+    const objrequesOrder : objOrderRequest = {
+      tipoPedido: typeOfInvoiceSelected,
+      subTotal: data.subTotal,
+      iva: data.iva,
+      total: data.total,
+      nombrePaciente : `Paciente: ${data.paciente.nombrePaciente} - Medico: ${data.paciente.nombreMedico}`,
+      productosFactura : productsSelected()
+    }
     setLoadingGenerateInvoice(true);
     try {
-      await generatePatientBillInvoice({
+      const contpaqiRes  = await ContpaqiOrderService.requestOrder(objrequesOrder)
+      await registerBillInvoice({
+        id_CuentaPaciente: patientAccountId,
+        id_VentaCaja: null,
+        pedidoRelacionado: (contpaqiRes.ciddocumento).toString()
+      })
+
+      /*await generatePatientBillInvoice({
         id_CuentaPaciente: patientAccountId,
         tipoFacturacion: invoiceMethodSelected,
         tipoPedido: typeOfInvoiceSelected,
         porcentajeDescuento: data.descuento ?? 0,
-      });
+      });*/
       toast.success('Factura generada correctamente');
       setOpen(false);
       refetch();
@@ -236,7 +265,7 @@ export const GeneratePatientAccountInvoice = ({
 };
 
 const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
-  data: IAcountFullInformation;
+  data: IAcountInvoiceFullInformation;
   invoiceMethodSelected: number;
   setIva: Function;
   setSubTotal: Function;
@@ -249,7 +278,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       nombre: string;
       precioUnitario: number;
       precioNeto: number;
-      iva: number;
+      precioIVA: number;
       precioTotal: number;
       cantidad: number;
     }[]
@@ -257,15 +286,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
 
   const formatArticles = () => {
     if (!data.articulos) return [];
-    return data.articulos.map((article) => ({
-      id: article.id,
-      nombre: article.nombre,
-      precioUnitario: article.precioUnitario,
-      precioNeto: article.neto,
-      iva: article.iva,
-      precioTotal: article.total,
-      cantidad: article.cantidad,
-    }));
+    return data.articulos.map((article) => (article));
   };
 
   const formatRooms = () => {
@@ -275,7 +296,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       nombre: string;
       precioUnitario: number;
       precioNeto: number;
-      iva: number;
+      precioIVA: number;
       precioTotal: number;
       cantidad: number;
     }[] = [];
@@ -294,86 +315,30 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
 
     data.quirofanos.forEach((room) => {
       rooms.push({
+        ...room,
         id: room.id + room.nombre,
-        nombre: room.nombre,
-        //precioUnitario: room.precioHora,
-        precioUnitario: room.neto,
-        precioNeto: room.neto,
-        iva: room.iva,
-        precioTotal: room.total,
-        cantidad: 1,
+      });
+    });
+    data.quirofanosRecuperacion.forEach((room) => {
+      rooms.push({
+        ...room,
+        id: room.id + room.nombre,
       });
     });
     data.cuartos.forEach((room) => {
-      rooms.push({
-        id: room.id,
-        nombre: room.nombre,
-        precioUnitario: room.precioDia,
-        precioNeto: room.neto,
-        iva: room.iva,
-        precioTotal: room.total,
-        cantidad: room.cantidadDias,
-      });
+      rooms.push(room);
     });
     return rooms;
   };
 
   const formatCabinetStudies = () => {
     if (!data.servicios) return [];
-    return data.servicios.map((cabinetStudy) => ({
-      id: cabinetStudy.id,
-      nombre: cabinetStudy.nombre,
-      precioUnitario: cabinetStudy.neto,
-      precioNeto: cabinetStudy.neto ?? 0,
-      iva: cabinetStudy.iva ?? 0,
-      precioTotal: (cabinetStudy.neto ?? 0) + (cabinetStudy.iva ?? 0),
-      cantidad: 1,
-    }));
+    return data.servicios.map((cabinetStudy) => (cabinetStudy));
   };
 
-  const formatBiomedicalEquipment = () => {
-    if (!data.equipoHonorario && !data.equipoHonorario) return [];
-    const biomedicalEquipment: {
-      id: string;
-      nombre: string;
-      precioUnitario: number;
-      precioNeto: number;
-      iva: number;
-      precioTotal: number;
-      cantidad: number;
-    }[] = [];
-
-    data.equipoHonorario.forEach((be) => {
-      biomedicalEquipment.push({
-        id: be.id,
-        nombre: be.nombre,
-        precioUnitario: be.neto,
-        //precioNeto: be.precioNeto ?? 0,
-        precioNeto: be.neto ?? 0,
-        iva: be.iva ?? 0,
-        precioTotal: (be.neto ?? 0) + (be.iva ?? 0),
-        cantidad: 1,
-      });
-    });
-
-    data.equipoHonorario.forEach((be) => {
-      biomedicalEquipment.push({
-        id: be.id,
-        nombre: be.nombre,
-        precioUnitario: be.neto,
-        //precioNeto: be.precioNeto ?? 0,
-        precioNeto: be.neto ?? 0,
-        iva: be.iva ?? 0,
-        precioTotal: (be.total ?? 0) + (be.total ?? 0),
-        cantidad: 1,
-      });
-    });
-
-    return biomedicalEquipment;
-  };
 
   const formatAll = () => {
-    return [...formatArticles(), ...formatRooms(), ...formatCabinetStudies(), ...formatBiomedicalEquipment()];
+    return [...formatArticles(), ...formatRooms(), ...formatCabinetStudies()];
   };
 
   useEffect(() => {
@@ -382,7 +347,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         setItems(formatArticles());
         setIva(
           formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0))
+            .flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
@@ -404,8 +369,8 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         setItems(newItems);
         setIva(
           formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0))
-            .concat(formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0)))
+            .flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0))
+            .concat(formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0)))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
@@ -429,7 +394,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         setItems([...formatAll()]);
         setIva(
           formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.iva, data.descuento ?? 0))
+            .flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0))
             .reduce((prev, val) => prev + val, 0)
         );
         setSubTotal(
@@ -455,7 +420,6 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
   return (
     <Card sx={{ mt: 2 }}>
       <>
-        {items.length ?? 'papu'}
         <TableContainer>
           <Table>
             <TableHeaderComponent headers={INVOICE_TABLE_HEADERS} />
@@ -479,7 +443,7 @@ const TableRowItemsToBeInvoiced = (props: {
     nombre: string;
     precioUnitario: number;
     precioNeto: number;
-    iva: number;
+    precioIVA: number;
     precioTotal: number;
     cantidad: number;
   };
@@ -499,7 +463,7 @@ const TableRowItemsToBeInvoiced = (props: {
         />
       </TableCell>
       <TableCell>
-        <PriceCell discountedPrice={calculateDiscountedPrice(data.iva, discount)} originalPrice={data.iva} />
+        <PriceCell discountedPrice={calculateDiscountedPrice(data.precioIVA, discount)} originalPrice={data.precioIVA} />
       </TableCell>
       <TableCell>
         <PriceCell

@@ -20,7 +20,7 @@ export const PatientInvoice = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SearchBar searchState={setSearch} title="Buscar la solicitud..." sx={{ flex: 1 }} />
+          <SearchBar searchState={setSearch} title="Buscar la cuenta paciente..." sx={{ flex: 1 }} />
         </Box>
         <PatientInvoiceTable />
       </Box>

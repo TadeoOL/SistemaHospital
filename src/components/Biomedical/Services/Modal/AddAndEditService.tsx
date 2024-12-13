@@ -17,6 +17,7 @@ import { useApiConfigStore } from '@/store/apiConfig';
 import { InputBasic, SelectBasic } from '@/common/components';
 import { ContpaqiProductService } from '@/services/contpaqi/contpaqi.product.service';
 import { InvoiceProductService } from '@/services/invoice/invoice.product.service';
+import { useGetSizeUnit } from '@/hooks/contpaqi/useGetSizeUnit';
 
 const REQUEST_TYPES = [
   {
@@ -81,6 +82,7 @@ interface Inputs {
 export const AddAndEditXRay = (props: AddAndEditServiceProps) => {
   const { service } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const { sizeUnit, isLoadingConcepts } = useGetSizeUnit();
   const hasInvoiceService = useApiConfigStore((state) => state.hasInvoiceService);
   const refetch = useXRayPaginationStore((state) => state.fetchData);
   const {
@@ -227,15 +229,20 @@ export const AddAndEditXRay = (props: AddAndEditServiceProps) => {
               <InputBasic label="Codigo SAT" placeholder="Escribe un código SAT" fullWidth {...register('codigoSAT')} />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputBasic
-                type="number"
-                placeholder="Escribe un código de unidad de medida"
-                label="Codigo Unidad de Medida"
-                fullWidth
-                {...register('codigoUnidadMedida', {
-                  valueAsNumber: true,
-                })}
-              />
+              {isLoadingConcepts ?
+              (<CircularProgress size={15} />)
+              :
+              (<SelectBasic
+                value={watch('codigoUnidadMedida')}
+                label="Código Unidad de Medida"
+                options={sizeUnit}
+                uniqueProperty="id_UnidadMedida"
+                displayProperty="nombre"
+                placeholder="Seleccione una Unidad de Medida"
+                helperText={errors?.codigoUnidadMedida?.message}
+                error={!!errors.codigoUnidadMedida}
+                {...register('codigoUnidadMedida')}
+              />)}
             </Grid>
             <Grid item xs={12} md={6}>
               <SelectBasic
