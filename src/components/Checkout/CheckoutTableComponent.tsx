@@ -298,7 +298,11 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
       <TableRow>
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-           { data.detalleVenta  && data.detalleVenta.length > 0  && <IconButton onClick={() => setOpenRows(!openRows)}>{!openRows ? <ExpandMore /> : <ExpandLess />}</IconButton>}
+            {data.detalleVenta && data.detalleVenta.length > 0 && (
+              <IconButton onClick={() => setOpenRows(!openRows)}>
+                {!openRows ? <ExpandMore /> : <ExpandLess />}
+              </IconButton>
+            )}
             <Tooltip title={returnIcon(data.estatus).title}>{returnIcon(data.estatus).icon}</Tooltip>
             <Typography sx={{ fontWeight: 400, fontSize: 12 }}>{data.folio}</Typography>
           </Box>
@@ -364,13 +368,15 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
           )}
         </TableCell>
       </TableRow>
-      { data.detalleVenta  && data.detalleVenta.length > 0 && (<TableRow>
-              <TableCell colSpan={8} sx={{ padding: 0 }}>
-                <Collapse in={openRows} unmountOnExit>
-                  <SubItemsTable articles={data.detalleVenta} />
-                </Collapse>
-              </TableCell>
-            </TableRow>)}
+      {data.detalleVenta && data.detalleVenta.length > 0 && (
+        <TableRow>
+          <TableCell colSpan={8} sx={{ padding: 0 }}>
+            <Collapse in={openRows} unmountOnExit>
+              <SubItemsTable articles={data.detalleVenta} />
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      )}
       <Modal open={open} onClose={() => setOpen(false)}>
         <>
           <CloseSaleModal setOpen={setOpen} sellData={data} />
@@ -401,6 +407,9 @@ const SubItemsTable: React.FC<SubItemsTableProps> = ({ articles }) => {
           <TableRow>
             <StyledTableCell align="center">Nombre Articulo</StyledTableCell>
             <StyledTableCell align="center">Cantidad</StyledTableCell>
+            <StyledTableCell align="center">Precio Unitario</StyledTableCell>
+            <StyledTableCell align="center">Neto</StyledTableCell>
+            <StyledTableCell align="center">IVA</StyledTableCell>
             <StyledTableCell align="center">Total</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -421,7 +430,10 @@ const SubItemsTableRow: React.FC<SubItemsTableRowProps> = ({ articleR }) => {
     <TableRow key={articleR.id_Articulo}>
       <TableCell align="center">{articleR.nombre}</TableCell>
       <TableCell align="center">{articleR.cantidad}</TableCell>
-      <TableCell align="center">{articleR.total}</TableCell>
+      <TableCell align="center">$ {articleR.precioUnitario}</TableCell>
+      <TableCell align="center">$ {articleR.precioNeto}</TableCell>
+      <TableCell align="center">$ {articleR.iva}</TableCell>
+      <TableCell align="center">$ {articleR.total}</TableCell>
     </TableRow>
   );
 };
