@@ -13,7 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
 import React, { useState } from 'react';
-import { SortComponent } from '../../components/Commons/SortComponent';
+import { SortComponent } from '@/components/Commons/SortComponent';
 import { Box, Card, Typography } from '@mui/material';
 import { Stack } from '@mui/material';
 import { TableBasicColumn, TableBasicProps } from '@/types/tableComponentTypes';

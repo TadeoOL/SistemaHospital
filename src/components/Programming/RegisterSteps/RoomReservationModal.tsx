@@ -31,6 +31,7 @@ interface RoomsInput {
   room: string;
   startTime: Dayjs;
   endDate: Dayjs;
+  stayDays?: number;
 }
 
 interface RoomReservationModalProps {
@@ -75,6 +76,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
     },
   });
   const watchRoomId = watchRooms('room');
+  const watchEndTime = watchRooms('endDate');
 
   const onSubmitRooms: SubmitHandler<RoomsInput> = async (data) => {
     const startTimeDayjs = dayjs(data.startTime).format('DD/MM/YYYY - HH:mm');
@@ -288,6 +290,17 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const hasSelectedRoom = () => {
     return roomValues.length > 0;
   };
+  const watchStartTime = watchRooms('startTime');
+  const watchStayDays = watchRooms('stayDays');
+
+  useEffect(() => {
+    console.log('watchStayDays:', watchStayDays);
+    if (watchStartTime && watchStayDays) {
+      const newEndDate = dayjs(watchStartTime).add(watchStayDays, 'day');
+      console.log('newEndDate:', newEndDate);
+      setValueRooms('endDate', newEndDate);
+    }
+  }, [watchStartTime, watchStayDays]);
 
   if (isLoading)
     return (
@@ -407,35 +420,47 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                 control={controlRooms}
                 name="endDate"
                 render={({ field: { onChange, value } }) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                      label="Hora salida"
-                      ampm={false}
-                      value={value}
-                      onChange={(date) => {
-                        const dayjsToDate = date?.toDate();
-                        setCurrentDate(dayjsToDate as Date);
-                        onChange(date);
-                      }}
-                      minDateTime={dayjs(new Date())}
-                      format="DD/MM/YYYY HH:mm"
-                      disabled={watchRoomId.trim() === ''}
-                      slotProps={{
-                        textField: {
-                          error: !!errorsRooms.endDate?.message,
-                          helperText: !!errorsRooms.endDate?.message ? errorsRooms.endDate.message : null,
-                        },
-                      }}
-                      shouldDisableTime={(date) => verifyTime(date)}
-                      shouldDisableDate={(date) => verifyDate(date)}
-                      onAccept={(e) => {
-                        if (verifyTime(e as Dayjs)) {
-                          toast.error('La fecha no es valida!');
-                          onChange(dayjs().add(1, 'hour'));
+                  <TextField
+                    type="number"
+                    label="Días de estancia"
+                    fullWidth
+                    InputProps={{
+                      inputProps: {
+                        min: 1,
+                        max: 365,
+                      },
+                      onKeyDown: (e) => {
+                        if (e.key === '-' || e.key === '+' || e.key === 'e') {
+                          e.preventDefault();
                         }
-                      }}
-                    />
-                  </LocalizationProvider>
+                      },
+                    }}
+                    disabled={watchRoomId.trim() === ''}
+                    value={value || ''}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      console.log('inputValue', inputValue);
+
+                      if (inputValue === '') {
+                        onChange('');
+                        return;
+                      }
+
+                      const days = parseInt(inputValue);
+
+                      if (!isNaN(days) && days >= 1 && days <= 365 && Number.isInteger(days)) {
+                        onChange(days);
+                        setCurrentDate(
+                          new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + days)
+                        );
+                      }
+                    }}
+                    error={!!errorsRooms.stayDays?.message}
+                    helperText={
+                      errorsRooms.stayDays?.message ||
+                      `Fecha de salida estimada: ${watchEndTime?.format('DD/MM/YYYY - HH:mm')}`
+                    }
+                  />
                 )}
               />
             </Grid>

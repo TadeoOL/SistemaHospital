@@ -149,14 +149,17 @@ export const CloseSaleModal = (props: CloseSaleModalProps) => {
   }, [hasAnotherPaymentMethod]);
 
   useEffect(() => {
-    if (!hasAnotherPaymentMethod) {
+    if (paymentSelected !== 'Efectivo') {
       console.log('sellData.totalVenta:', sellData.totalVenta);
       setPaymentAmount(Number(sellData.totalVenta).toString());
+    }
+
+    if (!hasAnotherPaymentMethod) {
       setPaymentAmount2('0');
     }
 
     if (hasAnotherPaymentMethod) {
-      const remaining = sellData.totalVenta - parseFloat(paymentAmount);
+      const remaining = (Number(sellData.totalVenta) * 10 - Number(paymentAmount) * 10) / 10;
       setPaymentAmount2(remaining >= 0 ? remaining.toString() : '0');
     }
   }, [paymentSelected, paymentAmount, paymentSelected2, paymentAmount2]);

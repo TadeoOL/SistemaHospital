@@ -4,8 +4,8 @@ import WidgetCard from '@/common/components/WidgetCard';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useState } from 'react';
 import AuthorizationModal from '../components/AuthorizationModal';
-import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 import { useNavigate } from 'react-router-dom';
+import { getRevolventes } from '../services/cashflow';
 
 const CashFlow = () => {
   const [openAuthorizationModal, setOpenAuthorizationModal] = useState(false);
@@ -29,6 +29,14 @@ const CashFlow = () => {
     },
   };
 
+  // formats date from 2024-12-12T10:26:48.5475394 to 12/12/2024 10:26:48
+  const formatDate = (date: string) => {
+    const [day, time] = date.split('T');
+    const [year, month, day2] = day.split('-');
+    const [time2] = time.split('.');
+    return `${day2}/${month}/${year} ${time2}`;
+  };
+
   const columns = [
     {
       header: 'Folio',
@@ -36,15 +44,15 @@ const CashFlow = () => {
     },
     {
       header: 'Concepto',
-      value: 'Concepto',
+      value: 'concepto',
     },
     {
       header: 'Cantidad',
-      value: 'Cantidad',
+      value: 'cantidad',
     },
     {
       header: 'Fecha Ingreso',
-      value: 'Fecha',
+      value: (row: any) => formatDate(row.fechaIngreso),
     },
   ];
 
@@ -93,7 +101,7 @@ const CashFlow = () => {
         >
           Ultimos Movimientos
         </Typography>
-        <TablePaginated columns={columns} fetchData={getEmptyResponse} params={{}} />
+        <TablePaginated columns={columns} fetchData={getRevolventes} params={{}} />
       </MainCard>
       <AuthorizationModal open={openAuthorizationModal} onClose={handles.closeAuthorizationModal} />
     </>

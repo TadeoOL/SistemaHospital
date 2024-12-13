@@ -152,7 +152,7 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
         ws.current.send(JSON.stringify(objWS));
         toast.success('Ticket generado con éxito!');
         clearData();
-      }/* else {
+      } /* else {
         toast.error('Error al conectar con el WebSocket!');
       }*/
       refetch();
@@ -260,7 +260,7 @@ const TableRowArticleResume = (props: TableRowArticleResumeProps) => {
       <TableCell>{article.codigoBarras}</TableCell>
       <TableCell>{article.cantidad}</TableCell>
       <TableCell>{article.precioVenta}</TableCell>
-      <TableCell>{article.iva ?? 0}</TableCell>
+      <TableCell>{article.iva ? (Number(totalPriceArticle) * 0.16).toFixed(2) : 0}</TableCell>
       <TableCell>{totalPriceArticle}</TableCell>
     </TableRow>
   );
