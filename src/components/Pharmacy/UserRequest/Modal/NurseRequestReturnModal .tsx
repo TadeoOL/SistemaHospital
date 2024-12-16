@@ -32,6 +32,7 @@ import { getHospitalRoomArticles } from '../../../../services/programming/hospit
 import { getPatientsWithAccount } from '../../../../services/admission/admisionService';
 import { useReturnRequestOrderStore } from '../../../../store/pharmacy/nurseRequest/nurseRequestOrderReturn';
 import { SearchBar } from '../../../Inputs/SearchBar';
+import { generatearticlesChargedPDF } from '../../Catalogue/Modal/pdfs/generateArticlesChargedPDF';
 
 const OPTIONS_LIMIT = 30;
 
@@ -237,6 +238,11 @@ export const NurseRequestReturnModal = (props: Props) => {
     }
     try {
       await createReturnArticlesRequest(object);
+      generatearticlesChargedPDF({
+                          pacienteNombre: userSelected?.nombrePaciente ?? '',
+                          quirofano: roomSelected?.nombreEspacioHospitalario ?? '',
+                          articulos: articles
+                        })
       toast.success('Solicitud creada');
       props.refetch(props.warehouseId);
       props.setOpen(false);

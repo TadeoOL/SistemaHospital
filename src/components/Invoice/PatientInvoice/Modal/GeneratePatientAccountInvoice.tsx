@@ -109,9 +109,9 @@ export const GeneratePatientAccountInvoice = ({
     
     const productsSelected = (): IInvoiceItem[] =>{
       switch(invoiceMethodSelected){
-        case 0:
-          return data.articulos
         case 1:
+          return data.articulos
+        case 2:
           return [...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
         default:
          return [...data.articulos,...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]

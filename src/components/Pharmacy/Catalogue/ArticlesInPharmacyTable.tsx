@@ -20,13 +20,13 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import PersonIcon from '@mui/icons-material/Person';
-import { Info, Warning } from '@mui/icons-material';
+import { Info, Warning, Print } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import { warning } from '../../../theme/colors';
 import { useExistingArticlePagination } from '../../../store/warehouseStore/existingArticlePagination';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import { SearchBar } from '../../Inputs/SearchBar';
-import { IExistingArticle, IWarehouseData } from '../../../types/types';
+import { IExistingArticle, IPatientFromSearch, IWarehouseData } from '../../../types/types';
 import { ArticlesExitModal } from './Modal/ArticlesExitModal';
 import { SortComponent } from '../../Commons/SortComponent';
 import { usePosTabNavStore } from '../../../store/pharmacy/pointOfSale/posTabNav';
@@ -40,6 +40,8 @@ import { createFilterOptions } from '@mui/material';
 import { TextField } from '@mui/material';
 import { getPatientHospitalSpaces } from '@/services/admission/admisionService';
 import { getHospitalRoomArticles } from '@/services/programming/hospitalSpace';
+import { IPatientHospitalSpace } from '@/types/admission/admissionTypes';
+import { generatearticlesChargedPDF } from './Modal/pdfs/generateArticlesChargedPDF';
 
 const OPTIONS_LIMIT = 30;
 const filterPatientOptions = createFilterOptions<any>({
@@ -48,7 +50,7 @@ const filterPatientOptions = createFilterOptions<any>({
 
 const usePatientsOnSelect = (search: string) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<IPatientFromSearch[]>([]);
 
   const fetchPatients = async (search: string) => {
     setIsLoading(true);
@@ -73,7 +75,7 @@ const usePatientsOnSelect = (search: string) => {
 };
 
 const useHospitalRoom = (patient: any | null) => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<IPatientHospitalSpace[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchHospitalRoom = async (patient: any) => {
@@ -112,7 +114,6 @@ const useHospitalRoomArticles = (hospitalRoomId: any | null) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchHospitalRoom = async (hospitalRoomId: any) => {
-    console.log('hospitalRoomId:', hospitalRoomId);
     setIsLoading(true);
 
     if (!hospitalRoomId) {
@@ -244,16 +245,24 @@ export const ArticlesPharmacyTable = () => {
   const [exitArticlesM, setExitArticlesM] = useState(false);
   const [entryArticlesM, setEntryArticlesM] = useState(false);
   const [openPatientChargesModal, setOpenPatientChargesModal] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState<IPatientFromSearch | null>(null);
   const [patientSearch, setPatientSearch] = useState('');
 
   const { isLoading: isLoadingPatients, data: patientsData } = usePatientsOnSelect(patientSearch);
   const { isLoading: isLoadingHospitalRoom, data: hospitalRooms } = useHospitalRoom(selectedPatient);
 
-  const [selectedHospitalRoom, setSelectedHospitalRoom] = useState<any | null>(null);
+  const [selectedHospitalRoom, setSelectedHospitalRoom] = useState<IPatientHospitalSpace | null>(null);
 
   const { isLoading: isLoadingHospitalRoomArticles, data: hospitalRoomArticles } =
-    useHospitalRoomArticles(selectedHospitalRoom);
+    useHospitalRoomArticles(selectedHospitalRoom?.id_EspacioHospitalario);
+
+  const totalArticles = (): number => {
+    if(hospitalRoomArticles !== null && hospitalRoomArticles.length > 0){
+      const quantities: number[] = hospitalRoomArticles.map((art: any) => art.cantidad as number);
+      return quantities.reduce((acc, numb) => acc + numb, 0)
+    }
+    return 0;
+  }
 
   const columns: any[] = [
     {
@@ -465,14 +474,33 @@ export const ArticlesPharmacyTable = () => {
                 options={hospitalRooms}
                 value={selectedHospitalRoom}
                 onChange={(e: any) => {
-                  setSelectedHospitalRoom(e.target.value);
+                  setSelectedHospitalRoom(hospitalRooms?.find((hos) => hos.id_EspacioHospitalario === e.target.value)?? null);
                 }}
               />
+            </Grid>
+            <Grid item xs={12} md={6} sx={{display:'flex'}}>
+                <Typography sx={{my:'auto', textAlign:'center'}} >Cantidad de Articulos: {totalArticles()}</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+           { hospitalRoomArticles!== null && selectedHospitalRoom !==null && <Button
+                sx={{ minWidth: 100 }}
+                variant="contained"
+                endIcon={<Print />}
+                onClick={() => {
+                  generatearticlesChargedPDF({
+                    pacienteNombre: selectedPatient?.nombrePaciente ?? '',
+                    quirofano: selectedHospitalRoom?.nombre ?? '',
+                    articulos: hospitalRoomArticles? hospitalRoomArticles : []
+                  })
+                }}
+              >
+                Imprimir cargos
+              </Button>}
             </Grid>
           </Grid>
 
           <TableBasic
-            rows={hospitalRoomArticles}
+            rows={hospitalRoomArticles? hospitalRoomArticles.sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : []}
             isLoading={isLoadingHospitalRoomArticles}
             columns={columns}
           ></TableBasic>

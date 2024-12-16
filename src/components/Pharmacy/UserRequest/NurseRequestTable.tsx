@@ -33,6 +33,7 @@ import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlin
 import { getStatus } from '../../../utils/NurseRequestUtils';
 import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
 import { NurseRequestReturnModal } from './Modal/NurseRequestReturnModal ';
+import { generatearticlesChargedPDF } from '../Catalogue/Modal/pdfs/generateArticlesChargedPDF';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -97,7 +98,7 @@ export const useGetNursesRequest = () => {
   }, []);*/
 
   useEffect(() => {
-    if(warehousePharmacyData.id_Almacen){
+    if (warehousePharmacyData.id_Almacen) {
       fetchData(warehousePharmacyData.id_Almacen);
     }
   }, [search, startDate, endDate, clearFilters, isLoadingWarehouse,/* sort,*/ pageSize, pageIndex]);
@@ -362,10 +363,12 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
           <Tooltip title="Imprimir">
             <IconButton
               onClick={() => {
-                /*setOpen(true);
-                setOpenNewLote(true);
-                setIsEditingSubRow(true);
-                */
+                console.log(nurseRequest);
+                generatearticlesChargedPDF({
+                  pacienteNombre: nurseRequest.paciente ?? '',
+                  quirofano: nurseRequest.espacioHospitalario,
+                  articulos: nurseRequest.articulos
+                })
               }}
             >
               <LocalPrintshopOutlinedIcon />

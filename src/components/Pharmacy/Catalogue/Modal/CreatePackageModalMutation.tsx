@@ -298,7 +298,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, is
             </TableRow>
           </TableHead>
           <TableBody>
-            {articles.map((article) => (
+            {articles.sort((a,b) => a.nombre.localeCompare(b.nombre)).map((article) => (
               <ArticlesTableRow
                 article={article}
                 key={article.id_Articulo}
