@@ -442,7 +442,7 @@ export const NurseRequestModal = (props: Props) => {
                 )}
               </Stack>
               {!samiPatient && (
-                <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300, ml: 'auto' }}>
+                <Stack sx={{ display: 'flex', flex: 1, maxWidth: 450, ml: 'auto' }}>
                   <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
 
                   <Autocomplete
@@ -455,7 +455,7 @@ export const NurseRequestModal = (props: Props) => {
                       setRoomError(false); //ñaca
                     }}
                     loading={isLoadingRooms && rooms.length === 0}
-                    getOptionLabel={(option) => option.nombreEspacioHospitalario}
+                    getOptionLabel={(option) => option.nombreEspacioHospitalario+" - "+option.horaInicio}
                     options={rooms}
                     value={roomSelected}
                     isOptionEqualToValue={(option, value) =>
