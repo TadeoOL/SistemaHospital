@@ -5,7 +5,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useState } from 'react';
 import AuthorizationModal from '../components/AuthorizationModal';
 import { useNavigate } from 'react-router-dom';
-import { getRevolventes } from '../services/cashflow';
+import { getPaginacionRevolventes } from '../services/cashflow';
 
 const CashFlow = () => {
   const [openAuthorizationModal, setOpenAuthorizationModal] = useState(false);
@@ -101,7 +101,7 @@ const CashFlow = () => {
         >
           Ultimos Movimientos
         </Typography>
-        <TablePaginated columns={columns} fetchData={getRevolventes} params={{}} />
+        <TablePaginated columns={columns} fetchData={getPaginacionRevolventes} params={{}} />
       </MainCard>
       <AuthorizationModal open={openAuthorizationModal} onClose={handles.closeAuthorizationModal} />
     </>

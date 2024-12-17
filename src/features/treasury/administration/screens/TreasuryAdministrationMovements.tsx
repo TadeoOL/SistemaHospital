@@ -1,6 +1,6 @@
 import { MainCard, TablePaginated } from '@/common/components';
 import { Typography } from '@mui/material';
-import { getEmptyResponse } from '../../helpers/getEmptyResponse';
+import { getMovimientosDireccion } from '../services/administration';
 
 const TreasuryAdministrationMovements = () => {
   const columns = [
@@ -32,7 +32,7 @@ const TreasuryAdministrationMovements = () => {
       >
         Consulta de Movimientos
       </Typography>
-      <TablePaginated columns={columns} fetchData={getEmptyResponse} params={{}} />
+      <TablePaginated columns={columns} fetchData={getMovimientosDireccion} params={{}} />
     </MainCard>
   );
 };

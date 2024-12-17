@@ -3,12 +3,12 @@ import { useState } from 'react';
 import AuthorizationModal from '../components/AuthorizationModal';
 import { Button } from '@mui/material';
 import { MainCard, TablePaginated } from '@/common/components';
-import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 import MonthlyBarChart from '@/common/components/MonthlyBarChart';
+import { getPaginacionSalidasMonetarias } from '../services/cashflow';
 
 const CashFlowAccountState = () => {
   const [openAuthorizationModal, setOpenAuthorizationModal] = useState(false);
@@ -106,7 +106,7 @@ const CashFlowAccountState = () => {
         >
           Ultimos Movimientos
         </Typography>
-        <TablePaginated columns={columns} fetchData={getEmptyResponse} params={{}} />
+        <TablePaginated columns={columns} fetchData={getPaginacionSalidasMonetarias} params={{}} />
       </MainCard>
 
       <AuthorizationModal open={openAuthorizationModal} onClose={handles.closeAuthorizationModal} />
