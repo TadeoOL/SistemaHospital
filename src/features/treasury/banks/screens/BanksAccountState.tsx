@@ -7,6 +7,7 @@ import { TablePaginatedColumn } from '@/types/tableComponentTypes';
 import { BankService } from '../services/services.bank';
 import { useGetBankMovements } from '../hooks/useGetBankMovements';
 import { convertDate } from '@/utils/convertDate';
+import { MovementArea } from '../../types/types.common';
 
 const BanksAccountState = () => {
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date; weekly: boolean }>({
@@ -22,8 +23,8 @@ const BanksAccountState = () => {
   const params = {
     fechaInicio: convertDate(removeTimeFromDate(dateRange.start)),
     fechaFin: convertDate(removeTimeFromDate(dateRange.end)),
-    id_Origen: 2,
-    id_Destino: 2,
+    id_Origen: MovementArea.BANCO,
+    id_Destino: MovementArea.BANCO,
     esSemanal: dateRange.weekly,
   };
   const { data: bankMovements } = useGetBankMovements(params);
