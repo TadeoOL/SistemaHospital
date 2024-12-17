@@ -1,4 +1,4 @@
-name: Push to hospital-front
+name: Test build
 
 on:
   pull_request:
