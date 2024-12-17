@@ -5,8 +5,6 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 // import AuthorizationModal from '../components/AuthorizationModal';
 import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { getSaldoBanco } from '../services/banks';
 
 const Banks = () => {
   const navigation = useNavigate();
@@ -38,18 +36,6 @@ const Banks = () => {
       value: 'Fecha',
     },
   ];
-
-  const [saldo, setSaldo] = useState(0);
-
-  const loadSaldo = async () => {
-    const res = await getSaldoBanco();
-    console.log('res:', res);
-    // setSaldo(res.saldo);
-  };
-
-  useEffect(() => {
-    loadSaldo();
-  }, []);
 
   return (
     <>

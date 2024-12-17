@@ -1,6 +1,6 @@
 import { MainCard, TablePaginated } from '@/common/components';
 import { Typography } from '@mui/material';
-import { getPaginacionDepositosPendientes } from '../services/administration';
+import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 
 const TreasuryAdministrationDeposits = () => {
   const columns = [
@@ -32,7 +32,7 @@ const TreasuryAdministrationDeposits = () => {
       >
         Depositos Pendientes
       </Typography>
-      <TablePaginated columns={columns} fetchData={getPaginacionDepositosPendientes} params={{}} />
+      <TablePaginated columns={columns} fetchData={getEmptyResponse} params={{}} />
     </MainCard>
   );
 };
