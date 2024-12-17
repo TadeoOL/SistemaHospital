@@ -1,4 +1,4 @@
-name: Push to Agroeasy_Backend
+name: Push to hospital-front
 
 on:
   pull_request:
