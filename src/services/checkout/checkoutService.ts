@@ -1,6 +1,7 @@
 import axios from '../../libs/axios';
 import { IConfigEmitterUsers } from '../../types/checkout/checkoutConfigTypes';
 const apiCheckout = '/api/Caja';
+const apiGoToRegister = '/api/PaseCaja';
 
 export interface CheckoutResume {
   efectivo: number;
@@ -26,7 +27,8 @@ export const getSells = async (param: string) => {
   return res.data;
 };
 
-export const registerSell = async (data: { // Eliminar
+export const registerSell = async (data: {
+  // Eliminar
   paciente: string;
   totalVenta: number;
   moduloProveniente: string;
@@ -88,10 +90,7 @@ export const changeSellNote = async (data: { id_VentaPrincipal: string; Notas: s
   return res.data;
 };
 
-export const registerCashVoucher = async (data: {
-  totalVenta: number;
-  notas?: string;
-}) => {
-  const res = await axios.post(`${apiCheckout}/registrar-pase-caja`, data);
+export const registerCashVoucher = async (data: { totalVenta: number; notas?: string }) => {
+  const res = await axios.post(`${apiGoToRegister}/registrar-pase-caja`, data);
   return res.data;
 };

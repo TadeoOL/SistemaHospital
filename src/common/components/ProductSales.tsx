@@ -78,7 +78,7 @@ export default function ProductSales() {
       </Grid>
       <SimpleBarScroll
         sx={{
-          height: 290,
+          height: 330,
         }}
       >
         <TableContainer>

@@ -8,16 +8,8 @@ import Box from '@mui/material/Box';
 
 import { LineChart } from '@mui/x-charts/LineChart';
 import { ThemeMode } from '@/config';
-
-// Sample data
-const monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const weeklyLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-const monthlyData1 = [76, 85, 101, 98, 87, 105, 91, 114, 94, 86, 115, 35];
-const weeklyData1 = [31, 40, 28, 51, 42, 109, 100];
-
-const monthlyData2 = [110, 60, 150, 35, 60, 36, 26, 45, 65, 52, 53, 41];
-const weeklyData2 = [11, 32, 45, 32, 34, 52, 41];
+import { Button, Grid } from '@mui/material';
+import DateRangeSelector from './DateRangeSelector';
 
 interface ItemProps {
   label: string;
@@ -27,6 +19,12 @@ interface ItemProps {
 
 interface Props {
   view: 'monthly' | 'weekly';
+  incomeMonthlyData?: number[];
+  expenseMonthlyData?: number[];
+  title?: string;
+  setDateRange?: (dateRange: { start: Date; end: Date; weekly: boolean }) => void;
+  dateRange?: { start: Date; end: Date; weekly: boolean };
+  labels?: string[];
 }
 
 function Legend({ items, onToggle }: { items: ItemProps[]; onToggle: (label: string) => void }) {
@@ -69,17 +67,24 @@ function Legend({ items, onToggle }: { items: ItemProps[]; onToggle: (label: str
 
 // ==============================|| INCOME AREA CHART ||============================== //
 
-export default function IncomeAreaChart({ view }: Props) {
+export default function IncomeAreaChart({
+  incomeMonthlyData,
+  expenseMonthlyData,
+  title,
+  setDateRange,
+  dateRange,
+  labels,
+  view,
+}: Props) {
   const theme = useTheme();
 
   const [visibility, setVisibility] = useState<{ [key: string]: boolean }>({
-    'Page views': true,
-    Sessions: true,
+    Ingresos: true,
+    Egresos: true,
   });
 
-  const labels = view === 'monthly' ? monthlyLabels : weeklyLabels;
-  const data1 = view === 'monthly' ? monthlyData1 : weeklyData1;
-  const data2 = view === 'monthly' ? monthlyData2 : weeklyData2;
+  const data1 = incomeMonthlyData;
+  const data2 = expenseMonthlyData;
 
   const line = theme.palette.divider;
 
@@ -90,31 +95,96 @@ export default function IncomeAreaChart({ view }: Props) {
   const visibleSeries = [
     {
       data: data1,
-      label: 'Page views',
+      label: 'Ingresos',
       showMark: false,
       area: true,
-      id: 'Germany',
+      id: 'Ingresos',
       color: theme.palette.primary.main || '',
-      visible: visibility['Page views'],
+      visible: visibility['Ingresos'],
     },
     {
       data: data2,
-      label: 'Sessions',
+      label: 'Egresos',
       showMark: false,
       area: true,
-      id: 'UK',
+      id: 'Egresos',
       color: theme.palette.primary[700] || '',
-      visible: visibility['Sessions'],
+      visible: visibility['Egresos'],
     },
   ];
 
   const axisFonstyle = { fontSize: 10, fill: theme.palette.text.secondary };
 
+  const getCurrentWeekRange = (): { start: Date; end: Date } => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    return { start: monday, end: sunday };
+  };
+
+  const handleDateRangeChange = (viewType: 'monthly' | 'weekly', start?: Date, end?: Date) => {
+    const newDateRange = { ...dateRange };
+
+    if (start && end) {
+      newDateRange.start = start;
+      newDateRange.end = end;
+    } else if (viewType === 'weekly') {
+      const { start, end } = getCurrentWeekRange();
+      newDateRange.start = start;
+      newDateRange.end = end;
+      newDateRange.weekly = true;
+    } else {
+      newDateRange.start = new Date(new Date().getFullYear(), 0, 1);
+      newDateRange.end = new Date(new Date().getFullYear() + 1, 0, 1);
+      newDateRange.weekly = false;
+    }
+
+    setDateRange?.(newDateRange as { start: Date; end: Date; weekly: boolean });
+  };
+
   return (
     <>
+      <Grid container spacing={2} alignItems="center" sx={{ p: 2 }}>
+        <Grid item xs={12} container alignItems="center" justifyContent="center">
+          <Typography variant="h6" sx={{ textAlign: 'center' }}>
+            {title}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={6} container justifyContent="center" alignItems="center">
+          <DateRangeSelector
+            view={view}
+            onDateRangeChange={handleDateRangeChange}
+            dateRange={dateRange as { start: Date; end: Date; weekly: boolean }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} container justifyContent={'flex-end'} alignItems="center">
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant={view === 'monthly' ? 'outlined' : 'light'}
+              size="small"
+              onClick={() => handleDateRangeChange('monthly')}
+            >
+              Año
+            </Button>
+            <Button
+              variant={view === 'weekly' ? 'outlined' : 'light'}
+              size="small"
+              onClick={() => handleDateRangeChange('weekly')}
+            >
+              Semana
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
       <LineChart
         grid={{ horizontal: true }}
-        xAxis={[{ scaleType: 'point', data: labels, disableLine: true, tickLabelStyle: axisFonstyle }]}
+        xAxis={[{ scaleType: 'point', data: labels, disableLine: true, tickLabelStyle: axisFonstyle, label: 'Mes' }]}
         yAxis={[{ disableLine: true, disableTicks: true, tickLabelStyle: axisFonstyle }]}
         height={450}
         margin={{ top: 40, bottom: 20, right: 20 }}
@@ -133,8 +203,8 @@ export default function IncomeAreaChart({ view }: Props) {
           }))}
         slotProps={{ legend: { hidden: true } }}
         sx={{
-          '& .MuiAreaElement-series-Germany': { fill: "url('#myGradient1')", strokeWidth: 2, opacity: 0.8 },
-          '& .MuiAreaElement-series-UK': { fill: "url('#myGradient2')", strokeWidth: 2, opacity: 0.8 },
+          '& .MuiAreaElement-series-Ingresos': { fill: "url('#myGradient1')", strokeWidth: 2, opacity: 0.8 },
+          '& .MuiAreaElement-series-Egresos': { fill: "url('#myGradient2')", strokeWidth: 2, opacity: 0.8 },
           '& .MuiChartsAxis-directionX .MuiChartsAxis-tick': { stroke: line },
         }}
       >
