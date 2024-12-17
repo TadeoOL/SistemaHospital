@@ -22,7 +22,7 @@ import { toast } from 'react-toastify';
 import { registerBillInvoice } from '../../../../services/invoice/invoicePatientBill';
 import { useInvoicePatientBillPaginationStore } from '../../../../store/invoice/invoicePatientBillPagination';
 import { ReportLoader } from '../../../Commons/Report/ReportLoader';
-import { useGetAccountFullInformation } from '../../../../hooks/programming/useGetAccountFullInformation';
+import { useGetAccountFullInformation, UseGetAccountFullInformationParams } from '../../../../hooks/programming/useGetAccountFullInformation';
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
 import { IAcountInvoiceFullInformation, IInvoiceItem } from '../../../../types/hospitalizationTypes';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
@@ -89,7 +89,17 @@ export const GeneratePatientAccountInvoice = ({
   patientKey,
   patientAccountId
 }: GeneratePatientAccountInvoiceProps) => {
-  const { data, isLoading } = useGetAccountFullInformation(patientAccountId);
+  const [objParams, setObjParams] = useState<UseGetAccountFullInformationParams>({
+    patientAccountId: patientAccountId,
+    opcionesFacturacion: {
+      articulos: false,
+      servicios: false,
+      cuartos: false,
+      quirofanos: false,
+      cirugias: false,
+    }
+  });
+  const { data, isLoading } = useGetAccountFullInformation(objParams);
   const { isLoadingConcepts, documentConcepts } = useGetAllDocumentConcepts();
   const [invoiceMethodSelected, setInvoiceMethodSelected] = useState(0);
   const [typeOfInvoiceSelected, setTypeOfInvoiceSelected] = useState(0);
@@ -106,29 +116,29 @@ export const GeneratePatientAccountInvoice = ({
   const handleGenerateInvoice = async () => {
     if (!invoiceMethodSelected) return toast.warning('Es necesario seleccionar un tipo de facturación');
     if (!typeOfInvoiceSelected) return toast.warning('Es necesario seleccionar un tipo de concepto para facturar');
-    
-    const productsSelected = (): IInvoiceItem[] =>{
-      switch(invoiceMethodSelected){
+
+    const productsSelected = (): IInvoiceItem[] => {
+      switch (invoiceMethodSelected) {
         case 1:
           return data.articulos
         case 2:
           return [...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
         default:
-         return [...data.articulos,...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
+          return [...data.articulos, ...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
       }
     }
-    
-    const objrequesOrder : objOrderRequest = {
+
+    const objrequesOrder: objOrderRequest = {
       tipoPedido: typeOfInvoiceSelected,
       subTotal: data.subTotal,
       iva: data.iva,
       total: data.total,
-      nombrePaciente : `Paciente: ${data.paciente.nombrePaciente} - Medico: ${data.paciente.nombreMedico}`,
-      productosFactura : productsSelected()
+      nombrePaciente: `Paciente: ${data.paciente.nombrePaciente} - Medico: ${data.paciente.nombreMedico}`,
+      productosFactura: productsSelected()
     }
     setLoadingGenerateInvoice(true);
     try {
-      const contpaqiRes  = await ContpaqiOrderService.requestOrder(objrequesOrder)
+      const contpaqiRes = await ContpaqiOrderService.requestOrder(objrequesOrder)
       await registerBillInvoice({
         id_CuentaPaciente: patientAccountId,
         id_VentaCaja: null,
@@ -197,7 +207,60 @@ export const GeneratePatientAccountInvoice = ({
                   label="Opciones a facturar"
                   fullWidth
                   value={invoiceMethodSelected}
-                  onChange={(e) => setInvoiceMethodSelected(e.target.value as any as number)}
+                  onChange={(e) => {
+                    const valueSelected = e.target.value as any as number
+                    setInvoiceMethodSelected(valueSelected);
+                    switch (valueSelected) {
+                      case 1:
+                        setObjParams({
+                          patientAccountId: patientAccountId,
+                          opcionesFacturacion: {
+                            articulos: true,
+                            servicios: false,
+                            cuartos: false,
+                            quirofanos: false,
+                            cirugias: false,
+                          }
+                        })
+                        break;
+                      case 2:
+                        setObjParams({
+                          patientAccountId: patientAccountId,
+                          opcionesFacturacion: {
+                            articulos: false,
+                            servicios: true,
+                            cuartos: true,
+                            quirofanos: true,
+                            cirugias: true,
+                          }
+                        })
+                        break;
+                      case 3:
+                        setObjParams({
+                          patientAccountId: patientAccountId,
+                          opcionesFacturacion: {
+                            articulos: true,
+                            servicios: true,
+                            cuartos: true,
+                            quirofanos: true,
+                            cirugias: true,
+                          }
+                        })
+                        break;
+                      default:
+                        setObjParams({
+                          patientAccountId: patientAccountId,
+                          opcionesFacturacion: {
+                            articulos: false,
+                            servicios: false,
+                            cuartos: false,
+                            quirofanos: false,
+                            cirugias: false,
+                          }
+                        })
+                        break;
+                    }
+                  }}
                 >
                   <MenuItem key={0} value={0}>
                     Seleccionar
@@ -220,7 +283,7 @@ export const GeneratePatientAccountInvoice = ({
                     <MenuItem key={0} value={0}>
                       Seleccionar
                     </MenuItem>
-                    { documentConcepts.length > 0 ? documentConcepts.map((i) => (
+                    {documentConcepts.length > 0 ? documentConcepts.map((i) => (
                       <MenuItem key={i.cidconceptodocumento} value={i.cidconceptodocumento}>
                         {i.cnombreconcepto.trim()}
                       </MenuItem>
@@ -363,9 +426,9 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
         break;
       case 2:
         const newItems = [
-         ... formatRooms(),
+          ...formatRooms(),
           ...formatCabinetStudies(),
-      ];
+        ];
         setItems(newItems);
         setIva(
           formatRooms()
@@ -424,7 +487,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
           <Table>
             <TableHeaderComponent headers={INVOICE_TABLE_HEADERS} />
             <TableBody>
-              {items?.map((d, i) => <TableRowItemsToBeInvoiced data={d} key={d.id+i} discount={data.descuento ?? 0} />)}
+              {items?.map((d, i) => <TableRowItemsToBeInvoiced data={d} key={d.id + i} discount={data.descuento ?? 0} />)}
             </TableBody>
           </Table>
         </TableContainer>
