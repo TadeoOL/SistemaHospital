@@ -1,5 +1,4 @@
 import { MainCard, TablePaginated } from '@/common/components';
-import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 import { Button, Grid, Typography } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -9,6 +8,7 @@ import dayjs from 'dayjs';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 import MonthlyBarChart from '@/common/components/MonthlyBarChart';
+import { getPaginacionSalidasMonetarias } from '../services/cashflow';
 
 const CashFlowBoxById = () => {
   const location = useLocation();
@@ -21,6 +21,7 @@ const CashFlowBoxById = () => {
   useEffect(() => {
     loadDataById();
   }, []);
+
   const [openNewExpenseModal, setOpenNewExpenseModal] = useState(false);
 
   const handles = {
@@ -114,7 +115,7 @@ const CashFlowBoxById = () => {
         >
           Ultimos Movimientos
         </Typography>
-        <TablePaginated columns={columns} fetchData={getEmptyResponse} params={{}} />
+        <TablePaginated columns={columns} fetchData={getPaginacionSalidasMonetarias} params={{}} />
       </MainCard>
       <ExpenseModal open={openNewExpenseModal} onClose={handles.closeNewExpenseModal} />
     </>

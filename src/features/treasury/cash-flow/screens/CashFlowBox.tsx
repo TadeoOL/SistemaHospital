@@ -1,23 +1,16 @@
-import { MainCard, TablePaginated } from '@/common/components';
-import { getEmptyResponse } from '../../helpers/getEmptyResponse';
-import { IconButton, Tooltip, Typography } from '@mui/material';
+import { MainCard, ModalBasic, TablePaginated } from '@/common/components';
+import { Button, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
+import { getPaginacionCajasRevolventes } from '../services/cashflow';
+import { useState } from 'react';
 
 const CashFlowBox = () => {
   const navigate = useNavigate();
 
-  const fakeData = [
-    {
-      id: 1,
-      folio: '123',
-      concepto: 'Pago de nomina',
-      cantidad: 1000,
-      fecha: '2021-10-10',
-    },
-  ];
+  const [openCreateBoxModal, setOpenCreateBoxModal] = useState(false);
 
   const handles = {
     handleView: (row: any) => {
@@ -28,6 +21,9 @@ const CashFlowBox = () => {
     },
     handleDelete: (row: any) => {
       console.log('row:', row);
+    },
+    handleOpenCreateBoxModal: () => {
+      setOpenCreateBoxModal(true);
     },
   };
 
@@ -75,9 +71,15 @@ const CashFlowBox = () => {
   return (
     <>
       <MainCard sx={{ mt: 1.5 }}>
-        <Typography variant="h5">Gestion de Cajas</Typography>
-        <TablePaginated columns={columns} fetchData={() => getEmptyResponse(fakeData)} params={{}} />
+        <Grid container direction={'row'} justifyContent={'space-between'} sx={{ pb: 2 }}>
+          <Typography variant="h5">Gestion de Cajas</Typography>
+          <Button variant="contained" onClick={handles.handleOpenCreateBoxModal}>
+            Crear Caja
+          </Button>
+        </Grid>
+        <TablePaginated columns={columns} fetchData={getPaginacionCajasRevolventes} params={{}} />
       </MainCard>
+      <ModalBasic></ModalBasic>
     </>
   );
 };
