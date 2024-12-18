@@ -3,8 +3,8 @@ import WidgetCard from '@/common/components/WidgetCard';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ProductSales from '@/common/components/ProductSales';
 import AcquisitionProducts from '../components/AcquisitionProducts';
-import AuthorizationModal from '../../cash-flow/components/AuthorizationModal';
 import useAdministration from '../hooks/useAdministration';
+import { AdministrationAuthorizationModal } from '../modals/AdministrationAuthorizationModal';
 
 const TreasuryAdministration = () => {
   const { state, handlers } = useAdministration();
@@ -52,7 +52,10 @@ const TreasuryAdministration = () => {
           <AcquisitionProducts />
         </Grid>
       </Grid>
-      <AuthorizationModal open={state.openAuthorizationModal} onClose={handlers.closeAuthorizationModal} />
+      <AdministrationAuthorizationModal
+        open={state.openAuthorizationModal}
+        onClose={handlers.closeAuthorizationModal}
+      />
     </>
   );
 };

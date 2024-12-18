@@ -1,9 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
+import { AuthorizationSchema } from '../schema/schema.administration';
 
-export const useCreateAuthorization = () => {
+export const useCreateAdministrationAuthorization = () => {
   return useMutation({
-    mutationFn: async (id: string) => {
-      console.log(id);
+    mutationFn: async (data: AuthorizationSchema) => {
+      console.log(data);
     },
   });
 };
