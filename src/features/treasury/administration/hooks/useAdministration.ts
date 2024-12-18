@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IAdministrationFund } from '../types/types.administration';
 import { useGetAdministrationFund } from './useGetAdministrationFund';
+import { AuthorizationSchema } from '../schema/schema.administration';
+import { useCreateAdministrationAuthorization } from './useCreateAuthorization';
+import { toast } from 'react-toastify';
 
 const initialFund: IAdministrationFund = {
   saldo: 0,
@@ -17,6 +20,7 @@ interface IHandlers {
   closeAuthorizationModal: () => void;
   navigateToDeposits: () => void;
   navigateToMovements: () => void;
+  createAuthorization: (data: AuthorizationSchema) => void;
 }
 interface IUseAdministration {
   state: IState;
@@ -25,6 +29,7 @@ interface IUseAdministration {
 
 const useAdministration = (): IUseAdministration => {
   const navigation = useNavigate();
+  const { mutate: createAuthorization } = useCreateAdministrationAuthorization();
   const { data: fundRes } = useGetAdministrationFund();
   const [state, setState] = useState<IState>({
     openAuthorizationModal: false,
@@ -58,6 +63,18 @@ const useAdministration = (): IUseAdministration => {
     },
     navigateToMovements: () => {
       navigation('/tesoreria/direccion/movimientos');
+    },
+    createAuthorization: (data: AuthorizationSchema) => {
+      createAuthorization(data, {
+        onSuccess: () => {
+          handlers.closeAuthorizationModal();
+          toast.success('Autorización creada correctamente');
+        },
+        onError: (error) => {
+          console.log(error);
+          toast.error('Error al crear la autorización');
+        },
+      });
     },
   };
 

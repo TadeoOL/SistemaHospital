@@ -1,10 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { authorizationSchema, AuthorizationSchema } from '../schema/schema.administration';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateAdministrationAuthorization } from './useCreateAuthorization';
 
-export const useAdministrationAuthorizationForm = (onClose: () => void) => {
-  const { mutate: createAuthorization } = useCreateAdministrationAuthorization();
+export const useAdministrationAuthorizationForm = (useCreateAuthorization: (data: AuthorizationSchema) => void) => {
   const methods = useForm<AuthorizationSchema>({
     resolver: zodResolver(authorizationSchema),
     values: {
@@ -15,8 +13,7 @@ export const useAdministrationAuthorizationForm = (onClose: () => void) => {
   });
 
   const handleSubmit = (data: AuthorizationSchema) => {
-    createAuthorization(data);
-    onClose();
+    useCreateAuthorization(data);
   };
 
   return { methods, handleSubmit: methods.handleSubmit(handleSubmit) };

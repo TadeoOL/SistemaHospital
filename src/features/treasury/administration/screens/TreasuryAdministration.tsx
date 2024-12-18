@@ -56,7 +56,7 @@ const TreasuryAdministration = () => {
       <AdministrationAuthorizationModal
         open={state.openAuthorizationModal}
         onClose={handlers.closeAuthorizationModal}
-        useAuthorizationForm={useAdministrationAuthorizationForm(handlers.closeAuthorizationModal)}
+        useAuthorizationForm={useAdministrationAuthorizationForm(handlers.createAuthorization)}
       />
     </>
   );
