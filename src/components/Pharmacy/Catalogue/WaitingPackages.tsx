@@ -1,5 +1,5 @@
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
-import { Info } from '@mui/icons-material';
+import { Info, LocalPrintshopOutlined } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import {
@@ -39,6 +39,7 @@ import { LuPackagePlus } from 'react-icons/lu';
 import { IArticleHistory, IarticlesPrebuildedRequest } from '../../../types/types';
 import { RequestBuildingModalMutation } from './Modal/CreatePackageModalMutation';
 import { toast } from 'react-toastify';
+import { generateArticlePackagePDF } from './Modal/pdfs/generateArticlePackagePDF';
 
 const STATUS: Record<number, string> = {
   0: 'Cancelada',
@@ -443,6 +444,19 @@ export const WaitingPackages = () => {
                                   </IconButton>
                                 </Tooltip>
                               )}
+                              {movimiento.estatus !== 0 && movimiento.estatus !== 1 && (
+                                <Tooltip title="Imprimir solicitud">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      generateArticlePackagePDF(movimiento)
+                                      console.log("AAAAAA");
+                                    }}
+                                  >
+                                    <LocalPrintshopOutlined />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                             </Box>
                           </TableCell>
                         </TableRow>
@@ -538,6 +552,7 @@ export const WaitingPackages = () => {
             preLoadedArticles={prebuildedArticles ?? ([] as IarticlesPrebuildedRequest[])}
             id_SolicitudAlmacen={packageSelected?.id_SolicitudAlmacen ?? ''}
             id_CuentaEspacioHospitalario={packageSelected?.id_CuentaEspacioHospitalario ?? ''}
+            warehouseId={warehouseIdSeted}
           />
         </>
       </Modal>

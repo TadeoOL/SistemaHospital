@@ -41,7 +41,7 @@ import { IHospitalSpace } from '@/types/admission/admissionTypes';
 import { getPatientInfoByAdmissionId, getPatientsWithAccount } from '@/services/programming/patientService';
 import { useGetAllNursesUsers } from '@/hooks/hospitalization/useGetAllNurse';
 import { chargeArticlesToPatientDirectly } from '@/services/pharmacy/inventoryOutflowsService';
-///cambiar esta fokin she
+
 const OPTIONS_LIMIT = 30;
 const filterArticleOptions = createFilterOptions<IArticleFromSearchWithQuantity>({
   limit: OPTIONS_LIMIT,
@@ -549,11 +549,10 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
                               articlesToSelect.map((art) => art.id_Articulo).includes(val.id_Articulo)
                             )
                           ) {
-                            console.log('no se wey');
+                            //nada
                           }
                           setArticleId(val.id_Articulo);
                           setArticleSelected(val);
-                          console.log('eldeste', val);
                           setArticleError(false);
                         }
                       }}

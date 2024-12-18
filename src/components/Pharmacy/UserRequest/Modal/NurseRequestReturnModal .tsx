@@ -562,7 +562,7 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
     shallow
   );
   return (
-    articleRow.nombre.includes(search) || search === '' ? <TableRow key={articleRow.id_Articulo}>
+    articleRow.nombre.includes(search.toUpperCase()) || search === '' ? <TableRow key={articleRow.id_Articulo}>
       <TableCell>
         {articleRow.nombre}
       </TableCell>
