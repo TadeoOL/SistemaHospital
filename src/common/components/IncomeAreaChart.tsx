@@ -10,6 +10,7 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import { ThemeMode } from '@/config';
 import { Button, Grid } from '@mui/material';
 import DateRangeSelector from './DateRangeSelector';
+import { getCurrentWeekRange } from '@/features/treasury/banks/utils/utils.bank';
 
 interface ItemProps {
   label: string;
@@ -114,19 +115,6 @@ export default function IncomeAreaChart({
   ];
 
   const axisFonstyle = { fontSize: 10, fill: theme.palette.text.secondary };
-
-  const getCurrentWeekRange = (): { start: Date; end: Date } => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    return { start: monday, end: sunday };
-  };
 
   const handleDateRangeChange = (viewType: 'monthly' | 'weekly', start?: Date, end?: Date) => {
     const newDateRange = { ...dateRange };

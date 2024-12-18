@@ -4,6 +4,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { es } from 'date-fns/locale';
 import { TextField, Popover, Paper, Grid, Button } from '@mui/material';
 import { format, addYears, addDays } from 'date-fns';
+import { getCurrentWeekRange } from '@/features/treasury/banks/utils/utils.bank';
 
 interface DateRangeSelectorProps {
   view: 'monthly' | 'weekly';
@@ -48,8 +49,16 @@ export default function DateRangeSelector({ view, onDateRangeChange, dateRange }
 
   const handleClear = () => {
     const currentYear = new Date().getFullYear();
-    const defaultStart = new Date(currentYear - 1, 0, 1);
-    const defaultEnd = new Date(currentYear, 11, 31);
+    let defaultStart: Date;
+    let defaultEnd: Date;
+    if (view === 'monthly') {
+      defaultStart = new Date(currentYear, 0, 1);
+      defaultEnd = new Date(currentYear + 1, 0, 1);
+    } else {
+      const { start, end } = getCurrentWeekRange();
+      defaultStart = start;
+      defaultEnd = end;
+    }
 
     setTempDateRange([null, null]);
     onDateRangeChange(view, defaultStart, defaultEnd);
