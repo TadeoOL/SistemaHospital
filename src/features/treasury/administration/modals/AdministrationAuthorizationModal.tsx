@@ -4,13 +4,16 @@ import { useAdministrationAuthorizationForm } from '../hooks/useAdministrationAu
 import { FormProvider } from 'react-hook-form';
 import AuthorizationModalActions from '../components/AuthorizationModalActions';
 import { useEffect } from 'react';
+import { useGetConcepts } from '../../hooks/useGetConcepts';
 interface Props {
   open: boolean;
   onClose: () => void;
   useAuthorizationForm: ReturnType<typeof useAdministrationAuthorizationForm>;
+  fund: number;
 }
-export const AdministrationAuthorizationModal = ({ open, onClose, useAuthorizationForm }: Props) => {
+export const AdministrationAuthorizationModal = ({ open, onClose, useAuthorizationForm, fund }: Props) => {
   const { methods, handleSubmit } = useAuthorizationForm;
+  const { data: concepts, isLoading } = useGetConcepts();
 
   useEffect(() => {
     if (!open) {
@@ -27,8 +30,9 @@ export const AdministrationAuthorizationModal = ({ open, onClose, useAuthorizati
         header="Crear autorización"
         onClose={onClose}
         actions={<AuthorizationModalActions key="actions" onCancel={onClose} onSubmit={handleSubmit} />}
+        isLoading={isLoading}
       >
-        <AuthorizationForm />
+        <AuthorizationForm concepts={concepts || []} fund={fund} />
       </ModalBasic>
     </FormProvider>
   );

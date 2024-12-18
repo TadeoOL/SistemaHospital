@@ -9,7 +9,6 @@ import { useAdministrationAuthorizationForm } from '../hooks/useAdministrationAu
 
 const TreasuryAdministration = () => {
   const { state, handlers } = useAdministration();
-  console.log(state.fund);
 
   return (
     <>
@@ -56,7 +55,8 @@ const TreasuryAdministration = () => {
       <AdministrationAuthorizationModal
         open={state.openAuthorizationModal}
         onClose={handlers.closeAuthorizationModal}
-        useAuthorizationForm={useAdministrationAuthorizationForm(handlers.createAuthorization)}
+        useAuthorizationForm={useAdministrationAuthorizationForm(handlers.createAuthorization, state.fund.saldo)}
+        fund={state.fund.saldo}
       />
     </>
   );
