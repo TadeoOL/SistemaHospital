@@ -1,11 +1,11 @@
 import { Grid } from '@mui/material';
-import { CashGraph } from '../../components/CashGraph';
 import WidgetCard from '@/common/components/WidgetCard';
 import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useState } from 'react';
 import FixedFundModal from '../components/FixedFundModal';
 import ProductSales from '@/common/components/ProductSales';
+import AcquisitionProducts from '../components/AcquisitionProducts';
 
 const TreasuryAdministration = () => {
   const navigation = useNavigate();
@@ -61,21 +61,14 @@ const TreasuryAdministration = () => {
           />
         </Grid>
       </Grid>
-      <Grid container direction={'row'}>
+      <Grid container direction={'row'} spacing={2}>
         <Grid item xs={12} md={4}>
           <ProductSales />
         </Grid>
+        <Grid item xs={12} md={8}>
+          <AcquisitionProducts />
+        </Grid>
       </Grid>
-      <CashGraph
-        header={'Direccion'}
-        chartSeries={[
-          {
-            name: 'This year',
-            data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-          },
-        ]}
-        sx={{ height: '100%' }}
-      />
       <FixedFundModal open={openFixedFundModal} onClose={handles.closeFixedFundModal} />
     </>
   );

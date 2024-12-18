@@ -2,25 +2,38 @@ import { useQuery } from '@tanstack/react-query';
 import { IAcountInvoiceFullInformation, IInvoiceItem } from '../../types/hospitalizationTypes';
 import { getAccountBillInformation } from '@/services/invoice/invoicePatientBill';
 
-export const useGetAccountFullInformation = (patientAccountId: string) => {
-  const obj = {
-    id_CuentaPaciente: patientAccountId,
-    opcionFacturacion: {
-      articulos: true,
-      servicios: true,
-      cuartos: true,
-      quirofanos: true,
-      equipoHonorario: true,
-      cirugias: true,
-    },
+export interface UseGetAccountFullInformationParams {
+  patientAccountId: string;
+  opcionesFacturacion?: {
+    articulos?: boolean;
+    servicios?: boolean;
+    cuartos?: boolean;
+    quirofanos?: boolean;
+    cirugias?: boolean;
   };
+}
 
+export const useGetAccountFullInformation = ({
+  patientAccountId,
+  opcionesFacturacion = {
+    articulos: true,
+    servicios: true,
+    cuartos: true,
+    quirofanos: true,
+    cirugias: true,
+  },
+}: UseGetAccountFullInformationParams) => {
   const { data, isError, isLoading } = useQuery({
-    queryKey: ['accountFullInformation', patientAccountId],
+    queryKey: [
+      'accountFullInformation', 
+      patientAccountId, 
+      opcionesFacturacion
+    ],
     queryFn: async () => {
-      const params = `Id_CuentaPaciente=${obj.id_CuentaPaciente}&Articulos=${obj.opcionFacturacion.articulos
-      }&Servicios=${obj.opcionFacturacion.servicios}&Cuartos=${obj.opcionFacturacion.cuartos
-      }&Quirofanos=${obj.opcionFacturacion.quirofanos}&Cirugias=${obj.opcionFacturacion.cirugias}`;
+      const params = `Id_CuentaPaciente=${patientAccountId}&Articulos=${opcionesFacturacion.articulos
+        }&Servicios=${opcionesFacturacion.servicios}&Cuartos=${opcionesFacturacion.cuartos
+        }&Quirofanos=${opcionesFacturacion.quirofanos}&Cirugias=${opcionesFacturacion.cirugias}`;
+      
       const rawData = await getAccountBillInformation(params);
 
       const formattedData: IAcountInvoiceFullInformation = {
@@ -68,6 +81,7 @@ export const useGetAccountFullInformation = (patientAccountId: string) => {
 
       return formattedData;
     },
+    enabled: !!patientAccountId,
   });
 
   return {

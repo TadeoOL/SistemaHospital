@@ -1,13 +1,18 @@
-import { MainCard, TablePaginated } from '@/common/components';
+import { FullscreenLoader, MainCard, TablePaginated } from '@/common/components';
 import { Grid, Typography } from '@mui/material';
 import WidgetCard from '@/common/components/WidgetCard';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-// import AuthorizationModal from '../components/AuthorizationModal';
-import { getEmptyResponse } from '../../helpers/getEmptyResponse';
 import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
+import { BankService } from '../services/services.bank';
+import { TablePaginatedColumn } from '@/types/tableComponentTypes';
+import { IBank } from '../types/types.bank';
+import { useGetBankFound } from '../hooks/useGetBankFound';
 
 const Banks = () => {
   const navigation = useNavigate();
+  const tableRef = useRef<IBank>(null);
+  const { data: bankFound, isLoading: isLoadingBankFound } = useGetBankFound();
 
   const handles = {
     navigateToAccountState: () => {
@@ -18,24 +23,28 @@ const Banks = () => {
     },
   };
 
-  const columns = [
+  const columns: TablePaginatedColumn<IBank>[] = [
     {
       header: 'Folio',
       value: 'folio',
     },
     {
       header: 'Concepto',
-      value: 'Concepto',
+      value: (row: IBank) => {
+        return row.concepto ? row.concepto : 'N/A';
+      },
     },
     {
       header: 'Cantidad',
-      value: 'Cantidad',
+      value: 'cantidad',
     },
     {
       header: 'Fecha Ingreso',
-      value: 'Fecha',
+      value: 'fechaIngreso',
     },
   ];
+
+  if (isLoadingBankFound) return <FullscreenLoader />;
 
   return (
     <>
@@ -51,7 +60,7 @@ const Banks = () => {
             onClick={handles.navigateToAccountState}
             top="Estado de Cuenta"
             center="Saldo"
-            bottom="$ 1,000.00"
+            bottom={`$${bankFound?.saldoTotal.toString()}`}
             bottom2={<RemoveRedEyeIcon />}
           />
         </Grid>
@@ -72,9 +81,8 @@ const Banks = () => {
         >
           Ultimos Movimientos
         </Typography>
-        <TablePaginated columns={columns} fetchData={getEmptyResponse} params={{}} />
+        <TablePaginated ref={tableRef} columns={columns} fetchData={BankService.getBankPagination} params={{}} />
       </MainCard>
-      {/* <AuthorizationModal open={openAuthorizationModal} onClose={handles.closeAuthorizationModal} /> */}
     </>
   );
 };
