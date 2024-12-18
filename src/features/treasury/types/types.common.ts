@@ -25,3 +25,9 @@ export interface ITreasuryMovement {
   fechaModificacion: string;
   habilitado: boolean;
 }
+
+export interface IConcept {
+  id: string;
+  nombre: string;
+  descripcion: string;
+}
