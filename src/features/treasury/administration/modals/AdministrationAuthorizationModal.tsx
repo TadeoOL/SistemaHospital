@@ -2,7 +2,7 @@ import { ModalBasic } from '@/common/components';
 import { AuthorizationForm } from '../components/AuthorizationForm';
 import { useAdministrationAuthorizationForm } from '../hooks/useAdministrationAuthorizationForm';
 import { FormProvider } from 'react-hook-form';
-import AuthorizationModalActions from '../components/AuthrizationModalActions';
+import AuthorizationModalActions from '../components/AuthorizationModalActions';
 import { useEffect } from 'react';
 interface Props {
   open: boolean;
