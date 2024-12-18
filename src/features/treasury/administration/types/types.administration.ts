@@ -15,3 +15,14 @@ export interface IAdministrationMovementHistory {
   notas?: string;
   tipoPago: string;
 }
+
+export interface ICreateAuthorizationCommand {
+  id_ConceptoSalida: string;
+  cantidad: number;
+  motivo: string;
+}
+
+export interface IAdministrationFund {
+  saldo: number;
+  cantidadVentas: number;
+}
