@@ -31,7 +31,7 @@ const CashFlowAccountState = () => {
 
   const innerHeader = (
     <>
-      <Grid container direction={'row'} justifyContent={'space-between'}>
+      <Grid container direction={'row'} sx={{ p: 3 }} justifyContent={'space-between'}>
         <Grid item>
           <Typography variant="h5">Estado de cuenta</Typography>
         </Grid>

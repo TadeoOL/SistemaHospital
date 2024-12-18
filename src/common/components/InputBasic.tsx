@@ -11,7 +11,7 @@ type InputBasicProps = TextFieldProps & {
   helperText?: any;
   maxLength?: number;
   onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  error?: boolean;
+  error?: any;
   disabled?: boolean;
   value?: string;
   multiline?: boolean;
@@ -56,7 +56,7 @@ export const InputBasic = forwardRef((props: InputBasicProps, ref) => {
           fullWidth={fullWidth ?? true}
           variant="outlined"
           inputProps={{ maxLength, ...inputProps }}
-          error={error}
+          error={!!error}
           disabled={disabled}
           onChange={handleChange}
           {...other}

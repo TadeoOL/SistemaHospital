@@ -21,19 +21,18 @@ authApi.interceptors.request.use((config) => {
   return config;
 });
 
-// authApi.interceptors.response.use(
-//   (r) => r,
-//   (error) => {
-//     const isError = [400, 401, 403, 404, 500].includes(error.response.status);
-//     if (isError) {
-//       console.error('Error:', {
-//         status: error.response?.status,
-//         title: error.response?.data?.title,
-//       });
-//       console.error(error.response?.data?.errors);
-//     }
-//     return error;
-//   }
-// );
+authApi.interceptors.response.use(
+  (r) => r,
+  (error) => {
+    const isError = [400, 401, 403, 404, 500].includes(error.response.status);
+    if (isError) {
+      console.error('Error', {
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
+    throw error;
+  }
+);
 
 export default authApi;
