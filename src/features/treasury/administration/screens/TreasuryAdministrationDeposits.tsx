@@ -5,27 +5,11 @@ import { useRef } from 'react';
 import { IAdministrationMovement } from '../types/types.administration';
 import { CheckCircle } from '@mui/icons-material';
 import { TablePaginatedColumn } from '@/types/tableComponentTypes';
-import { administrationAlerts } from '../utils/utils.alerts.administration';
-import { useCreateDeposit } from '../hooks/useCreateDeposit';
+import useAdministrationDeposits from '../hooks/useAdministrationDeposits';
 
 const TreasuryAdministrationDeposits = () => {
   const tableRef = useRef<any>();
-  const { mutate: createDeposit } = useCreateDeposit();
-
-  const handleApprove = async (id: string) => {
-    const res = await administrationAlerts.createDepositQuestion();
-    if (res.isConfirmed) {
-      createDeposit(id, {
-        onSuccess: async () => {
-          await administrationAlerts.depositApproved();
-          tableRef.current.refresh();
-        },
-        onError: async () => {
-          await administrationAlerts.depositError();
-        },
-      });
-    }
-  };
+  const { handlers, state } = useAdministrationDeposits();
 
   const columns: TablePaginatedColumn<IAdministrationMovement>[] = [
     {
@@ -56,7 +40,7 @@ const TreasuryAdministrationDeposits = () => {
         return (
           <>
             <Tooltip title="Aprobar">
-              <IconButton onClick={() => handleApprove(row.id_VentaCaja)}>
+              <IconButton onClick={() => handlers.approveDeposit(row.id_VentaCaja)}>
                 <CheckCircle color="success" />
               </IconButton>
             </Tooltip>
@@ -81,7 +65,7 @@ const TreasuryAdministrationDeposits = () => {
         columns={columns}
         fetchData={getDepositsPendingPagination}
         params={{
-          aproved: true,
+          aproved: state.refreshTable,
         }}
       />
     </MainCard>

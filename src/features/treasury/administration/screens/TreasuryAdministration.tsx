@@ -1,31 +1,14 @@
 import { Grid } from '@mui/material';
 import WidgetCard from '@/common/components/WidgetCard';
-import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { useState } from 'react';
-import FixedFundModal from '../components/FixedFundModal';
 import ProductSales from '@/common/components/ProductSales';
 import AcquisitionProducts from '../components/AcquisitionProducts';
+import AuthorizationModal from '../../cash-flow/components/AuthorizationModal';
+import useAdministration from '../hooks/useAdministration';
 
 const TreasuryAdministration = () => {
-  const navigation = useNavigate();
-
-  const [openFixedFundModal, setOpenFixedFundModal] = useState(false);
-
-  const handles = {
-    closeFixedFundModal: () => {
-      setOpenFixedFundModal(false);
-    },
-    openFixedFundModal: () => {
-      setOpenFixedFundModal(true);
-    },
-    navigateToDeposits: () => {
-      navigation('/tesoreria/direccion/depositos');
-    },
-    navigateToMovements: () => {
-      navigation('/tesoreria/direccion/movimientos');
-    },
-  };
+  const { state, handlers } = useAdministration();
+  console.log(state.fund);
 
   return (
     <>
@@ -38,24 +21,24 @@ const TreasuryAdministration = () => {
       >
         <Grid item xs={12} md={4}>
           <WidgetCard
-            onClick={handles.navigateToDeposits}
+            onClick={handlers.navigateToDeposits}
             top="Estado de Cuenta"
             center="Saldo"
-            bottom="$ 1,000.00"
+            bottom={`$ ${state.fund.saldo.toFixed(2)}`}
             bottom2={<RemoveRedEyeIcon />}
           />
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
-            onClick={handles.openFixedFundModal}
-            top="Fondo fijo"
-            bottom="Asignar fondo fijo"
+            onClick={handlers.openAuthorizationModal}
+            top="Autorizaciones especiales"
+            bottom="Nueva autorización"
             bottom2={<RemoveRedEyeIcon />}
           />
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
-            onClick={handles.navigateToMovements}
+            onClick={handlers.navigateToMovements}
             top="Consulta de movimientos"
             bottom2={<RemoveRedEyeIcon />}
           />
@@ -69,7 +52,7 @@ const TreasuryAdministration = () => {
           <AcquisitionProducts />
         </Grid>
       </Grid>
-      <FixedFundModal open={openFixedFundModal} onClose={handles.closeFixedFundModal} />
+      <AuthorizationModal open={state.openAuthorizationModal} onClose={handlers.closeAuthorizationModal} />
     </>
   );
 };

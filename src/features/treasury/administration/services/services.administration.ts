@@ -1,6 +1,12 @@
 import { getDefaultPaginationParams, IPaginationParams, IPaginationResponse } from '@/types/paginationType';
 import axios from '@/libs/axios';
-import { IAdministrationMovement, IAdministrationMovementHistory } from '../types/types.administration';
+import {
+  IAdministrationFund,
+  IAdministrationMovement,
+  IAdministrationMovementHistory,
+  ICreateAuthorizationCommand,
+} from '../types/types.administration';
+import { ITreasuryMovement } from '../../types/types.common';
 
 const baseUrl = '/api/Tesoreria/Direccion';
 
@@ -25,5 +31,17 @@ export const getAdministrationMovementsPagination = async (
   const params = getDefaultPaginationParams(paramsUrl);
   const endpoint = `${baseUrl}/movimientos-direccion`;
   const res = await axios.get(endpoint, { params });
+  return res.data;
+};
+
+export const createAuthorization = async (command: ICreateAuthorizationCommand): Promise<ITreasuryMovement> => {
+  const endpoint = `${baseUrl}/crear-autorizacion-direccion`;
+  const res = await axios.post(endpoint, command);
+  return res.data;
+};
+
+export const getAdministrationFund = async (): Promise<IAdministrationFund> => {
+  const endpoint = `${baseUrl}/obtener-saldo-direccion`;
+  const res = await axios.get(endpoint);
   return res.data;
 };
