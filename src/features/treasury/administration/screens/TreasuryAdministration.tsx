@@ -5,6 +5,7 @@ import ProductSales from '@/common/components/ProductSales';
 import AcquisitionProducts from '../components/AcquisitionProducts';
 import useAdministration from '../hooks/useAdministration';
 import { AdministrationAuthorizationModal } from '../modals/AdministrationAuthorizationModal';
+import { useAdministrationAuthorizationForm } from '../hooks/useAdministrationAuthorizationForm';
 
 const TreasuryAdministration = () => {
   const { state, handlers } = useAdministration();
@@ -55,6 +56,7 @@ const TreasuryAdministration = () => {
       <AdministrationAuthorizationModal
         open={state.openAuthorizationModal}
         onClose={handlers.closeAuthorizationModal}
+        useAuthorizationForm={useAdministrationAuthorizationForm(handlers.closeAuthorizationModal)}
       />
     </>
   );

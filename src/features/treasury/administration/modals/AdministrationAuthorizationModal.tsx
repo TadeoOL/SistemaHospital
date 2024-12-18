@@ -7,9 +7,10 @@ import { useEffect } from 'react';
 interface Props {
   open: boolean;
   onClose: () => void;
+  useAuthorizationForm: ReturnType<typeof useAdministrationAuthorizationForm>;
 }
-export const AdministrationAuthorizationModal = ({ open, onClose }: Props) => {
-  const { methods, handleSubmit } = useAdministrationAuthorizationForm(onClose);
+export const AdministrationAuthorizationModal = ({ open, onClose, useAuthorizationForm }: Props) => {
+  const { methods, handleSubmit } = useAuthorizationForm;
 
   useEffect(() => {
     if (!open) {
