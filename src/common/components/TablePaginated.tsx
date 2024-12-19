@@ -23,7 +23,7 @@ interface TablePaginatedColumn<T> {
 
 export interface TablePaginatedProps<T> {
   columns: TablePaginatedColumn<T>[];
-  fetchData: (params: any) => Promise<PaginatedResponse>;
+  fetchData: (params: any) => Promise<PaginatedResponse | any>;
   params: any;
   isLoading?: boolean;
   children?: React.ReactNode;

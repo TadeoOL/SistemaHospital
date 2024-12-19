@@ -89,7 +89,7 @@ const CashFlowAccountState = () => {
           spacing={2}
         >
           <Grid item xs={12} md={8}>
-            <IncomeAreaChart view="monthly" />
+            {/* <IncomeAreaChart view="monthly" /> */}
           </Grid>
           <Grid item xs={12} md={4}>
             <MonthlyBarChart />

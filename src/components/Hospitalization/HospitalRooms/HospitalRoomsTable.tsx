@@ -66,6 +66,15 @@ const useGetHospitalizationRooms = () => {
 };
 export const HospitalRoomsTable = () => {
   const { data, isLoading, pageSize, pageIndex, count, setPageIndex, setPageSize } = useGetHospitalizationRooms();
+  console.log('{ data, isLoading, pageSize, pageIndex, count, setPageIndex, setPageSize }:', {
+    data,
+    isLoading,
+    pageSize,
+    pageIndex,
+    count,
+    setPageIndex,
+    setPageSize,
+  });
 
   if (isLoading)
     return (

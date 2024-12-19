@@ -12,7 +12,6 @@ import { IEventsCalendar, IRegisterRoom } from '../../../types/types';
 import { useProgrammingRegisterStore } from '../../../store/programming/programmingRegister';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
-import { getUnavailableRoomsByIdAndDate } from '../../../services/programming/roomsService';
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { usePatientRegisterPaginationStore } from '../../../store/programming/patientRegisterPagination';
@@ -24,6 +23,7 @@ import { getHospitalRoomReservations, getSurgeryRoomsReservations } from '../../
 import { addHospitalizationSpace } from '../../../services/admission/admisionService';
 import { HospitalSpaceType } from '@/types/admission/admissionTypes';
 import { convertDate } from '@/utils/convertDate';
+import { InputBasic } from '@/common/components';
 dayjs.extend(localizedFormat);
 dayjs.locale('es-MX');
 
@@ -54,7 +54,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   const appointmentStartDate = useProgrammingRegisterStore((state) => state.appointmentStartDate);
   const appointmentEndDate = useProgrammingRegisterStore((state) => state.appointmentEndDate);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [unavailableTimes, setUnavailableTimes] = useState<any[]>([]);
   const setStep = useProgrammingRegisterStore((state) => state.setStep);
   const setStartDateSurgery = useProgrammingRegisterStore((state) => state.setStartDateSurgery);
   const step = useProgrammingRegisterStore((state) => state.step);
@@ -213,73 +212,6 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
   };
 
   useEffect(() => {
-    if (!watchRoomId) return;
-    const fetchUnavailableDays = async () => {
-      const res = await getUnavailableRoomsByIdAndDate(watchRoomId, currentDate);
-      setUnavailableTimes(res);
-    };
-    fetchUnavailableDays();
-  }, [watchRoomId, currentDate]);
-
-  const verifyTime = (date: Dayjs): boolean => {
-    if (!unavailableTimes || unavailableTimes.length < 1) return false;
-    const selectedDate = date.toDate();
-
-    for (const time of unavailableTimes) {
-      const horaInicio = new Date(time.horaInicio);
-      const horaFin = new Date(time.horaFin);
-      if (selectedDate >= horaInicio && selectedDate < horaFin) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  const verifyDate = (date: Dayjs): boolean => {
-    const dayStart = date.startOf('day').toDate();
-    const dayEnd = date.endOf('day').toDate();
-
-    let isDayFullyOccupied = false;
-
-    for (const time of unavailableTimes) {
-      const horaInicio = new Date(time.horaInicio);
-      const horaFin = new Date(time.horaFin);
-
-      if (horaInicio <= dayStart && horaFin >= dayEnd) {
-        isDayFullyOccupied = true;
-        break;
-      }
-    }
-
-    if (isDayFullyOccupied) {
-      return true;
-    }
-
-    let startCovered = false;
-    let endCovered = false;
-
-    for (const time of unavailableTimes) {
-      const horaInicio = new Date(time.horaInicio);
-      const horaFin = new Date(time.horaFin);
-
-      if (horaInicio <= dayStart && horaFin > dayStart) {
-        startCovered = true;
-      }
-
-      if (horaInicio < dayEnd && horaFin >= dayEnd) {
-        endCovered = true;
-      }
-
-      if (startCovered && endCovered) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  useEffect(() => {
     return () => {
       if (props.isEdit) {
         clearAllData();
@@ -301,6 +233,20 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
       setValueRooms('endDate', newEndDate);
     }
   }, [watchStartTime, watchStayDays]);
+
+  const [daysDiff, setDaysDiff] = useState<number>(1);
+
+  useEffect(() => {
+    if (watchStartTime && daysDiff) {
+      const newEndDate = dayjs(watchStartTime).add(daysDiff, 'day');
+      setValueRooms('endDate', dayjs(new Date(newEndDate.toDate())));
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + daysDiff));
+    }
+  }, [daysDiff]);
+
+  const onError = (error: any) => {
+    console.log('error:', error);
+  };
 
   if (isLoading)
     return (
@@ -324,7 +270,7 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
             Fecha seleccionada: {appointmentStartDate.toLocaleDateString()} - {appointmentEndDate.toLocaleDateString()}
           </Typography>
         </Box>
-        <form onSubmit={handleSubmitRooms(onSubmitRooms)}>
+        <form onSubmit={handleSubmitRooms(onSubmitRooms, onError)}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={4}>
               <Typography>
@@ -401,67 +347,29 @@ export const RoomReservationModal = (props: RoomReservationModalProps) => {
                           helperText: !!errorsRooms.startTime?.message ? errorsRooms.startTime.message : null,
                         },
                       }}
-                      shouldDisableTime={(date) => verifyTime(date)}
-                      shouldDisableDate={(date) => verifyDate(date)}
-                      onAccept={(e) => {
-                        if (verifyTime(e as Dayjs)) {
-                          toast.error('La fecha no es valida!');
-                          onChange(dayjs());
-                        }
-                      }}
                     />
                   </LocalizationProvider>
                 )}
               />
             </Grid>
             <Grid item sm={12} md={4}>
-              <Typography>Hora de salida estimada</Typography>
-              <Controller
-                control={controlRooms}
-                name="endDate"
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    type="number"
-                    label="Días de estancia"
-                    fullWidth
-                    InputProps={{
-                      inputProps: {
-                        min: 1,
-                        max: 365,
-                      },
-                      onKeyDown: (e) => {
-                        if (e.key === '-' || e.key === '+' || e.key === 'e') {
-                          e.preventDefault();
-                        }
-                      },
-                    }}
-                    disabled={watchRoomId.trim() === ''}
-                    value={value || ''}
-                    onChange={(e) => {
-                      const inputValue = e.target.value;
-                      console.log('inputValue', inputValue);
+              <InputBasic
+                label="Días de estancia"
+                value={daysDiff}
+                disabled={watchRoomId.trim() === ''}
+                onChange={(e: any) => {
+                  const val = e.target.value;
+                  console.log('val:', val);
+                  const days = parseInt(val);
+                  if (!isNaN(days) && days >= 1 && days <= 365 && Number.isInteger(days)) {
+                    setDaysDiff(days);
 
-                      if (inputValue === '') {
-                        onChange('');
-                        return;
-                      }
-
-                      const days = parseInt(inputValue);
-
-                      if (!isNaN(days) && days >= 1 && days <= 365 && Number.isInteger(days)) {
-                        onChange(days);
-                        setCurrentDate(
-                          new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + days)
-                        );
-                      }
-                    }}
-                    error={!!errorsRooms.stayDays?.message}
-                    helperText={
-                      errorsRooms.stayDays?.message ||
-                      `Fecha de salida estimada: ${watchEndTime?.format('DD/MM/YYYY - HH:mm')}`
-                    }
-                  />
-                )}
+                    // set end date
+                    setValueRooms('stayDays', days);
+                    setValueRooms('endDate', dayjs(watchStartTime).add(days, 'day'));
+                  }
+                }}
+                helperText={`Fecha de salida estimada: ${watchEndTime?.format('DD/MM/YYYY - HH:mm')}`}
               />
             </Grid>
             <Grid item xs={12}>

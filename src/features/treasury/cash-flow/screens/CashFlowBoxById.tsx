@@ -6,9 +6,8 @@ import ExpenseModal from '../components/ExpenseModal';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 import MonthlyBarChart from '@/common/components/MonthlyBarChart';
-import { getPaginacionSalidasMonetarias } from '../services/cashflow';
+import { getPaginacionMovimientos } from '../services/cashflow';
 
 const CashFlowBoxById = () => {
   const location = useLocation();
@@ -23,6 +22,21 @@ const CashFlowBoxById = () => {
   }, []);
 
   const [openNewExpenseModal, setOpenNewExpenseModal] = useState(false);
+
+  const fetchMovementsByBox = async () => {
+    if (!id) {
+      return null;
+    }
+
+    try {
+      const res = await getPaginacionMovimientos({
+        id_CajaRevolvente: id,
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handles = {
     openNewExpenseModal: () => {
@@ -89,7 +103,7 @@ const CashFlowBoxById = () => {
 
   return (
     <>
-      <MainCard content={false} sx={{ mt: 1.5 }}>
+      <MainCard content={false} sx={{ mt: 1.5, p: 3 }}>
         {innerHeader}
         <Grid
           container
@@ -99,7 +113,8 @@ const CashFlowBoxById = () => {
           spacing={2}
         >
           <Grid item xs={12} md={8}>
-            <IncomeAreaChart view="monthly" />
+            {/* <IncomeAreaChart view="monthly" /> */}{' '}
+            {/* TODO: Aqui este componente truena porque las props no las tiene */}
           </Grid>
           <Grid item xs={12} md={4}>
             <MonthlyBarChart />
@@ -115,7 +130,7 @@ const CashFlowBoxById = () => {
         >
           Ultimos Movimientos
         </Typography>
-        <TablePaginated columns={columns} fetchData={getPaginacionSalidasMonetarias} params={{}} />
+        <TablePaginated columns={columns} fetchData={fetchMovementsByBox} params={{}} />
       </MainCard>
       <ExpenseModal open={openNewExpenseModal} onClose={handles.closeNewExpenseModal} />
     </>

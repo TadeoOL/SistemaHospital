@@ -80,7 +80,7 @@ export const SelectBasic = forwardRef((props: SelectComponentProps, ref) => {
           <TextField
             ref={ref as any}
             name={name}
-            error={error}
+            error={!!error}
             select
             sx={{
               backgroundColor: 'white',

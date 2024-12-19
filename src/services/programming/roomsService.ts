@@ -28,16 +28,6 @@ export const getAllHospitalRooms = async (): Promise<IHospitalRoom[]> => {
   return res.data;
 };
 
-export const getUnavailableRoomsByIdAndDate = async (roomId: string, date: Date) => {
-  const res = await axios.get(`${apiRoom}/obtener-registros-cuarto-por-fecha`, {
-    params: {
-      id_Cuarto: roomId,
-      fecha: date,
-    },
-  });
-  return res.data;
-};
-
 export const getRoomsEventsByDate = async (endDate: string, initialDate: string, typeId?: string, roomId?: string) => {
   const res = await axios.get(`${apiRoom}/obtener-todos-registros-cuarto-por-fecha`, {
     params: {

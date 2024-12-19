@@ -4,13 +4,16 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
-import { createCajaRevolvente, getPaginacionCajasRevolventes } from '../services/cashflow';
-import { useState } from 'react';
+import { asignarRevolventeCaja, createCajaRevolvente, getPaginacionCajasRevolventes } from '../services/cashflow';
+import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { toast } from 'react-toastify';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useGetUsersBySearch } from '../hooks/useGetUsersBySearch';
+import { getConcepts } from '../../services/treasury';
 
 interface ICashFlowBox {
   nombre: string;
@@ -18,21 +21,151 @@ interface ICashFlowBox {
   id_UsuarioEncargado: string;
 }
 
-export const addCashFlowBox = z.object({});
+export const addCashFlowBox = z.object({
+  nombre: z.string().min(1, { message: 'Campo requerido' }),
+  fondoDestinado: z.string().min(1, { message: 'Campo requerido' }),
+  id_UsuarioEncargado: z.string().min(1, { message: 'Campo requerido' }),
+});
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }).format(price);
+};
+
+interface IAssignMoneyModal {
+  openAssignMoneyModal: boolean;
+  onClose: () => void;
+  selectedRow: any;
+  reloadTable: () => void;
+}
+
+interface ICashFlowAssignMoney {
+  id_ConceptoSalida: string;
+  monto: string;
+}
+
+export const addAssignMoney = z.object({
+  id_ConceptoSalida: z.string().min(1, { message: 'Campo requerido' }),
+  monto: z.string().min(1, { message: 'Campo requerido' }),
+});
+
+function AssignMoneyModal({ openAssignMoneyModal, onClose, selectedRow, reloadTable }: IAssignMoneyModal) {
+  const defaultValues = {};
+
+  const [concepts, setConcepts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getConcepts();
+      console.log('setConcepts:', res);
+      setConcepts(res);
+    };
+
+    fetchData();
+  }, []);
+
+  const {
+    watch,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ICashFlowAssignMoney>({
+    defaultValues,
+    resolver: zodResolver(addAssignMoney),
+  });
+
+  const onSubmit = async (data: any) => {
+    const newData = {
+      id_CajaRevolvente: selectedRow.id_CajaRevolvente,
+      id_ConceptoSalida: data.id_ConceptoSalida,
+      monto: data.monto,
+    };
+    try {
+      console.log('data:', data);
+      await asignarRevolventeCaja(newData);
+      // TODO: validar que haya revolvente
+
+      reloadTable();
+
+      onClose();
+      toast.success('Presupuesto asignado con éxito!');
+    } catch (error) {
+      toast.error('Error al asignar presupuesto!');
+    }
+  };
+
+  const onError = (errors: any) => {
+    console.log('errors:', errors);
+  };
+
+  const assignMoneyActions = (
+    <>
+      <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={onClose}>
+        Cancelar
+      </Button>
+      <div className="col"></div>
+      <Button variant="contained" onClick={handleSubmit(onSubmit, onError)} startIcon={<SaveOutlinedIcon />}>
+        Guardar
+      </Button>
+    </>
+  );
+
+  return (
+    <ModalBasic
+      open={openAssignMoneyModal}
+      header={'Asignar presupuesto'}
+      actions={assignMoneyActions}
+      onClose={onClose}
+    >
+      <Grid component="span" container spacing={2}>
+        <Grid item xs={12} md={12}>
+          <SelectBasic
+            {...register('id_ConceptoSalida')}
+            value={watch('id_ConceptoSalida')}
+            label="Concepto de salida"
+            options={concepts}
+            displayProperty="nombre"
+            uniqueProperty="id"
+            helperText={errors.id_ConceptoSalida?.message}
+            error={errors.id_ConceptoSalida}
+          />
+        </Grid>
+        <Grid item xs={12} md={12}>
+          <InputBasic {...register('monto')} label="Monto" helperText={errors.monto?.message} error={errors.monto} />
+        </Grid>
+      </Grid>
+    </ModalBasic>
+  );
+}
 
 const CashFlowBox = () => {
   const navigate = useNavigate();
 
   const [openCreateBoxModal, setOpenCreateBoxModal] = useState(false);
+  const [openAssignMoneyModal, setOpenAssignMoneyModal] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [usersSearch] = useState('');
+  const { users } = useGetUsersBySearch(usersSearch);
+
+  const tableRef = useRef<any>();
+
+  const reloadTable = () => {
+    tableRef.current?.reloadData();
+  };
 
   const handles = {
     view: (row: any) => {
-      navigate(`/tesoreria/revolvente/cajas/${row.id}`);
+      navigate(`/tesoreria/revolvente/cajas/${row.id_CajaRevolvente}`);
     },
     assignMoney: (row: any) => {
+      setSelectedRow(row);
+      setOpenAssignMoneyModal(true);
       console.log('row:', row);
     },
     delete: (row: any) => {
+      // TODO: logica de delete
       console.log('row:', row);
     },
     openCreateBoxModal: () => {
@@ -41,11 +174,15 @@ const CashFlowBox = () => {
     closeCreateBoxModal: () => {
       setOpenCreateBoxModal(false);
     },
+    closeAssignMoneyModal: () => {
+      setOpenAssignMoneyModal(false);
+    },
   };
 
   const defaultValues = {};
 
   const {
+    watch,
     register,
     handleSubmit,
     formState: { errors },
@@ -55,18 +192,28 @@ const CashFlowBox = () => {
   });
 
   const onSubmit = async (data: any) => {
-    await createCajaRevolvente({
-      nombre: data.nombre,
-      fondoDestinado: data.fondoDestinado,
-      id_UsuarioEncargado: '1', // TODO: get user id
-    });
+    try {
+      console.log('data:', data);
+      await createCajaRevolvente({
+        nombre: data.nombre,
+        fondoDestinado: data.fondoDestinado,
+        id_UsuarioEncargado: data.id_UsuarioEncargado,
+      });
+
+      reloadTable();
+
+      handles.closeCreateBoxModal();
+      toast.success('Caja creada con éxito!');
+    } catch (error) {
+      toast.error('Error al crear caja!');
+    }
   };
 
   const onError = (errors: any) => {
     console.log('errors:', errors);
   };
 
-  const actions = (
+  const createBoxActions = (
     <>
       <Button variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => handles.closeCreateBoxModal()}>
         Cancelar
@@ -80,26 +227,26 @@ const CashFlowBox = () => {
 
   const columns = [
     {
-      header: 'Folio',
-      value: 'folio',
+      header: 'Nombre',
+      value: 'nombre',
     },
     {
-      header: 'Concepto',
-      value: 'concepto',
+      header: 'Usuario Encargado',
+      value: 'nombreUsuarioEncargado',
     },
     {
-      header: 'Cantidad',
-      value: 'cantidad',
+      header: 'Fondo Destinado',
+      value: (row: any) => formatPrice(row.fondoDestinado),
     },
     {
-      header: 'Fecha Ingreso',
-      value: 'fecha',
+      header: 'Fondo Actual',
+      value: (row: any) => formatPrice(row.fondoActual),
     },
     {
       header: 'Acciones',
       value: (row: any) => (
         <>
-          <Tooltip title="Editar">
+          <Tooltip title="Ver">
             <IconButton size="small" sx={{ color: 'neutral.700' }} onClick={() => handles.view(row)}>
               <RemoveRedEyeIcon />
             </IconButton>
@@ -133,7 +280,7 @@ const CashFlowBox = () => {
       <ModalBasic
         open={openCreateBoxModal}
         header={'Crear caja'}
-        actions={actions}
+        actions={createBoxActions}
         onClose={handles.closeCreateBoxModal}
       >
         <Grid item xs={12} md={12}>
@@ -155,12 +302,22 @@ const CashFlowBox = () => {
         <Grid item xs={12} md={12}>
           <SelectBasic
             {...register('id_UsuarioEncargado')}
+            value={watch('id_UsuarioEncargado')}
             label="Usuario encargado"
+            options={users}
+            displayProperty="nombre"
+            uniqueProperty="id"
             helperText={errors.id_UsuarioEncargado?.message}
             error={errors.id_UsuarioEncargado}
           />
         </Grid>
       </ModalBasic>
+      <AssignMoneyModal
+        openAssignMoneyModal={openAssignMoneyModal}
+        onClose={handles.closeAssignMoneyModal}
+        selectedRow={selectedRow}
+        reloadTable={reloadTable}
+      />
     </>
   );
 };

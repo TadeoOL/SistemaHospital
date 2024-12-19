@@ -12,7 +12,6 @@ import Swal from 'sweetalert2';
 import { modifyEventRoom } from '../../../../../services/programming/admissionRegisterService';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-
 const style = {
   position: 'absolute',
   top: '50%',

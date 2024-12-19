@@ -12,9 +12,6 @@ const CashFlow = () => {
   const navigation = useNavigate();
 
   const handles = {
-    accountState: () => {
-      console.log('Estado de cuenta');
-    },
     navigateToAccountState: () => {
       navigation('/tesoreria/revolvente/estado-de-cuenta');
     },
@@ -73,6 +70,7 @@ const CashFlow = () => {
             bottom="$ 1,000.00"
             bottom2={<RemoveRedEyeIcon />}
           />
+          {/* TODO: poner peticion */}
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
@@ -82,6 +80,7 @@ const CashFlow = () => {
             bottom="3"
             bottom2={<RemoveRedEyeIcon />}
           />
+          {/* TODO: poner peticion */}
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
