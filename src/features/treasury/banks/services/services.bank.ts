@@ -1,6 +1,6 @@
 import axios from '@/libs/axios';
 import { getDefaultPaginationParams, IPaginationParams, IPaginationResponse } from '@/types/paginationType';
-import { IBank, IBankFound, IBankMovements } from '../types/types.bank';
+import { IBank, IBankFound, IBankMovements, IBankPurchasesPending } from '../types/types.bank';
 const baseUrl = 'api/Tesoreria/Banco';
 
 export namespace BankService {
@@ -22,6 +22,16 @@ export namespace BankService {
     id_Destino: number;
   }): Promise<IBankMovements> => {
     const res = await axios.get(`${baseUrl}/movimientos-banco`, { params });
+    return res.data;
+  };
+
+  export const getBankPurchasesPending = async (): Promise<IPaginationResponse<IBankPurchasesPending>> => {
+    const res = await axios.get(`${baseUrl}/compras-pendientes`);
+    return res.data;
+  };
+
+  export const approveBankPurchase = async (id_MovimientoTesoreria: string): Promise<void> => {
+    const res = await axios.post(`${baseUrl}/autorizar-compra-banco`, { id_MovimientoTesoreria });
     return res.data;
   };
 }
