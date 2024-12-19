@@ -24,14 +24,8 @@ export interface WebSocketRequestArticles {
     cuarto: string;
     folio: string;
     entregadoPor: string;
-    tipoSolicitud: number;
+    tipoSolicitud: string;
     fechaSolicitud: string;
-    articulos: WebSocketRequestArticlesArticle[];
+    articulos: Omit<WebSocketSellTicketArticle, 'precio'>[];
   };
-}
-
-export interface WebSocketRequestArticlesArticle {
-  nombre: string;
-  precio: number;
-  cantidad: number;
 }

@@ -407,11 +407,10 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest, ws 
                       cuarto: nurseRequest.espacioHospitalario,
                       folio: nurseRequest.folio,
                       entregadoPor: nurseRequest.usuarioAutorizo,
-                      tipoSolicitud: Number(nurseRequest.tipoSolicitud),
+                      tipoSolicitud: nurseRequest.tipoSolicitud,
                       fechaSolicitud: nurseRequest.fechaSoliocitud,
                       articulos: nurseRequest.articulos.map((article) => ({
                         nombre: article.nombre,
-                        precio: 0,
                         cantidad: article.cantidad,
                       })),
                     },
