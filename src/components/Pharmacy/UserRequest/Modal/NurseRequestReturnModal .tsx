@@ -448,8 +448,14 @@ export const NurseRequestReturnModal = (props: Props) => {
                     title="Buscar articulo..."
                   />)}
                 </Box>
-
-                <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} />
+                { roomSelected?.tipoEspacioHospitalario == 1 ?
+                  (<>
+                <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} extraArticlesFlag={false}/>
+                    <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} extraArticlesFlag />
+                  </>):
+                <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} extraArticlesFlag={false} />
+                }
+                    
               </>
             )
           }
@@ -498,7 +504,7 @@ export const NurseRequestReturnModal = (props: Props) => {
   );
 };
 
-const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: boolean }) => {
+const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: boolean; extraArticlesFlag: boolean; }) => {
   const { articles } = useReturnRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -509,6 +515,8 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
   return (
     <>
       <Card sx={{ mt: 4, overflowX: 'auto' }}>
+        {props.quirurgicalRoomFlag && !props.extraArticlesFlag && <Typography textAlign={'center'} fontWeight={'Bold'} >{"Paquete Quirurgico"}</Typography>}
+        {props.quirurgicalRoomFlag && props.extraArticlesFlag && <Typography textAlign={'center'} fontWeight={'Bold'} >{"Extras"}</Typography>}
         <TableContainer sx={{ minWidth: 380 }}>
           <Table>
             <TableHead>
@@ -520,7 +528,16 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
               </TableRow>
             </TableHead>
             <TableBody>
-              {articles
+              {props.extraArticlesFlag ?
+              articles.filter((art) => art.tipoCargo === 2)
+                .map((a) => (
+                  <ArticlesRows
+                    articleRow={a}
+                    setAmountText={props.setAmountText}
+                    amountText={'0'}
+                  />
+                )):
+                articles
                 .map((a) => (
                   <ArticlesRows
                     articleRow={a}
@@ -531,11 +548,11 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
             </TableBody>
           </Table>
         </TableContainer>
-        {articles.length === 0 && (
+        {props.extraArticlesFlag ? articles.filter((art) => art.tipoCargo === 2).length === 0 : articles.length === 0 && (
           <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
             <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
             <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
-              No hay artículos seleccionados
+              {props.extraArticlesFlag ? "No hay articulos extra" : "No hay artículos seleccionados"}
             </Typography>
           </Box>
         )}

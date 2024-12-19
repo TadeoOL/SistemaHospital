@@ -58,6 +58,7 @@ import {
   Healing,
   Masks,
   Inventory,
+  MedicalInformation,
 } from '@mui/icons-material';
 
 // type
@@ -88,6 +89,7 @@ const icons = {
   Masks,
   History,
   Hotel,
+  MedicalInformation,
   Bed,
   HotTub,
   HowToReg,
@@ -458,6 +460,14 @@ const sideBarRoutes: NavItemType[] = [
             title: 'Cuartos Asignados',
             url: '/enfermeria/cuartos-hospitalarios-asignados',
             icon: icons.Hotel,
+            type: 'item',
+            protectedRoles: nurseRole,
+          },
+          {
+            id: 'armado-paquetes-quirurgicos',
+            title: 'Armado de Paquetes',
+            url: '/enfermeria/armado-paquetes-quirurgicos',
+            icon: icons.MedicalInformation,
             type: 'item',
             protectedRoles: nurseRole,
           },

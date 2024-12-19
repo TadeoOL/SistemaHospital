@@ -23,7 +23,7 @@ const GetWarehouseView: React.FC = () => {
     case 1:
       return <NurseRequestManagementTable />;
     case 2:
-      return <WaitingPackages />;
+      return <WaitingPackages pharmacyFlag={true} />;
     case 3:
       return <WarehousePurchases idWarehouse={warehouseSL?.id_Almacen != null ? warehouseSL.id_Almacen : warehouseIdSeted  } />;
     case 4:

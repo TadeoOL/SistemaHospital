@@ -13,6 +13,7 @@ export interface ArticlesFromRoom {
   id_Articulo: string;
   nombre: string;
   cantidad: number;
+  tipoCargo: number | null;
   fechaCargo: string;
   nombreYFecha: string,
 }
