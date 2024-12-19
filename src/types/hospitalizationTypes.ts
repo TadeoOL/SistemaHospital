@@ -317,6 +317,7 @@ export interface IInvoiceItem {
   codigoProducto: string;
   cantidad: number;
   precioUnitario: number;
+  precioOriginal: number;
   precioNeto: number;
   precioIVA: number;
   precioTotal: number;

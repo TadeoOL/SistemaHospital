@@ -113,6 +113,7 @@ export const EditCalendarEventModal = (props: EditCalendarEventModalProps) => {
 
   const { data: surgeryRooms } = useGetAllRooms();
 
+  console.log(data);
   useEffect(() => {
     if (!data || JSON.stringify(rooms) === JSON.stringify(data)) return;
     setRooms([...data]);
@@ -282,9 +283,9 @@ const EventTable = (props: {
               admission={props.admission}
               patientAccountId={props.patientAccountId}
               operatingRooms={
-                props.admission
-                  ? (rooms
-                      ?.filter((x) => x.id_TipoCuarto === row.id_TipoCuarto)
+                row.tipoEspacioHospitalario === 2
+                //props.admission
+                  ? (rooms?.filter((x) => x.id_TipoCuarto === row.id_TipoCuarto)
                       .map((x) => ({ id: x.id_Cuarto, nombre: x.nombre })) ?? [])
                   : props.surgeryRooms.map((x) => ({ id: x.id_Quirofano, nombre: x.nombre }))
               }

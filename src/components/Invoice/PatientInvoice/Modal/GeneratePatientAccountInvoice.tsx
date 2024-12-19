@@ -340,6 +340,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       id: string;
       nombre: string;
       precioUnitario: number;
+      precioOriginal: number;
       precioNeto: number;
       precioIVA: number;
       precioTotal: number;
@@ -358,6 +359,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
       id: string;
       nombre: string;
       precioUnitario: number;
+      precioOriginal: number;
       precioNeto: number;
       precioIVA: number;
       precioTotal: number;
@@ -505,6 +507,7 @@ const TableRowItemsToBeInvoiced = (props: {
     id: string;
     nombre: string;
     precioUnitario: number;
+    precioOriginal: number;
     precioNeto: number;
     precioIVA: number;
     precioTotal: number;
@@ -521,16 +524,18 @@ const TableRowItemsToBeInvoiced = (props: {
       <TableCell>{data.cantidad}</TableCell>
       <TableCell>
         <PriceCell
-          discountedPrice={calculateDiscountedPrice(data.precioNeto, discount)}
-          originalPrice={data.precioNeto}
+          discountedPrice={data.precioNeto}
+          originalPrice={data.precioOriginal}
         />
       </TableCell>
       <TableCell>
-        <PriceCell discountedPrice={calculateDiscountedPrice(data.precioIVA, discount)} originalPrice={data.precioIVA} />
+        <PriceCell 
+        //discountedPrice={calculateDiscountedPrice(data.precioIVA, discount)} 
+        originalPrice={data.precioIVA} />
       </TableCell>
       <TableCell>
         <PriceCell
-          discountedPrice={calculateDiscountedPrice(data.precioTotal, discount)}
+          //discountedPrice={calculateDiscountedPrice(data.precioTotal, discount)}
           originalPrice={data.precioTotal}
         />
       </TableCell>
