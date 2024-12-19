@@ -80,6 +80,7 @@ export default function DashboardLayout() {
     '/hospitalizacion/guardias-anestesiologos': 'Guardias Anestesiologos',
     '/hospitalizacion/cuartos-hospitalarios': 'Cuartos Hospitalarios',
     '/hospitalizacion/cuartos-hospitalarios-asignados': 'Cuartos Hospitalarios Asignados',
+    '/hospitalizacion/armado-paquetes-quirurgicos': 'Armado de Paquetes Quirurgicos',
     '/hospitalizacion/calendario-cuartos-asignados': 'Calendario de Cuartos Asignados',
     '/hospitalizacion/configuracion-hospitalizacion': 'Configuración de Hospitalización',
     '/admision/cuentas-pendientes-por-pagar': 'Cuentas Pendientes por Pagar',
