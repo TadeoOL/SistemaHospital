@@ -5,6 +5,7 @@ import {
   IAdministrationMovement,
   IAdministrationMovementHistory,
   ICreateAuthorizationCommand,
+  SellsAndMovementsAdministration,
 } from '../types/types.administration';
 import { ITreasuryMovement } from '../../types/types.common';
 
@@ -42,6 +43,12 @@ export const createAuthorization = async (command: ICreateAuthorizationCommand):
 
 export const getAdministrationFund = async (): Promise<IAdministrationFund> => {
   const endpoint = `${baseUrl}/obtener-saldo-direccion`;
+  const res = await axios.get(endpoint);
+  return res.data;
+};
+
+export const getAdministrationSellsAndMovements = async (): Promise<SellsAndMovementsAdministration> => {
+  const endpoint = `${baseUrl}/informacion-ventas-direccion`;
   const res = await axios.get(endpoint);
   return res.data;
 };

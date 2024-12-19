@@ -11,43 +11,23 @@ import Typography from '@mui/material/Typography';
 // project imports
 import { MainCard } from './MainCard';
 import SimpleBarScroll from './Drawer/DrawerContent/SimpleBar';
-
-type ProductCreateDataType = { sales: string; product: string; price: string; colorClass: string };
-
-// table data
-const createData = (sales: string, product: string, price: string, colorClass: string = '') => ({
-  sales,
-  product,
-  price,
-  colorClass,
-});
-
-const rows: ProductCreateDataType[] = [
-  createData('2136', 'Head Phone', '$ 926.23'),
-  createData('2546', 'Iphone V', '$ 485.85'),
-  createData('2681', 'Jacket', '$ 786.4'),
-  createData('2756', 'Head Phone', '$ 563.45'),
-  createData('8765', 'Sofa', '$ 769.45'),
-  createData('3652', 'Iphone X', '$ 754.45'),
-  createData('7456', 'Jacket', '$ 743.23'),
-  createData('6502', 'T-Shirt', '$ 642.23'),
-];
+import { SellsAndMovementsAdministration } from '@/features/treasury/administration/types/types.administration';
 
 // ===========================|| DATA WIDGET - PRODUCT SALES ||=========================== //
 
-export default function ProductSales() {
+export default function ProductSales({ sellsAndMovements }: { sellsAndMovements: SellsAndMovementsAdministration }) {
   return (
-    <MainCard title="Product Sales" content={false}>
+    <MainCard title="Ventas y movimientos" content={false}>
       <Grid sx={{ p: 2.5 }} container direction="row" justifyContent="space-around" alignItems="center">
         <Grid item>
           <Grid container direction="column" spacing={1} alignItems="center" justifyContent="center">
             <Grid item>
               <Typography variant="subtitle2" color="secondary">
-                Earning
+                Entradas totales
               </Typography>
             </Grid>
             <Grid item>
-              <Typography variant="h4">20,569$</Typography>
+              <Typography variant="h4">${sellsAndMovements.totalIngresos.toFixed(0)}</Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -55,11 +35,11 @@ export default function ProductSales() {
           <Grid container direction="column" spacing={1} alignItems="center" justifyContent="center">
             <Grid item>
               <Typography variant="subtitle2" color="secondary">
-                Yesterday
+                Ayer
               </Typography>
             </Grid>
             <Grid item>
-              <Typography variant="h4">580$</Typography>
+              <Typography variant="h4">${sellsAndMovements.ingresosAyer.toFixed(0)}</Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -67,11 +47,11 @@ export default function ProductSales() {
           <Grid container direction="column" spacing={1} alignItems="center" justifyContent="center">
             <Grid item>
               <Typography variant="subtitle2" color="secondary">
-                This Week
+                Semana
               </Typography>
             </Grid>
             <Grid item>
-              <Typography variant="h4">5,789$</Typography>
+              <Typography variant="h4">${sellsAndMovements.ingresosSemana.toFixed(0)}</Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -82,26 +62,28 @@ export default function ProductSales() {
         }}
       >
         <TableContainer>
-          <Table>
+          <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ pl: 3 }}>Last Sales</TableCell>
-                <TableCell>Product Name</TableCell>
+                <TableCell sx={{ pl: 3 }}>Folio</TableCell>
+                <TableCell>Concepto</TableCell>
                 <TableCell align="right" sx={{ pr: 3 }}>
-                  Price
+                  Monto
                 </TableCell>
+                <TableCell>Fecha</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
+              {sellsAndMovements.detalles.map((row, index) => (
                 <TableRow hover key={index}>
                   <TableCell sx={{ pl: 3 }}>
-                    <span className={row.colorClass}>{row.sales}</span>
+                    <span>{row.folio}</span>
                   </TableCell>
-                  <TableCell>{row.product}</TableCell>
+                  <TableCell>{row.concepto}</TableCell>
                   <TableCell align="right" sx={{ pr: 3 }}>
-                    <span>{row.price}</span>
+                    <span>${row.cantidad.toFixed()}</span>
                   </TableCell>
+                  <TableCell>{row.fechaIngreso}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

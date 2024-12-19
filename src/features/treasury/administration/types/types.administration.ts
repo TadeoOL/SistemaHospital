@@ -26,3 +26,11 @@ export interface IAdministrationFund {
   saldo: number;
   cantidadVentas: number;
 }
+
+export interface SellsAndMovementsAdministration {
+  totalIngresos: number;
+  ingresosAyer: number;
+  ingresosSemana: number;
+  detalles: Omit<IAdministrationMovement, 'id_VentaCaja' | 'tipoPago'>[];
+  ingresosPorSemana: number[];
+}
