@@ -21,7 +21,7 @@ import {
   styled,
   tableCellClasses,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { ExpandLess, ExpandMore, FilterListOff, Info, KeyboardReturn } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
@@ -34,6 +34,8 @@ import { getStatus } from '../../../utils/NurseRequestUtils';
 import { useGetPharmacyConfig } from '../../../hooks/useGetPharmacyConfig';
 import { NurseRequestReturnModal } from './Modal/NurseRequestReturnModal ';
 import { generatearticlesChargedPDF } from '../Catalogue/Modal/pdfs/generateArticlesChargedPDF';
+import { alerts } from './utils/utils.alerts';
+import { WebSocketRequestArticles } from '@/types/webSocket.tickets';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -101,7 +103,7 @@ export const useGetNursesRequest = () => {
     if (warehousePharmacyData.id_Almacen) {
       fetchData(warehousePharmacyData.id_Almacen);
     }
-  }, [search, startDate, endDate, clearFilters, isLoadingWarehouse,/* sort,*/ pageSize, pageIndex]);
+  }, [search, startDate, endDate, clearFilters, isLoadingWarehouse, /* sort,*/ pageSize, pageIndex]);
   return {
     data,
     setSearch,
@@ -142,6 +144,26 @@ export const NurseRequestTable = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openModalReturn, setOpenModalReturn] = useState(false);
   const { data: warehousePharmacyData } = useGetPharmacyConfig();
+
+  const ws = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    ws.current = new WebSocket('ws://localhost:2001');
+
+    ws.current.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    ws.current.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
   return (
     <>
       <Stack sx={{ overflowX: 'auto' }}>
@@ -255,7 +277,11 @@ export const NurseRequestTable = () => {
                   <TableBody>
                     {data &&
                       data.map((request) => (
-                        <TableRowComponent nurseRequest={request} key={request.id_CuentaEspacioHospitalario} />
+                        <TableRowComponent
+                          nurseRequest={request}
+                          key={request.id_CuentaEspacioHospitalario}
+                          ws={ws.current}
+                        />
                       ))}
                   </TableBody>
                 </Table>
@@ -321,8 +347,9 @@ export const NurseRequestTable = () => {
 
 interface TableRowComponentProps {
   nurseRequest: InurseRequest;
+  ws: WebSocket | null;
 }
-const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) => {
+const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest, ws }) => {
   const [open, setOpen] = useState(false);
   //const nursesRequestData = useNurseRequestPaginationStore(useShallow((state) => state.data));
 
@@ -362,13 +389,35 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest }) =
 
           <Tooltip title="Imprimir">
             <IconButton
-              onClick={() => {
+              onClick={async () => {
                 console.log(nurseRequest);
-                generatearticlesChargedPDF({
-                  pacienteNombre: nurseRequest.paciente ?? '',
-                  quirofano: nurseRequest.espacioHospitalario,
-                  articulos: nurseRequest.articulos
-                })
+                const result = await alerts.generateArticlesChargedPDF();
+                if (result.isConfirmed) {
+                  generatearticlesChargedPDF({
+                    pacienteNombre: nurseRequest.paciente ?? '',
+                    quirofano: nurseRequest.espacioHospitalario,
+                    articulos: nurseRequest.articulos,
+                  });
+                } else if (result.isDenied) {
+                  const webSocketRequestArticles: WebSocketRequestArticles = {
+                    tipoMensaje: 2,
+                    solicitudEnfermero: {
+                      nombreEnfermero: nurseRequest.usuarioSolicitante,
+                      nombrePaciente: nurseRequest.paciente,
+                      cuarto: nurseRequest.espacioHospitalario,
+                      folio: nurseRequest.folio,
+                      entregadoPor: nurseRequest.usuarioAutorizo,
+                      tipoSolicitud: Number(nurseRequest.tipoSolicitud),
+                      fechaSolicitud: nurseRequest.fechaSoliocitud,
+                      articulos: nurseRequest.articulos.map((article) => ({
+                        nombre: article.nombre,
+                        precio: 0,
+                        cantidad: article.cantidad,
+                      })),
+                    },
+                  };
+                  ws?.send(JSON.stringify(webSocketRequestArticles));
+                }
               }}
             >
               <LocalPrintshopOutlinedIcon />
