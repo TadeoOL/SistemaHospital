@@ -22,13 +22,15 @@ import { toast } from 'react-toastify';
 import { registerBillInvoice } from '../../../../services/invoice/invoicePatientBill';
 import { useInvoicePatientBillPaginationStore } from '../../../../store/invoice/invoicePatientBillPagination';
 import { ReportLoader } from '../../../Commons/Report/ReportLoader';
-import { useGetAccountFullInformation, UseGetAccountFullInformationParams } from '../../../../hooks/programming/useGetAccountFullInformation';
+import {
+  useGetAccountFullInformation,
+  UseGetAccountFullInformationParams,
+} from '../../../../hooks/programming/useGetAccountFullInformation';
 import { TableHeaderComponent } from '../../../Commons/TableHeaderComponent';
 import { IAcountInvoiceFullInformation, IInvoiceItem } from '../../../../types/hospitalizationTypes';
 import { NoDataInTableInfo } from '../../../Commons/NoDataInTableInfo';
 import { useGetAllDocumentConcepts } from '../../../../hooks/contpaqi/useGetDocumentConcepts';
 import { PriceCell } from '../../../Commons/PriceCell';
-import { calculateDiscountedPrice } from '../../../../utils/calculateDiscountedPrice';
 import { ContpaqiOrderService, objOrderRequest } from '@/services/contpaqi/contpaqi.order.service';
 
 const INVOICE_TABLE_HEADERS = ['Nombre', 'Precio Unitario', 'Cantidad', 'Precio Neto', 'IVA', 'Precio Total'];
@@ -87,7 +89,7 @@ export const GeneratePatientAccountInvoice = ({
   setOpen,
   patientName,
   patientKey,
-  patientAccountId
+  patientAccountId,
 }: GeneratePatientAccountInvoiceProps) => {
   const [objParams, setObjParams] = useState<UseGetAccountFullInformationParams>({
     patientAccountId: patientAccountId,
@@ -97,7 +99,7 @@ export const GeneratePatientAccountInvoice = ({
       cuartos: false,
       quirofanos: false,
       cirugias: false,
-    }
+    },
   });
   const { data, isLoading } = useGetAccountFullInformation(objParams);
   const { isLoadingConcepts, documentConcepts } = useGetAllDocumentConcepts();
@@ -120,13 +122,26 @@ export const GeneratePatientAccountInvoice = ({
     const productsSelected = (): IInvoiceItem[] => {
       switch (invoiceMethodSelected) {
         case 1:
-          return data.articulos
+          return data.articulos;
         case 2:
-          return [...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
+          return [
+            ...data.cirugias,
+            ...data.cuartos,
+            ...data.quirofanos,
+            ...data.quirofanosRecuperacion,
+            ...data.servicios,
+          ];
         default:
-          return [...data.articulos, ...data.cirugias, ...data.cuartos, ...data.quirofanos, ...data.quirofanosRecuperacion, ...data.servicios]
+          return [
+            ...data.articulos,
+            ...data.cirugias,
+            ...data.cuartos,
+            ...data.quirofanos,
+            ...data.quirofanosRecuperacion,
+            ...data.servicios,
+          ];
       }
-    }
+    };
 
     const objrequesOrder: objOrderRequest = {
       tipoPedido: typeOfInvoiceSelected,
@@ -134,16 +149,16 @@ export const GeneratePatientAccountInvoice = ({
       iva: data.iva,
       total: data.total,
       nombrePaciente: `Paciente: ${data.paciente.nombrePaciente} - Medico: ${data.paciente.nombreMedico}`,
-      productosFactura: productsSelected()
-    }
+      productosFactura: productsSelected(),
+    };
     setLoadingGenerateInvoice(true);
     try {
-      const contpaqiRes = await ContpaqiOrderService.requestOrder(objrequesOrder)
+      const contpaqiRes = await ContpaqiOrderService.requestOrder(objrequesOrder);
       await registerBillInvoice({
         id_CuentaPaciente: patientAccountId,
         id_VentaCaja: null,
-        pedidoRelacionado: (contpaqiRes.ciddocumento).toString()
-      })
+        pedidoRelacionado: contpaqiRes.ciddocumento.toString(),
+      });
 
       /*await generatePatientBillInvoice({
         id_CuentaPaciente: patientAccountId,
@@ -208,7 +223,7 @@ export const GeneratePatientAccountInvoice = ({
                   fullWidth
                   value={invoiceMethodSelected}
                   onChange={(e) => {
-                    const valueSelected = e.target.value as any as number
+                    const valueSelected = e.target.value as any as number;
                     setInvoiceMethodSelected(valueSelected);
                     switch (valueSelected) {
                       case 1:
@@ -220,8 +235,8 @@ export const GeneratePatientAccountInvoice = ({
                             cuartos: false,
                             quirofanos: false,
                             cirugias: false,
-                          }
-                        })
+                          },
+                        });
                         break;
                       case 2:
                         setObjParams({
@@ -232,8 +247,8 @@ export const GeneratePatientAccountInvoice = ({
                             cuartos: true,
                             quirofanos: true,
                             cirugias: true,
-                          }
-                        })
+                          },
+                        });
                         break;
                       case 3:
                         setObjParams({
@@ -244,8 +259,8 @@ export const GeneratePatientAccountInvoice = ({
                             cuartos: true,
                             quirofanos: true,
                             cirugias: true,
-                          }
-                        })
+                          },
+                        });
                         break;
                       default:
                         setObjParams({
@@ -256,8 +271,8 @@ export const GeneratePatientAccountInvoice = ({
                             cuartos: false,
                             quirofanos: false,
                             cirugias: false,
-                          }
-                        })
+                          },
+                        });
                         break;
                     }
                   }}
@@ -283,11 +298,15 @@ export const GeneratePatientAccountInvoice = ({
                     <MenuItem key={0} value={0}>
                       Seleccionar
                     </MenuItem>
-                    {documentConcepts.length > 0 ? documentConcepts.map((i) => (
-                      <MenuItem key={i.cidconceptodocumento} value={i.cidconceptodocumento}>
-                        {i.cnombreconcepto.trim()}
-                      </MenuItem>
-                    )) : <></>}
+                    {documentConcepts.length > 0 ? (
+                      documentConcepts.map((i) => (
+                        <MenuItem key={i.cidconceptodocumento} value={i.cidconceptodocumento}>
+                          {i.cnombreconcepto.trim()}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <></>
+                    )}
                   </TextField>
                 </Stack>
               </Stack>
@@ -350,7 +369,7 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
 
   const formatArticles = () => {
     if (!data.articulos) return [];
-    return data.articulos.map((article) => (article));
+    return data.articulos.map((article) => article);
   };
 
   const formatRooms = () => {
@@ -398,9 +417,8 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
 
   const formatCabinetStudies = () => {
     if (!data.servicios) return [];
-    return data.servicios.map((cabinetStudy) => (cabinetStudy));
+    return data.servicios.map((cabinetStudy) => cabinetStudy);
   };
-
 
   const formatAll = () => {
     return [...formatArticles(), ...formatRooms(), ...formatCabinetStudies()];
@@ -410,68 +428,22 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
     switch (invoiceMethodSelected) {
       case 1:
         setItems(formatArticles());
-        setIva(
-          formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0))
-            .reduce((prev, val) => prev + val, 0)
-        );
-        setSubTotal(
-          formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
-            .reduce((prev, val) => prev + val, 0)
-        );
-        setTotal(
-          formatArticles()
-            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
-            .reduce((prev, val) => prev + val, 0)
-        );
+        setIva(data.iva);
+        setSubTotal(data.subTotal);
+        setTotal(data.total);
         break;
       case 2:
-        const newItems = [
-          ...formatRooms(),
-          ...formatCabinetStudies(),
-        ];
+        const newItems = [...formatRooms(), ...formatCabinetStudies()];
         setItems(newItems);
-        setIva(
-          formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0))
-            .concat(formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0)))
-            .reduce((prev, val) => prev + val, 0)
-        );
-        setSubTotal(
-          formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
-            .concat(
-              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
-            )
-            .reduce((prev, val) => prev + val, 0)
-        );
-        setTotal(
-          formatRooms()
-            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
-            .concat(
-              formatCabinetStudies().flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
-            )
-            .reduce((prev, val) => prev + val, 0)
-        );
+        setIva(data.iva);
+        setSubTotal(data.subTotal);
+        setTotal(data.total);
         break;
       case 3:
         setItems([...formatAll()]);
-        setIva(
-          formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.precioIVA, data.descuento ?? 0))
-            .reduce((prev, val) => prev + val, 0)
-        );
-        setSubTotal(
-          formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.precioNeto, data.descuento ?? 0))
-            .reduce((prev, val) => prev + val, 0)
-        );
-        setTotal(
-          formatAll()
-            .flatMap((a) => calculateDiscountedPrice(a.precioTotal, data.descuento ?? 0))
-            .reduce((prev, val) => prev + val, 0)
-        );
+        setIva(data.iva);
+        setSubTotal(data.subTotal);
+        setTotal(data.total);
         break;
       default:
         setItems([]);
@@ -489,7 +461,9 @@ const ItemsToBeInvoiced = (ItemsToBeInvoicedProps: {
           <Table>
             <TableHeaderComponent headers={INVOICE_TABLE_HEADERS} />
             <TableBody>
-              {items?.map((d, i) => <TableRowItemsToBeInvoiced data={d} key={d.id + i} discount={data.descuento ?? 0} />)}
+              {items?.map((d, i) => (
+                <TableRowItemsToBeInvoiced data={d} key={d.id + i} discount={data.descuento ?? 0} />
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -515,23 +489,20 @@ const TableRowItemsToBeInvoiced = (props: {
   };
   discount?: number;
 }) => {
-  const { data, discount } = props;
-  console.log(calculateDiscountedPrice(data.precioNeto, discount));
+  const { data } = props;
   return (
     <TableRow>
       <TableCell>{data.nombre}</TableCell>
       <TableCell>${data.precioUnitario}</TableCell>
       <TableCell>{data.cantidad}</TableCell>
       <TableCell>
-        <PriceCell
-          discountedPrice={data.precioNeto}
-          originalPrice={data.precioOriginal}
-        />
+        <PriceCell discountedPrice={data.precioNeto} originalPrice={data.precioOriginal} />
       </TableCell>
       <TableCell>
-        <PriceCell 
-        //discountedPrice={calculateDiscountedPrice(data.precioIVA, discount)} 
-        originalPrice={data.precioIVA} />
+        <PriceCell
+          //discountedPrice={calculateDiscountedPrice(data.precioIVA, discount)}
+          originalPrice={data.precioIVA}
+        />
       </TableCell>
       <TableCell>
         <PriceCell

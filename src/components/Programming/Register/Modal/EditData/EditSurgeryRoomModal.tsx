@@ -9,7 +9,7 @@ import { getSurgeryRoomsReservations } from '@/services/programming/hospitalSpac
 import { HospitalSpaceType, IPatientHospitalSpace } from '@/types/admission/admissionTypes';
 import { convertDate } from '@/utils/convertDate';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Grid } from '@mui/material';
+import { Autocomplete, Button, Grid } from '@mui/material';
 import { Box, MenuItem, TextField } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -165,19 +165,15 @@ export const EditSurgeryRoomModal = ({
             ))}
           </TextField>
 
-          <TextField
-            select
-            label="Paquete Quirúrgico"
-            fullWidth
-            value={watch('surgeryPackageId')}
-            onChange={(e) => setValue('surgeryPackageId', e.target.value)}
-          >
-            {surgeryPackages?.data.map((pkg) => (
-              <MenuItem key={pkg.id_PaqueteQuirurgico} value={pkg.id_PaqueteQuirurgico}>
-                {pkg.nombre}
-              </MenuItem>
-            ))}
-          </TextField>
+          <Autocomplete
+            options={surgeryPackages?.data || []}
+            getOptionLabel={(option) => option.nombre || ''}
+            getOptionKey={(option) => option.id_PaqueteQuirurgico || ''}
+            value={surgeryPackages?.data.find((pkg) => pkg.id_PaqueteQuirurgico === watch('surgeryPackageId')) || null}
+            onChange={(_e, value) => setValue('surgeryPackageId', value?.id_PaqueteQuirurgico as string)}
+            renderInput={(params) => <TextField {...params} label="Paquete Quirúrgico" fullWidth />}
+          />
+
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
