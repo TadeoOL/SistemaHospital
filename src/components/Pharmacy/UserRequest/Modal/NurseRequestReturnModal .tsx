@@ -241,7 +241,8 @@ export const NurseRequestReturnModal = (props: Props) => {
       generatearticlesChargedPDF({
                           pacienteNombre: userSelected?.nombrePaciente ?? '',
                           quirofano: roomSelected?.nombreEspacioHospitalario ?? '',
-                          articulos: articles
+                          articulos: articles.filter((art) => art.tipoCargo !== 2).sort((a, b) => a.nombre.localeCompare(b.nombre)),
+                          articulosExtra: articles.filter((art) => art.tipoCargo === 2).sort((a, b) => a.nombre.localeCompare(b.nombre))
                         })
       toast.success('Solicitud creada');
       props.refetch(props.warehouseId);
@@ -528,7 +529,7 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
               </TableRow>
             </TableHead>
             <TableBody>
-              {props.extraArticlesFlag ?
+              {props.quirurgicalRoomFlag && props.extraArticlesFlag  ?
               articles.filter((art) => art.tipoCargo === 2)
                 .map((a) => (
                   <ArticlesRows
@@ -536,7 +537,15 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
                     setAmountText={props.setAmountText}
                     amountText={'0'}
                   />
-                )):
+                )): props.quirurgicalRoomFlag && !props.extraArticlesFlag ?
+                articles.filter((art) => art.tipoCargo !== 2)
+                .map((a) => (
+                  <ArticlesRows
+                    articleRow={a}
+                    setAmountText={props.setAmountText}
+                    amountText={'0'}
+                  />
+                )) :
                 articles
                 .map((a) => (
                   <ArticlesRows
@@ -544,7 +553,8 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
                     setAmountText={props.setAmountText}
                     amountText={'0'}
                   />
-                ))}
+                ))
+              }
             </TableBody>
           </Table>
         </TableContainer>

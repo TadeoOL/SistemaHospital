@@ -47,6 +47,10 @@ export const generatearticlesChargedPDF = (articlesCharged: {
         nombre: string;
         cantidad: number;
     }[]
+    articulosExtra:{
+      nombre: string;
+      cantidad: number;
+    }[]
 }) => {
   console.log('articlesCharged:', articlesCharged);
   const header = function (currentPage: number, pageCount: number) {
@@ -91,8 +95,32 @@ export const generatearticlesChargedPDF = (articlesCharged: {
         subheader: 'Cantidad',
         value: 'cantidad',
       },
+      {
+        subheader: 'Cargo',
+        value: 'espacio',
+      },
     ],
-    rows: articlesCharged.articulos,
+    rows: articlesCharged.articulos.map((art) => ({...art, espacio: ''})),
+  });
+
+  const extraArticleSTable = getTable({
+    header: 'ARTICULOS EXTRA',
+    headerFontSize: 10,
+    columns: [
+      {
+        subheader: 'Nombre',
+        value: 'nombre',
+      },
+      {
+        subheader: 'Cantidad',
+        value: 'cantidad',
+      },
+      {
+        subheader: 'Cargo',
+        value: 'espacio',
+      },
+    ],
+    rows: articlesCharged.articulosExtra.map((art) => ({...art, espacio: ''})),
   });
 
 
@@ -124,6 +152,7 @@ export const generatearticlesChargedPDF = (articlesCharged: {
         },
       },
       articleTable,
+      extraArticleSTable.length > 0 && extraArticleSTable
     ],
   };
 
