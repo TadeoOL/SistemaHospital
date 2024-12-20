@@ -306,7 +306,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
 
   return (
     <Box sx={{ ...style }}>
-      <HeaderModal setOpen={props.setOpen} title="Solicitud de Artículosss" />
+      <HeaderModal setOpen={props.setOpen} title="Solicitud de Artículos" />
       <Box sx={{ overflowY: 'auto', ...styleBar, bgcolor: 'background.paper', p: 2 }}>
         <Box
           sx={{

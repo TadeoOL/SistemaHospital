@@ -121,7 +121,9 @@ const useGetMovements = () => {
   };
 };
 
-export const WaitingPackages = () => {
+export const WaitingPackages = (props: {
+  pharmacyFlag: boolean;//Para condicionar el switch de pendiente y ocultar iconos
+}) => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
   const {
     data,
@@ -247,6 +249,10 @@ export const WaitingPackages = () => {
     );
   }, [packageSelected]);
 
+  useEffect(() => {
+    setStatus(props.pharmacyFlag ? 2 : 1)
+  }, []);
+
   const [movementSelected, setMovementSelected] = useState<any>(null);
   return (
     <>
@@ -271,12 +277,12 @@ export const WaitingPackages = () => {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={status === 1}
+                      checked={ props.pharmacyFlag ? status === 2 : status === 1}
                       onChange={(val) => {
                         if (val.target.checked) {
-                          setStatus(1);
+                          setStatus( props.pharmacyFlag ? 2 : 1);
                         } else {
-                          setStatus(2);
+                          setStatus( props.pharmacyFlag ? 3 : 2);
                         }
                       }}
                     />
@@ -383,7 +389,7 @@ export const WaitingPackages = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              {(movimiento.estatus as number) === STATUS_ENUM.Esperando ? (
+                              {(movimiento.estatus as number) === STATUS_ENUM.Esperando && props.pharmacyFlag ? (
                                 <>
                                   <Tooltip title="Aceptar paquete">
                                     <IconButton
@@ -429,7 +435,7 @@ export const WaitingPackages = () => {
                               ) : (
                                 <></>
                               )}
-                              {movimiento.estatus !== 0 && movimiento.estatus !== 3 && (
+                              {movimiento.estatus !== 0 && movimiento.estatus !== 3 && props.pharmacyFlag && (
                                 <Tooltip title="Cancelar paquete">
                                   <IconButton
                                     size="small"

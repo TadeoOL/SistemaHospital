@@ -1,19 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IAdministrationFund } from '../types/types.administration';
+import { IAdministrationFund, SellsAndMovementsAdministration } from '../types/types.administration';
 import { useGetAdministrationFund } from './useGetAdministrationFund';
 import { AuthorizationSchema } from '../schema/schema.administration';
 import { useCreateAdministrationAuthorization } from './useCreateAuthorization';
 import { toast } from 'react-toastify';
+import { useGetSellsAndMovements } from './useGetSellsAndMovements';
 
 const initialFund: IAdministrationFund = {
   saldo: 0,
   cantidadVentas: 0,
 };
 
+const initialSellsAndMovements: SellsAndMovementsAdministration = {
+  totalIngresos: 0,
+  ingresosAyer: 0,
+  ingresosSemana: 0,
+  detalles: [],
+  ingresosPorSemana: [],
+};
+
 interface IState {
   openAuthorizationModal: boolean;
   fund: IAdministrationFund;
+  sellsAndMovements: SellsAndMovementsAdministration;
 }
 interface IHandlers {
   openAuthorizationModal: () => void;
@@ -31,9 +41,11 @@ const useAdministration = (): IUseAdministration => {
   const navigation = useNavigate();
   const { mutate: createAuthorization } = useCreateAdministrationAuthorization();
   const { data: fundRes } = useGetAdministrationFund();
+  const { data: sellsAndMovementsRes } = useGetSellsAndMovements();
   const [state, setState] = useState<IState>({
     openAuthorizationModal: false,
     fund: fundRes ?? initialFund,
+    sellsAndMovements: sellsAndMovementsRes ?? initialSellsAndMovements,
   });
 
   useEffect(() => {
@@ -44,6 +56,15 @@ const useAdministration = (): IUseAdministration => {
       });
     }
   }, [fundRes]);
+
+  useEffect(() => {
+    if (sellsAndMovementsRes) {
+      setState({
+        ...state,
+        sellsAndMovements: sellsAndMovementsRes,
+      });
+    }
+  }, [sellsAndMovementsRes]);
 
   const handlers = {
     openAuthorizationModal: () => {

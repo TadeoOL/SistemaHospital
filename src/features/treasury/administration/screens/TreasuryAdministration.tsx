@@ -2,10 +2,11 @@ import { Grid } from '@mui/material';
 import WidgetCard from '@/common/components/WidgetCard';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ProductSales from '@/common/components/ProductSales';
-import AcquisitionProducts from '../components/AcquisitionProducts';
 import useAdministration from '../hooks/useAdministration';
 import { AdministrationAuthorizationModal } from '../modals/AdministrationAuthorizationModal';
 import { useAdministrationAuthorizationForm } from '../hooks/useAdministrationAuthorizationForm';
+import MonthlyBarChart from '@/common/components/MonthlyBarChart';
+import { MainCard } from '@/common/components';
 
 const TreasuryAdministration = () => {
   const { state, handlers } = useAdministration();
@@ -45,11 +46,13 @@ const TreasuryAdministration = () => {
         </Grid>
       </Grid>
       <Grid container direction={'row'} spacing={2}>
-        <Grid item xs={12} md={4}>
-          <ProductSales />
-        </Grid>
         <Grid item xs={12} md={8}>
-          <AcquisitionProducts />
+          <ProductSales sellsAndMovements={state.sellsAndMovements} />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <MainCard content={false} title="Resumen de entradas semanal" sx={{ height: '100%' }}>
+            <MonthlyBarChart data={state.sellsAndMovements.ingresosPorSemana} />
+          </MainCard>
         </Grid>
       </Grid>
       <AdministrationAuthorizationModal

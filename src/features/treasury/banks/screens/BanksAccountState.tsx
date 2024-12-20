@@ -83,9 +83,6 @@ const BanksAccountState = () => {
               labels={bankMovements?.labels ?? []}
             />
           </Grid>
-          {/* <Grid item xs={12} md={4}>
-            <MonthlyBarChart />
-          </Grid> */}
         </Grid>
       </MainCard>
 

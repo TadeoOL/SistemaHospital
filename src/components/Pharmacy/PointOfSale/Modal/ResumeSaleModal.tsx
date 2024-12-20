@@ -25,6 +25,7 @@ import { usePosArticlesPaginationStore } from '../../../../store/pharmacy/pointO
 import { toast } from 'react-toastify';
 import { registerSale } from '../../../../services/pharmacy/pointOfSaleService';
 import { useEffect, useRef, useState } from 'react';
+import { WebSocketSellTicket } from '@/types/webSocket.tickets';
 
 const style = {
   position: 'absolute',
@@ -136,18 +137,20 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
 
     try {
       const response = await registerSale(saleObject);
-      console.log('response:', response);
-      const objWS = {
-        Folio: response.folio,
-        SubTotal: subTotal,
-        IVA: iva,
-        TotalVenta: total,
-        UsuarioVenta: response.usuarioVenta,
-        Articulos: response.articulos?.map((artF: any) => ({
-          Nombre: articlesOnBasket.find((aob) => aob.id_Articulo === artF.id_Articulo)?.nombre,
-          Precio: artF.precioUnitario,
-          Cantidad: artF.cantidad,
-        })),
+      const objWS: WebSocketSellTicket = {
+        tipoMensaje: 1,
+        venta: {
+          folio: response.folio,
+          subTotal: subTotal,
+          iva: iva,
+          totalVenta: total,
+          usuarioVenta: `${response.usuarioVenta.nombre} ${response.usuarioVenta.apellidoPaterno} ${response.usuarioVenta.apellidoMaterno}`,
+          articulos: articlesOnBasket.map((artF) => ({
+            nombre: articlesOnBasket.find((aob) => aob.id_Articulo === artF.id_Articulo)?.nombre || '',
+            precio: Number(artF.precioVenta),
+            cantidad: artF.cantidad,
+          })),
+        },
       };
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify(objWS));

@@ -490,7 +490,8 @@ export const ArticlesPharmacyTable = () => {
                   generatearticlesChargedPDF({
                     pacienteNombre: selectedPatient?.nombrePaciente ?? '',
                     quirofano: selectedHospitalRoom?.nombre ?? '',
-                    articulos: hospitalRoomArticles? hospitalRoomArticles : []
+                    articulos: hospitalRoomArticles? hospitalRoomArticles.filter((art: any) => art.tipoCargo !== 2).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : [],
+                    articulosExtra: hospitalRoomArticles.filter((art: any) => art.tipoCargo === 2).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))
                   })
                 }}
               >
@@ -498,12 +499,36 @@ export const ArticlesPharmacyTable = () => {
               </Button>}
             </Grid>
           </Grid>
-
-          <TableBasic
+                
+          
+          {selectedHospitalRoom?.tipoEspacioHospitalario === 1 ?
+            <>
+            <Typography textAlign={'center'} fontWeight={'bold'}>Paquete Quirurgico</Typography>
+            <TableBasic
+            rows={hospitalRoomArticles? hospitalRoomArticles.filter((art: any) =>  art.tipoCargo !== 2).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : []}
+            isLoading={isLoadingHospitalRoomArticles}
+            columns={columns}
+          ></TableBasic>
+          {hospitalRoomArticles && hospitalRoomArticles.filter((art: any) =>  art.tipoCargo === 2).length > 0 &&
+            <>
+            <Typography textAlign={'center'} fontWeight={'bold'}>Extras</Typography>
+            <TableBasic
+            rows={hospitalRoomArticles.filter((art: any) =>  art.tipoCargo === 2)
+              .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))}
+            isLoading={isLoadingHospitalRoomArticles}
+            columns={columns}
+          ></TableBasic>
+          </>
+          }
+            </>
+            :
+            <TableBasic
             rows={hospitalRoomArticles? hospitalRoomArticles.sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : []}
             isLoading={isLoadingHospitalRoomArticles}
             columns={columns}
           ></TableBasic>
+
+          }
         </form>
       </ModalBasic>
       {

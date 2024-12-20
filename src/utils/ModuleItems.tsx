@@ -12,6 +12,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 import {
   admission,
   checkout,
@@ -435,12 +436,19 @@ export const ModuleList: IModuleItemsList[] = [
       {
         title: 'Cuartos Asignados',
         path: '/enfermeria/cuartos-hospitalarios-asignados',
+        icon: <MedicalInformationIcon />,
+        protectedRoles: nurseRole,
+      },
+      {
+        title: 'Armado de Paquetes',
+        path: '/enfermeria/armado-paquetes-quirurgicos',
         icon: <FaHospitalSymbol />,
         protectedRoles: nurseRole,
       },
     ],
     path: 'enfermeria',
   },
+  
   {
     categoryTitle: 'Reportes',
     icon: <AssignmentIcon />,
