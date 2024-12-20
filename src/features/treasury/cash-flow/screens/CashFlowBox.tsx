@@ -14,6 +14,7 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetUsersBySearch } from '../hooks/useGetUsersBySearch';
 import { getConcepts } from '../../services/treasury';
+import { useDeleteBox } from '../hooks/useDeleteBox';
 
 interface ICashFlowBox {
   nombre: string;
@@ -153,6 +154,7 @@ const CashFlowBox = () => {
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [usersSearch] = useState('');
   const { users } = useGetUsersBySearch(usersSearch);
+  const { mutate: deleteBox } = useDeleteBox();
 
   const tableRef = useRef<any>();
 
@@ -170,8 +172,15 @@ const CashFlowBox = () => {
       console.log('row:', row);
     },
     delete: (row: any) => {
-      // TODO: logica de delete
-      console.log('row:', row);
+      deleteBox(row.id_CajaRevolvente, {
+        onSuccess: () => {
+          reloadTable();
+          toast.success('Caja eliminada con éxito!');
+        },
+        onError: () => {
+          toast.error('Error al eliminar caja!');
+        },
+      });
     },
     openCreateBoxModal: () => {
       setOpenCreateBoxModal(true);
