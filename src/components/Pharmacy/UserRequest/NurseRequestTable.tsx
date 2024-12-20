@@ -397,6 +397,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({ nurseRequest, ws 
                     pacienteNombre: nurseRequest.paciente ?? '',
                     quirofano: nurseRequest.espacioHospitalario,
                     articulos: nurseRequest.articulos,
+                    articulosExtra: [],
                   });
                 } else if (result.isDenied) {
                   const webSocketRequestArticles: WebSocketRequestArticles = {
