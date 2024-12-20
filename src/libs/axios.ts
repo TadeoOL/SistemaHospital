@@ -24,12 +24,14 @@ authApi.interceptors.request.use((config) => {
 authApi.interceptors.response.use(
   (r) => r,
   (error) => {
-    const isError = [400, 401, 403, 404, 500].includes(error.response.status);
-    if (isError) {
+    const isNormalError = [400, 401, 403, 404, 500].includes(error.response?.status);
+    if (isNormalError) {
       console.error('Error', {
         status: error.response?.status,
         data: error.response?.data,
       });
+    } else {
+      console.error('Error', error);
     }
     throw error;
   }

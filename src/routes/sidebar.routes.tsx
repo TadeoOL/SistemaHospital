@@ -696,6 +696,21 @@ const sideBarRoutes: NavItemType[] = [
               },
             ],
           },
+          {
+            id: 'catalogos',
+            title: 'Catálogos',
+            icon: icons.MenuBookOutlined,
+            type: 'collapse',
+            children: [
+              {
+                id: 'conceptos-salida',
+                title: 'Conceptos de Salida',
+                url: '/tesoreria/catalogos/conceptos-salida',
+                icon: icons.Inventory,
+                type: 'item',
+              },
+            ],
+          },
         ],
       },
     ],

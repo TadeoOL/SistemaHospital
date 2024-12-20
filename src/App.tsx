@@ -75,6 +75,7 @@ import {
   TreasuryAdministrationView,
   TreasuryView,
   PackageBuildingView,
+  ConceptsView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -164,7 +165,7 @@ function App() {
                 // --------------------------------- Nursing ------------------------------- // //
                 <Route path="enfermeria/cuartos-hospitalarios-asignados" element={<AssignedRoomsView />} />
                 <Route element={<PharmacyRoute />}>
-                <Route path="enfermeria/armado-paquetes-quirurgicos" element={<PackageBuildingView />} />
+                  <Route path="enfermeria/armado-paquetes-quirurgicos" element={<PackageBuildingView />} />
                 </Route>
                 <Route path="enfermeria/kardex-paciente/:id" element={<PatientKardexView />} />
                 // --------------------------------- Biomedical ------------------------------- // //
@@ -195,6 +196,7 @@ function App() {
                 <Route path="/tesoreria/bancos/estado-de-cuenta" element={<BanksAccountStateView />}></Route>
                 <Route path="/tesoreria/bancos/compras" element={<BanksPurchasesView />}></Route>
                 <Route path="/tesoreria/direccion/menu" element={<TreasuryAdministrationView />}></Route>
+                <Route path="/tesoreria/catalogos/conceptos-salida" element={<ConceptsView />}></Route>
                 <Route
                   path="/tesoreria/direccion/movimientos"
                   element={<TreasuryAdministrationMovementsView />}
