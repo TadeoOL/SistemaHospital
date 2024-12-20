@@ -12,12 +12,6 @@ export interface IBankFound {
   cantidadVentas: number;
 }
 
-export interface IBankMovements {
-  entradas: number[];
-  salidas: number[];
-  labels: string[];
-}
-
 export interface IBankPurchasesPending
   extends Omit<IPurchaseOrder, 'id_Proveedor' | 'id_Almacen' | 'notas' | 'ordenCompraArticulo' | 'estatus'> {
   id_MovimientoTesoreria: string;
