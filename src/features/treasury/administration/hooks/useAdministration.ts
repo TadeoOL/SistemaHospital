@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IAdministrationFund, SellsAndMovementsAdministration } from '../types/types.administration';
+import { IAdministrationFund } from '../types/types.administration';
 import { useGetAdministrationFund } from './useGetAdministrationFund';
 import { AuthorizationSchema } from '../schema/schema.administration';
 import { useCreateAdministrationAuthorization } from './useCreateAuthorization';
 import { toast } from 'react-toastify';
-import { useGetSellsAndMovements } from './useGetSellsAndMovements';
+import { useGetSellsAndMovementsAdministration } from '../../charts/hooks/useGetSellsAndMovementsAdministration';
+import { SellsAndMovementsAdministration } from '../../charts/types/types.charts';
 
 const initialFund: IAdministrationFund = {
   saldo: 0,
@@ -41,7 +42,7 @@ const useAdministration = (): IUseAdministration => {
   const navigation = useNavigate();
   const { mutate: createAuthorization } = useCreateAdministrationAuthorization();
   const { data: fundRes } = useGetAdministrationFund();
-  const { data: sellsAndMovementsRes } = useGetSellsAndMovements();
+  const { data: sellsAndMovementsRes } = useGetSellsAndMovementsAdministration();
   const [state, setState] = useState<IState>({
     openAuthorizationModal: false,
     fund: fundRes ?? initialFund,

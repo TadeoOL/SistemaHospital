@@ -55,7 +55,9 @@ export const getPaginacionSalidasMonetarias = async (paramsUrl?: IPaginationPara
   return res.data;
 };
 
-export const getPaginacionMovimientos = async (paramsUrl?: IPaginationParams): Promise<PaginatedResponse> => {
+export const getPaginacionMovimientos = async (
+  paramsUrl?: IPaginationParams & { id_CajaRevolvente: string }
+): Promise<PaginatedResponse> => {
   const params = getDefaultPaginationParams(paramsUrl);
   const endpoint = `${baseUrl}/paginacion-movimientos`;
   const res = await axios.get(endpoint, { params });

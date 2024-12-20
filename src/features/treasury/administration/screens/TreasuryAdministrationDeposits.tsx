@@ -1,6 +1,6 @@
 import { MainCard, TablePaginated } from '@/common/components';
 import { IconButton, Tooltip, Typography } from '@mui/material';
-import { getDepositsPendingPagination } from '../services/services.administration';
+import { AdministrationService } from '../services/services.administration';
 import { useRef } from 'react';
 import { IAdministrationMovement } from '../types/types.administration';
 import { CheckCircle } from '@mui/icons-material';
@@ -63,7 +63,7 @@ const TreasuryAdministrationDeposits = () => {
       <TablePaginated
         ref={tableRef}
         columns={columns}
-        fetchData={getDepositsPendingPagination}
+        fetchData={AdministrationService.getDepositsPendingPagination}
         params={{
           aproved: state.refreshTable,
         }}

@@ -1,6 +1,6 @@
 import axios from '@/libs/axios';
 import { getDefaultPaginationParams, IPaginationParams, IPaginationResponse } from '@/types/paginationType';
-import { IBank, IBankFound, IBankMovements, IBankPurchasesPending } from '../types/types.bank';
+import { IBank, IBankFound, IBankPurchasesPending } from '../types/types.bank';
 const baseUrl = 'api/Tesoreria/Banco';
 
 export namespace BankService {
@@ -12,16 +12,6 @@ export namespace BankService {
 
   export const getBankFound = async (): Promise<IBankFound> => {
     const res = await axios.get(`${baseUrl}/obtener-saldo-banco`);
-    return res.data;
-  };
-
-  export const getBankMovements = async (params: {
-    fechaInicio: string;
-    fechaFin: string;
-    id_Origen: number;
-    id_Destino: number;
-  }): Promise<IBankMovements> => {
-    const res = await axios.get(`${baseUrl}/movimientos-banco`, { params });
     return res.data;
   };
 

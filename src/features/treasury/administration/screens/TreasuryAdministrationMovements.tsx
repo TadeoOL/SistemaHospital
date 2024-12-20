@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 import { useRef } from 'react';
 import { IAdministrationMovementHistory } from '../types/types.administration';
 import { TablePaginatedColumn } from '@/types/tableComponentTypes';
-import { getAdministrationMovementsPagination } from '../services/services.administration';
+import { AdministrationService } from '../services/services.administration';
 
 const TreasuryAdministrationMovements = () => {
   const tableRef = useRef<IAdministrationMovementHistory>(null);
@@ -47,7 +47,12 @@ const TreasuryAdministrationMovements = () => {
       >
         Consulta de Movimientos
       </Typography>
-      <TablePaginated ref={tableRef} columns={columns} fetchData={getAdministrationMovementsPagination} params={{}} />
+      <TablePaginated
+        ref={tableRef}
+        columns={columns}
+        fetchData={AdministrationService.getAdministrationMovementsPagination}
+        params={{}}
+      />
     </MainCard>
   );
 };

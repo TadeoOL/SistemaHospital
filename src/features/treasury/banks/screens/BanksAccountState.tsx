@@ -5,9 +5,10 @@ import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 import { IBank } from '../types/types.bank';
 import { TablePaginatedColumn } from '@/types/tableComponentTypes';
 import { BankService } from '../services/services.bank';
-import { useGetBankMovements } from '../hooks/useGetBankMovements';
+import { useGetBankMovements } from '../../charts/hooks/useGetBankMovements';
 import { convertDate } from '@/utils/convertDate';
 import { MovementArea } from '../../types/types.common';
+import { removeTimeFromDate } from '../../utils/utils.common';
 
 const BanksAccountState = () => {
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date; weekly: boolean }>({
@@ -16,10 +17,7 @@ const BanksAccountState = () => {
     weekly: false,
   });
   const tableRef = useRef<IBank>(null);
-  const removeTimeFromDate = (date: Date) => {
-    date.setHours(0, 0, 0, 0);
-    return date;
-  };
+
   const params = {
     fechaInicio: convertDate(removeTimeFromDate(dateRange.start)),
     fechaFin: convertDate(removeTimeFromDate(dateRange.end)),

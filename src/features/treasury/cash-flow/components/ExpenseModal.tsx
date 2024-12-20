@@ -15,6 +15,7 @@ interface Props {
   //   onSuccess: Function;
   onClose: Function;
   id_CajaRevolvente?: string;
+  invalidate: () => void;
 }
 
 interface ICashFlowExpense {
@@ -29,7 +30,7 @@ export const addCashFlowExpense = z.object({
 });
 
 const ExpenseModal = (props: Props) => {
-  const { open, onClose, id_CajaRevolvente } = props;
+  const { open, onClose, id_CajaRevolvente, invalidate } = props;
 
   const defaultValues = {};
 
@@ -51,6 +52,7 @@ const ExpenseModal = (props: Props) => {
       });
       toast.success('Gasto creado correctamente');
       onClose();
+      invalidate();
     } catch (error) {
       console.log('error:', error);
       toast.error('Error al crear el gasto');
