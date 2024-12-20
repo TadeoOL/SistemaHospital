@@ -49,7 +49,7 @@ const AuthorizationModal = (props: Props) => {
   const onSubmit = async (data: any) => {
     console.log('data:', data);
     await createAuthorization({
-      id_CajaRevolvente: 0, // TODO: Cambiar por el valor correcto
+      id_CajaRevolvente: 0,
       id_ConceptoSalida: 0,
       monto: data.monto,
       fechaDeposito: 0,

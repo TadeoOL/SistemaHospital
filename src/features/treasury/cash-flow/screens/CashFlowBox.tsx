@@ -85,13 +85,18 @@ function AssignMoneyModal({ openAssignMoneyModal, onClose, selectedRow, reloadTa
     try {
       console.log('data:', data);
       await asignarRevolventeCaja(newData);
-      // TODO: validar que haya revolvente
 
       reloadTable();
 
       onClose();
       toast.success('Presupuesto asignado con éxito!');
-    } catch (error) {
+    } catch (error: any) {
+      const data = error.response.data;
+      const noCashflow = data?.message[0] === 'No se encontró el saldo de Revolvente';
+      if (noCashflow) {
+        toast.error('No se encontró el saldo de Revolvente');
+        return;
+      }
       toast.error('Error al asignar presupuesto!');
     }
   };

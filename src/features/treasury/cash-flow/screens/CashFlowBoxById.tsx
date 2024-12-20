@@ -1,7 +1,7 @@
 import { MainCard, TablePaginated } from '@/common/components';
 import { Button, Grid, Typography } from '@mui/material';
-import { useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import ExpenseModal from '../components/ExpenseModal';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -12,22 +12,16 @@ import { getPaginacionMovimientos } from '../services/cashflow';
 const CashFlowBoxById = () => {
   const location = useLocation();
   const id = location.pathname.split('/').pop();
+  const navigation = useNavigate();
 
-  const loadDataById = async () => {
-    console.log('id:', id);
-  };
-
-  useEffect(() => {
-    loadDataById();
-  }, []);
+  if (!id) {
+    navigation('/tesoreria/revolvente/cajas');
+    return null;
+  }
 
   const [openNewExpenseModal, setOpenNewExpenseModal] = useState(false);
 
   const fetchMovementsByBox = async () => {
-    if (!id) {
-      return null;
-    }
-
     try {
       const res = await getPaginacionMovimientos({
         id_CajaRevolvente: id,
@@ -132,7 +126,7 @@ const CashFlowBoxById = () => {
         </Typography>
         <TablePaginated columns={columns} fetchData={fetchMovementsByBox} params={{}} />
       </MainCard>
-      <ExpenseModal open={openNewExpenseModal} onClose={handles.closeNewExpenseModal} />
+      <ExpenseModal open={openNewExpenseModal} onClose={handles.closeNewExpenseModal} id_CajaRevolvente={id} />
     </>
   );
 };

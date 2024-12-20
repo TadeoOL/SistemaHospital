@@ -6,6 +6,7 @@ import { useState } from 'react';
 import AuthorizationModal from '../components/AuthorizationModal';
 import { useNavigate } from 'react-router-dom';
 import { getPaginacionRevolventes } from '../services/cashflow';
+import { useGetCashFlowFund } from '../hooks/useGetCashFlowFund';
 
 const CashFlow = () => {
   const [openAuthorizationModal, setOpenAuthorizationModal] = useState(false);
@@ -53,8 +54,19 @@ const CashFlow = () => {
     },
   ];
 
+  const { data } = useGetCashFlowFund();
+  const { saldoTotal, cantidadVentas, cajasDisponibles } = data || {};
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+    }).format(price);
+  };
+
   return (
     <>
+      {}
       <Grid
         container
         sx={{
@@ -67,20 +79,18 @@ const CashFlow = () => {
             onClick={handles.navigateToAccountState}
             top="Estado de Cuenta"
             center="Saldo"
-            bottom="$ 1,000.00"
+            bottom={formatPrice(saldoTotal)}
             bottom2={<RemoveRedEyeIcon />}
           />
-          {/* TODO: poner peticion */}
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
             onClick={handles.navigateToBoxes}
             top="Gestion de Cajas"
             center="Cajas Actuales"
-            bottom="3"
+            bottom={cajasDisponibles}
             bottom2={<RemoveRedEyeIcon />}
           />
-          {/* TODO: poner peticion */}
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard

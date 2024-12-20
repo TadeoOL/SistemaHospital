@@ -34,6 +34,7 @@ export const eliminarCajaRevolvente = async (data: any): Promise<PaginatedRespon
 export const getSaldoRevolvente = async (params?: any): Promise<PaginatedResponse> => {
   const endpoint = '/api/Tesoreria/Revolvente/obtener-saldo-revolvente';
   const res = await axios.get(endpoint, { params });
+  console.log('res:', res);
   return res.data;
 };
 

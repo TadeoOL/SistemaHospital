@@ -5,15 +5,17 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'react-toastify';
+import { crearSalidaMonetaria } from '../services/cashflow';
+import { MovementArea } from '../../types/types.common';
 
 interface Props {
   //   itemId?: string;
   open: boolean;
   //   onSuccess: Function;
   onClose: Function;
+  id_CajaRevolvente?: string;
 }
-
-// crearSalidaMonetaria
 
 interface ICashFlowExpense {
   cantidad: number;
@@ -24,16 +26,14 @@ interface ICashFlowExpense {
 export const addCashFlowExpense = z.object({
   cantidad: z.string().min(1, { message: 'Campo requerido' }),
   motivo: z.string().min(1, { message: 'Campo requerido' }),
-  id_CajaRevolvente: z.string().min(1, { message: 'Campo requerido' }),
 });
 
 const ExpenseModal = (props: Props) => {
-  const { open, onClose } = props;
+  const { open, onClose, id_CajaRevolvente } = props;
 
   const defaultValues = {};
 
   const {
-    watch,
     register,
     handleSubmit,
     formState: { errors },
@@ -42,8 +42,24 @@ const ExpenseModal = (props: Props) => {
     resolver: zodResolver(addCashFlowExpense),
   });
 
-  //MovementArea.REVOLVENTE
-  // TODO: terminar submit
+  const onSubmit = async (data: ICashFlowExpense) => {
+    try {
+      await crearSalidaMonetaria({
+        ...data,
+        id_CajaRevolvente: id_CajaRevolvente,
+        modulo: MovementArea.REVOLVENTE,
+      });
+      toast.success('Gasto creado correctamente');
+      onClose();
+    } catch (error) {
+      console.log('error:', error);
+      toast.error('Error al crear el gasto');
+    }
+  };
+
+  const handleError = (error: any) => {
+    console.log('error:', error);
+  };
 
   const actions = (
     <>
@@ -51,12 +67,7 @@ const ExpenseModal = (props: Props) => {
         Cancelar
       </Button>
       <div className="col"></div>
-      <Button
-        variant="contained"
-        // onClick={handleSubmit(onSubmit, handleError)}
-        onClick={onClose as any}
-        startIcon={<SaveOutlinedIcon />}
-      >
+      <Button variant="contained" onClick={handleSubmit(onSubmit, handleError)} startIcon={<SaveOutlinedIcon />}>
         Guardar
       </Button>
     </>
@@ -67,10 +78,23 @@ const ExpenseModal = (props: Props) => {
       <form noValidate>
         <Grid component="span" container spacing={2}>
           <Grid item xs={12} md={12}>
-            <InputBasic label="Cantidad" {...register('id_CajaRevolvente')} />
+            <InputBasic
+              label="Cantidad"
+              {...register('cantidad')}
+              helperText={errors.cantidad?.message}
+              error={errors.cantidad}
+            />
           </Grid>
           <Grid item xs={12} md={12}>
-            <InputBasic label="Motivo" {...register('motivo')} multiline maxRows={3} maxLength={200} />
+            <InputBasic
+              label="Motivo"
+              {...register('motivo')}
+              multiline
+              maxRows={3}
+              maxLength={200}
+              helperText={errors.motivo?.message}
+              error={errors.motivo}
+            />
           </Grid>
           {/* // TODO: Input de fotos aqui? */}
         </Grid>
