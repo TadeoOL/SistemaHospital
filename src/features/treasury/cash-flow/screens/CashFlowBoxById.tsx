@@ -3,11 +3,9 @@ import { Button, Grid, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ExpenseModal from '../components/ExpenseModal';
-import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import MonthlyBarChart from '@/common/components/MonthlyBarChart';
 import { getPaginacionMovimientos } from '../services/cashflow';
+import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 
 const CashFlowBoxById = () => {
   const location = useLocation();
@@ -41,13 +39,6 @@ const CashFlowBoxById = () => {
     },
   };
 
-  const [value, setValue] = useState<any>(dayjs(new Date('2014-08-18T21:11:54')));
-
-  const handleChange = (newValue: any) => {
-    console.log('newValue:', newValue);
-    setValue(newValue);
-  };
-
   const innerHeader = (
     <>
       <Grid container direction={'row'} justifyContent={'space-between'}>
@@ -55,20 +46,6 @@ const CashFlowBoxById = () => {
           <Typography variant="h5">Estado de cuenta de la caja</Typography>
         </Grid>
 
-        <Grid item>
-          <Grid container direction={'row'} spacing={2}>
-            <Grid item>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DesktopDatePicker format="MM/dd/yyyy" value={value} onChange={handleChange} />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DesktopDatePicker format="MM/dd/yyyy" value={value} onChange={handleChange} />
-              </LocalizationProvider>
-            </Grid>
-          </Grid>
-        </Grid>
         <Button variant="contained" onClick={handles.openNewExpenseModal}>
           Nuevo Gasto
         </Button>
@@ -95,6 +72,24 @@ const CashFlowBoxById = () => {
     },
   ];
 
+  const [dateRange, setDateRange] = useState<{ start: Date; end: Date; weekly: boolean }>({
+    start: new Date(new Date().getFullYear(), 0, 1),
+    end: new Date(new Date().getFullYear() + 1, 0, 1),
+    weekly: false,
+  });
+
+  const title = dateRange.weekly
+    ? `${dateRange.start.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })} - ${dateRange.end.toLocaleDateString(
+        'es-ES',
+        {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        }
+      )}`
+    : `${dateRange.start.getFullYear()} - ${dateRange.end.getFullYear()}`;
+
   return (
     <>
       <MainCard content={false} sx={{ mt: 1.5, p: 3 }}>
@@ -107,11 +102,18 @@ const CashFlowBoxById = () => {
           spacing={2}
         >
           <Grid item xs={12} md={8}>
-            {/* <IncomeAreaChart view="monthly" /> */}{' '}
-            {/* TODO: Aqui este componente truena porque las props no las tiene */}
+            <IncomeAreaChart
+              view={dateRange.weekly ? 'weekly' : 'monthly'}
+              title={title}
+              incomeMonthlyData={[]}
+              expenseMonthlyData={[]}
+              setDateRange={setDateRange}
+              dateRange={dateRange}
+              labels={[]}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
-            <MonthlyBarChart />
+            <MonthlyBarChart data={[]} />
           </Grid>
         </Grid>
       </MainCard>

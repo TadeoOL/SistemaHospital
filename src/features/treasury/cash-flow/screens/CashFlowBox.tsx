@@ -157,7 +157,7 @@ const CashFlowBox = () => {
   const tableRef = useRef<any>();
 
   const reloadTable = () => {
-    tableRef.current?.reloadData();
+    tableRef.current?.fetchData();
   };
 
   const handles = {
@@ -184,12 +184,17 @@ const CashFlowBox = () => {
     },
   };
 
-  const defaultValues = {};
+  const defaultValues = {
+    nombre: '',
+    fondoDestinado: '',
+    id_UsuarioEncargado: '',
+  };
 
   const {
     watch,
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ICashFlowBox>({
     defaultValues,
@@ -208,6 +213,9 @@ const CashFlowBox = () => {
       reloadTable();
 
       handles.closeCreateBoxModal();
+
+      reset();
+
       toast.success('Caja creada con éxito!');
     } catch (error) {
       toast.error('Error al crear caja!');

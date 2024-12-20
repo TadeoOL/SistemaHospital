@@ -3,9 +3,6 @@ import { useState } from 'react';
 import AuthorizationModal from '../components/AuthorizationModal';
 import { Button } from '@mui/material';
 import { MainCard, TablePaginated } from '@/common/components';
-import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 import MonthlyBarChart from '@/common/components/MonthlyBarChart';
 import { getPaginacionSalidasMonetarias } from '../services/cashflow';
@@ -22,32 +19,11 @@ const CashFlowAccountState = () => {
     },
   };
 
-  const [value, setValue] = useState<any>(dayjs(new Date('2014-08-18T21:11:54')));
-
-  const handleChange = (newValue: any) => {
-    console.log('newValue:', newValue);
-    setValue(newValue);
-  };
-
   const innerHeader = (
     <>
       <Grid container direction={'row'} sx={{ p: 3 }} justifyContent={'space-between'}>
         <Grid item>
           <Typography variant="h5">Estado de cuenta</Typography>
-        </Grid>
-        <Grid item>
-          <Grid container direction={'row'} spacing={2}>
-            <Grid item>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DesktopDatePicker format="MM/dd/yyyy" value={value} onChange={handleChange} />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DesktopDatePicker format="MM/dd/yyyy" value={value} onChange={handleChange} />
-              </LocalizationProvider>
-            </Grid>
-          </Grid>
         </Grid>
         <Grid item>
           <Button variant="contained" onClick={handles.openAuthorizationModal}>
@@ -77,6 +53,24 @@ const CashFlowAccountState = () => {
     },
   ];
 
+  const [dateRange, setDateRange] = useState<{ start: Date; end: Date; weekly: boolean }>({
+    start: new Date(new Date().getFullYear(), 0, 1),
+    end: new Date(new Date().getFullYear() + 1, 0, 1),
+    weekly: false,
+  });
+
+  const title = dateRange.weekly
+    ? `${dateRange.start.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })} - ${dateRange.end.toLocaleDateString(
+        'es-ES',
+        {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        }
+      )}`
+    : `${dateRange.start.getFullYear()} - ${dateRange.end.getFullYear()}`;
+
   return (
     <>
       <MainCard content={false} sx={{ mt: 1.5 }}>
@@ -89,10 +83,18 @@ const CashFlowAccountState = () => {
           spacing={2}
         >
           <Grid item xs={12} md={8}>
-            {/* <IncomeAreaChart view="monthly" /> */}
+            <IncomeAreaChart
+              view={dateRange.weekly ? 'weekly' : 'monthly'}
+              title={title}
+              incomeMonthlyData={[]}
+              expenseMonthlyData={[]}
+              setDateRange={setDateRange}
+              dateRange={dateRange}
+              labels={[]}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
-            <MonthlyBarChart />
+            <MonthlyBarChart data={[]} />
           </Grid>
         </Grid>
       </MainCard>
