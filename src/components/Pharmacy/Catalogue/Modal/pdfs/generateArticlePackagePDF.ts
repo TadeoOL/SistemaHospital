@@ -1,5 +1,6 @@
 import { getTable } from '@/common/helpers/getTable';
 import { logoWithText } from '@/common/logoWithText';
+import { LineWeight } from '@mui/icons-material';
 import pdfmake from 'pdfmake/build/pdfmake';
 
 pdfmake.fonts = {
@@ -74,13 +75,12 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
   };
 
   const paciente = articlePackage.paciente;
-  const edadPaciente = articlePackage.edadPaciente;
+  const edadPaciente = "___";
   const solicitadoPor = articlePackage.usuarioSolicito;
   const medico = articlePackage.medico;
   const quirofano = articlePackage.quirofano;
-
-  const folio = articlePackage.folio;
-  const fecha = articlePackage.fechaSolicitud;
+  const espacioLibre = "____________"
+  const espacioLibreAnes = "____________________________"
   const horaCirugia = articlePackage.horaCirugia;
 
   const articleTable = getTable({
@@ -92,11 +92,15 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
         value: 'nombre',
       },
       {
-        subheader: 'Cantidad',
+        subheader: 'Solicitado',
         value: 'cantidad',
       },
+      {
+        subheader: 'Utilizado',
+        value: 'utilizado',
+      },
     ],
-    rows: articlePackage.articulos,
+    rows: articlePackage.articulos.map((art: any) => ({...art, utilizado: ''})),
   });
 
   const docDefinition: any = {
@@ -117,41 +121,94 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
       {
         layout: 'noBorders',
         table: {
-          widths: ['*', '*', 'auto'],
+          widths: ['*', 'auto','*'],
           body: [
             [
               getInfoCell('Paciente', paciente, '*'),
               getInfoCell('Edad', edadPaciente, '*'),
-              getInfoCell('Fecha solicitud', fecha, '*'),
+              getInfoCell('Hora Cirugia', horaCirugia, '*'),
             ],
           ],
         },
       },
+      /*{
+        layout: 'noBorders',
+        table: {
+          widths: ['*', 'auto'],
+          body: [[getInfoCell('Quirofano', quirofano, 'auto'), getInfoCell('Folio solicitud', espacioLibre, '*')]],
+        },
+      },*/
       {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Quirofano', quirofano, 'auto'), getInfoCell('Folio solicitud', folio, '*')]],
+          body: [[getInfoCell('Medico', medico, 'auto'), getInfoCell('Hora Inicio', espacioLibre, '*')]],
         },
       },
       {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Medico', medico, 'auto'), getInfoCell('Hora Cirugia', horaCirugia, '*')]],
+          body: [[getInfoCell('Solicitado por', solicitadoPor, '*'), getInfoCell('Hora fin', espacioLibre, '*')]],
         },
       },
       {
         layout: 'noBorders',
         table: {
-          widths: ['*', 'auto'],
-          body: [[getInfoCell('Solicitado por', solicitadoPor, '*'), '']],
+          widths: ['auto', 'auto','auto'],
+          body: [
+            [
+              getInfoCell('Anestesiologo', espacioLibre, '*'),
+              getInfoCell('Diagnostico', espacioLibre, '*'),
+              getInfoCell('Anestesia', espacioLibre, '*'),
+            ]],
         },
       },
       articleTable,
+      singsHeaders,
+      singsSpaces,
     ],
   };
 
   const pdf = pdfmake.createPdf(docDefinition);
   pdf.open();
 };
+
+const singsHeaders = getTable({
+  header: 'Firmas',
+  headerFontSize: 10,
+  columns: [
+    {
+      subheader: 'Circulante',
+      value: 'espacio1',
+    },
+    {
+      subheader: 'Realizando Devolucion',
+      value: 'espacio2',
+    },
+    {
+      subheader: 'Farmacia',
+      value: 'espacio3',
+    },
+  ],
+  rows: [],
+});
+const singsSpaces = getTable({
+  header: 'Firmas',
+  headerFontSize: 10,
+  columns: [
+    {
+      subheader: '',
+      value: 'espacio1',
+    },
+    {
+      subheader: ' ',
+      value: 'espacio2',
+    },
+    {
+      subheader: '',
+      value: 'espacio3',
+    },
+  ],
+  rows: [],
+});

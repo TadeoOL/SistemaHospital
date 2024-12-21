@@ -1036,6 +1036,7 @@ export const buildPackage = async (data: {
   id_SolicitudAlmacen: string;
   id_CuentaEspacioHospitalario: string;
   articulos?: { Id_Articulo: string; Cantidad: number }[];
+  idsArticulosEliminar?: string[];
   estatus: number;
   motivo?: string;
 }) => {

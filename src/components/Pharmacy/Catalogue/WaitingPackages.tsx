@@ -455,8 +455,7 @@ export const WaitingPackages = (props: {
                                   <IconButton
                                     size="small"
                                     onClick={() => {
-                                      generateArticlePackagePDF(movimiento)
-                                      console.log("AAAAAA");
+                                      generateArticlePackagePDF(movimiento);
                                     }}
                                   >
                                     <LocalPrintshopOutlined />

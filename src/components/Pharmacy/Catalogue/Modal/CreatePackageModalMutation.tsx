@@ -1,4 +1,4 @@
-import { Cancel, Check, Delete, Edit, Save, Warning } from '@mui/icons-material';
+import { Cancel, Check, Delete, Edit, Save, Warning, TurnedIn } from '@mui/icons-material';
 import {
   Button,
   Stack,
@@ -76,6 +76,7 @@ interface RequestBuildingModalProps {
 
 export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) => {
   const [articles, setArticles] = useState<IarticlesPrebuildedRequest[]>(props.preLoadedArticles);
+  const [articlesToDelete, setArticlesToDelete] = useState<string[]>([]);
   const [value, setValue] = useState(0);
   const [loading, setLoading] = useState(false);
   //const [articlesToSelect, setArticlesToSelect] = useState<IArticleFromSearchWithQuantity[] | []>([]);
@@ -111,6 +112,10 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
       setIsLoadingArticlesWareH(false);
     }
   };
+
+  const addIdArticleToDelete = (id: string) => {
+    setArticlesToDelete([ ...articlesToDelete, id])
+  }
 
   const handleAddArticle = () => {
     if (!articleSelected) {
@@ -165,6 +170,33 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
     } catch (error) {
       console.log(error);
       toast.error('Error al agregar los artículos!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveChanges = async () => {
+    setLoading(true);
+    const object = {
+      id_SolicitudAlmacen: props.id_SolicitudAlmacen,
+      id_CuentaEspacioHospitalario: props.id_CuentaEspacioHospitalario,
+      idsArticulosEliminar: articlesToDelete,
+      articulos: articles.map((art) => ({
+        Id_Articulo: art.id_Articulo,
+        Cantidad: art.cantidadSeleccionada,
+        Nombre: art.nombre,
+      })),
+      estatus: 5,
+    };
+    try {
+      await buildPackage(object);
+      toast.success('Cambios guardados correctamente!');
+      props.setOpen(false);
+      props.refetch();
+      //showAlert();
+    } catch (error) {
+      console.log(error);
+      toast.error('Error al guardar los cambios!');
     } finally {
       setLoading(false);
     }
@@ -424,6 +456,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
                 setArticles={setArticles}
                 isResume={false}
                 handleEditArticle={handleEditArticle}
+                setArticlesToDelete={addIdArticleToDelete}
               />
             </React.Fragment>
           </Stack>
@@ -456,6 +489,18 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
         <Button
           variant="contained"
           //cambiar aqui despues condicion de deshabilitar un boton
+          sx={{bgcolor:'orange'}}
+          disabled={props.requestedItems.length < 1 || loading}
+          onClick={() => {
+            saveChanges();
+          }}
+          startIcon={<TurnedIn />}
+        >
+          {loading ? 'Cargando...' : 'Guardar CAMBIOS'}
+        </Button>
+        <Button
+          variant="contained"
+          //cambiar aqui despues condicion de deshabilitar un boton
           disabled={props.requestedItems.length < 1 || loading}
           onClick={() => {
             if (articles.length === 0) return toast.error('Agrega artículos!');
@@ -466,7 +511,7 @@ export const RequestBuildingModalMutation = (props: RequestBuildingModalProps) =
           }}
           startIcon={<Check />}
         >
-          {loading ? 'Cargando...' : 'Aceptar'}
+          {loading ? 'Cargando...' : 'Terminar Armado'}
         </Button>
       </Box>
     </Box>
@@ -477,8 +522,9 @@ interface ArticlesTableProps {
   setArticles?: Function;
   isResume: boolean;
   handleEditArticle: Function;
+  setArticlesToDelete: Function;
 }
-const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, handleEditArticle }) => {
+const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, isResume, handleEditArticle, setArticlesToDelete }) => {
   return (
     <Card>
       <TableContainer>
@@ -500,6 +546,7 @@ const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, setArticles, is
                 articles={articles}
                 isResume={isResume}
                 handleEditArticle={handleEditArticle}
+                setArticlesToDelete={setArticlesToDelete}
               />
             ))}
           </TableBody>
@@ -513,12 +560,14 @@ interface ArticlesTableRowProps {
   articles: IarticlesPrebuildedRequest[];
   article: IarticlesPrebuildedRequest;
   setArticles: Function;
+  setArticlesToDelete: Function;
   isResume: boolean;
   handleEditArticle: Function;
 }
 const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
   article,
   setArticles,
+  setArticlesToDelete,
   articles,
   isResume,
   handleEditArticle,
@@ -585,6 +634,7 @@ const ArticlesTableRow: React.FC<ArticlesTableRowProps> = ({
               <IconButton
                 onClick={() => {
                   setArticles(articles.filter((a) => a.id_Articulo !== article.id_Articulo));
+                  setArticlesToDelete(article.id_Articulo)
                 }}
               >
                 <Delete />
