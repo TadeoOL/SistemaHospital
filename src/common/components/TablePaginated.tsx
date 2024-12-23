@@ -119,31 +119,9 @@ export const TablePaginated = memo(
       }
     };
 
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-
-    useEffect(() => {
-      const handleResize = (): void => {
-        setWindowHeight(window.innerHeight);
-      };
-
-      window.addEventListener('resize', handleResize);
-
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }, []);
-
-    const dynamicHeight = `${windowHeight - 410}px`;
-
     return (
       <>
-        <TableBasic
-          maxHeight={dynamicHeight}
-          rows={data}
-          columns={newColumns as any}
-          isLoading={isLoading}
-          nestedTable={nestedTable}
-        >
+        <TableBasic rows={data} columns={newColumns as any} isLoading={isLoading} nestedTable={nestedTable}>
           {props.children}
         </TableBasic>
 
