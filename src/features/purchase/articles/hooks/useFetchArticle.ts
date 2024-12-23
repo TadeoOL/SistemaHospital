@@ -17,6 +17,7 @@ export const useFetchArticle = (id?: string) => {
 
     try {
       const data = await getArticleById(id);
+      console.log('data:', data);
       setArticle(data);
     } catch (error) {
       console.log(error);

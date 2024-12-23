@@ -41,6 +41,10 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   const { article, isLoadingArticle } = useFetchArticle(itemId);
 
+  useEffect(() => {
+    setIsBox(!!article?.unidadesPorCaja);
+  }, [article]);
+
   const defaultValues = {
     id: '',
     subCategoria: '',
@@ -90,7 +94,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   };
 
   const onSubmit: SubmitHandler<IArticle> = async (data) => {
-    setLoadingSubmit(true)
+    setLoadingSubmit(true);
     try {
       data.id = itemId || undefined;
       data.esCaja = isBox;
@@ -139,11 +143,11 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
       onSuccess();
       onClose();
-      setLoadingSubmit(false)
+      setLoadingSubmit(false);
     } catch (error) {
       console.log('error:', error);
       toast.error('Error al crear el articulo!');
-      setLoadingSubmit(false)
+      setLoadingSubmit(false);
     }
   };
 
@@ -188,8 +192,8 @@ export const ArticleModal = (props: ArticleModalProps) => {
     const rangoVentaInterno = config?.factorInterno?.find(isFactorInRange);
     const multiplicadorVentaInterno = Number(rangoVentaInterno?.factorMultiplicador) || 1;
 
-    const precioVentaExterno = precioCompra * multiplicadorVentaExterno;
-    const precioVentaInterno = precioCompra * multiplicadorVentaInterno;
+    const precioVentaExterno = (precioCompra * multiplicadorVentaExterno).toFixed(2);
+    const precioVentaInterno = (precioCompra * multiplicadorVentaInterno).toFixed(2);
 
     setMultVentaExterno(multiplicadorVentaExterno);
     setMultVentaInterno(multiplicadorVentaInterno);
@@ -204,11 +208,22 @@ export const ArticleModal = (props: ArticleModalProps) => {
 
   const actions = (
     <>
-      <Button variant="outlined" disabled={loadingSubmit} color="error" startIcon={<CancelIcon />} onClick={() => onClose()}>
+      <Button
+        variant="outlined"
+        disabled={loadingSubmit}
+        color="error"
+        startIcon={<CancelIcon />}
+        onClick={() => onClose()}
+      >
         Cancelar
       </Button>
       <div className="col"></div>
-      <Button variant="contained" disabled={loadingSubmit} onClick={handleSubmit(onSubmit, handleError)} startIcon={<SaveOutlinedIcon />}>
+      <Button
+        variant="contained"
+        disabled={loadingSubmit}
+        onClick={handleSubmit(onSubmit, handleError)}
+        startIcon={<SaveOutlinedIcon />}
+      >
         {loadingSubmit ? <CircularProgress size={15} /> : 'Guardar'}
       </Button>
     </>
@@ -273,25 +288,23 @@ export const ArticleModal = (props: ArticleModalProps) => {
             />
           </Grid>
 
-          {isBox && (
-            <Grid item xs={12} md={6}>
-              <InputBasic
-                label="Unidades por Caja"
-                placeholder="Escriba un Número de Unidades por Caja"
-                {...register('unidadesPorCaja')}
-                error={!!errors.unidadesPorCaja}
-                helperText={errors?.unidadesPorCaja?.message}
-                inputProps={{
-                  type: 'number',
-                  pattern: '[0-9]*',
-                  inputMode: 'numeric',
-                  min: 0,
-                  onInput: validateDecimal,
-                }}
-              />
-            </Grid>
-          )}
-
+          <Grid item xs={12} md={6}>
+            <InputBasic
+              label="Unidades por Caja"
+              placeholder="Escriba un Número de Unidades por Caja"
+              {...register('unidadesPorCaja')}
+              error={!!errors.unidadesPorCaja}
+              disabled={!isBox}
+              helperText={errors?.unidadesPorCaja?.message}
+              inputProps={{
+                type: 'number',
+                pattern: '[0-9]*',
+                inputMode: 'numeric',
+                min: 0,
+                onInput: validateDecimal,
+              }}
+            />
+          </Grid>
           <Grid item xs={12} md={12}>
             <InputBasic
               label="Descripción"

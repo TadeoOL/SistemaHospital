@@ -27,6 +27,8 @@ import { AddArticleExpireDate } from './AddArticleExpireDate';
 import { ReturnArticle } from './ReturnArticle';
 import { IPurchaseOrder, IPurchaseOrderArticle } from '@/types/purchase/purchaseTypes';
 import { getOrderRequestById } from '@/services/purchase/purchaseService';
+import { useGetAlmacenes } from '@/hooks/useGetAlmacenes';
+import { SelectBasic } from '@/common/components';
 
 const style = {
   width: { xs: 380, sm: 750, md: 1000, lg: 1200 },
@@ -118,6 +120,13 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
   const [openReturnArticle, setOpenReturnArticle] = useState(false);
   const [returnArticlesArray, setReturnArticlesArray] = useState<ReturnArticle[]>([]);
   const [articlesToBox, setArticlesToBox] = useState<ArticlesToBox[]>([]);
+  const { almacenes } = useGetAlmacenes();
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
+
+  useEffect(() => {
+    if (!articleEntryData) return;
+    setSelectedWarehouse(articleEntryData?.id_Almacen);
+  }, [articleEntryData]);
 
   console.log({ returnArticlesArray });
 
@@ -163,7 +172,7 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
       })
       .filter((a) => a.cantidad !== 0);
     const articlesEntryObject = {
-      id_almacen: articleEntryData.id_Almacen,
+      id_almacen: selectedWarehouse,
       articulos: articlesFormatted,
       id_ordenCompra: props.orderId,
       devolucionCompras: returnArticlesArray,
@@ -245,6 +254,15 @@ export const ArticlesEntry = (props: ArticlesEntryProps) => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Almacén dirigido:</Typography>
+                <SelectBasic
+                  value={selectedWarehouse}
+                  options={almacenes}
+                  uniqueProperty="id_Almacen"
+                  displayProperty="nombre"
+                  onChange={(e: any) => {
+                    setSelectedWarehouse(e.target.value);
+                  }}
+                />
                 {/* <Typography variant="body1">{articleEntryData?.almacen.nombre}</Typography> */}
               </Grid>
               <Grid item xs={12} sm={6}>

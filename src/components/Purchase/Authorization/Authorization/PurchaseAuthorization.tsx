@@ -26,7 +26,7 @@ const PurchaseAuthorization = () => {
     { header: 'Folio', value: 'folio_Extension' },
     { header: 'Creado por', value: 'usuarioSolicitado' },
     { header: 'Estatus', value: 'estatus' },
-    { header: 'Cotización', value: 'cotizacion' },
+    { header: 'Cotización', value: (row: any) => (row.cotizacion ? 'Sí' : 'No') },
     { header: 'Proveedor', value: 'proveedor' },
     { header: 'Total', value: 'total' },
     {

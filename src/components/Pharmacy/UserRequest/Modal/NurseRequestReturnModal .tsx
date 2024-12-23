@@ -135,10 +135,10 @@ export const NurseRequestReturnModal = (props: Props) => {
 
   useEffect(() => {
     const fetch = async () => {
-      setSearch('')
+      setSearch('');
       setArticles([]);
       setUserSelected(null);
-      setRoomSelected(null)
+      setRoomSelected(null);
       setIsLoadingWarehouse(true);
       try {
         const warehouse: IWarehouseData = await getWarehouseById(props.warehouseId);
@@ -150,7 +150,7 @@ export const NurseRequestReturnModal = (props: Props) => {
           }))
           .concat({ nombre: warehouse.nombre, id: warehouse.id_Almacen });
         setWarehousesFetched(subWH);
-        setWarehouseSelected(subWH.find((w) => w.id == props.warehouseId) ?? null)
+        setWarehouseSelected(subWH.find((w) => w.id == props.warehouseId) ?? null);
       } catch (error) {
         console.log(error);
       } finally {
@@ -176,11 +176,10 @@ export const NurseRequestReturnModal = (props: Props) => {
   };
 
   const changeArticleQuantityInMap = (idArticle: string, cantidad: number) => {
-
     const articleToedit = articlesMap.get(idArticle);
     if (articleToedit) {
       articleToedit.cantidad = cantidad;
-      articlesMap.set(idArticle, articleToedit)
+      articlesMap.set(idArticle, articleToedit);
 
       setArticlesMap(articlesMap);
     }
@@ -194,7 +193,6 @@ export const NurseRequestReturnModal = (props: Props) => {
         const editedArticle = articlesMap.get(key);
 
         if (editedArticle) {
-
           /*const amountReturn =
             roomSelected.tipoEspacioHospitalario === 2
               ? editedArticle.cantidad
@@ -210,9 +208,9 @@ export const NurseRequestReturnModal = (props: Props) => {
             amountReturn,
             amountPatient,
           });*/
-          const amountReturn =  editedArticle.cantidad
+          const amountReturn = editedArticle.cantidad;
 
-          const amountPatient = Math.max(0, originalArticle.cantidad - editedArticle.cantidad)
+          const amountPatient = Math.max(0, originalArticle.cantidad - editedArticle.cantidad);
           result.push({
             ...editedArticle,
             cantidad: originalArticle.cantidad,
@@ -221,29 +219,31 @@ export const NurseRequestReturnModal = (props: Props) => {
           });
         }
       }
-      setResumeArticles(result.filter((art) => art.amountReturn > 0))
+      setResumeArticles(result.filter((art) => art.amountReturn > 0));
     }
-  }
+  };
 
   const onSubmit = async () => {
     const object = {
       id_CuentaEspacioHospitalario: roomSelected?.id_EspacioHospitalario ?? '',
       id_Almacen: warehouseSelected?.id ?? '',
-      tipoDevolucion: roomSelected?.tipoEspacioHospitalario == 1? 6 : 8,
-      articulos: resumeArticles.filter((ra) => ra.amountReturn > 0).map((ra) => ({
-        id_CuentaArticulo: ra.id,
-        id_Articulo: ra.id_Articulo,
-        cantidad: ra.amountReturn * -1,
-      }))
-    }
+      tipoDevolucion: roomSelected?.tipoEspacioHospitalario == 1 ? 6 : 8,
+      articulos: resumeArticles
+        .filter((ra) => ra.amountReturn > 0)
+        .map((ra) => ({
+          id_CuentaArticulo: ra.id,
+          id_Articulo: ra.id_Articulo,
+          cantidad: ra.amountReturn * -1,
+        })),
+    };
     try {
       await createReturnArticlesRequest(object);
       generatearticlesChargedPDF({
-                          pacienteNombre: userSelected?.nombrePaciente ?? '',
-                          quirofano: roomSelected?.nombreEspacioHospitalario ?? '',
-                          articulos: articles.filter((art) => art.tipoCargo !== 2).sort((a, b) => a.nombre.localeCompare(b.nombre)),
-                          articulosExtra: articles.filter((art) => art.tipoCargo === 2).sort((a, b) => a.nombre.localeCompare(b.nombre))
-                        })
+        pacienteNombre: userSelected?.nombrePaciente ?? '',
+        quirofano: roomSelected?.nombreEspacioHospitalario ?? '',
+        articulos: articles.filter((art) => art.tipoCargo !== 2).sort((a, b) => a.nombre.localeCompare(b.nombre)),
+        articulosExtra: articles.filter((art) => art.tipoCargo === 2).sort((a, b) => a.nombre.localeCompare(b.nombre)),
+      });
       toast.success('Solicitud creada');
       props.refetch(props.warehouseId);
       props.setOpen(false);
@@ -287,179 +287,189 @@ export const NurseRequestReturnModal = (props: Props) => {
 
   return (
     <Box sx={style}>
-      <HeaderModal setOpen={props.setOpen} title={resumeFlag ? "Resumen" : "Devolución de Artículos"} />
+      <HeaderModal setOpen={props.setOpen} title={resumeFlag ? 'Resumen' : 'Devolución de Artículos'} />
       <Box sx={style2}>
         <Stack sx={{ display: 'flex', flex: 1, p: 2, backgroundColor: 'white' }}>
           {resumeFlag ? (
             <>
               <ReturnResume
                 generalData={{
-                  patientName: userSelected?.nombrePaciente ?? "",
-                  warehouseName: warehouseSelected?.nombre ?? "",
-                  RoomName: roomSelected?.nombreEspacioHospitalario ?? ""
+                  patientName: userSelected?.nombrePaciente ?? '',
+                  warehouseName: warehouseSelected?.nombre ?? '',
+                  RoomName: roomSelected?.nombreEspacioHospitalario ?? '',
                 }}
                 returningArticles={resumeArticles}
                 isQuirurgicalRoom={roomSelected != null && roomSelected.tipoEspacioHospitalario == 1}
               />
             </>
-          )
-            :
-            (
-              <>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flex: 1,
-                    justifyContent: 'space-between',
-                    columnGap: 2,
-                    flexDirection: 'column',
-                    rowGap: { xs: 2, sm: 0 },
-                  }}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
-                    <Stack sx={{ display: 'flex', flex: 1 }}>
-                      <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
+          ) : (
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: 1,
+                  justifyContent: 'space-between',
+                  columnGap: 2,
+                  flexDirection: 'column',
+                  rowGap: { xs: 2, sm: 0 },
+                }}
+              >
+                <Box sx={{ display: 'flex', flexDirection: 'row', mb: 3 }}>
+                  <Stack sx={{ display: 'flex', flex: 1 }}>
+                    <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar Paciente</Typography>
+                    <Autocomplete
+                      disablePortal
+                      fullWidth
+                      disabled={disableUserSelection}
+                      filterOptions={filterPatientOptions}
+                      onChange={(e, val) => {
+                        e.stopPropagation();
+                        setUserSelected(val);
+                        if (val?.id_IngresoPaciente !== undefined) {
+                          fetchPatientRooms(val.id_IngresoPaciente);
+                        }
+                        setUserError(false);
+                      }}
+                      loading={false && usersData.length === 0}
+                      getOptionLabel={(option) => option.nombrePaciente}
+                      isOptionEqualToValue={(option, value) => option.id_Paciente === value.id_Paciente}
+                      options={usersData}
+                      value={userSelected}
+                      noOptionsText="No se encontraron pacientes"
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={userError}
+                          helperText={userError && 'Selecciona un paciente'}
+                          placeholder="Pacientes"
+                          sx={{ width: '100%' }}
+                          onChange={(e) => {
+                            if (e.target.value === null) {
+                              setPatientSearch('');
+                            }
+                            setPatientSearch(e.target.value);
+                          }}
+                        />
+                      )}
+                    />
+                  </Stack>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'row', mb: 1 }}>
+                  <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
+                    <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
+
+                    {!isLoadingWarehouse && (
+                      <>
+                        <Autocomplete
+                          disablePortal
+                          fullWidth
+                          filterOptions={filterWarehouseOptions}
+                          onChange={(_, val) => {
+                            setWarehouseError(false);
+                            setWarehouseSelected(val);
+                            setArticles([]);
+                          }}
+                          loading={isLoadingWarehouse}
+                          getOptionLabel={(option) => option.nombre}
+                          isOptionEqualToValue={(option, value) => option.id === value.id}
+                          options={warehousesFetched ?? []}
+                          value={warehouseSelected}
+                          noOptionsText="No se encontraron almacenes"
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              error={userError}
+                              helperText={userError && 'Selecciona un almacen'}
+                              placeholder="Almacen"
+                              sx={{ width: '100%' }}
+                            />
+                          )}
+                        />
+                      </>
+                    )}
+                  </Stack>
+                  {!samiPatient && (
+                    <Stack sx={{ display: 'flex', flex: 1, maxWidth: 450, ml: 'auto' }}>
+                      <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
+
                       <Autocomplete
                         disablePortal
                         fullWidth
-                        disabled={disableUserSelection}
-                        filterOptions={filterPatientOptions}
-                        onChange={(e, val) => {
+                        filterOptions={filterPatientRoomsOptions}
+                        onChange={async (e, val) => {
                           e.stopPropagation();
-                          setUserSelected(val);
-                          if (val?.id_IngresoPaciente !== undefined) {
-                            fetchPatientRooms(val.id_IngresoPaciente);
+                          setRoomSelected(val);
+                          setRoomError(false);
+                          if (val?.tipoEspacioHospitalario) {
+                            const res = await getHospitalRoomArticles(val?.id_EspacioHospitalario ?? '');
+                            setArticles(res);
+                            const newMap = new Map();
+                            const newMapEdited = new Map();
+                            res.forEach((article: ArticlesFromRoom) => {
+                              newMap.set(article.id, { ...article });
+                            });
+                            res.forEach((article: ArticlesFromRoom) => {
+                              newMapEdited.set(article.id, { ...article, cantidad: 0 });
+                            });
+                            setOriginalMap(newMap);
+                            setArticlesMap(newMapEdited);
                           }
-                          setUserError(false);
                         }}
-                        loading={false && usersData.length === 0}
-                        getOptionLabel={(option) => option.nombrePaciente}
-                        isOptionEqualToValue={(option, value) => option.id_Paciente === value.id_Paciente}
-                        options={usersData}
-                        value={userSelected}
-                        noOptionsText="No se encontraron pacientes"
+                        loading={isLoadingRooms && rooms.length === 0}
+                        getOptionLabel={(option) => option.nombreEspacioHospitalario + ' - ' + option.horaInicio}
+                        options={rooms}
+                        value={roomSelected}
+                        isOptionEqualToValue={(option, value) =>
+                          option.id_EspacioHospitalario === value.id_EspacioHospitalario
+                        }
+                        disabled={disableSelectedRoom || !userSelected}
+                        noOptionsText="No se encontraron cuartos"
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            error={userError}
-                            helperText={userError && 'Selecciona un paciente'}
-                            placeholder="Pacientes"
-                            sx={{ width: '100%' }}
-                            onChange={(e) => {
-                              if (e.target.value === null) {
-                                setPatientSearch('');
-                              }
-                              setPatientSearch(e.target.value);
-                            }}
+                            error={roomError}
+                            helperText={roomError && 'Selecciona un cuarto'}
+                            placeholder="Cuarto"
+                            sx={{ width: '95%' }}
                           />
                         )}
                       />
                     </Stack>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', flexDirection: 'row', mb: 1 }}>
-                    <Stack sx={{ display: 'flex', flex: 1, maxWidth: 300 }}>
-                      <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un almacén de destino</Typography>
-
-                      {!isLoadingWarehouse && (
-                        <>
-                          <Autocomplete
-                            disablePortal
-                            fullWidth
-                            filterOptions={filterWarehouseOptions}
-                            onChange={(_, val) => {
-                              setWarehouseError(false);
-                              setWarehouseSelected(val);
-                              setArticles([]);
-                            }}
-                            loading={isLoadingWarehouse}
-                            getOptionLabel={(option) => option.nombre}
-                            isOptionEqualToValue={(option, value) => option.id === value.id}
-                            options={warehousesFetched ?? []}
-                            value={warehouseSelected}
-                            noOptionsText="No se encontraron almacenes"
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                error={userError}
-                                helperText={userError && 'Selecciona un almacen'}
-                                placeholder="Almacen"
-                                sx={{ width: '100%' }}
-                              />
-                            )}
-                          />
-                        </>)}
-                    </Stack>
-                    {!samiPatient && (
-                      <Stack sx={{ display: 'flex', flex: 1, maxWidth: 450, ml: 'auto' }}>
-                        <Typography sx={{ fontWeight: 500, fontSize: 14 }}>Seleccionar un cuarto destino</Typography>
-
-                        <Autocomplete
-                          disablePortal
-                          fullWidth
-                          filterOptions={filterPatientRoomsOptions}
-                          onChange={async (e, val) => {
-                            e.stopPropagation();
-                            setRoomSelected(val);
-                            setRoomError(false);
-                            if (val?.tipoEspacioHospitalario) {
-                              const res = await getHospitalRoomArticles(val?.id_EspacioHospitalario ?? '');
-                              setArticles(res)
-                              const newMap = new Map();
-                              const newMapEdited = new Map();
-                              res.forEach((article: ArticlesFromRoom) => {
-                                newMap.set(article.id, { ...article });
-                              });
-                              res.forEach((article: ArticlesFromRoom) => {
-                                newMapEdited.set(article.id, { ...article, cantidad: 0 });
-                              });
-                              setOriginalMap(newMap)
-                              setArticlesMap(newMapEdited)
-                            }
-                          }}
-                          loading={isLoadingRooms && rooms.length === 0}
-                          getOptionLabel={(option) => option.nombreEspacioHospitalario+" - "+option.horaInicio}
-                          options={rooms}
-                          value={roomSelected}
-                          isOptionEqualToValue={(option, value) =>
-                            option.id_EspacioHospitalario === value.id_EspacioHospitalario
-                          }
-                          disabled={disableSelectedRoom || !userSelected}
-                          noOptionsText="No se encontraron cuartos"
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              error={roomError}
-                              helperText={roomError && 'Selecciona un cuarto'}
-                              placeholder="Cuarto"
-                              sx={{ width: '95%' }}
-                            />
-                          )}
-                        />
-
-                      </Stack>
-                    )}
-
-                  </Box>
-                  {roomSelected !== null && (<SearchBar
+                  )}
+                </Box>
+                {roomSelected !== null && (
+                  <SearchBar
                     searchState={setSearch}
                     search={search}
                     size="medium"
                     sx={{ maxWidth: 310 }}
                     title="Buscar articulo..."
-                  />)}
-                </Box>
-                { roomSelected?.tipoEspacioHospitalario == 1 ?
-                  (<>
-                <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} extraArticlesFlag={false}/>
-                    <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} extraArticlesFlag />
-                  </>):
-                <ArticlesTable setAmountText={changeArticleQuantityInMap} quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1} extraArticlesFlag={false} />
-                }
-                    
-              </>
-            )
-          }
+                  />
+                )}
+              </Box>
+              {roomSelected?.tipoEspacioHospitalario == 1 ? (
+                <>
+                  <ArticlesTable
+                    setAmountText={changeArticleQuantityInMap}
+                    quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1}
+                    extraArticlesFlag={false}
+                  />
+                  <ArticlesTable
+                    setAmountText={changeArticleQuantityInMap}
+                    quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1}
+                    extraArticlesFlag
+                  />
+                </>
+              ) : (
+                <ArticlesTable
+                  setAmountText={changeArticleQuantityInMap}
+                  quirurgicalRoomFlag={roomSelected?.tipoEspacioHospitalario == 1}
+                  extraArticlesFlag={false}
+                />
+              )}
+            </>
+          )}
           <Box
             sx={{
               display: 'flex',
@@ -475,7 +485,7 @@ export const NurseRequestReturnModal = (props: Props) => {
               color="error"
               onClick={() => {
                 if (resumeFlag) {
-                  setResumeFlag(false)
+                  setResumeFlag(false);
                 } else {
                   props.setOpen(false);
                 }
@@ -505,7 +515,11 @@ export const NurseRequestReturnModal = (props: Props) => {
   );
 };
 
-const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: boolean; extraArticlesFlag: boolean; }) => {
+const ArticlesTable = (props: {
+  setAmountText: Function;
+  quirurgicalRoomFlag: boolean;
+  extraArticlesFlag: boolean;
+}) => {
   const { articles } = useReturnRequestOrderStore(
     (state) => ({
       articles: state.articles,
@@ -516,8 +530,16 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
   return (
     <>
       <Card sx={{ mt: 4, overflowX: 'auto' }}>
-        {props.quirurgicalRoomFlag && !props.extraArticlesFlag && <Typography textAlign={'center'} fontWeight={'Bold'} >{"Paquete Quirurgico"}</Typography>}
-        {props.quirurgicalRoomFlag && props.extraArticlesFlag && <Typography textAlign={'center'} fontWeight={'Bold'} >{"Extras"}</Typography>}
+        {props.quirurgicalRoomFlag && !props.extraArticlesFlag && (
+          <Typography textAlign={'center'} fontWeight={'Bold'}>
+            {'Paquete Quirurgico'}
+          </Typography>
+        )}
+        {props.quirurgicalRoomFlag && props.extraArticlesFlag && (
+          <Typography textAlign={'center'} fontWeight={'Bold'}>
+            {'Extras'}
+          </Typography>
+        )}
         <TableContainer sx={{ minWidth: 380 }}>
           <Table>
             <TableHead>
@@ -529,43 +551,30 @@ const ArticlesTable = (props: { setAmountText: Function; quirurgicalRoomFlag: bo
               </TableRow>
             </TableHead>
             <TableBody>
-              {props.quirurgicalRoomFlag && props.extraArticlesFlag  ?
-              articles.filter((art) => art.tipoCargo === 2)
-                .map((a) => (
-                  <ArticlesRows
-                    articleRow={a}
-                    setAmountText={props.setAmountText}
-                    amountText={'0'}
-                  />
-                )): props.quirurgicalRoomFlag && !props.extraArticlesFlag ?
-                articles.filter((art) => art.tipoCargo !== 2)
-                .map((a) => (
-                  <ArticlesRows
-                    articleRow={a}
-                    setAmountText={props.setAmountText}
-                    amountText={'0'}
-                  />
-                )) :
-                articles
-                .map((a) => (
-                  <ArticlesRows
-                    articleRow={a}
-                    setAmountText={props.setAmountText}
-                    amountText={'0'}
-                  />
-                ))
-              }
+              {props.quirurgicalRoomFlag && props.extraArticlesFlag
+                ? articles
+                    .filter((art) => art.tipoCargo === 2)
+                    .map((a) => <ArticlesRows articleRow={a} setAmountText={props.setAmountText} amountText={'0'} />)
+                : props.quirurgicalRoomFlag && !props.extraArticlesFlag
+                  ? articles
+                      .filter((art) => art.tipoCargo !== 2)
+                      .map((a) => <ArticlesRows articleRow={a} setAmountText={props.setAmountText} amountText={'0'} />)
+                  : articles.map((a) => (
+                      <ArticlesRows articleRow={a} setAmountText={props.setAmountText} amountText={'0'} />
+                    ))}
             </TableBody>
           </Table>
         </TableContainer>
-        {props.extraArticlesFlag ? articles.filter((art) => art.tipoCargo === 2).length === 0 : articles.length === 0 && (
-          <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
-            <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
-            <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
-              {props.extraArticlesFlag ? "No hay articulos extra" : "No hay artículos seleccionados"}
-            </Typography>
-          </Box>
-        )}
+        {props.extraArticlesFlag
+          ? articles.filter((art) => art.tipoCargo === 2).length === 0
+          : articles.length === 0 && (
+              <Box sx={{ display: 'flex', flex: 1, justifyContent: 'center', py: 2 }}>
+                <Info sx={{ width: 20, height: 20, color: 'gray', opacity: 0.6 }} />
+                <Typography variant="h6" sx={{ color: 'gray', opacity: 0.6 }}>
+                  {props.extraArticlesFlag ? 'No hay articulos extra' : 'No hay artículos seleccionados'}
+                </Typography>
+              </Box>
+            )}
       </Card>
     </>
   );
@@ -576,29 +585,19 @@ interface ArticlesRowsProps {
   setAmountText: Function;
   amountText: string;
 }
-const ArticlesRows: React.FC<ArticlesRowsProps> = ({
-  articleRow,
-  setAmountText,
-  amountText,
-}) => {
+const ArticlesRows: React.FC<ArticlesRowsProps> = ({ articleRow, setAmountText, amountText }) => {
   const [numberText, setNumberText] = useState(amountText);
   const { search } = useReturnRequestOrderStore(
     (state) => ({
-      search: state.search
+      search: state.search,
     }),
     shallow
   );
-  return (
-    articleRow.nombre.includes(search.toUpperCase()) || search === '' ? <TableRow key={articleRow.id_Articulo}>
-      <TableCell>
-        {articleRow.nombre}
-      </TableCell>
-      <TableCell>
-        {articleRow.cantidad}
-      </TableCell>
-      <TableCell>
-        {articleRow.fechaCargo}
-      </TableCell>
+  return articleRow.nombre.includes(search.toUpperCase()) || search === '' ? (
+    <TableRow key={articleRow.id_Articulo}>
+      <TableCell>{articleRow.nombre}</TableCell>
+      <TableCell>{articleRow.cantidad}</TableCell>
+      <TableCell>{articleRow.fechaCargo}</TableCell>
       <TableCell>
         <TextField
           label="Cantidad"
@@ -616,17 +615,12 @@ const ArticlesRows: React.FC<ArticlesRowsProps> = ({
         />
       </TableCell>
     </TableRow>
-      : (<></>)
+  ) : (
+    <></>
   );
 };
 
-
-const ReturnResume: React.FC<ReturnResumeProps> = ({
-  generalData,
-  returningArticles,
-  isQuirurgicalRoom,
-}) => {
-
+const ReturnResume: React.FC<ReturnResumeProps> = ({ generalData, returningArticles, isQuirurgicalRoom }) => {
   return (
     <>
       <Box
@@ -657,28 +651,21 @@ const ReturnResume: React.FC<ReturnResumeProps> = ({
                 <TableRow>
                   <TableCell>Articulo</TableCell>
                   <TableCell>Cantidad de Articulo</TableCell>
-                  {isQuirurgicalRoom && (<TableCell>Uso en el Paciente</TableCell>)}
+                  {isQuirurgicalRoom && <TableCell>Uso en el Paciente</TableCell>}
                   <TableCell>Devolución a Farmacia</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {returningArticles
-                  .map((articleRow) => (
-                    <TableRow key={articleRow.id} >
-                      <TableCell>
-                        {isQuirurgicalRoom ? articleRow.nombre : articleRow.nombre+" "+articleRow.fechaCargo}
-                      </TableCell>
-                      <TableCell>
-                        {articleRow.cantidad}
-                      </TableCell>
-                      {isQuirurgicalRoom && (<TableCell>
-                        {articleRow.amountPatient}
-                      </TableCell>)}
-                      <TableCell>
-                        {articleRow.amountReturn}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {returningArticles.map((articleRow) => (
+                  <TableRow key={articleRow.id}>
+                    <TableCell>
+                      {isQuirurgicalRoom ? articleRow.nombre : articleRow.nombre + ' ' + articleRow.fechaCargo}
+                    </TableCell>
+                    <TableCell>{articleRow.cantidad}</TableCell>
+                    {isQuirurgicalRoom && <TableCell>{articleRow.amountPatient}</TableCell>}
+                    <TableCell>{articleRow.amountReturn}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
