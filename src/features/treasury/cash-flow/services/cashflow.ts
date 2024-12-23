@@ -37,7 +37,6 @@ export const eliminarCajaRevolvente = async (id: string): Promise<void> => {
 export const getSaldoRevolvente = async (params?: any): Promise<PaginatedResponse> => {
   const endpoint = `${baseUrl}/obtener-saldo-revolvente`;
   const res = await axios.get(endpoint, { params });
-  console.log('res:', res);
   return res.data;
 };
 
@@ -61,5 +60,11 @@ export const getPaginacionMovimientos = async (
   const params = getDefaultPaginationParams(paramsUrl);
   const endpoint = `${baseUrl}/paginacion-movimientos`;
   const res = await axios.get(endpoint, { params });
+  return res.data;
+};
+
+export const crearAutorizacionRevolvente = async (data: any): Promise<PaginatedResponse> => {
+  const endpoint = `${baseUrl}/crear-autorizacion-revolvente`;
+  const res = await axios.post(endpoint, data);
   return res.data;
 };

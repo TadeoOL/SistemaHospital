@@ -13,8 +13,8 @@ import { toast } from 'react-toastify';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetUsersBySearch } from '../hooks/useGetUsersBySearch';
-import { getConcepts } from '../../services/treasury';
 import { useDeleteBox } from '../hooks/useDeleteBox';
+import { getAllConceptosSalida } from '../../concepts/services/concepts';
 
 interface ICashFlowBox {
   nombre: string;
@@ -59,7 +59,7 @@ function AssignMoneyModal({ openAssignMoneyModal, onClose, selectedRow, reloadTa
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getConcepts();
+      const res = await getAllConceptosSalida();
       console.log('setConcepts:', res);
       setConcepts(res);
     };
@@ -159,6 +159,7 @@ const CashFlowBox = () => {
   const tableRef = useRef<any>();
 
   const reloadTable = () => {
+    console.log('reloadTable:');
     tableRef.current?.fetchData();
   };
 
@@ -297,7 +298,7 @@ const CashFlowBox = () => {
             Crear Caja
           </Button>
         </Grid>
-        <TablePaginated columns={columns} fetchData={getPaginacionCajasRevolventes} params={{}} />
+        <TablePaginated ref={tableRef} columns={columns} fetchData={getPaginacionCajasRevolventes} params={{}} />
       </MainCard>
       <ModalBasic
         open={openCreateBoxModal}
