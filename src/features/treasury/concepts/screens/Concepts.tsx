@@ -106,6 +106,7 @@ const Concepts = () => {
           fetchData={getConcepts}
           params={{
             search,
+            habilitado: enabled,
           }}
         />
       </MainCard>

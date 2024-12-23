@@ -359,6 +359,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
               data && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                   <PatientInformation
+                    closeDate={data.fechaCierre}
                     date={data.fechaIngreso}
                     patient={data.paciente ?? ({} as IPatientInfo)}
                     medic={data.paciente?.nombreMedico ?? ''}
@@ -509,7 +510,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                         <Typography sx={{ fontSize: 13, fontWeight: 700 }}>SubTotal:</Typography>
                       </Box>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.subTotal.toFixed(2)}</Typography>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data?.subTotal?.toFixed(2)}</Typography>
                       </Box>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -517,7 +518,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                         <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Descuento (Porcentaje):</Typography>
                       </Box>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data.descuento?.toFixed(2)}%</Typography>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{data?.descuento?.toFixed(2)}%</Typography>
                       </Box>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -525,7 +526,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                         <Typography sx={{ fontSize: 13, fontWeight: 700 }}>IVA:</Typography>
                       </Box>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.iva.toFixed(2)}</Typography>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data?.iva?.toFixed(2)}</Typography>
                       </Box>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -533,7 +534,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                         <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total:</Typography>
                       </Box>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.total.toFixed(2)}</Typography>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data?.total?.toFixed(2)}</Typography>
                       </Box>
                     </Box>
                   </Box>
@@ -544,7 +545,7 @@ export const CloseAccountModal = (props: CloseAccountModalProps) => {
                         <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Total Abonos:</Typography>
                       </Box>
                       <Box sx={{ boxShadow: 5, border: 1, flex: 1, p: 1, borderColor: 'GrayText' }}>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data.totalPagos.toFixed(2)}</Typography>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>${data?.totalPagos?.toFixed(2)}</Typography>
                       </Box>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'row', width: '33%', justifyContent: 'flex-end' }}>
@@ -681,13 +682,20 @@ interface PatientInformationProps {
   patient: IPatientInfo;
   medic: string;
   date: string;
+  closeDate: string;
   isHospitalization: boolean;
   ventaConcepto: number;
   ventaArticuloIVA: number;
   ventaArticuloSinIVA: number;
 }
 
-export const PatientInformation: React.FC<PatientInformationProps> = ({ patient, medic, isHospitalization, date }) => (
+export const PatientInformation: React.FC<PatientInformationProps> = ({
+  patient,
+  medic,
+  isHospitalization,
+  date,
+  closeDate,
+}) => (
   <Grid container sx={{ p: 1 }} spacing={1}>
     <Grid item xs={12}>
       <Typography variant="h6">
@@ -704,11 +712,18 @@ export const PatientInformation: React.FC<PatientInformationProps> = ({ patient,
         <b>Fecha ingreso:</b> {date}
       </Typography>
     </Grid>
-    <Grid item xs={12}>
+    <Grid item xs={6}>
       <Typography>
         <b>Nombre Doctor:</b> {medic}
       </Typography>
     </Grid>
+    {closeDate && (
+      <Grid item xs={6}>
+        <Typography>
+          <b>Fecha cierre:</b> {closeDate}
+        </Typography>
+      </Grid>
+    )}
     <Grid item xs={12}>
       <Typography>
         <b>Tipo:</b> {isHospitalization ? 'Hospitalización' : 'Ambulatoria'}

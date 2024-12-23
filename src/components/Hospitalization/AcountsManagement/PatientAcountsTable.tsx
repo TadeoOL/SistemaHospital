@@ -80,8 +80,8 @@ export const PatientAccountTable = ({ status }: { status: number }) => {
   const { data, pageIndex, setPageIndex, setPageSize, count, isLoading, pageSize } = useGetPatientAccountData();
   const { data: discountConfig, isLoading: isLoadingDiscountConfig } = useGetDiscountConfig();
   const [open, setOpen] = useState(false);
-  const [viewOnly, setViewOnly] = useState(false); 
-  const [billSelected, setBillSelected] = useState< IPatientAccountPagination| null>(null);
+  const [viewOnly, setViewOnly] = useState(false);
+  const [billSelected, setBillSelected] = useState<IPatientAccountPagination | null>(null);
 
   if ((isLoading && data.length === 0) || isLoadingDiscountConfig)
     return (
@@ -92,29 +92,39 @@ export const PatientAccountTable = ({ status }: { status: number }) => {
 
   return (
     <>
-    <Card>
-      <TableContainer>
-        <Table>
-          <TableHeaderComponent headers={HEADERS} />
-          <PatientAccountTableBody data={data} discountConfig={discountConfig} status={status} setOpen={setOpen} setViewOnly={setViewOnly} setBillSelected={setBillSelected}/>
-          {data.length > 0 && (
-            <TableFooterComponent
-              count={count}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              setPageIndex={setPageIndex}
-              setPageSize={setPageSize}
-              isLoading={isLoading}
+      <Card>
+        <TableContainer>
+          <Table>
+            <TableHeaderComponent headers={HEADERS} />
+            <PatientAccountTableBody
+              data={data}
+              discountConfig={discountConfig}
+              status={status}
+              setOpen={setOpen}
+              setViewOnly={setViewOnly}
+              setBillSelected={setBillSelected}
             />
-          )}
-        </Table>
-      </TableContainer>
-      {data.length === 0 && <NoDataInTableInfo infoTitle="No hay registros" />}
-    </Card>
-      <CloseAccountModal id_Cuenta={billSelected?.id_CuentaPaciente ?? ''} setOpen={setOpen} viewOnly={viewOnly} open={open} />
+            {data.length > 0 && (
+              <TableFooterComponent
+                count={count}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                setPageIndex={setPageIndex}
+                setPageSize={setPageSize}
+                isLoading={isLoading}
+              />
+            )}
+          </Table>
+        </TableContainer>
+        {data.length === 0 && <NoDataInTableInfo infoTitle="No hay registros" />}
+      </Card>
+      <CloseAccountModal
+        id_Cuenta={billSelected?.id_CuentaPaciente ?? ''}
+        setOpen={setOpen}
+        viewOnly={viewOnly}
+        open={open}
+      />
     </>
-    
-
   );
 };
 
@@ -146,7 +156,7 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
 
   const handleEdit = () => {
     props.setOpen(true);
-    props.setBillSelected(data)
+    props.setBillSelected(data);
   };
 
   const handleOpenPDF = async () => {
@@ -176,7 +186,6 @@ const PatientAccountTableRow = (props: PatientAccountTableRowProps) => {
       setIsLoading(false);
     }
   };
-
 
   return (
     <>

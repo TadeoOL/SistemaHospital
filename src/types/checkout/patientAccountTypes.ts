@@ -30,6 +30,7 @@ export interface IPatientAccount {
   subTotalDescuento: number;
   paseCaja: boolean;
   fechaIngreso: string;
+  fechaCierre: string;
   cuentaConCuarto: boolean;
 }
 
