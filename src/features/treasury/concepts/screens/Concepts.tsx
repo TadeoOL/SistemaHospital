@@ -13,12 +13,14 @@ import { MainCard } from '@/common/components';
 import { useDisableConcept } from '../hooks/useDisableConcept';
 import { getConcepts } from '../services/concepts';
 import { ConceptModal } from '../components/ConceptModal';
+import { IConcept } from '../interfaces/concept.interface';
 
 const Concepts = () => {
   const [selectedId, setSelectedId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [enabled, setEnabled] = useState(true);
+  const [concept, setConcept] = useState<IConcept | null>(null);
 
   const handleModalClose = () => {
     setModalOpen(false);
@@ -30,13 +32,12 @@ const Concepts = () => {
   const disableConcept = useDisableConcept(onSuccess);
 
   const handleAdd = () => {
-    setSelectedId('');
+    setConcept(null);
     setModalOpen(true);
   };
 
-  const handleEdit = (row: any) => {
-    setSelectedId('');
-    setSelectedId(row.id);
+  const handleEdit = (row: IConcept) => {
+    setConcept(row);
     setModalOpen(true);
   };
 
@@ -110,7 +111,13 @@ const Concepts = () => {
           }}
         />
       </MainCard>
-      <ConceptModal open={modalOpen} itemId={selectedId} onClose={handleModalClose} onSuccess={onSuccess} />
+      <ConceptModal
+        open={modalOpen}
+        itemId={selectedId}
+        onClose={handleModalClose}
+        onSuccess={onSuccess}
+        concept={concept}
+      />
     </>
   );
 };

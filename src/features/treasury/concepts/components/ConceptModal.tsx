@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { InputBasic } from '@/common/components/InputBasic';
 import { ModalBasic } from '@/common/components/ModalBasic';
-import { useFetchConcept } from '../hooks/useFetchConcept';
 import { createConcept, updateConcept } from '../services/concepts';
 import { addConcept } from '../schemas/concept.schema';
 import { IConcept } from '../interfaces/concept.interface';
@@ -17,14 +16,12 @@ interface ConceptModalProps {
   open: boolean;
   onSuccess: Function;
   onClose: Function;
+  concept: IConcept | null;
 }
 
 export const ConceptModal = (props: ConceptModalProps) => {
-  const { open, onClose, onSuccess, itemId } = props;
-
+  const { open, onClose, onSuccess, itemId, concept } = props;
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-
-  const { data: concept, isLoading } = useFetchConcept(itemId);
 
   const defaultValues = {
     id: '',
@@ -37,19 +34,20 @@ export const ConceptModal = (props: ConceptModalProps) => {
     handleSubmit,
     clearErrors,
     formState: { errors },
+    reset,
   } = useForm<IConcept>({
     defaultValues,
-    values:
-      isLoading || !concept
-        ? defaultValues
-        : {
-            ...concept,
-          },
+    values: concept || defaultValues,
     resolver: zodResolver(addConcept),
   });
 
   useEffect(() => {
     clearErrors();
+    return () => {
+      setTimeout(() => {
+        reset();
+      }, 300);
+    };
   }, [open]);
 
   const handleError = (err: any) => {
@@ -59,13 +57,14 @@ export const ConceptModal = (props: ConceptModalProps) => {
   const onSubmit: SubmitHandler<IConcept> = async (data) => {
     setLoadingSubmit(true);
     try {
-      data.id = itemId || undefined;
+      console.log('data:', data);
 
-      if (!itemId) {
+      if (!concept) {
         const res = await createConcept(data);
         console.log('res:', res);
         toast.success('Concepto creado con éxito!');
       } else {
+        data.id = concept.id;
         const res = await updateConcept(data);
         console.log('res:', res);
         toast.success('Concepto modificado con éxito!');
@@ -110,7 +109,7 @@ export const ConceptModal = (props: ConceptModalProps) => {
 
   return (
     <ModalBasic
-      isLoading={isLoading}
+      // isLoading={isLoading}
       open={open}
       header={itemId ? 'Modificar articulo' : 'Agregar articulo'}
       onClose={onClose}
