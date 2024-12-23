@@ -5,7 +5,7 @@ import IncomeAreaChart from '@/common/components/IncomeAreaChart';
 import { IBank } from '../types/types.bank';
 import { TablePaginatedColumn } from '@/types/tableComponentTypes';
 import { BankService } from '../services/services.bank';
-import { useGetBankMovements } from '../../charts/hooks/useGetBankMovements';
+import { useGetGeneralMovements } from '../../charts/hooks/useGetGeneralMovements';
 import { convertDate } from '@/utils/convertDate';
 import { MovementArea } from '../../types/types.common';
 import { removeTimeFromDate } from '../../utils/utils.common';
@@ -25,7 +25,7 @@ const BanksAccountState = () => {
     id_Destino: MovementArea.BANCO,
     esSemanal: dateRange.weekly,
   };
-  const { data: bankMovements } = useGetBankMovements(params);
+  const { data: bankMovements } = useGetGeneralMovements(params);
 
   const columns: TablePaginatedColumn<IBank>[] = [
     {

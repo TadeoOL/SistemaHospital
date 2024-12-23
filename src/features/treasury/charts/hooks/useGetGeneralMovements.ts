@@ -4,7 +4,7 @@ import { ChartsService } from '../services/services.charts';
 import { IMovements } from '../types/types.charts';
 
 const MINUTE = 1000 * 60;
-export const useGetBankMovements = (params: {
+export const useGetGeneralMovements = (params: {
   fechaInicio: string;
   fechaFin: string;
   id_Origen: number;
@@ -13,7 +13,7 @@ export const useGetBankMovements = (params: {
 }) => {
   const queryKey = useMemo(() => {
     return [
-      'bank-movements',
+      'general-movements',
       params.fechaInicio,
       params.fechaFin,
       params.id_Origen,
@@ -24,7 +24,7 @@ export const useGetBankMovements = (params: {
 
   return useQuery<IMovements>({
     queryKey,
-    queryFn: () => ChartsService.getBankMovements(params),
+    queryFn: () => ChartsService.getGeneralMovements(params),
     staleTime: MINUTE * 5,
     gcTime: MINUTE * 10,
     placeholderData: keepPreviousData,
