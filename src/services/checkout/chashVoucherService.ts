@@ -3,7 +3,7 @@ import axios from '../../libs/axios';
 const apiUrl = '/api/Caja';
 
 export const getCashVoucherPagination = async (param: string) => {
-  const res = await axios.get(`${apiUrl}/paginacion-pase-caja?${param}`);
+  const res = await axios.get(`${apiUrl}/paginacion-ventas?${param}`);
   return res.data;
 };
 

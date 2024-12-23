@@ -91,6 +91,6 @@ export const changeSellNote = async (data: { id_VentaPrincipal: string; Notas: s
 };
 
 export const registerCashVoucher = async (data: { totalVenta: number; notas?: string }) => {
-  const res = await axios.post(`${apiGoToRegister}/registrar-pase-caja`, data);
+  const res = await axios.post(`${apiCheckout}/registrar-pase-caja`, data);
   return res.data;
 };
