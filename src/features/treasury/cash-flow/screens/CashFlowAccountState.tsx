@@ -4,11 +4,27 @@ import AuthorizationModal from '../components/AuthorizationModal';
 import { Button } from '@mui/material';
 import { MainCard, TablePaginated } from '@/common/components';
 import IncomeAreaChart from '@/common/components/IncomeAreaChart';
-import MonthlyBarChart from '@/common/components/MonthlyBarChart';
 import { getPaginacionSalidasMonetarias } from '../services/cashflow';
+import { useGetGeneralMovements } from '../../charts/hooks/useGetGeneralMovements';
+import { convertDate } from '@/utils/convertDate';
+import { removeTimeFromDate } from '../../utils/utils.common';
+import { MovementArea } from '../../types/types.common';
 
 const CashFlowAccountState = () => {
   const [openAuthorizationModal, setOpenAuthorizationModal] = useState(false);
+  const [dateRange, setDateRange] = useState<{ start: Date; end: Date; weekly: boolean }>({
+    start: new Date(new Date().getFullYear(), 0, 1),
+    end: new Date(new Date().getFullYear() + 1, 0, 1),
+    weekly: false,
+  });
+  const params = {
+    fechaInicio: convertDate(removeTimeFromDate(dateRange.start)),
+    fechaFin: convertDate(removeTimeFromDate(dateRange.end)),
+    id_Origen: MovementArea.REVOLVENTE,
+    id_Destino: MovementArea.REVOLVENTE,
+    esSemanal: dateRange.weekly,
+  };
+  const { data: generalMovements } = useGetGeneralMovements(params);
 
   const handles = {
     closeAuthorizationModal: () => {
@@ -53,12 +69,6 @@ const CashFlowAccountState = () => {
     },
   ];
 
-  const [dateRange, setDateRange] = useState<{ start: Date; end: Date; weekly: boolean }>({
-    start: new Date(new Date().getFullYear(), 0, 1),
-    end: new Date(new Date().getFullYear() + 1, 0, 1),
-    weekly: false,
-  });
-
   const title = dateRange.weekly
     ? `${dateRange.start.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })} - ${dateRange.end.toLocaleDateString(
         'es-ES',
@@ -82,20 +92,20 @@ const CashFlowAccountState = () => {
           }}
           spacing={2}
         >
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12}>
             <IncomeAreaChart
               view={dateRange.weekly ? 'weekly' : 'monthly'}
               title={title}
-              incomeMonthlyData={[]}
-              expenseMonthlyData={[]}
+              incomeMonthlyData={generalMovements?.entradas || []}
+              expenseMonthlyData={generalMovements?.salidas || []}
               setDateRange={setDateRange}
               dateRange={dateRange}
-              labels={[]}
+              labels={generalMovements?.labels || []}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          {/* <Grid item xs={12} md={4}>
             <MonthlyBarChart data={[]} />
-          </Grid>
+          </Grid> */}
         </Grid>
       </MainCard>
 

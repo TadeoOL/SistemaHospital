@@ -10,13 +10,13 @@ export namespace ChartsService {
     return res.data;
   };
 
-  export const getBankMovements = async (params: {
+  export const getGeneralMovements = async (params: {
     fechaInicio: string;
     fechaFin: string;
     id_Origen: number;
     id_Destino: number;
   }): Promise<IMovements> => {
-    const res = await axios.get(`${baseUrl}/movimientos-banco`, { params });
+    const res = await axios.get(`${baseUrl}/movimientos-general`, { params });
     return res.data;
   };
 
