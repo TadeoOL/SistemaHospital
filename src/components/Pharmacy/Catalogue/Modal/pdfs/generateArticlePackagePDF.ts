@@ -75,12 +75,12 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
   };
 
   const paciente = articlePackage.paciente;
-  const edadPaciente = "___";
+  const edadPaciente = '___';
   const solicitadoPor = articlePackage.usuarioSolicito;
   const medico = articlePackage.medico;
   const quirofano = articlePackage.quirofano;
-  const espacioLibre = "____________"
-  const espacioLibreAnes = "____________________________"
+  const espacioLibre = '____________';
+  const espacioLibreAnes = '____________________________';
   const horaCirugia = articlePackage.horaCirugia;
 
   const articleTable = getTable({
@@ -100,7 +100,9 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
         value: 'utilizado',
       },
     ],
-    rows: articlePackage.articulos.map((art: any) => ({...art, utilizado: ''})),
+    rows: articlePackage.articulos
+      .map((art: any) => ({ ...art, utilizado: '' }))
+      .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)),
   });
 
   const docDefinition: any = {
@@ -121,7 +123,7 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
       {
         layout: 'noBorders',
         table: {
-          widths: ['*', 'auto','*'],
+          widths: ['*', 'auto', '*'],
           body: [
             [
               getInfoCell('Paciente', paciente, '*'),
@@ -155,13 +157,14 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
       {
         layout: 'noBorders',
         table: {
-          widths: ['auto', 'auto','auto'],
+          widths: ['auto', 'auto', 'auto'],
           body: [
             [
               getInfoCell('Anestesiologo', espacioLibre, '*'),
               getInfoCell('Diagnostico', espacioLibre, '*'),
               getInfoCell('Anestesia', espacioLibre, '*'),
-            ]],
+            ],
+          ],
         },
       },
       articleTable,
