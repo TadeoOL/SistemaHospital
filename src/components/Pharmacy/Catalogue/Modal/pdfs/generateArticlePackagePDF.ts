@@ -1,6 +1,6 @@
+import { getEmpityTable } from '@/common/helpers/getEmpityTable';
 import { getTable } from '@/common/helpers/getTable';
 import { logoWithText } from '@/common/logoWithText';
-import { LineWeight } from '@mui/icons-material';
 import pdfmake from 'pdfmake/build/pdfmake';
 
 pdfmake.fonts = {
@@ -78,9 +78,9 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
   const edadPaciente = '___';
   const solicitadoPor = articlePackage.usuarioSolicito;
   const medico = articlePackage.medico;
-  const quirofano = articlePackage.quirofano;
+  //const quirofano = articlePackage.quirofano;
   const espacioLibre = '____________';
-  const espacioLibreAnes = '____________________________';
+  const espacioLibreAnes = '__________________________________';
   const horaCirugia = articlePackage.horaCirugia;
 
   const articleTable = getTable({
@@ -118,6 +118,7 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
               width: 200,
             },
           ],
+          [getInfoCell('Hora programada', horaCirugia, '*'), getInfoCell('Cirugia', espacioLibreAnes, '*')],
         ],
       },
       {
@@ -128,7 +129,7 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
             [
               getInfoCell('Paciente', paciente, '*'),
               getInfoCell('Edad', edadPaciente, '*'),
-              getInfoCell('Hora Cirugia', horaCirugia, '*'),
+              getInfoCell('Medico', medico, 'auto'),
             ],
           ],
         },
@@ -144,32 +145,25 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Medico', medico, 'auto'), getInfoCell('Hora Inicio', espacioLibre, '*')]],
+          body: [[getInfoCell('Solicitado por', solicitadoPor, '*'), getInfoCell('Hora Ingreso', espacioLibre, '*')]],
         },
       },
       {
         layout: 'noBorders',
         table: {
           widths: ['*', 'auto'],
-          body: [[getInfoCell('Solicitado por', solicitadoPor, '*'), getInfoCell('Hora fin', espacioLibre, '*')]],
+          body: [[getInfoCell('Diagnostico', espacioLibreAnes, '*'), getInfoCell('Hora Egreso', espacioLibre, '*')]],
         },
       },
       {
         layout: 'noBorders',
         table: {
           widths: ['auto', 'auto', 'auto'],
-          body: [
-            [
-              getInfoCell('Anestesiologo', espacioLibre, '*'),
-              getInfoCell('Diagnostico', espacioLibre, '*'),
-              getInfoCell('Anestesia', espacioLibre, '*'),
-            ],
-          ],
+          body: [[getInfoCell('Anestesiologo', espacioLibreAnes, '*'), getInfoCell('Anestesia', espacioLibre, '*')]],
         },
       },
       articleTable,
       singsHeaders,
-      singsSpaces,
     ],
   };
 
@@ -177,41 +171,6 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
   pdf.open();
 };
 
-const singsHeaders = getTable({
-  header: 'Firmas',
-  headerFontSize: 10,
-  columns: [
-    {
-      subheader: 'Circulante',
-      value: 'espacio1',
-    },
-    {
-      subheader: 'Realizando Devolucion',
-      value: 'espacio2',
-    },
-    {
-      subheader: 'Farmacia',
-      value: 'espacio3',
-    },
-  ],
-  rows: [],
-});
-const singsSpaces = getTable({
-  header: 'Firmas',
-  headerFontSize: 10,
-  columns: [
-    {
-      subheader: '',
-      value: 'espacio1',
-    },
-    {
-      subheader: ' ',
-      value: 'espacio2',
-    },
-    {
-      subheader: '',
-      value: 'espacio3',
-    },
-  ],
-  rows: [],
+const singsHeaders = getEmpityTable({
+  headerFontSize: 12,
 });
