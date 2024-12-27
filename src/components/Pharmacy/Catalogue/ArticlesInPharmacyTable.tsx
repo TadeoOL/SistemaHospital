@@ -253,16 +253,17 @@ export const ArticlesPharmacyTable = () => {
 
   const [selectedHospitalRoom, setSelectedHospitalRoom] = useState<IPatientHospitalSpace | null>(null);
 
-  const { isLoading: isLoadingHospitalRoomArticles, data: hospitalRoomArticles } =
-    useHospitalRoomArticles(selectedHospitalRoom?.id_EspacioHospitalario);
+  const { isLoading: isLoadingHospitalRoomArticles, data: hospitalRoomArticles } = useHospitalRoomArticles(
+    selectedHospitalRoom?.id_EspacioHospitalario
+  );
 
   const totalArticles = (): number => {
-    if(hospitalRoomArticles !== null && hospitalRoomArticles.length > 0){
+    if (hospitalRoomArticles !== null && hospitalRoomArticles.length > 0) {
       const quantities: number[] = hospitalRoomArticles.map((art: any) => art.cantidad as number);
-      return quantities.reduce((acc, numb) => acc + numb, 0)
+      return quantities.reduce((acc, numb) => acc + numb, 0);
     }
     return 0;
-  }
+  };
 
   const columns: any[] = [
     {
@@ -430,7 +431,7 @@ export const ArticlesPharmacyTable = () => {
         onClose={() => setOpenPatientChargesModal(false)}
       >
         <form noValidate>
-          <Grid component="span" container spacing={1} width={500}>
+          <Grid component="span" container spacing={1} width={{ xs: '100%' }}>
             <Grid item xs={12} md={6}>
               <Stack spacing={1}>
                 <InputLabel>Pacientes</InputLabel>
@@ -474,61 +475,84 @@ export const ArticlesPharmacyTable = () => {
                 options={hospitalRooms}
                 value={selectedHospitalRoom}
                 onChange={(e: any) => {
-                  setSelectedHospitalRoom(hospitalRooms?.find((hos) => hos.id_EspacioHospitalario === e.target.value)?? null);
+                  setSelectedHospitalRoom(
+                    hospitalRooms?.find((hos) => hos.id_EspacioHospitalario === e.target.value) ?? null
+                  );
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={6} sx={{display:'flex'}}>
-                <Typography sx={{my:'auto', textAlign:'center'}} >Cantidad de Articulos: {totalArticles()}</Typography>
+            <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+              <Typography sx={{ my: 'auto', textAlign: 'center' }}>Cantidad de Articulos: {totalArticles()}</Typography>
             </Grid>
             <Grid item xs={12} md={6}>
-           { hospitalRoomArticles!== null && selectedHospitalRoom !==null && <Button
-                sx={{ minWidth: 100 }}
-                variant="contained"
-                endIcon={<Print />}
-                onClick={() => {
-                  generatearticlesChargedPDF({
-                    pacienteNombre: selectedPatient?.nombrePaciente ?? '',
-                    quirofano: selectedHospitalRoom?.nombre ?? '',
-                    articulos: hospitalRoomArticles? hospitalRoomArticles.filter((art: any) => art.tipoCargo !== 2).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : [],
-                    articulosExtra: hospitalRoomArticles.filter((art: any) => art.tipoCargo === 2).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))
-                  })
-                }}
-              >
-                Imprimir cargos
-              </Button>}
+              {hospitalRoomArticles !== null && selectedHospitalRoom !== null && (
+                <Button
+                  sx={{ minWidth: 100 }}
+                  variant="contained"
+                  endIcon={<Print />}
+                  onClick={() => {
+                    generatearticlesChargedPDF({
+                      pacienteNombre: selectedPatient?.nombrePaciente ?? '',
+                      quirofano: selectedHospitalRoom?.nombre ?? '',
+                      articulos: hospitalRoomArticles
+                        ? hospitalRoomArticles
+                            .filter((art: any) => art.tipoCargo !== 2)
+                            .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))
+                        : [],
+                      articulosExtra: hospitalRoomArticles
+                        .filter((art: any) => art.tipoCargo === 2)
+                        .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)),
+                    });
+                  }}
+                >
+                  Imprimir cargos
+                </Button>
+              )}
             </Grid>
           </Grid>
-                
-          
-          {selectedHospitalRoom?.tipoEspacioHospitalario === 1 ?
-            <>
-            <Typography textAlign={'center'} fontWeight={'bold'}>Paquete Quirurgico</Typography>
-            <TableBasic
-            rows={hospitalRoomArticles? hospitalRoomArticles.filter((art: any) =>  art.tipoCargo !== 2).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : []}
-            isLoading={isLoadingHospitalRoomArticles}
-            columns={columns}
-          ></TableBasic>
-          {hospitalRoomArticles && hospitalRoomArticles.filter((art: any) =>  art.tipoCargo === 2).length > 0 &&
-            <>
-            <Typography textAlign={'center'} fontWeight={'bold'}>Extras</Typography>
-            <TableBasic
-            rows={hospitalRoomArticles.filter((art: any) =>  art.tipoCargo === 2)
-              .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))}
-            isLoading={isLoadingHospitalRoomArticles}
-            columns={columns}
-          ></TableBasic>
-          </>
-          }
-            </>
-            :
-            <TableBasic
-            rows={hospitalRoomArticles? hospitalRoomArticles.sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) : []}
-            isLoading={isLoadingHospitalRoomArticles}
-            columns={columns}
-          ></TableBasic>
 
-          }
+          {selectedHospitalRoom?.tipoEspacioHospitalario === 1 ? (
+            <>
+              <Typography textAlign={'center'} fontWeight={'bold'}>
+                Paquete Quirurgico
+              </Typography>
+              <TableBasic
+                rows={
+                  hospitalRoomArticles
+                    ? hospitalRoomArticles
+                        .filter((art: any) => art.tipoCargo !== 2)
+                        .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))
+                    : []
+                }
+                isLoading={isLoadingHospitalRoomArticles}
+                columns={columns}
+              ></TableBasic>
+              {hospitalRoomArticles && hospitalRoomArticles.filter((art: any) => art.tipoCargo === 2).length > 0 && (
+                <>
+                  <Typography textAlign={'center'} fontWeight={'bold'}>
+                    Extras
+                  </Typography>
+                  <TableBasic
+                    rows={hospitalRoomArticles
+                      .filter((art: any) => art.tipoCargo === 2)
+                      .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))}
+                    isLoading={isLoadingHospitalRoomArticles}
+                    columns={columns}
+                  ></TableBasic>
+                </>
+              )}
+            </>
+          ) : (
+            <TableBasic
+              rows={
+                hospitalRoomArticles
+                  ? hospitalRoomArticles.sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))
+                  : []
+              }
+              isLoading={isLoadingHospitalRoomArticles}
+              columns={columns}
+            ></TableBasic>
+          )}
         </form>
       </ModalBasic>
       {

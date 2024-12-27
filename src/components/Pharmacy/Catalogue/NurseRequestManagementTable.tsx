@@ -26,14 +26,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
-import {
-  ExpandLess,
-  ExpandMore,
-  FilterListOff,
-  Info,
-  /*Cancel,*/ LocalPrintshopOutlined,
-  Undo,
-} from '@mui/icons-material';
+import { Cancel, ExpandLess, ExpandMore, FilterListOff, Info, LocalPrintshopOutlined, Undo } from '@mui/icons-material';
 import { shallow } from 'zustand/shallow';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -532,7 +525,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   setOpenModalBuildDevolution,
   setNurseRequest,
   setPrebuildedArticles,
-  //rejectRequest,
+  rejectRequest,
   markAsDelivered,
 }) => {
   const [open, setOpen] = useState(false);
@@ -632,20 +625,17 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          {/*nurseRequest.estatus !== 0 && nurseRequest.estatus !== 3 && (
+          {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 3 && (
             <Tooltip title="Cancelar solicitud">
               <IconButton
                 onClick={() => {
-                  rejectRequest(
-                    nurseRequest.id_SolicitudAlmacen,
-                    nurseRequest.id_CuentaEspacioHospitalario
-                  );
+                  rejectRequest(nurseRequest.id_SolicitudAlmacen, nurseRequest.id_CuentaEspacioHospitalario);
                 }}
               >
                 <Cancel sx={{ color: 'red' }} />
               </IconButton>
             </Tooltip>
-          )*/}
+          )}
           {nurseRequest.estatus !== 0 && nurseRequest.estatus !== 1 && (
             <Tooltip title="Imprimir solicitud">
               <IconButton onClick={handlePrintNurseRequest(nurseRequest)}>

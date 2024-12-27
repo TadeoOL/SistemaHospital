@@ -32,12 +32,24 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 380, sm: 550, md: 800, lg: 900 },
+  width: '95%',
+  maxWidth: '380px',
   borderRadius: 2,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
-  maxHeight: { xs: 900 },
+  bgcolor: 'background.paper',
+  maxHeight: '90vh',
+  margin: '0 auto',
+  '@media (min-width: 600px)': {
+    maxWidth: '550px',
+  },
+  '@media (min-width: 900px)': {
+    maxWidth: '800px',
+  },
+  '@media (min-width: 1200px)': {
+    maxWidth: '900px',
+  },
 };
 
 const scrollBarStyle = {
@@ -174,8 +186,29 @@ export const ResumeSaleModal = (props: ResumeSaleModalProps) => {
   return (
     <Box sx={{ ...style }}>
       <HeaderModal setOpen={props.setOpen} title="Resumen de la venta" />
-      <Stack sx={{ bgcolor: 'background.paper', overflowY: 'auto', ...scrollBarStyle }}>
-        <Stack sx={{ maxHeight: 700, px: 6, py: 3 }}>
+      <Stack
+        sx={{
+          bgcolor: 'background.paper',
+          overflowY: 'auto',
+          ...scrollBarStyle,
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
+        <Stack
+          sx={{
+            p: {
+              xs: 2,
+              sm: 3,
+              md: 6,
+            },
+            maxHeight: {
+              xs: '70vh',
+              sm: '75vh',
+              md: '80vh',
+            },
+          }}
+        >
           {/* <Stack sx={{ mb: 2 }}>
             <Typography variant="h5">Ingresa el monto pagado:</Typography>
             <TextField inputRef={amountRef} placeholder="Monto pagado..." sx={{ maxWidth: 200 }} />
