@@ -321,7 +321,11 @@ const DailyOperatingTableRow = (props: DailyOperatingTableRowProps) => {
             )}
             {data.quirofano && data.estatus == SurgeryStatus.SurgeryFinished && (
               <Tooltip title="Comenzar recuperación">
-                <IconButton onClick={() => {setOpenRecoveryPhase(true)}}>
+                <IconButton
+                  onClick={() => {
+                    setOpenRecoveryPhase(true);
+                  }}
+                >
                   <FaHandHoldingMedical style={{ color: '#686D76' }} />
                 </IconButton>
               </Tooltip>

@@ -80,7 +80,7 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
         res = await getWaitingPackagesByWarehouse(
           `${page === 0 ? '' : 'pageIndex=' + page}&${
             pageSize === 0 ? '' : 'pageSize=' + pageSize
-          }&search=${search}&habilitado=${enabled}&Id_Almacen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}&Estatus=${status? status :  ''}`
+          }&search=${search}&habilitado=${enabled}&Id_Almacen=${specificWarehouseId}&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}&Estatus=${status ? status : ''}`
         );
       } else {
         res = await getWaitingPackagesByWarehouse(
@@ -88,7 +88,7 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
             pageSize === 0 ? '' : 'pageSize=' + pageSize
           }&search=${search}&habilitado=${enabled}&Id_Almacen=${
             useWarehouseTabsNavStore.getState().warehouseData.id_Almacen
-          }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}&Estatus=${status? status :  ''}`
+          }&FechaInicio=${startDate}&FechaFin=${endDate}&Sort=${sort}&Estatus=${status ? status : ''}`
         );
       }
       set(() => ({

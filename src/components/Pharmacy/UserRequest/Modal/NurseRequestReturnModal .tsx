@@ -554,10 +554,12 @@ const ArticlesTable = (props: {
               {props.quirurgicalRoomFlag && props.extraArticlesFlag
                 ? articles
                     .filter((art) => art.tipoCargo === 2)
+                    .sort((a, b) => a.nombre.localeCompare(b.nombre))
                     .map((a) => <ArticlesRows articleRow={a} setAmountText={props.setAmountText} amountText={'0'} />)
                 : props.quirurgicalRoomFlag && !props.extraArticlesFlag
                   ? articles
                       .filter((art) => art.tipoCargo !== 2)
+                      .sort((a, b) => a.nombre.localeCompare(b.nombre))
                       .map((a) => <ArticlesRows articleRow={a} setAmountText={props.setAmountText} amountText={'0'} />)
                   : articles.map((a) => (
                       <ArticlesRows articleRow={a} setAmountText={props.setAmountText} amountText={'0'} />
