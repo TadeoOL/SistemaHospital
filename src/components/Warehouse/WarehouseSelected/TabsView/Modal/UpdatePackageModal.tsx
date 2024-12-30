@@ -74,7 +74,9 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   const [dataWerehouseSelectedArticles, setDataWerehouseArticlesSelected] = useState<IArticle[]>([]);
   const [serch, setSerch] = useState('');
   const [valueState, setValueState] = useState('');
-  const [originalArticles, setOriginalArticles] = useState<{ id: string; name: string; amount: number; id_ArticuloPaquete: string; }[]>([]);
+  const [originalArticles, setOriginalArticles] = useState<
+    { id: string; name: string; amount: number; id_ArticuloPaquete: string }[]
+  >([]);
   useEffect(() => {
     const fetch = async () => {
       setIsLoadingWarehouse(true);
@@ -87,7 +89,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
       }
     };
     fetch();
-    const articlesFromPackage = props.package.contenido.map((art) => ({
+    const articlesFromPackage = props.package.articulos.map((art) => ({
       id: art.id_Articulo,
       name: art.nombre,
       amount: art.cantidad,
@@ -163,36 +165,36 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
   }, [serch]);
 
   function compareArticles(
-    original: { id: string; name: string; amount: number; id_ArticuloPaquete: string; }[], 
-    manipulated: { id: string; name: string; amount: number; id_ArticuloPaquete?: string; }[]
+    original: { id: string; name: string; amount: number; id_ArticuloPaquete: string }[],
+    manipulated: { id: string; name: string; amount: number; id_ArticuloPaquete?: string }[]
   ) {
     const ListaArticulosPorAgregar = manipulated
-      .filter(manipulatedArt => !original.some(originalArt => originalArt.id === manipulatedArt.id))
-      .map(art => ({
+      .filter((manipulatedArt) => !original.some((originalArt) => originalArt.id === manipulatedArt.id))
+      .map((art) => ({
         Cantidad: art.amount,
-        Id_Articulo: art.id
+        Id_Articulo: art.id,
       }));
-  
+
     const ListaArticulosPorBorrar = original
-      .filter(originalArt => !manipulated.some(manipulatedArt => manipulatedArt.id === originalArt.id))
-      .map(art => ({
-        Id_ArticuloPaquete: art.id_ArticuloPaquete
+      .filter((originalArt) => !manipulated.some((manipulatedArt) => manipulatedArt.id === originalArt.id))
+      .map((art) => ({
+        Id_ArticuloPaquete: art.id_ArticuloPaquete,
       }));
-  
+
     const ListaArticulosPorEditar = manipulated
-      .filter(manipulatedArt => {
-        const originalArt = original.find(originalArt => originalArt.id === manipulatedArt.id);
+      .filter((manipulatedArt) => {
+        const originalArt = original.find((originalArt) => originalArt.id === manipulatedArt.id);
         return originalArt && originalArt.amount !== manipulatedArt.amount;
       })
-      .map(art => ({
+      .map((art) => ({
         Id_ArticuloPaquete: art.id_ArticuloPaquete,
-        Cantidad: art.amount
+        Cantidad: art.amount,
       }));
-  
+
     return {
       ListaArticulosPorAgregar: ListaArticulosPorAgregar.length ? ListaArticulosPorAgregar : null,
       ListaArticulosPorBorrar: ListaArticulosPorBorrar.length ? ListaArticulosPorBorrar : null,
-      ListaArticulosPorEditar: ListaArticulosPorEditar.length ? ListaArticulosPorEditar : null
+      ListaArticulosPorEditar: ListaArticulosPorEditar.length ? ListaArticulosPorEditar : null,
     };
   }
 
@@ -204,7 +206,7 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
         id: item.id_Articulo,
         nombre: item.nombre,
       }));
-      const articlesFromPackage = props.package.contenido.map((art) => art.id_Articulo);
+      const articlesFromPackage = props.package.articulos.map((art) => art.id_Articulo);
       const objectFiltered = transformedData.filter((art: any) => !articlesFromPackage.includes(art.id));
       setDataWerehouseArticlesSelected(objectFiltered);
     } catch (error) {
@@ -232,11 +234,14 @@ export const UpdatePackageModal = (props: { setOpen: Function; package: IArticle
     );
 
   const onSubmit: SubmitHandler<any> = async (data) => {
-    data.historialArticulos = articles.map((art) => ({ id_Articulo: art.id, cantidad: art.amount }));
+    console.log('data:', data);
+
+    // console.log('object.props:', props.package);
     try {
-      const articlesComparation = compareArticles(originalArticles, articles)
+      const articlesComparation = compareArticles(originalArticles, articles);
       const object = {
-        Id: props.package.id_PaqueteArticulo,
+        articulos: articles.map((art) => ({ id_Articulo: art.id, cantidad: art.amount })),
+        Id: props.package.id_PaqueteQuirurgico,
         Nombre: data.nombre,
         Descripcion: data.descripcion,
         Id_Almacen: props.warehouseId as string,

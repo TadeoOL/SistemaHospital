@@ -888,7 +888,8 @@ export const modifyPackage = async (data: {
   Descripcion: string;
   Id_Almacen: string;
 }) => {
-  const res = await axios.put(`/api/Almacen/actualizar-paquete`, {
+  console.log('data:', data);
+  const res = await axios.put(`/api/Quirofano/Catalogo/PaqueteQuirurgico/actualizar-paquete-quirurgico`, {
     ...data,
   });
   return res.data;
