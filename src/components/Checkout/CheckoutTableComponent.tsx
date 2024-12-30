@@ -38,6 +38,7 @@ import { getArticlesSold } from '../../services/pharmacy/pointOfSaleService';
 import { ArticlesSoldReport } from '../Export/Checkout/ArticlesSoldReport';
 import { pdf } from '@react-pdf/renderer';
 import { changeCashVoucherStatus } from '../../services/checkout/chashVoucherService';
+import { generateCheckoutSalePDF } from './pdfs/generateSaleCheckoutPdf';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -236,8 +237,17 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
             id_VentaCaja: data.id_VentaPrincipal,
             estatus: 0,
           };
-          await changeCashVoucherStatus(objSell);
-          conn?.invoke('UpdateSell', objSell);
+          try {
+            await changeCashVoucherStatus(objSell);
+            conn?.invoke('UpdateSell', objSell);
+          } catch (error) {
+            console.log('error:', error);
+            withReactContent(Swal).fire({
+              title: 'Error',
+              text: 'No se pudo cancelar el pase a caja',
+              icon: 'error',
+            });
+          }
           return;
         },
         allowOutsideClick: () => !Swal.isLoading(),
@@ -263,12 +273,7 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
     setLoadingPrint(true);
     try {
       const res = await getArticlesSold(data.id_VentaPrincipal);
-      const document = <ArticlesSoldReport venta={res} />;
-
-      const blob = await pdf(document).toBlob();
-
-      const url = URL.createObjectURL(blob);
-      window.open(url);
+      generateCheckoutSalePDF(res);
     } catch (error) {
       console.log(error);
     } finally {
@@ -349,13 +354,13 @@ const CheckoutTableRow = (props: CheckoutTableRowProps) => {
                   <Info color="primary" />
                 </Tooltip>
               )} */}
-              {data.estatus === 1 && data.paciente === 'Punto de Venta' && (
-                <Tooltip title="Imprimir">
-                  <IconButton onClick={handlePrint}>
-                    <Print />
-                  </IconButton>
-                </Tooltip>
-              )}
+              {/* {data.estatus === 1 && data.paciente === 'Punto de Venta' && ( */}
+              <Tooltip title="Imprimir">
+                <IconButton onClick={handlePrint}>
+                  <Print />
+                </IconButton>
+              </Tooltip>
+              {/* )} */}
             </Box>
           ) : data.notas || data.pdfCadena ? (
             <Tooltip title="Ver detalles">
