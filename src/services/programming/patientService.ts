@@ -64,8 +64,12 @@ export const modifyPatient = async (data: { id: string } & IPatient) => {
   return res.data;
 };
 
-export const getPatientsWithAccount = async (url: string) => {
-  const res = await axios.get(`api/admision/obtener-pacientes-activos?${url}`);
+export const getPatientsWithAccount = async (search: string) => {
+  const res = await axios.get(`api/admision/obtener-pacientes-activos`, {
+    params: {
+      search,
+    },
+  });
   return res.data as IPatientFromSearch[];
 };
 

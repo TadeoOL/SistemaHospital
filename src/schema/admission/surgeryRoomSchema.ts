@@ -20,7 +20,7 @@ export const validateDatesSchema = z
   )
   .refine(
     (data) => {
-      return dayjs(data.startDate).isAfter(dayjs());
+      return dayjs(data.startDate).isAfter(dayjs().subtract(1, 'day'));
     },
     {
       message: 'La fecha de inicio no puede ser anterior a la fecha actual',
