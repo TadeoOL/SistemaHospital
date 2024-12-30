@@ -158,7 +158,7 @@ export const generateArticlePackagePDF = (articlePackage: any) => {
       {
         layout: 'noBorders',
         table: {
-          widths: ['auto', 'auto', 'auto'],
+          widths: ['auto', 'auto'],
           body: [[getInfoCell('Anestesiologo', espacioLibreAnes, '*'), getInfoCell('Anestesia', espacioLibre, '*')]],
         },
       },
