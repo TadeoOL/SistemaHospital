@@ -419,7 +419,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/quirofano/paquetes-quirurgicos',
                 icon: icons.Inventory,
                 type: 'item',
-                protectedRoles: purchaseGlobalRoles,
+                protectedRoles: operatingRoom,
               },
               {
                 id: 'medicos',
@@ -701,6 +701,7 @@ const sideBarRoutes: NavItemType[] = [
             title: 'Catálogos',
             icon: icons.MenuBookOutlined,
             type: 'collapse',
+            protectedRoles: purchaseGlobalRoles,
             children: [
               {
                 id: 'conceptos-salida',
@@ -708,6 +709,7 @@ const sideBarRoutes: NavItemType[] = [
                 url: '/tesoreria/catalogos/conceptos-salida',
                 icon: icons.Inventory,
                 type: 'item',
+                protectedRoles: purchaseGlobalRoles,
               },
             ],
           },
