@@ -54,7 +54,7 @@ export const useWarehouseMovementPackagesPaginationStore = createWithEqualityFn<
   enabled: true,
   handleChangeSubWarehouse: false,
   searchUser: '',
-  status: 1,
+  status: 2,
   sort: '',
   setSort: (sort: string) => set({ sort }),
   setStatus: (status: number | null) => set({ status }),

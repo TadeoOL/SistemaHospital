@@ -122,21 +122,21 @@ const useGetMovements = () => {
 };
 
 export const WaitingPackages = (props: {
-  pharmacyFlag: boolean;//Para condicionar el switch de pendiente y ocultar iconos
+  pharmacyFlag: boolean; //Para condicionar el switch de pendiente y ocultar iconos
 }) => {
   const [viewArticles, setViewArticles] = useState<{ [key: string]: boolean }>({});
+  const [pendingOnly, setPendingOnly] = useState(props.pharmacyFlag);
   const {
     data,
     count,
     pageIndex,
+    setStatus,
     pageSize,
     isLoading,
     setSearch,
     setStartDate,
     setEndDate,
     startDate,
-    status,
-    setStatus,
     setPageIndex,
     setPageSize,
     fetchWareHouseMovements,
@@ -250,8 +250,8 @@ export const WaitingPackages = (props: {
   }, [packageSelected]);
 
   useEffect(() => {
-    setStatus(props.pharmacyFlag ? 2 : 1)
-  }, []);
+    setStatus(pendingOnly ? 2 : 1);
+  }, [pendingOnly]);
 
   const [movementSelected, setMovementSelected] = useState<any>(null);
   return (
@@ -277,13 +277,10 @@ export const WaitingPackages = (props: {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={ props.pharmacyFlag ? status === 2 : status === 1}
+                      checked={pendingOnly}
                       onChange={(val) => {
-                        if (val.target.checked) {
-                          setStatus( props.pharmacyFlag ? 2 : 1);
-                        } else {
-                          setStatus( props.pharmacyFlag ? 3 : 2);
-                        }
+                        const value = val.target.checked;
+                        setPendingOnly(value);
                       }}
                     />
                   }
