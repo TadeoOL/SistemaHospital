@@ -13,12 +13,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
 import React, { useState } from 'react';
-import { SortComponent } from '@/components/Commons/SortComponent';
 import { Box, Card, Typography } from '@mui/material';
 import { Stack } from '@mui/material';
 import { TableBasicColumn, TableBasicProps } from '@/types/tableComponentTypes';
 import { NoDataInTableInfo } from '@/components/Commons/NoDataInTableInfo';
 import SimpleBarScroll from './Drawer/DrawerContent/SimpleBar';
+import { SortComponent } from '@/components/Commons/SortComponent';
 
 export const TableBasic = <T extends object>({
   rows,

@@ -334,8 +334,7 @@ export const ArticlesExitModal = (props: { setOpen: Function; warehouseId: strin
   }, [patientSearch]);
 
   const patientsCall = async () => {
-    const url = `Search=${patientSearch}`;
-    const res = await getPatientsWithAccount(url);
+    const res = await getPatientsWithAccount(patientSearch);
     if (res) {
       setUsersData(res);
     }
