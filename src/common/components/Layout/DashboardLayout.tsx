@@ -102,6 +102,7 @@ export default function DashboardLayout() {
     '/tesoreria/bancos/estado-de-cuenta': 'Bancos',
     '/tesoreria/bancos/compras': 'Bancos',
     '/tesoreria/direccion/menu': 'Direccion',
+    '/tesoreria/direccion/caja-fuerte': 'Direccion',
     '/tesoreria/direccion/depositos': 'Direccion',
     '/tesoreria/direccion/movimientos': 'Direccion',
   };

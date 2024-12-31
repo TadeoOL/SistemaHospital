@@ -76,6 +76,7 @@ import {
   TreasuryView,
   PackageBuildingView,
   ConceptsView,
+  TreasuryAdministrationSafeBoxView,
 } from './utils/LazyRoutes';
 import {
   ProtectedRoutePharmacyDirector,
@@ -197,11 +198,12 @@ function App() {
                 <Route path="/tesoreria/bancos/compras" element={<BanksPurchasesView />}></Route>
                 <Route path="/tesoreria/direccion/menu" element={<TreasuryAdministrationView />}></Route>
                 <Route path="/tesoreria/catalogos/conceptos-salida" element={<ConceptsView />}></Route>
-                <Route
+                <Route path="/tesoreria/direccion/caja-fuerte" element={<TreasuryAdministrationSafeBoxView />}></Route>
+                {/* <Route
                   path="/tesoreria/direccion/movimientos"
                   element={<TreasuryAdministrationMovementsView />}
                 ></Route>
-                <Route path="/tesoreria/direccion/depositos" element={<TreasuryAdministrationDepositsView />}></Route>
+                <Route path="/tesoreria/direccion/depositos" element={<TreasuryAdministrationDepositsView />}></Route> */}
               </Route>
             </Route>
             <Route element={<LoginRoute />}>

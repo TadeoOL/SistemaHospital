@@ -22,25 +22,25 @@ const TreasuryAdministration = () => {
       >
         <Grid item xs={12} md={4}>
           <WidgetCard
-            onClick={handlers.navigateToDeposits}
-            top="Estado de Cuenta"
-            center="Saldo"
-            bottom={`$ ${state.fund.saldo.toFixed(2)}`}
+            onClick={handlers.navigateToCashFlowAccount}
+            top="Revolvente"
+            bottom="Estado de cuenta"
             bottom2={<RemoveRedEyeIcon />}
           />
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
-            onClick={handlers.openAuthorizationModal}
-            top="Autorizaciones especiales"
-            bottom="Nueva autorización"
+            onClick={handlers.navigateToBankAccount}
+            top="Bancos"
+            bottom="Estado de cuenta"
             bottom2={<RemoveRedEyeIcon />}
           />
         </Grid>
         <Grid item xs={12} md={4}>
           <WidgetCard
-            onClick={handlers.navigateToMovements}
-            top="Consulta de movimientos"
+            onClick={handlers.navigateToSafeBox}
+            top="Caja Fuerte"
+            bottom="Ver caja fuerte"
             bottom2={<RemoveRedEyeIcon />}
           />
         </Grid>

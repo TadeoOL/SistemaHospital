@@ -679,6 +679,14 @@ const sideBarRoutes: NavItemType[] = [
             protectedRoles: purchaseGlobalRoles,
             children: [
               {
+                id: 'direccion-caja-fuerte',
+                title: 'Caja Fuerte',
+                url: '/tesoreria/direccion/caja-fuerte',
+                icon: icons.PointOfSale,
+                type: 'item',
+                protectedRoles: purchaseGlobalRoles,
+              },
+              {
                 id: 'direccion-depositos',
                 title: 'Depositos',
                 url: '/tesoreria/direccion/depositos',
