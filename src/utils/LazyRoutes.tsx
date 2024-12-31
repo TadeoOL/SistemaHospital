@@ -81,6 +81,3 @@ export const TreasuryAdministrationMovementsView = lazy(
 );
 export const BanksPurchasesView = lazy(() => import('@/features/treasury/banks/screens/BanksPurchases'));
 export const ConceptsView = lazy(() => import('@/features/treasury/concepts/screens/Concepts'));
-export const TreasuryAdministrationSafeBoxView = lazy(
-  () => import('@/features/treasury/administration/screens/TreasuryAdministrationSafeBox')
-);

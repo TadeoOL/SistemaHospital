@@ -31,9 +31,6 @@ interface IHandlers {
   closeAuthorizationModal: () => void;
   navigateToDeposits: () => void;
   navigateToMovements: () => void;
-  navigateToCashFlowAccount: () => void;
-  navigateToBankAccount: () => void;
-  navigateToSafeBox: () => void;
   createAuthorization: (data: AuthorizationSchema) => void;
 }
 interface IUseAdministration {
@@ -88,15 +85,6 @@ const useAdministration = (): IUseAdministration => {
     },
     navigateToMovements: () => {
       navigation('/tesoreria/direccion/movimientos');
-    },
-    navigateToCashFlowAccount: () => {
-      navigation('/tesoreria/revolvente/estado-de-cuenta');
-    },
-    navigateToBankAccount: () => {
-      navigation('/tesoreria/bancos/estado-de-cuenta');
-    },
-    navigateToSafeBox: () => {
-      navigation('/tesoreria/direccion/caja-fuerte');
     },
     createAuthorization: (data: AuthorizationSchema) => {
       createAuthorization(data, {
