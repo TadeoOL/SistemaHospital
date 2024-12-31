@@ -109,7 +109,7 @@ const Article = () => {
     },
     {
       header: 'Unidades por caja',
-      value: (row: any) => row.unidadesCaja ?? 'N/A',
+      value: (row: any) => ([0, null, undefined].includes(row.unidadesPorCaja) ? 'N/A' : row.unidadesPorCaja),
       sort: true,
     },
     {

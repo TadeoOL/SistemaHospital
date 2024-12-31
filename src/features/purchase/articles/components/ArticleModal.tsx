@@ -40,6 +40,7 @@ export const ArticleModal = (props: ArticleModalProps) => {
   const [factor, setFactor] = useState(true);
 
   const { article, isLoadingArticle } = useFetchArticle(itemId);
+  console.log('article:', article);
 
   useEffect(() => {
     setIsBox(!!article?.unidadesPorCaja);
@@ -287,7 +288,6 @@ export const ArticleModal = (props: ArticleModalProps) => {
               labelPlacement="start"
             />
           </Grid>
-
           <Grid item xs={12} md={6}>
             <InputBasic
               label="Unidades por Caja"

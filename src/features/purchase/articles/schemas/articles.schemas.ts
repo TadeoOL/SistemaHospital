@@ -4,6 +4,7 @@ export const addArticle = (hasApiUrl?: boolean) =>
   z.object({
     nombre: z.string().min(1, 'Escribe un nombre'),
     descripcion: z.string().nullable(),
+    unidadesPorCaja: z.string().nullable(),
     precioCompra: z
       .string()
       .nullable() // Permitir valores nulos
@@ -50,9 +51,7 @@ export const addArticle = (hasApiUrl?: boolean) =>
       codigoSAT: z
         .string({ invalid_type_error: 'Escribe un código SAT valido' })
         .min(1, 'Escribe un código SAT valido'),
-      codigoUnidadMedida: z
-        .number()
-        .min(1, 'Escribe un código de unidad de medida valido'),
+      codigoUnidadMedida: z.number().min(1, 'Escribe un código de unidad de medida valido'),
       //codigoProducto: z.string({ invalid_type_error: 'Escribe un código de producto valido' }).optional(),
       /*tipoProducto: z
         .number({ invalid_type_error: 'Selecciona un tipo de producto' })
